@@ -288,25 +288,28 @@ export default function Home() {
         </button>
       </aside>
 
-      {/* 상단 헤더 (모바일 반응형 높이 및 폰트 크기 최적화) */}
+      {/* 상단 헤더 (모바일 반응형 최적화) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
-          <a href="/" className="font-black text-lg sm:text-xl tracking-tight flex items-center gap-2">
-            <span className="text-blue-500 text-xl sm:text-2xl">⚡</span> 
-            <div><span>한밭중고전자</span><span className="block text-[10px] text-slate-400 font-normal">대전 중구 중촌동 · SINCE 1997</span></div>
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
+          <a href="/" className="font-black text-base sm:text-xl tracking-tight flex items-center gap-2 shrink-0 hover:opacity-80 transition">
+            <span className="text-blue-500 text-lg sm:text-2xl">⚡</span> 
+            <div>
+              <span className="whitespace-nowrap">한밭중고전자</span>
+              <span className="hidden sm:block text-[10px] text-slate-400 font-normal">대전 중구 중촌동 · SINCE 1997</span>
+            </div>
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-slate-300">
             <button onClick={() => scrollToSection("reviews-section")} className="hover:text-white transition">배송/설치 인증</button>
             <button onClick={() => scrollToSection("inquiry-section")} className="hover:text-white transition">간편상담안내</button>
           </nav>
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
-            <a href="/inquiry" className="bg-white hover:bg-slate-100 text-slate-900 text-xs font-extrabold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-1 border border-white">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
+            <a href="/inquiry" className="bg-white hover:bg-slate-100 text-slate-900 text-xs font-extrabold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-1 border border-white whitespace-nowrap">
               <span>📋</span><span>문의게시판</span>
             </a>
             <a href="http://pf.kakao.com/_XmyrX/chat" target="_blank" rel="noopener noreferrer" className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md hidden sm:inline-flex items-center gap-1">
               <img src="/kakao-logo.png" alt="카카오톡" className="w-4 h-4 object-contain rounded" /><span>카톡 견적문의</span>
             </a>
-            <a href="tel:042-523-8179" className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md">
+            <a href="tel:042-523-8179" className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md whitespace-nowrap">
               📞 042-523-8179
             </a>
           </div>
@@ -680,7 +683,6 @@ export default function Home() {
                         <span className="text-lg">💡</span> 빠르고 정확 매입 접수 가이드
                       </p>
                       
-                      {/* 누락된 이미지 파일 대신 깔끔한 안내 박스로 대체하여 깨짐 현상 방지 */}
                       <div className="rounded-xl overflow-hidden shadow-sm border border-blue-100 mb-4 bg-white p-4 sm:p-5 text-center">
                         <p className="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
                           📌 가전제품의 <span className="text-blue-600">정면, 측면, 내부(모델명 스티커)</span> 사진을 함께 첨부해 주시면 훨씬 빠르고 정확한 최고가 매입 견적 산출이 가능합니다!
