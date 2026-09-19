@@ -498,12 +498,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 오프라인 매장 소개 & 찾아오시는 길 섹션 (문구 세련되게 변경) */}
+      {/* 오프라인 매장 소개 & 찾아오시는 길 섹션 */}
       <section id="location-section" className="bg-white py-20 border-b border-slate-200 scroll-mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <span className="text-xs font-black text-[#0b4b8b] tracking-widest uppercase">Store Location</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">대전 최대 규모 중고가전 전문 매장</h2>
+            <h2 className="text-xl sm:text-3xl font-black text-slate-900 mt-1 break-keep">대전 최대 규모 중고가전 전문 매장</h2>
             <p className="text-sm text-slate-500 mt-2 break-keep px-4">직접 눈으로 보고 안심하고 거래할 수 있는 신뢰의 오프라인 본점입니다.</p>
           </div>
 

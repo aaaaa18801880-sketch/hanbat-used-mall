@@ -9,7 +9,6 @@ export default function InquiryPage() {
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState("");
 
-  // 문의 작성 폼 상태
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -151,7 +150,7 @@ export default function InquiryPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 relative flex flex-col">
-      {/* 상단 헤더 */}
+      {/* 상단 헤더 (상단 관리자 버튼 완전히 제거 및 줄바꿈 방지) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
           <a href="/" className="font-black text-base sm:text-xl tracking-tight flex items-center gap-2 shrink-0 hover:opacity-80 transition">
@@ -163,7 +162,7 @@ export default function InquiryPage() {
           </a>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
             <a href="/" className="bg-white hover:bg-slate-100 text-slate-900 text-xs font-extrabold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-1 border border-white whitespace-nowrap">
-              <span>🏠</span><span>메인 홈으로</span>
+              <span>🏠</span><span className="whitespace-nowrap">메인 홈으로</span>
             </a>
           </div>
         </div>
@@ -213,7 +212,7 @@ export default function InquiryPage() {
                     <span className="text-lg">💡</span> 빠르고 정확 매입 접수 가이드
                   </p>
                   <div className="rounded-xl overflow-hidden shadow-sm border border-blue-100 mb-4 bg-white p-4 text-center">
-                    <p className="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
+                    <p className="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed break-keep">
                       📌 가전제품의 <span className="text-blue-600">정면, 측면, 내부(모델명 스티커)</span> 사진을 함께 첨부해 주시면 훨씬 빠르고 정확한 최고가 매입 견적 산출이 가능합니다!
                     </p>
                   </div>
@@ -277,11 +276,11 @@ export default function InquiryPage() {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
               <div className="flex items-center gap-2">
                 <input type="checkbox" id="privacy" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="w-4 h-4 accent-[#0b4b8b] rounded cursor-pointer" />
-                <label htmlFor="privacy" className="text-xs text-slate-600 cursor-pointer font-medium">
+                <label htmlFor="privacy" className="text-xs text-slate-600 cursor-pointer font-medium break-keep">
                   <a href="/privacy" target="_blank" className="underline font-bold text-[#0b4b8b]">개인정보처리방침</a>에 동의합니다. (필수)
                 </label>
               </div>
-              <button type="submit" disabled={loading} className="w-full sm:w-auto min-w-[200px] bg-[#0b4b8b] hover:bg-[#093c70] text-white font-black py-4 px-8 rounded-xl transition shadow-md text-[15px]">
+              <button type="submit" disabled={loading} className="w-full sm:w-auto min-w-[200px] bg-[#0b4b8b] hover:bg-[#093c70] text-white font-black py-4 px-8 rounded-xl transition shadow-md text-[15px] whitespace-nowrap">
                 {loading ? "접수 처리 중..." : "이 내용으로 접수하기"}
               </button>
             </div>
@@ -312,7 +311,7 @@ export default function InquiryPage() {
                         {inq.status || '접수'}
                       </span>
                     </div>
-                    <h4 className="font-bold text-slate-900 text-sm sm:text-base">{inq.category}</h4>
+                    <h4 className="font-bold text-slate-900 text-sm sm:text-base break-keep">{inq.category}</h4>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-slate-400 whitespace-nowrap">
                     <span>{inq.is_notice ? inq.name : maskName(inq.name)}</span>
@@ -320,7 +319,7 @@ export default function InquiryPage() {
                     {isAdmin && (
                       <button 
                         onClick={(e) => handleDeleteInquiry(inq.id, e)} 
-                        className="bg-red-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold hover:bg-red-700 transition shadow-sm ml-2"
+                        className="bg-red-600 text-white px-2.5 py-1 rounded-lg text-xs font-bold hover:bg-red-700 transition shadow-sm ml-2 whitespace-nowrap"
                       >
                         삭제
                       </button>
@@ -333,7 +332,7 @@ export default function InquiryPage() {
         </div>
       </main>
 
-      {/* 푸터 */}
+      {/* 푸터 (하단 관리자 로그인 버튼 배치, whitespace-nowrap 적용) */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 pb-4 border-b border-slate-900 text-slate-300 font-bold">
@@ -345,7 +344,7 @@ export default function InquiryPage() {
             </div>
             <div className="text-slate-500 text-[11px] whitespace-nowrap">© 2026 한밭중고전자. All rights reserved.</div>
           </div>
-          <div className="space-y-1 text-slate-400 text-[11px] sm:text-xs leading-relaxed text-center sm:text-left">
+          <div className="space-y-1 text-slate-400 text-[11px] sm:text-xs leading-relaxed text-center sm:text-left break-keep">
             <p><strong className="text-slate-200">상호 :</strong> 한밭중고전자 &nbsp;|&nbsp; <strong className="text-slate-200">대표자 :</strong> 김영종 &nbsp;|&nbsp; <strong className="text-slate-200">주소 :</strong> 대전광역시 중구 중촌동 144</p>
             <p><strong className="text-slate-200">TEL :</strong> 042-523-8179 / 042-527-4888 &nbsp;|&nbsp; <strong className="text-slate-200">HP :</strong> 010-5406-8179 &nbsp;|&nbsp; <strong className="text-slate-200">사업자번호 :</strong> 314-01-70945 &nbsp;|&nbsp; <strong className="text-slate-200">통신판매신고번호 :</strong> 2011-대전서구-0292</p>
             <p className="text-slate-500">개인정보 보호책임자 : 김태현(sunny3815@naver.com)</p>
