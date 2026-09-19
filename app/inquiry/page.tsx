@@ -423,7 +423,6 @@ export default function InquiryBoardPage() {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans flex flex-col">
-      {/* 상단 헤더: 관리자 인증 버튼 완전히 제거, 줄바꿈 원천 방지 */}
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30 shadow-xs">
         <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between gap-2">
           <a href="/" className="font-black text-lg sm:text-xl text-slate-900 tracking-tight flex items-center gap-2 shrink-0">
@@ -624,7 +623,7 @@ export default function InquiryBoardPage() {
         </div>
       </section>
 
-      {/* 푸터 (하단 관리자 로그인 배치, 줄바꿈 완전 방지) */}
+      {/* 푸터 (하단 관리자 로그인 버튼 배치, 줄바꿈 완전 방지) */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-900 text-slate-300 font-bold">
