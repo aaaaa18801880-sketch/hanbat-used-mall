@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 
-// 갤러리 카드 컴포넌트
 const ReviewCard = ({ review, isAdmin, onDelete, onEnlarge }: any) => {
   const images = review.image_url ? review.image_url.split(',') : [];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -288,7 +287,7 @@ export default function Home() {
         </button>
       </aside>
 
-      {/* 상단 헤더 (모바일 반응형 최적화) */}
+      {/* 상단 헤더 (관리자 버튼 제거) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
           <a href="/" className="font-black text-base sm:text-xl tracking-tight flex items-center gap-2 shrink-0 hover:opacity-80 transition">
@@ -316,7 +315,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 메인 히어로 섹션 */}
+      {/* 메인 히어로 섹션 (모바일 버튼 완벽 중앙 정렬) */}
       <section className="relative w-full min-h-[100svh] lg:min-h-[750px] flex items-center justify-center overflow-hidden border-b border-slate-800 pt-20 lg:pt-0">
         <div className="absolute inset-0 overflow-hidden">
           <div 
@@ -363,45 +362,16 @@ export default function Home() {
             <span className="text-[#3b82f6] drop-shadow-[0_0_12px_rgba(59,130,246,0.5)]">최저가</span>로 판매합니다!
           </h1>
 
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 w-full justify-center">
-            <button onClick={() => scrollToSection("reviews-section")} className="group w-full sm:w-auto flex-1 min-w-[180px] max-w-[280px] bg-white text-slate-900 font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 w-full items-center justify-center">
+            <button onClick={() => scrollToSection("reviews-section")} className="group w-full sm:w-auto min-w-[220px] max-w-[280px] bg-white text-slate-900 font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5 mx-auto">
               <span className="text-xl group-hover:scale-110 transition-transform">📸</span><span>배송·설치 후기</span>
             </button>
-            <a href="http://pf.kakao.com/_XmyrX/chat" target="_blank" rel="noopener noreferrer" className="group w-full sm:w-auto flex-1 min-w-[180px] max-w-[280px] bg-[#FEE500] text-slate-900 font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5">
+            <a href="http://pf.kakao.com/_XmyrX/chat" target="_blank" rel="noopener noreferrer" className="group w-full sm:w-auto min-w-[220px] max-w-[280px] bg-[#FEE500] text-slate-900 font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5 mx-auto">
               <img src="/kakao-logo.png" alt="카톡" className="w-5 h-5 sm:w-6 sm:h-6 object-contain group-hover:scale-110 transition-transform" /><span>카톡 견적 문의</span>
             </a>
-            <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="group w-full sm:w-auto flex-1 min-w-[180px] max-w-[280px] bg-[#03C75A] text-white font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5">
+            <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="group w-full sm:w-auto min-w-[220px] max-w-[280px] bg-[#03C75A] text-white font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5 mx-auto">
               <img src="/naver-cafe.png" alt="카페" className="w-5 h-5 sm:w-6 sm:h-6 object-contain bg-white rounded p-0.5 group-hover:scale-110 transition-transform" /><span>제품 확인 카페</span>
             </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 하단 배너 */}
-      <section className="bg-[#0b4b8b] text-white py-6 sm:py-7 px-4 shadow-lg relative z-20 border-t border-blue-900">
-        <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4 text-center lg:text-left">
-          <div>
-            <h3 className="text-base sm:text-lg font-black tracking-wide flex items-center justify-center lg:justify-start gap-2">
-              <span className="bg-white/20 px-2.5 py-0.5 rounded text-xs font-bold text-blue-100">한밭 약속</span>
-              무료 방문 · 무료 견적 · 추가 비용 걱정 없습니다!
-            </h3>
-            <p className="text-xs sm:text-sm text-blue-100 mt-1 font-medium">
-              30년 전통의 노하우로 합리적인 가격과 투명한 일처리를 약속드립니다.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 text-xs sm:text-sm font-bold">
-            <div className="flex items-center gap-1.5 bg-white/10 px-3.5 py-2 rounded-xl border border-white/10">
-              <span className="text-emerald-400 font-black">✓</span> 철저한 세척·점검
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 px-3.5 py-2 rounded-xl border border-white/10">
-              <span className="text-emerald-400 font-black">✓</span> 무료 방문·견적
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 px-3.5 py-2 rounded-xl border border-white/10">
-              <span className="text-emerald-400 font-black">✓</span> 안전 배달·설치
-            </div>
-            <div className="flex items-center gap-1.5 bg-white/10 px-3.5 py-2 rounded-xl border border-white/10">
-              <span className="text-emerald-400 font-black">✓</span> 즉시 계좌입금
-            </div>
           </div>
         </div>
       </section>
@@ -528,13 +498,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 오프라인 매장 소개 & 찾아오시는 길 섹션 */}
+      {/* 오프라인 매장 소개 & 찾아오시는 길 섹션 (문구 세련되게 변경) */}
       <section id="location-section" className="bg-white py-20 border-b border-slate-200 scroll-mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <span className="text-xs font-black text-[#0b4b8b] tracking-widest uppercase">Store Location</span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">30년 전통 오프라인 본점</h2>
-            <p className="text-sm text-slate-500 mt-2 break-keep px-4">직접 눈으로 보고 안심하고 거래할 수 있는 대전 최대 규모의 중고가전 매장입니다.</p>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">대전 최대 규모 중고가전 전문 매장</h2>
+            <p className="text-sm text-slate-500 mt-2 break-keep px-4">직접 눈으로 보고 안심하고 거래할 수 있는 신뢰의 오프라인 본점입니다.</p>
           </div>
 
           <div className="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden flex flex-col lg:flex-row">
@@ -896,25 +866,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 푸터 */}
+      {/* 푸터 (whitespace-nowrap으로 줄바꿈 깨짐 완전 방지) */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-900 text-slate-300 font-bold">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 pb-4 border-b border-slate-900 text-slate-300 font-bold">
+            <div className="flex flex-wrap items-center justify-center gap-3 whitespace-nowrap">
               <a href="/privacy" target="_blank" className="hover:text-white transition">개인정보처리방침</a><span>|</span>
               <button onClick={() => scrollToSection("location-section")} className="hover:text-white transition">오시는 길</button><span>|</span>
               <a href="http://pf.kakao.com/_XmyrX" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-yellow-400">카카오채널</a><span>|</span>
               <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-emerald-400">제품 확인 카페</a>
             </div>
-            <div className="text-slate-500 text-[11px]">© 2026 한밭중고전자. All rights reserved.</div>
+            <div className="text-slate-500 text-[11px] whitespace-nowrap">© 2026 한밭중고전자. All rights reserved.</div>
           </div>
-          <div className="space-y-1 text-slate-400 text-[11px] sm:text-xs leading-relaxed">
+          <div className="space-y-1 text-slate-400 text-[11px] sm:text-xs leading-relaxed text-center sm:text-left">
             <p><strong className="text-slate-200">상호 :</strong> 한밭중고전자 &nbsp;|&nbsp; <strong className="text-slate-200">대표자 :</strong> 김영종 &nbsp;|&nbsp; <strong className="text-slate-200">주소 :</strong> 대전광역시 중구 중촌동 144</p>
             <p><strong className="text-slate-200">TEL :</strong> 042-523-8179 / 042-527-4888 &nbsp;|&nbsp; <strong className="text-slate-200">HP :</strong> 010-5406-8179 &nbsp;|&nbsp; <strong className="text-slate-200">사업자번호 :</strong> 314-01-70945 &nbsp;|&nbsp; <strong className="text-slate-200">통신판매신고번호 :</strong> 2011-대전서구-0292</p>
             <p className="text-slate-500">개인정보 보호책임자 : 김태현(sunny3815@naver.com)</p>
           </div>
-          <div className="pt-4 border-t border-slate-900 flex justify-end">
-            <button onClick={() => isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true)} className="text-slate-600 hover:text-slate-400 transition underline text-[11px]">
+          <div className="pt-4 border-t border-slate-900 flex justify-center sm:justify-end">
+            <button onClick={() => isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true)} className="text-slate-600 hover:text-slate-400 transition underline text-[11px] whitespace-nowrap">
               {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
             </button>
           </div>
