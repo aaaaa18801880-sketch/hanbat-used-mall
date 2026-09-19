@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../lib/supabase";
 
 export default function InquiryPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -150,17 +150,17 @@ export default function InquiryPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 relative flex flex-col">
-      {/* 상단 헤더 (상단 관리자 버튼 완전히 제거 및 줄바꿈 방지) */}
+      {/* 상단 헤더 (관리자 버튼 완전 제거 및 줄바꿈 방지) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
-          <a href="/" className="font-black text-base sm:text-xl tracking-tight flex items-center gap-2 shrink-0 hover:opacity-80 transition">
-            <span className="text-blue-500 text-lg sm:text-2xl">⚡</span> 
-            <div>
-              <span className="whitespace-nowrap">한밭중고전자</span>
+        <div className="max-w-7xl mx-auto px-3 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
+          <a href="/" className="font-black text-sm sm:text-xl tracking-tight flex items-center gap-1.5 shrink-0 hover:opacity-80 transition">
+            <span className="text-blue-500 text-base sm:text-2xl">⚡</span> 
+            <div className="whitespace-nowrap">
+              <span className="text-sm sm:text-xl font-black whitespace-nowrap">한밭중고전자</span>
               <span className="hidden sm:block text-[10px] text-slate-400 font-normal">대전 중구 중촌동 · SINCE 1997</span>
             </div>
           </a>
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
+          <div className="flex items-center gap-1.5 shrink-0">
             <a href="/" className="bg-white hover:bg-slate-100 text-slate-900 text-xs font-extrabold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-1 border border-white whitespace-nowrap">
               <span>🏠</span><span className="whitespace-nowrap">메인 홈으로</span>
             </a>
@@ -332,15 +332,18 @@ export default function InquiryPage() {
         </div>
       </main>
 
-      {/* 푸터 (하단 관리자 로그인 버튼 배치, whitespace-nowrap 적용) */}
+      {/* 푸터 (하단 관리자 로그인 배치 및 링크 줄바꿈 방지) */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 pb-4 border-b border-slate-900 text-slate-300 font-bold">
-            <div className="flex flex-wrap items-center justify-center gap-3 whitespace-nowrap">
-              <a href="/privacy" target="_blank" className="hover:text-white transition">개인정보처리방침</a><span>|</span>
-              <a href="/#location-section" className="hover:text-white transition">오시는 길</a><span>|</span>
-              <a href="http://pf.kakao.com/_XmyrX" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-yellow-400">카카오채널</a><span>|</span>
-              <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-emerald-400">제품 확인 카페</a>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              <a href="/privacy" target="_blank" className="hover:text-white transition whitespace-nowrap">개인정보처리방침</a>
+              <span className="text-slate-600">|</span>
+              <a href="/#location-section" className="hover:text-white transition whitespace-nowrap">오시는 길</a>
+              <span className="text-slate-600">|</span>
+              <a href="http://pf.kakao.com/_XmyrX" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-yellow-400 whitespace-nowrap">카카오채널</a>
+              <span className="text-slate-600">|</span>
+              <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-emerald-400 whitespace-nowrap">제품 확인 카페</a>
             </div>
             <div className="text-slate-500 text-[11px] whitespace-nowrap">© 2026 한밭중고전자. All rights reserved.</div>
           </div>
