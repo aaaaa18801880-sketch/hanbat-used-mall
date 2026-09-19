@@ -49,21 +49,19 @@ export default function Home() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
 
-  // 🟢 여기에 아래 코드를 복사해서 붙여넣으세요 🟢
   const bgImages = [
     '/main-bg.png', 
-    '/main-bg2.png', // ⚠️ 나중에 두 번째 사진을 구하시면 '/main-bg2.png' 등으로 이름만 바꾸시면 됩니다.
-    '/main-bg3.png'  // ⚠️ 나중에 세 번째 사진을 구하시면 '/main-bg3.png' 등으로 이름만 바꾸시면 됩니다.
+    '/main-bg2.png', 
+    '/main-bg3.png'
   ];
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentBgIndex((prev) => (prev === bgImages.length - 1 ? 0 : prev + 1));
-    }, 5000); // 5초마다 배경 변경
+    }, 5000);
     return () => clearInterval(timer);
   }, []);
-  // 🟢 여기까지 🟢
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
@@ -290,35 +288,33 @@ export default function Home() {
         </button>
       </aside>
 
-      {/* 상단 헤더 */}
+      {/* 상단 헤더 (모바일 반응형 높이 및 폰트 크기 최적화) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-          <a href="/" className="font-black text-xl tracking-tight flex items-center gap-2">
-            <span className="text-blue-500 text-2xl">⚡</span> 
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
+          <a href="/" className="font-black text-lg sm:text-xl tracking-tight flex items-center gap-2">
+            <span className="text-blue-500 text-xl sm:text-2xl">⚡</span> 
             <div><span>한밭중고전자</span><span className="block text-[10px] text-slate-400 font-normal">대전 중구 중촌동 · SINCE 1997</span></div>
           </a>
           <nav className="hidden md:flex items-center gap-6 text-sm font-bold text-slate-300">
             <button onClick={() => scrollToSection("reviews-section")} className="hover:text-white transition">배송/설치 인증</button>
             <button onClick={() => scrollToSection("inquiry-section")} className="hover:text-white transition">간편상담안내</button>
           </nav>
-          <div className="flex items-center gap-2">
-            <a href="/inquiry" className="bg-white hover:bg-slate-100 text-slate-900 text-xs sm:text-sm font-extrabold px-4 py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-1.5 border border-white">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
+            <a href="/inquiry" className="bg-white hover:bg-slate-100 text-slate-900 text-xs font-extrabold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md inline-flex items-center gap-1 border border-white">
               <span>📋</span><span>문의게시판</span>
             </a>
-            <a href="http://pf.kakao.com/_XmyrX/chat" target="_blank" rel="noopener noreferrer" className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition shadow-md hidden sm:inline-flex items-center gap-1.5">
+            <a href="http://pf.kakao.com/_XmyrX/chat" target="_blank" rel="noopener noreferrer" className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md hidden sm:inline-flex items-center gap-1">
               <img src="/kakao-logo.png" alt="카카오톡" className="w-4 h-4 object-contain rounded" /><span>카톡 견적문의</span>
             </a>
-            <a href="tel:042-523-8179" className="bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition shadow-md">
+            <a href="tel:042-523-8179" className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md">
               📞 042-523-8179
             </a>
           </div>
         </div>
       </header>
 
-{/* ✅ 메인 히어로 섹션 (고객센터 박스 제거 및 완벽한 중앙 정렬 버전) */}
+      {/* 메인 히어로 섹션 */}
       <section className="relative w-full min-h-[100svh] lg:min-h-[750px] flex items-center justify-center overflow-hidden border-b border-slate-800 pt-20 lg:pt-0">
-        
-        {/* 배경 슬라이드를 감싸는 부모 컨테이너 */}
         <div className="absolute inset-0 overflow-hidden">
           <div 
             className="absolute inset-y-0 left-0 flex transition-transform duration-700 ease-in-out" 
@@ -342,7 +338,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 하단 슬라이드 인디케이터 (현재 몇 번째 사진인지 표시) */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
           {bgImages.map((_, idx) => (
             <button 
@@ -354,7 +349,6 @@ export default function Home() {
           ))}
         </div>
 
-        {/* 메인 텍스트 및 버튼 콘텐츠 (정중앙 배치) */}
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 w-full flex flex-col items-center text-center pb-16 lg:pb-0">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 backdrop-blur-md mb-6 sm:mb-8 shadow-sm">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
@@ -380,7 +374,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ 하단 배너 */}
+      {/* 하단 배너 */}
       <section className="bg-[#0b4b8b] text-white py-6 sm:py-7 px-4 shadow-lg relative z-20 border-t border-blue-900">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4 text-center lg:text-left">
           <div>
@@ -409,7 +403,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ 복구된 진행 과정 섹션 */}
+      {/* 진행 과정 섹션 */}
       <section className="bg-white py-20 border-b border-slate-200 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-16">
@@ -531,9 +525,7 @@ export default function Home() {
         </div>
       </section>
 
-{/* ========================================================= */}
-      {/* ✅ 2번 과제: 오프라인 매장 소개 & 찾아오시는 길 섹션 신설 */}
-      {/* ========================================================= */}
+      {/* 오프라인 매장 소개 & 찾아오시는 길 섹션 */}
       <section id="location-section" className="bg-white py-20 border-b border-slate-200 scroll-mt-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
@@ -543,7 +535,6 @@ export default function Home() {
           </div>
 
           <div className="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden flex flex-col lg:flex-row">
-            {/* 왼쪽: 지도 영역 (구글 지도 삽입) */}
             <div className="lg:w-1/2 h-[350px] sm:h-[450px] lg:h-auto relative bg-slate-100 border-b lg:border-b-0 lg:border-r border-slate-200">
               <iframe 
                 src="https://maps.google.com/maps?q=대전광역시%20중구%20중촌동%20144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
@@ -554,7 +545,6 @@ export default function Home() {
               ></iframe>
             </div>
 
-            {/* 오른쪽: 매장 정보 영역 */}
             <div className="lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
               <div className="inline-flex items-center gap-2 bg-blue-50 text-[#0b4b8b] px-3 py-1.5 rounded-lg text-xs font-bold w-fit mb-5 border border-blue-100">
                 <span className="relative flex h-2 w-2">
@@ -592,7 +582,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 네이버/카카오 연동 버튼 */}
               <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
                 <a href="https://naver.me/F5DkWQ4z" target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#03C75A] hover:bg-[#02b351] text-white text-center py-3.5 rounded-xl font-bold transition shadow-sm text-sm flex items-center justify-center gap-1.5">
                   네이버 지도로 보기
@@ -691,8 +680,11 @@ export default function Home() {
                         <span className="text-lg">💡</span> 빠르고 정확 매입 접수 가이드
                       </p>
                       
-                      <div className="rounded-xl overflow-hidden shadow-sm border border-blue-100 mb-4 bg-white">
-                        <img src="/매입 안내문.png" alt="매입 안내문" className="w-full h-auto object-contain" />
+                      {/* 누락된 이미지 파일 대신 깔끔한 안내 박스로 대체하여 깨짐 현상 방지 */}
+                      <div className="rounded-xl overflow-hidden shadow-sm border border-blue-100 mb-4 bg-white p-4 sm:p-5 text-center">
+                        <p className="text-xs sm:text-sm font-bold text-slate-700 leading-relaxed">
+                          📌 가전제품의 <span className="text-blue-600">정면, 측면, 내부(모델명 스티커)</span> 사진을 함께 첨부해 주시면 훨씬 빠르고 정확한 최고가 매입 견적 산출이 가능합니다!
+                        </p>
                       </div>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border border-blue-100">
@@ -848,7 +840,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ✅ 복구된 하단 배너 (제품확인카페, 카카오톡 채널) */}
+      {/* 하단 배너 */}
       <section className="max-w-7xl mx-auto px-4 pb-16 grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
         <div className="bg-emerald-50 border border-emerald-200/80 p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xs">
           <div className="flex items-center gap-4 text-center sm:text-left">
@@ -883,7 +875,7 @@ export default function Home() {
         </div>
       </section>
 
-{/* ✅ 하단 SEO 및 로컬 검색 최적화 블록 */}
+      {/* SEO 및 로컬 검색 최적화 블록 */}
       <section className="bg-slate-100 py-10 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 text-center sm:text-left">
           <h3 className="text-xs font-black text-slate-500 mb-2">
@@ -893,7 +885,6 @@ export default function Home() {
             한밭중고전자는 30년 이상의 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다. 전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스를 제공합니다. 가정용 중고가전부터 식당·카페·사업장의 업소용 주방기기까지 판매, 매입, 대량 거래를 한 곳에서 상담받을 수 있습니다.
           </p>
 
-          {/* 🚨 고객 눈에는 절대 안 보이고(sr-only), 검색 로봇만 읽어가는 74개 핵심 키워드 🚨 */}
           <div className="sr-only">
             전국중고가전, 중고가전, 중고전자제품, 중고가전판매, 중고가전매입, 중고가전매장, 중고가전쇼핑몰, 중고가전전문점, 중고가전전문업체, 중고가전전국배송, 중고가전전국판매, 중고가전전국매입, 중고가전배송, 중고가전설치, 중고가전직거래, 중고가전대량판매, 중고가전대량매입, 중고전자제품판매, 중고전자제품매입, 중고제품판매, 
             중고냉장고, 중고김치냉장고, 중고세탁기, 중고건조기, 중고에어컨, 중고냉난방기, 중고TV, 중고전자레인지, 중고가전제품, 중고가정용가전, 중고4도어냉장고, 중고스탠드냉장고, 중고양문형냉장고, 중고드럼세탁기, 중고통돌이세탁기, 중고벽걸이에어컨, 중고스탠드에어컨, 중고시스템에어컨, 

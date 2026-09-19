@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// ⚠️ 경로 주의: lib 폴더가 최상위(루트)에 있다면 '../../lib/supabase' 가 맞습니다.
 import { supabase } from "../../lib/supabase";
 
-// ✅ 메인 화면과 동일한 다중 이미지 슬라이드 카드
+// 갤러리 카드 컴포넌트
 const ReviewCard = ({ review, isAdmin, onDelete, onEnlarge }: any) => {
   const images = review.image_url ? review.image_url.split(',') : [];
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -60,19 +59,16 @@ const ReviewCard = ({ review, isAdmin, onDelete, onEnlarge }: any) => {
 export default function GalleryPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   
-  // ✅ 갤러리 페이지용 관리자 인증 상태
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState("");
 
-  // 관리자 업로드용 상태
   const [isReviewUploadOpen, setIsReviewUploadOpen] = useState(false);
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewFiles, setReviewFiles] = useState<File[]>([]); 
   const [reviewPreviews, setReviewPreviews] = useState<string[]>([]);
   const [uploadingReview, setUploadingReview] = useState(false);
 
-  // 갤러리 확대 모달용 상태
   const [enlargedReview, setEnlargedReview] = useState<any | null>(null);
   const [enlargedIndex, setEnlargedIndex] = useState(0);
 
@@ -92,7 +88,6 @@ export default function GalleryPage() {
     fetchData();
   }, []);
 
-  // ✅ 갤러리 페이지용 관리자 인증 및 로그아웃 핸들러
   const handleAdminAuth = (e: React.FormEvent) => {
     e.preventDefault();
     if (adminPinInput === "8179") {
@@ -188,21 +183,22 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 relative flex flex-col">
       
-      {/* 헤더 */}
+      {/* 상단 헤더 (모바일 반응형 최적화) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0">
           <a href="/" className="font-black text-lg sm:text-xl tracking-tight flex items-center gap-2 hover:opacity-80 transition">
             <span className="text-blue-500 text-xl sm:text-2xl">⚡</span> 
             <div>
               <span>한밭중고전자</span>
+              <span className="block text-[10px] text-slate-400 font-normal">대전 중구 중촌동 · SINCE 1997</span>
             </div>
           </a>
-          <div className="flex items-center gap-3">
-            <a href="/#inquiry-section" className="bg-[#0b4b8b] hover:bg-blue-800 text-white text-xs sm:text-sm font-bold px-4 py-2 sm:py-2.5 rounded-lg transition shadow-md hidden sm:block">
+          <div className="flex items-center gap-2">
+            <a href="/#inquiry-section" className="bg-[#0b4b8b] hover:bg-blue-800 text-white text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md">
               견적/상담 신청
             </a>
-            <a href="/" className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-bold px-4 py-2 sm:py-2.5 rounded-lg transition border border-slate-700 flex items-center gap-1.5">
-              <span>🏠</span> <span className="hidden sm:inline">메인으로 돌아가기</span>
+            <a href="/" className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition border border-slate-700 flex items-center gap-1">
+              <span>🏠</span> <span>메인으로</span>
             </a>
           </div>
         </div>
@@ -250,7 +246,7 @@ export default function GalleryPage() {
         )}
       </section>
 
-{/* ✅ 하단 SEO 및 로컬 검색 최적화 블록 */}
+      {/* SEO 및 로컬 검색 최적화 블록 */}
       <section className="bg-slate-100 py-10 border-t border-slate-200">
         <div className="max-w-7xl mx-auto px-4 text-center sm:text-left">
           <h3 className="text-xs font-black text-slate-500 mb-2">
@@ -260,7 +256,6 @@ export default function GalleryPage() {
             한밭중고전자는 30년 이상의 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다. 전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스를 제공합니다. 가정용 중고가전부터 식당·카페·사업장의 업소용 주방기기까지 판매, 매입, 대량 거래를 한 곳에서 상담받을 수 있습니다.
           </p>
 
-          {/* 🚨 고객 눈에는 절대 안 보이고(sr-only), 검색 로봇만 읽어가는 74개 핵심 키워드 🚨 */}
           <div className="sr-only">
             전국중고가전, 중고가전, 중고전자제품, 중고가전판매, 중고가전매입, 중고가전매장, 중고가전쇼핑몰, 중고가전전문점, 중고가전전문업체, 중고가전전국배송, 중고가전전국판매, 중고가전전국매입, 중고가전배송, 중고가전설치, 중고가전직거래, 중고가전대량판매, 중고가전대량매입, 중고전자제품판매, 중고전자제품매입, 중고제품판매, 
             중고냉장고, 중고김치냉장고, 중고세탁기, 중고건조기, 중고에어컨, 중고냉난방기, 중고TV, 중고전자레인지, 중고가전제품, 중고가정용가전, 중고4도어냉장고, 중고스탠드냉장고, 중고양문형냉장고, 중고드럼세탁기, 중고통돌이세탁기, 중고벽걸이에어컨, 중고스탠드에어컨, 중고시스템에어컨, 
@@ -270,7 +265,7 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* ✅ 메인 홈페이지와 완벽히 동일한 상세 푸터 */}
+      {/* 푸터 */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-900 text-slate-300 font-bold">
