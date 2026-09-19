@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// ⚠️ 경로 주의: lib 폴더가 루트에 있다면 '../../lib/supabase' 로 맞춰주세요.
 import { supabase } from "../../lib/supabase";
 
 export default function InquiryBoardPage() {
@@ -43,7 +42,7 @@ export default function InquiryBoardPage() {
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminPinInput, setAdminPinInput] = useState("");
 
-  // ✅ 추가: 관리자 답변 상태
+  // 관리자 답변 상태
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
@@ -154,8 +153,6 @@ export default function InquiryBoardPage() {
     setSelectedItem(item);
     setInputPw("");
     setShowVerifyPassword(false);
-    
-    // ✅ 모달 열릴 때 기존에 달린 답변 내용 세팅
     setReplyContent(item.admin_reply || ""); 
 
     if (item.is_notice || isAdmin) {
@@ -177,7 +174,6 @@ export default function InquiryBoardPage() {
     }
   };
 
-  // ✅ 추가: 관리자 다이렉트 답변 작성 핸들러
   const handleReplySubmit = async () => {
     if (!selectedItem) return;
     if (!replyContent.trim()) return alert("답변 내용을 입력해 주세요.");
@@ -195,7 +191,6 @@ export default function InquiryBoardPage() {
       if (error) throw error;
       alert("답변이 성공적으로 등록되었습니다.");
       
-      // 로컬 상태 즉시 반영
       setSelectedItem({ ...selectedItem, status: '답변완료', admin_reply: replyContent });
       setInquiries((prev) => 
         prev.map((item) => 
@@ -217,6 +212,7 @@ export default function InquiryBoardPage() {
         sessionStorage.setItem("isAdmin", "true");
       }
       setIsAdminAuthModalOpen(false);
+      setAdminPinInput("");
       alert("관리자 모드가 활성화되었습니다.");
     } else {
       alert("관리자 비밀번호가 일치하지 않습니다.");
@@ -427,38 +423,32 @@ export default function InquiryBoardPage() {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans flex flex-col">
+      {/* 상단 헤더: 관리자 인증 버튼 완전히 제거, 줄바꿈 원천 방지 */}
       <header className="border-b border-slate-200 bg-white sticky top-0 z-30 shadow-xs">
-        <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between">
-          <a href="/" className="font-black text-xl text-slate-900 tracking-tight flex items-center gap-2">
-            <span className="text-[#0b4b8b] text-2xl">⚡</span>
-            <span>한밭중고전자</span>
+        <div className="max-w-6xl mx-auto px-4 h-20 flex items-center justify-between gap-2">
+          <a href="/" className="font-black text-lg sm:text-xl text-slate-900 tracking-tight flex items-center gap-2 shrink-0">
+            <span className="text-[#0b4b8b] text-xl sm:text-2xl">⚡</span>
+            <span className="whitespace-nowrap">한밭중고전자</span>
           </a>
 
-          <div className="flex items-center gap-3">
-            {isAdmin ? (
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {isAdmin && (
               <button
                 onClick={handleAdminLogout}
-                className="bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-red-100 transition"
+                className="bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-red-100 transition whitespace-nowrap"
                 title="클릭하여 관리자 모드 종료"
               >
                 관리자 모드 ON
               </button>
-            ) : (
-              <button
-                onClick={() => setIsAdminAuthModalOpen(true)}
-                className="text-xs text-slate-400 hover:text-slate-700 underline"
-              >
-                관리자 인증
-              </button>
             )}
 
-            <a href="/" className="text-xs sm:text-sm font-bold text-slate-600 hover:text-[#0b4b8b] transition px-2 py-1">
+            <a href="/" className="text-xs sm:text-sm font-bold text-slate-600 hover:text-[#0b4b8b] transition px-2 py-1 whitespace-nowrap">
               메인 홈으로
             </a>
 
             <button
               onClick={handleOpenWrite}
-              className="bg-[#0b4b8b] hover:bg-[#093c70] text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg transition shadow-sm"
+              className="bg-[#0b4b8b] hover:bg-[#093c70] text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-lg transition shadow-sm whitespace-nowrap"
             >
               글쓰기
             </button>
@@ -471,12 +461,12 @@ export default function InquiryBoardPage() {
           <h1 className="text-3xl sm:text-4xl font-black text-[#0b4b8b]">문의 게시판</h1>
         </div>
 
-        <div className="flex items-center border-b border-slate-200 mb-8 gap-8 text-sm sm:text-base font-bold">
+        <div className="flex items-center border-b border-slate-200 mb-8 gap-8 text-sm sm:text-base font-bold overflow-x-auto whitespace-nowrap">
           {["전체", "구매문의", "내 물건팔기"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`pb-3 transition relative ${
+              className={`pb-3 transition relative shrink-0 ${
                 activeTab === tab
                   ? "text-[#0b4b8b] border-b-2 border-[#0b4b8b]"
                   : "text-slate-400 hover:text-slate-700"
@@ -493,22 +483,22 @@ export default function InquiryBoardPage() {
           </div>
           <button
             onClick={handleOpenWrite}
-            className="bg-[#0b4b8b] hover:bg-[#093c70] text-white font-bold px-4 py-2 rounded text-xs transition shadow-xs"
+            className="bg-[#0b4b8b] hover:bg-[#093c70] text-white font-bold px-4 py-2 rounded text-xs transition shadow-xs whitespace-nowrap"
           >
             글쓰기
           </button>
         </div>
 
         <div className="overflow-x-auto border-t border-slate-200">
-          <table className="w-full text-center border-collapse text-xs sm:text-sm">
+          <table className="w-full text-center border-collapse text-xs sm:text-sm min-w-[600px]">
             <thead>
               <tr className="bg-[#0b4b8b] text-white font-bold h-14">
-                <th className="w-20 py-3">번호</th>
-                <th className="w-28 py-3">구분</th>
+                <th className="w-20 py-3 whitespace-nowrap">번호</th>
+                <th className="w-28 py-3 whitespace-nowrap">구분</th>
                 <th className="py-3 px-4 text-left">제목</th>
-                <th className="w-28 py-3">답변여부</th>
-                <th className="w-24 py-3">작성자</th>
-                <th className="w-24 py-3">날짜</th>
+                <th className="w-28 py-3 whitespace-nowrap">답변여부</th>
+                <th className="w-24 py-3 whitespace-nowrap">작성자</th>
+                <th className="w-24 py-3 whitespace-nowrap">날짜</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -520,28 +510,28 @@ export default function InquiryBoardPage() {
                     onClick={() => handleItemClick(notice)}
                     className="bg-red-50/40 hover:bg-red-50/70 transition h-14 cursor-pointer font-bold border-b border-red-100"
                   >
-                    <td className="py-3 text-red-600">
+                    <td className="py-3 text-red-600 whitespace-nowrap">
                       <span className="bg-red-600 text-white text-[11px] px-2 py-0.5 rounded-full shadow-2xs">공지</span>
                     </td>
-                    <td className="py-3">
-                      <span className="bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded text-xs">
+                    <td className="py-3 whitespace-nowrap">
+                      <span className="bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded text-xs whitespace-nowrap">
                         공지사항
                       </span>
                     </td>
                     <td className="py-3 px-4 text-left text-slate-900 font-black">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-base">📢</span>
-                        <span className="truncate max-w-md hover:underline">{notice.category}</span>
+                      <div className="flex items-center gap-1.5 break-keep">
+                        <span className="text-base shrink-0">📢</span>
+                        <span className="truncate hover:underline">{notice.category}</span>
                         {hasImages && (
-                          <span className="text-slate-400 text-sm opacity-80" title="사진 첨부됨">
+                          <span className="text-slate-400 text-sm opacity-80 shrink-0" title="사진 첨부됨">
                             🖼️
                           </span>
                         )}
                       </div>
                     </td>
-                    <td className="py-3 text-slate-400 font-normal">-</td>
-                    <td className="py-3 text-red-700 font-bold">{notice.name}</td>
-                    <td className="py-3 text-slate-500 font-normal">{formatDate(notice.created_at)}</td>
+                    <td className="py-3 text-slate-400 font-normal whitespace-nowrap">-</td>
+                    <td className="py-3 text-red-700 font-bold whitespace-nowrap">{notice.name}</td>
+                    <td className="py-3 text-slate-500 font-normal whitespace-nowrap">{formatDate(notice.created_at)}</td>
                   </tr>
                 );
               })}
@@ -566,10 +556,10 @@ export default function InquiryBoardPage() {
                       onClick={() => handleItemClick(item)}
                       className="hover:bg-slate-50 transition h-14 cursor-pointer"
                     >
-                      <td className="py-3 text-slate-400">{filteredRegularList.length - index}</td>
-                      <td className="py-3">
+                      <td className="py-3 text-slate-400 whitespace-nowrap">{filteredRegularList.length - index}</td>
+                      <td className="py-3 whitespace-nowrap">
                         <span
-                          className={`inline-block px-3 py-1 rounded-md text-xs font-semibold ${
+                          className={`inline-block px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${
                             isSell
                               ? "bg-[#e8f3fc] text-[#026bb4]"
                               : "bg-indigo-50 text-indigo-700"
@@ -579,31 +569,31 @@ export default function InquiryBoardPage() {
                         </span>
                       </td>
                       <td className="py-3 px-4 text-left font-medium text-slate-800">
-                        <div className="flex items-center gap-1.5">
-                          {!isAdmin && <span className="text-slate-400 text-sm">🔒</span>}
-                          <span className="truncate max-w-md hover:text-[#0b4b8b]">
+                        <div className="flex items-center gap-1.5 break-keep">
+                          {!isAdmin && <span className="text-slate-400 text-sm shrink-0">🔒</span>}
+                          <span className="truncate hover:text-[#0b4b8b]">
                             {item.category || item.description || "문의드립니다."}
                           </span>
                           {hasImages && (
-                            <span className="text-slate-400 text-sm opacity-80" title="사진 첨부됨">
+                            <span className="text-slate-400 text-sm opacity-80 shrink-0" title="사진 첨부됨">
                               🖼️
                             </span>
                           )}
                         </div>
                       </td>
-                      <td className="py-3">
+                      <td className="py-3 whitespace-nowrap">
                         <span
-                          className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold ${
+                          className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold whitespace-nowrap ${
                             item.status === '답변완료' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
                           }`}
                         >
                           {item.status || "접수"}
                         </span>
                       </td>
-                      <td className="py-3 text-slate-600">
+                      <td className="py-3 text-slate-600 whitespace-nowrap">
                         {maskName(item.name)}
                       </td>
-                      <td className="py-3 text-slate-500">
+                      <td className="py-3 text-slate-500 whitespace-nowrap">
                         {formatDate(item.created_at)}
                       </td>
                     </tr>
@@ -615,7 +605,7 @@ export default function InquiryBoardPage() {
         </div>
       </main>
 
-      {/* ✅ 문의 게시판에도 보이지 않는 SEO 최적화 블록(sr-only) 새로 추가! */}
+      {/* SEO 최적화 블록 */}
       <section className="bg-slate-100 py-10 border-t border-slate-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center sm:text-left">
           <h3 className="text-xs font-black text-slate-500 mb-2">
@@ -625,7 +615,6 @@ export default function InquiryBoardPage() {
             한밭중고전자는 30년 이상의 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다. 전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스를 제공합니다. 가정용 중고가전부터 식당·카페·사업장의 업소용 주방기기까지 판매, 매입, 대량 거래를 한 곳에서 상담받을 수 있습니다.
           </p>
 
-          {/* 🚨 고객 눈에는 절대 안 보이고 검색 로봇만 읽어가는 74개 핵심 키워드 */}
           <div className="sr-only">
             전국중고가전, 중고가전, 중고전자제품, 중고가전판매, 중고가전매입, 중고가전매장, 중고가전쇼핑몰, 중고가전전문점, 중고가전전문업체, 중고가전전국배송, 중고가전전국판매, 중고가전전국매입, 중고가전배송, 중고가전설치, 중고가전직거래, 중고가전대량판매, 중고가전대량매입, 중고전자제품판매, 중고전자제품매입, 중고제품판매, 
             중고냉장고, 중고김치냉장고, 중고세탁기, 중고건조기, 중고에어컨, 중고냉난방기, 중고TV, 중고전자레인지, 중고가전제품, 중고가정용가전, 중고4도어냉장고, 중고스탠드냉장고, 중고양문형냉장고, 중고드럼세탁기, 중고통돌이세탁기, 중고벽걸이에어컨, 중고스탠드에어컨, 중고시스템에어컨, 
@@ -633,27 +622,27 @@ export default function InquiryBoardPage() {
             중고대형냉난방기, 중고대형에어컨, 중고업소용에어컨, 중고상업용에어컨, 중고천장형에어컨, 중고스탠드에어컨, 중고냉난방기판매, 중고냉난방기매입, 냉난방기중고, 에어컨중고, 에어컨중고판매, 에어컨중고매입, 대형에어컨중고, 업소용냉난방기, 상업용냉난방기, 중고냉난방기전국배송
           </div>
         </div>
-
       </section>
 
+      {/* 푸터 (하단 관리자 로그인 배치, 줄바꿈 완전 방지) */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-900 text-slate-300 font-bold">
-            <div className="flex items-center gap-4">
-              <a href="/privacy" target="_blank" className="hover:text-white transition">개인정보처리방침</a>
-              <span>|</span>
-              <a href="/#location-section" className="hover:text-white transition">오시는 길</a>
-              <span>|</span>
-              <a href="http://pf.kakao.com/_XmyrX" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-yellow-400">카카오채널</a>
-              <span>|</span>
-              <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-emerald-400">제품 확인 카페</a>
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 whitespace-nowrap">
+              <a href="/privacy" target="_blank" className="hover:text-white transition whitespace-nowrap">개인정보처리방침</a>
+              <span className="text-slate-600">|</span>
+              <a href="/#location-section" className="hover:text-white transition whitespace-nowrap">오시는 길</a>
+              <span className="text-slate-600">|</span>
+              <a href="http://pf.kakao.com/_XmyrX" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-yellow-400 whitespace-nowrap">카카오채널</a>
+              <span className="text-slate-600">|</span>
+              <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-emerald-400 whitespace-nowrap">제품 확인 카페</a>
             </div>
-            <div className="text-slate-500 text-[11px]">
+            <div className="text-slate-500 text-[11px] whitespace-nowrap">
               © 2026 한밭중고전자. All rights reserved.
             </div>
           </div>
 
-          <div className="space-y-1 text-slate-400 text-[11px] sm:text-xs leading-relaxed">
+          <div className="space-y-1 text-slate-400 text-[11px] sm:text-xs leading-relaxed break-keep">
             <p>
               <strong className="text-slate-200">상호 :</strong> 한밭중고전자 &nbsp;|&nbsp; 
               <strong className="text-slate-200">대표자 :</strong> 김영종 &nbsp;|&nbsp; 
@@ -668,6 +657,15 @@ export default function InquiryBoardPage() {
             <p className="text-slate-500">
               개인정보 보호책임자 : 김태현(sunny3815@naver.com)
             </p>
+          </div>
+
+          <div className="pt-4 border-t border-slate-900 flex justify-center sm:justify-end">
+            <button 
+              onClick={() => setIsAdminAuthModalOpen(true)} 
+              className="text-slate-500 hover:text-slate-300 transition underline text-[11px] whitespace-nowrap"
+            >
+              관리자 로그인
+            </button>
           </div>
         </div>
       </footer>
@@ -785,7 +783,6 @@ export default function InquiryBoardPage() {
                 </div>
               )}
 
-              {/* ✅ 고객 화면 노출용: 등록된 답변이 있을 경우 */}
               {selectedItem.admin_reply && !isAdmin && (
                 <div className="bg-[#f0f6ff] rounded-2xl p-5 border border-blue-100 shadow-inner mt-4">
                   <h3 className="font-black text-[#0b4b8b] flex items-center gap-2 mb-3">
@@ -798,7 +795,6 @@ export default function InquiryBoardPage() {
                 </div>
               )}
 
-              {/* ✅ 관리자 전용 답변 폼 */}
               {!selectedItem.is_notice && isAdmin && (
                 <div className="bg-slate-50 rounded-2xl p-4 sm:p-5 border border-slate-200 mt-6 shadow-sm">
                   <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3 text-sm">
@@ -819,7 +815,6 @@ export default function InquiryBoardPage() {
                 </div>
               )}
 
-              {/* 관리자 상태 변경 패널 */}
               {!selectedItem.is_notice && isAdmin && (
                 <div className="pt-4 mt-2 border-t border-slate-100">
                   <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
