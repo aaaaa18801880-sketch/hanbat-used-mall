@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "한밭중고전자 | 대전·충청 중고가전 매입 및 판매 전문",
-  description: "30년 전통 대전 최대 규모 중고가전 매장. 중고 냉장고, 세탁기, 에어컨, 냉난방기, 업소용 주방기기 최고가 매입 및 최저가 판매. 방문 수거 및 무료 견적 상담.",
+  title: "한밭중고전자에 오신 것을 환영합니다",
+  description: "대전 중구 중촌동 144 위치. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 전문. 최고가 당일 매입 및 최저가 판매. 무료 견적 및 방문 상담 042-523-8179.",
   keywords: [
     "한밭중고전자",
     "대전중고가전",
@@ -13,16 +13,11 @@ export const metadata: Metadata = {
     "중고가전매입",
     "중고가전판매",
     "업소용냉장고",
-    "식당폐업철거",
-    "대전가전매입"
+    "식당폐업견적"
   ],
   authors: [{ name: "한밭중고전자" }],
   creator: "한밭중고전자",
   publisher: "한밭중고전자",
-  formatDetection: {
-    telephone: true,
-    address: true,
-  },
   metadataBase: new URL("https://hanbatmall.com"),
   alternates: {
     canonical: "https://hanbatmall.com",
@@ -32,19 +27,18 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: "https://hanbatmall.com",
     siteName: "한밭중고전자",
-    title: "한밭중고전자 | 대전·충청 중고가전 매입 및 판매 전문",
-    description: "새것 같은 중고가전 최저가 판매 & 안 쓰는 가전 최고가 매입. 대전 중구 중촌동 30년 전통 오프라인 매장.",
+    title: "한밭중고전자에 오신 것을 환영합니다",
+    description: "대전 중구 중촌동 144 위치. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 전문. 무료 견적 및 방문 상담 042-523-8179.",
     images: [
       {
         url: "/main-bg.png",
         width: 1200,
         height: 630,
-        alt: "한밭중고전자 매장 전경",
+        alt: "한밭중고전자",
       },
     ],
   },
   other: {
-    // 네이버 서치어드바이저 소유확인 인증 키 적용 완료
     "naver-site-verification": "18fc4bff1ce2a4a8965886616fecc19b2da42ae7",
   },
 };
