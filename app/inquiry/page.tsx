@@ -191,7 +191,7 @@ export default function InquiryBoardPage() {
     }
   };
 
-  const handleReplySubmit = async () => {
+const handleReplySubmit = async () => {
     if (!selectedItem) return;
     if (!replyContent.trim()) {
       toast.error("답변 내용을 입력해 주세요.");
@@ -200,27 +200,59 @@ export default function InquiryBoardPage() {
     
     setIsReplying(true);
     try {
-      const { error } = await supabase
+      // DB에 먼저 업데이트 시도 후 결과값 반환 요청(.select)
+      const { data, error } = await supabase
         .from("purchase_requests")
         .update({ 
           status: '답변완료',
           admin_reply: replyContent 
         })
-        .eq('id', selectedItem.id);
+        .eq('id', selectedItem.id)
+        .select();
 
       if (error) throw error;
+      
+      // 권한 문제로 업데이트된 행이 없을 경우 예외 처리
+      if (!data || data.length === 0) {
+        throw new Error("Supabase 업데이트 권한(RLS)이 차단되어 있습니다.");
+      }
+
       toast.success("답변이 성공적으로 등록되었습니다.");
       
+      // DB 저장 성공 시에만 로컬 화면 변경 및 강제 새로고침
       setSelectedItem({ ...selectedItem, status: '답변완료', admin_reply: replyContent });
-      setInquiries((prev) => 
-        prev.map((item) => 
-          item.id === selectedItem.id ? { ...item, status: '답변완료', admin_reply: replyContent } : item
-        )
-      );
+      await loadData();
     } catch (error: any) {
       toast.error("답변 등록 실패: " + error.message);
     } finally {
       setIsReplying(false);
+    }
+  };
+
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      // 수동 상태 변경 시에도 동일하게 검증 로직 적용
+      const { data, error } = await supabase
+        .from("purchase_requests")
+        .update({ status: newStatus })
+        .eq("id", id)
+        .select();
+
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        throw new Error("Supabase 업데이트 권한(RLS)이 차단되어 있습니다.");
+      }
+
+      // 화면 업데이트
+      setInquiries((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
+      );
+      setSelectedItem((prev: any) => ({ ...prev, status: newStatus }));
+      toast.success(`상태가 '${newStatus}'(으)로 변경되었습니다.`);
+      
+      await loadData();
+    } catch (err: any) {
+      toast.error("상태 업데이트 실패: " + err.message);
     }
   };
 
@@ -419,26 +451,6 @@ export default function InquiryBoardPage() {
       
     } catch (err: any) {
       toast.error("삭제 실패: " + err.message);
-      loadData();
-    }
-  };
-
-  const handleStatusUpdate = async (id: string, newStatus: string) => {
-    setInquiries((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
-    );
-    setSelectedItem((prev: any) => ({ ...prev, status: newStatus }));
-
-    try {
-      const { error } = await supabase
-        .from("purchase_requests")
-        .update({ status: newStatus })
-        .eq("id", id);
-
-      if (error) throw error;
-      toast.success(`상태가 '${newStatus}'(으)로 변경되었습니다.`);
-    } catch (err: any) {
-      toast.error("상태 업데이트 실패: " + err.message);
       loadData();
     }
   };
