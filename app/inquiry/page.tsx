@@ -1255,12 +1255,16 @@ const handleReplySubmit = async () => {
                 <button
                   type="submit"
                   disabled={submitting || (!isNotice && !agreed)}
-                  className={`px-6 py-2.5 rounded-lg text-white font-bold transition shadow-sm disabled:bg-slate-400 disabled:cursor-not-allowed ${
-                    isNotice ? 'bg-red-600 hover:bg-red-700' : 'bg-[#0b4b8b] hover:bg-[#093c70]'
+                  className={`px-6 py-2.5 rounded-lg text-white font-bold transition shadow-sm ${
+                    submitting || (!isNotice && !agreed)
+                      ? 'bg-slate-400 cursor-not-allowed' 
+                      : isNotice 
+                        ? 'bg-red-600 hover:bg-red-700' 
+                        : 'bg-[#0b4b8b] hover:bg-[#093c70]'
                   }`}
-                >
-                  {submitting ? "등록 처리 중..." : isNotice ? "공지사항 등록" : "문의 접수"}
-                </button>
+                    >
+                      {submitting ? "등록 처리 중..." : isNotice ? "공지사항 등록" : "문의 접수"}
+                    </button>
               </div>
             </form>
           </div>
