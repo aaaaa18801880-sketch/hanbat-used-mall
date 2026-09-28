@@ -10,11 +10,9 @@ export default function InquiryBoardPage() {
   const [activeTab, setActiveTab] = useState("전체");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // ✅ 페이징 관련 상태 추가 (현재 페이지 번호)
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10; // 한 페이지당 보여줄 게시글 수
+  const ITEMS_PER_PAGE = 10;
 
-  // 글쓰기 모달 상태
   const [isWriteOpen, setIsWriteOpen] = useState(false);
   const [inquiryType, setInquiryType] = useState("내 물건 팔기");
   const [name, setName] = useState("");
@@ -29,7 +27,6 @@ export default function InquiryBoardPage() {
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // 상세 보기 및 비밀번호 모달 상태
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [isPwModalOpen, setIsPwModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
@@ -37,27 +34,22 @@ export default function InquiryBoardPage() {
   const [showVerifyPassword, setShowVerifyPassword] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
 
-  // 글 수정 모달 상태
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [editInquiryType, setEditInquiryType] = useState("");
   const [editUpdating, setEditUpdating] = useState(false);
 
-  // 관리자 인증 모달 상태
+  // ✅ 1. 단순 비밀번호(PIN) 대신 정식 이메일/비밀번호 상태로 변경
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-  const [adminPinInput, setAdminPinInput] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  // 관리자 답변 상태
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
   const loadData = async () => {
-    const { data: authData } = await supabase.auth.getSession();
-    if (authData?.session?.user) {
-      setIsAdmin(true);
-    }
-
     const { data } = await supabase
       .from("purchase_requests")
       .select("*")
@@ -67,10 +59,23 @@ export default function InquiryBoardPage() {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem("isAdmin") === "true") {
-      setIsAdmin(true);
-    }
+    // ✅ 2. 허술했던 sessionStorage 대신 Supabase 정식 세션 확인 로직 적용
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAdmin(!!session);
+    };
+    checkSession();
+
+    // 로그인 상태가 변할 때(로그인/로그아웃) 자동으로 감지
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAdmin(!!session);
+    });
+
     loadData();
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   const compressImage = (file: File): Promise<Blob> => {
@@ -141,7 +146,6 @@ export default function InquiryBoardPage() {
     setFilePreviews(updatedPreviews);
   };
 
-  // ✅ 공지사항과 일반글 분리 및 탭 필터링
   const noticeList = inquiries.filter((item) => item.is_notice);
   const regularList = inquiries.filter((item) => !item.is_notice);
 
@@ -156,7 +160,6 @@ export default function InquiryBoardPage() {
     return true;
   });
 
-  // ✅ 페이징 계산 로직
   const totalPages = Math.max(1, Math.ceil(filteredRegularList.length / ITEMS_PER_PAGE));
   const currentItems = filteredRegularList.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -221,27 +224,34 @@ export default function InquiryBoardPage() {
     }
   };
 
-  const handleAdminAuth = (e: React.FormEvent) => {
+  // ✅ 3. Supabase Auth 정식 로그인 기능
+  const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPinInput === "8179") {
-      setIsAdmin(true);
-      if (typeof window !== "undefined") {
-        sessionStorage.setItem("isAdmin", "true");
-      }
+    setIsLoggingIn(true);
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: adminEmail,
+        password: adminPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success("관리자 로그인에 성공했습니다.");
       setIsAdminAuthModalOpen(false);
-      setAdminPinInput("");
-      toast.success("관리자 모드가 활성화되었습니다.");
-    } else {
-      toast.error("관리자 비밀번호가 일치하지 않습니다.");
+      setAdminEmail("");
+      setAdminPassword("");
+    } catch (error: any) {
+      toast.error("로그인 실패: 이메일이나 비밀번호를 확인해 주세요.");
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  const handleAdminLogout = () => {
+  // ✅ 4. Supabase Auth 정식 로그아웃 기능
+  const handleAdminLogout = async () => {
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
-      setIsAdmin(false);
-      if (typeof window !== "undefined") {
-        sessionStorage.removeItem("isAdmin");
-      }
+      await supabase.auth.signOut();
       toast.success("관리자 모드가 종료되었습니다.");
     }
   };
@@ -320,7 +330,7 @@ export default function InquiryBoardPage() {
 
       toast.success(isNotice ? "공지사항이 등록되었습니다." : "문의가 성공적으로 접수되었습니다!");
       setIsWriteOpen(false);
-      setCurrentPage(1); // 글 작성 시 첫 페이지로 이동
+      setCurrentPage(1);
       loadData();
     } catch (err: any) {
       toast.error("오류 발생: " + err.message);
@@ -485,7 +495,7 @@ export default function InquiryBoardPage() {
               key={tab}
               onClick={() => {
                 setActiveTab(tab);
-                setCurrentPage(1); // ✅ 탭을 누르면 1페이지로 리셋
+                setCurrentPage(1);
               }}
               className={`pb-3 transition relative shrink-0 ${
                 activeTab === tab
@@ -571,7 +581,6 @@ export default function InquiryBoardPage() {
                     item.inquiry_type === "매입문의";
                   const hasImages = item.images && item.images.length > 0;
                   
-                  // ✅ 페이징 처리된 정확한 게시글 번호 계산
                   const itemNumber = filteredRegularList.length - ((currentPage - 1) * ITEMS_PER_PAGE + index);
 
                   return (
@@ -628,7 +637,6 @@ export default function InquiryBoardPage() {
           </table>
         </div>
 
-        {/* ✅ 페이지 번호 네비게이션 추가 */}
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-2 mt-8">
             <button
@@ -662,7 +670,6 @@ export default function InquiryBoardPage() {
         )}
       </main>
 
-      {/* SEO 최적화 블록 */}
       <section className="bg-slate-100 py-10 border-t border-slate-200 mt-auto">
         <div className="max-w-7xl mx-auto px-4 text-center sm:text-left">
           <h3 className="text-xs font-black text-slate-500 mb-2">
@@ -680,7 +687,6 @@ export default function InquiryBoardPage() {
         </div>
       </section>
 
-      {/* 푸터 */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-900 text-slate-300 font-bold">
@@ -726,7 +732,6 @@ export default function InquiryBoardPage() {
         </div>
       </footer>
 
-      {/* 모달 팝업들 */}
       {isPwModalOpen && selectedItem && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-sm rounded-2xl shadow-xl border border-slate-200 p-6 text-center">
@@ -1232,36 +1237,46 @@ export default function InquiryBoardPage() {
         </div>
       )}
 
+      {/* ✅ 5. 정식 이메일/비밀번호 폼으로 변경된 관리자 로그인 모달 */}
       {isAdminAuthModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-xs rounded-2xl shadow-xl border border-slate-200 p-6 text-center">
-            <h3 className="font-bold text-slate-900 text-base mb-1">관리자 인증</h3>
+            <h3 className="font-bold text-slate-900 text-base mb-1">관리자 로그인</h3>
             <p className="text-xs text-slate-500 mb-4">
-              관리자 마스터 비밀번호를 입력해 주세요.
+              관리자 이메일과 비밀번호를 입력해 주세요.
             </p>
             <form onSubmit={handleAdminAuth} className="space-y-3">
               <input
-                type="password"
-                value={adminPinInput}
-                onChange={(e) => setAdminPinInput(e.target.value)}
-                placeholder="비밀번호"
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="이메일 주소"
                 required
                 autoFocus
-                className="w-full border border-slate-300 rounded-xl p-2.5 text-center text-sm outline-none focus:border-[#0b4b8b]"
+                className="w-full border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:border-[#0b4b8b]"
               />
-              <div className="flex gap-2">
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="비밀번호"
+                required
+                className="w-full border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:border-[#0b4b8b]"
+              />
+              <div className="flex gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsAdminAuthModalOpen(false)}
-                  className="w-1/2 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs"
+                  className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
-                  className="w-1/2 py-2 rounded-xl bg-[#0b4b8b] text-white font-bold text-xs hover:bg-[#093c70]"
+                  disabled={isLoggingIn}
+                  className="w-1/2 py-2.5 rounded-xl bg-[#0b4b8b] text-white font-bold text-xs hover:bg-[#093c70] transition disabled:opacity-50"
                 >
-                  인증
+                  {isLoggingIn ? "인증 중..." : "로그인"}
                 </button>
               </div>
             </form>
