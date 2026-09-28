@@ -298,13 +298,14 @@ const handleReplySubmit = async () => {
     setContent("");
     setSelectedFiles([]);
     setFilePreviews([]);
+    setAgreed(false); // 글쓰기 창 열 때 체크박스 초기화
     setIsWriteOpen(true);
   };
 
   const handleWriteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title) {
-      toast.error("제목을 입력해 주세요.");
+    if (!isNotice && (!title || !name || !phone || !password)) {
+      toast.error("필수 항목(* 표시)을 모두 입력해 주세요.");
       return;
     }
 
@@ -360,7 +361,7 @@ const handleReplySubmit = async () => {
 
       if (insertError) throw insertError;
 
-// 👇👇👇 여기에 텔레그램 발송 코드를 추가하세요 👇👇👇
+      // 👇👇👇 텔레그램 발송 코드 👇👇👇
       // (관리자가 쓰는 '공지사항'이 아닐 때만 알림을 보냅니다)
       if (!isNotice) {
         fetch('/api/telegram', {
@@ -1253,8 +1254,8 @@ const handleReplySubmit = async () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={submitting}
-                  className={`px-6 py-2.5 rounded-lg text-white font-bold transition shadow-sm ${
+                  disabled={submitting || (!isNotice && !agreed)}
+                  className={`px-6 py-2.5 rounded-lg text-white font-bold transition shadow-sm disabled:bg-slate-400 disabled:cursor-not-allowed ${
                     isNotice ? 'bg-red-600 hover:bg-red-700' : 'bg-[#0b4b8b] hover:bg-[#093c70]'
                   }`}
                 >
