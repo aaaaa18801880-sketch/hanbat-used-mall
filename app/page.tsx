@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import toast from "react-hot-toast";
 
 const ReviewCard = ({ review, isAdmin, onDelete, onEnlarge }: any) => {
   const images = review.image_url ? review.image_url.split(',') : [];
@@ -47,7 +48,7 @@ const ReviewCard = ({ review, isAdmin, onDelete, onEnlarge }: any) => {
 export default function Home() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
-
+  
   const bgImages = [
     '/main-bg.png', 
     '/main-bg2.png', 
@@ -64,7 +65,9 @@ export default function Home() {
 
   const [isAdmin, setIsAdmin] = useState(false);
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-  const [adminPinInput, setAdminPinInput] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -107,26 +110,51 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem("isAdmin") === "true") setIsAdmin(true);
+    // ✅ Supabase 정식 로그인 세션 유지 로직 적용
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAdmin(!!session);
+    };
+    checkSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAdmin(!!session);
+    });
+
     fetchData();
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  const handleAdminAuth = (e: React.FormEvent) => {
+  const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPinInput === "8179") {
-      setIsAdmin(true);
-      if (typeof window !== "undefined") sessionStorage.setItem("isAdmin", "true");
-      setIsAdminAuthModalOpen(false); setAdminPinInput("");
-      alert("관리자 모드가 활성화되었습니다.");
-    } else alert("관리자 비밀번호가 일치하지 않습니다.");
+    setIsLoggingIn(true);
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: adminEmail,
+        password: adminPassword,
+      });
+
+      if (error) throw error;
+
+      toast.success("관리자 로그인에 성공했습니다.");
+      setIsAdminAuthModalOpen(false);
+      setAdminEmail("");
+      setAdminPassword("");
+    } catch (error: any) {
+      toast.error("로그인 실패: 이메일이나 비밀번호를 확인해 주세요.");
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
-  const handleAdminLogout = () => {
+  const handleAdminLogout = async () => {
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
-      setIsAdmin(false);
-      if (typeof window !== "undefined") sessionStorage.removeItem("isAdmin");
-      alert("관리자 모드가 종료되었습니다.");
-      window.location.href = "/";
+      await supabase.auth.signOut(); // ✅ 정식 로그아웃 처리
+      toast.success("관리자 모드가 종료되었습니다.");
     }
   };
 
@@ -134,7 +162,8 @@ export default function Home() {
     return new Promise((resolve, reject) => {
       const reader = new FileReader(); reader.readAsDataURL(file);
       reader.onload = (event) => {
-        const img = new Image(); img.src = event.target?.result as string;
+        const img = new window.Image(); // ✅ 이미지 충돌 방지
+        img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement("canvas");
           let width = img.width, height = img.height;
@@ -152,7 +181,10 @@ export default function Home() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    if (selectedFiles.length + files.length > 3) return alert("사진은 최대 3장까지 등록 가능합니다.");
+    if (selectedFiles.length + files.length > 3) {
+      toast.error("사진은 최대 3장까지 등록 가능합니다.");
+      return;
+    }
     setSelectedFiles([...selectedFiles, ...files]);
     setFilePreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
   };
@@ -164,8 +196,14 @@ export default function Home() {
 
   const handleInquirySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !name || !phone || !password) return alert("필수 항목(* 표시)을 모두 입력해 주세요.");
-    if (!agreed) return alert("개인정보 처리방침에 동의해 주세요.");
+    if (!title || !name || !phone || !password) {
+      toast.error("필수 항목(* 표시)을 모두 입력해 주세요.");
+      return;
+    }
+    if (!agreed) {
+      toast.error("개인정보 처리방침에 동의해 주세요.");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -191,19 +229,24 @@ export default function Home() {
       });
 
       if (error) throw error;
-      alert("문의가 성공적으로 접수되었습니다! 빠르게 확인 후 연락드리겠습니다.");
+      toast.success("문의가 성공적으로 접수되었습니다! 빠르게 확인 후 연락드리겠습니다.");
       setName(""); setPhone(""); setPassword(""); setTitle(""); setDescription(""); 
       setSelectedFiles([]); setFilePreviews([]); setAgreed(false);
       setHasElevator("있음 (제품 적재 가능)"); setHasStairs("없음 (1층 또는 엘리베이터 이동)");
       fetchData();
-    } catch (error: any) { alert("오류가 발생했습니다: " + error.message); } 
+    } catch (error: any) { 
+      toast.error("오류가 발생했습니다: " + error.message); 
+    } 
     finally { setLoading(false); }
   };
 
   const handleReviewFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
-    if (reviewFiles.length + files.length > 3) return alert("사진은 최대 3장까지 등록 가능합니다.");
+    if (reviewFiles.length + files.length > 3) {
+      toast.error("사진은 최대 3장까지 등록 가능합니다.");
+      return;
+    }
     setReviewFiles([...reviewFiles, ...files]);
     setReviewPreviews(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
   };
@@ -215,7 +258,10 @@ export default function Home() {
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!reviewTitle || reviewFiles.length === 0) return alert("제목과 최소 1장의 사진을 등록해주세요.");
+    if (!reviewTitle || reviewFiles.length === 0) {
+      toast.error("제목과 최소 1장의 사진을 등록해주세요.");
+      return;
+    }
 
     setUploadingReview(true);
     try {
@@ -235,10 +281,12 @@ export default function Home() {
       });
 
       if (error) throw error;
-      alert("인증사진 등록 완료.");
+      toast.success("인증사진 등록 완료.");
       setIsReviewUploadOpen(false); setReviewTitle(""); setReviewFiles([]); setReviewPreviews([]);
       fetchData(); 
-    } catch (error: any) { alert("오류 발생: " + error.message); } 
+    } catch (error: any) { 
+      toast.error("오류 발생: " + error.message); 
+    } 
     finally { setUploadingReview(false); }
   };
 
@@ -246,15 +294,21 @@ export default function Home() {
     if (!confirm("이 인증사진을 정말 삭제하시겠습니까?")) return;
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error; alert("삭제되었습니다."); fetchData();
-    } catch (error: any) { alert("삭제 실패: " + error.message); }
+      if (error) throw error; 
+      toast.success("삭제되었습니다."); 
+      fetchData();
+    } catch (error: any) { 
+      toast.error("삭제 실패: " + error.message); 
+    }
   };
 
   const scrollToSection = (id: string) => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: "smooth" }); };
+  
   const maskName = (rawName: string) => {
     if (!rawName) return "고*객"; if (rawName.length <= 2) return rawName.charAt(0) + "*";
     return rawName.charAt(0) + "*".repeat(rawName.length - 2) + rawName.slice(-1);
   };
+  
   const toggleFaq = (index: number) => setOpenFaqIndex(openFaqIndex === index ? null : index);
 
   const handleGalleryDirectInquiry = () => {
@@ -287,7 +341,7 @@ export default function Home() {
         </button>
       </aside>
 
-      {/* 상단 헤더 (관리자 버튼 제거) */}
+      {/* 상단 헤더 */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
           <a href="/" className="font-black text-base sm:text-xl tracking-tight flex items-center gap-2 shrink-0 hover:opacity-80 transition">
@@ -315,7 +369,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 메인 히어로 섹션 (모바일 버튼 완벽 중앙 정렬) */}
+      {/* 메인 히어로 섹션 */}
       <section className="relative w-full min-h-[100svh] lg:min-h-[750px] flex items-center justify-center overflow-hidden border-b border-slate-800 pt-20 lg:pt-0">
         <div className="absolute inset-0 overflow-hidden">
           <div 
@@ -866,7 +920,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 푸터 (whitespace-nowrap으로 줄바꿈 깨짐 완전 방지) */}
+      {/* 푸터 */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 pb-4 border-b border-slate-900 text-slate-300 font-bold">
@@ -987,13 +1041,43 @@ export default function Home() {
       {isAdminAuthModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-xs rounded-2xl shadow-xl border border-slate-200 p-6 text-center">
-            <h3 className="font-bold text-slate-900 text-base mb-1">관리자 인증</h3>
-            <p className="text-xs text-slate-500 mb-4">관리자 마스터 비밀번호를 입력해 주세요.</p>
+            <h3 className="font-bold text-slate-900 text-base mb-1">관리자 로그인</h3>
+            <p className="text-xs text-slate-500 mb-4">
+              관리자 이메일과 비밀번호를 입력해 주세요.
+            </p>
             <form onSubmit={handleAdminAuth} className="space-y-3">
-              <input type="password" value={adminPinInput} onChange={(e) => setAdminPinInput(e.target.value)} placeholder="비밀번호" required autoFocus className="w-full border border-slate-300 rounded-xl p-2.5 text-center text-sm outline-none focus:border-[#0b4b8b]" />
-              <div className="flex gap-2">
-                <button type="button" onClick={() => { setIsAdminAuthModalOpen(false); setAdminPinInput(""); }} className="w-1/2 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs">취소</button>
-                <button type="submit" className="w-1/2 py-2 rounded-xl bg-[#0b4b8b] text-white font-bold text-xs hover:bg-[#093c70]">인증</button>
+              <input
+                type="email"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                placeholder="이메일 주소"
+                required
+                autoFocus
+                className="w-full border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:border-[#0b4b8b]"
+              />
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                placeholder="비밀번호"
+                required
+                className="w-full border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:border-[#0b4b8b]"
+              />
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAdminAuthModalOpen(false)}
+                  className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoggingIn}
+                  className="w-1/2 py-2.5 rounded-xl bg-[#0b4b8b] text-white font-bold text-xs hover:bg-[#093c70] transition disabled:opacity-50"
+                >
+                  {isLoggingIn ? "인증 중..." : "로그인"}
+                </button>
               </div>
             </form>
           </div>
