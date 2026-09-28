@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+// ✅ 토스트 UI 라이브러리 불러오기
+import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -38,8 +40,10 @@ export const metadata: Metadata = {
       },
     ],
   },
-  other: {
-    "naver-site-verification": "18fc4bff1ce2a4a8965886616fecc19b2da42ae7",
+  verification: {
+    other: {
+      "naver-site-verification": "28b921dfd15b72fe192b25063353615683ea4864",
+    },
   },
 };
 
@@ -82,7 +86,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {/* ✅ 토스트 팝업이 뜰 수 있도록 바디 최상단에 배치 */}
+        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+        {children}
+      </body>
     </html>
   );
 }

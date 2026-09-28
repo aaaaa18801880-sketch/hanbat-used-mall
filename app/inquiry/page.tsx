@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
+// ✅ alert 대신 사용할 토스트 라이브러리 추가
+import toast from "react-hot-toast";
 
 export default function InquiryBoardPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -117,7 +119,7 @@ export default function InquiryBoardPage() {
     const files = Array.from(e.target.files);
 
     if (selectedFiles.length + files.length > 3) {
-      alert("사진은 최대 3장까지 등록 가능합니다.");
+      toast.error("사진은 최대 3장까지 등록 가능합니다.");
       return;
     }
 
@@ -170,13 +172,16 @@ export default function InquiryBoardPage() {
       setIsPwModalOpen(false);
       setIsDetailOpen(true);
     } else {
-      alert("비밀번호가 일치하지 않습니다.");
+      toast.error("비밀번호가 일치하지 않습니다.");
     }
   };
 
   const handleReplySubmit = async () => {
     if (!selectedItem) return;
-    if (!replyContent.trim()) return alert("답변 내용을 입력해 주세요.");
+    if (!replyContent.trim()) {
+      toast.error("답변 내용을 입력해 주세요.");
+      return;
+    }
     
     setIsReplying(true);
     try {
@@ -189,7 +194,7 @@ export default function InquiryBoardPage() {
         .eq('id', selectedItem.id);
 
       if (error) throw error;
-      alert("답변이 성공적으로 등록되었습니다.");
+      toast.success("답변이 성공적으로 등록되었습니다.");
       
       setSelectedItem({ ...selectedItem, status: '답변완료', admin_reply: replyContent });
       setInquiries((prev) => 
@@ -198,7 +203,7 @@ export default function InquiryBoardPage() {
         )
       );
     } catch (error: any) {
-      alert("답변 등록 실패: " + error.message);
+      toast.error("답변 등록 실패: " + error.message);
     } finally {
       setIsReplying(false);
     }
@@ -213,9 +218,9 @@ export default function InquiryBoardPage() {
       }
       setIsAdminAuthModalOpen(false);
       setAdminPinInput("");
-      alert("관리자 모드가 활성화되었습니다.");
+      toast.success("관리자 모드가 활성화되었습니다.");
     } else {
-      alert("관리자 비밀번호가 일치하지 않습니다.");
+      toast.error("관리자 비밀번호가 일치하지 않습니다.");
     }
   };
 
@@ -225,7 +230,7 @@ export default function InquiryBoardPage() {
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("isAdmin");
       }
-      alert("관리자 모드가 종료되었습니다.");
+      toast.success("관리자 모드가 종료되었습니다.");
     }
   };
 
@@ -245,17 +250,17 @@ export default function InquiryBoardPage() {
   const handleWriteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title) {
-      alert("제목을 입력해 주세요.");
+      toast.error("제목을 입력해 주세요.");
       return;
     }
 
     if (!isNotice && (!name || !phone || !password)) {
-      alert("성함, 연락처, 비밀번호를 모두 입력해 주세요.");
+      toast.error("성함, 연락처, 비밀번호를 모두 입력해 주세요.");
       return;
     }
 
     if (!isNotice && !agreed) {
-      alert("개인정보 수집 및 이용에 동의해 주세요.");
+      toast.error("개인정보 수집 및 이용에 동의해 주세요.");
       return;
     }
 
@@ -301,11 +306,11 @@ export default function InquiryBoardPage() {
 
       if (insertError) throw insertError;
 
-      alert(isNotice ? "공지사항이 등록되었습니다." : "문의가 등록되었습니다.");
+      toast.success(isNotice ? "공지사항이 등록되었습니다." : "문의가 성공적으로 접수되었습니다!");
       setIsWriteOpen(false);
       loadData();
     } catch (err: any) {
-      alert("오류 발생: " + err.message);
+      toast.error("오류 발생: " + err.message);
     } finally {
       setSubmitting(false);
     }
@@ -344,7 +349,7 @@ export default function InquiryBoardPage() {
 
       if (error) throw error;
 
-      alert("성공적으로 수정되었습니다.");
+      toast.success("성공적으로 수정되었습니다.");
       setSelectedItem({
         ...selectedItem,
         category: editTitle,
@@ -353,7 +358,7 @@ export default function InquiryBoardPage() {
       });
       setIsEditOpen(false);
     } catch (err: any) {
-      alert("수정 실패: " + err.message);
+      toast.error("수정 실패: " + err.message);
       loadData();
     } finally {
       setEditUpdating(false);
@@ -362,12 +367,12 @@ export default function InquiryBoardPage() {
 
   const handleDelete = async () => {
     if (!selectedItem) return;
-    if (!confirm("정말 이 글을 삭제하시겠습니까?")) return;
+    if (!confirm("정말 이 글을 삭제하시겠습니까? (삭제된 글은 복구할 수 없습니다)")) return;
 
     try {
       setInquiries((prev) => prev.filter((item) => item.id !== selectedItem.id));
       setIsDetailOpen(false);
-      alert("게시글이 삭제되었습니다.");
+      toast.success("게시글이 삭제되었습니다.");
 
       const { error } = await supabase
         .from("purchase_requests")
@@ -377,7 +382,7 @@ export default function InquiryBoardPage() {
       if (error) throw error;
       
     } catch (err: any) {
-      alert("삭제 실패: " + err.message);
+      toast.error("삭제 실패: " + err.message);
       loadData();
     }
   };
@@ -395,8 +400,9 @@ export default function InquiryBoardPage() {
         .eq("id", id);
 
       if (error) throw error;
+      toast.success(`상태가 '${newStatus}'(으)로 변경되었습니다.`);
     } catch (err: any) {
-      alert("상태 업데이트 실패: " + err.message);
+      toast.error("상태 업데이트 실패: " + err.message);
       loadData();
     }
   };
@@ -613,7 +619,6 @@ export default function InquiryBoardPage() {
           <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed break-keep">
             한밭중고전자는 30년 이상의 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다. 전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스를 제공합니다. 가정용 중고가전부터 식당·카페·사업장의 업소용 주방기기까지 판매, 매입, 대량 거래를 한 곳에서 상담받을 수 있습니다.
           </p>
-
           <div className="sr-only">
             전국중고가전, 중고가전, 중고전자제품, 중고가전판매, 중고가전매입, 중고가전매장, 중고가전쇼핑몰, 중고가전전문점, 중고가전전문업체, 중고가전전국배송, 중고가전전국판매, 중고가전전국매입, 중고가전배송, 중고가전설치, 중고가전직거래, 중고가전대량판매, 중고가전대량매입, 중고전자제품판매, 중고전자제품매입, 중고제품판매, 
             중고냉장고, 중고김치냉장고, 중고세탁기, 중고건조기, 중고에어컨, 중고냉난방기, 중고TV, 중고전자레인지, 중고가전제품, 중고가정용가전, 중고4도어냉장고, 중고스탠드냉장고, 중고양문형냉장고, 중고드럼세탁기, 중고통돌이세탁기, 중고벽걸이에어컨, 중고스탠드에어컨, 중고시스템에어컨, 
@@ -623,7 +628,7 @@ export default function InquiryBoardPage() {
         </div>
       </section>
 
-      {/* 푸터 (하단 관리자 로그인 버튼 배치, 줄바꿈 완전 방지) */}
+      {/* 푸터 */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-900 text-slate-300 font-bold">
