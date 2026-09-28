@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import toast from "react-hot-toast";
-// ✅ Next.js 자체 강력한 이미지 최적화 컴포넌트 불러오기
 import Image from "next/image";
 
 export default function InquiryBoardPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // ✅ 페이징 관련 상태 추가 (현재 페이지 번호)
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10; // 한 페이지당 보여줄 게시글 수
 
   // 글쓰기 모달 상태
   const [isWriteOpen, setIsWriteOpen] = useState(false);
@@ -75,7 +78,6 @@ export default function InquiryBoardPage() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
-        // 👇 이 부분을 'new Image()'에서 'new window.Image()'로 수정합니다!
         const img = new window.Image();
         img.src = event.target?.result as string;
         img.onload = () => {
@@ -139,6 +141,7 @@ export default function InquiryBoardPage() {
     setFilePreviews(updatedPreviews);
   };
 
+  // ✅ 공지사항과 일반글 분리 및 탭 필터링
   const noticeList = inquiries.filter((item) => item.is_notice);
   const regularList = inquiries.filter((item) => !item.is_notice);
 
@@ -152,6 +155,13 @@ export default function InquiryBoardPage() {
     }
     return true;
   });
+
+  // ✅ 페이징 계산 로직
+  const totalPages = Math.max(1, Math.ceil(filteredRegularList.length / ITEMS_PER_PAGE));
+  const currentItems = filteredRegularList.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
 
   const handleItemClick = (item: any) => {
     setSelectedItem(item);
@@ -310,6 +320,7 @@ export default function InquiryBoardPage() {
 
       toast.success(isNotice ? "공지사항이 등록되었습니다." : "문의가 성공적으로 접수되었습니다!");
       setIsWriteOpen(false);
+      setCurrentPage(1); // 글 작성 시 첫 페이지로 이동
       loadData();
     } catch (err: any) {
       toast.error("오류 발생: " + err.message);
@@ -472,7 +483,10 @@ export default function InquiryBoardPage() {
           {["전체", "구매문의", "내 물건팔기"].map((tab) => (
             <button
               key={tab}
-              onClick={() => setActiveTab(tab)}
+              onClick={() => {
+                setActiveTab(tab);
+                setCurrentPage(1); // ✅ 탭을 누르면 1페이지로 리셋
+              }}
               className={`pb-3 transition relative shrink-0 ${
                 activeTab === tab
                   ? "text-[#0b4b8b] border-b-2 border-[#0b4b8b]"
@@ -543,19 +557,22 @@ export default function InquiryBoardPage() {
                 );
               })}
 
-              {filteredRegularList.length === 0 && noticeList.length === 0 ? (
+              {currentItems.length === 0 && noticeList.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-20 text-slate-400 text-sm">
                     등록된 문의 내역이 없습니다.
                   </td>
                 </tr>
               ) : (
-                filteredRegularList.map((item, index) => {
+                currentItems.map((item, index) => {
                   const isSell =
                     item.inquiry_type === "내 물건 팔기" ||
                     item.inquiry_type === "내 물건팔기" ||
                     item.inquiry_type === "매입문의";
                   const hasImages = item.images && item.images.length > 0;
+                  
+                  // ✅ 페이징 처리된 정확한 게시글 번호 계산
+                  const itemNumber = filteredRegularList.length - ((currentPage - 1) * ITEMS_PER_PAGE + index);
 
                   return (
                     <tr
@@ -563,7 +580,7 @@ export default function InquiryBoardPage() {
                       onClick={() => handleItemClick(item)}
                       className="hover:bg-slate-50 transition h-14 cursor-pointer"
                     >
-                      <td className="py-3 text-slate-400 whitespace-nowrap">{filteredRegularList.length - index}</td>
+                      <td className="py-3 text-slate-400 whitespace-nowrap">{itemNumber}</td>
                       <td className="py-3 whitespace-nowrap">
                         <span
                           className={`inline-block px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${
@@ -610,6 +627,39 @@ export default function InquiryBoardPage() {
             </tbody>
           </table>
         </div>
+
+        {/* ✅ 페이지 번호 네비게이션 추가 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-8">
+            <button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              &lt;
+            </button>
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold transition ${
+                  currentPage === i + 1
+                    ? "bg-[#0b4b8b] text-white"
+                    : "border border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+            <button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+              &gt;
+            </button>
+          </div>
+        )}
       </main>
 
       {/* SEO 최적화 블록 */}
@@ -769,7 +819,6 @@ export default function InquiryBoardPage() {
                 {selectedItem.description || "등록된 상세 내용이 없습니다."}
               </div>
 
-              {/* ✅ 첨부 사진 목록을 Next.js <Image> 로 변경 완료 */}
               {selectedItem.images && selectedItem.images.length > 0 && (
                 <div className="pt-2">
                   <h4 className="font-bold text-slate-800 mb-2">📸 첨부 사진 ({selectedItem.images.length}장)</h4>
@@ -960,7 +1009,6 @@ export default function InquiryBoardPage() {
         </div>
       )}
 
-      {/* ✅ 확대 사진 모달창도 Next.js <Image>로 교체 완료 */}
       {enlargedImage && (
         <div
           onClick={() => setEnlargedImage(null)}
@@ -1132,7 +1180,6 @@ export default function InquiryBoardPage() {
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {filePreviews.map((preview, index) => (
                       <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200">
-                        {/* 💡 작성 중 미리보기는 로컬 임시 파일이므로 기존 img 유지 */}
                         <img src={preview} alt="미리보기" className="w-full h-full object-cover" />
                         <button
                           type="button"
