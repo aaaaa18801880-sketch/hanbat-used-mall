@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
+import Script from "next/script";
 import "./globals.css";
+
+// 💡 발급받은 구글 애널리틱스 측정 ID 적용 완료
+const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
 
 export const metadata: Metadata = {
   title: "한밭중고전자에 오신 것을 환영합니다",
-  // 👇 기존 긴 설명을 80자 이내(75자)로 압축했습니다.
   description: "대전 한밭중고전자. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 최고가 매입 및 최저가 판매. 무료 견적 042-523-8179",
   keywords: [
     "한밭중고전자",
@@ -30,7 +33,6 @@ export const metadata: Metadata = {
     url: "https://hanbatmall.com",
     siteName: "한밭중고전자",
     title: "한밭중고전자에 오신 것을 환영합니다",
-    // Open Graph(카톡 공유 시 뜨는 설명)도 80자 이내로 맞춤
     description: "대전 한밭중고전자. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 최고가 매입 및 최저가 판매. 무료 견적 042-523-8179",
     images: [
       {
@@ -47,8 +49,6 @@ export const metadata: Metadata = {
     },
   },
 };
-
-// ... (아래 RootLayout 코드는 기존과 동일하게 그대로 두시면 됩니다) ...
 
 export default function RootLayout({
   children,
@@ -88,9 +88,27 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        {/* 구글 애널리틱스 스크립트 로드 */}
+        <Script
+          strategy="afterInteractive"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_MEASUREMENT_ID}', {
+                page_path: window.location.pathname,
+              });
+            `,
+          }}
+        />
       </head>
       <body>
-        {/* ✅ 토스트 팝업이 뜰 수 있도록 바디 최상단에 배치 */}
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         {children}
       </body>
