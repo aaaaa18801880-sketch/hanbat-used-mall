@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-// ✅ 토스트 UI 라이브러리 불러오기
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "한밭중고전자에 오신 것을 환영합니다",
-  description: "대전 중구 중촌동 144 위치. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 전문. 최고가 당일 매입 및 최저가 판매. 무료 견적 및 방문 상담 042-523-8179.",
+  // 👇 기존 긴 설명을 80자 이내(75자)로 압축했습니다.
+  description: "대전 한밭중고전자. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 최고가 매입 및 최저가 판매. 무료 견적 042-523-8179",
   keywords: [
     "한밭중고전자",
     "대전중고가전",
@@ -30,7 +30,8 @@ export const metadata: Metadata = {
     url: "https://hanbatmall.com",
     siteName: "한밭중고전자",
     title: "한밭중고전자에 오신 것을 환영합니다",
-    description: "대전 중구 중촌동 144 위치. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 전문. 무료 견적 및 방문 상담 042-523-8179.",
+    // Open Graph(카톡 공유 시 뜨는 설명)도 80자 이내로 맞춤
+    description: "대전 한밭중고전자. 중고 냉장고, 세탁기, 에어컨, 업소용 주방가전 최고가 매입 및 최저가 판매. 무료 견적 042-523-8179",
     images: [
       {
         url: "/main-bg.png",
@@ -46,6 +47,8 @@ export const metadata: Metadata = {
     },
   },
 };
+
+// ... (아래 RootLayout 코드는 기존과 동일하게 그대로 두시면 됩니다) ...
 
 export default function RootLayout({
   children,

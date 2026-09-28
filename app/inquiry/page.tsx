@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
-// ✅ alert 대신 사용할 토스트 라이브러리 추가
 import toast from "react-hot-toast";
+// ✅ Next.js 자체 강력한 이미지 최적화 컴포넌트 불러오기
+import Image from "next/image";
 
 export default function InquiryBoardPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
@@ -74,7 +75,8 @@ export default function InquiryBoardPage() {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = (event) => {
-        const img = new Image();
+        // 👇 이 부분을 'new Image()'에서 'new window.Image()'로 수정합니다!
+        const img = new window.Image();
         img.src = event.target?.result as string;
         img.onload = () => {
           const canvas = document.createElement("canvas");
@@ -767,6 +769,7 @@ export default function InquiryBoardPage() {
                 {selectedItem.description || "등록된 상세 내용이 없습니다."}
               </div>
 
+              {/* ✅ 첨부 사진 목록을 Next.js <Image> 로 변경 완료 */}
               {selectedItem.images && selectedItem.images.length > 0 && (
                 <div className="pt-2">
                   <h4 className="font-bold text-slate-800 mb-2">📸 첨부 사진 ({selectedItem.images.length}장)</h4>
@@ -777,8 +780,14 @@ export default function InquiryBoardPage() {
                         onClick={() => setEnlargedImage(imgUrl)}
                         className="aspect-square bg-slate-100 rounded-xl overflow-hidden border border-slate-200 cursor-pointer group relative"
                       >
-                        <img src={imgUrl} alt={`첨부사진-${idx}`} className="w-full h-full object-cover group-hover:scale-105 transition" />
-                        <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">
+                        <Image 
+                          src={imgUrl} 
+                          alt={`첨부사진-${idx}`} 
+                          fill
+                          sizes="(max-width: 768px) 33vw, 20vw"
+                          className="object-cover group-hover:scale-105 transition" 
+                        />
+                        <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition z-10">
                           확대
                         </span>
                       </div>
@@ -951,15 +960,23 @@ export default function InquiryBoardPage() {
         </div>
       )}
 
+      {/* ✅ 확대 사진 모달창도 Next.js <Image>로 교체 완료 */}
       {enlargedImage && (
         <div
           onClick={() => setEnlargedImage(null)}
-          className="fixed inset-0 z-[100] bg-black/80 flex items-center justify-center p-4 cursor-pointer"
+          className="fixed inset-0 z-[100] bg-black/80 flex flex-col items-center justify-center p-4 cursor-pointer"
         >
-          <div className="relative max-w-3xl max-h-[90vh]">
-            <img src={enlargedImage} alt="확대사진" className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" />
-            <p className="text-center text-white/80 text-xs mt-2">화면을 클릭하면 닫힙니다.</p>
+          <div className="relative w-full max-w-4xl h-[80vh]">
+            <Image 
+              src={enlargedImage} 
+              alt="확대사진" 
+              fill 
+              className="object-contain drop-shadow-2xl" 
+            />
           </div>
+          <p className="text-center text-white/80 text-xs mt-4 relative z-10">
+            화면을 클릭하면 닫힙니다.
+          </p>
         </div>
       )}
 
@@ -1115,6 +1132,7 @@ export default function InquiryBoardPage() {
                   <div className="grid grid-cols-3 gap-2 mt-2">
                     {filePreviews.map((preview, index) => (
                       <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-slate-200">
+                        {/* 💡 작성 중 미리보기는 로컬 임시 파일이므로 기존 img 유지 */}
                         <img src={preview} alt="미리보기" className="w-full h-full object-cover" />
                         <button
                           type="button"
