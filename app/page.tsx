@@ -229,8 +229,22 @@ export default function Home() {
       });
 
       if (error) throw error;
+
+// 👇👇 텔레그램 발송 API 호출 👇👇
+      fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name, 
+          phone, 
+          type: inquiryType, 
+          title 
+        }),
+      }).catch((err) => console.error("텔레그램 전송 요청 실패:", err));
+      // 👆👆 여기까지 👆👆
+
       toast.success("문의가 성공적으로 접수되었습니다! 빠르게 확인 후 연락드리겠습니다.");
-      setName(""); setPhone(""); setPassword(""); setTitle(""); setDescription(""); 
+      setName(""); setPhone(""); setPassword(""); setTitle(""); setDescription("");
       setSelectedFiles([]); setFilePreviews([]); setAgreed(false);
       setHasElevator("있음 (제품 적재 가능)"); setHasStairs("없음 (1층 또는 엘리베이터 이동)");
       fetchData();

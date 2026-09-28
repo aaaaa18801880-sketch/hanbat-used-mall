@@ -328,6 +328,19 @@ export default function InquiryBoardPage() {
 
       if (insertError) throw insertError;
 
+// 👇👇 텔레그램 발송 API 호출 👇👇
+      fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          name, 
+          phone, 
+          type: inquiryType, 
+          title 
+        }),
+      }).catch((err) => console.error("텔레그램 전송 요청 실패:", err));
+      // 👆👆 여기까지 👆👆
+
       toast.success(isNotice ? "공지사항이 등록되었습니다." : "문의가 성공적으로 접수되었습니다!");
       setIsWriteOpen(false);
       setCurrentPage(1);
