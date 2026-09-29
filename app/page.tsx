@@ -450,72 +450,67 @@ export default function Home() {
     {/* 왼쪽: 스마트폰 목업(Mockup) UI */}
     <div className="relative w-full max-w-[320px] bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border-[8px] border-slate-50 shrink-0 transform transition duration-500 hover:-translate-y-2">
       
-      {/* 목업 헤더 (로고 영역) - 글씨 크기 확대 및 서브 텍스트 삭제 */}
-      <div className="pt-12 pb-8 text-center border-b border-slate-100">
-        <div className="flex items-center justify-center gap-2">
-          <span className="text-[#0b4b8b] text-4xl">⚡</span>
-          <h3 className="text-4xl font-black text-slate-900 tracking-tight">한밭중고전자</h3>
+      {/* 목업 헤더 (로고 영역) - 글씨 크기 대폭 확대 및 자간 축소 */}
+      <div className="pt-12 pb-8 text-center border-b border-[#f1f3f5]">
+        <div className="flex items-center justify-center gap-1.5">
+          <span className="text-[#0b4b8b] text-[40px]">⚡</span>
+          <h3 className="text-[38px] font-black text-[#111111] tracking-tighter">한밭중고전자</h3>
         </div>
       </div>
 
-      {/* 목업 리스트 (고객 고민 리스트) - 아이콘 통일감 부여 및 가독성 개선 */}
+      {/* 목업 리스트 (고객 고민 리스트) */}
       <div className="px-7 py-3 flex flex-col">
-        {/* 리스트 아이템 1 */}
-        <div className="border-b border-slate-100 py-4">
-          <div className="w-9 h-9 bg-yellow-50 text-yellow-500 rounded-xl flex items-center justify-center mb-3 text-base shadow-sm border border-yellow-100/50">💰</div>
-          <p className="text-[15px] font-bold text-slate-800 break-keep leading-snug">
+        <div className="border-b border-[#f1f3f5] py-4">
+          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">💰</div>
+          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
             더 이상 헐값에 매각(?)하고 싶지 않다!
           </p>
         </div>
-        {/* 리스트 아이템 2 */}
-        <div className="border-b border-slate-100 py-4">
-          <div className="w-9 h-9 bg-yellow-50 text-yellow-500 rounded-xl flex items-center justify-center mb-3 text-base shadow-sm border border-yellow-100/50">💬</div>
-          <p className="text-[15px] font-bold text-slate-800 break-keep leading-snug">
+        <div className="border-b border-[#f1f3f5] py-4">
+          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">💬</div>
+          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
             업체와의 가격 흥정이 심리적으로 두렵다!
           </p>
         </div>
-        {/* 리스트 아이템 3 */}
-        <div className="border-b border-slate-100 py-4">
-          <div className="w-9 h-9 bg-yellow-50 text-yellow-500 rounded-xl flex items-center justify-center mb-3 text-base shadow-sm border border-yellow-100/50">📅</div>
-          <p className="text-[15px] font-bold text-slate-800 break-keep leading-snug">
+        <div className="border-b border-[#f1f3f5] py-4">
+          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">📅</div>
+          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
             무거운 가전, 원하는 날짜에 바로 치우고 싶다!
           </p>
         </div>
-        {/* 리스트 아이템 4 */}
-        <div className="border-b border-slate-100 py-4">
-          <div className="w-9 h-9 bg-yellow-50 text-yellow-500 rounded-xl flex items-center justify-center mb-3 text-base shadow-sm border border-yellow-100/50">🛠️</div>
-          <p className="text-[15px] font-bold text-slate-800 break-keep leading-snug">
+        <div className="border-b border-[#f1f3f5] py-4">
+          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">🛠️</div>
+          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
             중고라도 확실하게 A/S 보장을 받고 싶다!
           </p>
         </div>
-        {/* 리스트 아이템 5 */}
         <div className="py-4">
-          <div className="w-9 h-9 bg-yellow-50 text-yellow-500 rounded-xl flex items-center justify-center mb-3 text-base shadow-sm border border-yellow-100/50">🧾</div>
-          <p className="text-[15px] font-bold text-slate-800 break-keep leading-snug">
+          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">🧾</div>
+          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
             결제부터 세금계산서까지 투명하게 거래하고 싶다!
           </p>
         </div>
       </div>
     </div>
 
-    {/* 오른쪽: 텍스트 및 CTA 버튼 영역 - 하단 불필요한 텍스트 삭제 */}
+    {/* 오른쪽: 텍스트 및 CTA 버튼 영역 (디자인 시안과 100% 동일하게 자간/행간 압축) */}
     <div className="flex-1 text-center lg:text-left">
-      <h2 className="text-3xl sm:text-4xl lg:text-[42px] font-black text-slate-900 leading-[1.3] mb-5 break-keep tracking-tight">
+      <h2 className="text-[38px] sm:text-[46px] font-black text-[#111111] leading-[1.2] tracking-tighter mb-4 break-keep">
         중고가전 처분·구매,<br /> 이런 고민 중이세요?
       </h2>
-      <h3 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-slate-700 leading-[1.4] mb-7 break-keep tracking-tight">
+      <h3 className="text-[26px] sm:text-[32px] font-extrabold text-[#343a40] leading-[1.3] tracking-tight mb-8 break-keep">
         언제 알아보고,<br /> 견적받고, 운반하고...
       </h3>
-      <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-10 break-keep max-w-lg mx-auto lg:mx-0 font-medium">
+      <p className="text-[#868e96] text-[15px] sm:text-[16px] leading-[1.6] mb-10 break-keep max-w-lg mx-auto lg:mx-0 font-medium tracking-tight">
         한밭중고전자는 폐업이나 이사 등으로 힘들어하시는 고객님들에게<br className="hidden sm:block" />
         중고가전 처분과 구매만큼은 그 부담을 확실하게 덜어드리고자 합니다.
       </p>
       
       <button 
         onClick={() => window.location.href='/inquiry'}
-        className="bg-slate-50 text-slate-700 font-bold px-7 py-3.5 rounded-xl border border-slate-200 hover:bg-slate-100 hover:text-slate-900 transition flex items-center justify-center gap-2 mx-auto lg:mx-0 shadow-sm text-[15px]"
+        className="bg-[#f8f9fa] text-[#495057] font-bold px-7 py-3.5 rounded-[12px] border border-[#e9ecef] hover:bg-[#e9ecef] transition flex items-center justify-center gap-3 mx-auto lg:mx-0 text-[15px] tracking-tight"
       >
-        빠른 견적 & 상담 요청 <span className="text-slate-400 ml-1">&gt;</span>
+        빠른 견적 & 상담 요청 <span className="text-[#adb5bd] font-normal">&gt;</span>
       </button>
     </div>
 
