@@ -49,7 +49,6 @@ export default function Home() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
   
-  // 💡 메인 배너 슬라이드 이미지 (고화질 AI 추천 이미지로 완벽 적용 완료!)
   const bgImages = [
     'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=1200&auto=format&fit=crop', 
@@ -439,7 +438,6 @@ export default function Home() {
              <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4 z-20">
                <div className="w-12 h-12 bg-blue-50 text-[#0b4b8b] rounded-full flex items-center justify-center text-xl font-black">🏅</div>
                <div>
-                 <p className="text-xs font-bold text-slate-400">거짓 없는 전문성</p>
                  <p className="text-xl font-black text-[#111111] tracking-tighter">30년 업력의 노하우</p>
                </div>
              </div>
@@ -447,7 +445,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🟢 실물 사진 중심의 카테고리 섹션 (인터넷 주소 직접 연동으로 엑스박스 완벽 해결!) */}
+      {/* 🟢 실물 사진 중심의 카테고리 섹션 */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
@@ -486,7 +484,6 @@ export default function Home() {
             <a href="/gallery?category=업소용기기" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 ring-2 ring-[#0b4b8b] ring-offset-2">
               <img src="https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?q=80&w=600&auto=format&fit=crop" alt="업소용 주방기기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0b4b8b]/90 via-[#111111]/40 to-transparent"></div>
-              <div className="absolute top-4 left-4 bg-[#0b4b8b] text-white text-[10px] font-black px-2 py-1.5 rounded uppercase tracking-wider">B2B 전문</div>
               <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
                 <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">업소용 기기 전체</h3>
                 <p className="text-slate-200 text-[11px] sm:text-sm font-medium">쇼케이스 · 영업용 냉장고 · 제빙기</p>
@@ -496,7 +493,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🟢 스마트폰 UI 및 특장점 섹션 (헤더 텍스트 뱃지로 변경 완벽 적용) */}
+      {/* 🟢 스마트폰 UI 및 특장점 섹션 */}
       <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24">
           
