@@ -9,13 +9,15 @@ export default function GalleryPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeCategory, setActiveCategory] = useState("전체");
 
+  const categories = ["전체", "냉장고", "세탁기/건조기", "에어컨/냉난방기", "업소용기기", "기타"];
+
   // Supabase에서 products 테이블 데이터를 불러옵니다.
   const fetchProducts = async () => {
-    setIsLoading(true); // ✅ 데이터 부르기 시작: 스켈레톤 UI 켜기
+    setIsLoading(true);
     
     try {
       const { data, error } = await supabase
-        .from("products") // 제품 테이블 이름 (필요시 수정)
+        .from("products")
         .select("*")
         .order("created_at", { ascending: false });
 
@@ -24,11 +26,20 @@ export default function GalleryPage() {
     } catch (err) {
       console.error("제품을 불러오는데 실패했습니다:", err);
     } finally {
-      setIsLoading(false); // ✅ 데이터 다 부름: 스켈레톤 UI 끄기
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
+    // ✅ URL에 꼬리표(?category=...)가 있는지 확인하고 탭을 이동시킵니다.
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const categoryQuery = params.get("category");
+      if (categoryQuery && categories.includes(categoryQuery)) {
+        setActiveCategory(categoryQuery);
+      }
+    }
+
     // 관리자 세션 체크
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -52,12 +63,8 @@ export default function GalleryPage() {
     return product.category === activeCategory;
   });
 
-  // 임시 카테고리 목록 (원하시는 대로 수정 가능합니다)
-  const categories = ["전체", "냉장고", "세탁기/건조기", "에어컨/냉난방기", "업소용기기", "기타"];
-
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col">
-      {/* 🟢 헤더 영역 (문의 게시판과 동일) */}
       <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
         <div className="max-w-7xl mx-auto px-3 py-3 sm:py-0 sm:h-20 flex items-center justify-between gap-2">
           <a href="/" className="font-black text-sm sm:text-xl tracking-tight flex items-center gap-1.5 shrink-0 hover:opacity-80 transition">
@@ -83,7 +90,6 @@ export default function GalleryPage() {
         </div>
       </header>
 
-      {/* 🟢 메인 본문 영역 */}
       <main className="max-w-7xl mx-auto px-4 py-12 flex-1 w-full">
         <div className="text-center mb-10">
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mb-3">판매 제품 갤러리</h1>
@@ -107,16 +113,12 @@ export default function GalleryPage() {
           ))}
         </div>
 
-        {/* 🟢 갤러리 그리드 & 스켈레톤 UI */}
+        {/* 갤러리 그리드 & 스켈레톤 UI */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8">
-          
           {isLoading ? (
-            /* ✅ 로딩 중일 때 보여줄 바둑판 모양 스켈레톤 애니메이션 (8개) */
             Array.from({ length: 8 }).map((_, idx) => (
               <div key={`skeleton-${idx}`} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm animate-pulse">
-                {/* 썸네일 이미지 자리 */}
                 <div className="aspect-square bg-slate-200 w-full"></div>
-                {/* 텍스트 정보 자리 */}
                 <div className="p-5 space-y-3">
                   <div className="h-5 bg-slate-200 rounded-md w-4/5"></div>
                   <div className="h-4 bg-slate-200 rounded-md w-1/2"></div>
@@ -127,28 +129,23 @@ export default function GalleryPage() {
               </div>
             ))
           ) : filteredProducts.length === 0 ? (
-            /* 데이터가 없을 때 */
             <div className="col-span-full py-20 text-center text-slate-400 font-medium bg-white rounded-3xl border border-slate-200">
               해당 카테고리에 등록된 제품이 없습니다.
             </div>
           ) : (
-            /* ✅ 로딩 완료 후 실제 제품 리스트 */
             filteredProducts.map((product) => {
-              // Supabase의 images 배열에서 첫 번째 사진을 가져오거나, 없다면 대체 이미지 사용
               const imageUrl = product.images && product.images.length > 0 
                 ? product.images[0] 
                 : product.image_url || "/images/placeholder.png";
 
               return (
                 <div key={product.id} className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer flex flex-col">
-                  {/* 사진 영역 */}
                   <div className="aspect-square relative overflow-hidden bg-slate-100">
                     <img 
                       src={imageUrl} 
                       alt={product.title || product.name || "제품 이미지"} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    {/* 상태 뱃지 (예: 판매중, 판매완료) */}
                     {product.status && (
                       <div className={`absolute top-3 left-3 px-3 py-1 rounded-md text-xs font-black text-white shadow-md backdrop-blur-sm ${
                         product.status === '판매완료' ? 'bg-slate-800/80' : 'bg-[#0b4b8b]/90'
@@ -157,8 +154,6 @@ export default function GalleryPage() {
                       </div>
                     )}
                   </div>
-                  
-                  {/* 정보 영역 */}
                   <div className="p-5 flex flex-col flex-1">
                     <span className="text-[10px] sm:text-xs font-bold text-slate-400 mb-1">{product.category || '기타'}</span>
                     <h3 className="font-bold text-slate-900 text-sm sm:text-base leading-snug mb-3 line-clamp-2 flex-1">
@@ -177,7 +172,6 @@ export default function GalleryPage() {
         </div>
       </main>
 
-      {/* 🟢 푸터 영역 (문의 게시판과 동일) */}
       <footer className="bg-slate-950 text-slate-400 py-10 text-xs border-t border-slate-800 w-full mt-auto">
         <div className="max-w-7xl mx-auto px-4 space-y-3">
           <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 pb-4 border-b border-slate-900 text-slate-300 font-bold">
