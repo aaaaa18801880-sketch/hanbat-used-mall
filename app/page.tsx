@@ -596,76 +596,80 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 오프라인 매장 소개 & 찾아오시는 길 섹션 */}
-      <section id="location-section" className="bg-white py-20 border-b border-slate-200 scroll-mt-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+     {/* 🟢 오시는 길 & 내비게이션 연동 섹션 */}
+      <section id="location-section" className="py-24 bg-slate-50 border-t border-slate-200">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-12">
-            <span className="text-xs font-black text-[#0b4b8b] tracking-widest uppercase">Store Location</span>
-            <h2 className="text-xl sm:text-3xl font-black text-slate-900 mt-1 break-keep">대전 최대 규모 중고가전 전문 매장</h2>
-            <p className="text-sm text-slate-500 mt-2 break-keep px-4">직접 눈으로 보고 안심하고 거래할 수 있는 신뢰의 오프라인 본점입니다.</p>
+            <span className="text-[#0b4b8b] font-black text-sm tracking-widest uppercase">Location</span>
+            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 tracking-tight">매장 오시는 길</h2>
+            <p className="text-slate-500 mt-4 font-medium">한밭중고전자 오프라인 매장에 방문하셔서 직접 제품을 확인해 보세요.</p>
           </div>
-
-          <div className="bg-white rounded-3xl shadow-lg border border-slate-200 overflow-hidden flex flex-col lg:flex-row">
-            <div className="lg:w-1/2 h-[350px] sm:h-[450px] lg:h-auto relative bg-slate-100 border-b lg:border-b-0 lg:border-r border-slate-200">
+          
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col lg:flex-row">
+            
+            {/* 왼쪽: 인터랙티브 움직이는 지도 (Google Maps) */}
+            <div className="w-full lg:w-1/2 h-[350px] lg:h-auto bg-slate-200 relative">
               <iframe 
                 src="https://maps.google.com/maps?q=대전광역시%20중구%20중촌동%20144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-                className="absolute inset-0 w-full h-full border-0" 
+                className="absolute inset-0 w-full h-full" 
+                frameBorder="0" 
+                style={{ border: 0 }} 
                 allowFullScreen 
                 loading="lazy" 
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
             </div>
-
-            <div className="lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
-              <div className="inline-flex items-center gap-2 bg-blue-50 text-[#0b4b8b] px-3 py-1.5 rounded-lg text-xs font-bold w-fit mb-5 border border-blue-100">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                </span>
-                정상 영업 중
+            
+            {/* 오른쪽: 매장 상세 정보 및 길찾기 버튼 */}
+            <div className="w-full lg:w-1/2 p-8 sm:p-10 flex flex-col justify-center">
+              <div className="mb-8">
+                <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">한밭중고전자</h3>
+                <p className="text-slate-600 font-medium break-keep">대전광역시 중구 중촌동 144 (중촌고가도로 밑)</p>
               </div>
               
-              <h3 className="text-2xl font-black text-slate-900 mb-6">가는 길 안내</h3>
+              <div className="space-y-5 mb-10">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-lg shrink-0">📞</div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 mb-0.5">고객센터 / 매장 전화</p>
+                    <p className="text-base font-black text-slate-800 tracking-tight">042-523-8179 / 010-5406-8179</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-lg shrink-0">⏰</div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 mb-0.5">영업시간</p>
+                    <p className="text-base font-black text-slate-800 tracking-tight">월~토 09:00 - 19:00 <span className="text-sm font-medium text-slate-500 ml-1">(일요일 휴무)</span></p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-lg shrink-0">🚗</div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 mb-0.5">주차 안내</p>
+                    <p className="text-base font-bold text-slate-800 tracking-tight">매장 앞 전용 주차장 이용 가능</p>
+                  </div>
+                </div>
+              </div>
               
-              <div className="space-y-6 text-sm">
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 text-xl shadow-sm">📍</div>
-                  <div className="pt-0.5">
-                    <strong className="block text-slate-900 mb-1 text-base">오시는 길</strong>
-                    <p className="text-slate-600 font-medium leading-relaxed">대전광역시 중구 중촌동 144<br/><span className="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500">내비게이션에 '한밭중고전자' 검색</span></p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 text-xl shadow-sm">⏰</div>
-                  <div className="pt-0.5">
-                    <strong className="block text-slate-900 mb-1 text-base">영업 시간</strong>
-                    <p className="text-slate-600 font-medium leading-relaxed">월요일 ~ 토요일 : 09:00 - 19:00<br/><span className="text-red-500 text-xs font-bold">매주 일요일 정기 휴무</span></p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center shrink-0 border border-slate-100 text-xl shadow-sm">🚗</div>
-                  <div className="pt-0.5">
-                    <strong className="block text-slate-900 mb-1 text-base">주차 안내</strong>
-                    <p className="text-slate-600 font-medium leading-relaxed">매장 앞 전용 주차장 무료 이용 가능<br/><span className="text-slate-500 text-xs">(대형 화물차 및 탑차 진입 가능)</span></p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
-                <a href="https://naver.me/F5DkWQ4z" target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#03C75A] hover:bg-[#02b351] text-white text-center py-3.5 rounded-xl font-bold transition shadow-sm text-sm flex items-center justify-center gap-1.5">
-                  네이버 지도로 보기
+              {/* 내비게이션 다이렉트 버튼 (클릭 시 각 앱으로 바로 연결) */}
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <a href="https://map.kakao.com/link/search/대전광역시 중구 중촌동 144" target="_blank" rel="noopener noreferrer" className="bg-[#fee500] hover:bg-[#ebd300] text-[#191919] text-xs sm:text-sm font-black py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm tracking-tight">
+                  카카오맵
                 </a>
-                <a href="https://map.kakao.com/link/search/대전광역시 중구 중촌동 144" target="_blank" rel="noopener noreferrer" className="flex-1 bg-[#FEE500] hover:bg-[#FADA0A] text-slate-900 text-center py-3.5 rounded-xl font-bold transition shadow-sm text-sm flex items-center justify-center gap-1.5">
-                  카카오 맵으로 보기
+                <a href="https://map.naver.com/p/search/대전광역시%20중구%20중촌동%20144" target="_blank" rel="noopener noreferrer" className="bg-[#03c75a] hover:bg-[#02b351] text-white text-xs sm:text-sm font-black py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm tracking-tight">
+                  네이버지도
+                </a>
+                <a href="tmap://search?name=한밭중고전자" className="bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-black py-3.5 rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm tracking-tight">
+                  티맵 (모바일)
                 </a>
               </div>
+              <p className="text-center text-[11px] text-slate-400 mt-3 font-medium">모바일에서 버튼을 누르면 길안내 앱으로 바로 연결됩니다.</p>
             </div>
+            
           </div>
         </div>
       </section>
-
+      
       {/* 통합 문의 폼 */}
       <section id="inquiry-section" className="max-w-7xl mx-auto px-4 py-16 scroll-mt-10 border-t border-slate-200 bg-slate-50 rounded-t-[40px] mt-10">
         <div className="text-center mb-10">
