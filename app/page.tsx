@@ -444,48 +444,90 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 진행 과정 섹션 */}
-      <section className="bg-white py-20 border-b border-slate-200 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <span className="text-xs font-black text-[#3b82f6] tracking-widest uppercase">Systematic Process</span>
-            <h2 className="text-2xl sm:text-4xl font-black text-slate-900 mt-1">중고가전제품 진행 과정</h2>
-            <p className="text-sm text-slate-500 mt-2">체계적인 프로세스로 안전하고 깔끔하게 진행합니다</p>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
-            {[
-              {t: "문의 접수", c: "전화/카톡 간편 문의", icon: "접수"}, 
-              {t: "방문 및 확인", c: "사진/현장 상태 체크", icon: "확인"}, 
-              {t: "견적 산출", c: "합리적인 최고가 견적", icon: "견적"}, 
-              {t: "작업 진행", c: "안전한 수거 및 설치", icon: "작업"}, 
-              {t: "완료 검수", c: "작업 후 현장 정리", icon: "검수"}, 
-              {t: "사후 관리", c: "무상 A/S 확실 보장", icon: "관리"}
-            ].map((step, i) => {
-              let arrowClass = "hidden ";
-              if (i === 0 || i === 4) arrowClass = "block "; 
-              else if (i === 2) arrowClass = "block md:hidden lg:block "; 
-              else if (i === 1 || i === 3) arrowClass = "hidden md:block "; 
-
-              return (
-                <div key={i} className="relative bg-white border border-slate-200/80 p-5 sm:p-6 rounded-3xl flex flex-col items-center text-center shadow-sm hover:shadow-lg hover:border-blue-300 transition-all duration-300 group z-10">
-                  <div className="w-12 h-12 bg-[#3b82f6] text-white font-black text-sm rounded-2xl flex items-center justify-center shadow-md mb-4 group-hover:-translate-y-1 group-hover:bg-[#0b4b8b] transition-all duration-300">
-                    {step.icon}
-                  </div>
-                  <h3 className="font-black text-slate-900 text-[15px] sm:text-base mb-1.5">{step.t}</h3>
-                  <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed break-keep">{step.c}</p>
-                  {i !== 5 && (
-                    <div className={`absolute top-1/2 -translate-y-1/2 -right-3 sm:-right-4 translate-x-1/2 text-slate-300 z-0 ${arrowClass}`}>
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 drop-shadow-sm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+      <section className="py-24 bg-white overflow-hidden">
+  <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24">
+    
+    {/* 왼쪽: 스마트폰 목업(Mockup) UI */}
+    <div className="relative w-full max-w-[340px] bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border-[8px] border-slate-50 shrink-0 transform transition duration-500 hover:-translate-y-2">
+      {/* 목업 헤더 (로고 영역) */}
+      <div className="pt-10 pb-6 text-center border-b border-slate-100">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <span className="text-[#0b4b8b] text-3xl">⚡</span>
+          <h3 className="text-3xl font-black text-slate-900 tracking-tight">한밭중고전자</h3>
         </div>
-      </section>
+        <p className="text-[11px] text-slate-500 font-bold tracking-[0.3em]">
+          판 | 매 | 와 | 매 | 입 | 의 | 고 | 수
+        </p>
+      </div>
+
+      {/* 목업 리스트 (고객 고민 리스트) */}
+      <div className="px-7 py-2 flex flex-col">
+        {/* 리스트 아이템 1 */}
+        <div className="border-b border-slate-100 py-4">
+          <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-2 text-sm">💰</div>
+          <p className="text-sm font-bold text-slate-800 break-keep">
+            더 이상 헐값에 매각(?)하고 싶지 않다!
+          </p>
+        </div>
+        {/* 리스트 아이템 2 */}
+        <div className="border-b border-slate-100 py-4">
+          <div className="w-8 h-8 bg-yellow-50 text-yellow-600 rounded-lg flex items-center justify-center mb-2 text-sm">💬</div>
+          <p className="text-sm font-bold text-slate-800 break-keep">
+            업체와의 가격 흥정이 심리적으로 두렵다!
+          </p>
+        </div>
+        {/* 리스트 아이템 3 */}
+        <div className="border-b border-slate-100 py-4">
+          <div className="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center mb-2 text-sm">📅</div>
+          <p className="text-sm font-bold text-slate-800 break-keep">
+            무거운 가전, 원하는 날짜에 바로 치우고 싶다!
+          </p>
+        </div>
+        {/* 리스트 아이템 4 */}
+        <div className="border-b border-slate-100 py-4">
+          <div className="w-8 h-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center mb-2 text-sm">🛠️</div>
+          <p className="text-sm font-bold text-slate-800 break-keep">
+            중고라도 확실하게 A/S 보장을 받고 싶다!
+          </p>
+        </div>
+        {/* 리스트 아이템 5 */}
+        <div className="py-4">
+          <div className="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center mb-2 text-sm">🧾</div>
+          <p className="text-sm font-bold text-slate-800 break-keep">
+            결제부터 세금계산서까지 투명하게 거래하고 싶다!
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* 오른쪽: 텍스트 및 CTA 버튼 영역 */}
+    <div className="flex-1 text-center lg:text-left">
+      <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-[1.3] mb-4 break-keep">
+        중고가전 처분·구매,<br /> 이런 고민 중이세요?
+      </h2>
+      <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-700 leading-[1.4] mb-6 break-keep">
+        언제 알아보고,<br /> 견적받고, 운반하고...
+      </h3>
+      <p className="text-slate-500 text-sm sm:text-base leading-relaxed mb-10 break-keep max-w-lg mx-auto lg:mx-0">
+        한밭중고전자는 폐업이나 이사 등으로 힘들어하시는 고객님들에게
+        중고가전 처분과 구매만큼은 그 부담을 확실하게 덜어드리고자 합니다.
+      </p>
+      
+      {/* 💡 이 버튼에 실제 글쓰기 모달창 열림 함수(예: onClick={handleOpenWrite})를 연결해 주시면 좋습니다. */}
+      <button className="bg-slate-50 text-slate-700 font-bold px-6 py-3.5 rounded-xl border border-slate-200 hover:bg-slate-100 transition flex items-center justify-center gap-2 mx-auto lg:mx-0">
+        빠른 견적 & 상담 요청 <span className="text-slate-400 ml-1">&gt;</span>
+      </button>
+
+      <div className="mt-10 inline-block relative">
+        <span className="relative z-10 font-bold text-slate-900 text-lg sm:text-xl px-1">
+          한밭중고전자는 정직하고 성실합니다!
+        </span>
+        <span className="absolute bottom-1.5 left-0 w-full h-3 sm:h-4 bg-yellow-300 -z-10 rounded-sm"></span>
+      </div>
+    </div>
+
+  </div>
+</section>
 
       {/* 갤러리 섹션 */}
       <section id="reviews-section" className="max-w-7xl mx-auto px-4 py-20 scroll-mt-10 flex-1 border-b border-slate-200">
