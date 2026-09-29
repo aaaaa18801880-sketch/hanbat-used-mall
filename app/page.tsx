@@ -445,7 +445,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🟢 실물 사진 중심의 카테고리 섹션 (완벽한 이미지 교체 적용) */}
+    {/* 🟢 실물 사진 중심의 카테고리 섹션 (PNG 이미지 확장자로 수정 완료!) */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
@@ -455,7 +455,7 @@ export default function Home() {
           
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <a href="/gallery?category=에어컨/냉난방기" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
-              <img src="https://images.unsplash.com/photo-1585776263595-5853245f3484?auto=format&fit=crop&w=600&q=80" alt="에어컨/냉난방기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src="/images/cat-ac.png" alt="에어컨/냉난방기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
                 <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">에어컨 / 냉난방기</h3>
@@ -464,7 +464,7 @@ export default function Home() {
             </a>
             
             <a href="/gallery?category=냉장고" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
-              <img src="https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?auto=format&fit=crop&w=600&q=80" alt="냉장고" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src="/images/cat-fridge.png" alt="냉장고" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
                 <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">냉장고</h3>
@@ -473,7 +473,7 @@ export default function Home() {
             </a>
             
             <a href="/gallery?category=세탁기/건조기" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
-              <img src="https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?auto=format&fit=crop&w=600&q=80" alt="세탁기/건조기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src="/images/cat-washer.png" alt="세탁기/건조기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
                 <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">세탁기 / 건조기</h3>
@@ -482,7 +482,7 @@ export default function Home() {
             </a>
             
             <a href="/gallery?category=업소용기기" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
-              <img src="https://images.unsplash.com/photo-1587293852726-70cdb56c2866?auto=format&fit=crop&w=600&q=80" alt="업소용 주방기기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <img src="/images/cat-commercial.png" alt="업소용 주방기기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
               <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
                 <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">업소용 기기 전체</h3>
@@ -492,7 +492,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+      
       {/* 스마트폰 UI 및 특장점 섹션 */}
       <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24">
