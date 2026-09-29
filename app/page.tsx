@@ -380,7 +380,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 🟢 1. 메인 Hero 섹션 (사진 슬라이더 적용) */}
+      {/* 🟢 메인 Hero 섹션 (사진 슬라이더 적용) */}
       <section className="relative bg-slate-50 pt-20 pb-16 lg:pt-32 lg:pb-24 overflow-hidden border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 text-center lg:text-left flex flex-col lg:flex-row items-center gap-12">
           
@@ -408,10 +408,8 @@ export default function Home() {
             </div>
           </div>
           
-          {/* 우측 이미지 영역 (PC에서만 노출하여 시각적 안정감 부여) */}
           <div className="flex-1 w-full max-w-lg lg:max-w-none relative hidden md:block">
              <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative bg-slate-200 group">
-               {/* 💡 슬라이드 이미지 출력 */}
                {bgImages.map((img, idx) => (
                  <img
                    key={idx}
@@ -423,7 +421,6 @@ export default function Home() {
                  />
                ))}
 
-               {/* 💡 우측 하단 3개 점 버튼 */}
                <div className="absolute bottom-5 right-5 flex gap-2 z-20">
                  {bgImages.map((_, idx) => (
                    <button
@@ -438,7 +435,6 @@ export default function Home() {
                </div>
              </div>
 
-             {/* 30년 업력 신뢰도 배지 */}
              <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4 z-20">
                <div className="w-12 h-12 bg-blue-50 text-[#0b4b8b] rounded-full flex items-center justify-center text-xl font-black">🏅</div>
                <div>
@@ -450,7 +446,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🟢 2. 실물 사진 중심의 카테고리 섹션 (무한로딩 에러 방지 완료) */}
+      {/* 🟢 실물 사진 중심의 카테고리 섹션 (무한로딩 에러 방지 완료) */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
@@ -499,16 +495,15 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 스마트폰 UI 및 특장점 섹션 */}
+      {/* 🟢 스마트폰 UI 및 특장점 섹션 (헤더 번개 아이콘 제거 및 뱃지로 깔끔하게 변경) */}
       <section className="py-24 bg-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24">
           
           <div className="relative w-full max-w-[380px] bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border-[8px] border-slate-50 shrink-0 transform transition duration-500 hover:-translate-y-2">
             
-            <div className="pt-12 pb-8 text-center border-b border-[#f1f3f5]">
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="text-[#0b4b8b] text-[36px]">⚡</span>
-                <h3 className="text-[34px] font-black text-[#111111] tracking-tighter">한밭중고전자</h3>
+            <div className="pt-10 pb-6 text-center border-b border-[#f1f3f5]">
+              <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-50 text-[#0b4b8b] font-bold text-sm tracking-tight">
+                매입·판매 안심 시스템
               </div>
             </div>
 
@@ -1004,7 +999,7 @@ export default function Home() {
             전국 중고가전 판매·매입 전문, 한밭중고전자
           </h3>
           <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed break-keep">
-            한밭중고전자는 30년 이상의 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다. 전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스를 제공합니다. 가정용 중고가전부터 식당·카페·사업장의 업소용 주방기기까지 판매, 매입, 대량 거래를 한 곳에서 상담받을 수 있습니다.
+            한밭중고전자는 30년 이상의 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다. 전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스 제공합니다. 가정용 중고가전부터 식당·카페·사업장의 업소용 주방기기까지 판매, 매입, 대량 거래를 한 곳에서 상담받을 수 있습니다.
           </p>
 
           <div className="sr-only">
