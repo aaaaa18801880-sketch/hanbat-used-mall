@@ -444,56 +444,56 @@ export default function Home() {
         </div>
       </section>
 
-     <section className="py-24 bg-white overflow-hidden">
+    <section className="py-24 bg-white overflow-hidden">
   <div className="max-w-6xl mx-auto px-4 flex flex-col lg:flex-row items-center justify-center gap-16 lg:gap-24">
     
-    {/* 왼쪽: 스마트폰 목업(Mockup) UI */}
-    <div className="relative w-full max-w-[320px] bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border-[8px] border-slate-50 shrink-0 transform transition duration-500 hover:-translate-y-2">
+    {/* 왼쪽: 스마트폰 목업 UI - 가로 너비를 대폭 늘림 (max-w-[320px] -> max-w-[380px]) */}
+    <div className="relative w-full max-w-[380px] bg-white rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.08)] border-[8px] border-slate-50 shrink-0 transform transition duration-500 hover:-translate-y-2">
       
-      {/* 목업 헤더 (로고 영역) - 글씨 크기 대폭 확대 및 자간 축소 */}
+      {/* 목업 헤더 */}
       <div className="pt-12 pb-8 text-center border-b border-[#f1f3f5]">
         <div className="flex items-center justify-center gap-1.5">
-          <span className="text-[#0b4b8b] text-[40px]">⚡</span>
-          <h3 className="text-[38px] font-black text-[#111111] tracking-tighter">한밭중고전자</h3>
+          <span className="text-[#0b4b8b] text-[36px]">⚡</span>
+          <h3 className="text-[34px] font-black text-[#111111] tracking-tighter">한밭중고전자</h3>
         </div>
       </div>
 
-      {/* 목업 리스트 (고객 고민 리스트) */}
-      <div className="px-7 py-3 flex flex-col">
+      {/* 목업 리스트 - 아이콘 크기 축소, 한 줄에 쏙 들어오는 문구로 변경 */}
+      <div className="px-7 py-2 flex flex-col">
         <div className="border-b border-[#f1f3f5] py-4">
-          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">💰</div>
-          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
-            더 이상 헐값에 매각(?)하고 싶지 않다!
+          <div className="w-7 h-7 bg-[#fff3cd] text-[#ffc107] rounded-[8px] flex items-center justify-center mb-2.5 text-[13px] shadow-sm">💰</div>
+          <p className="text-[14.5px] font-bold text-[#343a40] tracking-tight whitespace-nowrap">
+            투명하고 합리적인 최고가 매입!
           </p>
         </div>
         <div className="border-b border-[#f1f3f5] py-4">
-          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">💬</div>
-          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
-            업체와의 가격 흥정이 심리적으로 두렵다!
+          <div className="w-7 h-7 bg-[#fff3cd] text-[#ffc107] rounded-[8px] flex items-center justify-center mb-2.5 text-[13px] shadow-sm">💬</div>
+          <p className="text-[14.5px] font-bold text-[#343a40] tracking-tight whitespace-nowrap">
+            피곤한 가격 흥정 없이 깔끔하게!
           </p>
         </div>
         <div className="border-b border-[#f1f3f5] py-4">
-          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">📅</div>
-          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
-            무거운 가전, 원하는 날짜에 바로 치우고 싶다!
+          <div className="w-7 h-7 bg-[#fff3cd] text-[#ffc107] rounded-[8px] flex items-center justify-center mb-2.5 text-[13px] shadow-sm">📅</div>
+          <p className="text-[14.5px] font-bold text-[#343a40] tracking-tight whitespace-nowrap">
+            무거운 대형 가전, 원하는 날짜에 수거!
           </p>
         </div>
         <div className="border-b border-[#f1f3f5] py-4">
-          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">🛠️</div>
-          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
-            중고라도 확실하게 A/S 보장을 받고 싶다!
+          <div className="w-7 h-7 bg-[#fff3cd] text-[#ffc107] rounded-[8px] flex items-center justify-center mb-2.5 text-[13px] shadow-sm">🛠️</div>
+          <p className="text-[14.5px] font-bold text-[#343a40] tracking-tight whitespace-nowrap">
+            중고 제품도 철저한 검수 및 A/S 보장!
           </p>
         </div>
         <div className="py-4">
-          <div className="w-9 h-9 bg-[#fff3cd] text-[#ffc107] rounded-[10px] flex items-center justify-center mb-3 text-base shadow-sm">🧾</div>
-          <p className="text-[15px] font-bold text-[#343a40] break-keep leading-[1.4] tracking-tight">
-            결제부터 세금계산서까지 투명하게 거래하고 싶다!
+          <div className="w-7 h-7 bg-[#fff3cd] text-[#ffc107] rounded-[8px] flex items-center justify-center mb-2.5 text-[13px] shadow-sm">🧾</div>
+          <p className="text-[14.5px] font-bold text-[#343a40] tracking-tight whitespace-nowrap">
+            세금계산서 발행 등 투명한 거래 증빙!
           </p>
         </div>
       </div>
     </div>
 
-    {/* 오른쪽: 텍스트 및 CTA 버튼 영역 (디자인 시안과 100% 동일하게 자간/행간 압축) */}
+    {/* 오른쪽: 텍스트 및 CTA 버튼 영역 */}
     <div className="flex-1 text-center lg:text-left">
       <h2 className="text-[38px] sm:text-[46px] font-black text-[#111111] leading-[1.2] tracking-tighter mb-4 break-keep">
         중고가전 처분·구매,<br /> 이런 고민 중이세요?
