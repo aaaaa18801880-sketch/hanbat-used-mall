@@ -383,62 +383,102 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 메인 히어로 섹션 */}
-      <section className="relative w-full min-h-[100svh] lg:min-h-[750px] flex items-center justify-center overflow-hidden border-b border-slate-800 pt-20 lg:pt-0">
-        <div className="absolute inset-0 overflow-hidden">
-          <div 
-            className="absolute inset-y-0 left-0 flex transition-transform duration-700 ease-in-out" 
-            style={{ 
-              width: `${bgImages.length * 100}%`, 
-              transform: `translateX(-${currentBgIndex * (100 / bgImages.length)}%)` 
-            }}
-          >
-            {bgImages.map((img, index) => (
-              <div 
-                key={index}
-                className="h-full bg-cover bg-center bg-no-repeat relative shrink-0"
-                style={{ 
-                  width: `${100 / bgImages.length}%`, 
-                  backgroundImage: `url('${img}')` 
-                }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-950/50 via-slate-900/30 to-slate-900/20"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-          {bgImages.map((_, idx) => (
-            <button 
-              key={idx} 
-              onClick={() => setCurrentBgIndex(idx)}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-500 shadow-sm ${idx === currentBgIndex ? "bg-[#3b82f6] w-8" : "bg-white/40 hover:bg-white/70"}`}
-              aria-label={`배경 ${idx + 1}`}
-            />
-          ))}
-        </div>
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 w-full flex flex-col items-center text-center pb-16 lg:pb-0">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 backdrop-blur-md mb-6 sm:mb-8 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
-            <span className="text-blue-100 font-bold text-xs sm:text-sm tracking-widest">대전·세종·충청 지역 전문</span>
+      {/* 🟢 1. 메인 Hero 섹션 (신뢰도와 브랜드 인상 강조) */}
+      <section className="relative bg-slate-50 pt-20 pb-16 lg:pt-32 lg:pb-24 overflow-hidden border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10 text-center lg:text-left flex flex-col lg:flex-row items-center gap-12">
+          
+          {/* 텍스트 영역 */}
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-[#0b4b8b] text-xs font-black tracking-widest mb-6">
+              <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+              SINCE 1997 · 대전 오프라인 매장 운영
+            </div>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-[#111111] leading-[1.2] tracking-tighter mb-6 break-keep">
+              30년의 정직함,<br />
+              대전·충청 중고가전의<br className="hidden lg:block" />
+              <span className="text-[#0b4b8b]">확실한 기준</span>이 되다.
+            </h1>
+            <p className="text-lg text-[#495057] leading-[1.6] mb-10 max-w-2xl mx-auto lg:mx-0 break-keep font-medium tracking-tight">
+              가정용 이사 정리부터 식당·카페 폐업 대량 매입까지. 
+              눈속임 없는 투명한 견적과 철저한 A/S로 고객님의 부담을 확실하게 덜어드립니다.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
+              <a href="/inquiry" className="w-full sm:w-auto px-8 py-4 bg-[#0b4b8b] text-white rounded-xl font-bold text-[15px] hover:bg-[#093c70] transition shadow-md flex items-center justify-center gap-2 tracking-tight">
+                무료 견적 · 매입 상담
+              </a>
+              <a href="/gallery" className="w-full sm:w-auto px-8 py-4 bg-white text-[#343a40] border border-slate-200 rounded-xl font-bold text-[15px] hover:bg-slate-50 transition shadow-sm flex items-center justify-center gap-2 tracking-tight">
+                판매 중인 제품 보기
+              </a>
+            </div>
           </div>
           
-          <h1 className="text-[36px] sm:text-5xl lg:text-[60px] xl:text-[68px] font-black text-white tracking-tight leading-[1.3] sm:leading-[1.3] lg:leading-[1.35] mb-10 drop-shadow-xl break-keep">
-            <span className="text-[#3b82f6] drop-shadow-[0_0_12px_rgba(59,130,246,0.5)]">새것 같은</span> 중고 상품을<br />
-            <span className="text-[#3b82f6] drop-shadow-[0_0_12px_rgba(59,130,246,0.5)]">최저가</span>로 판매합니다!
-          </h1>
+          {/* 우측 이미지 영역 (PC에서만 노출하여 시각적 안정감 부여) */}
+          <div className="flex-1 w-full max-w-lg lg:max-w-none relative hidden md:block">
+             <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative bg-slate-200">
+               {/* 💡 나중에 /public/images/ 폴더에 hero-main.jpg 라는 이름으로 실제 매장 사진을 넣으시면 됩니다. 
+                   지금은 사진이 없어도 엑스박스가 뜨지 않도록 임시 고화질 이미지가 나오게 설정해 두었습니다. */}
+               <img src="/images/hero-main.jpg" alt="한밭중고전자 매장 전경" className="w-full h-full object-cover" onError={(e) => e.currentTarget.src = 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop'} />
+             </div>
+             {/* 30년 업력 신뢰도 배지 */}
+             <div className="absolute -bottom-6 -left-6 bg-white p-5 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4 z-20">
+               <div className="w-12 h-12 bg-blue-50 text-[#0b4b8b] rounded-full flex items-center justify-center text-xl font-black">🏅</div>
+               <div>
+                 <p className="text-xs font-bold text-slate-400">거짓 없는 전문성</p>
+                 <p className="text-xl font-black text-[#111111] tracking-tighter">30년 업력의 노하우</p>
+               </div>
+             </div>
+          </div>
+        </div>
+      </section>
 
-          <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 w-full items-center justify-center">
-            <button onClick={() => scrollToSection("reviews-section")} className="group w-full sm:w-auto min-w-[220px] max-w-[280px] bg-white text-slate-900 font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5 mx-auto">
-              <span className="text-xl group-hover:scale-110 transition-transform">📸</span><span>배송·설치 후기</span>
-            </button>
-            <a href="http://pf.kakao.com/_XmyrX/chat" target="_blank" rel="noopener noreferrer" className="group w-full sm:w-auto min-w-[220px] max-w-[280px] bg-[#FEE500] text-slate-900 font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5 mx-auto">
-              <img src="/kakao-logo.png" alt="카톡" className="w-5 h-5 sm:w-6 sm:h-6 object-contain group-hover:scale-110 transition-transform" /><span>카톡 견적 문의</span>
+      {/* 🟢 2. 실물 사진 중심의 카테고리 섹션 */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-black text-[#111111] tracking-tighter mb-4">어떤 제품을 찾으시나요?</h2>
+            <p className="text-[#495057] font-medium tracking-tight break-keep">가정용부터 업소용까지, 꼼꼼하게 세척 및 정비된 A급 제품들입니다.</p>
+          </div>
+          
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {/* 에어컨 카드 */}
+            <a href="/gallery" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
+              <img src="/images/cat-ac.jpg" alt="에어컨/냉난방기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => e.currentTarget.src = 'https://images.unsplash.com/photo-1610313014070-5b583f76269b?q=80&w=600&auto=format&fit=crop'} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
+                <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">에어컨 / 냉난방기</h3>
+                <p className="text-slate-300 text-[11px] sm:text-sm font-medium">벽걸이 · 스탠드 · 시스템</p>
+              </div>
             </a>
-            <a href="https://cafe.naver.com/hanbatmall" target="_blank" rel="noopener noreferrer" className="group w-full sm:w-auto min-w-[220px] max-w-[280px] bg-[#03C75A] text-white font-black py-4 px-6 rounded-2xl transition-all hover:-translate-y-1 hover:shadow-xl text-base sm:text-lg flex items-center justify-center gap-2.5 mx-auto">
-              <img src="/naver-cafe.png" alt="카페" className="w-5 h-5 sm:w-6 sm:h-6 object-contain bg-white rounded p-0.5 group-hover:scale-110 transition-transform" /><span>제품 확인 카페</span>
+            
+            {/* 냉장고 카드 */}
+            <a href="/gallery" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
+              <img src="/images/cat-fridge.jpg" alt="냉장고" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => e.currentTarget.src = 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?q=80&w=600&auto=format&fit=crop'} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
+                <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">냉장고</h3>
+                <p className="text-slate-300 text-[11px] sm:text-sm font-medium">양문형 · 일반형 · 김치냉장고</p>
+              </div>
+            </a>
+            
+            {/* 세탁기 카드 */}
+            <a href="/gallery" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300">
+              <img src="/images/cat-washer.jpg" alt="세탁기/건조기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => e.currentTarget.src = 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?q=80&w=600&auto=format&fit=crop'} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/90 via-[#111111]/20 to-transparent"></div>
+              <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
+                <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">세탁기 / 건조기</h3>
+                <p className="text-slate-300 text-[11px] sm:text-sm font-medium">통돌이 · 드럼 · 건조기</p>
+              </div>
+            </a>
+            
+            {/* 업소용 기기 카드 (강조) */}
+            <a href="/gallery" className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-slate-100 cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 ring-2 ring-[#0b4b8b] ring-offset-2">
+              <img src="/images/cat-commercial.jpg" alt="업소용 주방기기" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" onError={(e) => e.currentTarget.src = 'https://images.unsplash.com/photo-1590846406792-0adc7f938f1d?q=80&w=600&auto=format&fit=crop'} />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0b4b8b]/90 via-[#111111]/40 to-transparent"></div>
+              <div className="absolute top-4 left-4 bg-[#0b4b8b] text-white text-[10px] font-black px-2 py-1.5 rounded uppercase tracking-wider">B2B 전문</div>
+              <div className="absolute bottom-0 left-0 p-4 sm:p-5 w-full">
+                <h3 className="text-white font-bold text-lg sm:text-xl tracking-tight mb-1">업소용 기기 전체</h3>
+                <p className="text-slate-200 text-[11px] sm:text-sm font-medium">쇼케이스 · 영업용 냉장고 · 제빙기</p>
+              </div>
             </a>
           </div>
         </div>
@@ -669,7 +709,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-      
+
       {/* 통합 문의 폼 */}
       <section id="inquiry-section" className="max-w-7xl mx-auto px-4 py-16 scroll-mt-10 border-t border-slate-200 bg-slate-50 rounded-t-[40px] mt-10">
         <div className="text-center mb-10">
