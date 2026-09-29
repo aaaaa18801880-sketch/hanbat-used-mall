@@ -9,6 +9,9 @@ export default function InquiryBoardPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("전체");
   const [isAdmin, setIsAdmin] = useState(false);
+  
+  // ✅ 로딩 상태를 관리하는 변수 추가
+  const [isLoading, setIsLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
@@ -40,7 +43,6 @@ export default function InquiryBoardPage() {
   const [editInquiryType, setEditInquiryType] = useState("");
   const [editUpdating, setEditUpdating] = useState(false);
 
-  // ✅ 1. 단순 비밀번호(PIN) 대신 정식 이메일/비밀번호 상태로 변경
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
@@ -50,23 +52,23 @@ export default function InquiryBoardPage() {
   const [isReplying, setIsReplying] = useState(false);
 
   const loadData = async () => {
+    setIsLoading(true); // ✅ 데이터를 부르기 시작할 때 로딩 스켈레톤 켜기
     const { data } = await supabase
       .from("purchase_requests")
       .select("*")
       .order("created_at", { ascending: false });
 
     if (data) setInquiries(data);
+    setIsLoading(false); // ✅ 데이터를 다 부르면 로딩 스켈레톤 끄기
   };
 
   useEffect(() => {
-    // ✅ 2. 허술했던 sessionStorage 대신 Supabase 정식 세션 확인 로직 적용
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setIsAdmin(!!session);
     };
     checkSession();
 
-    // 로그인 상태가 변할 때(로그인/로그아웃) 자동으로 감지
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAdmin(!!session);
     });
@@ -200,7 +202,6 @@ const handleReplySubmit = async () => {
     
     setIsReplying(true);
     try {
-      // DB에 먼저 업데이트 시도 후 결과값 반환 요청(.select)
       const { data, error } = await supabase
         .from("purchase_requests")
         .update({ 
@@ -212,14 +213,12 @@ const handleReplySubmit = async () => {
 
       if (error) throw error;
       
-      // 권한 문제로 업데이트된 행이 없을 경우 예외 처리
       if (!data || data.length === 0) {
         throw new Error("Supabase 업데이트 권한(RLS)이 차단되어 있습니다.");
       }
 
       toast.success("답변이 성공적으로 등록되었습니다.");
       
-      // DB 저장 성공 시에만 로컬 화면 변경 및 강제 새로고침
       setSelectedItem({ ...selectedItem, status: '답변완료', admin_reply: replyContent });
       await loadData();
     } catch (error: any) {
@@ -231,7 +230,6 @@ const handleReplySubmit = async () => {
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
-      // 수동 상태 변경 시에도 동일하게 검증 로직 적용
       const { data, error } = await supabase
         .from("purchase_requests")
         .update({ status: newStatus })
@@ -243,7 +241,6 @@ const handleReplySubmit = async () => {
         throw new Error("Supabase 업데이트 권한(RLS)이 차단되어 있습니다.");
       }
 
-      // 화면 업데이트
       setInquiries((prev) =>
         prev.map((item) => (item.id === id ? { ...item, status: newStatus } : item))
       );
@@ -256,7 +253,6 @@ const handleReplySubmit = async () => {
     }
   };
 
-  // ✅ 3. Supabase Auth 정식 로그인 기능
   const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -280,7 +276,6 @@ const handleReplySubmit = async () => {
     }
   };
 
-  // ✅ 4. Supabase Auth 정식 로그아웃 기능
   const handleAdminLogout = async () => {
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
       await supabase.auth.signOut();
@@ -298,7 +293,7 @@ const handleReplySubmit = async () => {
     setContent("");
     setSelectedFiles([]);
     setFilePreviews([]);
-    setAgreed(false); // 글쓰기 창 열 때 체크박스 초기화
+    setAgreed(false);
     setIsWriteOpen(true);
   };
 
@@ -361,8 +356,6 @@ const handleReplySubmit = async () => {
 
       if (insertError) throw insertError;
 
-      // 👇👇👇 텔레그램 발송 코드 👇👇👇
-      // (관리자가 쓰는 '공지사항'이 아닐 때만 알림을 보냅니다)
       if (!isNotice) {
         fetch('/api/telegram', {
           method: 'POST',
@@ -375,9 +368,7 @@ const handleReplySubmit = async () => {
           }),
         }).catch((err) => console.error("텔레그램 전송 요청 실패:", err));
       }
-      // 👆👆👆 여기까지 👆👆👆
 
-      // [기존 코드] 완료 토스트 팝업 창 띄우기
       toast.success(isNotice ? "공지사항이 등록되었습니다." : "문의가 성공적으로 접수되었습니다!");
       setIsWriteOpen(false);
       setCurrentPage(1);
@@ -563,111 +554,141 @@ const handleReplySubmit = async () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {noticeList.map((notice) => {
-                const hasImages = notice.images && notice.images.length > 0;
-                return (
-                  <tr
-                    key={notice.id}
-                    onClick={() => handleItemClick(notice)}
-                    className="bg-red-50/40 hover:bg-red-50/70 transition h-14 cursor-pointer font-bold border-b border-red-100"
-                  >
-                    <td className="py-3 text-red-600 whitespace-nowrap">
-                      <span className="bg-red-600 text-white text-[11px] px-2 py-0.5 rounded-full shadow-2xs">공지</span>
+              
+              {/* ✅ 스켈레톤 UI (로딩 중일 때 표시) */}
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, index) => (
+                  <tr key={`skeleton-${index}`} className="animate-pulse h-14 border-b border-slate-100">
+                    <td className="py-3 px-2">
+                      <div className="h-4 bg-slate-200 rounded w-6 mx-auto"></div>
                     </td>
-                    <td className="py-3 whitespace-nowrap">
-                      <span className="bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded text-xs whitespace-nowrap">
-                        공지사항
-                      </span>
+                    <td className="py-3 px-2">
+                      <div className="h-6 bg-slate-200 rounded-md w-16 mx-auto"></div>
                     </td>
-                    <td className="py-3 px-4 text-left text-slate-900 font-black">
-                      <div className="flex items-center gap-1.5 break-keep">
-                        <span className="text-base shrink-0">📢</span>
-                        <span className="truncate hover:underline">{notice.category}</span>
-                        {hasImages && (
-                          <span className="text-slate-400 text-sm opacity-80 shrink-0" title="사진 첨부됨">
-                            🖼️
-                          </span>
-                        )}
-                      </div>
+                    <td className="py-3 px-4 text-left">
+                      <div className="h-4 bg-slate-200 rounded w-2/3"></div>
                     </td>
-                    <td className="py-3 text-slate-400 font-normal whitespace-nowrap">-</td>
-                    <td className="py-3 text-red-700 font-bold whitespace-nowrap">{notice.name}</td>
-                    <td className="py-3 text-slate-500 font-normal whitespace-nowrap">{formatDate(notice.created_at)}</td>
+                    <td className="py-3 px-2">
+                      <div className="h-5 bg-slate-200 rounded w-12 mx-auto"></div>
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="h-4 bg-slate-200 rounded w-10 mx-auto"></div>
+                    </td>
+                    <td className="py-3 px-2">
+                      <div className="h-4 bg-slate-200 rounded w-10 mx-auto"></div>
+                    </td>
                   </tr>
-                );
-              })}
-
-              {currentItems.length === 0 && noticeList.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="py-20 text-slate-400 text-sm">
-                    등록된 문의 내역이 없습니다.
-                  </td>
-                </tr>
+                ))
               ) : (
-                currentItems.map((item, index) => {
-                  const isSell =
-                    item.inquiry_type === "내 물건 팔기" ||
-                    item.inquiry_type === "내 물건팔기" ||
-                    item.inquiry_type === "매입문의";
-                  const hasImages = item.images && item.images.length > 0;
-                  
-                  const itemNumber = filteredRegularList.length - ((currentPage - 1) * ITEMS_PER_PAGE + index);
-
-                  return (
-                    <tr
-                      key={item.id}
-                      onClick={() => handleItemClick(item)}
-                      className="hover:bg-slate-50 transition h-14 cursor-pointer"
-                    >
-                      <td className="py-3 text-slate-400 whitespace-nowrap">{itemNumber}</td>
-                      <td className="py-3 whitespace-nowrap">
-                        <span
-                          className={`inline-block px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${
-                            isSell
-                              ? "bg-[#e8f3fc] text-[#026bb4]"
-                              : "bg-indigo-50 text-indigo-700"
-                          }`}
-                        >
-                          {isSell ? "내 물건팔기" : "구매문의"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-left font-medium text-slate-800">
-                        <div className="flex items-center gap-1.5 break-keep">
-                          {!isAdmin && <span className="text-slate-400 text-sm shrink-0">🔒</span>}
-                          <span className="truncate hover:text-[#0b4b8b]">
-                            {item.category || item.description || "문의드립니다."}
+                /* ✅ 로딩 완료 후 실제 데이터 표시 */
+                <>
+                  {noticeList.map((notice) => {
+                    const hasImages = notice.images && notice.images.length > 0;
+                    return (
+                      <tr
+                        key={notice.id}
+                        onClick={() => handleItemClick(notice)}
+                        className="bg-red-50/40 hover:bg-red-50/70 transition h-14 cursor-pointer font-bold border-b border-red-100"
+                      >
+                        <td className="py-3 text-red-600 whitespace-nowrap">
+                          <span className="bg-red-600 text-white text-[11px] px-2 py-0.5 rounded-full shadow-2xs">공지</span>
+                        </td>
+                        <td className="py-3 whitespace-nowrap">
+                          <span className="bg-red-100 text-red-700 border border-red-200 px-2.5 py-1 rounded text-xs whitespace-nowrap">
+                            공지사항
                           </span>
-                          {hasImages && (
-                            <span className="text-slate-400 text-sm opacity-80 shrink-0" title="사진 첨부됨">
-                              🖼️
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 whitespace-nowrap">
-                        <span
-                          className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold whitespace-nowrap ${
-                            item.status === '답변완료' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
-                          }`}
-                        >
-                          {item.status || "접수"}
-                        </span>
-                      </td>
-                      <td className="py-3 text-slate-600 whitespace-nowrap">
-                        {maskName(item.name)}
-                      </td>
-                      <td className="py-3 text-slate-500 whitespace-nowrap">
-                        {formatDate(item.created_at)}
+                        </td>
+                        <td className="py-3 px-4 text-left text-slate-900 font-black">
+                          <div className="flex items-center gap-1.5 break-keep">
+                            <span className="text-base shrink-0">📢</span>
+                            <span className="truncate hover:underline">{notice.category}</span>
+                            {hasImages && (
+                              <span className="text-slate-400 text-sm opacity-80 shrink-0" title="사진 첨부됨">
+                                🖼️
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 text-slate-400 font-normal whitespace-nowrap">-</td>
+                        <td className="py-3 text-red-700 font-bold whitespace-nowrap">{notice.name}</td>
+                        <td className="py-3 text-slate-500 font-normal whitespace-nowrap">{formatDate(notice.created_at)}</td>
+                      </tr>
+                    );
+                  })}
+
+                  {currentItems.length === 0 && noticeList.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="py-20 text-slate-400 text-sm">
+                        등록된 문의 내역이 없습니다.
                       </td>
                     </tr>
-                  );
-                })
+                  ) : (
+                    currentItems.map((item, index) => {
+                      const isSell =
+                        item.inquiry_type === "내 물건 팔기" ||
+                        item.inquiry_type === "내 물건팔기" ||
+                        item.inquiry_type === "매입문의";
+                      const hasImages = item.images && item.images.length > 0;
+                      
+                      const itemNumber = filteredRegularList.length - ((currentPage - 1) * ITEMS_PER_PAGE + index);
+
+                      return (
+                        <tr
+                          key={item.id}
+                          onClick={() => handleItemClick(item)}
+                          className="hover:bg-slate-50 transition h-14 cursor-pointer"
+                        >
+                          <td className="py-3 text-slate-400 whitespace-nowrap">{itemNumber}</td>
+                          <td className="py-3 whitespace-nowrap">
+                            <span
+                              className={`inline-block px-3 py-1 rounded-md text-xs font-semibold whitespace-nowrap ${
+                                isSell
+                                  ? "bg-[#e8f3fc] text-[#026bb4]"
+                                  : "bg-indigo-50 text-indigo-700"
+                              }`}
+                            >
+                              {isSell ? "내 물건팔기" : "구매문의"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-left font-medium text-slate-800">
+                            <div className="flex items-center gap-1.5 break-keep">
+                              {!isAdmin && <span className="text-slate-400 text-sm shrink-0">🔒</span>}
+                              <span className="truncate hover:text-[#0b4b8b]">
+                                {item.category || item.description || "문의드립니다."}
+                              </span>
+                              {hasImages && (
+                                <span className="text-slate-400 text-sm opacity-80 shrink-0" title="사진 첨부됨">
+                                  🖼️
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 whitespace-nowrap">
+                            <span
+                              className={`inline-block px-2.5 py-1 rounded-md text-[11px] font-bold whitespace-nowrap ${
+                                item.status === '답변완료' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'
+                              }`}
+                            >
+                              {item.status || "접수"}
+                            </span>
+                          </td>
+                          <td className="py-3 text-slate-600 whitespace-nowrap">
+                            {maskName(item.name)}
+                          </td>
+                          <td className="py-3 text-slate-500 whitespace-nowrap">
+                            {formatDate(item.created_at)}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </>
               )}
             </tbody>
           </table>
         </div>
 
-        {totalPages > 1 && (
+        {totalPages > 1 && !isLoading && (
           <div className="flex items-center justify-center gap-2 mt-8">
             <button
               onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
@@ -1262,16 +1283,15 @@ const handleReplySubmit = async () => {
                         ? 'bg-red-600 hover:bg-red-700' 
                         : 'bg-[#0b4b8b] hover:bg-[#093c70]'
                   }`}
-                    >
-                      {submitting ? "등록 처리 중..." : isNotice ? "공지사항 등록" : "문의 접수"}
-                    </button>
+                >
+                  {submitting ? "등록 처리 중..." : isNotice ? "공지사항 등록" : "문의 접수"}
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* ✅ 5. 정식 이메일/비밀번호 폼으로 변경된 관리자 로그인 모달 */}
       {isAdminAuthModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-xs rounded-2xl shadow-xl border border-slate-200 p-6 text-center">
