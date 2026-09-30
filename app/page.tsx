@@ -38,7 +38,6 @@ const BUCKET = {
   inquiries: "inquiries",
 };
 
-// 💡 텍스트가 없는 깨끗한 실물 사진 파일 이름으로 지정해 두었습니다.
 const HERO_IMAGES = [
   "/main-bg.png",
   "/main-bg2.png",
@@ -61,17 +60,6 @@ const galleryHref = (c?: string | null) => (c ? `/gallery?category=${encodeURICo
 /* ════════════════════════════════════════════════════════════
    1. 타입 & 정적 데이터
    ════════════════════════════════════════════════════════════ */
-type Product = {
-  id: string | number;
-  title?: string | null;
-  category?: string | null;
-  price?: number | string | null;
-  status?: string | null;
-  image_url?: unknown;
-  images?: unknown;
-  image_urls?: unknown;
-  created_at?: string;
-};
 type Review = { id: string | number; title: string | null; image_url: string | null; created_at: string };
 type InquiryRow = {
   id: string | number;
@@ -173,19 +161,6 @@ function splitImages(v: unknown): string[] {
   if (Array.isArray(v)) return v.filter((x): x is string => typeof x === "string" && x.trim() !== "").map((s) => s.trim());
   if (typeof v === "string") return v.split(",").map((s) => s.trim()).filter(Boolean);
   return [];
-}
-const productImages = (p: Product) => [...splitImages(p.image_url), ...splitImages(p.images), ...splitImages(p.image_urls)];
-const isSold = (p: Product) => p.status === "판매완료";
-
-function formatPrice(v: unknown) {
-  if (v === null || v === undefined || v === "") return "가격 문의";
-  if (typeof v === "number") return `${v.toLocaleString("ko-KR")}원`;
-  const s = String(v).trim();
-  if (/^[\d,\s]+원?$/.test(s)) {
-    const n = Number(s.replace(/[^0-9]/g, ""));
-    if (n > 0) return `${n.toLocaleString("ko-KR")}원`;
-  }
-  return s;
 }
 
 function formatPhone(value: string) {
@@ -349,8 +324,6 @@ function Modal({ open, onClose, label, children, variant = "sheet" }: { open: bo
    ════════════════════════════════════════════════════════════ */
 export default function Home() {
   /* 데이터 */
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [recent, setRecent] = useState<InquiryRow[]>([]);
@@ -383,18 +356,6 @@ export default function Home() {
   const [uploadingReview, setUploadingReview] = useState(false);
 
   /* ── 데이터 로드 ── */
-  const loadProducts = useCallback(async () => {
-    try {
-      const { data, error } = await supabase.from(TABLE.products).select("*").neq("category", "배송인증").order("created_at", { ascending: false }).limit(40);
-      if (error) throw error;
-      setProducts((data ?? []) as Product[]);
-    } catch (err) {
-      console.error("상품 불러오기 실패:", err);
-    } finally {
-      setProductsLoading(false);
-    }
-  }, []);
-
   const loadReviews = useCallback(async () => {
     try {
       const { data, error } = await supabase.from(TABLE.products).select("id, title, image_url, created_at").eq("category", "배송인증").order("created_at", { ascending: false });
@@ -422,13 +383,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    loadProducts();
     loadReviews();
     loadRecent();
     supabase.auth.getSession().then(({ data }) => setIsAdmin(!!data.session));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAdmin(!!session));
     return () => sub.subscription.unsubscribe();
-  }, [loadProducts, loadReviews, loadRecent]);
+  }, [loadReviews, loadRecent]);
 
   /* ── 헤더 스크롤 상태 ── */
   useEffect(() => {
@@ -470,35 +430,18 @@ export default function Home() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [productsLoading, reviewsLoading]);
+  }, [reviewsLoading]);
 
   /* ── 파생 데이터 ── */
-  const liveProducts = useMemo(() => products.filter((p) => !isSold(p)), [products]);
-
   const catImages = useMemo(() => {
-    const used = new Set<string>();
     const map: Record<string, string> = {};
     for (const c of CATEGORIES) {
-      if (c.image) {
-        map[c.key] = c.image;
-        continue;
-      }
-      for (const p of products) {
-        const img = productImages(p)[0];
-        if (!img || used.has(img)) continue;
-        const text = `${p.title ?? ""} ${p.category ?? ""}`;
-        if (c.keywords.some((k) => text.includes(k)) && !(c.exclude ?? []).some((k) => text.includes(k))) {
-          map[c.key] = img;
-          used.add(img);
-          break;
-        }
-      }
+      if (c.image) map[c.key] = c.image;
     }
     return map;
-  }, [products]);
+  }, []);
 
   const visibleCats = CATEGORIES.filter((c) => catFilter === "all" || c.group === catFilter);
-  const featured = liveProducts.slice(0, 8);
   const shownReviews = showAllReviews ? reviews : reviews.slice(0, 5);
 
   const openInquiry = useCallback((type?: InquiryType) => {
@@ -738,23 +681,17 @@ export default function Home() {
       )}
 
       <main>
-       {/* ─────────────── ② HERO (프리미엄 텍스트 오버레이형) ─────────────── */}
+        {/* ─────────────── ② HERO ─────────────── */}
         <section className="relative w-full bg-[#0E1A2B] overflow-hidden">
           <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[680px] flex items-center">
-            
-            {/* 1. 배경 이미지 슬라이더 */}
             {HERO_IMAGES.map((src, i) => (
               <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                {/* 사진이 꽉 차면서도 중앙을 유지하도록 object-cover와 object-center 적용 */}
                 <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-cover object-center" />
               </div>
             ))}
-            
-            {/* 2. 텍스트 가독성을 위한 고급스러운 그라데이션 필터 (왼쪽은 어둡고 오른쪽은 투명하게) */}
             <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent sm:via-[#0E1A2B]/60" />
-            <div className="absolute inset-0 z-10 bg-black/10" /> {/* 전체적으로 톤 다운 */}
+            <div className="absolute inset-0 z-10 bg-black/10" />
 
-            {/* 3. 설명 텍스트 및 버튼 영역 */}
             <div className={`relative z-20 w-full ${WRAP} py-16 sm:py-20`}>
               <div className="max-w-2xl text-white">
                 <p className="inline-flex items-center gap-2 text-[13px] font-medium text-white/80">
@@ -793,7 +730,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 4. 슬라이드 인디케이터 (점) */}
             <div className="absolute bottom-6 sm:bottom-8 inset-x-0 flex justify-center gap-2.5 z-20">
               {HERO_IMAGES.map((_, i) => (
                 <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
@@ -803,23 +739,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 배너 바로 하단 퀵버튼 (기존 왼쪽 텍스트 영역 대체) */}
-        <section className="bg-white border-b border-[#E4E0D8]">
-          <div className={`${WRAP} py-6 sm:py-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4`}>
-            <Link href="/gallery" className={`${BTN_NAVY} h-[52px] w-full sm:w-auto px-8 text-[15px] shadow-sm`}>
-              판매 제품 전체보기 <Icon d={I.arrow} className="h-4 w-4" />
-            </Link>
-            <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] w-full sm:w-auto px-8 text-[15px] shadow-sm`}>
-              무료 매입 견적 문의
-            </button>
-            <p className="mt-3 sm:mt-0 sm:ml-4 text-[14px] text-[#6B7280] font-medium hidden md:block">
-              전화 상담 <a href={telHref(STORE.tel)} className="text-[#0E1A2B] font-bold hover:underline">{STORE.tel}</a>
-            </p>
-          </div>
-        </section>
-
-        {/* 신뢰 지표: 사이트에 명시된 사실만 */}
-        <section className="border-b border-[#E4E0D8] bg-white">
+        {/* 신뢰 지표 */}
+        <div className="border-y border-[#E4E0D8] bg-white">
           <dl className={`${WRAP} grid grid-cols-2 lg:grid-cols-4`}>
             {[
               { k: String(STORE.since), v: `대전에서 ${YEARS}년째 영업` },
@@ -833,7 +754,7 @@ export default function Home() {
               </div>
             ))}
           </dl>
-        </section>
+        </div>
 
         {/* ─────────────── ③ 신뢰 / 서비스 USP ─────────────── */}
         <section className="py-16 sm:py-20 lg:py-28" aria-labelledby="usp-title">
@@ -934,81 +855,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑤ 판매 중인 제품 ─────────────── */}
-        <section id="products-section" className="border-t border-[#EEEBE5] bg-white pb-16 pt-14 sm:pb-20 lg:pb-28 lg:pt-20" aria-labelledby="stock-title">
-          <div className={WRAP}>
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-              <SectionHead
-                eyebrow="In Stock"
-                title={<span id="stock-title">지금 판매 중인 제품</span>}
-                desc="한밭중고전자가 직접 입고해 등록한 제품입니다. 방문 전에 전화로 재고를 확인해 주세요."
-              />
-              <Link href="/gallery" className={`${BTN_NAVY} h-12 shrink-0 px-6 text-[15px]`}>
-                상품 전체 보기 <Icon d={I.arrow} className="h-4 w-4" />
-              </Link>
-            </div>
-
-            {productsLoading ? (
-              <ul className="hb-scroll -mx-5 mt-10 flex gap-4 overflow-hidden px-5 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-6 lg:px-0" aria-hidden="true">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <li key={i} className="w-[68%] shrink-0 sm:w-[42%] lg:w-auto">
-                    <div className="aspect-square animate-pulse rounded-md bg-[#EFECE6]" />
-                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-[#EFECE6]" />
-                    <div className="mt-2 h-4 w-1/3 animate-pulse rounded bg-[#EFECE6]" />
-                  </li>
-                ))}
-              </ul>
-            ) : featured.length > 0 ? (
-              <ul className="hb-scroll -mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-x-6 lg:gap-y-10 lg:overflow-visible lg:px-0">
-                {featured.map((p) => {
-                  const img = productImages(p)[0];
-                  return (
-                    <li key={p.id} className="w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-auto">
-                      <Link href={galleryHref(p.category)} className="group block">
-                        <div className="relative aspect-square overflow-hidden rounded-md bg-[#EFECE6]">
-                          <SafeImg src={img} alt={`${p.title ?? "중고 가전"} 판매 제품 사진`} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]" />
-                          {p.status && p.status !== "판매중" && (
-                            <span className="absolute left-2.5 top-2.5 rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-semibold text-white">{p.status}</span>
-                          )}
-                        </div>
-                        {p.category && <p className="mt-3 text-[12px] font-semibold text-[#8A8478]">{p.category}</p>}
-                        <h3 className="mt-1 line-clamp-2 text-[15px] font-semibold leading-snug text-[#0E1A2B] underline-offset-4 group-hover:underline">{p.title ?? "상품명 확인 중"}</h3>
-                        <p className="mt-1.5 text-[16px] font-bold text-[#0E1A2B]">{formatPrice(p.price)}</p>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <div className="mt-10 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-6 py-12 text-center sm:py-16">
-                <p className="text-[17px] font-bold text-[#0E1A2B]">홈페이지 상품 목록을 정리하고 있습니다.</p>
-                <p className="mt-2 text-[15px] text-[#4B5260]">판매 중인 제품은 네이버 카페에서 확인하실 수 있습니다.</p>
-                <a href={STORE.cafe} target="_blank" rel="noopener noreferrer" className={`${BTN_NAVY} mt-6 h-12 px-6 text-[15px]`}>
-                  네이버 카페에서 제품 보기 <Icon d={I.external} className="h-4 w-4" />
-                </a>
-              </div>
-            )}
-
-            {/* 네이버 카페 연결 */}
-            <a
-              href={STORE.cafe}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group mt-12 flex flex-col gap-4 rounded-md bg-[#0E1A2B] px-6 py-6 text-white transition-colors hover:bg-[#15243A] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:mt-16"
-            >
-              <div>
-                <p className="text-[12px] font-semibold tracking-[0.2em] text-white/50">NAVER CAFE</p>
-                <p className="mt-1.5 text-[17px] font-bold sm:text-lg">한밭중고전자 상품 카페에서도 판매 제품을 확인하세요</p>
-              </div>
-              <span className="inline-flex items-center gap-2 text-[15px] font-semibold text-[#F08A5D]">
-                카페 바로가기
-                <Icon d={I.arrow} className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-            </a>
-          </div>
-        </section>
-
-        {/* ─────────────── ⑥ 배송·설치 인증 ─────────────── */}
+        {/* ─────────────── ⑤ 배송·설치 인증 ─────────────── */}
         <section id="reviews-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="review-title">
           <div className={WRAP}>
             <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -1096,7 +943,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑦ 매입 서비스 ─────────────── */}
+        {/* ─────────────── ⑥ 매입 서비스 ─────────────── */}
         <section id="sell-section" className="bg-[#0E1A2B] py-16 text-white sm:py-20 lg:py-28" aria-labelledby="sell-title">
           <div className={`${WRAP} grid gap-12 lg:grid-cols-12 lg:gap-16`}>
             <div className="lg:col-span-5">
@@ -1148,7 +995,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑧ 가정용 / 업소용 ─────────────── */}
+        {/* ─────────────── ⑦ 가정용 / 업소용 ─────────────── */}
         <section className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="split-title">
           <div className={WRAP}>
             <SectionHead eyebrow="Home & Business" title={<span id="split-title">집에서 쓰는 가전부터 매장 설비까지</span>} className="max-w-2xl" />
@@ -1208,7 +1055,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑨ FAQ ─────────────── */}
+        {/* ─────────────── ⑧ FAQ ─────────────── */}
         <section id="faq-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="faq-title">
           <div className={`${WRAP} grid gap-10 lg:grid-cols-12 lg:gap-16`}>
             <div className="lg:col-span-4">
@@ -1260,7 +1107,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑩ 오시는 길 ─────────────── */}
+        {/* ─────────────── ⑨ 오시는 길 ─────────────── */}
         <section id="location-section" className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="loc-title">
           <div className={WRAP}>
             <SectionHead eyebrow="Location" title={<span id="loc-title">직접 보고 고르는 실제 매장</span>} desc="사진만으로 판단하기 어려운 제품은 대전 중촌동 매장에서 직접 확인하세요." />
@@ -1309,7 +1156,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑪ 문의 CTA + 문의 폼 ─────────────── */}
+        {/* ─────────────── ⑩ 문의 CTA + 문의 폼 ─────────────── */}
         <section id="inquiry-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="cta-title">
           <div className={WRAP}>
             <div className="hb-reveal mx-auto max-w-3xl text-center">
@@ -1386,7 +1233,7 @@ export default function Home() {
         </section>
       </main>
 
-      {/* ─────────────── ⑫ FOOTER ─────────────── */}
+      {/* ─────────────── ⑪ FOOTER ─────────────── */}
       <footer className="bg-[#0B1522] text-white/70">
         <div className={`${WRAP} py-14 lg:py-16`}>
           <div className="grid gap-10 lg:grid-cols-12">
