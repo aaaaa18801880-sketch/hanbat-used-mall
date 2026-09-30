@@ -30,7 +30,6 @@ const STORE = {
   naverMap: "https://naver.me/F5DkWQ4z",
 };
 
-// 💡 클로드가 실수한 테이블/버킷 이름을 사장님 실제 DB 환경에 맞게 완벽 수정했습니다.
 const TABLE = {
   products: "products",
   inquiries: "purchase_requests",
@@ -39,7 +38,7 @@ const BUCKET = {
   inquiries: "inquiries",
 };
 
-// 💡 잘리지 않고 부드럽게 넘어갈 메인 배너 이미지 3장
+// 💡 텍스트가 없는 깨끗한 실물 사진 파일 이름으로 지정해 두었습니다.
 const HERO_IMAGES = [
   "/main-bg.png",
   "/main-bg2.png",
@@ -301,7 +300,7 @@ function Icon({ d, className = "h-5 w-5", strokeWidth = 1.8 }: { d: string; clas
 
 function SafeImg({ src, alt, className = "", eager = false }: { src?: string; alt: string; className?: string; eager?: boolean }) {
   const [failed, setFailed] = useState(false);
-  useEffect(() => { setFailed(false); }, [src]); // 이미지가 바뀌면 실패 상태 초기화
+  useEffect(() => { setFailed(false); }, [src]);
 
   if (!src || failed) {
     return <div className="flex h-full w-full items-center justify-center bg-[#E9E6E0] text-[12px] text-neutral-400">이미지 준비 중</div>;
@@ -365,9 +364,8 @@ export default function Home() {
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [lightbox, setLightbox] = useState<{ review: Review; index: number } | null>(null);
   const [inquiryType, setInquiryType] = useState<InquiryType>("구매 문의");
-  const [heroIdx, setHeroIdx] = useState(0); // 배너 슬라이드 인덱스
+  const [heroIdx, setHeroIdx] = useState(0);
 
-  /* 배너 자동 슬라이드 타이머 */
   useEffect(() => {
     const timer = setInterval(() => setHeroIdx((p) => (p + 1) % HERO_IMAGES.length), 5000);
     return () => clearInterval(timer);
@@ -387,7 +385,6 @@ export default function Home() {
   /* ── 데이터 로드 ── */
   const loadProducts = useCallback(async () => {
     try {
-      // 💡 일반 상품 목록에 배송인증 사진이 섞이지 않도록 완벽 필터링
       const { data, error } = await supabase.from(TABLE.products).select("*").neq("category", "배송인증").order("created_at", { ascending: false }).limit(40);
       if (error) throw error;
       setProducts((data ?? []) as Product[]);
@@ -400,7 +397,6 @@ export default function Home() {
 
   const loadReviews = useCallback(async () => {
     try {
-      // 💡 배송인증 사진만 가져오도록 실제 DB 스키마에 맞게 쿼리 완벽 수정
       const { data, error } = await supabase.from(TABLE.products).select("id, title, image_url, created_at").eq("category", "배송인증").order("created_at", { ascending: false });
       if (error) throw error;
       setReviews((data ?? []) as Review[]);
@@ -442,7 +438,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  /* ── 모바일 메뉴: 스크롤 잠금 + ESC ── */
+  /* ── 모바일 메뉴 ── */
   useEffect(() => {
     if (!menuOpen) return;
     const prev = document.body.style.overflow;
@@ -455,7 +451,7 @@ export default function Home() {
     };
   }, [menuOpen]);
 
-  /* ── 스크롤 등장 효과 (섹션 제목에만) ── */
+  /* ── 스크롤 등장 효과 ── */
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>(".hb-reveal:not(.is-in)"));
     if (!("IntersectionObserver" in window)) {
@@ -504,7 +500,6 @@ export default function Home() {
   const visibleCats = CATEGORIES.filter((c) => catFilter === "all" || c.group === catFilter);
   const featured = liveProducts.slice(0, 8);
   const shownReviews = showAllReviews ? reviews : reviews.slice(0, 5);
-  const heroLoading = productsLoading || reviewsLoading;
 
   const openInquiry = useCallback((type?: InquiryType) => {
     if (type) setInquiryType(type);
@@ -556,7 +551,6 @@ export default function Home() {
     if (reviewFiles.length === 0) return toast.error("사진을 1장 이상 선택해 주세요.");
     setUploadingReview(true);
     try {
-      // 💡 잘못된 버킷/테이블 이름 완벽 패치 (inquiries 버킷, products 테이블 활용)
       const urls = await uploadImages(BUCKET.inquiries, reviewFiles);
       const { error } = await supabase.from(TABLE.products).insert({
         title: reviewTitle.trim(),
@@ -580,7 +574,6 @@ export default function Home() {
   const handleDeleteReview = async (id: Review["id"]) => {
     if (!confirm("이 인증사진을 정말 삭제하시겠습니까?")) return;
     try {
-      // 💡 삭제 로직 역시 실제 DB 테이블인 products를 겨냥하도록 패치 완료
       const { error } = await supabase.from(TABLE.products).delete().eq("id", id);
       if (error) throw error;
       toast.success("삭제했습니다.");
@@ -622,7 +615,7 @@ export default function Home() {
     }
   };
 
-  /* ── 구조화 데이터 (Local SEO) ── */
+  /* ── 구조화 데이터 ── */
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -748,7 +741,7 @@ export default function Home() {
         {/* ─────────────── ② HERO ─────────────── */}
         <section className="relative overflow-hidden" aria-labelledby="hero-title">
           <div className={`${WRAP} grid items-center gap-10 pb-12 pt-8 sm:pt-12 lg:grid-cols-12 lg:gap-12 lg:pb-16 lg:pt-16`}>
-            <div className="lg:col-span-6">
+            <div className="lg:col-span-5 xl:col-span-6">
               <p className="inline-flex items-center gap-2 text-[13px] font-medium text-[#4B5260]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" aria-hidden="true" />
                 SINCE {STORE.since} · 대전 중촌동 오프라인 매장
@@ -783,26 +776,32 @@ export default function Home() {
               </p>
             </div>
 
-            {/* 💡 글씨 배너 짤림 현상 완벽 해결: aspect-video, object-contain 적용 완료 */}
-            <div className="hb-fade lg:col-span-6">
-              <div className="relative w-full aspect-video overflow-hidden rounded-xl bg-white border border-[#E4E0D8] shadow-sm flex items-center justify-center">
+            {/* 💡 꽉 차는 프리미엄 레이아웃으로 변경 완료 (테두리 제거, 라운드/그림자 추가) */}
+            <div className="hb-fade lg:col-span-7 xl:col-span-6 w-full max-w-2xl mx-auto">
+              <div className="relative w-full aspect-[4/3] lg:aspect-[5/4] overflow-hidden rounded-[2rem] bg-[#EFECE6] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)]">
                 {HERO_IMAGES.map((src, i) => (
                   <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                    <SafeImg src={src} alt="한밭중고전자 매장 전경 배너" eager={i === 0} className="h-full w-full object-contain p-1 sm:p-2" />
+                    <SafeImg src={src} alt="한밭중고전자 매장 전경" eager={i === 0} className="h-full w-full object-cover transition-transform duration-1000 ease-out hover:scale-105" />
                   </div>
                 ))}
-                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 z-20 flex gap-2">
+                {/* 💡 슬라이드 인디케이터 중앙 배치 및 눈에 띄게 수정 */}
+                <div className="absolute bottom-6 inset-x-0 flex justify-center gap-2.5 z-20">
                   {HERO_IMAGES.map((_, i) => (
                     <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
-                      className={`h-2 rounded-full transition-all duration-300 shadow-sm ${heroIdx === i ? "bg-[#0E1A2B] w-5" : "bg-[#0E1A2B]/20 w-2 hover:bg-[#0E1A2B]/40"}`} />
+                      className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx === i ? "bg-white w-8" : "bg-white/60 w-2.5 hover:bg-white"}`} />
                   ))}
                 </div>
+              </div>
+              {/* 💡 프리미엄 뱃지 위치 조정 */}
+              <div className="absolute -bottom-6 -left-2 sm:-left-6 bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.15)] border border-[#E4E0D8] z-20">
+                <p className="text-[11px] sm:text-[12px] font-black tracking-widest text-[#D9531E]">SINCE {STORE.since}</p>
+                <p className="text-base sm:text-lg font-black text-[#0E1A2B] tracking-tight mt-0.5">대전 중촌동 오프라인 매장</p>
               </div>
             </div>
           </div>
 
           {/* 신뢰 지표: 사이트에 명시된 사실만 */}
-          <div className="border-y border-[#E4E0D8] bg-white">
+          <div className="border-y border-[#E4E0D8] bg-white mt-12 lg:mt-0">
             <dl className={`${WRAP} grid grid-cols-2 lg:grid-cols-4`}>
               {[
                 { k: String(STORE.since), v: `대전에서 ${YEARS}년째 영업` },
