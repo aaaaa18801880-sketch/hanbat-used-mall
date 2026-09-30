@@ -481,16 +481,16 @@ export default function Home() {
           </div>
 
           <div className="relative hidden md:block max-w-lg lg:max-w-none w-full mx-auto">
-            <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative bg-slate-200">
+            <div className="w-full aspect-video rounded-3xl overflow-hidden shadow-2xl relative bg-white border border-slate-100 flex items-center justify-center">
               {HERO_IMAGES.map((src, i) => (
                 <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx % HERO_IMAGES.length === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                  <SafeImg src={src} alt="한밭중고전자 매장 전경" eager={i === 0} className="w-full h-full object-cover" />
+                  <SafeImg src={src} alt="한밭중고전자 매장 전경" eager={i === 0} className="w-full h-full object-contain" />
                 </div>
               ))}
               <div className="absolute bottom-5 right-5 flex gap-2 z-20">
                 {HERO_IMAGES.map((_, i) => (
                   <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
-                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx % HERO_IMAGES.length === i ? "bg-white w-7" : "bg-white/60 w-2.5 hover:bg-white"}`} />
+                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx % HERO_IMAGES.length === i ? "bg-slate-800 w-7" : "bg-slate-300 w-2.5 hover:bg-slate-400"}`} />
                 ))}
               </div>
             </div>
