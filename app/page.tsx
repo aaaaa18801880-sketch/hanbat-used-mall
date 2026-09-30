@@ -1,979 +1,1748 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
-import { useState, useEffect, useMemo } from "react";
-import { supabase } from "../lib/supabase";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
 import toast from "react-hot-toast";
-import {
-  STORE, telHref, formatPhone, isValidPhone, maskName, splitImages,
-  compressImage, validateImageFiles, MAX_PHOTOS,
-} from "../lib/site";
-import {
-  Icon, ICON, SafeImg, Modal, SectionHead, SiteHeader, SiteFooter, MobileCtaBar, AdminLoginModal,
-} from "../lib/ui";
+import { supabase } from "../lib/supabase";
 
-/* ───────── 타입 ───────── */
-interface Review { id: string; title: string; image_url: string | null; created_at: string }
-interface InquiryRow {
-  id: string; inquiry_type: string | null; category: string | null; name: string | null;
-  status: string | null; is_notice: boolean | null; created_at: string;
-}
+/* ════════════════════════════════════════════════════════════
+   0. 설정값
+   ════════════════════════════════════════════════════════════ */
+const STORE = {
+  name: "한밭중고전자",
+  url: "https://hanbatmall.com",
+  since: 1997,
+  ceo: "김영종",
+  tel: "042-523-8179",
+  mobile: "010-5406-8179",
+  address: "대전광역시 중구 중촌동 144",
+  addressNote: "중촌고가도로 밑",
+  hours: "월~토 09:00 - 19:00",
+  closed: "일요일 휴무",
+  parking: "매장 앞 전용 주차장 이용 가능",
+  bizNo: "314-01-70945",
+  mailOrderNo: "2011-대전서구-0292",
+  privacyOfficer: "김태현(sunny3815@naver.com)",
+  kakaoChannel: "https://pf.kakao.com/_XmyrX",
+  kakaoChat: "https://pf.kakao.com/_XmyrX/chat",
+  cafe: "https://cafe.naver.com/hanbatmall",
+  naverMap: "https://naver.me/F5DkWQ4z",
+};
 
-/* ───────── 정적 콘텐츠 ───────── */
-// 메인 대문(히어로)에 고정으로 보여질 매장 전경 사진 3장
+// 💡 클로드가 실수한 테이블/버킷 이름을 사장님 실제 DB 환경에 맞게 완벽 수정했습니다.
+const TABLE = {
+  products: "products",
+  inquiries: "purchase_requests",
+};
+const BUCKET = {
+  inquiries: "inquiries",
+};
+
+// 💡 잘리지 않고 부드럽게 넘어갈 메인 배너 이미지 3장
 const HERO_IMAGES = [
   "/main-bg.png",
   "/main-bg2.png",
   "/main-bg3.png",
 ];
 
-const TRUST = [
-  { icon: ICON.shield, title: "세척·정비 완료", desc: "검수를 거친 A급 제품" },
-  { icon: ICON.tool, title: "무상 A/S", desc: "에어컨·냉난방기 8개월 / 그 외 4개월" },
-  { icon: ICON.receipt, title: "세금계산서 발행", desc: "투명한 거래 증빙" },
-  { icon: ICON.truck, title: "전국 배송·설치 상담", desc: "제품·지역별 상담 가능" },
-];
+const MAP_EMBED_SRC = `https://maps.google.com/maps?q=${encodeURIComponent(STORE.address)}&z=16&output=embed`;
+const KAKAO_MAP = `https://map.kakao.com/link/search/${encodeURIComponent(STORE.address)}`;
 
-const CATEGORY_CARDS = [
-  { cat: "에어컨/냉난방기", title: "에어컨 / 냉난방기", sub: "벽걸이 · 스탠드 · 시스템", img: "/images/cat-ac.png" },
-  { cat: "냉장고", title: "냉장고", sub: "양문형 · 일반형 · 김치냉장고", img: "/images/cat-fridge.png" },
-  { cat: "세탁기/건조기", title: "세탁기 / 건조기", sub: "통돌이 · 워시타워 · 건조기", img: "/images/cat-washer.png" },
-  { cat: "업소용기기", title: "업소용 기기", sub: "45박스 냉장고 · 쇼케이스 · 제빙기", img: "/images/cat-commercial.png" },
-];
+const YEARS = new Date().getFullYear() - STORE.since;
 
-const FEATURES = [
-  { icon: ICON.tag, text: "투명하고 합리적인 최고가 매입" },
-  { icon: ICON.chat, text: "피곤한 가격 흥정 없이 깔끔하게" },
-  { icon: ICON.calendar, text: "무거운 대형 가전, 원하는 날짜에 수거" },
-  { icon: ICON.tool, text: "중고 제품도 철저한 검수 및 A/S 보장" },
-  { icon: ICON.receipt, text: "세금계산서 발행 등 투명한 거래 증빙" },
-];
+const G = {
+  aircon: "에어컨/냉난방기",
+  fridge: "냉장고",
+  washer: "세탁기/건조기",
+  biz: "업소용기기",
+} as const;
+const galleryHref = (c?: string | null) => (c ? `/gallery?category=${encodeURIComponent(c)}` : "/gallery");
 
-const STEPS = [
-  { title: "사진·정보 접수", desc: "아래 문의 폼이나 카톡으로 제품 사진과 모델명을 보내주세요." },
-  { title: "견적 안내", desc: "사진을 확인하고 투명한 매입 견적을 안내해 드립니다." },
-  { title: "방문 확인·수거", desc: "원하시는 날짜에 기사님이 방문해 상태를 최종 확인하고 수거합니다." },
-  { title: "즉시 입금", desc: "수거가 완료되는 즉시 지정 계좌로 100% 전액 입금합니다." },
-];
+/* ════════════════════════════════════════════════════════════
+   1. 타입 & 정적 데이터
+   ════════════════════════════════════════════════════════════ */
+type Product = {
+  id: string | number;
+  title?: string | null;
+  category?: string | null;
+  price?: number | string | null;
+  status?: string | null;
+  image_url?: unknown;
+  images?: unknown;
+  image_urls?: unknown;
+  created_at?: string;
+};
+type Review = { id: string | number; title: string | null; image_url: string | null; created_at: string };
+type InquiryRow = {
+  id: string | number;
+  inquiry_type: string | null;
+  category: string | null;
+  name: string | null;
+  status: string | null;
+  is_notice: boolean | null;
+  created_at: string;
+};
+type InquiryType = "구매 문의" | "내 물건 팔기" | "기타 문의";
 
-const FAQ = [
-  { q: "먼 지역(수도권·타 광역시)도 배송이나 설치가 가능한가요?", a: "가능합니다. 제품과 지역에 따라 전국 어디든 배송·설치 상담이 가능합니다. 실제로 구미, 포항, 경산, 안동, 경주는 물론 창원, 부산, 거제 등 여러 지역의 거래 사례가 있습니다." },
-  { q: "구매 후 고장이 나면 어떻게 하나요?", a: "에어컨 및 냉난방기는 8개월, 그 외 제품은 4개월 무상 A/S를 보장합니다. (단, 계약 내용에 따라 보증 기간은 달라질 수 있습니다.)" },
-  { q: "매입이 결정되면 대금 지급은 어떻게 이루어지나요?", a: "기사님이 현장에 방문하여 제품 상태를 최종 확인하고 수거가 완료되는 즉시, 지정해주신 계좌로 100% 전액 입금 처리해 드립니다." },
-  { q: "영업시간과 매장 위치가 어떻게 되나요?", a: `영업시간은 09:00 ~ 19:00 (일요일 휴무)이며, 오프라인 매장은 ${STORE.address}에 위치해 있습니다.` },
-];
-
-const JSON_LD = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "LocalBusiness",
-      "@id": `${STORE.url}/#store`,
-      name: STORE.name,
-      url: STORE.url,
-      telephone: "+82-42-523-8179",
-      foundingDate: String(STORE.since),
-      description: "대전 중촌동 중고가전 판매·매입 전문점. 냉장고, 세탁기, 에어컨, 냉난방기, 업소용 주방기기.",
-      address: { "@type": "PostalAddress", streetAddress: "중촌동 144", addressLocality: "중구", addressRegion: "대전광역시", addressCountry: "KR" },
-      openingHoursSpecification: [{
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        opens: "09:00", closes: "19:00",
-      }],
-      sameAs: [STORE.kakaoChannel, STORE.cafe],
-    },
-    {
-      "@type": "FAQPage",
-      mainEntity: FAQ.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
-    },
-  ],
+type Category = {
+  key: string;
+  name: string;
+  desc: string;
+  group: "home" | "biz";
+  gallery: string;
+  keywords: string[];
+  exclude?: string[];
+  image?: string;
 };
 
-const inputCls = "w-full border border-slate-300 p-3 rounded-xl bg-slate-50 text-sm outline-none focus:border-[#0b4b8b] focus:bg-white focus:ring-2 focus:ring-[#0b4b8b]/15 transition";
-const fmtDate = (s: string) => new Date(s).toLocaleDateString("ko-KR");
+const CATEGORIES: Category[] = [
+  { key: "stand", name: "스탠드 · 2in1 에어컨", desc: "거실 · 매장용 스탠드", group: "home", gallery: G.aircon, keywords: ["스탠드", "2in1", "투인원"], exclude: ["냉난방기"], image: "/cat-ac.png" },
+  { key: "wall", name: "벽걸이 에어컨", desc: "방 · 원룸 · 사무실", group: "home", gallery: G.aircon, keywords: ["벽걸이"], exclude: ["냉난방기"], image: "/cat-ac.png" },
+  { key: "fridge", name: "냉장고", desc: "양문형 · 일반형", group: "home", gallery: G.fridge, keywords: ["양문형", "냉장고"], exclude: ["김치", "업소", "박스", "쇼케이스"], image: "/cat-fridge.png" },
+  { key: "kimchi", name: "김치냉장고", desc: "스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["김치"], image: "/cat-fridge.png" },
+  { key: "washer", name: "세탁기", desc: "통돌이 · 드럼 · 워시타워", group: "home", gallery: G.washer, keywords: ["세탁기", "통돌이", "드럼", "워시타워"], image: "/cat-washer.png" },
+  { key: "dryer", name: "건조기", desc: "가정용 의류 건조기", group: "home", gallery: G.washer, keywords: ["건조기"], image: "/cat-washer.png" },
+  { key: "hvac", name: "냉난방기", desc: "매장 · 사무실 · 천장형", group: "biz", gallery: G.aircon, keywords: ["냉난방기", "천장형", "시스템"], image: "/cat-commercial.png" },
+  { key: "bizfridge", name: "업소용 냉장고", desc: "25 · 30 · 45박스", group: "biz", gallery: G.biz, keywords: ["업소용 냉장", "업소용냉장", "박스"], image: "/cat-commercial.png" },
+  { key: "showcase", name: "쇼케이스", desc: "음료 · 주류 · 반찬", group: "biz", gallery: G.biz, keywords: ["쇼케이스"], image: "/cat-commercial.png" },
+  { key: "ice", name: "제빙기", desc: "카페 · 식당 · 주점", group: "biz", gallery: G.biz, keywords: ["제빙기"], image: "/cat-commercial.png" },
+  { key: "dish", name: "식기세척기", desc: "도어형 · 언더카운터", group: "biz", gallery: G.biz, keywords: ["식기세척기", "식세기"], image: "/cat-commercial.png" },
+  { key: "kitchen", name: "상업용 주방기기", desc: "레인지 · 튀김기 · 작업대", group: "biz", gallery: G.biz, keywords: ["레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/cat-commercial.png" },
+];
 
-/* ───────── 배송·설치 카드 ───────── */
-function ReviewCard({ review, isAdmin, onDelete, onEnlarge }: {
-  review: Review; isAdmin: boolean; onDelete: (id: string) => void; onEnlarge: (r: Review, index: number) => void;
-}) {
-  const images = splitImages(review.image_url);
-  const [idx, setIdx] = useState(0);
-  const step = (d: number) => setIdx((i) => (i + d + images.length) % Math.max(images.length, 1));
+const NAV = [
+  { label: "중고가전", href: "/gallery" },
+  { label: "에어컨·냉난방기", href: galleryHref(G.aircon) },
+  { label: "업소용 주방기기", href: galleryHref(G.biz) },
+  { label: "냉장·냉동", href: galleryHref(G.fridge) },
+  { label: "세탁기·건조기", href: galleryHref(G.washer) },
+  { label: "매입문의", href: "#sell-section" },
+];
+const NAV_EXTRA = [
+  { label: "배송·설치 인증", href: "#reviews-section" },
+  { label: "오시는 길", href: "#location-section" },
+  { label: "문의게시판", href: "/inquiry" },
+];
 
+const USP = [
+  { t: "세척·정비 후 판매", d: "입고된 제품은 세척과 정비, 검수를 마친 뒤 판매합니다." },
+  { t: "무상 A/S", d: "에어컨·냉난방기 8개월, 그 외 제품 4개월. 보증 기간은 계약 내용에 따라 달라질 수 있습니다." },
+  { t: "판매와 매입을 한 곳에서", d: "필요한 가전 구매와 쓰지 않는 가전 처분을 한 번에 상담합니다." },
+  { t: "전국 배송·설치", d: "구미·포항·창원·부산·거제 등 여러 지역 거래 사례가 있습니다. 제품과 지역에 따라 상담해 드립니다." },
+  { t: "대량 거래 · 세금계산서", d: "식당·카페 폐업, 매장 정리 같은 대량 거래도 세금계산서로 증빙합니다." },
+];
+
+const SELL_CASES = ["이사", "폐업", "업종 변경", "매장 정리", "대량 처분"];
+const SELL_STEPS = [
+  { t: "사진·정보 접수", d: "문의 폼이나 카카오톡으로 제품 사진과 모델명을 보내주세요." },
+  { t: "견적 안내", d: "사진을 확인하고 매입 견적을 안내해 드립니다." },
+  { t: "방문 확인·수거", d: "원하시는 날짜에 기사님이 방문해 상태를 최종 확인하고 수거합니다." },
+  { t: "즉시 입금", d: "수거가 끝나는 즉시 지정 계좌로 전액 입금합니다." },
+];
+
+const FAQS = [
+  {
+    q: "먼 지역(수도권·타 광역시)도 배송이나 설치가 가능한가요?",
+    a: "가능합니다. 제품과 지역에 따라 전국 어디든 배송·설치 상담이 가능합니다. 실제로 구미, 포항, 경산, 안동, 경주는 물론 창원, 부산, 거제 등 여러 지역의 거래 사례가 있습니다.",
+  },
+  {
+    q: "구매 후 고장이 나면 어떻게 하나요?",
+    a: "에어컨 및 냉난방기는 8개월, 그 외 제품은 4개월 무상 A/S를 보장합니다. (단, 계약 내용에 따라 보증 기간은 달라질 수 있습니다.)",
+  },
+  {
+    q: "매입이 결정되면 대금 지급은 어떻게 이루어지나요?",
+    a: "기사님이 현장에 방문하여 제품 상태를 최종 확인하고 수거가 완료되는 즉시, 지정해주신 계좌로 100% 전액 입금 처리해 드립니다.",
+  },
+  {
+    q: "영업시간과 매장 위치가 어떻게 되나요?",
+    a: "영업시간은 09:00 ~ 19:00 (일요일 휴무)이며, 오프라인 매장은 대전광역시 중구 중촌동 144에 위치해 있습니다.",
+  },
+];
+
+const INQUIRY_TYPES: InquiryType[] = ["구매 문의", "내 물건 팔기", "기타 문의"];
+const MAX_PHOTOS = 3;
+const MAX_REVIEW_PHOTOS = 5;
+const MAX_FILE_MB = 15;
+
+/* ════════════════════════════════════════════════════════════
+   2. 유틸
+   ════════════════════════════════════════════════════════════ */
+const telHref = (n: string) => `tel:${n.replace(/[^0-9]/g, "")}`;
+
+function splitImages(v: unknown): string[] {
+  if (Array.isArray(v)) return v.filter((x): x is string => typeof x === "string" && x.trim() !== "").map((s) => s.trim());
+  if (typeof v === "string") return v.split(",").map((s) => s.trim()).filter(Boolean);
+  return [];
+}
+const productImages = (p: Product) => [...splitImages(p.image_url), ...splitImages(p.images), ...splitImages(p.image_urls)];
+const isSold = (p: Product) => p.status === "판매완료";
+
+function formatPrice(v: unknown) {
+  if (v === null || v === undefined || v === "") return "가격 문의";
+  if (typeof v === "number") return `${v.toLocaleString("ko-KR")}원`;
+  const s = String(v).trim();
+  if (/^[\d,\s]+원?$/.test(s)) {
+    const n = Number(s.replace(/[^0-9]/g, ""));
+    if (n > 0) return `${n.toLocaleString("ko-KR")}원`;
+  }
+  return s;
+}
+
+function formatPhone(value: string) {
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  if (d.startsWith("02")) {
+    if (d.length <= 2) return d;
+    if (d.length <= 5) return `${d.slice(0, 2)}-${d.slice(2)}`;
+    if (d.length <= 9) return `${d.slice(0, 2)}-${d.slice(2, 5)}-${d.slice(5)}`;
+    return `${d.slice(0, 2)}-${d.slice(2, 6)}-${d.slice(6, 10)}`;
+  }
+  if (d.length <= 3) return d;
+  if (d.length <= 7) return `${d.slice(0, 3)}-${d.slice(3)}`;
+  if (d.length <= 10) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+  return `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+}
+const isValidPhone = (v: string) => /^0\d{8,10}$/.test(v.replace(/\D/g, ""));
+
+function maskName(n?: string | null) {
+  const t = (n ?? "").trim();
+  if (!t) return "고객";
+  return t.length === 1 ? `${t}*` : `${t[0]}${"*".repeat(Math.min(t.length - 1, 2))}`;
+}
+const shortDate = (iso: string) => {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? "" : `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}`;
+};
+const typeShort = (t?: string | null) =>
+  t === "내 물건 팔기" || t === "내 물건팔기" || t === "매입문의" ? "매입" : t === "구매 문의" || t === "구매문의" ? "구매" : "기타";
+
+function validateImages(files: File[], max: number) {
+  const ok = files.filter((f) => f.type.startsWith("image/"));
+  if (ok.length !== files.length) toast.error("이미지 파일만 올릴 수 있습니다.");
+  const sized = ok.filter((f) => f.size <= MAX_FILE_MB * 1024 * 1024);
+  if (sized.length !== ok.length) toast.error(`${MAX_FILE_MB}MB 이하 사진만 올릴 수 있습니다.`);
+  if (sized.length > max) toast.error(`사진은 최대 ${max}장까지 올릴 수 있습니다.`);
+  return sized.slice(0, max);
+}
+
+async function compressImage(file: File, max = 1600, quality = 0.82): Promise<Blob> {
+  const url = URL.createObjectURL(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = reject;
+      i.src = url;
+    });
+    const scale = Math.min(1, max / Math.max(img.width, img.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return file;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b ?? file), "image/jpeg", quality));
+  } catch {
+    return file;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+
+async function uploadImages(bucket: string, files: File[]) {
+  const urls: string[] = [];
+  for (const f of files) {
+    const blob = await compressImage(f);
+    const fileName = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const { error } = await supabase.storage.from(bucket).upload(fileName, blob, { contentType: "image/jpeg" });
+    if (error) throw error;
+    urls.push(supabase.storage.from(bucket).getPublicUrl(fileName).data.publicUrl);
+  }
+  return urls;
+}
+
+/* ════════════════════════════════════════════════════════════
+   3. 디자인 토큰 (Tailwind 클래스)
+   ════════════════════════════════════════════════════════════ */
+const WRAP = "mx-auto w-full max-w-[1240px] px-5 sm:px-6 lg:px-8";
+const BTN = "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
+const BTN_ACCENT = `${BTN} bg-[#D9531E] text-white hover:bg-[#BF4715] focus-visible:ring-[#D9531E]`;
+const BTN_NAVY = `${BTN} bg-[#0E1A2B] text-white hover:bg-[#22324A] focus-visible:ring-[#0E1A2B]`;
+const BTN_LINE = `${BTN} border border-[#0E1A2B]/15 bg-white text-[#0E1A2B] hover:border-[#0E1A2B]/60 focus-visible:ring-[#0E1A2B]`;
+const BTN_KAKAO = `${BTN} bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] focus-visible:ring-[#191600]`;
+const INPUT = "w-full rounded-md border border-[#DDD9D1] bg-white px-3.5 py-3 text-[15px] text-[#0E1A2B] placeholder:text-neutral-400 transition-colors focus:border-[#0E1A2B] focus:outline-none focus:ring-1 focus:ring-[#0E1A2B]";
+const LABEL = "mb-1.5 block text-[13px] font-semibold text-[#0E1A2B]";
+
+/* ════════════════════════════════════════════════════════════
+   4. 작은 공용 컴포넌트
+   ════════════════════════════════════════════════════════════ */
+const I = {
+  phone: "M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z",
+  chat: "M21 11.5a8.4 8.4 0 0 1-9 8.4 8.6 8.6 0 0 1-3.8-.9L3 21l1.9-5.1A8.4 8.4 0 0 1 12 3a8.4 8.4 0 0 1 9 8.5z",
+  arrow: "M5 12h14M13 6l6 6-6 6",
+  external: "M7 17L17 7M8 7h9v9",
+  menu: "M4 7h16M4 12h16M4 17h16",
+  close: "M6 6l12 12M18 6L6 18",
+  plus: "M12 5v14M5 12h14",
+  left: "M15 18l-6-6 6-6",
+  right: "M9 18l6-6-6-6",
+  down: "M6 9l6 6 6-6",
+  camera: "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  pen: "M4 20h4L19 9l-4-4L4 16v4z",
+  copy: "M9 9h11v11H9zM5 15H4V4h11v1",
+};
+function Icon({ d, className = "h-5 w-5", strokeWidth = 1.8 }: { d: string; className?: string; strokeWidth?: number }) {
   return (
-    <figure className="group">
-      <div className="relative aspect-square rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 shadow-sm">
-        <button type="button" onClick={() => onEnlarge(review, idx)} aria-label={`${review.title} 사진 크게 보기`} className="absolute inset-0 w-full h-full focus-visible:ring-2 focus-visible:ring-[#0b4b8b] focus-visible:ring-inset">
-          <SafeImg src={images[idx]} alt={review.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        </button>
-        {images.length > 1 && (
-          <>
-            <button type="button" onClick={() => step(-1)} aria-label="이전 사진" className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[#0b4b8b] transition">
-              <Icon d={ICON.left} />
-            </button>
-            <button type="button" onClick={() => step(1)} aria-label="다음 사진" className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-[#0b4b8b] transition">
-              <Icon d={ICON.right} />
-            </button>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/35 px-2 py-1 rounded-full">
-              {images.map((_, i) => (
-                <button key={i} type="button" onClick={() => setIdx(i)} aria-label={`${i + 1}번째 사진`} className={`w-1.5 h-1.5 rounded-full transition ${i === idx ? "bg-white scale-125" : "bg-white/50"}`} />
-              ))}
-            </div>
-          </>
-        )}
-        {isAdmin && (
-          <button type="button" onClick={() => onDelete(review.id)} aria-label="사진 삭제" className="absolute top-2 right-2 bg-red-600/90 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md hover:bg-red-700 transition">
-            <Icon d={ICON.close} className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-      <figcaption className="mt-2.5 px-1">
-        <p className="text-sm font-bold text-slate-800 line-clamp-1">{review.title}</p>
-        <p className="text-xs text-slate-400 mt-0.5">{fmtDate(review.created_at)}</p>
-      </figcaption>
-    </figure>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d={d} />
+    </svg>
   );
 }
 
-/* ───────── 미리보기 썸네일 ───────── */
-function PreviewGrid({ previews, onRemove }: { previews: string[]; onRemove: (i: number) => void }) {
-  if (!previews.length) return null;
+function SafeImg({ src, alt, className = "", eager = false }: { src?: string; alt: string; className?: string; eager?: boolean }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setFailed(false); }, [src]); // 이미지가 바뀌면 실패 상태 초기화
+
+  if (!src || failed) {
+    return <div className="flex h-full w-full items-center justify-center bg-[#E9E6E0] text-[12px] text-neutral-400">이미지 준비 중</div>;
+  }
+  return <img src={src} alt={alt} className={className} loading={eager ? "eager" : "lazy"} decoding="async" onError={() => setFailed(true)} />;
+}
+
+function SectionHead({ eyebrow, title, desc, dark = false, className = "" }: { eyebrow: string; title: React.ReactNode; desc?: React.ReactNode; dark?: boolean; className?: string }) {
   return (
-    <div className="grid grid-cols-3 gap-2 mt-3">
-      {previews.map((src, i) => (
-        <div key={src} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt={`첨부 사진 ${i + 1} 미리보기`} className="w-full h-full object-cover" />
-          <button type="button" onClick={() => onRemove(i)} aria-label={`${i + 1}번 사진 삭제`} className="absolute top-1 right-1 bg-black/70 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center transition">
-            <Icon d={ICON.close} className="w-3 h-3" />
-          </button>
-        </div>
-      ))}
+    <div className={`hb-reveal ${className}`}>
+      <p className={`text-[12px] font-semibold uppercase tracking-[0.22em] ${dark ? "text-[#F08A5D]" : "text-[#D9531E]"}`}>{eyebrow}</p>
+      <h2 className={`mt-3 text-[28px] font-bold leading-[1.25] tracking-[-0.02em] sm:text-[34px] lg:text-[40px] ${dark ? "text-white" : "text-[#0E1A2B]"}`}>{title}</h2>
+      {desc && <p className={`mt-4 max-w-xl text-[15px] leading-relaxed sm:text-base ${dark ? "text-white/70" : "text-[#4B5260]"}`}>{desc}</p>}
     </div>
   );
 }
 
+function Modal({ open, onClose, label, children, variant = "sheet" }: { open: boolean; onClose: () => void; label: string; children: React.ReactNode; variant?: "sheet" | "dark" }) {
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+      onMouseDown={(e) => e.target === e.currentTarget && onClose()}
+      className={`fixed inset-0 z-[70] flex justify-center ${variant === "dark" ? "items-center bg-[#05080D]/95 p-3 sm:p-8" : "items-end bg-[#0E1A2B]/50 sm:items-center sm:p-6"}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   5. 메인 페이지
+   ════════════════════════════════════════════════════════════ */
 export default function Home() {
   /* 데이터 */
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewsLoaded, setReviewsLoaded] = useState(false);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [recent, setRecent] = useState<InquiryRow[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  /* UI */
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [catFilter, setCatFilter] = useState<"all" | "home" | "biz">("all");
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
-  const [inquiries, setInquiries] = useState<InquiryRow[]>([]);
-  const [inquiryTotal, setInquiryTotal] = useState(0);
+  const [lightbox, setLightbox] = useState<{ review: Review; index: number } | null>(null);
+  const [inquiryType, setInquiryType] = useState<InquiryType>("구매 문의");
+  const [heroIdx, setHeroIdx] = useState(0); // 배너 슬라이드 인덱스
 
-  /* 히어로 슬라이드 */
-  const [heroIdx, setHeroIdx] = useState(0);
-
+  /* 배너 자동 슬라이드 타이머 */
   useEffect(() => {
-    if (HERO_IMAGES.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = setInterval(() => setHeroIdx((p) => (p + 1) % HERO_IMAGES.length), 5000);
     return () => clearInterval(timer);
   }, []);
 
   /* 관리자 */
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
-
-  /* 문의 폼 */
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [inquiryType, setInquiryType] = useState("구매 문의");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const [agreed, setAgreed] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [hasElevator, setHasElevator] = useState("있음 (제품 적재 가능)");
-  const [hasStairs, setHasStairs] = useState("없음 (1층 또는 엘리베이터 이동)");
-
-  /* 인증사진 등록/확대 */
-  const [isReviewUploadOpen, setIsReviewUploadOpen] = useState(false);
+  const [loggingIn, setLoggingIn] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewFiles, setReviewFiles] = useState<File[]>([]);
   const [reviewPreviews, setReviewPreviews] = useState<string[]>([]);
   const [uploadingReview, setUploadingReview] = useState(false);
-  const [enlargedReview, setEnlargedReview] = useState<Review | null>(null);
-  const [enlargedIndex, setEnlargedIndex] = useState(0);
 
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-
-  /* ───── 데이터 로딩 ───── */
-  const fetchData = async () => {
-    const [inq, rev] = await Promise.all([
-      supabase
-        .from("purchase_requests")
-        .select("id, inquiry_type, category, name, status, is_notice, created_at", { count: "exact" })
-        .order("created_at", { ascending: false })
-        .limit(5),
-      supabase
-        .from("products")
-        .select("id, title, image_url, created_at")
-        .eq("category", "배송인증")
-        .order("created_at", { ascending: false })
-        .limit(30),
-    ]);
-    if (inq.data) { setInquiries(inq.data as InquiryRow[]); setInquiryTotal(inq.count ?? inq.data.length); }
-    if (rev.data) setReviews(rev.data as Review[]);
-    setReviewsLoaded(true);
-  };
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsAdmin(!!session);
-    };
-    checkSession();
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!!session));
-    fetchData();
-    return () => authListener.subscription.unsubscribe();
+  /* ── 데이터 로드 ── */
+  const loadProducts = useCallback(async () => {
+    try {
+      // 💡 일반 상품 목록에 배송인증 사진이 섞이지 않도록 완벽 필터링
+      const { data, error } = await supabase.from(TABLE.products).select("*").neq("category", "배송인증").order("created_at", { ascending: false }).limit(40);
+      if (error) throw error;
+      setProducts((data ?? []) as Product[]);
+    } catch (err) {
+      console.error("상품 불러오기 실패:", err);
+    } finally {
+      setProductsLoading(false);
+    }
   }, []);
 
-  /* ───── 관리자 ───── */
-  const handleAdminAuth = async (e: React.FormEvent) => {
+  const loadReviews = useCallback(async () => {
+    try {
+      // 💡 배송인증 사진만 가져오도록 실제 DB 스키마에 맞게 쿼리 완벽 수정
+      const { data, error } = await supabase.from(TABLE.products).select("id, title, image_url, created_at").eq("category", "배송인증").order("created_at", { ascending: false });
+      if (error) throw error;
+      setReviews((data ?? []) as Review[]);
+    } catch (err) {
+      console.error("인증사진 불러오기 실패:", err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  }, []);
+
+  const loadRecent = useCallback(async () => {
+    try {
+      const { data, error } = await supabase
+        .from(TABLE.inquiries)
+        .select("id, inquiry_type, category, name, status, is_notice, created_at")
+        .order("created_at", { ascending: false })
+        .limit(8);
+      if (error) throw error;
+      setRecent(((data ?? []) as InquiryRow[]).filter((r) => !r.is_notice).slice(0, 5));
+    } catch (err) {
+      console.error("최근 문의 불러오기 실패:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadProducts();
+    loadReviews();
+    loadRecent();
+    supabase.auth.getSession().then(({ data }) => setIsAdmin(!!data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => setIsAdmin(!!session));
+    return () => sub.subscription.unsubscribe();
+  }, [loadProducts, loadReviews, loadRecent]);
+
+  /* ── 헤더 스크롤 상태 ── */
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  /* ── 모바일 메뉴: 스크롤 잠금 + ESC ── */
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
+
+  /* ── 스크롤 등장 효과 (섹션 제목에만) ── */
+  useEffect(() => {
+    const els = Array.from(document.querySelectorAll<HTMLElement>(".hb-reveal:not(.is-in)"));
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("is-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            en.target.classList.add("is-in");
+            io.unobserve(en.target);
+          }
+        }),
+      { rootMargin: "0px 0px -8% 0px", threshold: 0.05 }
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, [productsLoading, reviewsLoading]);
+
+  /* ── 파생 데이터 ── */
+  const liveProducts = useMemo(() => products.filter((p) => !isSold(p)), [products]);
+
+  const catImages = useMemo(() => {
+    const used = new Set<string>();
+    const map: Record<string, string> = {};
+    for (const c of CATEGORIES) {
+      if (c.image) {
+        map[c.key] = c.image;
+        continue;
+      }
+      for (const p of products) {
+        const img = productImages(p)[0];
+        if (!img || used.has(img)) continue;
+        const text = `${p.title ?? ""} ${p.category ?? ""}`;
+        if (c.keywords.some((k) => text.includes(k)) && !(c.exclude ?? []).some((k) => text.includes(k))) {
+          map[c.key] = img;
+          used.add(img);
+          break;
+        }
+      }
+    }
+    return map;
+  }, [products]);
+
+  const visibleCats = CATEGORIES.filter((c) => catFilter === "all" || c.group === catFilter);
+  const featured = liveProducts.slice(0, 8);
+  const shownReviews = showAllReviews ? reviews : reviews.slice(0, 5);
+  const heroLoading = productsLoading || reviewsLoading;
+
+  const openInquiry = useCallback((type?: InquiryType) => {
+    if (type) setInquiryType(type);
+    setMenuOpen(false);
+    document.getElementById("inquiry-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  /* ── 관리자 ── */
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoggingIn(true);
+    setLoggingIn(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({ email: adminEmail, password: adminPassword });
       if (error) throw error;
-      toast.success("관리자 로그인에 성공했습니다.");
-      setIsAdminAuthModalOpen(false);
-      setAdminEmail("");
+      toast.success("관리자로 로그인했습니다.");
+      setLoginOpen(false);
       setAdminPassword("");
     } catch {
-      toast.error("로그인 실패: 이메일이나 비밀번호를 확인해 주세요.");
+      toast.error("이메일 또는 비밀번호를 확인해 주세요.");
     } finally {
-      setIsLoggingIn(false);
+      setLoggingIn(false);
+    }
+  };
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    toast.success("로그아웃했습니다.");
+  };
+
+  const pickReviewFiles = (list: FileList | null) => {
+    if (!list) return;
+    const files = validateImages([...reviewFiles, ...Array.from(list)], MAX_REVIEW_PHOTOS);
+    reviewPreviews.forEach((u) => URL.revokeObjectURL(u));
+    setReviewFiles(files);
+    setReviewPreviews(files.map((f) => URL.createObjectURL(f)));
+  };
+  const closeReviewModal = useCallback(() => {
+    setReviewModalOpen(false);
+    setReviewTitle("");
+    setReviewFiles([]);
+    setReviewPreviews((prev) => {
+      prev.forEach((u) => URL.revokeObjectURL(u));
+      return [];
+    });
+  }, []);
+
+  const handleReviewUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewTitle.trim()) return toast.error("제목을 입력해 주세요.");
+    if (reviewFiles.length === 0) return toast.error("사진을 1장 이상 선택해 주세요.");
+    setUploadingReview(true);
+    try {
+      // 💡 잘못된 버킷/테이블 이름 완벽 패치 (inquiries 버킷, products 테이블 활용)
+      const urls = await uploadImages(BUCKET.inquiries, reviewFiles);
+      const { error } = await supabase.from(TABLE.products).insert({
+        title: reviewTitle.trim(),
+        category: "배송인증",
+        image_url: urls.join(","),
+        price: 0,
+        status: "판매중"
+      });
+      if (error) throw error;
+      toast.success("인증사진을 등록했습니다.");
+      closeReviewModal();
+      loadReviews();
+    } catch (err) {
+      console.error(err);
+      toast.error("등록하지 못했습니다. 다시 시도해 주세요.");
+    } finally {
+      setUploadingReview(false);
     }
   };
 
-  const handleAdminLogout = async () => {
-    if (confirm("관리자 모드를 종료하시겠습니까?")) {
-      await supabase.auth.signOut();
-      toast.success("관리자 모드가 종료되었습니다.");
+  const handleDeleteReview = async (id: Review["id"]) => {
+    if (!confirm("이 인증사진을 정말 삭제하시겠습니까?")) return;
+    try {
+      // 💡 삭제 로직 역시 실제 DB 테이블인 products를 겨냥하도록 패치 완료
+      const { error } = await supabase.from(TABLE.products).delete().eq("id", id);
+      if (error) throw error;
+      toast.success("삭제했습니다.");
+      setReviews((prev) => prev.filter((r) => r.id !== id));
+    } catch (err) {
+      console.error(err);
+      toast.error("삭제하지 못했습니다.");
     }
   };
 
-  /* ───── 사진 선택 공통 ───── */
-  const pickFiles = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    current: File[],
-    setFiles: (f: File[]) => void,
-    setPreviews: React.Dispatch<React.SetStateAction<string[]>>
-  ) => {
-    const picked = Array.from(e.target.files ?? []);
-    e.target.value = "";
-    if (!picked.length) return;
-    const { ok, error } = validateImageFiles(picked);
-    if (error) toast.error(error);
-    if (current.length + ok.length > MAX_PHOTOS) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 등록 가능합니다.`);
-      return;
+  /* ── 라이트박스 ── */
+  const lbImages = lightbox ? splitImages(lightbox.review.image_url) : [];
+  const closeLightbox = useCallback(() => setLightbox(null), []);
+  const moveLightbox = useCallback(
+    (step: number) =>
+      setLightbox((lb) => {
+        if (!lb) return lb;
+        const n = splitImages(lb.review.image_url).length;
+        return n ? { ...lb, index: (lb.index + step + n) % n } : lb;
+      }),
+    []
+  );
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") moveLightbox(-1);
+      if (e.key === "ArrowRight") moveLightbox(1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox, moveLightbox]);
+
+  const copyAddress = async () => {
+    try {
+      await navigator.clipboard.writeText(STORE.address);
+      toast.success("주소를 복사했습니다.");
+    } catch {
+      toast.error("복사하지 못했습니다.");
     }
-    setFiles([...current, ...ok]);
-    setPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
   };
 
-  const removeFile = (
-    index: number, files: File[], previews: string[],
-    setFiles: (f: File[]) => void, setPreviews: (p: string[]) => void
-  ) => {
-    URL.revokeObjectURL(previews[index]);
-    setFiles(files.filter((_, i) => i !== index));
-    setPreviews(previews.filter((_, i) => i !== index));
+  /* ── 구조화 데이터 (Local SEO) ── */
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ElectronicsStore",
+        "@id": `${STORE.url}/#store`,
+        name: STORE.name,
+        description: "대전 중고가전 판매·매입 전문. 중고 냉장고·세탁기·에어컨·냉난방기와 업소용 냉장고·제빙기·쇼케이스·상업용 주방기기를 판매·매입하며 전국 배송·설치를 상담합니다.",
+        url: STORE.url,
+        telephone: "+82-42-523-8179",
+        foundingDate: String(STORE.since),
+        address: { "@type": "PostalAddress", streetAddress: "중촌동 144", addressLocality: "중구", addressRegion: "대전광역시", addressCountry: "KR" },
+        openingHoursSpecification: [
+          { "@type": "OpeningHoursSpecification", dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], opens: "09:00", closes: "19:00" },
+        ],
+        areaServed: "KR",
+        sameAs: [STORE.cafe, STORE.kakaoChannel],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: FAQS.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+      },
+    ],
   };
 
-  const clearFiles = (previews: string[], setFiles: (f: File[]) => void, setPreviews: (p: string[]) => void) => {
+  return (
+    <div className="hb-root min-h-screen bg-[#F6F5F2] text-[#1F2530]">
+      <style>{GLOBAL_CSS}</style>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      {/* ─────────────── ① HEADER ─────────────── */}
+      <header
+        className={`sticky top-0 z-50 border-b transition-[background-color,border-color] duration-300 ${
+          scrolled ? "border-[#E4E0D8] bg-white" : "border-transparent bg-[#F6F5F2]"
+        }`}
+      >
+        <div className={`${WRAP} flex h-16 items-center gap-4 lg:h-[72px]`}>
+          <a href="/" className="flex shrink-0 items-center gap-2.5" aria-label="한밭중고전자 홈">
+            <span className="grid h-9 w-9 place-items-center rounded-[5px] bg-[#0E1A2B] text-[12px] font-bold tracking-tight text-white">한밭</span>
+            <span className="leading-none">
+              <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
+              <span className="mt-1 block text-[10px] font-medium tracking-[0.22em] text-neutral-500">SINCE {STORE.since}</span>
+            </span>
+          </a>
+
+          <nav className="hidden flex-1 justify-center lg:flex" aria-label="주요 메뉴">
+            <ul className="flex items-center">
+              {NAV.map((n) => (
+                <li key={n.label}>
+                  <a href={n.href} className="relative rounded px-2.5 py-2 text-[14px] font-medium text-[#2A3140] transition-colors hover:text-[#0E1A2B] xl:px-3.5 xl:text-[15px] after:absolute after:inset-x-2.5 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-[#0E1A2B] after:transition-transform after:duration-300 hover:after:scale-x-100">
+                    {n.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div className="ml-auto hidden items-center gap-2 lg:flex">
+            <a href={telHref(STORE.tel)} className="hidden items-center gap-1.5 px-2 text-[14px] font-semibold text-[#0E1A2B] xl:inline-flex">
+              <Icon d={I.phone} className="h-4 w-4" />
+              {STORE.tel}
+            </a>
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-10 px-3.5 text-[14px]`} aria-label="카카오톡 상담">
+              <Icon d={I.chat} className="h-4 w-4" />
+              <span className="hidden xl:inline">카카오톡</span>
+            </a>
+            <button type="button" onClick={() => openInquiry()} className={`${BTN_NAVY} h-10 px-4 text-[14px]`}>
+              문의하기
+            </button>
+          </div>
+
+          <div className="ml-auto flex items-center gap-1 lg:hidden">
+            <a href={telHref(STORE.tel)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label={`전화 상담 ${STORE.tel}`}>
+              <Icon d={I.phone} />
+            </a>
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="카카오톡 상담">
+              <Icon d={I.chat} />
+            </a>
+            <button type="button" onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="메뉴 열기" aria-expanded={menuOpen}>
+              <Icon d={I.menu} />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 모바일 메뉴 */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-white lg:hidden" role="dialog" aria-modal="true" aria-label="전체 메뉴">
+          <div className={`${WRAP} flex h-16 items-center justify-between border-b border-[#EEEBE5]`}>
+            <span className="text-[17px] font-bold text-[#0E1A2B]">한밭중고전자</span>
+            <button type="button" onClick={() => setMenuOpen(false)} className="grid h-10 w-10 place-items-center" aria-label="메뉴 닫기">
+              <Icon d={I.close} />
+            </button>
+          </div>
+          <nav className={`${WRAP} flex-1 overflow-y-auto py-4`} aria-label="모바일 메뉴">
+            <ul>
+              {[...NAV, ...NAV_EXTRA].map((n) => (
+                <li key={n.label} className="border-b border-[#F0EDE7]">
+                  <a href={n.href} onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[17px] font-semibold text-[#0E1A2B]">
+                    {n.label}
+                    <Icon d={I.right} className="h-4 w-4 text-neutral-400" />
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-6 rounded-md bg-[#F6F5F2] p-4 text-[14px] text-[#4B5260]">
+              <p className="font-semibold text-[#0E1A2B]">{STORE.hours}</p>
+              <p className="mt-0.5">{STORE.closed} · {STORE.address}</p>
+            </div>
+          </nav>
+          <div className={`${WRAP} grid grid-cols-2 gap-2 border-t border-[#EEEBE5] py-3 pb-[max(12px,env(safe-area-inset-bottom))]`}>
+            <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-12 text-[15px]`}>
+              <Icon d={I.phone} className="h-4 w-4" /> 전화 상담
+            </a>
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[15px]`}>
+              <Icon d={I.chat} className="h-4 w-4" /> 카카오톡
+            </a>
+          </div>
+        </div>
+      )}
+
+      <main>
+        {/* ─────────────── ② HERO ─────────────── */}
+        <section className="relative overflow-hidden" aria-labelledby="hero-title">
+          <div className={`${WRAP} grid items-center gap-10 pb-12 pt-8 sm:pt-12 lg:grid-cols-12 lg:gap-12 lg:pb-16 lg:pt-16`}>
+            <div className="lg:col-span-6">
+              <p className="inline-flex items-center gap-2 text-[13px] font-medium text-[#4B5260]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" aria-hidden="true" />
+                SINCE {STORE.since} · 대전 중촌동 오프라인 매장
+              </p>
+              <h1 id="hero-title" className="mt-5 font-bold tracking-[-0.03em] text-[#0E1A2B]">
+                <span className="block text-[15px] font-semibold tracking-normal text-[#4B5260] sm:text-base">대전 중고가전 판매·매입 전문 한밭중고전자</span>
+                <span className="mt-3 block text-[36px] leading-[1.2] sm:text-[46px] lg:text-[54px] lg:leading-[1.15]">
+                  새것 같은 중고가전,
+                  <br />
+                  합리적인 가격으로.
+                </span>
+              </h1>
+              <p className="mt-6 max-w-[520px] text-[16px] leading-[1.75] text-[#4B5260] sm:text-[17px]">
+                {STORE.since}년부터 가정용 가전과 업소용 냉장·주방 설비를 판매하고 매입해 왔습니다. 전국 배송·설치와 매장 정리 같은 대량 거래도 상담해 드립니다.
+              </p>
+              <div className="mt-8 grid grid-cols-2 gap-2.5 sm:flex sm:gap-3">
+                <Link href="/gallery" className={`${BTN_NAVY} h-[52px] px-6 text-[15px] sm:px-7 sm:text-base`}>
+                  판매 제품 보기
+                  <Icon d={I.arrow} className="h-4 w-4" />
+                </Link>
+                <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] px-6 text-[15px] sm:px-7 sm:text-base`}>
+                  무료 견적 문의
+                </button>
+              </div>
+              <p className="mt-5 text-[14px] text-[#6B7280]">
+                전화 상담{" "}
+                <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">
+                  {STORE.tel}
+                </a>
+                <span className="mx-2 text-neutral-300">|</span>
+                {STORE.hours}
+              </p>
+            </div>
+
+            {/* 💡 글씨 배너 짤림 현상 완벽 해결: aspect-video, object-contain 적용 완료 */}
+            <div className="hb-fade lg:col-span-6">
+              <div className="relative w-full aspect-video overflow-hidden rounded-xl bg-white border border-[#E4E0D8] shadow-sm flex items-center justify-center">
+                {HERO_IMAGES.map((src, i) => (
+                  <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
+                    <SafeImg src={src} alt="한밭중고전자 매장 전경 배너" eager={i === 0} className="h-full w-full object-contain p-1 sm:p-2" />
+                  </div>
+                ))}
+                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 z-20 flex gap-2">
+                  {HERO_IMAGES.map((_, i) => (
+                    <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
+                      className={`h-2 rounded-full transition-all duration-300 shadow-sm ${heroIdx === i ? "bg-[#0E1A2B] w-5" : "bg-[#0E1A2B]/20 w-2 hover:bg-[#0E1A2B]/40"}`} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 신뢰 지표: 사이트에 명시된 사실만 */}
+          <div className="border-y border-[#E4E0D8] bg-white">
+            <dl className={`${WRAP} grid grid-cols-2 lg:grid-cols-4`}>
+              {[
+                { k: String(STORE.since), v: `대전에서 ${YEARS}년째 영업` },
+                { k: "오프라인 매장", v: "직접 보고 구매 가능" },
+                { k: "전국 배송·설치", v: "제품·지역별 상담" },
+                { k: "세금계산서", v: "투명한 거래 증빙" },
+              ].map((s, i) => (
+                <div key={s.k} className={`py-5 sm:py-6 ${i % 2 === 1 ? "pl-5 sm:pl-8" : ""} ${i > 1 ? "border-t border-[#EEEBE5] lg:border-t-0" : ""} ${i > 0 ? "lg:border-l lg:border-[#EEEBE5] lg:pl-8" : ""}`}>
+                  <dt className="text-[17px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[19px]">{s.k}</dt>
+                  <dd className="mt-1 text-[13px] text-[#6B7280] sm:text-[14px]">{s.v}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+
+        {/* ─────────────── ③ 신뢰 / 서비스 USP ─────────────── */}
+        <section className="py-16 sm:py-20 lg:py-28" aria-labelledby="usp-title">
+          <div className={`${WRAP} grid gap-10 lg:grid-cols-12 lg:gap-16`}>
+            <div className="lg:col-span-4">
+              <div className="lg:sticky lg:top-28">
+                <SectionHead
+                  eyebrow="Why Hanbat"
+                  title={
+                    <span id="usp-title">
+                      중고라서 불안한 부분,
+                      <br />
+                      먼저 확인하고 보냅니다.
+                    </span>
+                  }
+                  desc="판매부터 매입, 배송과 설치까지 한밭중고전자가 직접 책임지는 범위입니다."
+                />
+              </div>
+            </div>
+            <ol className="lg:col-span-8">
+              {USP.map((u, i) => (
+                <li key={u.t} className="grid grid-cols-[44px_1fr] gap-x-4 border-t border-[#DDD9D1] py-6 last:border-b sm:grid-cols-[64px_220px_1fr] sm:gap-x-6 sm:py-7">
+                  <span className="text-[13px] font-semibold tabular-nums text-[#D9531E] sm:text-[14px]">{String(i + 1).padStart(2, "0")}</span>
+                  <h3 className="text-[17px] font-bold text-[#0E1A2B] sm:text-[18px]">{u.t}</h3>
+                  <p className="col-start-2 mt-1.5 text-[15px] leading-relaxed text-[#4B5260] sm:col-start-3 sm:mt-0">{u.d}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        {/* ─────────────── ④ 상품 카테고리 ─────────────── */}
+        <section id="category-section" className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="cat-title">
+          <div className={WRAP}>
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+              <SectionHead eyebrow="Products" title={<span id="cat-title">어떤 제품을 찾으시나요?</span>} desc="가정용부터 업소용 설비까지, 세척과 정비를 마친 제품을 카테고리별로 확인하세요." />
+              <div className="flex items-center gap-4">
+                <div className="inline-flex rounded-md border border-[#DDD9D1] p-1" role="tablist" aria-label="카테고리 구분">
+                  {(
+                    [
+                      { k: "all", l: "전체" },
+                      { k: "home", l: "가정용" },
+                      { k: "biz", l: "업소용" },
+                    ] as const
+                  ).map((f) => (
+                    <button
+                      key={f.k}
+                      type="button"
+                      role="tab"
+                      aria-selected={catFilter === f.k}
+                      onClick={() => setCatFilter(f.k)}
+                      className={`h-9 rounded px-4 text-[14px] font-semibold transition-colors ${catFilter === f.k ? "bg-[#0E1A2B] text-white" : "text-[#4B5260] hover:text-[#0E1A2B]"}`}
+                    >
+                      {f.l}
+                    </button>
+                  ))}
+                </div>
+                <Link href="/gallery" className="hidden items-center gap-1.5 text-[14px] font-semibold text-[#0E1A2B] underline-offset-4 hover:underline sm:inline-flex">
+                  전체 제품 보기 <Icon d={I.arrow} className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+
+            <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 md:grid-cols-3 lg:mt-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-10">
+              {visibleCats.map((c) => {
+                const img = catImages[c.key];
+                const no = CATEGORIES.indexOf(c) + 1;
+                return (
+                  <li key={c.key}>
+                    <Link href={galleryHref(c.gallery)} className="group block" aria-label={`${c.name} 제품 보기`}>
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#EFECE6]">
+                        {img ? (
+                          <SafeImg src={img} alt={`중고 ${c.name} 판매 제품`} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]" />
+                        ) : (
+                          <div className="flex h-full w-full flex-col justify-between p-4 transition-colors duration-300 group-hover:bg-[#E7E3DB] sm:p-5">
+                            <span className="text-[12px] font-semibold tabular-nums tracking-[0.18em] text-[#A29C90]">{String(no).padStart(2, "0")}</span>
+                            <span className="text-[15px] font-semibold leading-snug text-[#8F897D] sm:text-lg">{c.desc}</span>
+                          </div>
+                        )}
+                        <span className="absolute left-2.5 top-2.5 rounded-sm bg-white/95 px-1.5 py-0.5 text-[11px] font-semibold text-[#4B5260]">{c.group === "home" ? "가정용" : "업소용"}</span>
+                      </div>
+                      <div className="mt-3 flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3 className="text-[15px] font-bold text-[#0E1A2B] transition-colors group-hover:text-[#D9531E] sm:text-[16px]">{c.name}</h3>
+                          {img && <p className="mt-0.5 truncate text-[13px] text-[#6B7280]">{c.desc}</p>}
+                        </div>
+                        <Icon d={I.arrow} className="mt-0.5 h-4 w-4 shrink-0 text-neutral-400 transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#D9531E]" />
+                      </div>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <Link href="/gallery" className={`${BTN_LINE} mt-10 h-12 w-full text-[15px] sm:hidden`}>
+              전체 제품 보기 <Icon d={I.arrow} className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+
+        {/* ─────────────── ⑤ 판매 중인 제품 ─────────────── */}
+        <section id="products-section" className="border-t border-[#EEEBE5] bg-white pb-16 pt-14 sm:pb-20 lg:pb-28 lg:pt-20" aria-labelledby="stock-title">
+          <div className={WRAP}>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+              <SectionHead
+                eyebrow="In Stock"
+                title={<span id="stock-title">지금 판매 중인 제품</span>}
+                desc="한밭중고전자가 직접 입고해 등록한 제품입니다. 방문 전에 전화로 재고를 확인해 주세요."
+              />
+              <Link href="/gallery" className={`${BTN_NAVY} h-12 shrink-0 px-6 text-[15px]`}>
+                상품 전체 보기 <Icon d={I.arrow} className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {productsLoading ? (
+              <ul className="hb-scroll -mx-5 mt-10 flex gap-4 overflow-hidden px-5 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-6 lg:px-0" aria-hidden="true">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <li key={i} className="w-[68%] shrink-0 sm:w-[42%] lg:w-auto">
+                    <div className="aspect-square animate-pulse rounded-md bg-[#EFECE6]" />
+                    <div className="mt-3 h-4 w-2/3 animate-pulse rounded bg-[#EFECE6]" />
+                    <div className="mt-2 h-4 w-1/3 animate-pulse rounded bg-[#EFECE6]" />
+                  </li>
+                ))}
+              </ul>
+            ) : featured.length > 0 ? (
+              <ul className="hb-scroll -mx-5 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 sm:-mx-6 sm:px-6 lg:mx-0 lg:grid lg:grid-cols-4 lg:gap-x-6 lg:gap-y-10 lg:overflow-visible lg:px-0">
+                {featured.map((p) => {
+                  const img = productImages(p)[0];
+                  return (
+                    <li key={p.id} className="w-[68%] shrink-0 snap-start sm:w-[42%] lg:w-auto">
+                      <Link href={galleryHref(p.category)} className="group block">
+                        <div className="relative aspect-square overflow-hidden rounded-md bg-[#EFECE6]">
+                          <SafeImg src={img} alt={`${p.title ?? "중고 가전"} 판매 제품 사진`} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]" />
+                          {p.status && p.status !== "판매중" && (
+                            <span className="absolute left-2.5 top-2.5 rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-semibold text-white">{p.status}</span>
+                          )}
+                        </div>
+                        {p.category && <p className="mt-3 text-[12px] font-semibold text-[#8A8478]">{p.category}</p>}
+                        <h3 className="mt-1 line-clamp-2 text-[15px] font-semibold leading-snug text-[#0E1A2B] underline-offset-4 group-hover:underline">{p.title ?? "상품명 확인 중"}</h3>
+                        <p className="mt-1.5 text-[16px] font-bold text-[#0E1A2B]">{formatPrice(p.price)}</p>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="mt-10 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-6 py-12 text-center sm:py-16">
+                <p className="text-[17px] font-bold text-[#0E1A2B]">홈페이지 상품 목록을 정리하고 있습니다.</p>
+                <p className="mt-2 text-[15px] text-[#4B5260]">판매 중인 제품은 네이버 카페에서 확인하실 수 있습니다.</p>
+                <a href={STORE.cafe} target="_blank" rel="noopener noreferrer" className={`${BTN_NAVY} mt-6 h-12 px-6 text-[15px]`}>
+                  네이버 카페에서 제품 보기 <Icon d={I.external} className="h-4 w-4" />
+                </a>
+              </div>
+            )}
+
+            {/* 네이버 카페 연결 */}
+            <a
+              href={STORE.cafe}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group mt-12 flex flex-col gap-4 rounded-md bg-[#0E1A2B] px-6 py-6 text-white transition-colors hover:bg-[#15243A] sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:mt-16"
+            >
+              <div>
+                <p className="text-[12px] font-semibold tracking-[0.2em] text-white/50">NAVER CAFE</p>
+                <p className="mt-1.5 text-[17px] font-bold sm:text-lg">한밭중고전자 상품 카페에서도 판매 제품을 확인하세요</p>
+              </div>
+              <span className="inline-flex items-center gap-2 text-[15px] font-semibold text-[#F08A5D]">
+                카페 바로가기
+                <Icon d={I.arrow} className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </span>
+            </a>
+          </div>
+        </section>
+
+        {/* ─────────────── ⑥ 배송·설치 인증 ─────────────── */}
+        <section id="reviews-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="review-title">
+          <div className={WRAP}>
+            <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+              <SectionHead
+                eyebrow="Delivery & Installation"
+                title={
+                  <span id="review-title">
+                    우리는 제품만
+                    <br className="sm:hidden" /> 보내지 않습니다.
+                  </span>
+                }
+                desc="배송부터 설치까지, 현장에서 직접 찍은 사진으로 확인하세요."
+              />
+              <div className="flex items-center gap-3">
+                {reviews.length > 0 && <p className="text-[14px] text-[#6B7280]">현장 기록 {reviews.length}건</p>}
+                {isAdmin && (
+                  <button type="button" onClick={() => setReviewModalOpen(true)} className={`${BTN_NAVY} h-10 px-4 text-[14px]`}>
+                    <Icon d={I.plus} className="h-4 w-4" /> 인증사진 등록
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {reviewsLoading ? (
+              <div className="mt-10 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4" aria-hidden="true">
+                <div className="col-span-2 row-span-2 aspect-square animate-pulse rounded-md bg-[#E9E6E0]" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="aspect-square animate-pulse rounded-md bg-[#E9E6E0]" />
+                ))}
+              </div>
+            ) : reviews.length === 0 ? (
+              <div className="mt-10 flex flex-col items-start gap-5 rounded-md border border-[#E4E0D8] bg-white px-6 py-10 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+                <div className="flex items-center gap-4">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#F6F5F2] text-[#8A8478]">
+                    <Icon d={I.camera} />
+                  </span>
+                  <div>
+                    <p className="text-[16px] font-bold text-[#0E1A2B]">현장 사진을 정리하고 있습니다.</p>
+                    <p className="mt-1 text-[14px] text-[#4B5260]">배송·설치 사례가 궁금하시면 카카오톡으로 편하게 물어보세요.</p>
+                  </div>
+                </div>
+                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-11 shrink-0 px-5 text-[14px]`}>
+                  <Icon d={I.chat} className="h-4 w-4" /> 카카오톡 문의
+                </a>
+              </div>
+            ) : (
+              <>
+                <ul className="mt-10 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4">
+                  {shownReviews.map((r, i) => {
+                    const imgs = splitImages(r.image_url);
+                    const big = i === 0 && reviews.length >= 5;
+                    return (
+                      <li key={r.id} className={big ? "col-span-2 row-span-2" : ""}>
+                        <div className="group relative aspect-square overflow-hidden rounded-md bg-[#E4E1DA]">
+                          <button type="button" onClick={() => setLightbox({ review: r, index: 0 })} className="block h-full w-full" aria-label={`${r.title ?? "배송·설치"} 사진 크게 보기`}>
+                            <SafeImg src={imgs[0]} alt={`${r.title ?? "배송·설치"} 현장 사진`} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                          </button>
+                          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent px-3 pb-3 pt-10 sm:px-4 sm:pb-4">
+                            <p className={`line-clamp-1 font-semibold text-white ${big ? "text-[15px] sm:text-[17px]" : "text-[13px] sm:text-[14px]"}`}>{r.title}</p>
+                            <p className="mt-0.5 text-[11px] text-white/70">{shortDate(r.created_at)}</p>
+                          </div>
+                          {imgs.length > 1 && (
+                            <span className="pointer-events-none absolute right-2 top-2 rounded-sm bg-black/55 px-1.5 py-0.5 text-[11px] font-medium text-white">+{imgs.length - 1}</span>
+                          )}
+                          {isAdmin && (
+                            <button type="button" onClick={() => handleDeleteReview(r.id)} className="absolute left-2 top-2 rounded-sm bg-white px-2 py-1 text-[11px] font-semibold text-red-600 shadow-sm">
+                              삭제
+                            </button>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {reviews.length > 5 && (
+                  <div className="mt-8 text-center">
+                    <button type="button" onClick={() => setShowAllReviews((v) => !v)} className={`${BTN_LINE} h-12 px-7 text-[15px]`}>
+                      {showAllReviews ? "접기" : `현장 사진 ${reviews.length - 5}건 더 보기`}
+                      <Icon d={I.down} className={`h-4 w-4 transition-transform ${showAllReviews ? "rotate-180" : ""}`} />
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+
+        {/* ─────────────── ⑦ 매입 서비스 ─────────────── */}
+        <section id="sell-section" className="bg-[#0E1A2B] py-16 text-white sm:py-20 lg:py-28" aria-labelledby="sell-title">
+          <div className={`${WRAP} grid gap-12 lg:grid-cols-12 lg:gap-16`}>
+            <div className="lg:col-span-5">
+              <SectionHead
+                dark
+                eyebrow="Buyback"
+                title={
+                  <span id="sell-title">
+                    쓰지 않는 가전,
+                    <br />
+                    그냥 버리지 마세요.
+                  </span>
+                }
+                desc="가정용 가전부터 업소용 냉장·주방 설비까지 사진 한 장으로 매입 견적을 받아보세요. 원하시는 날짜에 방문해 수거합니다."
+              />
+              <p className="mt-8 text-[13px] font-semibold text-white/50">이럴 때 연락 주세요</p>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {SELL_CASES.map((s) => (
+                  <li key={s} className="rounded-sm border border-white/20 px-3 py-1.5 text-[14px] font-medium text-white/90">
+                    {s}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-9 flex flex-col gap-2.5 sm:flex-row">
+                <button type="button" onClick={() => openInquiry("내 물건 팔기")} className={`${BTN_ACCENT} h-[52px] px-7 text-[16px] focus-visible:ring-offset-[#0E1A2B]`}>
+                  무료 매입 견적 받기 <Icon d={I.arrow} className="h-4 w-4" />
+                </button>
+                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN} h-[52px] border border-white/25 px-6 text-[15px] text-white hover:border-white/60 focus-visible:ring-white`}>
+                  <Icon d={I.chat} className="h-4 w-4" /> 카톡으로 사진 보내기
+                </a>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <h3 className="text-[15px] font-semibold text-white/60">매입 진행 순서</h3>
+              <ol className="mt-5 border-t border-white/15">
+                {SELL_STEPS.map((s, i) => (
+                  <li key={s.t} className="grid grid-cols-[48px_1fr] gap-x-4 border-b border-white/15 py-6 sm:grid-cols-[72px_1fr] sm:py-7">
+                    <span className="text-[28px] font-bold leading-none tabular-nums text-white/25 sm:text-[34px]">{i + 1}</span>
+                    <div>
+                      <p className="text-[17px] font-bold sm:text-[19px]">{s.t}</p>
+                      <p className="mt-1.5 text-[15px] leading-relaxed text-white/70">{s.d}</p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-5 text-[13px] text-white/50">가격 흥정 없이, 사진과 현장 확인을 기준으로 견적을 안내합니다.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────── ⑧ 가정용 / 업소용 ─────────────── */}
+        <section className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="split-title">
+          <div className={WRAP}>
+            <SectionHead eyebrow="Home & Business" title={<span id="split-title">집에서 쓰는 가전부터 매장 설비까지</span>} className="max-w-2xl" />
+            <div className="mt-10 grid gap-3 lg:mt-12 lg:grid-cols-2 lg:gap-4">
+              {[
+                {
+                  dark: false,
+                  eyebrow: "For Home",
+                  title: "가정용 중고가전",
+                  desc: "이사, 신혼, 원룸, 사무실에 필요한 가전을 합리적인 가격으로 준비하세요.",
+                  items: ["스탠드·벽걸이 에어컨", "양문형 냉장고", "김치냉장고", "세탁기", "건조기"],
+                  href: "/gallery",
+                  cta: "가정용 제품 보기",
+                  img: catImages.fridge ?? catImages.stand ?? catImages.washer ?? catImages.kimchi,
+                },
+                {
+                  dark: true,
+                  eyebrow: "For Business",
+                  title: "업소용·상업용 장비",
+                  desc: "식당·카페 창업과 매장 확장에 필요한 냉장·주방 설비. 대량 구매와 폐업 매입도 상담합니다.",
+                  items: ["업소용 냉장고", "쇼케이스", "제빙기", "식기세척기", "냉난방기", "상업용 주방기기"],
+                  href: galleryHref(G.biz),
+                  cta: "업소용 제품 보기",
+                  img: catImages.bizfridge ?? catImages.showcase ?? catImages.ice ?? catImages.kitchen,
+                },
+              ].map((b) => (
+                <Link
+                  key={b.title}
+                  href={b.href}
+                  className={`group flex flex-col overflow-hidden rounded-md transition-colors ${b.dark ? "bg-[#1C2432] text-white hover:bg-[#222C3C]" : "bg-[#EFECE6] text-[#0E1A2B] hover:bg-[#E9E5DD]"}`}
+                >
+                  {b.img && (
+                    <div className="aspect-[16/8] overflow-hidden">
+                      <SafeImg src={b.img} alt={`${b.title} 판매 제품`} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                    </div>
+                  )}
+                  <div className="flex flex-1 flex-col p-7 sm:p-10">
+                    <p className={`text-[12px] font-semibold uppercase tracking-[0.22em] ${b.dark ? "text-[#F08A5D]" : "text-[#D9531E]"}`}>{b.eyebrow}</p>
+                    <h3 className="mt-3 text-[24px] font-bold tracking-[-0.02em] sm:text-[30px]">{b.title}</h3>
+                    <p className={`mt-3 max-w-md text-[15px] leading-relaxed ${b.dark ? "text-white/70" : "text-[#4B5260]"}`}>{b.desc}</p>
+                    <ul className={`mt-6 flex flex-wrap gap-x-4 gap-y-2 text-[14px] font-medium ${b.dark ? "text-white/85" : "text-[#2A3140]"}`}>
+                      {b.items.map((it) => (
+                        <li key={it} className="flex items-center gap-1.5">
+                          <span className={`h-1 w-1 rounded-full ${b.dark ? "bg-white/40" : "bg-[#0E1A2B]/40"}`} aria-hidden="true" />
+                          {it}
+                        </li>
+                      ))}
+                    </ul>
+                    <span className={`mt-auto inline-flex items-center gap-2 pt-8 text-[15px] font-bold ${b.dark ? "text-white" : "text-[#0E1A2B]"}`}>
+                      {b.cta}
+                      <Icon d={I.arrow} className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────── ⑨ FAQ ─────────────── */}
+        <section id="faq-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="faq-title">
+          <div className={`${WRAP} grid gap-10 lg:grid-cols-12 lg:gap-16`}>
+            <div className="lg:col-span-4">
+              <SectionHead eyebrow="FAQ" title={<span id="faq-title">자주 묻는 질문</span>} />
+              <p className="mt-5 text-[15px] leading-relaxed text-[#4B5260]">
+                더 궁금한 점은{" "}
+                <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline underline-offset-4">
+                  {STORE.tel}
+                </a>{" "}
+                또는{" "}
+                <a href={telHref(STORE.mobile)} className="font-semibold text-[#0E1A2B] underline underline-offset-4">
+                  {STORE.mobile}
+                </a>
+                로 편히 문의해 주세요.
+              </p>
+            </div>
+            <div className="border-t border-[#DDD9D1] lg:col-span-8">
+              {FAQS.map((f, i) => {
+                const open = openFaq === i;
+                return (
+                  <div key={f.q} className="border-b border-[#DDD9D1]">
+                    <h3>
+                      <button
+                        type="button"
+                        id={`faq-q-${i}`}
+                        aria-expanded={open}
+                        aria-controls={`faq-a-${i}`}
+                        onClick={() => setOpenFaq(open ? null : i)}
+                        className="flex w-full items-start justify-between gap-6 py-5 text-left sm:py-6"
+                      >
+                        <span className="flex gap-3 text-[16px] font-semibold leading-snug text-[#0E1A2B] sm:text-[17px]">
+                          <span className="text-[#D9531E]">Q.</span>
+                          {f.q}
+                        </span>
+                        <span className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#DDD9D1] text-[#0E1A2B] transition-transform duration-300 ${open ? "rotate-45" : ""}`}>
+                          <Icon d={I.plus} className="h-3.5 w-3.5" strokeWidth={2} />
+                        </span>
+                      </button>
+                    </h3>
+                    <div id={`faq-a-${i}`} role="region" aria-labelledby={`faq-q-${i}`} className={`grid transition-[grid-template-rows] duration-300 ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                      <div className="overflow-hidden">
+                        <p className="pb-6 pl-7 pr-10 text-[15px] leading-[1.8] text-[#4B5260]">{f.a}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────── ⑩ 오시는 길 ─────────────── */}
+        <section id="location-section" className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="loc-title">
+          <div className={WRAP}>
+            <SectionHead eyebrow="Location" title={<span id="loc-title">직접 보고 고르는 실제 매장</span>} desc="사진만으로 판단하기 어려운 제품은 대전 중촌동 매장에서 직접 확인하세요." />
+            <div className="mt-10 grid overflow-hidden rounded-md border border-[#E4E0D8] lg:mt-12 lg:grid-cols-12">
+              <div className="relative aspect-[4/3] bg-[#EFECE6] lg:col-span-7 lg:aspect-auto lg:min-h-[480px]">
+                <iframe title="한밭중고전자 매장 위치 지도" src={MAP_EMBED_SRC} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="absolute inset-0 h-full w-full border-0" allowFullScreen />
+              </div>
+              <div className="flex flex-col p-6 sm:p-8 lg:col-span-5 lg:p-10">
+                <h3 className="text-[22px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</h3>
+                <dl className="mt-6 divide-y divide-[#EEEBE5] text-[15px]">
+                  {[
+                    { k: "주소", v: <>{STORE.address}<span className="block text-[13px] text-[#6B7280]">{STORE.addressNote}</span></> },
+                    {
+                      k: "전화",
+                      v: (
+                        <>
+                          <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.tel}</a>
+                          <span className="mx-1.5 text-neutral-300">/</span>
+                          <a href={telHref(STORE.mobile)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.mobile}</a>
+                        </>
+                      ),
+                    },
+                    { k: "영업시간", v: <>{STORE.hours}<span className="block text-[13px] text-[#6B7280]">{STORE.closed}</span></> },
+                    { k: "주차", v: STORE.parking },
+                  ].map((row) => (
+                    <div key={row.k} className="grid grid-cols-[76px_1fr] gap-3 py-4 first:pt-0">
+                      <dt className="font-semibold text-[#8A8478]">{row.k}</dt>
+                      <dd className="text-[#1F2530]">{row.v}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <div className="mt-auto grid grid-cols-2 gap-2 pt-8">
+                  <a href={STORE.naverMap} target="_blank" rel="noopener noreferrer" className={`${BTN_NAVY} h-12 text-[14px]`}>
+                    네이버 지도 길찾기
+                  </a>
+                  <a href={KAKAO_MAP} target="_blank" rel="noopener noreferrer" className={`${BTN_LINE} h-12 text-[14px]`}>
+                    카카오맵
+                  </a>
+                  <button type="button" onClick={copyAddress} className={`${BTN_LINE} col-span-2 h-11 text-[14px]`}>
+                    <Icon d={I.copy} className="h-4 w-4" /> 주소 복사
+                  </button>
+                </div>
+                <p className="mt-3 text-[12px] text-[#8A8478]">모바일에서는 버튼을 누르면 길안내 앱으로 연결됩니다.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────── ⑪ 문의 CTA + 문의 폼 ─────────────── */}
+        <section id="inquiry-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="cta-title">
+          <div className={WRAP}>
+            <div className="hb-reveal mx-auto max-w-3xl text-center">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#D9531E]">Contact</p>
+              <h2 id="cta-title" className="mt-3 text-[28px] font-bold leading-[1.3] tracking-[-0.02em] text-[#0E1A2B] sm:text-[36px] lg:text-[42px]">
+                찾으시는 제품이 없으신가요?
+              </h2>
+              <p className="mt-4 text-[16px] leading-relaxed text-[#4B5260] sm:text-[17px]">
+                필요한 제품 사진 한 장만 보내주세요.
+                <br className="hidden sm:block" /> 구매부터 매입까지 한밭중고전자에서 상담해 드립니다.
+              </p>
+              <div className="mt-8 grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-[52px] text-[15px]`}>
+                  <Icon d={I.chat} className="h-4 w-4" /> 카카오톡 상담
+                </a>
+                <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-[52px] text-[15px]`}>
+                  <Icon d={I.phone} className="h-4 w-4" /> 전화 상담
+                </a>
+                <a href="#inquiry-form" className={`${BTN_LINE} h-[52px] text-[15px]`}>
+                  <Icon d={I.pen} className="h-4 w-4" /> 문의 남기기
+                </a>
+              </div>
+            </div>
+
+            <div className="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-12 lg:gap-8">
+              <div id="inquiry-form" className="scroll-mt-24 rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-8 lg:col-span-7 lg:p-10">
+                <h3 className="text-[20px] font-bold text-[#0E1A2B] sm:text-[22px]">판매 / 매입 통합 문의</h3>
+                <p className="mt-1.5 text-[14px] text-[#6B7280]">남겨주신 문의는 확인 후 연락드립니다. 문의게시판에서 진행 상황을 볼 수 있습니다.</p>
+                <InquiryForm type={inquiryType} setType={setInquiryType} onSubmitted={loadRecent} />
+              </div>
+
+              <aside className="flex flex-col gap-6 lg:col-span-5">
+                <div className="rounded-md bg-[#0E1A2B] p-6 text-white sm:p-8">
+                  <h3 className="text-[15px] font-semibold text-white/60">바로 연락하기</h3>
+                  <a href={telHref(STORE.tel)} className="mt-3 block text-[28px] font-bold tracking-[-0.01em] sm:text-[32px]">
+                    {STORE.tel}
+                  </a>
+                  <a href={telHref(STORE.mobile)} className="mt-1 block text-[18px] font-semibold text-white/85">
+                    {STORE.mobile}
+                  </a>
+                  <p className="mt-5 border-t border-white/15 pt-5 text-[14px] text-white/70">
+                    {STORE.hours} · {STORE.closed}
+                  </p>
+                </div>
+
+                <div className="rounded-md border border-[#E4E0D8] bg-white p-6 sm:p-8">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[16px] font-bold text-[#0E1A2B]">최근 문의 현황</h3>
+                    <Link href="/inquiry" className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#4B5260] hover:text-[#0E1A2B]">
+                      문의게시판 <Icon d={I.right} className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                  {recent.length === 0 ? (
+                    <p className="mt-5 text-[14px] text-[#8A8478]">아직 표시할 문의가 없습니다.</p>
+                  ) : (
+                    <ul className="mt-4 divide-y divide-[#EEEBE5]">
+                      {recent.map((r) => (
+                        <li key={r.id} className="flex items-center gap-3 py-3 text-[14px]">
+                          <span className={`shrink-0 rounded-sm px-1.5 py-0.5 text-[11px] font-bold ${typeShort(r.inquiry_type) === "매입" ? "bg-[#FBE9E1] text-[#B5431A]" : "bg-[#E8ECF2] text-[#0E1A2B]"}`}>
+                            {typeShort(r.inquiry_type)}
+                          </span>
+                          <span className="min-w-0 flex-1 truncate text-[#1F2530]">{r.category || "문의"}</span>
+                          <span className="shrink-0 text-[12px] text-[#8A8478]">
+                            {maskName(r.name)} · {r.status ?? "접수"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* ─────────────── ⑫ FOOTER ─────────────── */}
+      <footer className="bg-[#0B1522] text-white/70">
+        <div className={`${WRAP} py-14 lg:py-16`}>
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-5">
+              <p className="text-[18px] font-bold text-white">한밭중고전자</p>
+              <h2 className="mt-4 text-[15px] font-semibold text-white/85">전국 중고가전 판매·매입 전문, 한밭중고전자</h2>
+              <p className="mt-2 max-w-md text-[14px] leading-relaxed">
+                한밭중고전자는 {STORE.since}년부터 쌓아온 중고가전 유통 노하우로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 판매·매입합니다. 전국 단위 판매와 대량 거래가 가능하며, 제품 특성에 맞춰 배송과 설치를 진행합니다.
+              </p>
+            </div>
+            <nav className="grid grid-cols-2 gap-8 text-[14px] sm:grid-cols-3 lg:col-span-7" aria-label="하단 메뉴">
+              <div>
+                <p className="font-semibold text-white">제품</p>
+                <ul className="mt-4 space-y-2.5">
+                  {NAV.slice(0, 5).map((n) => (
+                    <li key={n.label}>
+                      <a href={n.href} className="hover:text-white">{n.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold text-white">고객지원</p>
+                <ul className="mt-4 space-y-2.5">
+                  <li><a href="#sell-section" className="hover:text-white">매입문의</a></li>
+                  {NAV_EXTRA.map((n) => (
+                    <li key={n.label}><a href={n.href} className="hover:text-white">{n.label}</a></li>
+                  ))}
+                  <li><a href={STORE.cafe} target="_blank" rel="noopener noreferrer" className="hover:text-white">네이버 카페</a></li>
+                  <li><a href={STORE.kakaoChannel} target="_blank" rel="noopener noreferrer" className="hover:text-white">카카오톡 채널</a></li>
+                </ul>
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <p className="font-semibold text-white">매장</p>
+                <ul className="mt-4 space-y-2.5">
+                  <li>{STORE.address}</li>
+                  <li><a href={telHref(STORE.tel)} className="hover:text-white">{STORE.tel}</a></li>
+                  <li><a href={telHref(STORE.mobile)} className="hover:text-white">{STORE.mobile}</a></li>
+                  <li>{STORE.hours}</li>
+                </ul>
+              </div>
+            </nav>
+          </div>
+
+          <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-6 text-[12px] leading-relaxed text-white/45 lg:flex-row lg:items-end lg:justify-between">
+            <p>
+              상호 {STORE.name} · 대표 {STORE.ceo} · 사업자등록번호 {STORE.bizNo} · 통신판매업신고 {STORE.mailOrderNo}
+              <br />
+              개인정보관리책임자 {STORE.privacyOfficer} · {STORE.address}
+              <br />© {new Date().getFullYear()} {STORE.name}. All rights reserved.
+            </p>
+            <div>
+              {isAdmin ? (
+                <button type="button" onClick={handleLogout} className="text-white/45 underline-offset-4 hover:text-white hover:underline">
+                  관리자 로그아웃
+                </button>
+              ) : (
+                <button type="button" onClick={() => setLoginOpen(true)} className="text-white/35 underline-offset-4 hover:text-white hover:underline">
+                  관리자
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="h-[68px] lg:hidden" aria-hidden="true" />
+      </footer>
+
+      {/* ─────────────── 모바일 하단 고정 CTA ─────────────── */}
+      {!menuOpen && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E4E0D8] bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
+          <div className="grid h-[60px] grid-cols-3">
+            <a href={telHref(STORE.tel)} className="flex flex-col items-center justify-center gap-0.5 text-[12px] font-semibold text-[#0E1A2B]">
+              <Icon d={I.phone} className="h-5 w-5" /> 전화
+            </a>
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center gap-0.5 border-x border-[#EEEBE5] text-[12px] font-semibold text-[#0E1A2B]">
+              <Icon d={I.chat} className="h-5 w-5" /> 카카오톡
+            </a>
+            <button type="button" onClick={() => openInquiry()} className="flex flex-col items-center justify-center gap-0.5 bg-[#D9531E] text-[12px] font-semibold text-white">
+              <Icon d={I.pen} className="h-5 w-5" /> 문의하기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─────────────── 라이트박스 ─────────────── */}
+      <Modal open={!!lightbox} onClose={closeLightbox} label="배송·설치 사진" variant="dark">
+        {lightbox && (
+          <div className="relative flex w-full max-w-5xl flex-col">
+            <div className="mb-3 flex items-center justify-between text-white">
+              <div className="min-w-0">
+                <p className="truncate text-[15px] font-semibold">{lightbox.review.title}</p>
+                <p className="text-[12px] text-white/50">
+                  {shortDate(lightbox.review.created_at)}
+                  {lbImages.length > 1 && ` · ${lightbox.index + 1} / ${lbImages.length}`}
+                </p>
+              </div>
+              <button type="button" onClick={closeLightbox} className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-white hover:bg-white/10" aria-label="닫기">
+                <Icon d={I.close} />
+              </button>
+            </div>
+            <div className="relative flex items-center justify-center">
+              <img src={lbImages[lightbox.index]} alt={`${lightbox.review.title ?? "배송·설치"} 현장 사진 ${lightbox.index + 1}`} className="max-h-[78vh] w-auto max-w-full rounded object-contain" />
+              {lbImages.length > 1 && (
+                <>
+                  <button type="button" onClick={() => moveLightbox(-1)} className="absolute left-1 grid h-11 w-11 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 sm:-left-14" aria-label="이전 사진">
+                    <Icon d={I.left} />
+                  </button>
+                  <button type="button" onClick={() => moveLightbox(1)} className="absolute right-1 grid h-11 w-11 place-items-center rounded-full bg-black/50 text-white hover:bg-black/70 sm:-right-14" aria-label="다음 사진">
+                    <Icon d={I.right} />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* ─────────────── 관리자 로그인 ─────────────── */}
+      <Modal open={loginOpen} onClose={() => setLoginOpen(false)} label="관리자 로그인">
+        <form onSubmit={handleAdminLogin} className="w-full rounded-t-lg bg-white p-6 sm:max-w-sm sm:rounded-lg sm:p-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[18px] font-bold text-[#0E1A2B]">관리자 로그인</h2>
+            <button type="button" onClick={() => setLoginOpen(false)} className="grid h-9 w-9 place-items-center" aria-label="닫기">
+              <Icon d={I.close} />
+            </button>
+          </div>
+          <label className={`${LABEL} mt-5`} htmlFor="admin-email">이메일</label>
+          <input id="admin-email" type="email" autoComplete="username" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className={INPUT} />
+          <label className={`${LABEL} mt-4`} htmlFor="admin-pw">비밀번호</label>
+          <input id="admin-pw" type="password" autoComplete="current-password" required value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className={INPUT} />
+          <button type="submit" disabled={loggingIn} className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}>
+            {loggingIn ? "로그인 중…" : "로그인"}
+          </button>
+        </form>
+      </Modal>
+
+      {/* ─────────────── 인증사진 등록 (관리자) ─────────────── */}
+      <Modal open={reviewModalOpen} onClose={closeReviewModal} label="배송·설치 인증사진 등록">
+        <form onSubmit={handleReviewUpload} className="max-h-[92vh] w-full overflow-y-auto rounded-t-lg bg-white p-6 sm:max-w-lg sm:rounded-lg sm:p-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-[18px] font-bold text-[#0E1A2B]">배송·설치 인증사진 등록</h2>
+            <button type="button" onClick={closeReviewModal} className="grid h-9 w-9 place-items-center" aria-label="닫기">
+              <Icon d={I.close} />
+            </button>
+          </div>
+          <label className={`${LABEL} mt-5`} htmlFor="review-title">제목</label>
+          <input id="review-title" value={reviewTitle} onChange={(e) => setReviewTitle(e.target.value)} placeholder="예) 대전 유성구 식당 45박스 냉장고 설치" className={INPUT} />
+          <p className={`${LABEL} mt-4`}>사진 (최대 {MAX_REVIEW_PHOTOS}장)</p>
+          <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {reviewPreviews.map((src, i) => (
+              <div key={src} className="relative aspect-square overflow-hidden rounded bg-[#EFECE6]">
+                <img src={src} alt={`선택한 사진 ${i + 1}`} className="h-full w-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    URL.revokeObjectURL(src);
+                    setReviewFiles((f) => f.filter((_, j) => j !== i));
+                    setReviewPreviews((p) => p.filter((_, j) => j !== i));
+                  }}
+                  className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white"
+                  aria-label={`사진 ${i + 1} 삭제`}
+                >
+                  <Icon d={I.close} className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ))}
+            {reviewFiles.length < MAX_REVIEW_PHOTOS && (
+              <label className="grid aspect-square cursor-pointer place-items-center rounded border border-dashed border-[#CFCAC0] text-[#8A8478] hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
+                <Icon d={I.plus} />
+                <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { pickReviewFiles(e.target.files); e.target.value = ""; }} />
+              </label>
+            )}
+          </div>
+          <button type="submit" disabled={uploadingReview} className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}>
+            {uploadingReview ? "업로드 중…" : "등록하기"}
+          </button>
+        </form>
+      </Modal>
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   6. 문의 폼
+   ════════════════════════════════════════════════════════════ */
+function InquiryForm({ type, setType, onSubmitted }: { type: InquiryType; setType: (t: InquiryType) => void; onSubmitted: () => void }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [title, setTitle] = useState("");
+  const [model, setModel] = useState("");
+  const [description, setDescription] = useState("");
+  const [password, setPassword] = useState("");
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [agree, setAgree] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const isSell = type === "내 물건 팔기";
+
+  const pickFiles = (list: FileList | null) => {
+    if (!list) return;
+    const next = validateImages([...files, ...Array.from(list)], MAX_PHOTOS);
+    previews.forEach((u) => URL.revokeObjectURL(u));
+    setFiles(next);
+    setPreviews(next.map((f) => URL.createObjectURL(f)));
+  };
+  const removeFile = (i: number) => {
+    URL.revokeObjectURL(previews[i]);
+    setFiles((f) => f.filter((_, j) => j !== i));
+    setPreviews((p) => p.filter((_, j) => j !== i));
+  };
+
+  const reset = () => {
+    setName("");
+    setPhone("");
+    setTitle("");
+    setModel("");
+    setDescription("");
+    setPassword("");
     previews.forEach((u) => URL.revokeObjectURL(u));
     setFiles([]);
     setPreviews([]);
+    setAgree(false);
   };
 
-  const uploadAll = async (files: File[], prefix: string) => {
-    const urls: string[] = [];
-    for (const file of files) {
-      const blob = await compressImage(file);
-      const fileName = `${prefix}${Date.now()}_${Math.random().toString(36).substring(7)}.jpg`;
-      const { error: uploadError } = await supabase.storage.from("inquiries").upload(fileName, blob, { contentType: "image/jpeg" });
-      if (uploadError) throw new Error(`업로드 실패 (${uploadError.message})`);
-      const { data } = supabase.storage.from("inquiries").getPublicUrl(fileName);
-      if (data?.publicUrl) urls.push(data.publicUrl);
-    }
-    return urls;
-  };
-
-  /* ───── 문의 접수 ───── */
-  const handleInquirySubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !name.trim() || !phone.trim() || !password.trim()) {
-      toast.error("필수 항목(* 표시)을 모두 입력해 주세요.");
-      return;
-    }
-    if (!isValidPhone(phone)) {
-      toast.error("연락처를 올바르게 입력해 주세요. (예: 010-0000-0000)");
-      return;
-    }
-    if (password.trim().length < 4) {
-      toast.error("조회용 비밀번호는 4자 이상 입력해 주세요.");
-      return;
-    }
-    if (!agreed) {
-      toast.error("개인정보 처리방침에 동의해 주세요.");
-      return;
-    }
+    if (!name.trim()) return toast.error("이름을 입력해 주세요.");
+    if (!isValidPhone(phone)) return toast.error("연락처를 정확히 입력해 주세요.");
+    if (!title.trim()) return toast.error(isSell ? "매입 받을 제품을 입력해 주세요." : "찾으시는 제품을 입력해 주세요.");
+    if (!description.trim()) return toast.error("문의 내용을 입력해 주세요.");
+    if (password.length < 4) return toast.error("게시글 비밀번호를 4자리 이상 입력해 주세요.");
+    if (!agree) return toast.error("개인정보 수집·이용에 동의해 주세요.");
 
-    setLoading(true);
+    setSubmitting(true);
     try {
-      const uploadedUrls = await uploadAll(selectedFiles, "");
-      const finalDescription =
-        inquiryType === "내 물건 팔기"
-          ? `[현장 조건]\n- 엘리베이터: ${hasElevator}\n- 계단 작업: ${hasStairs}\n\n[상세 내용]\n${description}`
-          : description;
-
-      const { error } = await supabase.from("purchase_requests").insert({
-        name, phone, password, inquiry_type: inquiryType,
-        category: title, region: "대전/기타", description: finalDescription,
-        images: uploadedUrls, is_notice: false, status: "접수",
+      const images = files.length ? await uploadImages(BUCKET.inquiries, files) : [];
+      const finalDescription = model.trim() ? `[모델명] ${model.trim()}\n\n${description.trim()}` : description.trim();
+      const { error } = await supabase.from(TABLE.inquiries).insert({
+        name: name.trim(),
+        phone,
+        password,
+        inquiry_type: type,
+        category: title.trim(),
+        region: "대전/기타",
+        description: finalDescription,
+        images,
+        status: "접수",
       });
       if (error) throw error;
 
       fetch("/api/telegram", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, type: inquiryType, title }),
-      }).catch((err) => console.error("텔레그램 전송 요청 실패:", err));
+        body: JSON.stringify({ name: name.trim(), phone, type, title: title.trim() }),
+      }).catch((err) => console.error("텔레그램 알림 실패:", err));
 
-      toast.success("문의가 성공적으로 접수되었습니다! 빠르게 확인 후 연락드리겠습니다.");
-      setName(""); setPhone(""); setPassword(""); setTitle(""); setDescription("");
-      clearFiles(filePreviews, setSelectedFiles, setFilePreviews);
-      setAgreed(false);
-      setHasElevator("있음 (제품 적재 가능)"); setHasStairs("없음 (1층 또는 엘리베이터 이동)");
-      fetchData();
-    } catch (error: any) {
-      toast.error("오류가 발생했습니다: " + error.message);
+      toast.success("문의가 접수되었습니다. 확인 후 연락드리겠습니다.");
+      reset();
+      onSubmitted();
+    } catch (err) {
+      console.error(err);
+      toast.error("접수하지 못했습니다. 잠시 후 다시 시도하거나 전화로 문의해 주세요.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
-
-  /* ───── 인증사진 등록/삭제 ───── */
-  const closeReviewUpload = () => {
-    setIsReviewUploadOpen(false);
-    setReviewTitle("");
-    clearFiles(reviewPreviews, setReviewFiles, setReviewPreviews);
-  };
-
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reviewTitle.trim() || reviewFiles.length === 0) {
-      toast.error("제목과 최소 1장의 사진을 등록해주세요.");
-      return;
-    }
-    setUploadingReview(true);
-    try {
-      const urls = await uploadAll(reviewFiles, "review_");
-      const { error } = await supabase.from("products").insert({
-        title: reviewTitle, category: "배송인증", image_url: urls.join(","), price: 0, status: "판매중",
-      });
-      if (error) throw error;
-      toast.success("인증사진 등록 완료.");
-      closeReviewUpload();
-      fetchData();
-    } catch (error: any) {
-      toast.error("오류 발생: " + error.message);
-    } finally {
-      setUploadingReview(false);
-    }
-  };
-
-  const handleDeleteReview = async (id: string) => {
-    if (!confirm("이 인증사진을 정말 삭제하시겠습니까?")) return;
-    try {
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
-      toast.success("삭제되었습니다.");
-      fetchData();
-    } catch (error: any) {
-      toast.error("삭제 실패: " + error.message);
-    }
-  };
-
-  const scrollToSection = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-
-  const handleGalleryDirectInquiry = () => {
-    if (!enlargedReview) return;
-    setInquiryType("구매 문의");
-    setTitle(`[갤러리 참고] '${enlargedReview.title}' 현장 관련 상담 요청`);
-    setEnlargedReview(null);
-    setTimeout(() => scrollToSection("inquiry-section"), 150);
-  };
-
-  const showReviewSection = reviewsLoaded && (reviews.length > 0 || isAdmin);
-  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, 10);
-  const enlargedImages = enlargedReview ? splitImages(enlargedReview.image_url) : [];
-  const stepEnlarged = (d: number) => setEnlargedIndex((i) => (i + d + enlargedImages.length) % enlargedImages.length);
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 relative flex flex-col">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD).replace(/</g, "\\u003c") }} />
-
-      {/* 우측 퀵메뉴 (넓은 화면 전용) */}
-      <aside aria-label="빠른 메뉴" className="fixed right-3 top-1/3 z-30 hidden xl:flex flex-col gap-1.5 bg-white shadow-2xl rounded-2xl p-2 border border-slate-200">
-        <a href={telHref(STORE.tel)} className="flex flex-col items-center justify-center w-16 h-16 bg-[#0b4b8b] text-white rounded-xl hover:opacity-90 transition text-[11px] font-black gap-1">
-          <Icon d={ICON.phone} className="w-5 h-5" /><span>전화상담</span>
-        </a>
-        <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center w-16 h-16 bg-[#FEE500] text-slate-900 rounded-xl hover:opacity-90 transition text-[11px] font-black gap-1">
-          <Icon d={ICON.chat} className="w-5 h-5" /><span>카톡상담</span>
-        </a>
-        <button type="button" onClick={() => scrollToSection("inquiry-section")} className="flex flex-col items-center justify-center w-16 h-16 bg-slate-800 text-white rounded-xl hover:opacity-90 transition text-[11px] font-black gap-1">
-          <Icon d={ICON.edit} className="w-5 h-5" /><span>판매/매입</span>
-        </button>
-        <a href={STORE.cafe} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center w-16 h-16 bg-emerald-600 text-white rounded-xl hover:opacity-90 transition text-[11px] font-black gap-1">
-          <Icon d={ICON.list} className="w-5 h-5" /><span>제품확인</span>
-        </a>
-        <button type="button" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex flex-col items-center justify-center w-16 h-12 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition text-[10px] font-black">
-          <Icon d={ICON.up} className="w-4 h-4" /><span>TOP</span>
-        </button>
-      </aside>
-
-      <SiteHeader>
-        <a href={telHref(STORE.tel)} className="inline-flex items-center gap-1.5 bg-[#0b4b8b] hover:bg-blue-700 text-white text-xs sm:text-sm font-bold px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl transition shadow-md whitespace-nowrap">
-          <Icon d={ICON.phone} /> <span className="hidden min-[400px]:inline">{STORE.tel}</span><span className="min-[400px]:hidden">전화</span>
-        </a>
-        <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="hidden sm:inline-flex items-center gap-1.5 bg-[#FEE500] hover:bg-[#f5dc00] text-slate-900 text-sm font-bold px-4 py-2.5 rounded-xl transition shadow-md whitespace-nowrap">
-          <Icon d={ICON.chat} /> 카톡 견적문의
-        </a>
-        <a href="/inquiry" className="hidden md:inline-flex items-center gap-1.5 bg-white hover:bg-slate-100 text-slate-900 text-sm font-extrabold px-4 py-2.5 rounded-xl transition shadow-md whitespace-nowrap">
-          <Icon d={ICON.list} /> 문의게시판
-        </a>
-      </SiteHeader>
-
-      {/* ───── Hero ───── */}
-      <section className="relative bg-gradient-to-b from-white to-slate-50 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-14 pb-12 lg:pt-24 lg:pb-16 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-100 text-[#0b4b8b] text-xs font-black tracking-widest mb-6">
-              <span className="w-2 h-2 rounded-full bg-blue-600 motion-safe:animate-pulse" />
-              SINCE {STORE.since} · 대전 오프라인 매장 운영
-            </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-slate-900 leading-[1.2] tracking-tighter mb-6 break-keep">
-              30년의 정직함,<br />
-              대전·충청 중고가전의<br className="hidden lg:block" />
-              <span className="text-[#0b4b8b]">확실한 기준</span>이 되다.
-            </h1>
-            <p className="text-base sm:text-lg text-slate-600 leading-relaxed mb-10 max-w-2xl mx-auto lg:mx-0 break-keep font-medium">
-              가정용 이사 정리부터 식당·카페 폐업 대량 매입까지.
-              눈속임 없는 투명한 견적과 철저한 A/S로 고객님의 부담을 확실하게 덜어드립니다.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start">
-              <a href="#inquiry-section" className="w-full sm:w-auto px-8 py-4 bg-[#0b4b8b] text-white rounded-xl font-bold text-[15px] hover:bg-[#093c70] transition shadow-md flex items-center justify-center gap-2">
-                무료 견적 · 매입 상담 <Icon d={ICON.arrow} className="w-4 h-4" />
-              </a>
-              <a href="/gallery" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-xl font-bold text-[15px] hover:bg-slate-50 transition shadow-sm flex items-center justify-center">
-                판매 중인 제품 보기
-              </a>
-            </div>
-          </div>
-
-          <div className="relative hidden md:block max-w-lg lg:max-w-none w-full mx-auto">
-            <div className="w-full aspect-video rounded-3xl overflow-hidden shadow-2xl relative bg-white border border-slate-100 flex items-center justify-center">
-              {HERO_IMAGES.map((src, i) => (
-                <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx % HERO_IMAGES.length === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                  <SafeImg src={src} alt="한밭중고전자 매장 전경" eager={i === 0} className="w-full h-full object-contain" />
-                </div>
-              ))}
-              <div className="absolute bottom-5 right-5 flex gap-2 z-20">
-                {HERO_IMAGES.map((_, i) => (
-                  <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
-                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx % HERO_IMAGES.length === i ? "bg-slate-800 w-7" : "bg-slate-300 w-2.5 hover:bg-slate-400"}`} />
-                ))}
-              </div>
-            </div>
-            <div className="absolute -bottom-6 -left-6 bg-white px-5 py-4 rounded-2xl shadow-xl border border-slate-100 z-20">
-              <p className="text-[11px] font-black tracking-widest text-[#0b4b8b]">SINCE {STORE.since}</p>
-              <p className="text-lg font-black text-slate-900 tracking-tight">대전 중촌동 오프라인 매장</p>
-            </div>
-          </div>
+    <form onSubmit={handleSubmit} className="mt-7" noValidate>
+      <fieldset>
+        <legend className={LABEL}>문의 유형</legend>
+        <div className="grid grid-cols-3 gap-1 rounded-md bg-[#F2F0EC] p-1">
+          {INQUIRY_TYPES.map((t) => (
+            <label key={t} className={`flex h-11 cursor-pointer items-center justify-center rounded text-[14px] font-semibold transition-colors ${type === t ? "bg-white text-[#0E1A2B] shadow-sm" : "text-[#6B7280] hover:text-[#0E1A2B]"}`}>
+              <input type="radio" name="inquiry-type" value={t} checked={type === t} onChange={() => setType(t)} className="sr-only" />
+              {t === "내 물건 팔기" ? "매입(내 물건 팔기)" : t}
+            </label>
+          ))}
         </div>
+      </fieldset>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-14">
-          <ul className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-            {TRUST.map((t) => (
-              <li key={t.title} className="flex items-start gap-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                <span className="w-10 h-10 rounded-xl bg-blue-50 text-[#0b4b8b] flex items-center justify-center shrink-0"><Icon d={t.icon} className="w-5 h-5" /></span>
-                <div className="min-w-0">
-                  <p className="text-sm font-black text-slate-900">{t.title}</p>
-                  <p className="text-xs text-slate-500 mt-0.5 break-keep leading-snug">{t.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <div>
+          <label className={LABEL} htmlFor="iq-name">이름</label>
+          <input id="iq-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={INPUT} placeholder="홍길동" />
         </div>
-      </section>
-
-      {/* ───── 카테고리 ───── */}
-      <section className="py-16 sm:py-20 bg-white border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <SectionHead eyebrow="Products" title="어떤 제품을 찾으시나요?" desc="가정용부터 업소용까지, 꼼꼼하게 세척 및 정비된 A급 제품들입니다.">
-            <a href="/gallery" className="inline-flex items-center gap-1 mt-4 text-sm font-bold text-[#0b4b8b] hover:underline">전체 제품 보기 <Icon d={ICON.arrow} /></a>
-          </SectionHead>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-            {CATEGORY_CARDS.map((c) => (
-              <a key={c.cat} href={`/gallery?category=${encodeURIComponent(c.cat)}`} className="group relative block aspect-[4/5] rounded-2xl overflow-hidden bg-gradient-to-br from-slate-700 to-slate-900 shadow-sm hover:shadow-xl transition-shadow duration-300 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0b4b8b]">
-                <SafeImg src={c.img} alt="" hideOnError className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent" />
-                <div className="absolute bottom-0 left-0 w-full p-4 sm:p-5">
-                  <h3 className="text-white font-bold text-base sm:text-xl tracking-tight">{c.title}</h3>
-                  <p className="text-slate-300 text-[11px] sm:text-sm mt-1 flex items-center justify-between gap-2">
-                    <span className="break-keep">{c.sub}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 shrink-0 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition" />
-                  </p>
-                </div>
-              </a>
-            ))}
-          </div>
+        <div>
+          <label className={LABEL} htmlFor="iq-phone">연락처</label>
+          <input id="iq-phone" type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} className={INPUT} placeholder="010-0000-0000" />
         </div>
-      </section>
+      </div>
 
-      {/* ───── 안심 시스템 (다크 섹션으로 리듬 주기) ───── */}
-      <section className="py-16 sm:py-24 bg-slate-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          <div className="text-center lg:text-left">
-            <p className="text-xs font-black tracking-widest uppercase text-blue-300 mb-3">Why Hanbat</p>
-            <h2 className="text-3xl sm:text-4xl lg:text-[44px] font-black leading-[1.25] tracking-tighter mb-5 break-keep">
-              중고가전 처분·구매,<br />이런 고민 중이세요?
-            </h2>
-            <p className="text-xl sm:text-2xl font-extrabold text-slate-200 leading-snug mb-6 break-keep">
-              언제 알아보고,<br />견적받고, 운반하고...
-            </p>
-            <p className="text-slate-400 text-[15px] leading-relaxed mb-8 break-keep max-w-lg mx-auto lg:mx-0">
-              한밭중고전자는 폐업이나 이사 등으로 힘들어하시는 고객님들에게
-              중고가전 처분과 구매만큼은 그 부담을 확실하게 덜어드리고자 합니다.
-            </p>
-            <a href="#inquiry-section" className="inline-flex items-center gap-2 bg-white text-slate-900 font-bold px-7 py-3.5 rounded-xl hover:bg-slate-100 transition text-[15px]">
-              빠른 견적 & 상담 요청 <Icon d={ICON.arrow} />
-            </a>
-          </div>
-          <ul className="space-y-3">
-            {FEATURES.map((f) => (
-              <li key={f.text} className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-2xl px-5 py-4 hover:bg-white/10 transition">
-                <span className="w-10 h-10 rounded-xl bg-[#0b4b8b] flex items-center justify-center shrink-0"><Icon d={f.icon} className="w-5 h-5" /></span>
-                <span className="font-bold text-[15px] sm:text-base break-keep">{f.text}</span>
-              </li>
-            ))}
-          </ul>
+      <div className="mt-4 grid gap-4 sm:grid-cols-[1.4fr_1fr]">
+        <div>
+          <label className={LABEL} htmlFor="iq-title">{isSell ? "매입 받을 제품" : "찾으시는 제품"}</label>
+          <input id="iq-title" value={title} onChange={(e) => setTitle(e.target.value)} className={INPUT} placeholder={isSell ? "예) 업소용 45박스 냉장고 2대" : "예) 벽걸이 에어컨 6평형"} />
         </div>
-      </section>
+        <div>
+          <label className={LABEL} htmlFor="iq-model">
+            모델명 <span className="font-normal text-[#8A8478]">(선택)</span>
+          </label>
+          <input id="iq-model" value={model} onChange={(e) => setModel(e.target.value)} className={INPUT} placeholder="아는 경우 입력" />
+        </div>
+      </div>
 
-      {/* ───── 배송·설치 인증 (사진이 없으면 일반 방문자에게는 숨김) ───── */}
-      {showReviewSection && (
-        <section id="reviews-section" className="max-w-7xl mx-auto w-full px-4 py-16 sm:py-20 scroll-mt-24">
-          <SectionHead eyebrow="Delivery & Installation" title="배송·설치 인증 갤러리" desc="한밭중고전자의 꼼꼼하고 안전한 실제 배송 및 설치 현장입니다.">
-            {isAdmin && (
-              <button type="button" onClick={() => setIsReviewUploadOpen(true)} className="mt-5 inline-flex items-center gap-1.5 bg-[#0b4b8b] hover:bg-[#093c70] text-white text-sm font-bold px-4 py-2.5 rounded-xl transition shadow-md">
-                <Icon d={ICON.plus} /> 사진 올리기
+      <div className="mt-4">
+        <label className={LABEL} htmlFor="iq-desc">문의 내용</label>
+        <textarea
+          id="iq-desc"
+          rows={5}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className={`${INPUT} resize-none leading-relaxed`}
+          placeholder={isSell ? "사용 기간, 상태, 수거 희망 지역·날짜를 알려주세요." : "원하시는 용량·크기, 예산, 배송 지역을 알려주세요."}
+        />
+      </div>
+
+      <div className="mt-4">
+        <p className={LABEL}>
+          사진 <span className="font-normal text-[#8A8478]">(최대 {MAX_PHOTOS}장{isSell ? " · 매입 견적이 더 정확해집니다" : ""})</span>
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {previews.map((src, i) => (
+            <div key={src} className="relative h-20 w-20 overflow-hidden rounded bg-[#EFECE6]">
+              <img src={src} alt={`첨부 사진 ${i + 1}`} className="h-full w-full object-cover" />
+              <button type="button" onClick={() => removeFile(i)} className="absolute right-1 top-1 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white" aria-label={`첨부 사진 ${i + 1} 삭제`}>
+                <Icon d={I.close} className="h-3.5 w-3.5" />
               </button>
-            )}
-          </SectionHead>
-          {reviews.length === 0 ? (
-            <p className="text-center text-sm text-slate-400 py-12 bg-white rounded-2xl border border-dashed border-slate-300">아직 등록된 인증사진이 없습니다. (관리자에게만 보이는 안내입니다.)</p>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-6 sm:gap-x-5">
-                {visibleReviews.map((review) => (
-                  <ReviewCard key={review.id} review={review} isAdmin={isAdmin} onDelete={handleDeleteReview}
-                    onEnlarge={(r, index) => { setEnlargedReview(r); setEnlargedIndex(index); }} />
-                ))}
-              </div>
-              {reviews.length > 10 && (
-                <div className="text-center mt-10">
-                  <button type="button" onClick={() => setShowAllReviews((v) => !v)} className="text-sm font-bold text-[#0b4b8b] bg-blue-50 hover:bg-blue-100 px-6 py-3 rounded-xl transition">
-                    {showAllReviews ? "접기" : `현장 사진 더 보기 (${reviews.length - 10}건)`}
-                  </button>
-                </div>
-              )}
-            </>
+            </div>
+          ))}
+          {files.length < MAX_PHOTOS && (
+            <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CFCAC0] text-[11px] font-medium text-[#8A8478] transition-colors hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
+              <Icon d={I.camera} className="h-5 w-5" />
+              사진 추가
+              <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { pickFiles(e.target.files); e.target.value = ""; }} />
+            </label>
           )}
-        </section>
-      )}
-
-      {/* ───── 매입 진행 절차 ───── */}
-      <section className="py-16 sm:py-20 bg-white border-y border-slate-200">
-        <div className="max-w-6xl mx-auto px-4">
-          <SectionHead eyebrow="How it works" title="내 물건 팔기, 이렇게 진행됩니다" desc="사진 한 장으로 시작해 수거 즉시 입금까지, 복잡한 절차 없이 진행됩니다." />
-          <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {STEPS.map((s, i) => (
-              <li key={s.title} className="relative bg-slate-50 border border-slate-200 rounded-2xl p-6">
-                <span className="w-9 h-9 rounded-full bg-[#0b4b8b] text-white font-black flex items-center justify-center mb-4">{i + 1}</span>
-                <h3 className="font-black text-slate-900 mb-1.5">{s.title}</h3>
-                <p className="text-sm text-slate-600 leading-relaxed break-keep">{s.desc}</p>
-              </li>
-            ))}
-          </ol>
         </div>
-      </section>
+      </div>
 
-      {/* ───── 통합 문의 ───── */}
-      <section id="inquiry-section" className="bg-slate-50 py-16 sm:py-20 scroll-mt-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <SectionHead eyebrow="Customer Service" title="판매 / 매입 통합 문의" desc="필요하신 제품 구매나 안 쓰시는 가전 매입 견적을 간편하게 남겨주세요." />
+      <div className="mt-4">
+        <label className={LABEL} htmlFor="iq-pw">
+          게시글 비밀번호 <span className="font-normal text-[#8A8478]">(문의게시판에서 내 글 확인용, 4자리 이상)</span>
+        </label>
+        <input id="iq-pw" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} className={`${INPUT} sm:max-w-[240px]`} />
+      </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-            <div className="lg:col-span-4 space-y-4">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-black text-slate-900 mb-5 pb-4 border-b border-slate-100">바로 연락하기</h3>
-                <div className="space-y-5 text-sm">
-                  <div>
-                    <span className="text-xs font-bold text-slate-400 block mb-1">대표 연락처</span>
-                    <a href={telHref(STORE.tel)} className="font-black text-[#0b4b8b] text-2xl hover:underline block">{STORE.tel}</a>
-                    <a href={telHref(STORE.mobile)} className="font-bold text-slate-600 text-lg hover:underline block mt-1">{STORE.mobile}</a>
-                  </div>
-                  <div>
-                    <span className="text-xs font-bold text-slate-400 block mb-1">영업 시간</span>
-                    <p className="font-bold text-slate-800">{STORE.hours} <span className="text-slate-500 font-medium">({STORE.closed})</span></p>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="bg-[#FEE500] hover:bg-[#f5dc00] text-slate-900 flex flex-col items-center justify-center p-4 rounded-2xl transition shadow-sm gap-2">
-                  <Icon d={ICON.chat} className="w-7 h-7" />
-                  <span className="text-[13px] font-black">카톡 상담</span>
-                </a>
-                <a href={telHref(STORE.tel)} className="bg-[#0b4b8b] hover:bg-[#093c70] text-white flex flex-col items-center justify-center p-4 rounded-2xl transition shadow-sm gap-2">
-                  <Icon d={ICON.phone} className="w-7 h-7" />
-                  <span className="text-[13px] font-black">전화 상담</span>
-                </a>
-              </div>
-            </div>
+      <label className="mt-6 flex cursor-pointer items-start gap-2.5 text-[13px] leading-relaxed text-[#4B5260]">
+        <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 accent-[#0E1A2B]" />
+        <span>
+          상담을 위해 이름·연락처·문의 내용을 수집하며, 상담 완료 후 관련 법령에 따라 처리합니다. 개인정보 수집·이용에 동의합니다.
+        </span>
+      </label>
 
-            <div className="lg:col-span-8 space-y-8">
-              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
-                <h3 className="text-lg font-black text-slate-900 mb-6">문의 및 견적 작성</h3>
-                <form onSubmit={handleInquirySubmit} className="flex flex-col gap-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <div>
-                      <label htmlFor="inq-type" className="block text-xs font-bold text-slate-600 mb-1.5">문의 구분 *</label>
-                      <select id="inq-type" value={inquiryType} onChange={(e) => setInquiryType(e.target.value)} className={`${inputCls} bg-white font-bold text-[#0b4b8b]`}>
-                        <option value="구매 문의">상품 구매 문의</option>
-                        <option value="내 물건 팔기">내 물건 팔기 (매입 견적)</option>
-                        <option value="기타 문의">기타 문의</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label htmlFor="inq-pw" className="block text-xs font-bold text-slate-600 mb-1.5">조회용 비밀번호 *</label>
-                      <div className="relative">
-                        <input id="inq-pw" type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" minLength={4}
-                          className={`${inputCls} bg-white pr-14`} placeholder="숫자 4자리 권장" />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0b4b8b] text-xs font-bold">
-                          {showPassword ? "숨김" : "보기"}
-                        </button>
-                      </div>
-                      <p className="text-[11px] text-slate-400 mt-1">나중에 문의 내용을 확인할 때 사용합니다.</p>
-                    </div>
-                  </div>
-
-                  {inquiryType === "내 물건 팔기" && (
-                    <div className="bg-[#f0f6ff] border border-blue-200 rounded-2xl p-4 sm:p-5">
-                      <p className="text-sm font-black text-[#0b4b8b] mb-3">빠르고 정확한 매입 접수 가이드</p>
-                      <p className="text-xs sm:text-sm font-medium text-slate-700 leading-relaxed bg-white rounded-xl border border-blue-100 p-4 mb-4 break-keep">
-                        가전제품의 <strong className="text-blue-600">정면, 측면, 내부(모델명 스티커)</strong> 사진을 함께 첨부해 주시면 훨씬 빠르고 정확한 최고가 매입 견적 산출이 가능합니다.
-                      </p>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-white p-3 sm:p-4 rounded-xl border border-blue-100">
-                        <div>
-                          <label htmlFor="inq-elev" className="block text-[11px] sm:text-xs font-bold text-slate-600 mb-1.5">엘리베이터 유무 (필수)</label>
-                          <select id="inq-elev" value={hasElevator} onChange={(e) => setHasElevator(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:border-blue-500 font-medium">
-                            <option value="있음 (제품 적재 가능)">있음 (제품 적재 가능)</option>
-                            <option value="있으나 작음 (적재 불가할 수 있음)">있으나 작음 (적재 불가할 수 있음)</option>
-                            <option value="없음">없음</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label htmlFor="inq-stairs" className="block text-[11px] sm:text-xs font-bold text-slate-600 mb-1.5">계단 작업 유무 (필수)</label>
-                          <select id="inq-stairs" value={hasStairs} onChange={(e) => setHasStairs(e.target.value)} className="w-full border border-slate-300 p-2.5 rounded-lg text-sm outline-none focus:border-blue-500 font-medium">
-                            <option value="없음 (1층 또는 엘리베이터 이동)">없음 (1층 또는 엘리베이터 이동)</option>
-                            <option value="있음 (몇 층인지 아래에 기재 부탁드립니다)">있음 (사람이 들고 계단 이동)</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="inq-name" className="block text-xs font-bold text-slate-600 mb-1.5">성함 / 상호명 *</label>
-                      <input id="inq-name" type="text" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" className={inputCls} placeholder="성함을 입력해 주세요" />
-                    </div>
-                    <div>
-                      <label htmlFor="inq-phone" className="block text-xs font-bold text-slate-600 mb-1.5">연락처 *</label>
-                      <input id="inq-phone" type="tel" inputMode="numeric" autoComplete="tel" value={phone} onChange={(e) => setPhone(formatPhone(e.target.value))} required className={inputCls} placeholder="010-0000-0000" />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label htmlFor="inq-title" className="block text-xs font-bold text-slate-600 mb-1.5">제목 (제품명/수량) *</label>
-                    <input id="inq-title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} required className={inputCls}
-                      placeholder={inquiryType === "내 물건 팔기" ? "예: 양문형 냉장고 및 세탁기 매입 견적 문의" : "예: OOO 제품 구매 및 배송 문의드립니다."} />
-                  </div>
-
-                  <div>
-                    <label htmlFor="inq-desc" className="block text-xs font-bold text-slate-600 mb-1.5">상세 내용</label>
-                    <textarea id="inq-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={4} className={`${inputCls} resize-none leading-relaxed`}
-                      placeholder={inquiryType === "내 물건 팔기" ? "제품의 제조년월, 수리 이력, 스크래치 등 특이사항과 주소지(동, 층수)를 자세히 적어주시면 정확한 매입 견적이 가능합니다." : "방문 희망 일정, 배송 지역 등을 자유롭게 작성해 주세요."} />
-                  </div>
-
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <label htmlFor="inq-files" className="flex items-center gap-2 text-[13px] font-bold text-slate-800 mb-2">
-                      <Icon d={ICON.image} className="w-4 h-4 text-slate-500" /> 사진 첨부 (선택, 최대 {MAX_PHOTOS}장)
-                    </label>
-                    <input id="inq-files" type="file" accept="image/*" multiple disabled={selectedFiles.length >= MAX_PHOTOS}
-                      onChange={(e) => pickFiles(e, selectedFiles, setSelectedFiles, setFilePreviews)}
-                      className="w-full text-xs text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-white file:text-slate-700 hover:file:bg-slate-200 cursor-pointer disabled:opacity-50" />
-                    <PreviewGrid previews={filePreviews} onRemove={(i) => removeFile(i, selectedFiles, filePreviews, setSelectedFiles, setFilePreviews)} />
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-2">
-                    <div className="flex items-center gap-2">
-                      <input type="checkbox" id="privacy" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="w-4 h-4 accent-[#0b4b8b] cursor-pointer" />
-                      <label htmlFor="privacy" className="text-xs text-slate-600 cursor-pointer font-medium">
-                        <a href="/privacy" target="_blank" className="underline font-bold text-[#0b4b8b] hover:text-blue-800">개인정보처리방침</a>에 동의합니다. (필수)
-                      </label>
-                    </div>
-                    <button type="submit" disabled={loading} className="w-full sm:w-auto min-w-[200px] bg-[#0b4b8b] hover:bg-[#093c70] disabled:opacity-60 disabled:cursor-wait text-white font-black py-4 px-8 rounded-xl transition shadow-md text-[15px]">
-                      {loading ? "접수 처리 중..." : "이 내용으로 접수하기"}
-                    </button>
-                  </div>
-                </form>
-              </div>
-
-              {/* 최근 문의: 데이터가 있을 때만, 최신 5건만 */}
-              {inquiries.length > 0 && (
-                <div className="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4 pb-4 border-b border-slate-100">
-                    <h3 className="text-lg font-black text-slate-900">최근 문의 현황 <span className="text-sm font-bold text-slate-400 ml-1">총 {inquiryTotal}건</span></h3>
-                    <a href="/inquiry" className="text-xs font-bold text-[#0b4b8b] bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition inline-flex items-center gap-1">전체보기 <Icon d={ICON.arrow} className="w-3 h-3" /></a>
-                  </div>
-                  <ul className="divide-y divide-slate-100">
-                    {inquiries.map((inq) => (
-                      <li key={inq.id}>
-                        <a href="/inquiry" className="flex items-center gap-3 py-3.5 hover:bg-slate-50 -mx-2 px-2 rounded-lg transition">
-                          <span className="hidden sm:inline-block shrink-0 bg-slate-100 text-slate-600 font-bold px-2.5 py-1 rounded-md text-[11px]">{inq.inquiry_type || "문의"}</span>
-                          <span className="flex-1 min-w-0 font-bold text-slate-800 text-sm truncate">{inq.category}</span>
-                          <span className="hidden sm:inline text-slate-500 text-xs shrink-0">{inq.is_notice ? inq.name : maskName(inq.name)}</span>
-                          <span className={`shrink-0 px-2 py-1 rounded text-[10px] font-bold ${inq.status === "답변완료" ? "bg-[#0b4b8b] text-white" : "bg-slate-100 text-slate-500 border border-slate-200"}`}>{inq.status || "접수"}</span>
-                          <span className="text-slate-400 text-[11px] shrink-0 w-16 text-right">{fmtDate(inq.created_at)}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ───── FAQ ───── */}
-      <section className="bg-white py-16 sm:py-20 border-y border-slate-200">
-        <div className="max-w-3xl mx-auto px-4">
-          <SectionHead eyebrow="FAQ" title="자주 묻는 질문" />
-          <div className="space-y-3">
-            {FAQ.map((faq, idx) => {
-              const open = openFaq === idx;
-              return (
-                <div key={faq.q} className={`border rounded-2xl overflow-hidden transition-colors ${open ? "border-[#0b4b8b]/40 bg-blue-50/30" : "border-slate-200 bg-white"}`}>
-                  <h3>
-                    <button type="button" id={`faq-q-${idx}`} aria-expanded={open} aria-controls={`faq-a-${idx}`} onClick={() => setOpenFaq(open ? null : idx)}
-                      className="w-full flex items-center justify-between gap-4 p-5 text-left hover:bg-slate-50/70 transition">
-                      <span className="flex items-start gap-3">
-                        <span className="text-[#0b4b8b] font-black text-lg leading-none mt-0.5">Q</span>
-                        <span className="font-bold text-slate-900 text-sm sm:text-base break-keep">{faq.q}</span>
-                      </span>
-                      <Icon d={ICON.down} className={`w-5 h-5 text-[#0b4b8b] shrink-0 transition-transform duration-300 ${open ? "rotate-180" : ""}`} />
-                    </button>
-                  </h3>
-                  <div id={`faq-a-${idx}`} role="region" aria-labelledby={`faq-q-${idx}`} className={`grid transition-[grid-template-rows] duration-300 ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                    <div className="overflow-hidden">
-                      <div className="px-5 pb-5 flex items-start gap-3">
-                        <span className="w-5 h-5 rounded-full bg-[#0b4b8b] text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">A</span>
-                        <p className="text-slate-600 text-sm leading-relaxed break-keep">{faq.a}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <p className="text-center mt-10 text-slate-600 text-sm sm:text-base">
-            더 궁금한 점은{" "}
-            <a href={telHref(STORE.tel)} className="font-black text-[#0b4b8b] text-base sm:text-lg hover:underline">{STORE.tel}</a>
-            {" "}또는{" "}
-            <a href={telHref(STORE.mobile)} className="font-black text-[#0b4b8b] text-base sm:text-lg hover:underline">{STORE.mobile}</a>
-            로 편히 문의해 주세요.
-          </p>
-        </div>
-      </section>
-
-      {/* ───── 오시는 길 ───── */}
-      <section id="location-section" className="py-16 sm:py-24 bg-slate-50 scroll-mt-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <SectionHead eyebrow="Location" title="매장 오시는 길" desc="한밭중고전자 오프라인 매장에 방문하셔서 직접 제품을 확인해 보세요." />
-          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden flex flex-col lg:flex-row">
-            <div className="w-full lg:w-1/2 h-[300px] sm:h-[350px] lg:h-auto bg-slate-200 relative">
-              <iframe title={`${STORE.name} 위치 지도`} src={`https://maps.google.com/maps?q=${encodeURIComponent(STORE.address)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
-                className="absolute inset-0 w-full h-full border-0" allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-            </div>
-            <div className="w-full lg:w-1/2 p-6 sm:p-10 flex flex-col justify-center">
-              <div className="mb-8">
-                <h3 className="text-2xl font-black text-slate-900 mb-2 tracking-tight">{STORE.name}</h3>
-                <p className="text-slate-600 font-medium break-keep">{STORE.address} ({STORE.addressNote})</p>
-              </div>
-              <ul className="space-y-5 mb-8">
-                {[
-                  { icon: ICON.phone, label: "고객센터 / 매장 전화", value: (
-                    <>
-                      <a href={telHref(STORE.tel)} className="hover:underline">{STORE.tel}</a> / <a href={telHref(STORE.mobile)} className="hover:underline">{STORE.mobile}</a>
-                    </>
-                  ) },
-                  { icon: ICON.clock, label: "영업시간", value: <>{STORE.hours} <span className="text-sm font-medium text-slate-500 ml-1">({STORE.closed})</span></> },
-                  { icon: ICON.car, label: "주차 안내", value: "매장 앞 전용 주차장 이용 가능" },
-                ].map((row) => (
-                  <li key={row.label} className="flex items-center gap-4">
-                    <span className="w-10 h-10 bg-blue-50 text-[#0b4b8b] rounded-full flex items-center justify-center shrink-0"><Icon d={row.icon} className="w-5 h-5" /></span>
-                    <div>
-                      <p className="text-xs font-bold text-slate-400 mb-0.5">{row.label}</p>
-                      <p className="text-base font-black text-slate-800 tracking-tight">{row.value}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                <a href={`https://map.kakao.com/link/search/${encodeURIComponent(STORE.address)}`} target="_blank" rel="noopener noreferrer" className="bg-[#fee500] hover:bg-[#ebd300] text-[#191919] text-xs sm:text-sm font-black py-3.5 rounded-xl flex items-center justify-center transition shadow-sm">카카오맵</a>
-                <a href={`https://map.naver.com/p/search/${encodeURIComponent(STORE.address)}`} target="_blank" rel="noopener noreferrer" className="bg-[#03c75a] hover:bg-[#02b351] text-white text-xs sm:text-sm font-black py-3.5 rounded-xl flex items-center justify-center transition shadow-sm">네이버지도</a>
-                <a href={`tmap://search?name=${encodeURIComponent(STORE.name)}`} className="bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-black py-3.5 rounded-xl flex items-center justify-center transition shadow-sm">티맵 (모바일)</a>
-              </div>
-              <p className="text-center text-[11px] text-slate-400 mt-3 font-medium">모바일에서 버튼을 누르면 길안내 앱으로 바로 연결됩니다.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ───── 외부 채널 배너 ───── */}
-      <section className="max-w-7xl mx-auto px-4 pb-16 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 w-full">
-        <div className="bg-emerald-50 border border-emerald-200/80 p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-14 h-14 bg-emerald-600 rounded-2xl flex items-center justify-center shrink-0 shadow-md overflow-hidden p-2 text-white">
-              <SafeImg src="/naver-cafe.png" alt="" hideOnError className="w-full h-full object-contain bg-white rounded-sm" />
-              <span className="sr-only">네이버 카페</span>
-            </div>
-            <div>
-              <span className="text-xs font-black text-emerald-700 uppercase tracking-wider">Product Catalog</span>
-              <h3 className="text-base font-black text-slate-900 mt-0.5">한밭중고전자 상품 카페</h3>
-              <p className="text-xs text-slate-600 mt-1">현재 판매 중인 실제 제품들을 확인해 보세요</p>
-            </div>
-          </div>
-          <a href={STORE.cafe} target="_blank" rel="noopener noreferrer" className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-3 rounded-2xl text-xs transition shadow-md whitespace-nowrap">제품 보러가기 →</a>
-        </div>
-        <div className="bg-yellow-50 border border-yellow-200/80 p-6 sm:p-8 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-5">
-          <div className="flex items-center gap-4 text-center sm:text-left">
-            <div className="w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shrink-0 shadow-md overflow-hidden p-2 text-slate-900">
-              <SafeImg src="/kakao-logo.png" alt="" hideOnError className="w-full h-full object-contain" />
-              <span className="sr-only">카카오톡</span>
-            </div>
-            <div>
-              <span className="text-xs font-black text-yellow-800 uppercase tracking-wider">KakaoTalk Channel</span>
-              <h3 className="text-base font-black text-slate-900 mt-0.5">카카오톡 채널</h3>
-              <p className="text-xs text-slate-600 mt-1">사진 보내고 실시간 견적받기</p>
-            </div>
-          </div>
-          <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="bg-yellow-400 hover:bg-yellow-500 text-slate-900 font-bold px-5 py-3 rounded-2xl text-xs transition shadow-md whitespace-nowrap">채팅 상담 →</a>
-        </div>
-      </section>
-
-      {/* ───── 업체 소개 문구 (보이는 텍스트만 유지) ───── */}
-      <section className="bg-slate-100 py-10 border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 text-center sm:text-left">
-          <h2 className="text-xs font-black text-slate-500 mb-2">전국 중고가전 판매·매입 전문, {STORE.name}</h2>
-          <p className="text-[11px] sm:text-xs text-slate-500 leading-relaxed break-keep">
-            {STORE.name}은 30년 가까운 중고가전 유통 노하우를 바탕으로 중고 냉장고, 세탁기, 에어컨, 냉난방기부터 업소용 냉장고, 제빙기, 쇼케이스, 상업용 주방기기까지 다양한 제품을 판매·매입합니다.
-            전국 단위 판매 및 대량 거래가 가능하며, 제품 특성에 맞는 배송과 설치 서비스를 제공합니다.
-          </p>
-        </div>
-      </section>
-
-      <SiteFooter isAdmin={isAdmin} onAdminClick={() => (isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true))} />
-      <MobileCtaBar inquiryHref="#inquiry-section" />
-
-      {/* ───── 사진 확대 모달 ───── */}
-      {enlargedReview && (
-        <Modal label={`${enlargedReview.title} 사진`} onClose={() => setEnlargedReview(null)} z="z-[100]" sheet={false} overlayClassName="bg-black/90" panelClassName="max-w-5xl">
-          <div className="flex flex-col items-center">
-            <div className="relative w-full flex items-center justify-center">
-              <button type="button" onClick={() => setEnlargedReview(null)} aria-label="닫기" className="absolute -top-11 right-0 text-white/70 hover:text-white transition p-1">
-                <Icon d={ICON.close} className="w-7 h-7" />
-              </button>
-              <SafeImg key={enlargedImages[enlargedIndex]} src={enlargedImages[enlargedIndex]} alt={enlargedReview.title} eager className="max-w-full max-h-[65vh] sm:max-h-[75vh] object-contain rounded-xl shadow-2xl" />
-              {enlargedImages.length > 1 && (
-                <>
-                  <button type="button" onClick={() => stepEnlarged(-1)} aria-label="이전 사진" className="absolute left-1 sm:left-4 bg-black/60 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:bg-[#0b4b8b] transition">
-                    <Icon d={ICON.left} className="w-5 h-5" />
-                  </button>
-                  <button type="button" onClick={() => stepEnlarged(1)} aria-label="다음 사진" className="absolute right-1 sm:right-4 bg-black/60 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:bg-[#0b4b8b] transition">
-                    <Icon d={ICON.right} className="w-5 h-5" />
-                  </button>
-                  <span className="absolute bottom-3 bg-black/50 text-white text-xs font-bold px-3 py-1 rounded-full">{enlargedIndex + 1} / {enlargedImages.length}</span>
-                </>
-              )}
-            </div>
-            <div className="mt-5 w-full max-w-3xl flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/10 backdrop-blur-md p-4 sm:p-5 rounded-2xl border border-white/10">
-              <div className="text-center sm:text-left">
-                <span className="bg-[#0b4b8b] text-white text-[11px] font-bold px-2.5 py-1 rounded mb-2 inline-block">배송·설치 갤러리</span>
-                <p className="font-black text-white text-base sm:text-lg">{enlargedReview.title}</p>
-              </div>
-              <button type="button" onClick={handleGalleryDirectInquiry} className="w-full sm:w-auto bg-white hover:bg-slate-100 text-[#0b4b8b] font-black py-3.5 px-6 rounded-xl transition shadow-lg whitespace-nowrap text-sm sm:text-base inline-flex items-center justify-center gap-1.5">
-                이 현장처럼 견적/상담 신청하기 <Icon d={ICON.arrow} />
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* ───── 인증사진 등록 모달 (관리자) ───── */}
-      {isReviewUploadOpen && (
-        <Modal label="배송·설치 사진 등록" onClose={closeReviewUpload} panelClassName="sm:max-w-sm">
-          <div className="bg-white rounded-t-3xl sm:rounded-2xl shadow-xl border border-slate-200 p-6 max-h-[92vh] overflow-y-auto">
-            <h3 className="font-bold text-lg text-slate-900 mb-4">배송·설치 사진 등록</h3>
-            <form onSubmit={handleReviewSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="rv-title" className="block text-xs font-bold text-slate-600 mb-1">장소 및 내용 (제목)</label>
-                <input id="rv-title" type="text" value={reviewTitle} onChange={(e) => setReviewTitle(e.target.value)} required className={inputCls} placeholder="예: 둔산동 식당 냉난방기 설치" />
-              </div>
-              <div>
-                <label htmlFor="rv-files" className="block text-xs font-bold text-slate-600 mb-1">현장 사진 첨부 (최대 {MAX_PHOTOS}장, 첫 사진이 대표)</label>
-                <input id="rv-files" type="file" accept="image/*" multiple disabled={reviewFiles.length >= MAX_PHOTOS} required={reviewFiles.length === 0}
-                  onChange={(e) => pickFiles(e, reviewFiles, setReviewFiles, setReviewPreviews)}
-                  className="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer disabled:opacity-50" />
-                <PreviewGrid previews={reviewPreviews} onRemove={(i) => removeFile(i, reviewFiles, reviewPreviews, setReviewFiles, setReviewPreviews)} />
-              </div>
-              <div className="flex gap-2 pt-3 border-t border-slate-100">
-                <button type="button" onClick={closeReviewUpload} className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50">취소</button>
-                <button type="submit" disabled={uploadingReview} className="w-1/2 py-2.5 rounded-xl bg-[#0b4b8b] text-white font-bold text-xs hover:bg-[#093c70] transition shadow-sm disabled:opacity-50">
-                  {uploadingReview ? "업로드 중..." : "등록하기"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </Modal>
-      )}
-
-      {isAdminAuthModalOpen && (
-        <AdminLoginModal email={adminEmail} password={adminPassword} loading={isLoggingIn}
-          onEmail={setAdminEmail} onPassword={setAdminPassword} onSubmit={handleAdminAuth} onClose={() => setIsAdminAuthModalOpen(false)} />
-      )}
-    </div>
+      <button type="submit" disabled={submitting} className={`${BTN_ACCENT} mt-6 h-14 w-full text-[16px] disabled:opacity-60`}>
+        {submitting ? "접수 중…" : isSell ? "무료 매입 견적 요청하기" : "문의 접수하기"}
+      </button>
+    </form>
   );
 }
+
+/* ════════════════════════════════════════════════════════════
+   7. 전역 CSS
+   ════════════════════════════════════════════════════════════ */
+const GLOBAL_CSS = `
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+.hb-root{word-break:keep-all;overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+.hb-reveal{opacity:0;transform:translate3d(0,16px,0);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.hb-reveal.is-in{opacity:1;transform:none}
+.hb-fade{animation:hbFade .9s cubic-bezier(.16,1,.3,1) .1s both}
+@keyframes hbFade{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+.hb-scroll{scrollbar-width:none}.hb-scroll::-webkit-scrollbar{display:none}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.hb-reveal,.hb-fade{opacity:1!important;transform:none!important;transition:none!important;animation:none!important}}
+`;
