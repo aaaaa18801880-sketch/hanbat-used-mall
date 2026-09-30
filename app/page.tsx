@@ -19,11 +19,11 @@ interface InquiryRow {
 }
 
 /* ───────── 정적 콘텐츠 ───────── */
-// 배송인증 사진이 하나도 없을 때만 쓰는 임시 이미지입니다. 실제 매장·현장 사진으로 교체하세요.
-const FALLBACK_HERO = [
-  "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1556911220-bff31c812dba?q=80&w=1200&auto=format&fit=crop",
-  "https://images.unsplash.com/photo-1626806819282-2c1dc01a5e0c?q=80&w=1200&auto=format&fit=crop",
+// 메인 대문(히어로)에 고정으로 보여질 매장 전경 사진 3장
+const HERO_IMAGES = [
+  "/main-bg.png",
+  "/main-bg2.png",
+  "/main-bg3.png",
 ];
 
 const TRUST = [
@@ -48,7 +48,6 @@ const FEATURES = [
   { icon: ICON.receipt, text: "세금계산서 발행 등 투명한 거래 증빙" },
 ];
 
-// 문구는 기존 FAQ·안내 내용을 바탕으로 정리했습니다. 실제 진행 방식과 다르면 수정하세요.
 const STEPS = [
   { title: "사진·정보 접수", desc: "아래 문의 폼이나 카톡으로 제품 사진과 모델명을 보내주세요." },
   { title: "견적 안내", desc: "사진을 확인하고 투명한 매입 견적을 안내해 드립니다." },
@@ -63,7 +62,6 @@ const FAQ = [
   { q: "영업시간과 매장 위치가 어떻게 되나요?", a: `영업시간은 09:00 ~ 19:00 (일요일 휴무)이며, 오프라인 매장은 ${STORE.address}에 위치해 있습니다.` },
 ];
 
-// 검색엔진용 구조화 데이터. 숨김 키워드 나열 대신 사용합니다.
 const JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
@@ -163,18 +161,14 @@ export default function Home() {
   const [inquiryTotal, setInquiryTotal] = useState(0);
 
   /* 히어로 슬라이드 */
-  const heroImages = useMemo(() => {
-    const real = reviews.map((r) => splitImages(r.image_url)[0]).filter(Boolean).slice(0, 4);
-    return real.length ? { list: real, real: true } : { list: FALLBACK_HERO, real: false };
-  }, [reviews]);
   const [heroIdx, setHeroIdx] = useState(0);
 
   useEffect(() => {
-    if (heroImages.list.length < 2) return;
+    if (HERO_IMAGES.length < 2) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => setHeroIdx((p) => (p + 1) % heroImages.list.length), 5000);
+    const timer = setInterval(() => setHeroIdx((p) => (p + 1) % HERO_IMAGES.length), 5000);
     return () => clearInterval(timer);
-  }, [heroImages.list.length]);
+  }, []);
 
   /* 관리자 */
   const [isAdmin, setIsAdmin] = useState(false);
@@ -209,8 +203,7 @@ export default function Home() {
 
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  /* ───── 데이터 로딩 ─────
-     공개 페이지에서는 화면에 필요한 컬럼만 가져옵니다. (이전: purchase_requests select("*") → 연락처·비밀번호까지 브라우저로 내려옴) */
+  /* ───── 데이터 로딩 ───── */
   const fetchData = async () => {
     const [inq, rev] = await Promise.all([
       supabase
@@ -489,18 +482,15 @@ export default function Home() {
 
           <div className="relative hidden md:block max-w-lg lg:max-w-none w-full mx-auto">
             <div className="aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl relative bg-slate-200">
-              {heroImages.list.map((src, i) => (
-                <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx % heroImages.list.length === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                  <SafeImg src={src} alt={heroImages.real ? "한밭중고전자 배송·설치 현장 사진" : "중고 가전 제품 이미지"} eager={i === 0} className="w-full h-full object-cover" />
+              {HERO_IMAGES.map((src, i) => (
+                <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx % HERO_IMAGES.length === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
+                  <SafeImg src={src} alt="한밭중고전자 매장 전경" eager={i === 0} className="w-full h-full object-cover" />
                 </div>
               ))}
-              {heroImages.real && (
-                <span className="absolute top-4 left-4 z-20 bg-black/55 text-white text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-sm">실제 배송·설치 현장</span>
-              )}
               <div className="absolute bottom-5 right-5 flex gap-2 z-20">
-                {heroImages.list.map((_, i) => (
+                {HERO_IMAGES.map((_, i) => (
                   <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
-                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx % heroImages.list.length === i ? "bg-white w-7" : "bg-white/60 w-2.5 hover:bg-white"}`} />
+                    className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx % HERO_IMAGES.length === i ? "bg-white w-7" : "bg-white/60 w-2.5 hover:bg-white"}`} />
                 ))}
               </div>
             </div>
@@ -987,4 +977,3 @@ export default function Home() {
     </div>
   );
 }
-// ===== 파일 끝 =====
