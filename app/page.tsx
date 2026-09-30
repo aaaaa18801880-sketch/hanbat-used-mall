@@ -738,84 +738,56 @@ export default function Home() {
       )}
 
       <main>
-        {/* ─────────────── ② HERO ─────────────── */}
-        <section className="relative overflow-hidden" aria-labelledby="hero-title">
-          <div className={`${WRAP} grid items-center gap-10 pb-12 pt-8 sm:pt-12 lg:grid-cols-12 lg:gap-12 lg:pb-16 lg:pt-16`}>
-            <div className="lg:col-span-5 xl:col-span-6">
-              <p className="inline-flex items-center gap-2 text-[13px] font-medium text-[#4B5260]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" aria-hidden="true" />
-                SINCE {STORE.since} · 대전 중촌동 오프라인 매장
-              </p>
-              <h1 id="hero-title" className="mt-5 font-bold tracking-[-0.03em] text-[#0E1A2B]">
-                <span className="block text-[15px] font-semibold tracking-normal text-[#4B5260] sm:text-base">대전 중고가전 판매·매입 전문 한밭중고전자</span>
-                <span className="mt-3 block text-[36px] leading-[1.2] sm:text-[46px] lg:text-[54px] lg:leading-[1.15]">
-                  새것 같은 중고가전,
-                  <br />
-                  합리적인 가격으로.
-                </span>
-              </h1>
-              <p className="mt-6 max-w-[520px] text-[16px] leading-[1.75] text-[#4B5260] sm:text-[17px]">
-                {STORE.since}년부터 가정용 가전과 업소용 냉장·주방 설비를 판매하고 매입해 왔습니다. 전국 배송·설치와 매장 정리 같은 대량 거래도 상담해 드립니다.
-              </p>
-              <div className="mt-8 grid grid-cols-2 gap-2.5 sm:flex sm:gap-3">
-                <Link href="/gallery" className={`${BTN_NAVY} h-[52px] px-6 text-[15px] sm:px-7 sm:text-base`}>
-                  판매 제품 보기
-                  <Icon d={I.arrow} className="h-4 w-4" />
-                </Link>
-                <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] px-6 text-[15px] sm:px-7 sm:text-base`}>
-                  무료 견적 문의
-                </button>
+        {/* ─────────────── ② HERO (와이드 배너형으로 전면 교체) ─────────────── */}
+        <section className="relative w-full bg-[#F6F5F2]">
+          <div className="relative w-full max-w-[1920px] mx-auto aspect-[4/3] sm:aspect-[16/7] lg:aspect-[21/9] bg-[#EFECE6]">
+            {HERO_IMAGES.map((src, i) => (
+              <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
+                {/* 💡 object-contain을 사용하여 어떤 이미지든 절대 잘리지 않음 */}
+                <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-contain" />
               </div>
-              <p className="mt-5 text-[14px] text-[#6B7280]">
-                전화 상담{" "}
-                <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">
-                  {STORE.tel}
-                </a>
-                <span className="mx-2 text-neutral-300">|</span>
-                {STORE.hours}
-              </p>
-            </div>
-
-            {/* 💡 꽉 차는 프리미엄 레이아웃으로 변경 완료 (테두리 제거, 라운드/그림자 추가) */}
-            <div className="hb-fade lg:col-span-7 xl:col-span-6 w-full max-w-2xl mx-auto">
-              <div className="relative w-full aspect-[4/3] lg:aspect-[5/4] overflow-hidden rounded-[2rem] bg-[#EFECE6] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)]">
-                {HERO_IMAGES.map((src, i) => (
-                  <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                    <SafeImg src={src} alt="한밭중고전자 매장 전경" eager={i === 0} className="h-full w-full object-cover transition-transform duration-1000 ease-out hover:scale-105" />
-                  </div>
-                ))}
-                {/* 💡 슬라이드 인디케이터 중앙 배치 및 눈에 띄게 수정 */}
-                <div className="absolute bottom-6 inset-x-0 flex justify-center gap-2.5 z-20">
-                  {HERO_IMAGES.map((_, i) => (
-                    <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
-                      className={`h-2.5 rounded-full transition-all duration-300 shadow-sm ${heroIdx === i ? "bg-white w-8" : "bg-white/60 w-2.5 hover:bg-white"}`} />
-                  ))}
-                </div>
-              </div>
-              {/* 💡 프리미엄 뱃지 위치 조정 */}
-              <div className="absolute -bottom-6 -left-2 sm:-left-6 bg-white px-5 py-4 sm:px-6 sm:py-5 rounded-2xl shadow-[0_10px_30px_-10px_rgba(0,0,0,0.15)] border border-[#E4E0D8] z-20">
-                <p className="text-[11px] sm:text-[12px] font-black tracking-widest text-[#D9531E]">SINCE {STORE.since}</p>
-                <p className="text-base sm:text-lg font-black text-[#0E1A2B] tracking-tight mt-0.5">대전 중촌동 오프라인 매장</p>
-              </div>
-            </div>
-          </div>
-
-          {/* 신뢰 지표: 사이트에 명시된 사실만 */}
-          <div className="border-y border-[#E4E0D8] bg-white mt-12 lg:mt-0">
-            <dl className={`${WRAP} grid grid-cols-2 lg:grid-cols-4`}>
-              {[
-                { k: String(STORE.since), v: `대전에서 ${YEARS}년째 영업` },
-                { k: "오프라인 매장", v: "직접 보고 구매 가능" },
-                { k: "전국 배송·설치", v: "제품·지역별 상담" },
-                { k: "세금계산서", v: "투명한 거래 증빙" },
-              ].map((s, i) => (
-                <div key={s.k} className={`py-5 sm:py-6 ${i % 2 === 1 ? "pl-5 sm:pl-8" : ""} ${i > 1 ? "border-t border-[#EEEBE5] lg:border-t-0" : ""} ${i > 0 ? "lg:border-l lg:border-[#EEEBE5] lg:pl-8" : ""}`}>
-                  <dt className="text-[17px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[19px]">{s.k}</dt>
-                  <dd className="mt-1 text-[13px] text-[#6B7280] sm:text-[14px]">{s.v}</dd>
-                </div>
+            ))}
+            
+            {/* 슬라이드 인디케이터 (점) */}
+            <div className="absolute bottom-4 sm:bottom-6 inset-x-0 flex justify-center gap-2.5 z-20">
+              {HERO_IMAGES.map((_, i) => (
+                <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 배너 보기`}
+                  className={`h-2.5 sm:h-3 rounded-full transition-all duration-300 shadow-md ${heroIdx === i ? "bg-[#0E1A2B] w-8 sm:w-10" : "bg-black/20 w-2.5 sm:w-3 hover:bg-black/40"}`} />
               ))}
-            </dl>
+            </div>
           </div>
+        </section>
+
+        {/* 배너 바로 하단 퀵버튼 (기존 왼쪽 텍스트 영역 대체) */}
+        <section className="bg-white border-b border-[#E4E0D8]">
+          <div className={`${WRAP} py-6 sm:py-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4`}>
+            <Link href="/gallery" className={`${BTN_NAVY} h-[52px] w-full sm:w-auto px-8 text-[15px] shadow-sm`}>
+              판매 제품 전체보기 <Icon d={I.arrow} className="h-4 w-4" />
+            </Link>
+            <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] w-full sm:w-auto px-8 text-[15px] shadow-sm`}>
+              무료 매입 견적 문의
+            </button>
+            <p className="mt-3 sm:mt-0 sm:ml-4 text-[14px] text-[#6B7280] font-medium hidden md:block">
+              전화 상담 <a href={telHref(STORE.tel)} className="text-[#0E1A2B] font-bold hover:underline">{STORE.tel}</a>
+            </p>
+          </div>
+        </section>
+
+        {/* 신뢰 지표: 사이트에 명시된 사실만 */}
+        <section className="border-b border-[#E4E0D8] bg-white">
+          <dl className={`${WRAP} grid grid-cols-2 lg:grid-cols-4`}>
+            {[
+              { k: String(STORE.since), v: `대전에서 ${YEARS}년째 영업` },
+              { k: "오프라인 매장", v: "직접 보고 구매 가능" },
+              { k: "전국 배송·설치", v: "제품·지역별 상담" },
+              { k: "세금계산서", v: "투명한 거래 증빙" },
+            ].map((s, i) => (
+              <div key={s.k} className={`py-5 sm:py-6 ${i % 2 === 1 ? "pl-5 sm:pl-8" : ""} ${i > 1 ? "border-t border-[#EEEBE5] lg:border-t-0" : ""} ${i > 0 ? "lg:border-l lg:border-[#EEEBE5] lg:pl-8" : ""}`}>
+                <dt className="text-[17px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[19px]">{s.k}</dt>
+                <dd className="mt-1 text-[13px] text-[#6B7280] sm:text-[14px]">{s.v}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         {/* ─────────────── ③ 신뢰 / 서비스 USP ─────────────── */}
