@@ -738,21 +738,66 @@ export default function Home() {
       )}
 
       <main>
-        {/* ─────────────── ② HERO (와이드 배너형으로 전면 교체) ─────────────── */}
-        <section className="relative w-full bg-[#F6F5F2]">
-          <div className="relative w-full max-w-[1920px] mx-auto aspect-[4/3] sm:aspect-[16/7] lg:aspect-[21/9] bg-[#EFECE6]">
+       {/* ─────────────── ② HERO (프리미엄 텍스트 오버레이형) ─────────────── */}
+        <section className="relative w-full bg-[#0E1A2B] overflow-hidden">
+          <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[680px] flex items-center">
+            
+            {/* 1. 배경 이미지 슬라이더 */}
             {HERO_IMAGES.map((src, i) => (
               <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                {/* 💡 object-contain을 사용하여 어떤 이미지든 절대 잘리지 않음 */}
-                <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-contain" />
+                {/* 사진이 꽉 차면서도 중앙을 유지하도록 object-cover와 object-center 적용 */}
+                <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-cover object-center" />
               </div>
             ))}
             
-            {/* 슬라이드 인디케이터 (점) */}
-            <div className="absolute bottom-4 sm:bottom-6 inset-x-0 flex justify-center gap-2.5 z-20">
+            {/* 2. 텍스트 가독성을 위한 고급스러운 그라데이션 필터 (왼쪽은 어둡고 오른쪽은 투명하게) */}
+            <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent sm:via-[#0E1A2B]/60" />
+            <div className="absolute inset-0 z-10 bg-black/10" /> {/* 전체적으로 톤 다운 */}
+
+            {/* 3. 설명 텍스트 및 버튼 영역 */}
+            <div className={`relative z-20 w-full ${WRAP} py-16 sm:py-20`}>
+              <div className="max-w-2xl text-white">
+                <p className="inline-flex items-center gap-2 text-[13px] font-medium text-white/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E] motion-safe:animate-pulse" aria-hidden="true" />
+                  SINCE {STORE.since} · 대전 중촌동 오프라인 매장
+                </p>
+                <h1 id="hero-title" className="mt-4 font-bold tracking-[-0.03em] text-white">
+                  <span className="block text-[15px] font-semibold tracking-normal text-white/80 sm:text-base">
+                    대전 중고가전 판매·매입 전문 한밭중고전자
+                  </span>
+                  <span className="mt-3 block text-[36px] leading-[1.2] sm:text-[46px] lg:text-[54px] lg:leading-[1.15] drop-shadow-lg">
+                    새것 같은 중고가전,<br />
+                    합리적인 가격으로.
+                  </span>
+                </h1>
+                <p className="mt-6 max-w-[520px] text-[16px] leading-[1.75] text-white/90 sm:text-[17px] drop-shadow-md break-keep">
+                  {STORE.since}년부터 가정용 가전과 업소용 냉장·주방 설비를 판매하고 매입해 왔습니다. 전국 배송·설치와 매장 정리 같은 대량 거래도 상담해 드립니다.
+                </p>
+                
+                <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[420px]">
+                  <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] text-[15px] sm:text-base shadow-lg w-full`}>
+                    무료 매입 견적 문의
+                  </button>
+                  <Link href="/gallery" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 border border-white/40 bg-white/10 text-white hover:bg-white/20 hover:border-white/60 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white h-[52px] text-[15px] sm:text-base w-full shadow-lg">
+                    판매 제품 보기
+                    <Icon d={I.arrow} className="h-4 w-4" />
+                  </Link>
+                </div>
+                
+                <p className="mt-6 text-[14px] text-white/70 flex items-center gap-2">
+                  <Icon d={I.phone} className="h-4 w-4" />
+                  전화 상담 <a href={telHref(STORE.tel)} className="font-bold text-white hover:underline">{STORE.tel}</a>
+                  <span className="mx-1.5 text-white/30">|</span>
+                  {STORE.hours}
+                </p>
+              </div>
+            </div>
+
+            {/* 4. 슬라이드 인디케이터 (점) */}
+            <div className="absolute bottom-6 sm:bottom-8 inset-x-0 flex justify-center gap-2.5 z-20">
               {HERO_IMAGES.map((_, i) => (
-                <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 배너 보기`}
-                  className={`h-2.5 sm:h-3 rounded-full transition-all duration-300 shadow-md ${heroIdx === i ? "bg-[#0E1A2B] w-8 sm:w-10" : "bg-black/20 w-2.5 sm:w-3 hover:bg-black/40"}`} />
+                <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
+                  className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 shadow-md ${heroIdx === i ? "bg-white w-8 sm:w-10" : "bg-white/40 w-2 sm:w-2.5 hover:bg-white/70"}`} />
               ))}
             </div>
           </div>
