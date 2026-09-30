@@ -83,19 +83,20 @@ type Category = {
   image?: string;
 };
 
+// 💡 public/images 폴더 경로에 맞게 정확히 수정했습니다.
 const CATEGORIES: Category[] = [
-  { key: "stand", name: "스탠드 · 2in1 에어컨", desc: "거실 · 매장용 스탠드", group: "home", gallery: G.aircon, keywords: ["스탠드", "2in1", "투인원"], exclude: ["냉난방기"], image: "/cat-ac.png" },
-  { key: "wall", name: "벽걸이 에어컨", desc: "방 · 원룸 · 사무실", group: "home", gallery: G.aircon, keywords: ["벽걸이"], exclude: ["냉난방기"], image: "/cat-ac.png" },
-  { key: "fridge", name: "냉장고", desc: "양문형 · 일반형", group: "home", gallery: G.fridge, keywords: ["양문형", "냉장고"], exclude: ["김치", "업소", "박스", "쇼케이스"], image: "/cat-fridge.png" },
-  { key: "kimchi", name: "김치냉장고", desc: "스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["김치"], image: "/cat-fridge.png" },
-  { key: "washer", name: "세탁기", desc: "통돌이 · 드럼 · 워시타워", group: "home", gallery: G.washer, keywords: ["세탁기", "통돌이", "드럼", "워시타워"], image: "/cat-washer.png" },
-  { key: "dryer", name: "건조기", desc: "가정용 의류 건조기", group: "home", gallery: G.washer, keywords: ["건조기"], image: "/cat-washer.png" },
-  { key: "hvac", name: "냉난방기", desc: "매장 · 사무실 · 천장형", group: "biz", gallery: G.aircon, keywords: ["냉난방기", "천장형", "시스템"], image: "/cat-commercial.png" },
-  { key: "bizfridge", name: "업소용 냉장고", desc: "25 · 30 · 45박스", group: "biz", gallery: G.biz, keywords: ["업소용 냉장", "업소용냉장", "박스"], image: "/cat-commercial.png" },
-  { key: "showcase", name: "쇼케이스", desc: "음료 · 주류 · 반찬", group: "biz", gallery: G.biz, keywords: ["쇼케이스"], image: "/cat-commercial.png" },
-  { key: "ice", name: "제빙기", desc: "카페 · 식당 · 주점", group: "biz", gallery: G.biz, keywords: ["제빙기"], image: "/cat-commercial.png" },
-  { key: "dish", name: "식기세척기", desc: "도어형 · 언더카운터", group: "biz", gallery: G.biz, keywords: ["식기세척기", "식세기"], image: "/cat-commercial.png" },
-  { key: "kitchen", name: "상업용 주방기기", desc: "레인지 · 튀김기 · 작업대", group: "biz", gallery: G.biz, keywords: ["레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/cat-commercial.png" },
+  { key: "stand", name: "스탠드 · 2in1 에어컨", desc: "거실 · 매장용 스탠드", group: "home", gallery: G.aircon, keywords: ["스탠드", "2in1", "투인원"], exclude: ["냉난방기"], image: "/images/cat-ac.png" },
+  { key: "wall", name: "벽걸이 에어컨", desc: "방 · 원룸 · 사무실", group: "home", gallery: G.aircon, keywords: ["벽걸이"], exclude: ["냉난방기"], image: "/images/cat-ac.png" },
+  { key: "fridge", name: "냉장고", desc: "양문형 · 일반형", group: "home", gallery: G.fridge, keywords: ["양문형", "냉장고"], exclude: ["김치", "업소", "박스", "쇼케이스"], image: "/images/cat-fridge.png" },
+  { key: "kimchi", name: "김치냉장고", desc: "스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["김치"], image: "/images/cat-fridge.png" },
+  { key: "washer", name: "세탁기", desc: "통돌이 · 드럼 · 워시타워", group: "home", gallery: G.washer, keywords: ["세탁기", "통돌이", "드럼", "워시타워"], image: "/images/cat-washer.png" },
+  { key: "dryer", name: "건조기", desc: "가정용 의류 건조기", group: "home", gallery: G.washer, keywords: ["건조기"], image: "/images/cat-washer.png" },
+  { key: "hvac", name: "냉난방기", desc: "매장 · 사무실 · 천장형", group: "biz", gallery: G.aircon, keywords: ["냉난방기", "천장형", "시스템"], image: "/images/cat-commercial.png" },
+  { key: "bizfridge", name: "업소용 냉장고", desc: "25 · 30 · 45박스", group: "biz", gallery: G.biz, keywords: ["업소용 냉장", "업소용냉장", "박스"], image: "/images/cat-commercial.png" },
+  { key: "showcase", name: "쇼케이스", desc: "음료 · 주류 · 반찬", group: "biz", gallery: G.biz, keywords: ["쇼케이스"], image: "/images/cat-commercial.png" },
+  { key: "ice", name: "제빙기", desc: "카페 · 식당 · 주점", group: "biz", gallery: G.biz, keywords: ["제빙기"], image: "/images/cat-commercial.png" },
+  { key: "dish", name: "식기세척기", desc: "도어형 · 언더카운터", group: "biz", gallery: G.biz, keywords: ["식기세척기", "식세기"], image: "/images/cat-commercial.png" },
+  { key: "kitchen", name: "상업용 주방기기", desc: "레인지 · 튀김기 · 작업대", group: "biz", gallery: G.biz, keywords: ["레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/images/cat-commercial.png" },
 ];
 
 const NAV = [
