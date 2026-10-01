@@ -88,7 +88,7 @@ const CATEGORIES: Category[] = [
   { key: "fridge", name: "냉장고 · 김치냉장고", desc: "양문형 · 일반형 · 스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["냉장고", "김치냉장고", "양문형", "김치"], exclude: ["업소", "박스", "쇼케이스"], image: "/images/cat-fridge.png" },
   { key: "washer", name: "세탁기 · 건조기", desc: "통돌이 · 드럼 · 워시타워 · 의류건조기", group: "home", gallery: G.washer, keywords: ["세탁기", "건조기", "워시타워", "드럼", "통돌이"], image: "/images/cat-washer.png" },
   { key: "bizfridge", name: "업소용 냉장고 · 쇼케이스", desc: "25·30·45박스 · 음료 · 주류 · 반찬", group: "biz", gallery: G.biz, keywords: ["업소용", "냉장고", "박스", "쇼케이스"], image: "/images/cat-commercial.png" },
-  { key: "kitchen", name: "제빙기 · 식기세척기 · 주방기기", desc: "카페 · 식당 · 주점 · 작업대 · 튀김기", group: "biz", gallery: G.biz, keywords: ["제빙기", "식기세척기", "식세기", "레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/images/cat-commercial.png" },
+  { key: "kitchen", name: "제빙기 · 식기세척기 · 주방기기", desc: "카페 · 식당 · 주점 · 작업대 · 튀김기", group: "biz", gallery: G.biz, keywords: ["제빙기", "식기세척기", "식세기", "레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/images/cat-kitchen.png" },
 ];
 
 const NAV = [
