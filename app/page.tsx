@@ -1113,7 +1113,7 @@ export default function Home() {
            {/* 지도 영역 (화면의 60% 차지, 위아래로 더 길게) */}
             <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
               {/* 여기에 네이버 지도에서 복사한 코드를 붙여넣습니다 */}
-              <iframe src="여기에_네이버가_준_긴_주소" loading="lazy" className="absolute inset-0 h-full w-full border-0" />
+              <iframe src="https://naver.me/F5DkWQ4z" loading="lazy" className="absolute inset-0 h-full w-full border-0" />
             </div>
             
             {/* 정보 영역 (화면의 40% 차지, 넓은 패딩으로 고급스러움 연출) */}
