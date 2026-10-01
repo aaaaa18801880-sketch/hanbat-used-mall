@@ -4,7 +4,6 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import KakaoMap from "./KakaoMap";
 import { supabase } from "../lib/supabase";
 
 /* ════════════════════════════════════════════════════════════
@@ -1102,8 +1101,9 @@ export default function Home() {
           </div>
         </section>
 
-{/* ─────────────── ⑨ 오시는 길 (와이드 레이아웃 + 네이버 지도) ─────────────── */}
+{/* ─────────────── ⑨ 오시는 길 (와이드 레이아웃 + 구글 지도) ─────────────── */}
         <section id="location-section" className="bg-white pt-16 sm:pt-20 lg:pt-28" aria-labelledby="loc-title">
+          {/* 타이틀 영역 */}
           <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pb-8 lg:pb-12">
             <div className="flex flex-col mb-8 sm:mb-10">
               <p className="text-[12px] font-bold tracking-[0.2em] text-[#D9531E] uppercase mb-3">Location</p>
@@ -1112,39 +1112,48 @@ export default function Home() {
             </div>
           </div>
           
+          {/* 지도 및 정보 영역 (화면 전체 가로폭 꽉 채우기) */}
           <div className="w-full border-y border-[#E4E0D8] bg-[#FAF9F7] flex flex-col lg:flex-row">
-            {/* 💡 구글 지도 대신 네이버 지도가 들어가는 자리 */}
-           <div className="relative w-full h-[400px] sm:h-[500px] lg:h-[550px] lg:w-[60%] bg-[#EFECE6]">
-  <KakaoMap />
-</div>
+            {/* 지도 영역 (화면의 60% 차지, 와이드 비율 유지) */}
+            <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
+              <iframe 
+                title="한밭중고전자 매장 위치 지도" 
+                src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade" 
+                className="absolute inset-0 h-full w-full border-0" 
+                allowFullScreen 
+              />
+            </div>
             
+            {/* 정보 영역 (화면의 40% 차지) */}
             <div className="flex flex-col p-8 sm:p-12 lg:w-[40%] lg:p-16 xl:px-20 xl:py-24 justify-center bg-white border-l border-[#E4E0D8]">
               <h3 className="text-[26px] font-bold tracking-[-0.02em] text-[#0E1A2B] sm:text-[30px]">한밭중고전자</h3>
               <dl className="mt-8 divide-y divide-[#EEEBE5] text-[15px]">
                 <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
                   <dt className="font-semibold text-[#8A8478]">주소</dt>
-                  <dd className="text-[#1F2530]">{STORE.address}<span className="block text-[13px] text-[#6B7280] mt-1">{STORE.addressNote}</span></dd>
+                  <dd className="text-[#1F2530]">대전광역시 중구 중촌동 144<span className="block text-[13px] text-[#6B7280] mt-1">중촌고가도로 밑</span></dd>
                 </div>
                 <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
                   <dt className="font-semibold text-[#8A8478]">전화</dt>
                   <dd className="text-[#1F2530]">
-                    <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.tel}</a>
+                    <a href="tel:042-523-8179" className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">042-523-8179</a>
                     <span className="mx-1.5 text-neutral-300">/</span>
-                    <a href={telHref(STORE.mobile)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.mobile}</a>
+                    <a href="tel:010-5406-8179" className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">010-5406-8179</a>
                   </dd>
                 </div>
                 <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
                   <dt className="font-semibold text-[#8A8478]">영업시간</dt>
-                  <dd className="text-[#1F2530]">{STORE.hours}<span className="block text-[13px] text-[#6B7280] mt-1">{STORE.closed}</span></dd>
+                  <dd className="text-[#1F2530]">월~토 09:00 - 19:00<span className="block text-[13px] text-[#6B7280] mt-1">일요일 휴무</span></dd>
                 </div>
                 <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
                   <dt className="font-semibold text-[#8A8478]">주차</dt>
-                  <dd className="text-[#1F2530]">{STORE.parking}</dd>
+                  <dd className="text-[#1F2530]">매장 앞 전용 주차장 이용 가능</dd>
                 </div>
               </dl>
               <div className="mt-10 grid grid-cols-2 gap-2">
-                <a href={STORE.naverMap} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-[#0E1A2B] text-white hover:bg-[#22324A] h-12 text-[14px]">네이버 지도 길찾기</a>
-                <a href={KAKAO_MAP} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 border border-[#0E1A2B]/15 bg-white text-[#0E1A2B] hover:border-[#0E1A2B]/60 h-12 text-[14px]">카카오맵</a>
+                <a href="https://map.naver.com/v5/entry/address/36.335503,127.406981,%EB%8C%80%EC%A0%84%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144,jibun" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-[#0E1A2B] text-white hover:bg-[#22324A] h-12 text-[14px]">네이버 지도 길찾기</a>
+                <a href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 border border-[#0E1A2B]/15 bg-white text-[#0E1A2B] hover:border-[#0E1A2B]/60 h-12 text-[14px]">카카오맵</a>
               </div>
               <p className="mt-4 text-[13px] text-[#8A8478]">모바일에서는 버튼을 누르면 길안내 앱으로 연결됩니다.</p>
             </div>
