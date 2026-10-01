@@ -180,7 +180,7 @@ export default function GalleryPage() {
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
   const [uploadingProduct, setUploadingProduct] = useState(false);
 
-  // 💡 메인 페이지와 순서 통일 (에어컨 ➡️ 냉장고 ➡️ 세탁기 ➡️ 업소용 ➡️ 기타)
+  // 메인 페이지와 순서 통일 (에어컨 ➡️ 냉장고 ➡️️ 세탁기 ➡️ 업소용 ➡️ 기타)
   const categories = ["전체", "에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
   const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
 
@@ -549,11 +549,10 @@ export default function GalleryPage() {
                   <div className="p-4 sm:p-5 flex flex-col flex-1">
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-[11px] font-bold text-[#8A8478] uppercase tracking-wide">{product.category || "기타"}</span>
-                      {(product.views || 0) > 0 && (
-                        <span className="text-[11px] font-medium text-[#8A8478] flex items-center gap-1">
-                          <EyeIcon /> {product.views}
-                        </span>
-                      )}
+                      {/* 💡 0회라도 카드의 조회수가 항상 보이도록 수정 */}
+                      <span className="text-[11px] font-medium text-[#8A8478] flex items-center gap-1">
+                        <EyeIcon /> {product.views || 0}
+                      </span>
                     </div>
                     <h3 className="font-bold text-[#0E1A2B] text-[15px] sm:text-[16px] leading-snug mb-3 line-clamp-2 flex-1 group-hover:underline underline-offset-4 transition-all">{product.title}</h3>
                     <div className="mt-auto pt-4 border-t border-[#EEEBE5]">
