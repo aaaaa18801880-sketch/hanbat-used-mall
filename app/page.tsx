@@ -83,7 +83,6 @@ type Category = {
   image?: string;
 };
 
-// 💡 12개로 흩어져 있던 카테고리를 5개 핵심 분류로 통합 완료!
 const CATEGORIES: Category[] = [
   { key: "ac", name: "에어컨 · 냉난방기", desc: "벽걸이 · 스탠드 · 천장형 · 시스템", group: "home", gallery: G.aircon, keywords: ["에어컨", "냉난방기", "스탠드", "벽걸이", "2in1", "투인원", "시스템", "천장형"], image: "/images/cat-ac.png" },
   { key: "fridge", name: "냉장고 · 김치냉장고", desc: "양문형 · 일반형 · 스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["냉장고", "김치냉장고", "양문형", "김치"], exclude: ["업소", "박스", "쇼케이스"], image: "/images/cat-fridge.png" },
@@ -678,19 +677,14 @@ export default function Home() {
         {/* ─────────────── ② HERO (프리미엄 텍스트 오버레이형) ─────────────── */}
         <section className="relative w-full bg-[#0E1A2B] overflow-hidden">
           <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[680px] flex items-center">
-            
-            {/* 1. 배경 이미지 슬라이더 */}
             {HERO_IMAGES.map((src, i) => (
               <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
                 <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-cover object-center" />
               </div>
             ))}
-            
-            {/* 2. 텍스트 가독성을 위한 필터 */}
             <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent sm:via-[#0E1A2B]/60" />
-            <div className="absolute inset-0 z-10 bg-black/10" /> 
+            <div className="absolute inset-0 z-10 bg-black/10" />
 
-            {/* 3. 설명 텍스트 및 버튼 영역 */}
             <div className={`relative z-20 w-full ${WRAP} py-16 sm:py-20`}>
               <div className="max-w-2xl text-white">
                 <p className="inline-flex items-center gap-2 text-[13px] font-medium text-white/80">
@@ -729,7 +723,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 4. 슬라이드 인디케이터 */}
             <div className="absolute bottom-6 sm:bottom-8 inset-x-0 flex justify-center gap-2.5 z-20">
               {HERO_IMAGES.map((_, i) => (
                 <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
@@ -786,7 +779,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ④ 상품 카테고리 ─────────────── */}
+        {/* ─────────────── ④ 상품 카테고리 (세로형 aspect-[4/5] 적용) ─────────────── */}
         <section id="category-section" className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="cat-title">
           <div className={WRAP}>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -818,7 +811,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 💡 5개의 카테고리 아이템이 화면에 예쁘게 한 줄(또는 반응형)로 차도록 grid-cols-5 적용 */}
+            {/* 💡 비율을 세로형 카드로 변경했습니다: aspect-[4/5] */}
             <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 md:grid-cols-3 lg:mt-12 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-10">
               {visibleCats.map((c) => {
                 const img = catImages[c.key];
@@ -826,7 +819,7 @@ export default function Home() {
                 return (
                   <li key={c.key}>
                     <Link href={galleryHref(c.gallery)} className="group block" aria-label={`${c.name} 제품 보기`}>
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-[#EFECE6]">
+                      <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-[#EFECE6]">
                         {img ? (
                           <SafeImg src={img} alt={`중고 ${c.name} 판매 제품`} className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]" />
                         ) : (
