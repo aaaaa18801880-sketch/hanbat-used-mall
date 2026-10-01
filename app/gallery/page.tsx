@@ -12,7 +12,7 @@ import {
 } from "../../lib/ui";
 
 /* ════════════════════════════════════════════════════════════
-   1. 타입 및 유틸
+   타입 및 유틸
    ════════════════════════════════════════════════════════════ */
 interface Product {
   id: string;
@@ -22,6 +22,7 @@ interface Product {
   price: number | null;
   status: string | null;
   created_at: string;
+  views?: number | null; // 조회수
 }
 
 const isNewProduct = (createdAt: string) => Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -29,7 +30,7 @@ const hasPrice = (p: Product) => !!p.price && p.price > 0;
 const formatPrice = (p: Product) => (hasPrice(p) ? `${Number(p.price).toLocaleString()}원` : "가격 문의");
 const isSold = (p: Product) => p.status === "판매완료";
 
-// 💡 공용 디자인 토큰
+// 공용 디자인 토큰
 const BTN = "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
 const BTN_ACCENT = `${BTN} bg-[#D9531E] text-white hover:bg-[#BF4715] focus-visible:ring-[#D9531E]`;
 const BTN_NAVY = `${BTN} bg-[#0E1A2B] text-white hover:bg-[#22324A] focus-visible:ring-[#0E1A2B]`;
@@ -38,8 +39,16 @@ const BTN_KAKAO = `${BTN} bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] focus-v
 const INPUT = "w-full rounded-md border border-[#DDD9D1] bg-white px-3.5 py-3 text-[15px] text-[#0E1A2B] placeholder:text-neutral-400 transition-colors focus:border-[#0E1A2B] focus:outline-none focus:ring-1 focus:ring-[#0E1A2B]";
 const LABEL = "mb-1.5 block text-[13px] font-semibold text-[#0E1A2B]";
 
+// 눈 모양 아이콘 (조회수용)
+const EyeIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 opacity-60 mt-px">
+    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+);
+
 /* ════════════════════════════════════════════════════════════
-   2. 상세 보기 모달 컴포넌트
+   상세 보기 모달 컴포넌트
    ════════════════════════════════════════════════════════════ */
 function ProductDetailModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const images = splitImages(product.image_url);
@@ -59,7 +68,6 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
   }, [displayImages.length]);
 
   return (
-    // 💡 에러 원인이었던 open={...} 속성을 제거하고 모달 규칙에 맞게 수정했습니다.
     <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-4xl" sheet={false}>
       <div className="bg-white rounded-lg shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[92vh] w-full">
         {/* 왼쪽: 이미지 영역 */}
@@ -110,7 +118,13 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
           </div>
 
           <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
-          <p className={`text-[32px] sm:text-[38px] font-bold mb-6 tracking-tight ${sold ? "text-[#8A8478]" : "text-[#D9531E]"}`}>{formatPrice(product)}</p>
+          
+          <div className="flex items-end justify-between mb-6">
+            <p className={`text-[32px] sm:text-[38px] font-bold tracking-tight leading-none ${sold ? "text-[#8A8478]" : "text-[#D9531E]"}`}>{formatPrice(product)}</p>
+            <p className="flex items-center gap-1.5 text-[14px] text-[#8A8478] font-medium pb-1.5">
+              <EyeIcon /> {product.views || 0}회
+            </p>
+          </div>
 
           <ul className="text-[14px] text-[#4B5260] space-y-2.5 mb-8 bg-[#FAF9F7] rounded-md p-5 border border-[#E4E0D8] leading-relaxed">
             <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 꼼꼼한 세척·검수를 거친 A급 제품입니다.</li>
@@ -134,7 +148,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 }
 
 /* ════════════════════════════════════════════════════════════
-   3. 메인 갤러리 페이지 컴포넌트
+   메인 갤러리 페이지 컴포넌트
    ════════════════════════════════════════════════════════════ */
 export default function GalleryPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -142,7 +156,7 @@ export default function GalleryPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [activeCategory, setActiveCategory] = useState("전체");
   const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<"latest" | "priceAsc" | "priceDesc">("latest");
+  const [sort, setSort] = useState<"latest" | "priceAsc" | "priceDesc" | "views">("latest");
   const [onlySelling, setOnlySelling] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
@@ -202,6 +216,31 @@ export default function GalleryPage() {
     if (cat === "전체") url.searchParams.delete("category");
     else url.searchParams.set("category", cat);
     window.history.replaceState(null, "", url.toString());
+  };
+
+  /* ───── 조회수 증가 및 상세 팝업 열기 로직 ───── */
+  const handleProductClick = async (product: Product) => {
+    setSelectedProduct(product);
+
+    if (isAdmin) return;
+
+    try {
+      const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
+      const viewedList = JSON.parse(viewedStr) as string[];
+
+      if (viewedList.includes(product.id)) return;
+
+      viewedList.push(product.id);
+      sessionStorage.setItem("viewed_products", JSON.stringify(viewedList));
+
+      const newViews = (product.views || 0) + 1;
+      setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, views: newViews } : p)));
+      setSelectedProduct((prev) => (prev && prev.id === product.id ? { ...prev, views: newViews } : prev));
+
+      await supabase.from("products").update({ views: newViews }).eq("id", product.id);
+    } catch (error) {
+      console.error("조회수 증가 실패:", error);
+    }
   };
 
   /* ───── 관리자 로직 ───── */
@@ -281,6 +320,7 @@ export default function GalleryPage() {
         image_url: uploadedUrls.join(","),
         price: parsedPrice,
         status: productStatus,
+        views: 0,
       });
       if (error) throw error;
       toast.success("새 상품이 성공적으로 등록되었습니다!");
@@ -330,10 +370,11 @@ export default function GalleryPage() {
     return [...list].sort((a, b) => {
       const soldA = isSold(a) ? 1 : 0;
       const soldB = isSold(b) ? 1 : 0;
-      if (soldA !== soldB) return soldA - soldB; // 판매중 우선
+      if (soldA !== soldB) return soldA - soldB;
       if (sort === "priceAsc") return (hasPrice(a) ? a.price! : MAX) - (hasPrice(b) ? b.price! : MAX);
       if (sort === "priceDesc") return (b.price || 0) - (a.price || 0);
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime(); // 최신순 기본
+      if (sort === "views") return (b.views || 0) - (a.views || 0);
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
   }, [products, activeCategory, onlySelling, search, sort]);
 
@@ -346,7 +387,6 @@ export default function GalleryPage() {
   return (
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
       
-      {/* 프리미엄 헤더 */}
       <SiteHeader>
         {isAdmin && (
           <button type="button" onClick={() => setIsUploadModalOpen(true)} className="hidden sm:inline-flex bg-[#0E1A2B] text-white text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-[#22324A] whitespace-nowrap gap-1 items-center shadow-sm">
@@ -358,12 +398,11 @@ export default function GalleryPage() {
             관리자 모드 ON
           </button>
         )}
-        <a href={telHref(STORE.tel)} className="hidden sm:inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#0E1A2B] px-2 xl:px-3 hover:underline underline-offset-4 whitespace-nowrap">
+        <a href={`tel:${STORE.tel}`} className="hidden sm:inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#0E1A2B] px-2 xl:px-3 hover:underline underline-offset-4 whitespace-nowrap">
           <Icon d={ICON.phone} className="w-4 h-4" /> {STORE.tel}
         </a>
       </SiteHeader>
 
-      {/* 갤러리 타이틀 영역 */}
       <section className="bg-white border-b border-[#E4E0D8]">
         <div className="max-w-[1000px] mx-auto px-5 py-12 sm:py-16 text-center">
           <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#D9531E] mb-3">Product Gallery</p>
@@ -379,7 +418,6 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 필터 바 (Sticky) */}
       <div className="sticky top-16 sm:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E4E0D8] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1" role="tablist">
@@ -420,6 +458,7 @@ export default function GalleryPage() {
               className="w-32 shrink-0 py-2.5 pl-3 pr-2 rounded border border-[#DDD9D1] bg-white text-[14px] font-semibold text-[#4B5260] outline-none focus:border-[#0E1A2B] transition-colors"
             >
               <option value="latest">최신 등록순</option>
+              <option value="views">조회 많은순</option>
               <option value="priceAsc">낮은 가격순</option>
               <option value="priceDesc">높은 가격순</option>
             </select>
@@ -442,7 +481,7 @@ export default function GalleryPage() {
           {isLoading ? (
             Array.from({ length: 8 }).map((_, idx) => (
               <div key={`skeleton-${idx}`} className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] animate-pulse">
-                <div className="aspect-square bg-[#EFECE6] w-full" />
+                <div className="aspect-[4/5] bg-[#EFECE6] w-full" />
                 <div className="p-4 sm:p-5 space-y-3">
                   <div className="h-3 bg-[#EFECE6] rounded w-1/4" />
                   <div className="h-5 bg-[#EFECE6] rounded w-4/5" />
@@ -456,7 +495,7 @@ export default function GalleryPage() {
               <p className="text-[#8A8478] text-[14px] mb-8">찾으시는 제품이 있다면 전화나 카톡으로 편하게 문의해 주세요.</p>
               <div className="flex flex-wrap justify-center gap-3">
                 <button onClick={resetFilters} className={`${BTN_LINE} h-11 px-6 text-[14px]`}>필터 초기화</button>
-<a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-11 px-6 text-[14px]`}>카톡 문의</a>
+                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-11 px-6 text-[14px]`}>카톡 문의</a>
               </div>
             </div>
           ) : (
@@ -471,11 +510,11 @@ export default function GalleryPage() {
                   role="button"
                   tabIndex={0}
                   aria-label={`${product.title} 상세 보기`}
-                  onClick={() => setSelectedProduct(product)}
-                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setSelectedProduct(product); } }}
+                  onClick={() => handleProductClick(product)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleProductClick(product); } }}
                   className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] group cursor-pointer flex flex-col relative focus-visible:ring-2 focus-visible:ring-[#0E1A2B] outline-none transition-shadow hover:shadow-lg"
                 >
-                  <div className="aspect-square relative overflow-hidden bg-[#EFECE6]">
+                  <div className="aspect-[4/5] relative overflow-hidden bg-[#EFECE6]">
                     <SafeImg src={images[0]} alt={product.title} className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${sold ? "grayscale opacity-70" : ""}`} />
                     {sold && (
                       <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/40">
@@ -503,7 +542,14 @@ export default function GalleryPage() {
                     )}
                   </div>
                   <div className="p-4 sm:p-5 flex flex-col flex-1">
-                    <span className="text-[11px] font-bold text-[#8A8478] mb-1.5 uppercase tracking-wide">{product.category || "기타"}</span>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[11px] font-bold text-[#8A8478] uppercase tracking-wide">{product.category || "기타"}</span>
+                      {(product.views || 0) > 0 && (
+                        <span className="text-[11px] font-medium text-[#8A8478] flex items-center gap-1">
+                          <EyeIcon /> {product.views}
+                        </span>
+                      )}
+                    </div>
                     <h3 className="font-bold text-[#0E1A2B] text-[15px] sm:text-[16px] leading-snug mb-3 line-clamp-2 flex-1 group-hover:underline underline-offset-4 transition-all">{product.title}</h3>
                     <div className="mt-auto pt-4 border-t border-[#EEEBE5]">
                       <p className={`font-bold text-[18px] sm:text-[20px] tracking-tight ${sold ? "text-[#8A8478]" : hasPrice(product) ? "text-[#D9531E]" : "text-[#4B5260]"}`}>{formatPrice(product)}</p>
@@ -524,7 +570,7 @@ export default function GalleryPage() {
 
       {/* ───── 상품 등록 모달 (관리자) ───── */}
       {isUploadModalOpen && (
-        <Modal onClose={() => setIsUploadModalOpen(false)} label="판매 상품 등록" panelClassName="sm:max-w-md">
+        <Modal onClose={() => setIsUploadModalOpen(false)} label="판매 상품 등록">
           <div className="bg-white w-full sm:max-w-md max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-lg shadow-2xl border border-[#E4E0D8]">
             <div className="flex items-center justify-between px-6 py-5 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">판매 상품 등록</h2>
@@ -581,7 +627,6 @@ export default function GalleryPage() {
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     {productPreviews.map((preview, index) => (
                       <div key={preview} className="relative aspect-square bg-[#EFECE6] rounded overflow-hidden border border-[#E4E0D8]">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={preview} alt="미리보기" className="w-full h-full object-cover" />
                         {index === 0 && <span className="absolute bottom-1 left-1 bg-[#D9531E] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">대표</span>}
                         <button type="button" onClick={() => handleRemoveFile(index)} aria-label="사진 삭제" className="absolute top-1 right-1 bg-black/60 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center transition-colors">
@@ -589,14 +634,6 @@ export default function GalleryPage() {
                         </button>
                       </div>
                     ))}
-                    {/* 💡 갤러리 관리자 등록창에서도 ICON.image 사용 */}
-                    {productFiles.length < MAX_PHOTOS && (
-                      <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CFCAC0] text-[11px] font-medium text-[#8A8478] transition-colors hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
-                        <Icon d={ICON.image} className="h-5 w-5" />
-                        사진 추가
-                        <input type="file" accept="image/*" multiple onChange={handleFileChange} className="sr-only" />
-                      </label>
-                    )}
                   </div>
                 )}
               </div>
@@ -613,7 +650,7 @@ export default function GalleryPage() {
 
       {/* ───── 관리자 로그인 ───── */}
       {isAdminAuthModalOpen && (
-        <Modal onClose={() => setIsAdminAuthModalOpen(false)} label="관리자 로그인" panelClassName="sm:max-w-sm">
+        <Modal onClose={() => setIsAdminAuthModalOpen(false)} label="관리자 로그인">
           <form onSubmit={handleAdminAuth} className="w-full rounded-t-lg bg-white p-6 sm:max-w-sm sm:rounded-lg sm:p-8 shadow-2xl border border-[#E4E0D8]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">관리자 로그인</h2>
