@@ -1101,51 +1101,57 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑨ 오시는 길 ─────────────── */}
-        <section id="location-section" className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="loc-title">
-          <div className={WRAP}>
+{/* ─────────────── ⑨ 오시는 길 (와이드 레이아웃) ─────────────── */}
+        <section id="location-section" className="bg-white pt-16 sm:pt-20 lg:pt-28" aria-labelledby="loc-title">
+          {/* 타이틀 영역 (기존 여백 유지) */}
+          <div className={`${WRAP} pb-8 lg:pb-12`}>
             <SectionHead eyebrow="Location" title={<span id="loc-title">직접 보고 고르는 실제 매장</span>} desc="사진만으로 판단하기 어려운 제품은 대전 중촌동 매장에서 직접 확인하세요." />
-            <div className="mt-10 grid overflow-hidden rounded-md border border-[#E4E0D8] lg:mt-12 lg:grid-cols-12">
-              <div className="relative aspect-[4/3] bg-[#EFECE6] lg:col-span-7 lg:aspect-auto lg:min-h-[480px]">
-                <iframe title="한밭중고전자 매장 위치 지도" src={MAP_EMBED_SRC} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="absolute inset-0 h-full w-full border-0" allowFullScreen />
+          </div>
+          
+          {/* 지도 및 정보 영역 (화면 전체 가로폭 꽉 채우기) */}
+          <div className="w-full border-y border-[#E4E0D8] bg-[#FAF9F7] flex flex-col lg:flex-row">
+            {/* 지도 영역 (화면의 60% 차지, 위아래로 더 길게) */}
+            <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
+              <iframe title="한밭중고전자 매장 위치 지도" src={MAP_EMBED_SRC} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="absolute inset-0 h-full w-full border-0" allowFullScreen />
+            </div>
+            
+            {/* 정보 영역 (화면의 40% 차지, 넓은 패딩으로 고급스러움 연출) */}
+            <div className="flex flex-col p-8 sm:p-12 lg:w-[40%] lg:p-16 xl:px-20 xl:py-24 justify-center bg-white border-l border-[#E4E0D8]">
+              <h3 className="text-[26px] font-bold tracking-[-0.02em] text-[#0E1A2B] sm:text-[30px]">한밭중고전자</h3>
+              <dl className="mt-8 divide-y divide-[#EEEBE5] text-[15px]">
+                {[
+                  { k: "주소", v: <>{STORE.address}<span className="block text-[13px] text-[#6B7280] mt-1">{STORE.addressNote}</span></> },
+                  {
+                    k: "전화",
+                    v: (
+                      <>
+                        <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.tel}</a>
+                        <span className="mx-1.5 text-neutral-300">/</span>
+                        <a href={telHref(STORE.mobile)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.mobile}</a>
+                      </>
+                    ),
+                  },
+                  { k: "영업시간", v: <>{STORE.hours}<span className="block text-[13px] text-[#6B7280] mt-1">{STORE.closed}</span></> },
+                  { k: "주차", v: STORE.parking },
+                ].map((row) => (
+                  <div key={row.k} className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
+                    <dt className="font-semibold text-[#8A8478]">{row.k}</dt>
+                    <dd className="text-[#1F2530]">{row.v}</dd>
+                  </div>
+                ))}
+              </dl>
+              <div className="mt-10 grid grid-cols-2 gap-2">
+                <a href={STORE.naverMap} target="_blank" rel="noopener noreferrer" className={`${BTN_NAVY} h-12 text-[14px]`}>
+                  네이버 지도 길찾기
+                </a>
+                <a href={KAKAO_MAP} target="_blank" rel="noopener noreferrer" className={`${BTN_LINE} h-12 text-[14px]`}>
+                  카카오맵
+                </a>
+                <button type="button" onClick={copyAddress} className={`${BTN_LINE} col-span-2 h-11 text-[14px]`}>
+                  <Icon d={I.copy} className="h-4 w-4" /> 주소 복사
+                </button>
               </div>
-              <div className="flex flex-col p-6 sm:p-8 lg:col-span-5 lg:p-10">
-                <h3 className="text-[22px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</h3>
-                <dl className="mt-6 divide-y divide-[#EEEBE5] text-[15px]">
-                  {[
-                    { k: "주소", v: <>{STORE.address}<span className="block text-[13px] text-[#6B7280]">{STORE.addressNote}</span></> },
-                    {
-                      k: "전화",
-                      v: (
-                        <>
-                          <a href={telHref(STORE.tel)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.tel}</a>
-                          <span className="mx-1.5 text-neutral-300">/</span>
-                          <a href={telHref(STORE.mobile)} className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">{STORE.mobile}</a>
-                        </>
-                      ),
-                    },
-                    { k: "영업시간", v: <>{STORE.hours}<span className="block text-[13px] text-[#6B7280]">{STORE.closed}</span></> },
-                    { k: "주차", v: STORE.parking },
-                  ].map((row) => (
-                    <div key={row.k} className="grid grid-cols-[76px_1fr] gap-3 py-4 first:pt-0">
-                      <dt className="font-semibold text-[#8A8478]">{row.k}</dt>
-                      <dd className="text-[#1F2530]">{row.v}</dd>
-                    </div>
-                  ))}
-                </dl>
-                <div className="mt-auto grid grid-cols-2 gap-2 pt-8">
-                  <a href={STORE.naverMap} target="_blank" rel="noopener noreferrer" className={`${BTN_NAVY} h-12 text-[14px]`}>
-                    네이버 지도 길찾기
-                  </a>
-                  <a href={KAKAO_MAP} target="_blank" rel="noopener noreferrer" className={`${BTN_LINE} h-12 text-[14px]`}>
-                    카카오맵
-                  </a>
-                  <button type="button" onClick={copyAddress} className={`${BTN_LINE} col-span-2 h-11 text-[14px]`}>
-                    <Icon d={I.copy} className="h-4 w-4" /> 주소 복사
-                  </button>
-                </div>
-                <p className="mt-3 text-[12px] text-[#8A8478]">모바일에서는 버튼을 누르면 길안내 앱으로 연결됩니다.</p>
-              </div>
+              <p className="mt-4 text-[13px] text-[#8A8478]">모바일에서는 버튼을 누르면 길안내 앱으로 연결됩니다.</p>
             </div>
           </div>
         </section>
