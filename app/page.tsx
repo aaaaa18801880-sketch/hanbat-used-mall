@@ -4,6 +4,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import NaverMap from "./NaverMap";
 import { supabase } from "../lib/supabase";
 
 /* ════════════════════════════════════════════════════════════
@@ -1110,10 +1111,9 @@ export default function Home() {
           
           {/* 지도 및 정보 영역 (화면 전체 가로폭 꽉 채우기) */}
           <div className="w-full border-y border-[#E4E0D8] bg-[#FAF9F7] flex flex-col lg:flex-row">
-           {/* 지도 영역 (화면의 60% 차지, 위아래로 더 길게) */}
+{/* 지도 영역 (화면의 60% 차지, 위아래로 더 길게) */}
             <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
-              {/* 여기에 네이버 지도에서 복사한 코드를 붙여넣습니다 */}
-              <iframe src="https://naver.me/F5DkWQ4z" loading="lazy" className="absolute inset-0 h-full w-full border-0" />
+              <NaverMap />
             </div>
             
             {/* 정보 영역 (화면의 40% 차지, 넓은 패딩으로 고급스러움 연출) */}
