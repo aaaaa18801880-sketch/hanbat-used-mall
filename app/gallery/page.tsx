@@ -119,7 +119,6 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
           
-          {/* 💡 가격 오른쪽 영역에 조회수가 깔끔한 박스 형태로 강조되도록 개선 */}
           <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
             <div>
               <span className="text-[11px] font-semibold text-[#8A8478] block mb-0.5">판매 가격</span>
@@ -174,15 +173,16 @@ export default function GalleryPage() {
   /* 상품 등록 팝업 */
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [productTitle, setProductTitle] = useState("");
-  const [productCategory, setProductCategory] = useState("냉장고");
+  const [productCategory, setProductCategory] = useState("에어컨/냉난방기");
   const [productPrice, setProductPrice] = useState("");
   const [productStatus, setProductStatus] = useState("판매중");
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
   const [uploadingProduct, setUploadingProduct] = useState(false);
 
-  const categories = ["전체", "냉장고", "세탁기/건조기", "에어컨/냉난방기", "업소용기기", "기타"];
-  const registerCategories = ["냉장고", "세탁기/건조기", "에어컨/냉난방기", "업소용기기", "기타"];
+  // 💡 메인 페이지와 순서 통일 (에어컨 ➡️ 냉장고 ➡️ 세탁기 ➡️ 업소용 ➡️ 기타)
+  const categories = ["전체", "에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
+  const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -643,7 +643,7 @@ export default function GalleryPage() {
                 )}
               </div>
               <div className="flex gap-2.5 pt-5 border-t border-[#E4E0D8]">
-                <button type="button" onClick={() => { setIsUploadModalOpen(false); resetUploadForm(); }} className={`${BTN_LINE} `}>취소</button>
+                <button type="button" onClick={() => { setIsUploadModalOpen(false); resetUploadForm(); }} className={`${BTN_LINE} w-1/2 h-12 text-[14px]`}>취소</button>
                 <button type="submit" disabled={uploadingProduct} className={`${BTN_NAVY} w-1/2 h-12 text-[14px] disabled:opacity-50`}>
                   {uploadingProduct ? "등록 중..." : "등록하기"}
                 </button>
