@@ -83,20 +83,13 @@ type Category = {
   image?: string;
 };
 
-// 💡 public/images 폴더 경로에 맞게 정확히 수정했습니다.
+// 💡 12개로 흩어져 있던 카테고리를 5개 핵심 분류로 통합 완료!
 const CATEGORIES: Category[] = [
-  { key: "stand", name: "스탠드 · 2in1 에어컨", desc: "거실 · 매장용 스탠드", group: "home", gallery: G.aircon, keywords: ["스탠드", "2in1", "투인원"], exclude: ["냉난방기"], image: "/images/cat-ac.png" },
-  { key: "wall", name: "벽걸이 에어컨", desc: "방 · 원룸 · 사무실", group: "home", gallery: G.aircon, keywords: ["벽걸이"], exclude: ["냉난방기"], image: "/images/cat-ac.png" },
-  { key: "fridge", name: "냉장고", desc: "양문형 · 일반형", group: "home", gallery: G.fridge, keywords: ["양문형", "냉장고"], exclude: ["김치", "업소", "박스", "쇼케이스"], image: "/images/cat-fridge.png" },
-  { key: "kimchi", name: "김치냉장고", desc: "스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["김치"], image: "/images/cat-fridge.png" },
-  { key: "washer", name: "세탁기", desc: "통돌이 · 드럼 · 워시타워", group: "home", gallery: G.washer, keywords: ["세탁기", "통돌이", "드럼", "워시타워"], image: "/images/cat-washer.png" },
-  { key: "dryer", name: "건조기", desc: "가정용 의류 건조기", group: "home", gallery: G.washer, keywords: ["건조기"], image: "/images/cat-washer.png" },
-  { key: "hvac", name: "냉난방기", desc: "매장 · 사무실 · 천장형", group: "biz", gallery: G.aircon, keywords: ["냉난방기", "천장형", "시스템"], image: "/images/cat-commercial.png" },
-  { key: "bizfridge", name: "업소용 냉장고", desc: "25 · 30 · 45박스", group: "biz", gallery: G.biz, keywords: ["업소용 냉장", "업소용냉장", "박스"], image: "/images/cat-commercial.png" },
-  { key: "showcase", name: "쇼케이스", desc: "음료 · 주류 · 반찬", group: "biz", gallery: G.biz, keywords: ["쇼케이스"], image: "/images/cat-commercial.png" },
-  { key: "ice", name: "제빙기", desc: "카페 · 식당 · 주점", group: "biz", gallery: G.biz, keywords: ["제빙기"], image: "/images/cat-commercial.png" },
-  { key: "dish", name: "식기세척기", desc: "도어형 · 언더카운터", group: "biz", gallery: G.biz, keywords: ["식기세척기", "식세기"], image: "/images/cat-commercial.png" },
-  { key: "kitchen", name: "상업용 주방기기", desc: "레인지 · 튀김기 · 작업대", group: "biz", gallery: G.biz, keywords: ["레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/images/cat-commercial.png" },
+  { key: "ac", name: "에어컨 · 냉난방기", desc: "벽걸이 · 스탠드 · 천장형 · 시스템", group: "home", gallery: G.aircon, keywords: ["에어컨", "냉난방기", "스탠드", "벽걸이", "2in1", "투인원", "시스템", "천장형"], image: "/images/cat-ac.png" },
+  { key: "fridge", name: "냉장고 · 김치냉장고", desc: "양문형 · 일반형 · 스탠드형 · 뚜껑형", group: "home", gallery: G.fridge, keywords: ["냉장고", "김치냉장고", "양문형", "김치"], exclude: ["업소", "박스", "쇼케이스"], image: "/images/cat-fridge.png" },
+  { key: "washer", name: "세탁기 · 건조기", desc: "통돌이 · 드럼 · 워시타워 · 의류건조기", group: "home", gallery: G.washer, keywords: ["세탁기", "건조기", "워시타워", "드럼", "통돌이"], image: "/images/cat-washer.png" },
+  { key: "bizfridge", name: "업소용 냉장고 · 쇼케이스", desc: "25·30·45박스 · 음료 · 주류 · 반찬", group: "biz", gallery: G.biz, keywords: ["업소용", "냉장고", "박스", "쇼케이스"], image: "/images/cat-commercial.png" },
+  { key: "kitchen", name: "제빙기 · 식기세척기 · 주방기기", desc: "카페 · 식당 · 주점 · 작업대 · 튀김기", group: "biz", gallery: G.biz, keywords: ["제빙기", "식기세척기", "식세기", "레인지", "튀김기", "작업대", "싱크", "오븐", "주방"], image: "/images/cat-commercial.png" },
 ];
 
 const NAV = [
@@ -682,17 +675,22 @@ export default function Home() {
       )}
 
       <main>
-        {/* ─────────────── ② HERO ─────────────── */}
+        {/* ─────────────── ② HERO (프리미엄 텍스트 오버레이형) ─────────────── */}
         <section className="relative w-full bg-[#0E1A2B] overflow-hidden">
           <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[680px] flex items-center">
+            
+            {/* 1. 배경 이미지 슬라이더 */}
             {HERO_IMAGES.map((src, i) => (
               <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
                 <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-cover object-center" />
               </div>
             ))}
+            
+            {/* 2. 텍스트 가독성을 위한 필터 */}
             <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent sm:via-[#0E1A2B]/60" />
-            <div className="absolute inset-0 z-10 bg-black/10" />
+            <div className="absolute inset-0 z-10 bg-black/10" /> 
 
+            {/* 3. 설명 텍스트 및 버튼 영역 */}
             <div className={`relative z-20 w-full ${WRAP} py-16 sm:py-20`}>
               <div className="max-w-2xl text-white">
                 <p className="inline-flex items-center gap-2 text-[13px] font-medium text-white/80">
@@ -731,6 +729,7 @@ export default function Home() {
               </div>
             </div>
 
+            {/* 4. 슬라이드 인디케이터 */}
             <div className="absolute bottom-6 sm:bottom-8 inset-x-0 flex justify-center gap-2.5 z-20">
               {HERO_IMAGES.map((_, i) => (
                 <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
@@ -819,7 +818,8 @@ export default function Home() {
               </div>
             </div>
 
-            <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 md:grid-cols-3 lg:mt-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-10">
+            {/* 💡 5개의 카테고리 아이템이 화면에 예쁘게 한 줄(또는 반응형)로 차도록 grid-cols-5 적용 */}
+            <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 md:grid-cols-3 lg:mt-12 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-10">
               {visibleCats.map((c) => {
                 const img = catImages[c.key];
                 const no = CATEGORIES.indexOf(c) + 1;
