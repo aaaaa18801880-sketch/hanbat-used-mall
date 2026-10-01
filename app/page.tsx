@@ -1003,7 +1003,7 @@ export default function Home() {
                   items: ["스탠드·벽걸이 에어컨", "양문형 냉장고", "김치냉장고", "세탁기", "건조기"],
                   href: "/gallery",
                   cta: "가정용 제품 보기",
-                  img: catImages.fridge ?? catImages.stand ?? catImages.washer ?? catImages.kimchi,
+                  img: "/images/home-bg.png", // ✨ 가정용 배경 연결 완료
                 },
                 {
                   dark: true,
@@ -1013,7 +1013,7 @@ export default function Home() {
                   items: ["업소용 냉장고", "쇼케이스", "제빙기", "식기세척기", "냉난방기", "상업용 주방기기"],
                   href: galleryHref(G.biz),
                   cta: "업소용 제품 보기",
-                  img: catImages.bizfridge ?? catImages.showcase ?? catImages.ice ?? catImages.kitchen,
+                  img: "/images/biz-bg.png", // ✨ 업소용 배경 연결 완료
                 },
               ].map((b) => (
                 <Link
