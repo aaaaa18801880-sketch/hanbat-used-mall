@@ -41,7 +41,7 @@ const LABEL = "mb-1.5 block text-[13px] font-semibold text-[#0E1A2B]";
 
 // 눈 모양 아이콘 (조회수용)
 const EyeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5 opacity-60 mt-px">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 opacity-70 mt-px">
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
     <circle cx="12" cy="12" r="3" />
   </svg>
@@ -119,11 +119,16 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
           
-          <div className="flex items-end justify-between mb-6">
-            <p className={`text-[32px] sm:text-[38px] font-bold tracking-tight leading-none ${sold ? "text-[#8A8478]" : "text-[#D9531E]"}`}>{formatPrice(product)}</p>
-            <p className="flex items-center gap-1.5 text-[14px] text-[#8A8478] font-medium pb-1.5">
-              <EyeIcon /> {product.views || 0}회
-            </p>
+          {/* 💡 가격 오른쪽 영역에 조회수가 깔끔한 박스 형태로 강조되도록 개선 */}
+          <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+            <div>
+              <span className="text-[11px] font-semibold text-[#8A8478] block mb-0.5">판매 가격</span>
+              <p className={`text-[28px] sm:text-[34px] font-bold tracking-tight leading-none ${sold ? "text-[#8A8478]" : "text-[#D9531E]"}`}>{formatPrice(product)}</p>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3.5 py-2.5 rounded-md text-[14px] text-[#4B5260] font-semibold shadow-sm">
+              <EyeIcon /> 
+              <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
+            </div>
           </div>
 
           <ul className="text-[14px] text-[#4B5260] space-y-2.5 mb-8 bg-[#FAF9F7] rounded-md p-5 border border-[#E4E0D8] leading-relaxed">
@@ -638,7 +643,7 @@ export default function GalleryPage() {
                 )}
               </div>
               <div className="flex gap-2.5 pt-5 border-t border-[#E4E0D8]">
-                <button type="button" onClick={() => { setIsUploadModalOpen(false); resetUploadForm(); }} className={`${BTN_LINE} w-1/2 h-12 text-[14px]`}>취소</button>
+                <button type="button" onClick={() => { setIsUploadModalOpen(false); resetUploadForm(); }} className={`${BTN_LINE} `}>취소</button>
                 <button type="submit" disabled={uploadingProduct} className={`${BTN_NAVY} w-1/2 h-12 text-[14px] disabled:opacity-50`}>
                   {uploadingProduct ? "등록 중..." : "등록하기"}
                 </button>
