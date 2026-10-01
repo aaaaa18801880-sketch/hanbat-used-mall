@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import NaverMap from "./NaverMap";
+import KakaoMap from "./KakaoMap";
 import { supabase } from "../lib/supabase";
 
 /* ════════════════════════════════════════════════════════════
@@ -1114,9 +1114,9 @@ export default function Home() {
           
           <div className="w-full border-y border-[#E4E0D8] bg-[#FAF9F7] flex flex-col lg:flex-row">
             {/* 💡 구글 지도 대신 네이버 지도가 들어가는 자리 */}
-            <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
-              <NaverMap />
-            </div>
+           <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
+  <KakaoMap />
+</div>
             
             <div className="flex flex-col p-8 sm:p-12 lg:w-[40%] lg:p-16 xl:px-20 xl:py-24 justify-center bg-white border-l border-[#E4E0D8]">
               <h3 className="text-[26px] font-bold tracking-[-0.02em] text-[#0E1A2B] sm:text-[30px]">한밭중고전자</h3>
