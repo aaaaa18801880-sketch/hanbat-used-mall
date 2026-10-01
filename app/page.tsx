@@ -1114,7 +1114,7 @@ export default function Home() {
           
           <div className="w-full border-y border-[#E4E0D8] bg-[#FAF9F7] flex flex-col lg:flex-row">
             {/* 💡 구글 지도 대신 네이버 지도가 들어가는 자리 */}
-           <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
+           <div className="relative w-full h-[400px] sm:h-[500px] lg:h-[550px] lg:w-[60%] bg-[#EFECE6]">
   <KakaoMap />
 </div>
             
