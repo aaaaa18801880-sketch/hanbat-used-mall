@@ -1,38 +1,42 @@
 "use client";
 
-import { useRef } from "react";
-import Script from "next/script";
+import { useEffect, useRef } from "react";
 
 export default function NaverMap() {
   const mapRef = useRef<HTMLDivElement>(null);
 
-  return (
-    <>
-      <Script
-        strategy="afterInteractive"
-        src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=oc9co55lfd"
-        onLoad={() => {
-          const naver = (window as any).naver;
-          if (mapRef.current && naver) {
-            // 대전 중구 중촌동 144 좌표
-            const location = new naver.maps.LatLng(36.335503, 127.406981);
-            
-            // 지도 화면에 띄우기
-            const map = new naver.maps.Map(mapRef.current, {
-              center: location,
-              zoom: 16, // 확대 정도 (숫자가 클수록 확대됨)
-              minZoom: 10,
-            });
-            
-            // 빨간색 핀(마커) 꽂기
-            new naver.maps.Marker({
-              position: location,
-              map: map,
-            });
-          }
-        }}
-      />
-      <div ref={mapRef} className="absolute inset-0 h-full w-full border-0 bg-[#EFECE6]" />
-    </>
-  );
+  useEffect(() => {
+    // 1. 지도 그리는 함수
+    const initMap = () => {
+      // @ts-ignore
+      if (!mapRef.current || !window.naver) return;
+      // @ts-ignore
+      const location = new window.naver.maps.LatLng(36.335503, 127.406981);
+      // @ts-ignore
+      const map = new window.naver.maps.Map(mapRef.current, {
+        center: location,
+        zoom: 16, // 숫자 조절로 확대/축소 가능
+        minZoom: 10,
+      });
+      // @ts-ignore
+      new window.naver.maps.Marker({
+        position: location,
+        map: map,
+      });
+    };
+
+    // 2. 이미 로드되었는지 확인 후 스크립트 강제 주입
+    // @ts-ignore
+    if (window.naver && window.naver.maps) {
+      initMap();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=oc9co55lfd";
+      script.async = true;
+      script.onload = initMap;
+      document.head.appendChild(script);
+    }
+  }, []);
+
+  return <div ref={mapRef} className="absolute inset-0 h-full w-full border-0 bg-[#EFECE6]" />;
 }
