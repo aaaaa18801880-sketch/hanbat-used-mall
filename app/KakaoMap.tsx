@@ -14,8 +14,8 @@ export default function KakaoMap() {
         new window.daum.roughmap.Lander({
           "timestamp" : "1790852883762",
           "key" : "2ioee5nxg9f",
-          "mapWidth" : "100%",
-          "mapHeight" : "100%"
+          "mapWidth" : "640",
+          "mapHeight" : "500"
         }).render();
       }
     };
@@ -42,6 +42,10 @@ export default function KakaoMap() {
           height: 100% !important;
         }
         .wrap_roughmap {
+          width: 100% !important;
+          height: 100% !important;
+        }
+        .root_daum_roughmap iframe {
           width: 100% !important;
           height: 100% !important;
         }
