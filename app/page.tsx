@@ -1101,33 +1101,45 @@ export default function Home() {
           </div>
         </section>
 
-{/* ─────────────── 우측 플로팅 퀵 메뉴 ─────────────── */}
-        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col bg-white shadow-2xl border border-gray-200 rounded-l-xl overflow-hidden w-[80px]">
-          {/* 퀵 메뉴 헤더 */}
-          <div className="bg-[#D9531E] text-white text-[11px] font-bold py-2 text-center tracking-wider">
+{/* ─────────────── 우측 플로팅 퀵 메뉴 (크기 확대 및 디자인 개선) ─────────────── */}
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200 rounded-l-2xl overflow-hidden w-[100px]">
+          
+          {/* 퀵 메뉴 헤더 (둥근 느낌과 여백 추가) */}
+          <div className="bg-[#D9531E] text-white text-[13px] font-extrabold py-3.5 text-center tracking-widest rounded-tl-2xl">
             QUICK
           </div>
           
-          <a href="#location-section" className="flex flex-col items-center justify-center p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-            <svg className="w-6 h-6 mb-1 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span className="text-[11px] font-medium text-gray-700 break-keep text-center">오시는 길</span>
+          {/* 오시는 길 버튼 */}
+          <a href="#location-section" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+            <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">오시는 길</span>
           </a>
           
-          <a href="tel:042-523-8179" className="flex flex-col items-center justify-center p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
-            <svg className="w-6 h-6 mb-1 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-            <span className="text-[11px] font-medium text-gray-700 break-keep text-center">전화문의</span>
+          {/* 전화문의 버튼 */}
+          <a href="tel:042-523-8179" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+            <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            </svg>
+            <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">전화문의</span>
           </a>
           
-          <a href="#" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-[#FEE500] hover:bg-[#FADA0A] transition-colors">
-            <svg className="w-7 h-7 mb-1" viewBox="0 0 24 24" fill="#000000"><path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/></svg>
-            <span className="text-[12px] font-bold text-black text-center">카톡상담</span>
+          {/* 카톡상담 버튼 (눈에 띄는 노란색 유지, 글씨 크기 키움) */}
+          <a href="#" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center py-5 px-2 bg-[#FEE500] hover:bg-[#FADA0A] transition-colors group">
+            <svg className="w-9 h-9 mb-1 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="#000000">
+              <path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/>
+            </svg>
+            <span className="text-[14px] font-extrabold text-black whitespace-nowrap">카톡상담</span>
           </a>
           
-          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-[#0E1A2B] text-white p-3 hover:bg-[#22324A] transition-colors">
-            <span className="text-[11px] font-bold">TOP ▲</span>
+          {/* TOP 버튼 (아이콘과 글씨를 시원하게) */}
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-[#0E1A2B] text-white py-4 flex flex-col items-center justify-center hover:bg-[#22324A] transition-colors rounded-bl-2xl">
+            <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7"></path></svg>
+            <span className="text-[12px] font-black tracking-wider">TOP</span>
           </button>
         </div>
-
 
         {/* ─────────────── ⑨ 오시는 길 (전체화면 지도 + 남색 오버레이 박스) ─────────────── */}
         <section id="location-section" className="relative w-full flex flex-col lg:block bg-[#EFECE6] border-y border-[#E4E0D8]">
@@ -1145,7 +1157,6 @@ export default function Home() {
           </div>
           
           {/* 2. 지도 위에 떠 있는 남색 정보 박스 (모바일에서는 지도 아래에 배치) */}
-          {/* 퀵 메뉴와 겹치지 않도록 PC 기준 우측에서 110px 띄움 */}
           <div className="lg:absolute lg:right-[110px] lg:top-0 lg:h-full lg:w-[420px] bg-[#0E1A2B] text-white shadow-2xl flex flex-col justify-center pointer-events-auto z-10">
             <div className="p-10 sm:p-12">
               <p className="text-[#D9531E] font-bold text-[13px] tracking-widest mb-2 uppercase">Location</p>
