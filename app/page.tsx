@@ -1101,62 +1101,93 @@ export default function Home() {
           </div>
         </section>
 
-{/* ─────────────── ⑨ 오시는 길 (와이드 레이아웃 + 구글 지도) ─────────────── */}
-        <section id="location-section" className="bg-white pt-16 sm:pt-20 lg:pt-28" aria-labelledby="loc-title">
-          {/* 타이틀 영역 */}
-          <div className="mx-auto max-w-7xl px-5 sm:px-6 lg:px-8 pb-8 lg:pb-12">
-            <div className="flex flex-col mb-8 sm:mb-10">
-              <p className="text-[12px] font-bold tracking-[0.2em] text-[#D9531E] uppercase mb-3">Location</p>
-              <h2 id="loc-title" className="text-[28px] sm:text-[34px] font-bold text-[#0E1A2B] tracking-[-0.02em] leading-tight break-keep">직접 보고 고르는 실제 매장</h2>
-              <p className="mt-3 text-[14.5px] sm:text-[15px] text-[#4B5260] leading-relaxed max-w-2xl break-keep">사진만으로 판단하기 어려운 제품은 대전 중촌동 매장에서 직접 확인하세요.</p>
-            </div>
+{/* ─────────────── 우측 플로팅 퀵 메뉴 ─────────────── */}
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col bg-white shadow-2xl border border-gray-200 rounded-l-xl overflow-hidden w-[80px]">
+          {/* 퀵 메뉴 헤더 */}
+          <div className="bg-[#D9531E] text-white text-[11px] font-bold py-2 text-center tracking-wider">
+            QUICK
           </div>
           
-          {/* 지도 및 정보 영역 (화면 전체 가로폭 꽉 채우기) */}
-          <div className="w-full border-y border-[#E4E0D8] bg-[#FAF9F7] flex flex-col lg:flex-row">
-            {/* 지도 영역 (화면의 60% 차지, 와이드 비율 유지) */}
-            <div className="relative w-full h-[400px] sm:h-[500px] lg:h-auto lg:w-[60%] bg-[#EFECE6]">
-              <iframe 
-                title="한밭중고전자 매장 위치 지도" 
-                src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade" 
-                className="absolute inset-0 h-full w-full border-0" 
-                allowFullScreen 
-              />
+          <a href="#location-section" className="flex flex-col items-center justify-center p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <svg className="w-6 h-6 mb-1 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+            <span className="text-[11px] font-medium text-gray-700 break-keep text-center">오시는 길</span>
+          </a>
+          
+          <a href="tel:042-523-8179" className="flex flex-col items-center justify-center p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors">
+            <svg className="w-6 h-6 mb-1 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+            <span className="text-[11px] font-medium text-gray-700 break-keep text-center">전화문의</span>
+          </a>
+          
+          <a href="#" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center p-4 bg-[#FEE500] hover:bg-[#FADA0A] transition-colors">
+            <svg className="w-7 h-7 mb-1" viewBox="0 0 24 24" fill="#000000"><path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/></svg>
+            <span className="text-[12px] font-bold text-black text-center">카톡상담</span>
+          </a>
+          
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-[#0E1A2B] text-white p-3 hover:bg-[#22324A] transition-colors">
+            <span className="text-[11px] font-bold">TOP ▲</span>
+          </button>
+        </div>
+
+
+        {/* ─────────────── ⑨ 오시는 길 (전체화면 지도 + 남색 오버레이 박스) ─────────────── */}
+        <section id="location-section" className="relative w-full flex flex-col lg:block bg-[#EFECE6] border-y border-[#E4E0D8]">
+          
+          {/* 1. 배경으로 깔리는 구글 지도 (PC에서는 700px 높이로 꽉 차게) */}
+          <div className="relative w-full h-[400px] lg:h-[700px]">
+            <iframe 
+              title="한밭중고전자 매장 위치 지도" 
+              src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade" 
+              className="absolute inset-0 h-full w-full border-0" 
+              allowFullScreen 
+            />
+          </div>
+          
+          {/* 2. 지도 위에 떠 있는 남색 정보 박스 (모바일에서는 지도 아래에 배치) */}
+          {/* 퀵 메뉴와 겹치지 않도록 PC 기준 우측에서 110px 띄움 */}
+          <div className="lg:absolute lg:right-[110px] lg:top-0 lg:h-full lg:w-[420px] bg-[#0E1A2B] text-white shadow-2xl flex flex-col justify-center pointer-events-auto z-10">
+            <div className="p-10 sm:p-12">
+              <p className="text-[#D9531E] font-bold text-[13px] tracking-widest mb-2 uppercase">Location</p>
+              <h2 className="text-3xl font-bold mb-10 tracking-tight">한밭중고전자</h2>
+              
+              <ul className="flex flex-col gap-8">
+                {/* 전화문의 영역 */}
+                <li className="flex items-start gap-4 pb-8 border-b border-white/10">
+                  <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                  <div>
+                    <p className="text-[13px] text-white/60 font-semibold mb-1">상담문의</p>
+                    <p className="text-[26px] font-bold mb-1 tracking-wider"><a href="tel:042-523-8179" className="hover:text-[#D9531E] transition-colors">042-523-8179</a></p>
+                    <p className="text-[18px] text-white/80"><a href="tel:010-5406-8179" className="hover:text-[#D9531E] transition-colors">010-5406-8179</a></p>
+                  </div>
+                </li>
+
+                {/* 오시는 길 영역 */}
+                <li className="flex items-start gap-4 pb-8 border-b border-white/10">
+                  <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  <div>
+                    <p className="text-[13px] text-white/60 font-semibold mb-1">매장 위치</p>
+                    <p className="text-[16px] leading-snug">대전광역시 중구 중촌동 144<br/><span className="text-[14px] text-white/60 mt-1 inline-block">중촌고가도로 밑 (매장 앞 주차 가능)</span></p>
+                  </div>
+                </li>
+                
+                {/* 영업시간 영역 */}
+                <li className="flex items-start gap-4">
+                  <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <div>
+                    <p className="text-[13px] text-white/60 font-semibold mb-1">영업시간</p>
+                    <p className="text-[16px]">월요일 ~ 토요일 : 09:00 - 19:00</p>
+                    <p className="text-[14px] text-[#D9531E] mt-1">※ 일요일 휴무</p>
+                  </div>
+                </li>
+              </ul>
             </div>
             
-            {/* 정보 영역 (화면의 40% 차지) */}
-            <div className="flex flex-col p-8 sm:p-12 lg:w-[40%] lg:p-16 xl:px-20 xl:py-24 justify-center bg-white border-l border-[#E4E0D8]">
-              <h3 className="text-[26px] font-bold tracking-[-0.02em] text-[#0E1A2B] sm:text-[30px]">한밭중고전자</h3>
-              <dl className="mt-8 divide-y divide-[#EEEBE5] text-[15px]">
-                <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
-                  <dt className="font-semibold text-[#8A8478]">주소</dt>
-                  <dd className="text-[#1F2530]">대전광역시 중구 중촌동 144<span className="block text-[13px] text-[#6B7280] mt-1">중촌고가도로 밑</span></dd>
-                </div>
-                <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
-                  <dt className="font-semibold text-[#8A8478]">전화</dt>
-                  <dd className="text-[#1F2530]">
-                    <a href="tel:042-523-8179" className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">042-523-8179</a>
-                    <span className="mx-1.5 text-neutral-300">/</span>
-                    <a href="tel:010-5406-8179" className="font-semibold text-[#0E1A2B] underline-offset-4 hover:underline">010-5406-8179</a>
-                  </dd>
-                </div>
-                <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
-                  <dt className="font-semibold text-[#8A8478]">영업시간</dt>
-                  <dd className="text-[#1F2530]">월~토 09:00 - 19:00<span className="block text-[13px] text-[#6B7280] mt-1">일요일 휴무</span></dd>
-                </div>
-                <div className="grid grid-cols-[80px_1fr] gap-4 py-4 first:pt-0 last:pb-0">
-                  <dt className="font-semibold text-[#8A8478]">주차</dt>
-                  <dd className="text-[#1F2530]">매장 앞 전용 주차장 이용 가능</dd>
-                </div>
-              </dl>
-              <div className="mt-10 grid grid-cols-2 gap-2">
-                <a href="https://map.naver.com/v5/entry/address/36.335503,127.406981,%EB%8C%80%EC%A0%84%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144,jibun" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 bg-[#0E1A2B] text-white hover:bg-[#22324A] h-12 text-[14px]">네이버 지도 길찾기</a>
-                <a href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 border border-[#0E1A2B]/15 bg-white text-[#0E1A2B] hover:border-[#0E1A2B]/60 h-12 text-[14px]">카카오맵</a>
-              </div>
-              <p className="mt-4 text-[13px] text-[#8A8478]">모바일에서는 버튼을 누르면 길안내 앱으로 연결됩니다.</p>
-            </div>
+            {/* 하단 카카오톡 상담 꽉 차는 버튼 */}
+            <a href="#" target="_blank" rel="noopener noreferrer" className="mt-auto bg-[#FEE500] hover:bg-[#FADA0A] text-black font-bold py-6 text-center text-[16px] flex items-center justify-center gap-2 transition-colors">
+              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="#000000"><path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/></svg>
+              카카오톡 채널 상담하기
+            </a>
           </div>
         </section>
 
