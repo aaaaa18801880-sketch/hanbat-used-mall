@@ -296,22 +296,29 @@ export default function GalleryPage() {
     setIsAnalyzing(false);
   };
 
-  /* AI 라벨 및 모델 분석 로직 */
+ /* AI 라벨 및 모델 분석 로직 (용량 압축 적용) */
   const analyzeImageWithAI = async (file: File) => {
     setIsAnalyzing(true);
-    const toastId = toast.loading("AI가 라벨을 읽고 상세 스펙을 구글에서 검색 중입니다...");
+    const toastId = toast.loading("AI가 라벨을 읽고 상세 스펙을 정리하고 있습니다...");
 
     try {
+      // 💡 스마트폰 대용량 사진을 1초 만에 최적화 압축하여 전송
+      const compressedBlob = await compressImage(file);
+      const optimizedFile = new File([compressedBlob], file.name, { type: "image/jpeg" });
+
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", optimizedFile);
 
       const res = await fetch("/api/analyze-product", {
         method: "POST",
         body: formData,
       });
 
-      if (!res.ok) throw new Error("분석 실패");
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "분석 요청에 실패했습니다.");
+      }
 
       if (data.category) {
         if (data.category.includes("업소")) {
@@ -338,9 +345,9 @@ export default function GalleryPage() {
       }
 
       toast.success("제품명과 규격이 자동 입력되었습니다!", { id: toastId });
-    } catch (error) {
+    } catch (error: any) {
       console.error("AI 분석 오류:", error);
-      toast.dismiss(toastId);
+      toast.error(error.message || "라벨 분석에 실패했습니다.", { id: toastId });
     } finally {
       setIsAnalyzing(false);
     }
