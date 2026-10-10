@@ -27,7 +27,7 @@ interface Product {
 }
 
 const isNewProduct = (createdAt: string) => Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
-const hasPrice = (p: Product) => !p.price && p.price > 0;
+const hasPrice = (p: Product) => !!p.price && p.price > 0;
 const formatPrice = (p: Product) => (hasPrice(p) ? `${Number(p.price).toLocaleString()}원` : "가격 문의");
 const isSold = (p: Product) => p.status === "판매완료";
 
@@ -40,7 +40,6 @@ const BTN_KAKAO = `${BTN} bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] focus-v
 const INPUT = "w-full rounded-md border border-[#DDD9D1] bg-white px-3.5 py-3 text-[15px] text-[#0E1A2B] placeholder:text-neutral-400 transition-colors focus:border-[#0E1A2B] focus:outline-none focus:ring-1 focus:ring-[#0E1A2B]";
 const LABEL = "mb-1.5 block text-[13px] font-semibold text-[#0E1A2B]";
 
-// 눈 모양 아이콘 (조회수용)
 const EyeIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 opacity-70 mt-px">
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
@@ -74,7 +73,13 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
         {/* 왼쪽: 이미지 영역 */}
         <div className="w-full md:w-1/2 bg-[#EFECE6] flex flex-col">
           <div className="relative aspect-square w-full">
-            <SafeImg key={displayImages[idx]} src={displayImages[idx]} alt={product.title} eager className={`w-full h-full object-cover ${sold ? "grayscale" : ""}`} />
+            <SafeImg
+              key={displayImages[idx]}
+              src={displayImages[idx]}
+              alt={product.title}
+              eager
+              className={`w-full h-full object-cover ${sold ? "grayscale" : ""}`}
+            />
             {sold && (
               <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/40">
                 <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em]">SOLD</span>
@@ -181,7 +186,7 @@ export default function GalleryPage() {
   const [adminPassword, setAdminPassword] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-  /* 상품 등록 팝업 */
+  /* 상품 등록 팝업 상태 */
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [productTitle, setProductTitle] = useState("");
   const [productDescription, setProductDescription] = useState("");
@@ -192,6 +197,11 @@ export default function GalleryPage() {
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  
+  /* AI 검색 옵션 및 검토 피드백 */
+  const [searchSpecs, setSearchSpecs] = useState(false);
+  const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
+  const [foundSources, setFoundSources] = useState<string[]>([]);
 
   const categories = ["전체", "에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
   const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
@@ -235,7 +245,6 @@ export default function GalleryPage() {
     window.history.replaceState(null, "", url.toString());
   };
 
-  /* 조회수 증가 및 상세 팝업 열기 로직 */
   const handleProductClick = async (product: Product) => {
     setSelectedProduct(product);
 
@@ -260,7 +269,6 @@ export default function GalleryPage() {
     }
   };
 
-  /* 관리자 인증 로직 */
   const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -293,21 +301,29 @@ export default function GalleryPage() {
     setProductStatus("판매중");
     setProductFiles([]);
     setProductPreviews([]);
+    setReviewWarnings([]);
+    setFoundSources([]);
     setIsAnalyzing(false);
   };
 
- /* AI 라벨 및 모델 분석 로직 (용량 압축 적용) */
-  const analyzeImageWithAI = async (file: File) => {
+  const analyzeImageWithAI = async (filesToAnalyze: File[]) => {
     setIsAnalyzing(true);
-    const toastId = toast.loading("AI가 라벨을 읽고 상세 스펙을 정리하고 있습니다...");
+    const toastId = toast.loading(
+      searchSpecs
+        ? "AI가 사진을 판독하고 구글에서 공식 제원을 정밀 검색 중입니다..."
+        : "AI가 사진에서 모델 규격을 판독 중입니다..."
+    );
 
     try {
-      // 💡 스마트폰 대용량 사진을 1초 만에 최적화 압축하여 전송
-      const compressedBlob = await compressImage(file);
-      const optimizedFile = new File([compressedBlob], file.name, { type: "image/jpeg" });
-
       const formData = new FormData();
-      formData.append("file", optimizedFile);
+      formData.append("category", productCategory);
+      formData.append("searchSpecs", searchSpecs ? "true" : "false");
+
+      for (const file of filesToAnalyze.slice(0, MAX_PHOTOS)) {
+        const compressedBlob = await compressImage(file);
+        const optimizedFile = new File([compressedBlob], file.name, { type: "image/jpeg" });
+        formData.append("files", optimizedFile);
+      }
 
       const res = await fetch("/api/analyze-product", {
         method: "POST",
@@ -340,11 +356,21 @@ export default function GalleryPage() {
 
       if (data.specDetails) {
         setProductDescription(data.specDetails);
-      } else if (data.description) {
-        setProductDescription(data.description);
       }
 
-      toast.success("제품명과 규격이 자동 입력되었습니다!", { id: toastId });
+      if (Array.isArray(data.needsReview) && data.needsReview.length > 0) {
+        setReviewWarnings(data.needsReview);
+      } else {
+        setReviewWarnings([]);
+      }
+
+      if (Array.isArray(data.sourceUrls) && data.sourceUrls.length > 0) {
+        setFoundSources(data.sourceUrls);
+      } else {
+        setFoundSources([]);
+      }
+
+      toast.success("제품 정보가 성공적으로 완성되었습니다!", { id: toastId });
     } catch (error: any) {
       console.error("AI 분석 오류:", error);
       toast.error(error.message || "라벨 분석에 실패했습니다.", { id: toastId });
@@ -363,13 +389,14 @@ export default function GalleryPage() {
       return;
     }
 
-    if (productFiles.length === 0 && ok.length > 0) {
-      analyzeImageWithAI(ok[0]);
-    }
-
-    setProductFiles([...productFiles, ...ok]);
+    const updatedFiles = [...productFiles, ...ok];
+    setProductFiles(updatedFiles);
     setProductPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
     e.target.value = "";
+
+    if (productFiles.length === 0 && ok.length > 0) {
+      analyzeImageWithAI(ok);
+    }
   };
 
   const handleRemoveFile = (index: number) => {
@@ -428,7 +455,6 @@ export default function GalleryPage() {
     }
   };
 
-  /* 필터 및 정렬 계산 */
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { 전체: products.length };
     products.forEach((p) => {
@@ -596,7 +622,11 @@ export default function GalleryPage() {
                   className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] group cursor-pointer flex flex-col relative focus-visible:ring-2 focus-visible:ring-[#0E1A2B] outline-none transition-shadow hover:shadow-lg"
                 >
                   <div className="aspect-[4/5] relative overflow-hidden bg-[#EFECE6]">
-                    <SafeImg src={images[0]} alt={product.title} className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${sold ? "grayscale opacity-70" : ""}`} />
+                    <SafeImg
+                      src={images[0]}
+                      alt={product.title}
+                      className={`w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${sold ? "grayscale opacity-70" : ""}`}
+                    />
                     {sold && (
                       <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/40">
                         <span className="px-4 py-1.5 rounded-sm bg-[#0E1A2B]/90 text-white text-[12px] font-bold tracking-[0.2em]">SOLD</span>
@@ -664,10 +694,12 @@ export default function GalleryPage() {
                   {registerCategories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                 </select>
               </div>
+
               <div>
                 <label className={LABEL}>제품명 / 상세 타이틀 *</label>
-                <input type="text" value={productTitle} onChange={(e) => setProductTitle(e.target.value)} required className={INPUT} placeholder="예: 삼성 비스포크 4도어 냉장고" />
+                <input type="text" value={productTitle} onChange={(e) => setProductTitle(e.target.value)} required className={INPUT} placeholder="예: 삼성 비스포크 양문형 846L" />
               </div>
+
               <div>
                 <label className={LABEL}>상세 설명 / 제품 규격</label>
                 <textarea
@@ -678,6 +710,35 @@ export default function GalleryPage() {
                   placeholder="예: 냉장 526L / 냉동 320L, 양문형 푸드쇼케이스, 디지털 인버터"
                 />
               </div>
+
+              {/* 검토 필요 알림 영역 */}
+              {reviewWarnings.length > 0 && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-[12.5px] text-amber-900 space-y-1">
+                  <p className="font-bold flex items-center gap-1.5 text-amber-800">
+                    <Icon d={ICON.check} className="w-4 h-4 text-amber-600" /> AI 판독 확인 필요 사항
+                  </p>
+                  <ul className="list-disc pl-4 space-y-0.5 text-amber-700">
+                    {reviewWarnings.map((warn, i) => (
+                      <li key={i}>{warn}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* 검색 출처 링크 영역 */}
+              {foundSources.length > 0 && (
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-md text-[12px] text-slate-700">
+                  <p className="font-semibold text-slate-900 mb-1">참조 공식 출처:</p>
+                  <div className="flex flex-col gap-1">
+                    {foundSources.map((url, i) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline truncate hover:text-blue-800">
+                        {url}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={LABEL}>판매 가격 (원)</label>
@@ -698,11 +759,27 @@ export default function GalleryPage() {
                   </select>
                 </div>
               </div>
+
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className={LABEL}>사진 첨부 (최대 {MAX_PHOTOS}장) *</label>
                   <span className="text-[11px] text-[#D9531E] font-medium -mt-1">첫 사진이 대표</span>
                 </div>
+
+                {/* 인터넷 검색 옵션 토글 */}
+                <div className="mb-2.5 flex items-center gap-2 p-2.5 bg-neutral-50 rounded border border-neutral-200">
+                  <input
+                    type="checkbox"
+                    id="searchSpecsCheckbox"
+                    checked={searchSpecs}
+                    onChange={(e) => setSearchSpecs(e.target.checked)}
+                    className="w-4 h-4 accent-[#0E1A2B] cursor-pointer"
+                  />
+                  <label htmlFor="searchSpecsCheckbox" className="text-[12px] font-semibold text-[#0E1A2B] cursor-pointer select-none">
+                    인터넷 공식 제원 정밀 검색 사용
+                  </label>
+                </div>
+
                 <input
                   type="file"
                   accept="image/*"
@@ -713,11 +790,10 @@ export default function GalleryPage() {
                   className="w-full text-[12px] text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded file:border-0 file:text-[12px] file:font-semibold file:bg-[#F6F5F2] file:text-[#0E1A2B] hover:file:bg-[#EFECE6] cursor-pointer disabled:opacity-50"
                 />
 
-                {/* AI 자동 분석 진행 표시 배지 */}
                 {isAnalyzing && (
                   <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF5F0] border border-[#FADCD0] rounded text-[#D9531E] text-[12px] font-semibold animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-[#D9531E] animate-ping" />
-                    AI가 라벨을 분석하고 구글에서 제품 규격을 조회하고 있습니다...
+                    AI가 사진을 분석하고 사양을 정리하고 있습니다...
                   </div>
                 )}
 
@@ -735,6 +811,7 @@ export default function GalleryPage() {
                   </div>
                 )}
               </div>
+
               <div className="flex gap-2.5 pt-5 border-t border-[#E4E0D8]">
                 <button type="button" onClick={() => { setIsUploadModalOpen(false); resetUploadForm(); }} className={`${BTN_LINE} w-1/2 h-12 text-[14px]`}>취소</button>
                 <button type="submit" disabled={uploadingProduct || isAnalyzing} className={`${BTN_NAVY} w-1/2 h-12 text-[14px] disabled:opacity-50`}>
