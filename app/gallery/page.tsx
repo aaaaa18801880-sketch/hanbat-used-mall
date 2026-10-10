@@ -22,7 +22,7 @@ interface Product {
   price: number | null;
   status: string | null;
   created_at: string;
-  views?: number | null; // 조회수
+  views?: number | null;
 }
 
 const isNewProduct = (createdAt: string) => Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
@@ -179,8 +179,8 @@ export default function GalleryPage() {
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
   const [uploadingProduct, setUploadingProduct] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // 메인 페이지와 순서 통일 (에어컨 ➡️ 냉장고 ➡️️ 세탁기 ➡️ 업소용 ➡️ 기타)
   const categories = ["전체", "에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
   const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
 
@@ -223,7 +223,7 @@ export default function GalleryPage() {
     window.history.replaceState(null, "", url.toString());
   };
 
-  /* ───── 조회수 증가 및 상세 팝업 열기 로직 ───── */
+  /* 조회수 증가 및 상세 팝업 열기 로직 */
   const handleProductClick = async (product: Product) => {
     setSelectedProduct(product);
 
@@ -248,7 +248,7 @@ export default function GalleryPage() {
     }
   };
 
-  /* ───── 관리자 로직 ───── */
+  /* 관리자 인증 로직 */
   const handleAdminAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoggingIn(true);
@@ -280,6 +280,51 @@ export default function GalleryPage() {
     setProductStatus("판매중");
     setProductFiles([]);
     setProductPreviews([]);
+    setIsAnalyzing(false);
+  };
+
+  /* AI 라벨 및 모델 분석 로직 */
+  const analyzeImageWithAI = async (file: File) => {
+    setIsAnalyzing(true);
+    const toastId = toast.loading("AI가 라벨을 읽고 상세 스펙을 구글에서 검색 중입니다...");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/analyze-product", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error("분석 실패");
+      const data = await res.json();
+
+      if (data.category) {
+        if (data.category.includes("업소")) {
+          setProductCategory("업소용기기");
+        } else if (data.category.includes("김치") || data.category.includes("냉장")) {
+          setProductCategory("냉장고");
+        } else if (data.category.includes("세탁") || data.category.includes("건조")) {
+          setProductCategory("세탁기/건조기");
+        } else if (data.category.includes("에어컨") || data.category.includes("냉난방")) {
+          setProductCategory("에어컨/냉난방기");
+        } else if (registerCategories.includes(data.category)) {
+          setProductCategory(data.category);
+        }
+      }
+
+      if (data.title) {
+        setProductTitle(data.title);
+      }
+
+      toast.success("제품명과 규격이 자동 입력되었습니다!", { id: toastId });
+    } catch (error) {
+      console.error("AI 분석 오류:", error);
+      toast.dismiss(toastId);
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -291,6 +336,11 @@ export default function GalleryPage() {
       toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 등록 가능합니다.`);
       return;
     }
+
+    if (productFiles.length === 0 && ok.length > 0) {
+      analyzeImageWithAI(ok[0]);
+    }
+
     setProductFiles([...productFiles, ...ok]);
     setProductPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
     e.target.value = "";
@@ -351,7 +401,7 @@ export default function GalleryPage() {
     }
   };
 
-  /* ───── 필터 및 정렬 계산 ───── */
+  /* 필터 및 정렬 계산 */
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { 전체: products.length };
     products.forEach((p) => {
@@ -391,7 +441,6 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
-      
       <SiteHeader>
         {isAdmin && (
           <button type="button" onClick={() => setIsUploadModalOpen(true)} className="hidden sm:inline-flex bg-[#0E1A2B] text-white text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-[#22324A] whitespace-nowrap gap-1 items-center shadow-sm">
@@ -549,7 +598,6 @@ export default function GalleryPage() {
                   <div className="p-4 sm:p-5 flex flex-col flex-1">
                     <div className="flex items-center justify-between mb-1.5">
                       <span className="text-[11px] font-bold text-[#8A8478] uppercase tracking-wide">{product.category || "기타"}</span>
-                      {/* 💡 0회라도 카드의 조회수가 항상 보이도록 수정 */}
                       <span className="text-[11px] font-medium text-[#8A8478] flex items-center gap-1">
                         <EyeIcon /> {product.views || 0}
                       </span>
@@ -623,10 +671,19 @@ export default function GalleryPage() {
                   accept="image/*"
                   multiple
                   onChange={handleFileChange}
-                  disabled={productFiles.length >= MAX_PHOTOS}
+                  disabled={productFiles.length >= MAX_PHOTOS || isAnalyzing}
                   required={productFiles.length === 0}
                   className="w-full text-[12px] text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded file:border-0 file:text-[12px] file:font-semibold file:bg-[#F6F5F2] file:text-[#0E1A2B] hover:file:bg-[#EFECE6] cursor-pointer disabled:opacity-50"
                 />
+
+                {/* AI 자동 분석 진행 표시 배지 */}
+                {isAnalyzing && (
+                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF5F0] border border-[#FADCD0] rounded text-[#D9531E] text-[12px] font-semibold animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-[#D9531E] animate-ping" />
+                    AI가 라벨을 분석하고 구글에서 제품 규격을 조회하고 있습니다...
+                  </div>
+                )}
+
                 {productPreviews.length > 0 && (
                   <div className="mt-3 grid grid-cols-3 gap-2">
                     {productPreviews.map((preview, index) => (
@@ -643,7 +700,7 @@ export default function GalleryPage() {
               </div>
               <div className="flex gap-2.5 pt-5 border-t border-[#E4E0D8]">
                 <button type="button" onClick={() => { setIsUploadModalOpen(false); resetUploadForm(); }} className={`${BTN_LINE} w-1/2 h-12 text-[14px]`}>취소</button>
-                <button type="submit" disabled={uploadingProduct} className={`${BTN_NAVY} w-1/2 h-12 text-[14px] disabled:opacity-50`}>
+                <button type="submit" disabled={uploadingProduct || isAnalyzing} className={`${BTN_NAVY} w-1/2 h-12 text-[14px] disabled:opacity-50`}>
                   {uploadingProduct ? "등록 중..." : "등록하기"}
                 </button>
               </div>
@@ -652,7 +709,7 @@ export default function GalleryPage() {
         </Modal>
       )}
 
-      {/* ───── 관리자 로그인 ───── */}
+      {/* ───── 관리자 로그인 모달 ───── */}
       {isAdminAuthModalOpen && (
         <Modal onClose={() => setIsAdminAuthModalOpen(false)} label="관리자 로그인">
           <form onSubmit={handleAdminAuth} className="w-full rounded-t-lg bg-white p-6 sm:max-w-sm sm:rounded-lg sm:p-8 shadow-2xl border border-[#E4E0D8]">
@@ -672,7 +729,6 @@ export default function GalleryPage() {
           </form>
         </Modal>
       )}
-
     </div>
   );
 }
