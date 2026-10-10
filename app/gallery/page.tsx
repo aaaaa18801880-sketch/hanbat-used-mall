@@ -217,11 +217,11 @@ export default function GalleryPage() {
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setIsAdmin(!session);
+      setIsAdmin(!!session);
     };
     checkSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!session));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!!session));
 
     fetchProducts();
     return () => authListener.subscription.unsubscribe();
