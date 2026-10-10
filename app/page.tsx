@@ -15,11 +15,11 @@ const STORE = {
   since: 1997,
   ceo: "김영종",
   tel: "042-523-8179",
-  mobile: "010-5406-8179",
+  mobile: "010-6631-8179",
   address: "대전광역시 중구 중촌동 144",
   addressNote: "중촌고가도로 밑",
   hours: "월~토 09:00 - 19:00",
-  closed: "일요일 휴무",
+  closed: "일요일 별도 문의",
   parking: "매장 앞 전용 주차장 이용 가능",
   bizNo: "314-01-70945",
   mailOrderNo: "2011-대전서구-0292",
@@ -136,7 +136,7 @@ const FAQS = [
   },
   {
     q: "영업시간과 매장 위치가 어떻게 되나요?",
-    a: "영업시간은 09:00 ~ 19:00 (일요일 휴무)이며, 오프라인 매장은 대전광역시 중구 중촌동 144에 위치해 있습니다.",
+    a: "영업시간은 09:00 ~ 19:00 (일요일 별도문의)이며, 오프라인 매장은 대전광역시 중구 중촌동 144에 위치해 있습니다.",
   },
 ];
 
@@ -1206,7 +1206,7 @@ export default function Home() {
                 <div>
                   <p className="text-xs text-white/60 font-semibold mb-1">상담문의</p>
                   <p className="text-2xl font-bold mb-1 tracking-wider"><a href="tel:042-523-8179" className="hover:text-[#D9531E] transition-colors">042-523-8179</a></p>
-                  <p className="text-lg text-white/80"><a href="tel:010-5406-8179" className="hover:text-[#D9531E] transition-colors">010-5406-8179</a></p>
+                  <p className="text-lg text-white/80"><a href="tel:010-6631-8179" className="hover:text-[#D9531E] transition-colors">010-6631-8179</a></p>
                 </div>
               </li>
 
@@ -1225,7 +1225,7 @@ export default function Home() {
                 <div>
                   <p className="text-xs text-white/60 font-semibold mb-1">영업시간</p>
                   <p className="text-base">월요일 ~ 토요일 : 09:00 - 19:00</p>
-                  <p className="text-sm text-[#D9531E] mt-1">※ 일요일 휴무</p>
+                  <p className="text-sm text-[#D9531E] mt-1">※ 일요일 별도 문의</p>
                 </div>
               </li>
             </ul>
