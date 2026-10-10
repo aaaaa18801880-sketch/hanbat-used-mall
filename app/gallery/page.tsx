@@ -18,6 +18,7 @@ interface Product {
   id: string;
   title: string;
   category: string | null;
+  description?: string | null;
   image_url: string | null;
   price: number | null;
   status: string | null;
@@ -26,7 +27,7 @@ interface Product {
 }
 
 const isNewProduct = (createdAt: string) => Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
-const hasPrice = (p: Product) => !!p.price && p.price > 0;
+const hasPrice = (p: Product) => !p.price && p.price > 0;
 const formatPrice = (p: Product) => (hasPrice(p) ? `${Number(p.price).toLocaleString()}원` : "가격 문의");
 const isSold = (p: Product) => p.status === "판매완료";
 
@@ -130,6 +131,16 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
             </div>
           </div>
 
+          {/* 상세 설명 및 스펙 표시 영역 */}
+          {product.description && (
+            <div className="mb-6 p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
+              <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
+              <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+          )}
+
           <ul className="text-[14px] text-[#4B5260] space-y-2.5 mb-8 bg-[#FAF9F7] rounded-md p-5 border border-[#E4E0D8] leading-relaxed">
             <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 꼼꼼한 세척·검수를 거친 A급 제품입니다.</li>
             <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 구매 후 A/S와 세금계산서 발행이 가능합니다.</li>
@@ -173,6 +184,7 @@ export default function GalleryPage() {
   /* 상품 등록 팝업 */
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [productTitle, setProductTitle] = useState("");
+  const [productDescription, setProductDescription] = useState("");
   const [productCategory, setProductCategory] = useState("에어컨/냉난방기");
   const [productPrice, setProductPrice] = useState("");
   const [productStatus, setProductStatus] = useState("판매중");
@@ -205,11 +217,11 @@ export default function GalleryPage() {
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setIsAdmin(!!session);
+      setIsAdmin(!session);
     };
     checkSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!!session));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!session));
 
     fetchProducts();
     return () => authListener.subscription.unsubscribe();
@@ -276,6 +288,7 @@ export default function GalleryPage() {
   const resetUploadForm = () => {
     productPreviews.forEach((u) => URL.revokeObjectURL(u));
     setProductTitle("");
+    setProductDescription("");
     setProductPrice("");
     setProductStatus("판매중");
     setProductFiles([]);
@@ -316,6 +329,12 @@ export default function GalleryPage() {
 
       if (data.title) {
         setProductTitle(data.title);
+      }
+
+      if (data.specDetails) {
+        setProductDescription(data.specDetails);
+      } else if (data.description) {
+        setProductDescription(data.description);
       }
 
       toast.success("제품명과 규격이 자동 입력되었습니다!", { id: toastId });
@@ -372,6 +391,7 @@ export default function GalleryPage() {
       const { error } = await supabase.from("products").insert({
         title: productTitle.trim(),
         category: productCategory,
+        description: productDescription.trim(),
         image_url: uploadedUrls.join(","),
         price: parsedPrice,
         status: productStatus,
@@ -640,6 +660,16 @@ export default function GalleryPage() {
               <div>
                 <label className={LABEL}>제품명 / 상세 타이틀 *</label>
                 <input type="text" value={productTitle} onChange={(e) => setProductTitle(e.target.value)} required className={INPUT} placeholder="예: 삼성 비스포크 4도어 냉장고" />
+              </div>
+              <div>
+                <label className={LABEL}>상세 설명 / 제품 규격</label>
+                <textarea
+                  rows={3}
+                  value={productDescription}
+                  onChange={(e) => setProductDescription(e.target.value)}
+                  className={`${INPUT} resize-none`}
+                  placeholder="예: 냉장 526L / 냉동 320L, 양문형 푸드쇼케이스, 디지털 인버터"
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
