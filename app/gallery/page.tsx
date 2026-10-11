@@ -69,63 +69,62 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
   return (
     <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-4xl" sheet={false}>
       <div className="bg-white rounded-lg shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[92vh] w-full">
-        {/* 왼쪽: 이미지 뷰어 영역 (가로 사진도 잘림 없이 100% 원본 비율로 중앙 배치) */}
-        <div className="w-full md:w-1/2 bg-[#0E1A2B] flex flex-col justify-between relative min-h-[360px] md:min-h-[520px]">
-          {/* 메인 이미지 컨테이너 */}
-          <div className="relative flex-1 w-full flex items-center justify-center p-3 sm:p-5 overflow-hidden">
+        {/* 왼쪽: 제품 사진 영역 (가로/세로 모든 비율 완벽 대응 화이트 프레임) */}
+        <div className="w-full md:w-1/2 bg-[#F6F5F2] border-b md:border-b-0 md:border-r border-[#E4E0D8] p-4 sm:p-6 flex flex-col justify-between">
+          {/* 메인 이미지 액자 프레임 */}
+          <div className="relative flex-1 min-h-[280px] sm:min-h-[360px] w-full bg-white rounded-lg border border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden shadow-xs">
             <SafeImg
               key={displayImages[idx]}
               src={displayImages[idx]}
               alt={product.title}
               eager
-              className={`max-w-full max-h-full w-auto h-auto object-contain rounded drop-shadow-md select-none transition-all duration-300 ${sold ? "grayscale opacity-70" : ""}`}
+              className={`max-w-full max-h-full w-auto h-auto object-contain select-none transition-all duration-200 ${sold ? "grayscale opacity-75" : ""}`}
             />
-            
             {sold && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/60 backdrop-blur-xs">
+              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/50 backdrop-blur-xs">
                 <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em] border border-white/20">
                   SOLD
                 </span>
               </div>
             )}
-
-            {/* 좌우 넘김 버튼 */}
             {displayImages.length > 1 && (
               <>
                 <button
                   type="button"
                   onClick={() => go(-1)}
                   aria-label="이전 사진"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#0E1A2B] shadow-lg flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-white z-10"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 text-[#0E1A2B] shadow-md border border-[#E4E0D8] flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-[#0E1A2B] z-10"
                 >
-                  <Icon d={ICON.left} className="w-5 h-5 text-[#0E1A2B]" />
+                  <Icon d={ICON.left} className="w-4 h-4 text-[#0E1A2B]" />
                 </button>
                 <button
                   type="button"
                   onClick={() => go(1)}
                   aria-label="다음 사진"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#0E1A2B] shadow-lg flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-white z-10"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 text-[#0E1A2B] shadow-md border border-[#E4E0D8] flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-[#0E1A2B] z-10"
                 >
-                  <Icon d={ICON.right} className="w-5 h-5 text-[#0E1A2B]" />
+                  <Icon d={ICON.right} className="w-4 h-4 text-[#0E1A2B]" />
                 </button>
-                <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-md border border-white/10 z-10">
+                <span className="absolute bottom-2.5 right-2.5 bg-[#0E1A2B]/75 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-xs z-10">
                   {idx + 1} / {displayImages.length}
                 </span>
               </>
             )}
           </div>
 
-          {/* 하단 썸네일 목록 바 (2장 이상일 때만 표시) */}
+          {/* 하단 썸네일 스트립 (2장 이상일 때만 표시) */}
           {displayImages.length > 1 && (
-            <div className="flex gap-2 p-3 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-hide shrink-0 justify-center">
+            <div className="flex gap-2 mt-3 pt-3 border-t border-[#E4E0D8] overflow-x-auto scrollbar-hide shrink-0">
               {displayImages.map((img, i) => (
                 <button
                   key={img + i}
                   type="button"
                   onClick={() => setIdx(i)}
                   aria-label={`${i + 1}번 사진 보기`}
-                  className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded overflow-hidden transition-all bg-black/50 ${
-                    i === idx ? "ring-2 ring-[#D9531E] scale-105 opacity-100" : "opacity-50 hover:opacity-90"
+                  className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-md overflow-hidden bg-white border transition-all ${
+                    i === idx
+                      ? "border-[#D9531E] ring-2 ring-[#D9531E]/30 scale-102"
+                      : "border-[#E4E0D8] opacity-60 hover:opacity-100"
                   }`}
                 >
                   <SafeImg src={img} alt="" className="w-full h-full object-cover" />
@@ -149,32 +148,32 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
           
-          <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
-            <div>
-              <span className="text-[11px] font-semibold text-[#8A8478] block mb-0.5">판매 가격</span>
+          {/* 판매 가격 박스 ("가격 문의" 줄바꿈 깨짐 방지) */}
+          <div className="flex items-center justify-between gap-3 mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+            <div className="min-w-0">
+              <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
               {sold ? (
-                <p className="text-[28px] sm:text-[34px] font-bold tracking-tight leading-none text-[#8A8478]">
+                <p className="text-[26px] sm:text-[30px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
                   판매완료
                 </p>
               ) : hasPrice(product) ? (
-                <p className="text-[28px] sm:text-[34px] font-bold tracking-tight leading-none text-[#D9531E]">
+                <p className="text-[26px] sm:text-[30px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
                   {formatPrice(product)}
                 </p>
               ) : (
                 <a
                   href={telHref(STORE.tel)}
-                  className="group inline-flex items-center gap-2.5 text-[28px] sm:text-[34px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors"
-                  title="클릭 시 매장으로 바로 전화 연결 (042-523-8179)"
+                  className="group inline-flex items-center gap-2 text-[26px] sm:text-[30px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
+                  title="전화 문의하기 (042-523-8179)"
                 >
                   <span className="underline decoration-2 underline-offset-4">가격 문의</span>
-                  <span className="inline-flex items-center gap-1 text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-1 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-sm">
-                    <Icon d={ICON.phone} className="w-3.5 h-3.5" />
-                    전화 연결
+                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-1 rounded-sm group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
+                    <Icon d={ICON.phone} className="w-3 h-3" /> 연결
                   </span>
                 </a>
               )}
             </div>
-            <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3.5 py-2.5 rounded-md text-[14px] text-[#4B5260] font-semibold shadow-sm">
+            <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-2 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
               <EyeIcon /> 
               <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
             </div>
