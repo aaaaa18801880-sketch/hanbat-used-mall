@@ -47,17 +47,16 @@ const EyeIcon = () => (
 );
 
 /* ════════════════════════════════════════════════════════════
-   상세 보기 모달 컴포넌트 (클릭 시 전체화면 원본 확대 뷰어 탑재)
+   상세 보기 모달 컴포넌트 (초기 원본 전신 노출 + 클릭 시 전체화면 확대)
    ════════════════════════════════════════════════════════════ */
 function ProductDetailModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const images = splitImages(product.image_url);
   const displayImages = images.length > 0 ? images : [""];
   const [idx, setIdx] = useState(0);
-  const [isZoomOpen, setIsZoomOpen] = useState(false); // 전체화면 확대 상태
+  const [isZoomOpen, setIsZoomOpen] = useState(false);
   const sold = isSold(product);
   const go = (d: number) => setIdx((i) => (i + d + displayImages.length) % displayImages.length);
 
-  // 키보드 좌우 화살표 & ESC 닫기 대응
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isZoomOpen) {
@@ -76,7 +75,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
     <>
       <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-xl" sheet={false}>
         <div className="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh] w-full">
-          {/* 상단 헤더 */}
+          {/* 상단 닫기 헤더 바 */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
             <div className="flex items-center gap-2">
               <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
@@ -93,10 +92,10 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           {/* 메인 스크롤 영역 */}
           <div className="overflow-y-auto flex-1">
-            {/* 1. 제품 사진 (클릭 시 확대 안내 뱃지 추가) */}
+            {/* 1. 제품 사진 영역 (object-contain 적용으로 잘림/확대 없는 원본 전신 뷰) */}
             <div
               onClick={() => setIsZoomOpen(true)}
-              className="relative w-full aspect-[4/3] bg-[#EFECE6] flex items-center justify-center overflow-hidden cursor-zoom-in group"
+              className="relative w-full h-[320px] sm:h-[390px] bg-[#F6F5F2] border-b border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
               title="클릭하여 큰 사진으로 보기"
             >
               <SafeImg
@@ -104,7 +103,9 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
                 src={displayImages[idx]}
                 alt={product.title}
                 eager
-                className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${sold ? "grayscale opacity-75" : ""}`}
+                className={`max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
+                  sold ? "grayscale opacity-75" : ""
+                }`}
               />
 
               {sold && (
@@ -273,7 +274,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
             </button>
           </div>
 
-          {/* 원본 사진 (비율 100% 보존 object-contain) */}
+          {/* 원본 사진 (비율 100% 보존) */}
           <div
             onClick={(e) => e.stopPropagation()}
             className="relative max-w-full max-h-[82vh] flex items-center justify-center"
