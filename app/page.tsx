@@ -44,9 +44,6 @@ const HERO_IMAGES = [
   "/main-bg3.png",
 ];
 
-const MAP_EMBED_SRC = `https://maps.google.com/maps?q=${encodeURIComponent(STORE.address)}&z=16&output=embed`;
-const KAKAO_MAP = `https://map.kakao.com/link/search/${encodeURIComponent(STORE.address)}`;
-
 const YEARS = new Date().getFullYear() - STORE.since;
 
 const G = {
@@ -347,6 +344,7 @@ export default function Home() {
   const [reviewFiles, setReviewFiles] = useState<File[]>([]);
   const [reviewPreviews, setReviewPreviews] = useState<string[]>([]);
   const [uploadingReview, setUploadingReview] = useState(false);
+  const [isAnalyzingReview, setIsAnalyzingReview] = useState(false);
 
   /* ── 데이터 로드 ── */
   const loadReviews = useCallback(async () => {
@@ -464,13 +462,53 @@ export default function Home() {
     toast.success("로그아웃했습니다.");
   };
 
+  /* AI 배송 사진 분석 함수 */
+  const analyzeReviewPhoto = async (files: File[]) => {
+    if (files.length === 0) return;
+    setIsAnalyzingReview(true);
+    const toastId = toast.loading("AI가 현장 사진을 분석하여 배송 후기 제목을 작성 중입니다...");
+
+    try {
+      const formData = new FormData();
+      for (const file of files.slice(0, 2)) {
+        const compressedBlob = await compressImage(file);
+        const optimizedFile = new File([compressedBlob], file.name, { type: "image/jpeg" });
+        formData.append("files", optimizedFile);
+      }
+
+      const res = await fetch("/api/analyze-delivery", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "분석 실패");
+
+      if (data.title) {
+        setReviewTitle(data.title);
+        toast.success("배송 인증 제목이 자동 완성되었습니다!", { id: toastId });
+      }
+    } catch (err: any) {
+      console.error("배송 사진 분석 실패:", err);
+      toast.error("제목 자동 완성 실패. 직접 입력해 주세요.", { id: toastId });
+    } finally {
+      setIsAnalyzingReview(false);
+    }
+  };
+
   const pickReviewFiles = (list: FileList | null) => {
     if (!list) return;
     const files = validateImages([...reviewFiles, ...Array.from(list)], MAX_REVIEW_PHOTOS);
     reviewPreviews.forEach((u) => URL.revokeObjectURL(u));
     setReviewFiles(files);
     setReviewPreviews(files.map((f) => URL.createObjectURL(f)));
+
+    // 첫 사진 등록 시 제목이 비어있으면 AI 자동 분석 실행
+    if (!reviewTitle.trim() && files.length > 0) {
+      analyzeReviewPhoto(files);
+    }
   };
+
   const closeReviewModal = useCallback(() => {
     setReviewModalOpen(false);
     setReviewTitle("");
@@ -479,6 +517,7 @@ export default function Home() {
       prev.forEach((u) => URL.revokeObjectURL(u));
       return [];
     });
+    setIsAnalyzingReview(false);
   }, []);
 
   const handleReviewUpload = async (e: React.FormEvent) => {
@@ -541,15 +580,6 @@ export default function Home() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox, moveLightbox]);
-
-  const copyAddress = async () => {
-    try {
-      await navigator.clipboard.writeText(STORE.address);
-      toast.success("주소를 복사했습니다.");
-    } catch {
-      toast.error("복사하지 못했습니다.");
-    }
-  };
 
   /* ── 구조화 데이터 ── */
   const jsonLd = {
@@ -779,7 +809,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ④ 상품 카테고리 (세로형 aspect-[4/5] 적용) ─────────────── */}
+        {/* ─────────────── ④ 상품 카테고리 ─────────────── */}
         <section id="category-section" className="bg-white py-16 sm:py-20 lg:py-28" aria-labelledby="cat-title">
           <div className={WRAP}>
             <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -811,7 +841,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 💡 비율을 세로형 카드로 변경했습니다: aspect-[4/5] */}
             <ul className="mt-10 grid grid-cols-2 gap-x-3 gap-y-7 sm:gap-x-5 md:grid-cols-3 lg:mt-12 lg:grid-cols-5 lg:gap-x-4 lg:gap-y-10">
               {visibleCats.map((c) => {
                 const img = catImages[c.key];
@@ -937,7 +966,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ─────────────── ⑥ 매입 서비스 ─────────────── */}
+        {/* ─────────────── ⑥ 매입 서비스 (줄바꿈 수정 & 노란색 카톡 버튼 적용) ─────────────── */}
         <section id="sell-section" className="bg-[#0E1A2B] py-16 text-white sm:py-20 lg:py-28" aria-labelledby="sell-title">
           <div className={`${WRAP} grid gap-12 lg:grid-cols-12 lg:gap-16`}>
             <div className="lg:col-span-5">
@@ -961,12 +990,25 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
-              <div className="mt-9 flex flex-col gap-2.5 sm:flex-row">
-                <button type="button" onClick={() => openInquiry("내 물건 팔기")} className={`${BTN_ACCENT} h-[52px] px-7 text-[16px] focus-visible:ring-offset-[#0E1A2B]`}>
-                  무료 매입 견적 받기 <Icon d={I.arrow} className="h-4 w-4" />
+
+              {/* ✨ 수정된 버튼 영역: whitespace-nowrap으로 줄바꿈 방지 + 카톡 노란색 버튼 적용 */}
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <button
+                  type="button"
+                  onClick={() => openInquiry("내 물건 팔기")}
+                  className={`${BTN_ACCENT} h-[52px] px-6 text-[15px] sm:text-[16px] whitespace-nowrap focus-visible:ring-offset-[#0E1A2B]`}
+                >
+                  <span>무료 매입 견적 받기</span>
+                  <Icon d={I.arrow} className="h-4 w-4 shrink-0" />
                 </button>
-                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN} h-[52px] border border-white/25 px-6 text-[15px] text-white hover:border-white/60 focus-visible:ring-white`}>
-                  <Icon d={I.chat} className="h-4 w-4" /> 카톡으로 사진 보내기
+                <a
+                  href={STORE.kakaoChat}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${BTN_KAKAO} h-[52px] px-6 text-[15px] whitespace-nowrap shadow-md`}
+                >
+                  <Icon d={I.chat} className="h-4 w-4 shrink-0 text-[#191600]" />
+                  <span>카톡으로 사진 보내기</span>
                 </a>
               </div>
             </div>
@@ -1003,7 +1045,7 @@ export default function Home() {
                   items: ["스탠드·벽걸이 에어컨", "양문형 냉장고", "김치냉장고", "세탁기", "건조기"],
                   href: "/gallery",
                   cta: "가정용 제품 보기",
-                  img: "/images/home-bg.png", // ✨ 가정용 배경 연결 완료
+                  img: "/images/home-bg.png",
                 },
                 {
                   dark: true,
@@ -1013,7 +1055,7 @@ export default function Home() {
                   items: ["업소용 냉장고", "쇼케이스", "제빙기", "식기세척기", "냉난방기", "상업용 주방기기"],
                   href: galleryHref(G.biz),
                   cta: "업소용 제품 보기",
-                  img: "/images/biz-bg.png", // ✨ 업소용 배경 연결 완료
+                  img: "/images/biz-bg.png",
                 },
               ].map((b) => (
                 <Link
@@ -1101,10 +1143,8 @@ export default function Home() {
           </div>
         </section>
 
-{/* ─────────────── 모바일 하단 고정 메뉴 (Bottom Navigation) ─────────────── */}
+        {/* ─────────────── 모바일 하단 고정 메뉴 (Bottom Navigation) ─────────────── */}
         <div className="fixed bottom-0 left-0 right-0 z-50 flex lg:hidden h-[65px] bg-white border-t border-gray-200 shadow-[0_-5px_15px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
-          
-          {/* 1. 오시는 길 (흰색 바탕 / 남색 글씨) */}
           <a href="#location-section" className="flex-1 flex flex-col items-center justify-center text-[#0E1A2B] hover:bg-gray-50 active:bg-gray-100 transition-colors">
             <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -1113,154 +1153,137 @@ export default function Home() {
             <span className="text-[12px] font-bold">오시는 길</span>
           </a>
 
-          {/* 2. 카톡 상담 (카카오 노란색 바탕 / 검은색 글씨) */}
-          <a href="#" target="_blank" rel="noopener noreferrer" className="flex-1 flex flex-col items-center justify-center bg-[#FEE500] text-black active:bg-[#FADA0A] transition-colors border-l border-r border-[#E6CE00]/30">
+          <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex-1 flex flex-col items-center justify-center bg-[#FEE500] text-black active:bg-[#FADA0A] transition-colors border-l border-r border-[#E6CE00]/30">
             <svg className="w-6 h-6 mb-1" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/>
             </svg>
             <span className="text-[12px] font-extrabold">카톡상담</span>
           </a>
 
-          {/* 3. 전화 연결 (남색 바탕 / 흰색 글씨) */}
-          {/* 모바일에서는 누르면 바로 전화 걸기 화면으로 넘어갑니다 */}
           <a href="tel:042-523-8179" className="flex-1 flex flex-col items-center justify-center bg-[#0E1A2B] text-white active:bg-[#22324A] transition-colors">
             <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
             </svg>
             <span className="text-[12px] font-bold tracking-wide">전화문의</span>
           </a>
+        </div>
+
+        {/* ─────────────── 우측 플로팅 퀵 메뉴 ─────────────── */}
+        <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200 rounded-l-2xl overflow-hidden w-[100px]">
+          <div className="bg-[#D9531E] text-white text-[13px] font-extrabold py-3.5 text-center tracking-widest rounded-tl-2xl">
+            QUICK
+          </div>
+
+          <a href="/gallery" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+            <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+            </svg>
+            <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">제품 보기</span>
+          </a>
           
+          <a href="#location-section" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+            <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">오시는 길</span>
+          </a>
+          
+          <a href="tel:042-523-8179" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
+            <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            </svg>
+            <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">전화문의</span>
+          </a>
+          
+          <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center py-5 px-2 bg-[#FEE500] hover:bg-[#FADA0A] transition-colors group">
+            <svg className="w-9 h-9 mb-1 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="#000000">
+              <path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/>
+            </svg>
+            <span className="text-[14px] font-extrabold text-black whitespace-nowrap">카톡상담</span>
+          </a>
+          
+          <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-[#0E1A2B] text-white py-4 flex flex-col items-center justify-center hover:bg-[#22324A] transition-colors rounded-bl-2xl">
+            <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7"></path></svg>
+            <span className="text-[12px] font-black tracking-wider">TOP</span>
+          </button>
         </div>
 
-{/* ─────────────── 우측 플로팅 퀵 메뉴 ─────────────── */}
-      <div className="fixed right-0 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-200 rounded-l-2xl overflow-hidden w-[100px]">
-        {/* 퀵 메뉴 헤더 */}
-        <div className="bg-[#D9531E] text-white text-[13px] font-extrabold py-3.5 text-center tracking-widest rounded-tl-2xl">
-          QUICK
-        </div>
-
-        {/* 제품 보기 버튼 */}
-        <a href="/gallery" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
-          <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-          </svg>
-          <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">제품 보기</span>
-        </a>
-        
-        {/* 오시는 길 버튼 */}
-        <a href="#location-section" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
-          <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-          <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">오시는 길</span>
-        </a>
-        
-        {/* 전화문의 버튼 */}
-        <a href="tel:042-523-8179" className="flex flex-col items-center justify-center py-5 px-2 border-b border-gray-100 hover:bg-gray-50 transition-colors group">
-          <svg className="w-8 h-8 mb-2 text-[#D9531E] group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-          </svg>
-          <span className="text-[13px] font-bold text-gray-700 whitespace-nowrap">전화문의</span>
-        </a>
-        
-        {/* 카톡상담 버튼 */}
-        <a href="#" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center py-5 px-2 bg-[#FEE500] hover:bg-[#FADA0A] transition-colors group">
-          <svg className="w-9 h-9 mb-1 group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24" fill="#000000">
-            <path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/>
-          </svg>
-          <span className="text-[14px] font-extrabold text-black whitespace-nowrap">카톡상담</span>
-        </a>
-        
-        {/* TOP 버튼 */}
-        <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="bg-[#0E1A2B] text-white py-4 flex flex-col items-center justify-center hover:bg-[#22324A] transition-colors rounded-bl-2xl">
-          <svg className="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7"></path></svg>
-          <span className="text-[12px] font-black tracking-wider">TOP</span>
-        </button>
-      </div>
-
-      {/* ─────────────── 오시는 길 섹션 ─────────────── */}
-      <section id="location-section" className="relative w-full flex flex-col lg:block bg-[#EFECE6] border-y border-[#E4E0D8]">
-        {/* 배경 구글 지도 */}
-        <div className="relative w-full h-[400px] lg:h-[700px]">
-          <iframe 
-            title="한밭중고전자 매장 위치 지도" 
-            src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
-            loading="lazy" 
-            referrerPolicy="no-referrer-when-downgrade" 
-            className="absolute inset-0 h-full w-full border-0" 
-            allowFullScreen 
-          />
-        </div>
-        
-        {/* 우측 남색 정보 카드 */}
-        <div className="lg:absolute lg:right-[110px] lg:top-0 lg:h-full lg:w-[420px] bg-[#0E1A2B] text-white shadow-2xl flex flex-col justify-center pointer-events-auto z-40">
-          <div className="p-8 sm:p-10">
-            <p className="text-[#D9531E] font-bold text-xs tracking-widest mb-2 uppercase">Location</p>
-            <h2 className="text-3xl font-bold mb-8 tracking-tight">한밭중고전자</h2>
-            
-            <ul className="flex flex-col gap-6">
-              {/* 상담문의 */}
-              <li className="flex items-start gap-4 pb-6 border-b border-white/10">
-                <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                <div>
-                  <p className="text-xs text-white/60 font-semibold mb-1">상담문의</p>
-                  <p className="text-2xl font-bold mb-1 tracking-wider"><a href="tel:042-523-8179" className="hover:text-[#D9531E] transition-colors">042-523-8179</a></p>
-                  <p className="text-lg text-white/80"><a href="tel:010-6631-8179" className="hover:text-[#D9531E] transition-colors">010-6631-8179</a></p>
-                </div>
-              </li>
-
-              {/* 매장 위치 */}
-              <li className="flex items-start gap-4 pb-6 border-b border-white/10">
-                <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <div>
-                  <p className="text-xs text-white/60 font-semibold mb-1">매장 위치</p>
-                  <p className="text-base leading-snug">대전광역시 중구 중촌동 144<br/><span className="text-sm text-white/60 mt-1 inline-block">중촌고가도로 밑 (매장 앞 주차 가능)</span></p>
-                </div>
-              </li>
-              
-              {/* 영업시간 */}
-              <li className="flex items-start gap-4">
-                <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <div>
-                  <p className="text-xs text-white/60 font-semibold mb-1">영업시간</p>
-                  <p className="text-base">월요일 ~ 토요일 : 09:00 - 19:00</p>
-                  <p className="text-sm text-[#D9531E] mt-1">※ 일요일 별도 문의</p>
-                </div>
-              </li>
-            </ul>
-
-            {/* 네이버 지도 및 카카오맵 길찾기 버튼 */}
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <div className="grid grid-cols-2 gap-2.5">
-                <a 
-                  href="https://map.naver.com/v5/entry/address/36.335503,127.406981,%EB%8C%80%EC%A0%84%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144,jibun" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg font-bold bg-[#03C75A] text-white hover:bg-[#02b350] transition-colors py-3 text-sm shadow-md"
-                >
-                  <span>네이버 지도</span>
-                </a>
-                <a 
-                  href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="inline-flex items-center justify-center gap-1.5 rounded-lg font-bold bg-[#FEE500] text-black hover:bg-[#FADA0A] transition-colors py-3 text-sm shadow-md"
-                >
-                  <span>카카오맵</span>
-                </a>
-              </div>
-              <p className="mt-2.5 text-xs text-white/50 text-center">모바일에서는 길안내 내비 앱으로 자동 연결됩니다.</p>
-            </div>
+        {/* ─────────────── 오시는 길 섹션 ─────────────── */}
+        <section id="location-section" className="relative w-full flex flex-col lg:block bg-[#EFECE6] border-y border-[#E4E0D8]">
+          <div className="relative w-full h-[400px] lg:h-[700px]">
+            <iframe 
+              title="한밭중고전자 매장 위치 지도" 
+              src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed" 
+              loading="lazy" 
+              referrerPolicy="no-referrer-when-downgrade" 
+              className="absolute inset-0 h-full w-full border-0" 
+              allowFullScreen 
+            />
           </div>
           
-          {/* 하단 카카오톡 상담 버튼 */}
-          <a href="#" target="_blank" rel="noopener noreferrer" className="mt-auto bg-[#FEE500] hover:bg-[#FADA0A] text-black font-bold py-5 text-center text-base flex items-center justify-center gap-2 transition-colors">
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#000000"><path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/></svg>
-            카카오톡 채널 상담하기
-          </a>
-        </div>
-      </section>
+          <div className="lg:absolute lg:right-[110px] lg:top-0 lg:h-full lg:w-[420px] bg-[#0E1A2B] text-white shadow-2xl flex flex-col justify-center pointer-events-auto z-40">
+            <div className="p-8 sm:p-10">
+              <p className="text-[#D9531E] font-bold text-xs tracking-widest mb-2 uppercase">Location</p>
+              <h2 className="text-3xl font-bold mb-8 tracking-tight">한밭중고전자</h2>
+              
+              <ul className="flex flex-col gap-6">
+                <li className="flex items-start gap-4 pb-6 border-b border-white/10">
+                  <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                  <div>
+                    <p className="text-xs text-white/60 font-semibold mb-1">상담문의</p>
+                    <p className="text-2xl font-bold mb-1 tracking-wider"><a href="tel:042-523-8179" className="hover:text-[#D9531E] transition-colors">042-523-8179</a></p>
+                    <p className="text-lg text-white/80"><a href="tel:010-6631-8179" className="hover:text-[#D9531E] transition-colors">010-6631-8179</a></p>
+                  </div>
+                </li>
+
+                <li className="flex items-start gap-4 pb-6 border-b border-white/10">
+                  <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  <div>
+                    <p className="text-xs text-white/60 font-semibold mb-1">매장 위치</p>
+                    <p className="text-base leading-snug">대전광역시 중구 중촌동 144<br/><span className="text-sm text-white/60 mt-1 inline-block">중촌고가도로 밑 (매장 앞 주차 가능)</span></p>
+                  </div>
+                </li>
+                
+                <li className="flex items-start gap-4">
+                  <svg className="w-6 h-6 shrink-0 mt-1 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <div>
+                    <p className="text-xs text-white/60 font-semibold mb-1">영업시간</p>
+                    <p className="text-base">월요일 ~ 토요일 : 09:00 - 19:00</p>
+                    <p className="text-sm text-[#D9531E] mt-1">※ 일요일 별도 문의</p>
+                  </div>
+                </li>
+              </ul>
+
+              <div className="mt-8 pt-6 border-t border-white/10">
+                <div className="grid grid-cols-2 gap-2.5">
+                  <a 
+                    href="https://map.naver.com/v5/entry/address/36.335503,127.406981,%EB%8C%80%EC%A0%84%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144,jibun" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg font-bold bg-[#03C75A] text-white hover:bg-[#02b350] transition-colors py-3 text-sm shadow-md"
+                  >
+                    <span>네이버 지도</span>
+                  </a>
+                  <a 
+                    href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg font-bold bg-[#FEE500] text-black hover:bg-[#FADA0A] transition-colors py-3 text-sm shadow-md"
+                  >
+                    <span>카카오맵</span>
+                  </a>
+                </div>
+                <p className="mt-2.5 text-xs text-white/50 text-center">모바일에서는 길안내 내비 앱으로 자동 연결됩니다.</p>
+              </div>
+            </div>
+            
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="mt-auto bg-[#FEE500] hover:bg-[#FADA0A] text-black font-bold py-5 text-center text-base flex items-center justify-center gap-2 transition-colors">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#000000"><path d="M12 4C7.033 4 3 7.37 3 11.53c0 2.684 1.733 5.034 4.382 6.32-.24.842-1.127 4.02-1.157 4.137-.04.148.106.146.166.108.05-.03 3.96-2.6 5.503-3.626.685.093 1.393.14 2.106.14 4.967 0 9-3.37 9-7.53S16.967 4 12 4z"/></svg>
+              카카오톡 채널 상담하기
+            </a>
+          </div>
+        </section>
 
         {/* ─────────────── ⑩ 문의 CTA + 문의 폼 ─────────────── */}
         <section id="inquiry-section" className="py-16 sm:py-20 lg:py-28" aria-labelledby="cta-title">
@@ -1485,8 +1508,23 @@ export default function Home() {
               <Icon d={I.close} />
             </button>
           </div>
-          <label className={`${LABEL} mt-5`} htmlFor="review-title">제목</label>
-          <input id="review-title" value={reviewTitle} onChange={(e) => setReviewTitle(e.target.value)} placeholder="예) 대전 유성구 식당 45박스 냉장고 설치" className={INPUT} />
+
+          <div className="mt-5 flex items-center justify-between">
+            <label className={LABEL} htmlFor="review-title">제목</label>
+            {isAnalyzingReview && (
+              <span className="text-[12px] font-semibold text-[#D9531E] animate-pulse">
+                AI 제목 자동 생성 중...
+              </span>
+            )}
+          </div>
+          <input
+            id="review-title"
+            value={reviewTitle}
+            onChange={(e) => setReviewTitle(e.target.value)}
+            placeholder="사진 첨부 시 AI가 제목을 자동 입력합니다"
+            className={INPUT}
+          />
+
           <p className={`${LABEL} mt-4`}>사진 (최대 {MAX_REVIEW_PHOTOS}장)</p>
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-5">
             {reviewPreviews.map((src, i) => (
@@ -1509,11 +1547,23 @@ export default function Home() {
             {reviewFiles.length < MAX_REVIEW_PHOTOS && (
               <label className="grid aspect-square cursor-pointer place-items-center rounded border border-dashed border-[#CFCAC0] text-[#8A8478] hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
                 <Icon d={I.plus} />
-                <input type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { pickReviewFiles(e.target.files); e.target.value = ""; }} />
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  disabled={isAnalyzingReview}
+                  className="sr-only"
+                  onChange={(e) => { pickReviewFiles(e.target.files); e.target.value = ""; }}
+                />
               </label>
             )}
           </div>
-          <button type="submit" disabled={uploadingReview} className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}>
+
+          <button
+            type="submit"
+            disabled={uploadingReview || isAnalyzingReview}
+            className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}
+          >
             {uploadingReview ? "업로드 중…" : "등록하기"}
           </button>
         </form>
