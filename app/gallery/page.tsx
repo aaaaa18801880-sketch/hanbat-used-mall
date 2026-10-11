@@ -136,7 +136,6 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
             </div>
           </div>
 
-          {/* 상세 설명 및 스펙 표시 영역 */}
           {product.description && (
             <div className="mb-6 p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
               <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
@@ -198,8 +197,8 @@ export default function GalleryPage() {
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
-  /* AI 검색 옵션 및 검토 피드백 */
-  const [searchSpecs, setSearchSpecs] = useState(false);
+  /* AI 검색 옵션(기본값 true) 및 피드백 */
+  const [searchSpecs, setSearchSpecs] = useState(true);
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
   const [foundSources, setFoundSources] = useState<string[]>([]);
 
@@ -303,6 +302,7 @@ export default function GalleryPage() {
     setProductPreviews([]);
     setReviewWarnings([]);
     setFoundSources([]);
+    setSearchSpecs(true); // 기본 체크 상태 유지
     setIsAnalyzing(false);
   };
 
@@ -336,18 +336,9 @@ export default function GalleryPage() {
         throw new Error(data.error || "분석 요청에 실패했습니다.");
       }
 
-      if (data.category) {
-        if (data.category.includes("업소")) {
-          setProductCategory("업소용기기");
-        } else if (data.category.includes("김치") || data.category.includes("냉장")) {
-          setProductCategory("냉장고");
-        } else if (data.category.includes("세탁") || data.category.includes("건조")) {
-          setProductCategory("세탁기/건조기");
-        } else if (data.category.includes("에어컨") || data.category.includes("냉난방")) {
-          setProductCategory("에어컨/냉난방기");
-        } else if (registerCategories.includes(data.category)) {
-          setProductCategory(data.category);
-        }
+      // AI가 판별한 카테고리로 드롭다운 자동 분류
+      if (data.category && registerCategories.includes(data.category)) {
+        setProductCategory(data.category);
       }
 
       if (data.title) {
@@ -370,7 +361,12 @@ export default function GalleryPage() {
         setFoundSources([]);
       }
 
-      toast.success("제품 정보가 성공적으로 완성되었습니다!", { id: toastId });
+      toast.success(
+        data.category 
+          ? `'${data.category}' 카테고리로 자동 분류되었습니다!` 
+          : "제품 정보가 완성되었습니다!", 
+        { id: toastId }
+      );
     } catch (error: any) {
       console.error("AI 분석 오류:", error);
       toast.error(error.message || "라벨 분석에 실패했습니다.", { id: toastId });
@@ -703,11 +699,11 @@ export default function GalleryPage() {
               <div>
                 <label className={LABEL}>상세 설명 / 제품 규격</label>
                 <textarea
-                  rows={3}
+                  rows={4}
                   value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
                   className={`${INPUT} resize-none`}
-                  placeholder="예: 냉장 526L / 냉동 320L, 양문형 푸드쇼케이스, 디지털 인버터"
+                  placeholder="제품 특징, 편의 기능 및 [주요 사양]이 자동 기재됩니다."
                 />
               </div>
 
@@ -766,7 +762,7 @@ export default function GalleryPage() {
                   <span className="text-[11px] text-[#D9531E] font-medium -mt-1">첫 사진이 대표</span>
                 </div>
 
-                {/* 인터넷 검색 옵션 토글 */}
+                {/* 인터넷 검색 옵션 토글: '인터넷 검색'으로 이름 수정 및 기본 체크됨 */}
                 <div className="mb-2.5 flex items-center gap-2 p-2.5 bg-neutral-50 rounded border border-neutral-200">
                   <input
                     type="checkbox"
@@ -776,7 +772,7 @@ export default function GalleryPage() {
                     className="w-4 h-4 accent-[#0E1A2B] cursor-pointer"
                   />
                   <label htmlFor="searchSpecsCheckbox" className="text-[12px] font-semibold text-[#0E1A2B] cursor-pointer select-none">
-                    인터넷 공식 제원 정밀 검색 사용
+                    인터넷 검색
                   </label>
                 </div>
 
