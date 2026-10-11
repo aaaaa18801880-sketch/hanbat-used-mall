@@ -4,7 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 export const runtime = "nodejs";
 
 const MAX_FILES = 3;
-const MAX_FILE_SIZE = 8 * 1024 * 1024; // 파일당 8MB
+const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -36,7 +36,7 @@ const productSchema = {
     needsReview: {
       type: "array",
       items: { type: "string" },
-      description: "관리자가 추가로 확인해야 하는 정보",
+      description: "관리자가 추가로 확인해야 하는 정보 목록",
     },
   },
   required: [
@@ -56,10 +56,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 export async function POST(req: NextRequest) {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
-
     if (!apiKey) {
       return NextResponse.json(
-        { error: "AI 서비스 설정(GEMINI_API_KEY)을 확인해 주세요." },
+        { error: "GEMINI_API_KEY 환경변수가 설정되지 않았습니다." },
         { status: 500 }
       );
     }
@@ -68,9 +67,7 @@ export async function POST(req: NextRequest) {
     const multipleFiles = formData.getAll("files");
     const entries = multipleFiles.length ? multipleFiles : formData.getAll("file");
 
-    const files = entries.filter(
-      (item): item is File => item instanceof File
-    );
+    const files = entries.filter((item): item is File => item instanceof File);
 
     if (entries.length !== files.length || files.length === 0) {
       return NextResponse.json(
@@ -115,33 +112,26 @@ export async function POST(req: NextRequest) {
 ${categoryHint || "미지정"}
 
 [정보 작성 규칙]
-1. 사진에서 실제로 확인되는 브랜드, 모델명, 용량, 도어 구성, 라벨의 사양을 구분해서 판독하세요.
-2. 관리자 카테고리가 지정되었다면 이를 우선 사용하세요.
-3. 모델명은 실제로 판독할 수 있을 때만 기재하세요. 판독할 수 없다면 빈 문자열("")로 두세요.
-4. 모델명, 에너지효율등급, 월간 소비전력 등을 임의로 추측하지 마세요.
-5. 작동 여부, 흠집, 사용 기간, 보증, 배송 조건은 사진으로 확인되지 않는 한 기재하지 마세요.
+1. 사진에서 실제로 확인되는 브랜드, 모델명, 용량, 도어 구성, 라벨 사양을 판독하세요.
+2. 관리자 카테고리가 지정되었다면 이를 최우선으로 반영하세요.
+3. 모델명은 실제로 판독할 수 있을 때만 작성하고, 불분명하면 빈 문자열("")로 두세요.
+4. 작동 여부, 흠집, 보증 등 사진으로 확인되지 않는 내용은 작성하지 마세요.
 
 [검색 규칙]
 ${
   useSearch
-    ? `모델명이 명확히 확인될 때만 검색하세요.
-제조사 공식 사이트와 제품 설명서를 우선해 해당 모델의 사양을 검증하세요.
-유사 모델의 사양을 현재 제품에 적용하지 마세요.`
-    : `인터넷 검색 없이 사진에서 확인되는 정보만 사용하세요.
-모델의 기억이나 추측으로 수치를 보완하지 마세요.`
+    ? `모델명이 명확히 확인될 때 구글 검색으로 공식 사양(냉장/냉동 분할 용량, 규격 등)을 검증하세요.`
+    : `인터넷 검색 없이 사진에서 확인되는 정보만 사용하세요.`
 }
 
-[상품 제목]
-- 브랜드, 제품 종류, 확인된 모델명이나 특징을 사용하세요.
-- 불필요한 수식어와 과장된 광고 표현을 피하세요.
-
-[상세 설명]
-- 실제 가전 판매자가 고객에게 설명하듯 자연스럽게 작성하세요.
-- 핵심 사양을 짧고 명확하게 전달하세요.
-- 확인되지 않은 정보는 설명에서 제외하세요.
-- 확인이 필요한 사항은 needsReview 배열에 별도로 기록하세요.
-
-반드시 지정된 JSON 형식으로만 응답하세요.
+반드시 다른 설명 없이 아래 순수 JSON 형식으로만 응답하세요:
+{
+  "category": "냉장고",
+  "title": "삼성 비스포크 양문형 846L (RS84T50716C)",
+  "specDetails": "냉장 526L / 냉동 320L, 푸드쇼케이스, 2등급",
+  "modelNumber": "RS84T50716C",
+  "needsReview": ["실제 외관 흠집 유무 확인 필요"]
+}
 `;
 
     const imageParts = await Promise.all(
@@ -155,15 +145,9 @@ ${
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // 검색 활성화 시 responseSchema 충돌 방지 분기 처리
     const config = useSearch
-      ? {
-          tools: [{ googleSearch: {} }],
-        }
-      : {
-          responseMimeType: "application/json",
-          responseSchema: productSchema,
-        };
+      ? { tools: [{ googleSearch: {} }] }
+      : { responseMimeType: "application/json", responseSchema: productSchema };
 
     const response = await ai.models.generateContent({
       model: "gemini-3.8-flash",
@@ -176,38 +160,50 @@ ${
       config,
     });
 
-    const responseText = response.text?.trim();
-
+    const responseText = response.text?.trim() || "";
     if (!responseText) {
       throw new Error("AI 응답이 비어 있습니다.");
     }
 
-    // 마크다운 백틱 및 서식 제거
-    const cleanJson = responseText
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/\s*```$/i, "")
-      .trim();
-
-    const result: unknown = JSON.parse(cleanJson);
-
-    if (
-      !isRecord(result) ||
-      typeof result.category !== "string" ||
-      !result.category.trim() ||
-      typeof result.title !== "string" ||
-      !result.title.trim() ||
-      typeof result.specDetails !== "string" ||
-      typeof result.modelNumber !== "string" ||
-      !Array.isArray(result.needsReview) ||
-      !result.needsReview.every((item) => typeof item === "string")
-    ) {
-      throw new Error("AI 결과의 필수 항목이 올바르지 않습니다.");
+    // 마크다운이나 텍스트 내에서 JSON 블록만 안전 추출
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("AI 응답에서 JSON 형식을 추출할 수 없습니다: " + responseText.slice(0, 100));
     }
 
-    const chunks =
-      response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+    const rawParsed = JSON.parse(jsonMatch[0]);
 
+    if (!isRecord(rawParsed)) {
+      throw new Error("AI 결과가 올바른 객체 형태가 아닙니다.");
+    }
+
+    // AI 응답 속성 안전 매핑 (null/타입 불일치 방어)
+    const category =
+      typeof rawParsed.category === "string" && rawParsed.category.trim()
+        ? rawParsed.category.trim()
+        : (categoryHint || "기타");
+
+    const title =
+      typeof rawParsed.title === "string" && rawParsed.title.trim()
+        ? rawParsed.title.trim()
+        : "중고 가전/기기";
+
+    const specDetails =
+      typeof rawParsed.specDetails === "string"
+        ? rawParsed.specDetails.trim()
+        : (typeof rawParsed.description === "string" ? rawParsed.description.trim() : "");
+
+    const modelNumber =
+      typeof rawParsed.modelNumber === "string"
+        ? rawParsed.modelNumber.trim()
+        : (rawParsed.modelNumber ? String(rawParsed.modelNumber) : "");
+
+    const needsReview = Array.isArray(rawParsed.needsReview)
+      ? rawParsed.needsReview.map((item) => String(item).trim()).filter(Boolean)
+      : [];
+
+    // 구글 검색 출처 URL 추출
+    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
     const sourceUrls = Array.from(
       new Set(
         chunks.flatMap((chunk: any) => {
@@ -218,11 +214,11 @@ ${
     ).slice(0, 5);
 
     return NextResponse.json({
-      category: result.category,
-      title: result.title,
-      specDetails: result.specDetails,
-      modelNumber: result.modelNumber,
-      needsReview: result.needsReview,
+      category,
+      title,
+      specDetails,
+      modelNumber,
+      needsReview,
       sourceUrls,
     });
   } catch (error: unknown) {
