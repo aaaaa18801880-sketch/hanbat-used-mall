@@ -47,189 +47,273 @@ const EyeIcon = () => (
 );
 
 /* ════════════════════════════════════════════════════════════
-   상세 보기 모달 컴포넌트 (상하 세로 일체형 구조)
+   상세 보기 모달 컴포넌트 (클릭 시 전체화면 원본 확대 뷰어 탑재)
    ════════════════════════════════════════════════════════════ */
 function ProductDetailModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const images = splitImages(product.image_url);
   const displayImages = images.length > 0 ? images : [""];
   const [idx, setIdx] = useState(0);
+  const [isZoomOpen, setIsZoomOpen] = useState(false); // 전체화면 확대 상태
   const sold = isSold(product);
   const go = (d: number) => setIdx((i) => (i + d + displayImages.length) % displayImages.length);
 
+  // 키보드 좌우 화살표 & ESC 닫기 대응
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isZoomOpen) {
+        setIsZoomOpen(false);
+        return;
+      }
       if (displayImages.length < 2) return;
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [displayImages.length]);
+  }, [displayImages.length, isZoomOpen]);
 
   return (
-    <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-lg" sheet={false}>
-      <div className="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh] w-full">
-        {/* 상단 닫기 헤더 바 */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
-              {product.category || "기타"}
-            </span>
-            <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>
-              {product.status || "판매중"}
-            </span>
+    <>
+      <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-xl" sheet={false}>
+        <div className="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh] w-full">
+          {/* 상단 헤더 */}
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
+            <div className="flex items-center gap-2">
+              <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
+                {product.category || "기타"}
+              </span>
+              <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>
+                {product.status || "판매중"}
+              </span>
+            </div>
+            <button type="button" onClick={onClose} aria-label="닫기" className="text-[#8A8478] hover:text-[#0E1A2B] transition-colors p-1 -mr-1">
+              <Icon d={ICON.close} className="w-5 h-5" />
+            </button>
           </div>
-          <button type="button" onClick={onClose} aria-label="닫기" className="text-[#8A8478] hover:text-[#0E1A2B] transition-colors p-1 -mr-1">
-            <Icon d={ICON.close} className="w-5 h-5" />
-          </button>
-        </div>
 
-        {/* 메인 스크롤 영역 (사진 ➔ 스펙 ➔ 안내) */}
-        <div className="overflow-y-auto flex-1">
-          {/* 1. 상단 제품 사진 뷰어 (가로/세로 사진 모두 자연스럽게 수용) */}
-          <div className="relative w-full aspect-[4/3] bg-[#1E2530] flex items-center justify-center overflow-hidden">
+          {/* 메인 스크롤 영역 */}
+          <div className="overflow-y-auto flex-1">
+            {/* 1. 제품 사진 (클릭 시 확대 안내 뱃지 추가) */}
+            <div
+              onClick={() => setIsZoomOpen(true)}
+              className="relative w-full aspect-[4/3] bg-[#EFECE6] flex items-center justify-center overflow-hidden cursor-zoom-in group"
+              title="클릭하여 큰 사진으로 보기"
+            >
+              <SafeImg
+                key={displayImages[idx]}
+                src={displayImages[idx]}
+                alt={product.title}
+                eager
+                className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${sold ? "grayscale opacity-75" : ""}`}
+              />
+
+              {sold && (
+                <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/50 backdrop-blur-xs">
+                  <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em] border border-white/20">
+                    SOLD
+                  </span>
+                </div>
+              )}
+
+              {/* 확대 가능 안내 뱃지 */}
+              <div className="absolute top-3 right-3 bg-black/60 text-white text-[11px] font-medium px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
+                <Icon d={ICON.search} className="w-3.5 h-3.5" />
+                <span>클릭하여 확대</span>
+              </div>
+
+              {/* 좌우 이동 버튼 */}
+              {displayImages.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); go(-1); }}
+                    aria-label="이전 사진"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white hover:scale-105 transition-all z-10"
+                  >
+                    <Icon d={ICON.left} className="w-4 h-4 text-[#0E1A2B]" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); go(1); }}
+                    aria-label="다음 사진"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white hover:scale-105 transition-all z-10"
+                  >
+                    <Icon d={ICON.right} className="w-4 h-4 text-[#0E1A2B]" />
+                  </button>
+                  <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-xs z-10 pointer-events-none">
+                    {idx + 1} / {displayImages.length}
+                  </span>
+                </>
+              )}
+            </div>
+
+            {/* 썸네일 스트립 (2장 이상일 때) */}
+            {displayImages.length > 1 && (
+              <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E4E0D8] overflow-x-auto scrollbar-hide">
+                {displayImages.map((img, i) => (
+                  <button
+                    key={img + i}
+                    type="button"
+                    onClick={() => setIdx(i)}
+                    aria-label={`${i + 1}번 사진 보기`}
+                    className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-all ${
+                      i === idx ? "border-[#D9531E] ring-2 ring-[#D9531E]/40" : "border-[#E4E0D8] opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <SafeImg src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* 2. 하단 상세 정보 영역 */}
+            <div className="p-5 sm:p-6 space-y-5">
+              <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
+                {product.title}
+              </h2>
+
+              {/* 가격 및 조회수 바 */}
+              <div className="flex items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+                <div className="min-w-0">
+                  <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
+                  {sold ? (
+                    <p className="text-[26px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
+                      판매완료
+                    </p>
+                  ) : hasPrice(product) ? (
+                    <p className="text-[26px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
+                      {formatPrice(product)}
+                    </p>
+                  ) : (
+                    <a
+                      href={telHref(STORE.tel)}
+                      className="group inline-flex items-center gap-2 text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
+                      title="전화 문의하기 (042-523-8179)"
+                    >
+                      <span className="underline decoration-2 underline-offset-4">가격 문의</span>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
+                        <Icon d={ICON.phone} className="w-3 h-3" /> 연결
+                      </span>
+                    </a>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-1.5 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
+                  <EyeIcon /> 
+                  <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
+                </div>
+              </div>
+
+              {/* 상세 설명 / 스펙 */}
+              {product.description && (
+                <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
+                  <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
+                  <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
+                    {product.description}
+                  </p>
+                </div>
+              )}
+
+              {/* 배송 및 검수 체크리스트 */}
+              <ul className="text-[13px] text-[#4B5260] space-y-2 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                  <span>꼼꼼한 세척·검수를 거친 A급 제품입니다.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                  <span>구매 후 A/S와 세금계산서 발행이 가능합니다.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                  <span>대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</span>
+                </li>
+              </ul>
+
+              {sold && (
+                <p className="text-[13px] text-[#D9531E] font-semibold text-center py-1">
+                  이 제품은 판매가 완료되었습니다. 유사 제품은 전화로 문의해 주세요.
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* 하단 고정 문의 버튼 */}
+          <div className="p-4 border-t border-[#E4E0D8] bg-white grid grid-cols-2 gap-2.5 shrink-0">
+            <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-12 text-[14px]`}>
+              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+            </a>
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[14px]`}>
+              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+            </a>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ───── 전체화면 원본 확대 라이트박스 뷰어 ───── */}
+      {isZoomOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="사진 전체화면 확대 보기"
+          onClick={() => setIsZoomOpen(false)}
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 select-none animate-fadeIn"
+        >
+          {/* 상단 도구 모음 */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-20">
+            <span className="text-[14px] font-semibold bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">
+              {idx + 1} / {displayImages.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsZoomOpen(false)}
+              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors text-white"
+              aria-label="닫기"
+            >
+              <Icon d={ICON.close} className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* 원본 사진 (비율 100% 보존 object-contain) */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-full max-h-[82vh] flex items-center justify-center"
+          >
             <SafeImg
-              key={displayImages[idx]}
               src={displayImages[idx]}
               alt={product.title}
               eager
-              className={`max-w-full max-h-full w-auto h-auto object-contain select-none transition-all duration-200 ${sold ? "grayscale opacity-75" : ""}`}
+              className="max-w-full max-h-[82vh] w-auto h-auto object-contain rounded-md shadow-2xl"
             />
-            {sold && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/60 backdrop-blur-xs">
-                <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em] border border-white/20">
-                  SOLD
-                </span>
-              </div>
-            )}
-            {displayImages.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => go(-1)}
-                  aria-label="이전 사진"
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white hover:scale-105 transition-all z-10"
-                >
-                  <Icon d={ICON.left} className="w-4 h-4 text-[#0E1A2B]" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => go(1)}
-                  aria-label="다음 사진"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white hover:scale-105 transition-all z-10"
-                >
-                  <Icon d={ICON.right} className="w-4 h-4 text-[#0E1A2B]" />
-                </button>
-                <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-xs z-10">
-                  {idx + 1} / {displayImages.length}
-                </span>
-              </>
-            )}
           </div>
 
-          {/* 썸네일 스트립 (2장 이상일 때) */}
+          {/* 전체화면 좌우 이동 버튼 */}
           {displayImages.length > 1 && (
-            <div className="flex gap-2 p-3 bg-[#F6F5F2] border-b border-[#E4E0D8] overflow-x-auto scrollbar-hide">
-              {displayImages.map((img, i) => (
-                <button
-                  key={img + i}
-                  type="button"
-                  onClick={() => setIdx(i)}
-                  aria-label={`${i + 1}번 사진 보기`}
-                  className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-all ${
-                    i === idx ? "border-[#D9531E] ring-2 ring-[#D9531E]/40" : "border-[#E4E0D8] opacity-60 hover:opacity-100"
-                  }`}
-                >
-                  <SafeImg src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
+            <>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); go(-1); }}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-md transition-all z-20"
+                aria-label="이전 사진"
+              >
+                <Icon d={ICON.left} className="w-6 h-6" />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); go(1); }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center backdrop-blur-md transition-all z-20"
+                aria-label="다음 사진"
+              >
+                <Icon d={ICON.right} className="w-6 h-6" />
+              </button>
+            </>
           )}
 
-          {/* 2. 하단 상세 정보 영역 */}
-          <div className="p-5 sm:p-6 space-y-5">
-            {/* 상품 타이틀 */}
-            <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
-              {product.title}
-            </h2>
-
-            {/* 가격 및 조회수 바 */}
-            <div className="flex items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
-              <div className="min-w-0">
-                <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
-                {sold ? (
-                  <p className="text-[26px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
-                    판매완료
-                  </p>
-                ) : hasPrice(product) ? (
-                  <p className="text-[26px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
-                    {formatPrice(product)}
-                  </p>
-                ) : (
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="group inline-flex items-center gap-2 text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
-                    title="전화 문의하기 (042-523-8179)"
-                  >
-                    <span className="underline decoration-2 underline-offset-4">가격 문의</span>
-                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
-                      <Icon d={ICON.phone} className="w-3 h-3" /> 연결
-                    </span>
-                  </a>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-1.5 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
-                <EyeIcon /> 
-                <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
-              </div>
-            </div>
-
-            {/* 상세 설명 / 스펙 */}
-            {product.description && (
-              <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
-                <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
-                <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
-                  {product.description}
-                </p>
-              </div>
-            )}
-
-            {/* 검수 및 배송 안내 체크리스트 */}
-            <ul className="text-[13px] text-[#4B5260] space-y-2 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] leading-relaxed">
-              <li className="flex items-start gap-2">
-                <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
-                <span>꼼꼼한 세척·검수를 거친 A급 제품입니다.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
-                <span>구매 후 A/S와 세금계산서 발행이 가능합니다.</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
-                <span>대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</span>
-              </li>
-            </ul>
-
-            {/* 판매완료 안내 문구 */}
-            {sold && (
-              <p className="text-[13px] text-[#D9531E] font-semibold text-center py-1">
-                이 제품은 판매가 완료되었습니다. 유사 제품은 전화로 문의해 주세요.
-              </p>
-            )}
-          </div>
+          <p className="absolute bottom-4 text-white/60 text-[13px]">
+            배경을 누르거나 ESC를 누르면 닫힙니다.
+          </p>
         </div>
-
-        {/* 3. 하단 고정 액션 버튼 바 */}
-        <div className="p-4 border-t border-[#E4E0D8] bg-white grid grid-cols-2 gap-2.5 shrink-0">
-          <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-12 text-[14px]`}>
-            <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
-          </a>
-          <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[14px]`}>
-            <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
-          </a>
-        </div>
-      </div>
-    </Modal>
+      )}
+    </>
   );
 }
 
