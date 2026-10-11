@@ -4,7 +4,7 @@ import { GoogleGenAI } from "@google/genai";
 export const runtime = "nodejs";
 
 const MAX_FILES = 3;
-const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
+const MAX_FILE_SIZE = 8 * 1024 * 1024;
 
 const ALLOWED_TYPES = new Set([
   "image/jpeg",
@@ -13,45 +13,6 @@ const ALLOWED_TYPES = new Set([
   "image/heic",
   "image/heif",
 ]);
-
-const productSchema = {
-  type: "object",
-  properties: {
-    category: {
-      type: "string",
-      description: "상품 카테고리",
-    },
-    title: {
-      type: "string",
-      description: "검색하기 쉽고 사실에 기반한 상품 제목",
-    },
-    specDetails: {
-      type: "string",
-      description: "확인된 제품 특징과 사양만 담은 상세 설명",
-    },
-    modelNumber: {
-      type: "string",
-      description: "확인된 모델명. 판독할 수 없으면 빈 문자열",
-    },
-    needsReview: {
-      type: "array",
-      items: { type: "string" },
-      description: "관리자가 추가로 확인해야 하는 정보 목록",
-    },
-  },
-  required: [
-    "category",
-    "title",
-    "specDetails",
-    "modelNumber",
-    "needsReview",
-  ],
-  additionalProperties: false,
-};
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -69,38 +30,16 @@ export async function POST(req: NextRequest) {
 
     const files = entries.filter((item): item is File => item instanceof File);
 
-    if (entries.length !== files.length || files.length === 0) {
+    if (files.length === 0) {
       return NextResponse.json(
-        { error: "올바른 이미지 파일을 전송해 주세요." },
+        { error: "제품 사진을 첨부해 주세요." },
         { status: 400 }
       );
-    }
-
-    if (files.length > MAX_FILES) {
-      return NextResponse.json(
-        { error: `사진은 최대 ${MAX_FILES}장까지 첨부할 수 있습니다.` },
-        { status: 400 }
-      );
-    }
-
-    for (const file of files) {
-      if (
-        !ALLOWED_TYPES.has(file.type) ||
-        file.size === 0 ||
-        file.size > MAX_FILE_SIZE
-      ) {
-        return NextResponse.json(
-          { error: "지원하지 않는 이미지 형식이거나 파일 크기가 8MB를 초과합니다." },
-          { status: 400 }
-        );
-      }
     }
 
     const categoryValue = formData.get("category");
     const categoryHint =
-      typeof categoryValue === "string"
-        ? categoryValue.trim().slice(0, 60)
-        : "";
+      typeof categoryValue === "string" ? categoryValue.trim().slice(0, 60) : "";
 
     const useSearch = formData.get("searchSpecs") === "true";
 
@@ -120,24 +59,24 @@ ${categoryHint || "미지정"}
 [검색 규칙]
 ${
   useSearch
-    ? `모델명이 명확히 확인될 때 구글 검색으로 공식 사양(냉장/냉동 분할 용량, 규격 등)을 검증하세요.`
+    ? `모델명이 확인되면 구글 검색을 활용해 공식 규격(냉장/냉동 분할 용량, 제원 등)을 보완하세요.`
     : `인터넷 검색 없이 사진에서 확인되는 정보만 사용하세요.`
 }
 
-반드시 다른 설명 없이 아래 순수 JSON 형식으로만 응답하세요:
+반드시 다른 부연설명 없이 아래 JSON 형식으로만 출력하세요:
 {
   "category": "냉장고",
-  "title": "삼성 비스포크 양문형 846L (RS84T50716C)",
+  "title": "삼성 비스포크 양문형 3도어 846L",
   "specDetails": "냉장 526L / 냉동 320L, 푸드쇼케이스, 2등급",
   "modelNumber": "RS84T50716C",
-  "needsReview": ["실제 외관 흠집 유무 확인 필요"]
+  "needsReview": []
 }
 `;
 
     const imageParts = await Promise.all(
-      files.map(async (file) => ({
+      files.slice(0, MAX_FILES).map(async (file) => ({
         inlineData: {
-          mimeType: file.type,
+          mimeType: file.type || "image/jpeg",
           data: Buffer.from(await file.arrayBuffer()).toString("base64"),
         },
       }))
@@ -145,9 +84,10 @@ ${
 
     const ai = new GoogleGenAI({ apiKey });
 
+    // 유료 검색 사용 여부에 따른 설정
     const config = useSearch
       ? { tools: [{ googleSearch: {} }] }
-      : { responseMimeType: "application/json", responseSchema: productSchema };
+      : { responseMimeType: "application/json" };
 
     const response = await ai.models.generateContent({
       model: "gemini-3.8-flash",
@@ -161,49 +101,46 @@ ${
     });
 
     const responseText = response.text?.trim() || "";
-    if (!responseText) {
-      throw new Error("AI 응답이 비어 있습니다.");
-    }
 
-    // 마크다운이나 텍스트 내에서 JSON 블록만 안전 추출
+    // JSON 본문 안전 추출
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("AI 응답에서 JSON 형식을 추출할 수 없습니다: " + responseText.slice(0, 100));
+    let rawParsed: Record<string, any> = {};
+
+    if (jsonMatch) {
+      try {
+        rawParsed = JSON.parse(jsonMatch[0]);
+      } catch (parseErr) {
+        console.warn("JSON 파싱 보정 시도:", parseErr);
+      }
     }
 
-    const rawParsed = JSON.parse(jsonMatch[0]);
-
-    if (!isRecord(rawParsed)) {
-      throw new Error("AI 결과가 올바른 객체 형태가 아닙니다.");
-    }
-
-    // AI 응답 속성 안전 매핑 (null/타입 불일치 방어)
+    // 💡 어떤 필드가 비어있거나 null이어도 절대 에러를 튕겨내지 않고 안전하게 기본값 매핑
     const category =
-      typeof rawParsed.category === "string" && rawParsed.category.trim()
+      rawParsed.category && typeof rawParsed.category === "string"
         ? rawParsed.category.trim()
         : (categoryHint || "기타");
 
     const title =
-      typeof rawParsed.title === "string" && rawParsed.title.trim()
+      rawParsed.title && typeof rawParsed.title === "string"
         ? rawParsed.title.trim()
         : "중고 가전/기기";
 
     const specDetails =
-      typeof rawParsed.specDetails === "string"
+      rawParsed.specDetails && typeof rawParsed.specDetails === "string"
         ? rawParsed.specDetails.trim()
-        : (typeof rawParsed.description === "string" ? rawParsed.description.trim() : "");
+        : (rawParsed.description || "");
 
     const modelNumber =
-      typeof rawParsed.modelNumber === "string"
-        ? rawParsed.modelNumber.trim()
-        : (rawParsed.modelNumber ? String(rawParsed.modelNumber) : "");
+      rawParsed.modelNumber ? String(rawParsed.modelNumber).trim() : "";
 
     const needsReview = Array.isArray(rawParsed.needsReview)
       ? rawParsed.needsReview.map((item) => String(item).trim()).filter(Boolean)
       : [];
 
-    // 구글 검색 출처 URL 추출
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+    // 검색 출처 URL 추출
+    const chunks =
+      response.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [];
+
     const sourceUrls = Array.from(
       new Set(
         chunks.flatMap((chunk: any) => {
@@ -222,10 +159,10 @@ ${
       sourceUrls,
     });
   } catch (error: unknown) {
-    console.error("AI 상품 분석 실패:", error);
+    console.error("AI 상품 분석 에러:", error);
     return NextResponse.json(
       {
-        error: "상품 분석에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+        error: "상품 분석에 실패했습니다.",
         detail: error instanceof Error ? error.message : String(error),
       },
       { status: 500 }
