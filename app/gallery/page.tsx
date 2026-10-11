@@ -580,11 +580,12 @@ export default function GalleryPage() {
           </label>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {isLoading ? (
             Array.from({ length: 8 }).map((_, idx) => (
               <div key={`skeleton-${idx}`} className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] animate-pulse">
-                <div className="aspect-[4/5] bg-[#EFECE6] w-full" />
+                {/* 기존 aspect-[4/5] -> aspect-[3/4]로 수정 */}
+                <div className="aspect-[3/4] bg-[#EFECE6] w-full" />
                 <div className="p-4 sm:p-5 space-y-3">
                   <div className="h-3 bg-[#EFECE6] rounded w-1/4" />
                   <div className="h-5 bg-[#EFECE6] rounded w-4/5" />
@@ -617,7 +618,8 @@ export default function GalleryPage() {
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleProductClick(product); } }}
                   className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] group cursor-pointer flex flex-col relative focus-visible:ring-2 focus-visible:ring-[#0E1A2B] outline-none transition-shadow hover:shadow-lg"
                 >
-                  <div className="aspect-[4/5] relative overflow-hidden bg-[#EFECE6]">
+                  {/* 기존 aspect-[4/5] -> aspect-[3/4]로 수정 */}
+                  <div className="aspect-[3/4] relative overflow-hidden bg-[#EFECE6]">
                     <SafeImg
                       src={images[0]}
                       alt={product.title}
