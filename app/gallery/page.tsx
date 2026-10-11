@@ -147,7 +147,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           <ul className="text-[14px] text-[#4B5260] space-y-2.5 mb-8 bg-[#FAF9F7] rounded-md p-5 border border-[#E4E0D8] leading-relaxed">
             <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 판매하는 전 제품은 검수, 세척 과정을 거치고 있습니다.</li>
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 구매 후 A/S와 세금계산서 발행이 가능합니다(카드 결제 수수료 부과).</li>
+            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 구매 후 A/S와 세금계산서 발행이 가능합니다(카드 결제시 수수료 있음).</li>
             <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</li>
           </ul>
 
