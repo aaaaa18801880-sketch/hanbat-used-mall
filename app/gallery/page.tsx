@@ -124,10 +124,30 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
           
-          <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+         <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
             <div>
               <span className="text-[11px] font-semibold text-[#8A8478] block mb-0.5">판매 가격</span>
-              <p className={`text-[28px] sm:text-[34px] font-bold tracking-tight leading-none ${sold ? "text-[#8A8478]" : "text-[#D9531E]"}`}>{formatPrice(product)}</p>
+              {sold ? (
+                <p className="text-[28px] sm:text-[34px] font-bold tracking-tight leading-none text-[#8A8478]">
+                  판매완료
+                </p>
+              ) : hasPrice(product) ? (
+                <p className="text-[28px] sm:text-[34px] font-bold tracking-tight leading-none text-[#D9531E]">
+                  {formatPrice(product)}
+                </p>
+              ) : (
+                <a
+                  href={telHref(STORE.tel)}
+                  className="group inline-flex items-center gap-2.5 text-[28px] sm:text-[34px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors"
+                  title="클릭 시 매장으로 바로 전화 연결 (042-523-8179)"
+                >
+                  <span className="underline decoration-2 underline-offset-4">가격 문의</span>
+                  <span className="inline-flex items-center gap-1 text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-1 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-sm">
+                    <Icon d={ICON.phone} className="w-3.5 h-3.5" />
+                    전화 연결
+                  </span>
+                </a>
+              )}
             </div>
             <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3.5 py-2.5 rounded-md text-[14px] text-[#4B5260] font-semibold shadow-sm">
               <EyeIcon /> 
