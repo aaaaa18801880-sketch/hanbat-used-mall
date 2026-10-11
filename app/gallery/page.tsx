@@ -47,7 +47,7 @@ const EyeIcon = () => (
 );
 
 /* ════════════════════════════════════════════════════════════
-   상세 보기 모달 컴포넌트 (가로/세로 모든 사진 완벽 대응)
+   상세 보기 모달 컴포넌트 (상하 세로 일체형 구조)
    ════════════════════════════════════════════════════════════ */
 function ProductDetailModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const images = splitImages(product.image_url);
@@ -67,12 +67,27 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
   }, [displayImages.length]);
 
   return (
-    <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-4xl" sheet={false}>
-      <div className="bg-white rounded-lg shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[92vh] w-full">
-        {/* 왼쪽: 제품 사진 영역 (가로/세로 모든 비율 완벽 대응 화이트 프레임) */}
-        <div className="w-full md:w-1/2 bg-[#F6F5F2] border-b md:border-b-0 md:border-r border-[#E4E0D8] p-4 sm:p-6 flex flex-col justify-between">
-          {/* 메인 이미지 액자 프레임 */}
-          <div className="relative flex-1 min-h-[280px] sm:min-h-[360px] w-full bg-white rounded-lg border border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden shadow-xs">
+    <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-lg" sheet={false}>
+      <div className="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh] w-full">
+        {/* 상단 닫기 헤더 바 */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
+          <div className="flex items-center gap-2">
+            <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
+              {product.category || "기타"}
+            </span>
+            <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>
+              {product.status || "판매중"}
+            </span>
+          </div>
+          <button type="button" onClick={onClose} aria-label="닫기" className="text-[#8A8478] hover:text-[#0E1A2B] transition-colors p-1 -mr-1">
+            <Icon d={ICON.close} className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* 메인 스크롤 영역 (사진 ➔ 스펙 ➔ 안내) */}
+        <div className="overflow-y-auto flex-1">
+          {/* 1. 상단 제품 사진 뷰어 (가로/세로 사진 모두 자연스럽게 수용) */}
+          <div className="relative w-full aspect-[4/3] bg-[#1E2530] flex items-center justify-center overflow-hidden">
             <SafeImg
               key={displayImages[idx]}
               src={displayImages[idx]}
@@ -81,7 +96,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
               className={`max-w-full max-h-full w-auto h-auto object-contain select-none transition-all duration-200 ${sold ? "grayscale opacity-75" : ""}`}
             />
             {sold && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/50 backdrop-blur-xs">
+              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/60 backdrop-blur-xs">
                 <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em] border border-white/20">
                   SOLD
                 </span>
@@ -93,7 +108,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
                   type="button"
                   onClick={() => go(-1)}
                   aria-label="이전 사진"
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 text-[#0E1A2B] shadow-md border border-[#E4E0D8] flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-[#0E1A2B] z-10"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white hover:scale-105 transition-all z-10"
                 >
                   <Icon d={ICON.left} className="w-4 h-4 text-[#0E1A2B]" />
                 </button>
@@ -101,30 +116,28 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
                   type="button"
                   onClick={() => go(1)}
                   aria-label="다음 사진"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 text-[#0E1A2B] shadow-md border border-[#E4E0D8] flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-[#0E1A2B] z-10"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/90 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white hover:scale-105 transition-all z-10"
                 >
                   <Icon d={ICON.right} className="w-4 h-4 text-[#0E1A2B]" />
                 </button>
-                <span className="absolute bottom-2.5 right-2.5 bg-[#0E1A2B]/75 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-full backdrop-blur-xs z-10">
+                <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-xs z-10">
                   {idx + 1} / {displayImages.length}
                 </span>
               </>
             )}
           </div>
 
-          {/* 하단 썸네일 스트립 (2장 이상일 때만 표시) */}
+          {/* 썸네일 스트립 (2장 이상일 때) */}
           {displayImages.length > 1 && (
-            <div className="flex gap-2 mt-3 pt-3 border-t border-[#E4E0D8] overflow-x-auto scrollbar-hide shrink-0">
+            <div className="flex gap-2 p-3 bg-[#F6F5F2] border-b border-[#E4E0D8] overflow-x-auto scrollbar-hide">
               {displayImages.map((img, i) => (
                 <button
                   key={img + i}
                   type="button"
                   onClick={() => setIdx(i)}
                   aria-label={`${i + 1}번 사진 보기`}
-                  className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-md overflow-hidden bg-white border transition-all ${
-                    i === idx
-                      ? "border-[#D9531E] ring-2 ring-[#D9531E]/30 scale-102"
-                      : "border-[#E4E0D8] opacity-60 hover:opacity-100"
+                  className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-all ${
+                    i === idx ? "border-[#D9531E] ring-2 ring-[#D9531E]/40" : "border-[#E4E0D8] opacity-60 hover:opacity-100"
                   }`}
                 >
                   <SafeImg src={img} alt="" className="w-full h-full object-cover" />
@@ -132,77 +145,88 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
               ))}
             </div>
           )}
+
+          {/* 2. 하단 상세 정보 영역 */}
+          <div className="p-5 sm:p-6 space-y-5">
+            {/* 상품 타이틀 */}
+            <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
+              {product.title}
+            </h2>
+
+            {/* 가격 및 조회수 바 */}
+            <div className="flex items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+              <div className="min-w-0">
+                <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
+                {sold ? (
+                  <p className="text-[26px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
+                    판매완료
+                  </p>
+                ) : hasPrice(product) ? (
+                  <p className="text-[26px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
+                    {formatPrice(product)}
+                  </p>
+                ) : (
+                  <a
+                    href={telHref(STORE.tel)}
+                    className="group inline-flex items-center gap-2 text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
+                    title="전화 문의하기 (042-523-8179)"
+                  >
+                    <span className="underline decoration-2 underline-offset-4">가격 문의</span>
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
+                      <Icon d={ICON.phone} className="w-3 h-3" /> 연결
+                    </span>
+                  </a>
+                )}
+              </div>
+              <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-1.5 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
+                <EyeIcon /> 
+                <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
+              </div>
+            </div>
+
+            {/* 상세 설명 / 스펙 */}
+            {product.description && (
+              <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
+                <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
+                <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
+            {/* 검수 및 배송 안내 체크리스트 */}
+            <ul className="text-[13px] text-[#4B5260] space-y-2 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] leading-relaxed">
+              <li className="flex items-start gap-2">
+                <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                <span>꼼꼼한 세척·검수를 거친 A급 제품입니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                <span>구매 후 A/S와 세금계산서 발행이 가능합니다.</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                <span>대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</span>
+              </li>
+            </ul>
+
+            {/* 판매완료 안내 문구 */}
+            {sold && (
+              <p className="text-[13px] text-[#D9531E] font-semibold text-center py-1">
+                이 제품은 판매가 완료되었습니다. 유사 제품은 전화로 문의해 주세요.
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* 오른쪽: 상세 정보 영역 */}
-        <div className="w-full md:w-1/2 p-6 sm:p-8 flex flex-col max-h-[50vh] md:max-h-none overflow-y-auto bg-white">
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">{product.category || "기타"}</span>
-              <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>{product.status || "판매중"}</span>
-            </div>
-            <button type="button" onClick={onClose} aria-label="닫기" className="text-[#8A8478] hover:text-[#0E1A2B] transition-colors -mr-2 -mt-2 p-2">
-              <Icon d={ICON.close} className="w-6 h-6" />
-            </button>
-          </div>
-
-          <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
-          
-          {/* 판매 가격 박스 ("가격 문의" 줄바꿈 깨짐 방지) */}
-          <div className="flex items-center justify-between gap-3 mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
-            <div className="min-w-0">
-              <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
-              {sold ? (
-                <p className="text-[26px] sm:text-[30px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
-                  판매완료
-                </p>
-              ) : hasPrice(product) ? (
-                <p className="text-[26px] sm:text-[30px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
-                  {formatPrice(product)}
-                </p>
-              ) : (
-                <a
-                  href={telHref(STORE.tel)}
-                  className="group inline-flex items-center gap-2 text-[26px] sm:text-[30px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
-                  title="전화 문의하기 (042-523-8179)"
-                >
-                  <span className="underline decoration-2 underline-offset-4">가격 문의</span>
-                  <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-1 rounded-sm group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
-                    <Icon d={ICON.phone} className="w-3 h-3" /> 연결
-                  </span>
-                </a>
-              )}
-            </div>
-            <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-2 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
-              <EyeIcon /> 
-              <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
-            </div>
-          </div>
-
-          {product.description && (
-            <div className="mb-6 p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
-              <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
-              <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
-                {product.description}
-              </p>
-            </div>
-          )}
-
-          <ul className="text-[14px] text-[#4B5260] space-y-2.5 mb-8 bg-[#FAF9F7] rounded-md p-5 border border-[#E4E0D8] leading-relaxed">
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 꼼꼼한 세척·검수를 거친 A급 제품입니다.</li>
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 구매 후 A/S와 세금계산서 발행이 가능합니다.</li>
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</li>
-          </ul>
-
-          <div className="mt-auto space-y-3 pt-4">
-            {sold && <p className="text-[13px] text-[#D9531E] font-semibold text-center mb-1">이 제품은 판매가 완료되었습니다. 유사 제품은 전화로 문의해 주세요.</p>}
-            <a href={telHref(STORE.tel)} className={`${BTN_NAVY} w-full h-[52px] text-[15px]`}>
-              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의 {STORE.tel}
-            </a>
-            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} w-full h-[52px] text-[15px]`}>
-              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡으로 사진 보내고 상담
-            </a>
-          </div>
+        {/* 3. 하단 고정 액션 버튼 바 */}
+        <div className="p-4 border-t border-[#E4E0D8] bg-white grid grid-cols-2 gap-2.5 shrink-0">
+          <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-12 text-[14px]`}>
+            <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+          </a>
+          <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[14px]`}>
+            <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+          </a>
         </div>
       </div>
     </Modal>
