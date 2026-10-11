@@ -12,7 +12,7 @@ import {
 } from "../../lib/ui";
 
 /* ════════════════════════════════════════════════════════════
-   타입 및 유틸
+   타입 및 공용 상수
    ════════════════════════════════════════════════════════════ */
 interface Product {
   id: string;
@@ -31,7 +31,6 @@ const hasPrice = (p: Product) => !!p.price && p.price > 0;
 const formatPrice = (p: Product) => (hasPrice(p) ? `${Number(p.price).toLocaleString()}원` : "가격 문의");
 const isSold = (p: Product) => p.status === "판매완료";
 
-// 공용 디자인 토큰
 const BTN = "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
 const BTN_ACCENT = `${BTN} bg-[#D9531E] text-white hover:bg-[#BF4715] focus-visible:ring-[#D9531E]`;
 const BTN_NAVY = `${BTN} bg-[#0E1A2B] text-white hover:bg-[#22324A] focus-visible:ring-[#0E1A2B]`;
@@ -41,11 +40,278 @@ const INPUT = "w-full rounded-md border border-[#DDD9D1] bg-white px-3.5 py-3 te
 const LABEL = "mb-1.5 block text-[13px] font-semibold text-[#0E1A2B]";
 
 const EyeIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 opacity-70 mt-px">
+  <svg viewBox="24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4 opacity-70 mt-px">
     <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
     <circle cx="12" cy="12" r="3" />
   </svg>
 );
+
+/* ════════════════════════════════════════════════════════════
+   캔버스 기반 스펙 요약 카드 이미지 합성 엔진 (비용 0원)
+   ════════════════════════════════════════════════════════════ */
+function drawRoundedRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+}
+
+function extractSpecBullets(specDetails: string): string[] {
+  const lines = specDetails.split("\n").map((l) => l.trim());
+  const bullets: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith("•") || line.startsWith("-") || line.startsWith("*")) {
+      const cleaned = line.replace(/^[•\-\*]\s*/, "").trim();
+      if (cleaned) bullets.push(cleaned);
+    }
+  }
+
+  if (bullets.length === 0) {
+    for (const line of lines) {
+      if (line && !line.startsWith("[") && line.length > 4) {
+        bullets.push(line);
+      }
+    }
+  }
+
+  return bullets;
+}
+
+function renderTruncatedLine(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number
+) {
+  if (ctx.measureText(text).width <= maxWidth) {
+    ctx.fillText(text, x, y);
+    return;
+  }
+  let truncated = text;
+  while (truncated.length > 0 && ctx.measureText(`${truncated}...`).width > maxWidth) {
+    truncated = truncated.slice(0, -1);
+  }
+  ctx.fillText(`${truncated}...`, x, y);
+}
+
+function renderWrappedTitle(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  startY: number,
+  maxWidth: number,
+  lineHeight: number
+): number {
+  const words = text.split(" ");
+  let line = "";
+  let currentY = startY;
+  let linesRendered = 0;
+
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line ? `${line} ${words[i]}` : words[i];
+    if (ctx.measureText(testLine).width > maxWidth && line) {
+      ctx.fillText(line, x, currentY);
+      currentY += lineHeight;
+      linesRendered++;
+      line = words[i];
+      if (linesRendered >= 2) break;
+    } else {
+      line = testLine;
+    }
+  }
+
+  if (line && linesRendered < 2) {
+    if (ctx.measureText(line).width > maxWidth) {
+      while (line.length > 0 && ctx.measureText(`${line}...`).width > maxWidth) {
+        line = line.slice(0, -1);
+      }
+      ctx.fillText(`${line}...`, x, currentY);
+    } else {
+      ctx.fillText(line, x, currentY);
+    }
+    currentY += lineHeight;
+  }
+
+  return currentY;
+}
+
+async function generateSummaryCardFile(
+  baseFile: File,
+  title: string,
+  category: string,
+  specDetails: string
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const objectUrl = URL.createObjectURL(baseFile);
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 900;
+      canvas.height = 1200;
+      const ctx = canvas.getContext("2d");
+
+      if (!ctx) {
+        reject(new Error("Canvas context is not available"));
+        return;
+      }
+
+      // 원본 사진 3:4 규격 꽉 채우기
+      const canvasAspect = 900 / 1200;
+      const imgAspect = img.width / img.height;
+      let drawW = 900;
+      let drawH = 1200;
+      let drawX = 0;
+      let drawY = 0;
+
+      if (imgAspect > canvasAspect) {
+        drawH = 1200;
+        drawW = 1200 * imgAspect;
+        drawX = (900 - drawW) / 2;
+      } else {
+        drawW = 900;
+        drawH = 900 / imgAspect;
+        drawY = (1200 - drawH) / 2;
+      }
+
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+      // 상단 그라데이션 및 브랜드 뱃지
+      const topGrad = ctx.createLinearGradient(0, 0, 0, 200);
+      topGrad.addColorStop(0, "rgba(0, 0, 0, 0.7)");
+      topGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = topGrad;
+      ctx.fillRect(0, 0, 900, 200);
+
+      // 카테고리 뱃지
+      ctx.save();
+      ctx.fillStyle = "#D9531E";
+      drawRoundedRect(ctx, 45, 45, 140, 46, 8);
+      ctx.fill();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 20px Pretendard, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(category || "가전", 115, 68);
+      ctx.restore();
+
+      // 한밭중고전자 안심 검수 뱃지
+      ctx.save();
+      ctx.fillStyle = "rgba(14, 26, 43, 0.88)";
+      drawRoundedRect(ctx, 200, 45, 230, 46, 8);
+      ctx.fill();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "600 18px Pretendard, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("한밭중고전자 · A급 검수", 315, 68);
+      ctx.restore();
+
+      // 하단 다크 그라데이션 오버레이
+      const bottomGrad = ctx.createLinearGradient(0, 460, 0, 1200);
+      bottomGrad.addColorStop(0, "rgba(14, 26, 43, 0)");
+      bottomGrad.addColorStop(0.3, "rgba(14, 26, 43, 0.82)");
+      bottomGrad.addColorStop(0.65, "rgba(14, 26, 43, 0.95)");
+      bottomGrad.addColorStop(1, "rgba(14, 26, 43, 0.98)");
+      ctx.fillStyle = bottomGrad;
+      ctx.fillRect(0, 460, 900, 740);
+
+      // 제품 타이틀
+      ctx.save();
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 34px Pretendard, sans-serif";
+      ctx.textBaseline = "top";
+      ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+      ctx.shadowBlur = 10;
+      ctx.shadowOffsetY = 2;
+
+      const titleY = renderWrappedTitle(ctx, title, 45, 630, 810, 46);
+      ctx.restore();
+
+      // 구분선
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(45, titleY + 16);
+      ctx.lineTo(855, titleY + 16);
+      ctx.stroke();
+
+      // 핵심 스펙 불릿 렌더링
+      const bulletItems = extractSpecBullets(specDetails);
+      let currentY = titleY + 36;
+
+      ctx.save();
+      bulletItems.slice(0, 4).forEach((bullet) => {
+        // 포인트 불릿 원
+        ctx.fillStyle = "#D9531E";
+        ctx.beginPath();
+        ctx.arc(55, currentY + 13, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 텍스트 내용
+        ctx.fillStyle = "#F3F4F6";
+        ctx.font = "500 23px Pretendard, sans-serif";
+        ctx.textBaseline = "top";
+        renderTruncatedLine(ctx, bullet, 72, currentY, 780);
+
+        currentY += 46;
+      });
+      ctx.restore();
+
+      // 하단 매장 문의 정보 배너
+      ctx.save();
+      ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+      drawRoundedRect(ctx, 45, 1110, 810, 52, 10);
+      ctx.fill();
+
+      ctx.fillStyle = "#FEE500";
+      ctx.font = "bold 20px Pretendard, sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("전화 문의: 042-523-8179  |  대전·충청·세종 배송 상담", 450, 1136);
+      ctx.restore();
+
+      // JPEG 파일 Blob 변환
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            reject(new Error("Canvas blob creation failed"));
+            return;
+          }
+          const file = new File(
+            [blob],
+            `summary_card_${Date.now()}.jpg`,
+            { type: "image/jpeg" }
+          );
+          resolve(file);
+        },
+        "image/jpeg",
+        0.92
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error("Image load failed"));
+    };
+
+    img.src = objectUrl;
+  });
+}
 
 /* ════════════════════════════════════════════════════════════
    상세 보기 모달 컴포넌트
@@ -111,7 +377,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
           )}
         </div>
 
-        {/* 오른쪽: 정보 영역 */}
+        {/* 오른쪽: 상세 정보 영역 */}
         <div className="w-full md:w-1/2 p-6 sm:p-8 flex flex-col max-h-[50vh] md:max-h-none overflow-y-auto bg-white">
           <div className="flex items-start justify-between gap-4 mb-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -146,9 +412,9 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
           )}
 
           <ul className="text-[14px] text-[#4B5260] space-y-2.5 mb-8 bg-[#FAF9F7] rounded-md p-5 border border-[#E4E0D8] leading-relaxed">
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 판매하는 전 제품은 검수, 세척 과정을 거치고 있습니다.</li>
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 구매 후 A/S와 세금계산서 발행이 가능합니다(카드 결제시 수수료 있음).</li>
-            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</li>
+            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 꼼꼼한 세척·검수를 거친 A급 제품입니다.</li>
+            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 구매 후 A/S와 세금계산서 발행이 가능합니다.</li>
+            <li className="flex items-start gap-2"><Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" /> 대전, 충청, 세종 지역 배송·설치는 전화로 문의해 주세요.</li>
           </ul>
 
           <div className="mt-auto space-y-3 pt-4">
@@ -179,7 +445,7 @@ export default function GalleryPage() {
   const [onlySelling, setOnlySelling] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  /* 관리자 팝업 */
+  /* 관리자 로그인 팝업 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
@@ -197,8 +463,9 @@ export default function GalleryPage() {
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
-  /* AI 검색 옵션(기본값 true) 및 피드백 */
+  /* AI 옵션: 인터넷 검색 및 요약 카드 자동 합성 (기본값 true) */
   const [searchSpecs, setSearchSpecs] = useState(true);
+  const [autoGenCard, setAutoGenCard] = useState(true);
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
   const [foundSources, setFoundSources] = useState<string[]>([]);
 
@@ -302,7 +569,8 @@ export default function GalleryPage() {
     setProductPreviews([]);
     setReviewWarnings([]);
     setFoundSources([]);
-    setSearchSpecs(true); // 기본 체크 상태 유지
+    setSearchSpecs(true);
+    setAutoGenCard(true);
     setIsAnalyzing(false);
   };
 
@@ -336,7 +604,7 @@ export default function GalleryPage() {
         throw new Error(data.error || "분석 요청에 실패했습니다.");
       }
 
-      // AI가 판별한 카테고리로 드롭다운 자동 분류
+      // AI 자동 분류 카테고리 적용
       if (data.category && registerCategories.includes(data.category)) {
         setProductCategory(data.category);
       }
@@ -367,6 +635,25 @@ export default function GalleryPage() {
           : "제품 정보가 완성되었습니다!", 
         { id: toastId }
       );
+
+      // Canvas 기반 요약 카드 이미지 자동 합성 실행
+      if (autoGenCard && filesToAnalyze.length > 0) {
+        try {
+          const cardFile = await generateSummaryCardFile(
+            filesToAnalyze[0],
+            data.title || productTitle || "중고 가전",
+            data.category || productCategory || "가전",
+            data.specDetails || productDescription || ""
+          );
+
+          const cardPreviewUrl = URL.createObjectURL(cardFile);
+          setProductFiles((prev) => [...prev, cardFile]);
+          setProductPreviews((prev) => [...prev, cardPreviewUrl]);
+          toast.success("스펙 요약 카드 이미지가 자동 생성되어 첨부되었습니다!");
+        } catch (cardErr) {
+          console.warn("요약 카드 이미지 생성 건너뜀:", cardErr);
+        }
+      }
     } catch (error: any) {
       console.error("AI 분석 오류:", error);
       toast.error(error.message || "라벨 분석에 실패했습니다.", { id: toastId });
@@ -380,8 +667,8 @@ export default function GalleryPage() {
     const files = Array.from(e.target.files);
     const { ok, error } = validateImageFiles(files);
     if (error) toast.error(error);
-    if (productFiles.length + ok.length > MAX_PHOTOS) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 등록 가능합니다.`);
+    if (productFiles.length + ok.length > 5) {
+      toast.error("사진은 최대 5장까지 등록 가능합니다.");
       return;
     }
 
@@ -580,11 +867,10 @@ export default function GalleryPage() {
           </label>
         </div>
 
-<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
           {isLoading ? (
             Array.from({ length: 8 }).map((_, idx) => (
               <div key={`skeleton-${idx}`} className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] animate-pulse">
-                {/* 기존 aspect-[4/5] -> aspect-[3/4]로 수정 */}
                 <div className="aspect-[3/4] bg-[#EFECE6] w-full" />
                 <div className="p-4 sm:p-5 space-y-3">
                   <div className="h-3 bg-[#EFECE6] rounded w-1/4" />
@@ -618,7 +904,6 @@ export default function GalleryPage() {
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleProductClick(product); } }}
                   className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] group cursor-pointer flex flex-col relative focus-visible:ring-2 focus-visible:ring-[#0E1A2B] outline-none transition-shadow hover:shadow-lg"
                 >
-                  {/* 기존 aspect-[4/5] -> aspect-[3/4]로 수정 */}
                   <div className="aspect-[3/4] relative overflow-hidden bg-[#EFECE6]">
                     <SafeImg
                       src={images[0]}
@@ -760,22 +1045,36 @@ export default function GalleryPage() {
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className={LABEL}>사진 첨부 (최대 {MAX_PHOTOS}장) *</label>
+                  <label className={LABEL}>사진 첨부 (최대 5장) *</label>
                   <span className="text-[11px] text-[#D9531E] font-medium -mt-1">첫 사진이 대표</span>
                 </div>
 
-                {/* 인터넷 검색 옵션 토글: '인터넷 검색'으로 이름 수정 및 기본 체크됨 */}
-                <div className="mb-2.5 flex items-center gap-2 p-2.5 bg-neutral-50 rounded border border-neutral-200">
-                  <input
-                    type="checkbox"
-                    id="searchSpecsCheckbox"
-                    checked={searchSpecs}
-                    onChange={(e) => setSearchSpecs(e.target.checked)}
-                    className="w-4 h-4 accent-[#0E1A2B] cursor-pointer"
-                  />
-                  <label htmlFor="searchSpecsCheckbox" className="text-[12px] font-semibold text-[#0E1A2B] cursor-pointer select-none">
-                    인터넷 검색
-                  </label>
+                {/* AI 옵션 체크박스: 인터넷 검색 & 요약 카드 자동 합성 */}
+                <div className="mb-2.5 flex items-center justify-between p-2.5 bg-neutral-50 rounded border border-neutral-200">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="searchSpecsCheckbox"
+                      checked={searchSpecs}
+                      onChange={(e) => setSearchSpecs(e.target.checked)}
+                      className="w-4 h-4 accent-[#0E1A2B] cursor-pointer"
+                    />
+                    <label htmlFor="searchSpecsCheckbox" className="text-[12px] font-semibold text-[#0E1A2B] cursor-pointer select-none">
+                      인터넷 검색
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="autoGenCardCheckbox"
+                      checked={autoGenCard}
+                      onChange={(e) => setAutoGenCard(e.target.checked)}
+                      className="w-4 h-4 accent-[#0E1A2B] cursor-pointer"
+                    />
+                    <label htmlFor="autoGenCardCheckbox" className="text-[12px] font-semibold text-[#0E1A2B] cursor-pointer select-none">
+                      요약 카드 자동 합성
+                    </label>
+                  </div>
                 </div>
 
                 <input
@@ -783,7 +1082,7 @@ export default function GalleryPage() {
                   accept="image/*"
                   multiple
                   onChange={handleFileChange}
-                  disabled={productFiles.length >= MAX_PHOTOS || isAnalyzing}
+                  disabled={productFiles.length >= 5 || isAnalyzing}
                   required={productFiles.length === 0}
                   className="w-full text-[12px] text-slate-500 file:mr-3 file:py-2.5 file:px-4 file:rounded file:border-0 file:text-[12px] file:font-semibold file:bg-[#F6F5F2] file:text-[#0E1A2B] hover:file:bg-[#EFECE6] cursor-pointer disabled:opacity-50"
                 />
