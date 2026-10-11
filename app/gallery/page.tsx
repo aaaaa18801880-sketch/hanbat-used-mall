@@ -47,7 +47,7 @@ const EyeIcon = () => (
 );
 
 /* ════════════════════════════════════════════════════════════
-   상세 보기 모달 컴포넌트
+   상세 보기 모달 컴포넌트 (가로/세로 모든 사진 완벽 대응)
    ════════════════════════════════════════════════════════════ */
 function ProductDetailModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const images = splitImages(product.image_url);
@@ -69,40 +69,65 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
   return (
     <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-4xl" sheet={false}>
       <div className="bg-white rounded-lg shadow-2xl flex flex-col md:flex-row overflow-hidden max-h-[92vh] w-full">
-        {/* 왼쪽: 이미지 영역 */}
-        <div className="w-full md:w-1/2 bg-[#EFECE6] flex flex-col">
-          <div className="relative aspect-square w-full">
+        {/* 왼쪽: 이미지 뷰어 영역 (가로 사진도 잘림 없이 100% 원본 비율로 중앙 배치) */}
+        <div className="w-full md:w-1/2 bg-[#0E1A2B] flex flex-col justify-between relative min-h-[360px] md:min-h-[520px]">
+          {/* 메인 이미지 컨테이너 */}
+          <div className="relative flex-1 w-full flex items-center justify-center p-3 sm:p-5 overflow-hidden">
             <SafeImg
               key={displayImages[idx]}
               src={displayImages[idx]}
               alt={product.title}
               eager
-              className={`w-full h-full object-cover ${sold ? "grayscale" : ""}`}
+              className={`max-w-full max-h-full w-auto h-auto object-contain rounded drop-shadow-md select-none transition-all duration-300 ${sold ? "grayscale opacity-70" : ""}`}
             />
+            
             {sold && (
-              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/40">
-                <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em]">SOLD</span>
+              <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/60 backdrop-blur-xs">
+                <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-[15px] font-bold tracking-[0.2em] border border-white/20">
+                  SOLD
+                </span>
               </div>
             )}
+
+            {/* 좌우 넘김 버튼 */}
             {displayImages.length > 1 && (
               <>
-                <button type="button" onClick={() => go(-1)} aria-label="이전 사진" className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => go(-1)}
+                  aria-label="이전 사진"
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#0E1A2B] shadow-lg flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-white z-10"
+                >
                   <Icon d={ICON.left} className="w-5 h-5 text-[#0E1A2B]" />
                 </button>
-                <button type="button" onClick={() => go(1)} aria-label="다음 사진" className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 shadow flex items-center justify-center hover:bg-white focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors">
+                <button
+                  type="button"
+                  onClick={() => go(1)}
+                  aria-label="다음 사진"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 text-[#0E1A2B] shadow-lg flex items-center justify-center hover:bg-white hover:scale-105 transition-all focus-visible:ring-2 focus-visible:ring-white z-10"
+                >
                   <Icon d={ICON.right} className="w-5 h-5 text-[#0E1A2B]" />
                 </button>
-                <span className="absolute bottom-4 right-4 bg-[#0E1A2B]/70 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-sm">
+                <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full backdrop-blur-md border border-white/10 z-10">
                   {idx + 1} / {displayImages.length}
                 </span>
               </>
             )}
           </div>
+
+          {/* 하단 썸네일 목록 바 (2장 이상일 때만 표시) */}
           {displayImages.length > 1 && (
-            <div className="flex gap-2 p-3 sm:p-4 overflow-x-auto bg-[#E4E0D8]">
+            <div className="flex gap-2 p-3 bg-black/40 backdrop-blur-sm border-t border-white/10 overflow-x-auto scrollbar-hide shrink-0 justify-center">
               {displayImages.map((img, i) => (
-                <button key={img + i} type="button" onClick={() => setIdx(i)} aria-label={`${i + 1}번 사진 보기`}
-                  className={`relative w-20 h-20 shrink-0 rounded overflow-hidden transition-all ${i === idx ? "ring-2 ring-[#0E1A2B] ring-offset-1 opacity-100" : "opacity-60 hover:opacity-100"}`}>
+                <button
+                  key={img + i}
+                  type="button"
+                  onClick={() => setIdx(i)}
+                  aria-label={`${i + 1}번 사진 보기`}
+                  className={`relative w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded overflow-hidden transition-all bg-black/50 ${
+                    i === idx ? "ring-2 ring-[#D9531E] scale-105 opacity-100" : "opacity-50 hover:opacity-90"
+                  }`}
+                >
                   <SafeImg src={img} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
@@ -124,7 +149,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
           <h2 className="text-[22px] sm:text-[26px] font-bold text-[#0E1A2B] leading-snug mb-3 tracking-tight">{product.title}</h2>
           
-         <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+          <div className="flex items-center justify-between mb-6 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
             <div>
               <span className="text-[11px] font-semibold text-[#8A8478] block mb-0.5">판매 가격</span>
               {sold ? (
