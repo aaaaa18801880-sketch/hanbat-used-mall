@@ -46,16 +46,45 @@ const EyeIcon = () => (
   </svg>
 );
 
+const EditIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5">
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+  </svg>
+);
+
+const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
+
 /* ════════════════════════════════════════════════════════════
-   상세 보기 모달 컴포넌트 (초기 원본 전신 노출 + 클릭 시 전체화면 확대)
+   상세 보기 모달 컴포넌트 (관리자 실시간 수정 기능 포함)
    ════════════════════════════════════════════════════════════ */
-function ProductDetailModal({ product, onClose }: { product: Product; onClose: () => void }) {
+function ProductDetailModal({
+  product,
+  isAdmin,
+  onClose,
+  onProductUpdated,
+}: {
+  product: Product;
+  isAdmin: boolean;
+  onClose: () => void;
+  onProductUpdated: (updated: Product) => void;
+}) {
   const images = splitImages(product.image_url);
   const displayImages = images.length > 0 ? images : [""];
   const [idx, setIdx] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
-  const sold = isSold(product);
   const go = (d: number) => setIdx((i) => (i + d + displayImages.length) % displayImages.length);
+
+  /* 수정 모드 상태 */
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(product.title);
+  const [editCategory, setEditCategory] = useState(product.category || "기타");
+  const [editPrice, setEditPrice] = useState(product.price ? String(product.price) : "");
+  const [editStatus, setEditStatus] = useState(product.status || "판매중");
+  const [editDescription, setEditDescription] = useState(product.description || "");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const sold = (isEditing ? editStatus : product.status) === "판매완료";
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -71,28 +100,96 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
     return () => window.removeEventListener("keydown", onKey);
   }, [displayImages.length, isZoomOpen]);
 
+  const handleSaveEdit = async () => {
+    if (!editTitle.trim()) {
+      toast.error("제품명을 입력해 주세요.");
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const parsedPrice = editPrice ? Number(editPrice.replace(/[^0-9]/g, "")) : 0;
+      const { error } = await supabase
+        .from("products")
+        .update({
+          title: editTitle.trim(),
+          category: editCategory,
+          price: parsedPrice,
+          status: editStatus,
+          description: editDescription.trim(),
+        })
+        .eq("id", product.id);
+
+      if (error) throw error;
+
+      const updated: Product = {
+        ...product,
+        title: editTitle.trim(),
+        category: editCategory,
+        price: parsedPrice,
+        status: editStatus,
+        description: editDescription.trim(),
+      };
+
+      onProductUpdated(updated);
+      setIsEditing(false);
+      toast.success("상품 정보가 수정되었습니다.");
+    } catch (err: any) {
+      toast.error("수정 실패: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditTitle(product.title);
+    setEditCategory(product.category || "기타");
+    setEditPrice(product.price ? String(product.price) : "");
+    setEditStatus(product.status || "판매중");
+    setEditDescription(product.description || "");
+    setIsEditing(false);
+  };
+
   return (
     <>
       <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-xl" sheet={false}>
         <div className="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh] w-full">
-          {/* 상단 닫기 헤더 바 */}
+          {/* 상단 닫기 및 관리자 수정 버튼 헤더 */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
             <div className="flex items-center gap-2">
-              <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
-                {product.category || "기타"}
-              </span>
-              <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>
-                {product.status || "판매중"}
-              </span>
+              {!isEditing ? (
+                <>
+                  <span className="text-[12px] font-bold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
+                    {product.category || "기타"}
+                  </span>
+                  <span className={`text-[12px] font-bold text-white px-2.5 py-1 rounded-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>
+                    {product.status || "판매중"}
+                  </span>
+                </>
+              ) : (
+                <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-sm">
+                  상품 수정 중
+                </span>
+              )}
             </div>
-            <button type="button" onClick={onClose} aria-label="닫기" className="text-[#8A8478] hover:text-[#0E1A2B] transition-colors p-1 -mr-1">
-              <Icon d={ICON.close} className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              {isAdmin && !isEditing && (
+                <button
+                  type="button"
+                  onClick={() => setIsEditing(true)}
+                  className="inline-flex items-center gap-1 text-[12px] font-bold text-[#0E1A2B] bg-[#F6F5F2] hover:bg-[#EFECE6] border border-[#DDD9D1] px-2.5 py-1 rounded transition-colors"
+                >
+                  <EditIcon /> 수정
+                </button>
+              )}
+              <button type="button" onClick={onClose} aria-label="닫기" className="text-[#8A8478] hover:text-[#0E1A2B] transition-colors p-1 -mr-1">
+                <Icon d={ICON.close} className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* 메인 스크롤 영역 */}
           <div className="overflow-y-auto flex-1">
-            {/* 1. 제품 사진 영역 (object-contain 적용으로 잘림/확대 없는 원본 전신 뷰) */}
+            {/* 1. 제품 사진 영역 */}
             <div
               onClick={() => setIsZoomOpen(true)}
               className="relative w-full h-[320px] sm:h-[390px] bg-[#F6F5F2] border-b border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
@@ -116,13 +213,11 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
                 </div>
               )}
 
-              {/* 확대 가능 안내 뱃지 */}
               <div className="absolute top-3 right-3 bg-black/60 text-white text-[11px] font-medium px-2.5 py-1 rounded-full backdrop-blur-md flex items-center gap-1.5 opacity-90 group-hover:opacity-100 transition-opacity pointer-events-none">
                 <Icon d={ICON.search} className="w-3.5 h-3.5" />
                 <span>클릭하여 확대</span>
               </div>
 
-              {/* 좌우 이동 버튼 */}
               {displayImages.length > 1 && (
                 <>
                   <button
@@ -148,7 +243,7 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
               )}
             </div>
 
-            {/* 썸네일 스트립 (2장 이상일 때) */}
+            {/* 썸네일 스트립 (2장 이상) */}
             {displayImages.length > 1 && (
               <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E4E0D8] overflow-x-auto scrollbar-hide">
                 {displayImages.map((img, i) => (
@@ -169,83 +264,174 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
 
             {/* 2. 하단 상세 정보 영역 */}
             <div className="p-5 sm:p-6 space-y-5">
-              <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
-                {product.title}
-              </h2>
+              {isEditing ? (
+                /* ─── 편집 모드 폼 ─── */
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={LABEL}>카테고리</label>
+                      <select
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value)}
+                        className={`${INPUT} text-[14px] font-semibold`}
+                      >
+                        {registerCategories.map((cat) => (
+                          <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className={LABEL}>판매 상태</label>
+                      <select
+                        value={editStatus}
+                        onChange={(e) => setEditStatus(e.target.value)}
+                        className={`${INPUT} text-[14px] font-semibold`}
+                      >
+                        <option value="판매중">판매중</option>
+                        <option value="판매완료">판매완료</option>
+                      </select>
+                    </div>
+                  </div>
 
-              {/* 가격 및 조회수 바 */}
-              <div className="flex items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
-                <div className="min-w-0">
-                  <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
-                  {sold ? (
-                    <p className="text-[26px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
-                      판매완료
-                    </p>
-                  ) : hasPrice(product) ? (
-                    <p className="text-[26px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
-                      {formatPrice(product)}
-                    </p>
-                  ) : (
-                    <a
-                      href={telHref(STORE.tel)}
-                      className="group inline-flex items-center gap-2 text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
-                      title="전화 문의하기 (042-523-8179)"
-                    >
-                      <span className="underline decoration-2 underline-offset-4">가격 문의</span>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
-                        <Icon d={ICON.phone} className="w-3 h-3" /> 연결
-                      </span>
-                    </a>
+                  <div>
+                    <label className={LABEL}>제품 타이틀</label>
+                    <input
+                      type="text"
+                      value={editTitle}
+                      onChange={(e) => setEditTitle(e.target.value)}
+                      className={INPUT}
+                      placeholder="제품명을 입력하세요"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={LABEL}>판매 가격 (원)</label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={editPrice ? Number(editPrice).toLocaleString() : ""}
+                      onChange={(e) => setEditPrice(e.target.value.replace(/[^0-9]/g, ""))}
+                      className={INPUT}
+                      placeholder="비워두면 '가격 문의'"
+                    />
+                  </div>
+
+                  <div>
+                    <label className={LABEL}>제품 규격 및 상세 설명</label>
+                    <textarea
+                      rows={9}
+                      value={editDescription}
+                      onChange={(e) => setEditDescription(e.target.value)}
+                      className={`${INPUT} font-mono text-[13.5px] leading-relaxed resize-y`}
+                      placeholder="특징 및 사양 내용을 수정하세요"
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* ─── 일반 조회 모드 ─── */
+                <>
+                  <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
+                    {product.title}
+                  </h2>
+
+                  {/* 가격 및 조회수 바 */}
+                  <div className="flex items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+                    <div className="min-w-0">
+                      <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
+                      {sold ? (
+                        <p className="text-[26px] font-bold tracking-tight leading-none text-[#8A8478] whitespace-nowrap">
+                          판매완료
+                        </p>
+                      ) : hasPrice(product) ? (
+                        <p className="text-[26px] font-bold tracking-tight leading-none text-[#D9531E] whitespace-nowrap">
+                          {formatPrice(product)}
+                        </p>
+                      ) : (
+                        <a
+                          href={telHref(STORE.tel)}
+                          className="group inline-flex items-center gap-2 text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
+                          title="전화 문의하기 (042-523-8179)"
+                        >
+                          <span className="underline decoration-2 underline-offset-4">가격 문의</span>
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
+                            <Icon d={ICON.phone} className="w-3 h-3" /> 연결
+                          </span>
+                        </a>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-1.5 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
+                      <EyeIcon /> 
+                      <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
+                    </div>
+                  </div>
+
+                  {/* 상세 설명 / 스펙 */}
+                  {product.description && (
+                    <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
+                      <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
+                      <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
+                        {product.description}
+                      </p>
+                    </div>
                   )}
-                </div>
-                <div className="flex items-center gap-1.5 bg-white border border-[#E4E0D8] px-3 py-1.5 rounded-md text-[13px] text-[#4B5260] font-semibold shadow-xs shrink-0">
-                  <EyeIcon /> 
-                  <span>조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회</span>
-                </div>
-              </div>
 
-              {/* 상세 설명 / 스펙 */}
-              {product.description && (
-                <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
-                  <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
-                  <p className="text-[14px] text-[#0E1A2B] whitespace-pre-wrap leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-              )}
+                  {/* 배송 및 검수 안내 */}
+                  <ul className="text-[13px] text-[#4B5260] space-y-2 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] leading-relaxed">
+                    <li className="flex items-start gap-2">
+                      <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                      <span>꼼꼼한 세척·검수를 거친 A급 제품입니다.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                      <span>구매 후 A/S와 세금계산서 발행이 가능합니다.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
+                      <span>대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</span>
+                    </li>
+                  </ul>
 
-              {/* 배송 및 검수 체크리스트 */}
-              <ul className="text-[13px] text-[#4B5260] space-y-2 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
-                  <span>꼼꼼한 세척·검수를 거친 A급 제품입니다.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
-                  <span>구매 후 A/S와 세금계산서 발행이 가능합니다.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
-                  <span>대전, 충청, 세종 외 지역 배송·설치는 전화로 문의해 주세요.</span>
-                </li>
-              </ul>
-
-              {sold && (
-                <p className="text-[13px] text-[#D9531E] font-semibold text-center py-1">
-                  이 제품은 판매가 완료되었습니다. 유사 제품은 전화로 문의해 주세요.
-                </p>
+                  {sold && (
+                    <p className="text-[13px] text-[#D9531E] font-semibold text-center py-1">
+                      이 제품은 판매가 완료되었습니다. 유사 제품은 전화로 문의해 주세요.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
 
-          {/* 하단 고정 문의 버튼 */}
+          {/* 3. 하단 액션 버튼 바 (수정 모드일 때는 취소/저장) */}
           <div className="p-4 border-t border-[#E4E0D8] bg-white grid grid-cols-2 gap-2.5 shrink-0">
-            <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-12 text-[14px]`}>
-              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
-            </a>
-            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[14px]`}>
-              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
-            </a>
+            {isEditing ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  disabled={isSaving}
+                  className={`${BTN_LINE} h-12 text-[14px]`}
+                >
+                  취소
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  disabled={isSaving}
+                  className={`${BTN_NAVY} h-12 text-[14px] disabled:opacity-50`}
+                >
+                  {isSaving ? "저장 중..." : "저장하기"}
+                </button>
+              </>
+            ) : (
+              <>
+                <a href={telHref(STORE.tel)} className={`${BTN_NAVY} h-12 text-[14px]`}>
+                  <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+                </a>
+                <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[14px]`}>
+                  <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+                </a>
+              </>
+            )}
           </div>
         </div>
       </Modal>
@@ -259,7 +445,6 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
           onClick={() => setIsZoomOpen(false)}
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 select-none animate-fadeIn"
         >
-          {/* 상단 도구 모음 */}
           <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-20">
             <span className="text-[14px] font-semibold bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">
               {idx + 1} / {displayImages.length}
@@ -274,7 +459,6 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
             </button>
           </div>
 
-          {/* 원본 사진 (비율 100% 보존) */}
           <div
             onClick={(e) => e.stopPropagation()}
             className="relative max-w-full max-h-[82vh] flex items-center justify-center"
@@ -287,7 +471,6 @@ function ProductDetailModal({ product, onClose }: { product: Product; onClose: (
             />
           </div>
 
-          {/* 전체화면 좌우 이동 버튼 */}
           {displayImages.length > 1 && (
             <>
               <button
@@ -355,7 +538,6 @@ export default function GalleryPage() {
   const [foundSources, setFoundSources] = useState<string[]>([]);
 
   const categories = ["전체", "에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
-  const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -418,6 +600,12 @@ export default function GalleryPage() {
     } catch (error) {
       console.error("조회수 증가 실패:", error);
     }
+  };
+
+  // 상품 수정 완료 시 상태 동기화
+  const handleProductUpdated = (updated: Product) => {
+    setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+    setSelectedProduct(updated);
   };
 
   const handleAdminAuth = async (e: React.FormEvent) => {
@@ -488,7 +676,6 @@ export default function GalleryPage() {
         throw new Error(data.error || "분석 요청에 실패했습니다.");
       }
 
-      // AI 자동 분류 카테고리 적용
       if (data.category && registerCategories.includes(data.category)) {
         setProductCategory(data.category);
       }
@@ -597,6 +784,9 @@ export default function GalleryPage() {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
       toast.success("제품이 삭제되었습니다.");
+      if (selectedProduct?.id === id) {
+        setSelectedProduct(null);
+      }
       fetchProducts();
     } catch (error: any) {
       toast.error("삭제 실패: " + error.message);
@@ -822,8 +1012,15 @@ export default function GalleryPage() {
       <SiteFooter isAdmin={isAdmin} onAdminClick={() => (isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true))} />
       <MobileCtaBar />
 
-      {/* ───── 상세 보기 모달 ───── */}
-      {selectedProduct && <ProductDetailModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
+      {/* ───── 상세 보기 및 실시간 수정 모달 ───── */}
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          isAdmin={isAdmin}
+          onClose={() => setSelectedProduct(null)}
+          onProductUpdated={handleProductUpdated}
+        />
+      )}
 
       {/* ───── 상품 등록 모달 (관리자) ───── */}
       {isUploadModalOpen && (
@@ -859,7 +1056,6 @@ export default function GalleryPage() {
                 />
               </div>
 
-              {/* 검토 필요 알림 영역 */}
               {reviewWarnings.length > 0 && (
                 <div className="p-3 bg-amber-50 border border-amber-200 rounded-md text-[12.5px] text-amber-900 space-y-1">
                   <p className="font-bold flex items-center gap-1.5 text-amber-800">
@@ -873,7 +1069,6 @@ export default function GalleryPage() {
                 </div>
               )}
 
-              {/* 검색 출처 링크 영역 */}
               {foundSources.length > 0 && (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-md text-[12px] text-slate-700">
                   <p className="font-semibold text-slate-900 mb-1">참조 공식 출처:</p>
@@ -914,7 +1109,6 @@ export default function GalleryPage() {
                   <span className="text-[11px] text-[#D9531E] font-medium -mt-1">첫 사진이 대표</span>
                 </div>
 
-                {/* 인터넷 검색 옵션 토글 */}
                 <div className="mb-2.5 flex items-center gap-2 p-2.5 bg-neutral-50 rounded border border-neutral-200">
                   <input
                     type="checkbox"
