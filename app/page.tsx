@@ -1258,13 +1258,13 @@ export default function Home() {
               <div className="mt-8 pt-6 border-t border-white/10">
                 <div className="grid grid-cols-2 gap-2.5">
                   <a 
-                    href="https://map.naver.com/v5/entry/address/36.335503,127.406981,%EB%8C%80%EC%A0%84%EA%B4%91%EC%97%AD%EC%8B%9C+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%88%EB%8F%99+144,jibun" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg font-bold bg-[#03C75A] text-white hover:bg-[#02b350] transition-colors py-3 text-sm shadow-md"
-                  >
-                    <span>네이버 지도</span>
-                  </a>
+  href={STORE.naverMap} 
+  target="_blank" 
+  rel="noopener noreferrer" 
+  className="inline-flex items-center justify-center gap-1.5 rounded-lg font-bold bg-[#03C75A] text-white hover:bg-[#02b350] transition-colors py-3 text-sm shadow-md"
+>
+  <span>네이버 지도</span>
+</a>
                   <a 
                     href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981" 
                     target="_blank" 
