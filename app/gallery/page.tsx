@@ -56,7 +56,7 @@ const EditIcon = () => (
 const registerCategories = ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타"];
 
 /* ════════════════════════════════════════════════════════════
-   상세 보기 모달 컴포넌트 (관리자 실시간 수정 기능 포함)
+   상세 보기 모달 컴포넌트
    ════════════════════════════════════════════════════════════ */
 function ProductDetailModal({
   product,
@@ -75,7 +75,6 @@ function ProductDetailModal({
   const [isZoomOpen, setIsZoomOpen] = useState(false);
   const go = (d: number) => setIdx((i) => (i + d + displayImages.length) % displayImages.length);
 
-  /* 수정 모드 상태 */
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(product.title);
   const [editCategory, setEditCategory] = useState(product.category || "기타");
@@ -153,7 +152,6 @@ function ProductDetailModal({
     <>
       <Modal onClose={onClose} label={`${product.title} 상세 정보`} panelClassName="sm:max-w-xl" sheet={false}>
         <div className="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden max-h-[90vh] w-full">
-          {/* 상단 닫기 및 관리자 수정 버튼 헤더 */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
             <div className="flex items-center gap-2">
               {!isEditing ? (
@@ -187,9 +185,7 @@ function ProductDetailModal({
             </div>
           </div>
 
-          {/* 메인 스크롤 영역 */}
           <div className="overflow-y-auto flex-1">
-            {/* 1. 제품 사진 영역 */}
             <div
               onClick={() => setIsZoomOpen(true)}
               className="relative w-full h-[320px] sm:h-[390px] bg-[#F6F5F2] border-b border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
@@ -243,7 +239,6 @@ function ProductDetailModal({
               )}
             </div>
 
-            {/* 썸네일 스트립 (2장 이상) */}
             {displayImages.length > 1 && (
               <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E4E0D8] overflow-x-auto scrollbar-hide">
                 {displayImages.map((img, i) => (
@@ -262,10 +257,8 @@ function ProductDetailModal({
               </div>
             )}
 
-            {/* 2. 하단 상세 정보 영역 */}
             <div className="p-5 sm:p-6 space-y-5">
               {isEditing ? (
-                /* ─── 편집 모드 폼 ─── */
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -328,13 +321,11 @@ function ProductDetailModal({
                   </div>
                 </div>
               ) : (
-                /* ─── 일반 조회 모드 ─── */
                 <>
                   <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
                     {product.title}
                   </h2>
 
-                  {/* 가격 및 조회수 바 */}
                   <div className="flex items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
                     <div className="min-w-0">
                       <span className="text-[11px] font-semibold text-[#8A8478] block mb-1">판매 가격</span>
@@ -365,7 +356,6 @@ function ProductDetailModal({
                     </div>
                   </div>
 
-                  {/* 상세 설명 / 스펙 */}
                   {product.description && (
                     <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
                       <span className="text-[12px] font-bold text-[#8A8478] block mb-1.5">제품 규격 및 상세 설명</span>
@@ -375,7 +365,6 @@ function ProductDetailModal({
                     </div>
                   )}
 
-                  {/* 배송 및 검수 안내 */}
                   <ul className="text-[13px] text-[#4B5260] space-y-2 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] leading-relaxed">
                     <li className="flex items-start gap-2">
                       <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0" />
@@ -401,7 +390,6 @@ function ProductDetailModal({
             </div>
           </div>
 
-          {/* 3. 하단 액션 버튼 바 (수정 모드일 때는 취소/저장) */}
           <div className="p-4 border-t border-[#E4E0D8] bg-white grid grid-cols-2 gap-2.5 shrink-0">
             {isEditing ? (
               <>
@@ -436,7 +424,7 @@ function ProductDetailModal({
         </div>
       </Modal>
 
-      {/* ───── 전체화면 원본 확대 라이트박스 뷰어 ───── */}
+      {/* 전체화면 확대 라이트박스 */}
       {isZoomOpen && (
         <div
           role="dialog"
@@ -514,6 +502,11 @@ export default function GalleryPage() {
   const [onlySelling, setOnlySelling] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
+  /* 일괄 선택 관리 상태 */
+  const [isSelectMode, setIsSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isBulkLoading, setIsBulkLoading] = useState(false);
+
   /* 관리자 로그인 팝업 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
   const [adminEmail, setAdminEmail] = useState("");
@@ -532,7 +525,6 @@ export default function GalleryPage() {
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
-  /* AI 인터넷 검색 옵션 */
   const [searchSpecs, setSearchSpecs] = useState(true);
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
   const [foundSources, setFoundSources] = useState<string[]>([]);
@@ -564,7 +556,13 @@ export default function GalleryPage() {
     };
     checkSession();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => setIsAdmin(!!session));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAdmin(!!session);
+      if (!session) {
+        setIsSelectMode(false);
+        setSelectedIds(new Set());
+      }
+    });
 
     fetchProducts();
     return () => authListener.subscription.unsubscribe();
@@ -579,6 +577,12 @@ export default function GalleryPage() {
   };
 
   const handleProductClick = async (product: Product) => {
+    // 선택 관리 모드일 때는 체크박스 토글
+    if (isSelectMode) {
+      toggleSelectProduct(product.id);
+      return;
+    }
+
     setSelectedProduct(product);
 
     if (isAdmin) return;
@@ -602,10 +606,79 @@ export default function GalleryPage() {
     }
   };
 
-  // 상품 수정 완료 시 상태 동기화
   const handleProductUpdated = (updated: Product) => {
     setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
     setSelectedProduct(updated);
+  };
+
+  /* ───── 일괄 선택 및 변경/삭제 핸들러 ───── */
+  const toggleSelectProduct = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === visibleProducts.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(visibleProducts.map((p) => p.id)));
+    }
+  };
+
+  const handleBulkStatusChange = async (targetStatus: "판매중" | "판매완료") => {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    setIsBulkLoading(true);
+    const toastId = toast.loading(`${ids.length}개 상품의 상태를 '${targetStatus}'(으)로 변경 중...`);
+
+    try {
+      const { error } = await supabase
+        .from("products")
+        .update({ status: targetStatus })
+        .in("id", ids);
+
+      if (error) throw error;
+
+      setProducts((prev) =>
+        prev.map((p) => (selectedIds.has(p.id) ? { ...p, status: targetStatus } : p))
+      );
+      toast.success(`${ids.length}개 상품이 '${targetStatus}' 처리되었습니다.`, { id: toastId });
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      toast.error("상태 변경 실패: " + err.message, { id: toastId });
+    } finally {
+      setIsBulkLoading(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    const ids = Array.from(selectedIds);
+    if (!confirm(`선택한 ${ids.length}개의 상품을 갤러리에서 영구 삭제하시겠습니까?`)) return;
+
+    setIsBulkLoading(true);
+    const toastId = toast.loading(`${ids.length}개 상품 삭제 중...`);
+
+    try {
+      const { error } = await supabase
+        .from("products")
+        .delete()
+        .in("id", ids);
+
+      if (error) throw error;
+
+      setProducts((prev) => prev.filter((p) => !selectedIds.has(p.id)));
+      toast.success(`${ids.length}개 상품이 삭제되었습니다.`, { id: toastId });
+      setSelectedIds(new Set());
+    } catch (err: any) {
+      toast.error("삭제 실패: " + err.message, { id: toastId });
+    } finally {
+      setIsBulkLoading(false);
+    }
   };
 
   const handleAdminAuth = async (e: React.FormEvent) => {
@@ -628,6 +701,8 @@ export default function GalleryPage() {
   const handleAdminLogout = async () => {
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
       await supabase.auth.signOut();
+      setIsSelectMode(false);
+      setSelectedIds(new Set());
       toast.success("관리자 모드가 종료되었습니다.");
     }
   };
@@ -875,6 +950,7 @@ export default function GalleryPage() {
         </div>
       </section>
 
+      {/* 필터 및 검색 바 */}
       <div className="sticky top-[68px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E4E0D8] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1" role="tablist">
@@ -924,14 +1000,36 @@ export default function GalleryPage() {
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 flex-1 w-full">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <p className="text-[13px] text-[#8A8478]">
             {isLoading ? "제품을 불러오는 중..." : <>검색결과 <strong className="text-[#0E1A2B]">{visibleProducts.length}</strong>건</>}
           </p>
-          <label className="flex items-center gap-2 text-[13px] font-bold text-[#4B5260] cursor-pointer select-none">
-            <input type="checkbox" checked={onlySelling} onChange={(e) => setOnlySelling(e.target.checked)} className="w-4 h-4 accent-[#0E1A2B]" />
-            판매중만 보기
-          </label>
+
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 text-[13px] font-bold text-[#4B5260] cursor-pointer select-none">
+              <input type="checkbox" checked={onlySelling} onChange={(e) => setOnlySelling(e.target.checked)} className="w-4 h-4 accent-[#0E1A2B]" />
+              판매중만 보기
+            </label>
+
+            {/* 관리자 전용: 선택 관리 모드 토글 */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsSelectMode(!isSelectMode);
+                  setSelectedIds(new Set());
+                }}
+                className={`px-3 py-1.5 rounded-md text-[13px] font-bold border transition-colors flex items-center gap-1.5 ${
+                  isSelectMode
+                    ? "bg-[#D9531E] text-white border-[#D9531E] shadow-sm"
+                    : "bg-white text-[#0E1A2B] border-[#DDD9D1] hover:bg-[#F6F5F2]"
+                }`}
+              >
+                <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                {isSelectMode ? "선택 모드 종료" : "선택 일괄 관리"}
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -960,16 +1058,21 @@ export default function GalleryPage() {
               const images = splitImages(product.image_url);
               const sold = isSold(product);
               const fresh = !sold && isNewProduct(product.created_at);
+              const isSelected = selectedIds.has(product.id);
               
               return (
                 <article
                   key={product.id}
                   role="button"
                   tabIndex={0}
-                  aria-label={`${product.title} 상세 보기`}
+                  aria-label={`${product.title} ${isSelectMode ? "선택 토글" : "상세 보기"}`}
                   onClick={() => handleProductClick(product)}
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleProductClick(product); } }}
-                  className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] group cursor-pointer flex flex-col relative focus-visible:ring-2 focus-visible:ring-[#0E1A2B] outline-none transition-shadow hover:shadow-lg"
+                  className={`bg-white rounded-md overflow-hidden border group cursor-pointer flex flex-col relative focus-visible:ring-2 focus-visible:ring-[#0E1A2B] outline-none transition-all duration-200 ${
+                    isSelected
+                      ? "ring-2 ring-[#D9531E] border-[#D9531E] shadow-md scale-[1.01]"
+                      : "border-[#E4E0D8] hover:shadow-lg"
+                  }`}
                 >
                   <div className="aspect-[3/4] relative overflow-hidden bg-[#EFECE6]">
                     <SafeImg
@@ -982,16 +1085,30 @@ export default function GalleryPage() {
                         <span className="px-4 py-1.5 rounded-sm bg-[#0E1A2B]/90 text-white text-[12px] font-bold tracking-[0.2em]">SOLD</span>
                       </div>
                     )}
-                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                      {product.status && (
-                        <span className={`px-2 py-1 rounded text-[11px] font-bold text-white shadow-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>{product.status}</span>
-                      )}
-                      {fresh && <span className="px-2 py-1 rounded text-[11px] font-bold text-white bg-[#D9531E] shadow-sm">NEW</span>}
-                    </div>
+
+                    {/* 선택 모드 체크박스 */}
+                    {isSelectMode ? (
+                      <div className={`absolute top-2.5 left-2.5 w-6 h-6 rounded border flex items-center justify-center transition-all z-20 ${
+                        isSelected
+                          ? "bg-[#D9531E] border-[#D9531E] text-white shadow-sm scale-110"
+                          : "bg-white/90 border-[#8A8478] text-transparent"
+                      }`}>
+                        <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                      </div>
+                    ) : (
+                      <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
+                        {product.status && (
+                          <span className={`px-2 py-1 rounded text-[11px] font-bold text-white shadow-sm ${sold ? "bg-[#8A8478]" : "bg-[#0E1A2B]"}`}>{product.status}</span>
+                        )}
+                        {fresh && <span className="px-2 py-1 rounded text-[11px] font-bold text-white bg-[#D9531E] shadow-sm">NEW</span>}
+                      </div>
+                    )}
+
                     {images.length > 1 && (
                       <span className="absolute bottom-2.5 right-2.5 bg-black/60 text-white text-[11px] font-semibold px-2 py-0.5 rounded backdrop-blur-sm">+{images.length - 1}장</span>
                     )}
-                    {isAdmin && (
+
+                    {isAdmin && !isSelectMode && (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteProduct(product.id); }}
                         className="absolute top-2.5 right-2.5 bg-white text-red-600 border border-red-200 w-7 h-7 rounded-sm flex items-center justify-center shadow hover:bg-red-50 transition-colors z-20"
@@ -1021,10 +1138,69 @@ export default function GalleryPage() {
         </div>
       </main>
 
+      {/* ───── 선택 관리 모드 하단 플로팅 일괄 작업 바 ───── */}
+      {isSelectMode && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 bg-[#0E1A2B]/95 text-white px-4 sm:px-6 py-3.5 rounded-2xl shadow-2xl backdrop-blur-md border border-white/15 max-w-[95vw] overflow-x-auto">
+          <span className="text-[13px] sm:text-[14px] font-bold whitespace-nowrap">
+            <strong className="text-[#FEE500] font-black">{selectedIds.size}</strong>개 선택됨
+          </span>
+
+          <div className="h-4 w-px bg-white/20 mx-1 hidden sm:block" />
+
+          <button
+            type="button"
+            onClick={toggleSelectAll}
+            className="text-[12px] sm:text-[13px] font-semibold text-white/90 px-2.5 py-1.5 rounded bg-white/10 hover:bg-white/20 transition-colors whitespace-nowrap"
+          >
+            {selectedIds.size === visibleProducts.length ? "선택 해제" : "전체 선택"}
+          </button>
+
+          <button
+            type="button"
+            disabled={selectedIds.size === 0 || isBulkLoading}
+            onClick={() => handleBulkStatusChange("판매완료")}
+            className="text-[12px] sm:text-[13px] font-bold text-white px-3 py-1.5 rounded bg-[#4B5260] hover:bg-[#606877] disabled:opacity-40 transition-colors whitespace-nowrap"
+          >
+            판매완료 처리
+          </button>
+
+          <button
+            type="button"
+            disabled={selectedIds.size === 0 || isBulkLoading}
+            onClick={() => handleBulkStatusChange("판매중")}
+            className="text-[12px] sm:text-[13px] font-bold text-white px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 transition-colors whitespace-nowrap"
+          >
+            판매중 복구
+          </button>
+
+          <button
+            type="button"
+            disabled={selectedIds.size === 0 || isBulkLoading}
+            onClick={handleBulkDelete}
+            className="text-[12px] sm:text-[13px] font-bold text-white px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 disabled:opacity-40 transition-colors whitespace-nowrap"
+          >
+            선택 삭제
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIsSelectMode(false);
+              setSelectedIds(new Set());
+            }}
+            className="text-[12px] text-white/60 hover:text-white ml-1 p-1"
+            title="선택 모드 종료"
+            aria-label="선택 모드 종료"
+          >
+            <Icon d={ICON.close} className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       <SiteFooter isAdmin={isAdmin} onAdminClick={() => (isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true))} />
       <MobileCtaBar />
 
-      {/* ───── 상세 보기 및 실시간 수정 모달 ───── */}
+      {/* ───── 상세 보기 및 단건 수정 모달 ───── */}
       {selectedProduct && (
         <ProductDetailModal
           product={selectedProduct}

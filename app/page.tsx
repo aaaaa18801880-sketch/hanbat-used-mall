@@ -18,7 +18,7 @@ const STORE = {
   mobile: "010-6631-8179",
   address: "대전광역시 중구 중촌동 144",
   addressNote: "중촌고가도로 밑",
-  hours: "월~토 09:00 - 19:00",
+  hours: "월~토 09:00 - 19:00(일요일 별도 문의 필요)",
   closed: "일요일 별도 문의",
   parking: "매장 앞 전용 주차장 이용 가능",
   bizNo: "314-01-70945",
@@ -665,7 +665,7 @@ export default function Home() {
               aria-label="카카오톡 상담"
             >
               <Icon d={I.chat} className="h-4 w-4" />
-              <span>카카오톡</span>
+              <span>카톡상담</span>
             </a>
             <button
               type="button"
@@ -721,7 +721,7 @@ export default function Home() {
               <Icon d={I.phone} className="h-4 w-4" /> 전화 상담
             </a>
             <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-12 text-[15px]`}>
-              <Icon d={I.chat} className="h-4 w-4" /> 카카오톡
+              <Icon d={I.chat} className="h-4 w-4" /> 카톡상담
             </a>
           </div>
         </div>
