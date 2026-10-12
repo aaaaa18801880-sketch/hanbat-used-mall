@@ -277,8 +277,8 @@ function SectionHead({ eyebrow, title, desc, dark = false, className = "" }: { e
   return (
     <div className={`hb-reveal ${className}`}>
       <p className={`text-[12px] font-semibold uppercase tracking-[0.22em] ${dark ? "text-[#F08A5D]" : "text-[#D9531E]"}`}>{eyebrow}</p>
-      <h2 className={`mt-3 text-[28px] font-bold leading-[1.25] tracking-[-0.02em] sm:text-[34px] lg:text-[40px] ${dark ? "text-white" : "text-[#0E1A2B]"}`}>{title}</h2>
-      {desc && <p className={`mt-4 max-w-xl text-[15px] leading-relaxed sm:text-base ${dark ? "text-white/70" : "text-[#4B5260]"}`}>{desc}</p>}
+      <h2 className={`mt-3 text-[26px] font-bold leading-[1.3] tracking-[-0.02em] break-keep sm:text-[32px] lg:text-[36px] ${dark ? "text-white" : "text-[#0E1A2B]"}`}>{title}</h2>
+      {desc && <p className={`mt-4 max-w-xl text-[15px] leading-relaxed break-keep sm:text-base ${dark ? "text-white/70" : "text-[#4B5260]"}`}>{desc}</p>}
     </div>
   );
 }
@@ -803,30 +803,32 @@ export default function Home() {
           </dl>
         </div>
 
-        {/* ─────────────── ③ 신뢰 / 서비스 USP ─────────────── */}
+        {/* 신뢰 / 서비스 USP 섹션 */}
         <section className="py-16 sm:py-20 lg:py-28" aria-labelledby="usp-title">
-          <div className={`${WRAP} grid gap-10 lg:grid-cols-12 lg:gap-16`}>
-            <div className="lg:col-span-4">
+          <div className={`${WRAP} grid gap-10 lg:grid-cols-12 lg:gap-14`}>
+            {/* 좌측 영역 (col-span-5로 확장하여 2줄 고정) */}
+            <div className="lg:col-span-5">
               <div className="lg:sticky lg:top-28">
                 <SectionHead
                   eyebrow="Why Hanbat"
                   title={
-                    <span id="usp-title">
-                      중고라서 불안한 부분,
-                      <br />
-                      먼저 확인하고 보냅니다.
+                    <span id="usp-title" className="block">
+                      <span className="block whitespace-nowrap">중고라서 불안한 부분,</span>
+                      <span className="block whitespace-nowrap mt-1">먼저 확인하고 보냅니다.</span>
                     </span>
                   }
                   desc="판매부터 매입, 배송과 설치까지 한밭중고전자가 직접 책임지는 범위입니다."
                 />
               </div>
             </div>
-            <ol className="lg:col-span-8">
+
+            {/* 우측 리스트 영역 (col-span-7, 간격 및 설명 공간 최적화) */}
+            <ol className="lg:col-span-7">
               {USP.map((u, i) => (
-                <li key={u.t} className="grid grid-cols-[44px_1fr] gap-x-4 border-t border-[#DDD9D1] py-6 last:border-b sm:grid-cols-[64px_220px_1fr] sm:gap-x-6 sm:py-7">
+                <li key={u.t} className="grid grid-cols-[36px_1fr] gap-x-3 border-t border-[#DDD9D1] py-5 last:border-b sm:grid-cols-[48px_180px_1fr] sm:gap-x-5 sm:py-6">
                   <span className="text-[13px] font-semibold tabular-nums text-[#D9531E] sm:text-[14px]">{String(i + 1).padStart(2, "0")}</span>
-                  <h3 className="text-[17px] font-bold text-[#0E1A2B] sm:text-[18px]">{u.t}</h3>
-                  <p className="col-start-2 mt-1.5 text-[15px] leading-relaxed text-[#4B5260] sm:col-start-3 sm:mt-0">{u.d}</p>
+                  <h3 className="text-[16px] font-bold text-[#0E1A2B] sm:text-[17px] whitespace-nowrap">{u.t}</h3>
+                  <p className="col-start-2 mt-1 text-[14px] sm:text-[15px] leading-relaxed text-[#4B5260] sm:col-start-3 sm:mt-0 break-keep">{u.d}</p>
                 </li>
               ))}
             </ol>
