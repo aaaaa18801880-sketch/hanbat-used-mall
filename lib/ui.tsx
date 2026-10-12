@@ -148,15 +148,14 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
     <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
       <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
         {/* 로고 영역 */}
-        <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
-            한밭
-          </span>
-          <span className="leading-tight">
-            <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
-            <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE 1997</span>
-          </span>
-        </a>
+        <a href="/" className="flex shrink-0 items-center group py-1" aria-label="한밭중고전자 홈">
+  {/* eslint-disable-next-line @next/next/no-img-element */}
+  <img
+    src="/logo.png"
+    alt="한밭중고전자"
+    className="h-9 sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+  />
+</a>
 
         {/* 중앙 메뉴 (간격 분리 및 패딩 적용으로 뭉침 완벽 해결) */}
         <nav className="hidden items-center gap-1.5 lg:flex" aria-label="주요 메뉴">
