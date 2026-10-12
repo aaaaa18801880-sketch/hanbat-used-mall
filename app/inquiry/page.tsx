@@ -8,7 +8,7 @@ import {
   compressImage, validateImageFiles, MAX_PHOTOS,
 } from "../../lib/site";
 import {
-  Icon, ICON, SafeImg, Modal, SiteHeader, SiteFooter, MobileCtaBar,
+  Icon, ICON, SafeImg, Modal, SiteFooter, MobileCtaBar,
 } from "../../lib/ui";
 
 /* ════════════════════════════════════════════════════════════
@@ -37,7 +37,6 @@ const isSell = (t?: string | null) => t === "내 물건 팔기" || t === "내 �
 const isBuy = (t?: string | null) => t === "구매 문의" || t === "구매문의";
 const typeLabel = (t?: string | null) => (isSell(t) ? "내 물건 팔기" : isBuy(t) ? "구매 문의" : t || "기타 문의");
 
-// 💡 새로운 프리미엄 뱃지 스타일
 const typeStyle = (t?: string | null) =>
   isSell(t) ? "bg-[#FBE9E1] text-[#B5431A]" : isBuy(t) ? "bg-[#E8ECF2] text-[#0E1A2B]" : "bg-[#F0EDE7] text-[#4B5260]";
 
@@ -49,7 +48,6 @@ const formatDate = (dateStr: string) => {
   return d.getFullYear() === new Date().getFullYear() ? `${mm}-${dd}` : `${String(d.getFullYear()).slice(2)}-${mm}-${dd}`;
 };
 
-// 💡 공용 디자인 토큰
 const BTN = "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
 const BTN_ACCENT = `${BTN} bg-[#D9531E] text-white hover:bg-[#BF4715] focus-visible:ring-[#D9531E]`;
 const BTN_NAVY = `${BTN} bg-[#0E1A2B] text-white hover:bg-[#22324A] focus-visible:ring-[#0E1A2B]`;
@@ -144,6 +142,17 @@ export default function InquiryBoardPage() {
     loadData();
     return () => authListener.subscription.unsubscribe();
   }, []);
+
+  /* 키보드 ESC로 확대 뷰어 닫기 */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && enlargedImage) {
+        setEnlargedImage(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [enlargedImage]);
 
   /* ───── 목록 계산 ───── */
   const noticeList = useMemo(() => inquiries.filter((i) => i.is_notice), [inquiries]);
@@ -410,20 +419,49 @@ export default function InquiryBoardPage() {
   return (
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
       
-      {/* 프리미엄 헤더 연동 */}
-      <SiteHeader>
-        {isAdmin && (
-          <button type="button" onClick={handleAdminLogout} title="클릭하여 관리자 모드 종료" className="hidden sm:inline-flex bg-red-500/10 text-red-500 border border-red-500/20 text-[12px] font-bold px-3 py-1.5 rounded text-center transition hover:bg-red-500/20 whitespace-nowrap">
-            관리자 모드 ON
-          </button>
-        )}
-        <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} hidden sm:inline-flex h-10 px-3.5 text-[14px]`}>
-          <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
-        </a>
-        <button type="button" onClick={handleOpenWrite} className={`${BTN_NAVY} h-10 px-4 text-[14px]`}>
-          문의 글쓰기
-        </button>
-      </SiteHeader>
+      {/* 프리미엄 상단 헤더 */}
+      <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
+        <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
+          <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
+            <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
+              한밭
+            </span>
+            <span className="leading-tight">
+              <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
+              <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE 1997</span>
+            </span>
+          </a>
+
+          <nav className="hidden items-center gap-2 lg:flex" aria-label="주요 메뉴">
+            <a href="/gallery" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors">
+              판매 제품
+            </a>
+            <a href="/#reviews-section" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors">
+              배송·설치 인증
+            </a>
+            <a href="/#location-section" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors">
+              오시는 길
+            </a>
+            <a href="/inquiry" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-bold text-[#D9531E] bg-[#FFF5F0] transition-colors">
+              문의게시판
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-2.5">
+            {isAdmin && (
+              <button type="button" onClick={handleAdminLogout} title="클릭하여 관리자 모드 종료" className="hidden sm:inline-flex bg-red-500/10 text-red-600 border border-red-500/20 text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-red-500/20 whitespace-nowrap">
+                관리자 OFF
+              </button>
+            )}
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} hidden sm:inline-flex h-10 px-3.5 text-[14px]`}>
+              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+            </a>
+            <button type="button" onClick={handleOpenWrite} className={`${BTN_NAVY} h-10 px-4 text-[14px]`}>
+              문의 글쓰기
+            </button>
+          </div>
+        </div>
+      </header>
 
       {/* 타이틀 밴드 */}
       <section className="bg-white border-b border-[#E4E0D8]">
@@ -501,7 +539,7 @@ export default function InquiryBoardPage() {
                         <button type="button" className="flex items-center gap-2 font-bold text-[#0E1A2B] text-left max-w-full">
                           <Icon d={ICON.bell} className="w-4 h-4 text-[#D9531E] shrink-0" />
                           <span className="truncate">{notice.category}</span>
-                          {hasImages(notice) && <Icon d={ICON.image} className="w-4 h-4 text-neutral-400 shrink-0" />}
+                          {hasImages(notice) && <Icon d={ICON.image} className="w-4 h-4 text-[#D9531E] shrink-0" />}
                         </button>
                       </td>
                       <td><StatusBadge status={null} notice /></td>
@@ -634,7 +672,7 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* ───── 상세 내용 모달 ───── */}
+      {/* ───── 상세 내용 모달 (공지사항 사진 강조 레이아웃 적용) ───── */}
       {isDetailOpen && selectedItem && (
         <Modal label={`${selectedItem.category || "문의"} 상세`} onClose={() => setIsDetailOpen(false)} panelClassName="sm:max-w-2xl">
           <div className="bg-white rounded-t-lg sm:rounded-lg shadow-2xl border border-[#E4E0D8] max-h-[92vh] flex flex-col w-full overflow-hidden">
@@ -644,8 +682,9 @@ export default function InquiryBoardPage() {
             </div>
 
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-[15px] bg-white">
+              {/* 제목 및 작성자 메타데이터 */}
               <div className="border-b border-[#E4E0D8] pb-5">
-                <h2 className="text-[20px] sm:text-[22px] font-bold text-[#0E1A2B] mb-3 break-words leading-snug">{selectedItem.category || "문의 내용"}</h2>
+                <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] mb-3 break-words leading-snug">{selectedItem.category || "문의 내용"}</h2>
                 <div className="flex flex-wrap gap-y-2 gap-x-5 text-[#8A8478] text-[13px]">
                   <span>작성자 <strong className="text-[#0E1A2B] font-semibold">{isAdmin || selectedItem.is_notice ? selectedItem.name : maskName(selectedItem.name)}</strong></span>
                   {isAdmin && selectedItem.phone && (
@@ -656,24 +695,75 @@ export default function InquiryBoardPage() {
                 </div>
               </div>
 
-              <div className="bg-[#FAF9F7] p-5 sm:p-6 rounded-md text-[#4B5260] leading-[1.8] whitespace-pre-wrap min-h-[120px] border border-[#EEEBE5] break-words">
-                {selectedItem.description || "등록된 상세 내용이 없습니다."}
-              </div>
+              {/* ✨ 1. 공지사항 전용 대형 포스터 강조 뷰 (사진이 있는 경우 상단에 시원하게 배치) */}
+              {selectedItem.is_notice && selectedItem.images && selectedItem.images.length > 0 && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded flex items-center gap-1.5">
+                      <Icon d={ICON.image} className="w-3.5 h-3.5" /> 안내 포스터 확인
+                    </span>
+                    <span className="text-[12px] text-[#8A8478]">클릭 시 고화질로 확대됩니다</span>
+                  </div>
 
-              {selectedItem.images && selectedItem.images.length > 0 && (
-                <div className="pt-2">
-                  <h4 className="font-bold text-[#0E1A2B] mb-3 flex items-center gap-1.5 text-[14px]"><Icon d={ICON.image} className="w-4 h-4 text-neutral-400" /> 첨부 사진 ({selectedItem.images.length}장)</h4>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                  <div className="flex flex-col gap-4">
                     {selectedItem.images.map((imgUrl, idx) => (
-                      <button key={imgUrl + idx} type="button" onClick={() => setEnlargedImage(imgUrl)} aria-label={`첨부사진 ${idx + 1} 크게 보기`}
-                        className="aspect-square bg-[#EFECE6] rounded-md overflow-hidden border border-[#E4E0D8] group relative">
-                        <SafeImg src={imgUrl} alt={`첨부사진 ${idx + 1}`} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <div
+                        key={imgUrl + idx}
+                        onClick={() => setEnlargedImage(imgUrl)}
+                        className="group relative w-full rounded-lg overflow-hidden border border-[#DDD9D1] bg-[#FAF9F7] cursor-zoom-in shadow-xs hover:shadow-md transition-all"
+                        title="클릭하여 원본 크게 보기"
+                      >
+                        <SafeImg
+                          src={imgUrl}
+                          alt={`${selectedItem.category || "공지사항"} 안내 이미지`}
+                          eager
+                          className="w-full h-auto max-h-[560px] object-contain mx-auto transition-transform duration-300 group-hover:scale-[1.01]"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/15 transition-colors flex items-center justify-center pointer-events-none">
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/75 text-white text-[12px] font-bold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 backdrop-blur-xs">
+                            <Icon d={ICON.search} className="w-3.5 h-3.5" /> 원본 크게 보기
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* 텍스트 본문 */}
+              {selectedItem.description && (
+                <div className="bg-[#FAF9F7] p-5 sm:p-6 rounded-md text-[#4B5260] leading-[1.8] whitespace-pre-wrap min-h-[100px] border border-[#EEEBE5] break-words">
+                  {selectedItem.description}
+                </div>
+              )}
+
+              {/* ✨ 2. 일반 문의글 첨부 사진 그리드 (공지사항이 아닌 일반 문의일 때) */}
+              {!selectedItem.is_notice && selectedItem.images && selectedItem.images.length > 0 && (
+                <div className="pt-2">
+                  <h4 className="font-bold text-[#0E1A2B] mb-3 flex items-center gap-1.5 text-[14px]">
+                    <Icon d={ICON.image} className="w-4 h-4 text-neutral-400" /> 첨부 사진 ({selectedItem.images.length}장)
+                  </h4>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
+                    {selectedItem.images.map((imgUrl, idx) => (
+                      <button
+                        key={imgUrl + idx}
+                        type="button"
+                        onClick={() => setEnlargedImage(imgUrl)}
+                        aria-label={`첨부사진 ${idx + 1} 크게 보기`}
+                        className="aspect-square bg-[#EFECE6] rounded-md overflow-hidden border border-[#E4E0D8] group relative cursor-zoom-in"
+                      >
+                        <SafeImg
+                          src={imgUrl}
+                          alt={`첨부사진 ${idx + 1}`}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
+              {/* 관리자 답변 */}
               {selectedItem.admin_reply && !isAdmin && (
                 <div className="bg-[#FEF5F2] rounded-md p-6 border border-[#FDECE4] mt-2">
                   <h3 className="font-bold text-[#0E1A2B] flex items-center gap-2 mb-3 text-[15px]">
@@ -844,16 +934,44 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* ───── 사진 크게 보기 ───── */}
+      {/* ───── ✨ 잘림 없는 전체화면 고화질 라이트박스 뷰어 ───── */}
       {enlargedImage && (
-        <Modal label="사진 확대" onClose={() => setEnlargedImage(null)} overlayClassName="bg-black/90" sheet={false} panelClassName="max-w-4xl">
-          <div onClick={() => setEnlargedImage(null)} className="cursor-zoom-out flex flex-col items-center">
-            <div className="relative w-full max-w-4xl max-h-[85vh]">
-              <SafeImg src={enlargedImage} alt="확대 사진" eager className="w-full h-full object-contain drop-shadow-2xl" />
-            </div>
-            <p className="text-center text-white/60 text-[13px] mt-6">화면을 누르거나 ESC 키를 누르면 닫힙니다.</p>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="사진 전체화면 확대 보기"
+          onClick={() => setEnlargedImage(null)}
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 select-none animate-fadeIn cursor-zoom-out"
+        >
+          {/* 상단 닫기 바 */}
+          <div className="absolute top-4 right-4 z-20">
+            <button
+              type="button"
+              onClick={() => setEnlargedImage(null)}
+              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors text-white"
+              aria-label="닫기"
+            >
+              <Icon d={ICON.close} className="w-6 h-6" />
+            </button>
           </div>
-        </Modal>
+
+          {/* 원본 사진 영역 (세로로 긴 카드뉴스도 비율 100% 보존하여 화면에 전신 수용) */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-full max-h-[88vh] overflow-y-auto flex items-center justify-center p-1"
+          >
+            <SafeImg
+              src={enlargedImage}
+              alt="확대 사진"
+              eager
+              className="max-w-full max-h-[86vh] w-auto h-auto object-contain rounded-md shadow-2xl"
+            />
+          </div>
+
+          <p className="text-white/60 text-[12px] sm:text-[13px] mt-3 pointer-events-none">
+            화면을 누르거나 ESC를 누르면 닫힙니다.
+          </p>
+        </div>
       )}
 
       {/* 관리자 로그인 */}
