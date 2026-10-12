@@ -3,7 +3,6 @@ import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import "./globals.css";
 
-// 💡 발급받은 구글 애널리틱스 측정 ID 적용 완료
 const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
 
 export const metadata: Metadata = {
@@ -54,30 +53,44 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // 구글 검색 사이트명 인식을 위한 WebSite + 매장 정보(LocalBusiness) 동시 등록
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    "name": "한밭중고전자",
-    "image": "https://hanbatmall.com/og-image.jpg",
-    "telephone": "042-523-8179",
-    "url": "https://hanbatmall.com",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "대전광역시 중구 중촌동 144",
-      "addressLocality": "대전광역시",
-      "addressRegion": "중구",
-      "postalCode": "34800",
-      "addressCountry": "KR"
-    },
-    "openingHoursSpecification": [
+    "@graph": [
       {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-        "opens": "09:00",
-        "closes": "19:00"
+        "@type": "WebSite",
+        "@id": "https://hanbatmall.com/#website",
+        "url": "https://hanbatmall.com",
+        "name": "한밭중고전자",
+        "alternateName": ["hanbatmall", "한밭몰", "대전한밭중고전자"],
+        "inLanguage": "ko-KR"
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://hanbatmall.com/#localbusiness",
+        "name": "한밭중고전자",
+        "image": "https://hanbatmall.com/og-image.jpg",
+        "telephone": "042-523-8179",
+        "url": "https://hanbatmall.com",
+        "priceRange": "₩₩",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "대전광역시 중구 중촌동 144",
+          "addressLocality": "대전광역시",
+          "addressRegion": "중구",
+          "postalCode": "34800",
+          "addressCountry": "KR"
+        },
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+            "opens": "09:00",
+            "closes": "19:00"
+          }
+        ]
       }
-    ],
-    "priceRange": "₩₩"
+    ]
   };
 
   return (
@@ -87,7 +100,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* 구글 애널리틱스 스크립트 로드 */}
+        {/* 구글 애널리틱스 스크립트 */}
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
