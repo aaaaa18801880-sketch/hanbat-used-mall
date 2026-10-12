@@ -136,62 +136,61 @@ export function Modal({
 }
 
 /* ════════════════════════════════════════════════════════════
-   상단 헤더 (SiteHeader) - 솔리드 화이트 & 3단 균형 배치
+   상단 헤더 (SiteHeader) - [로고 + 메뉴 좌측 정렬] & [우측 버튼]
    ════════════════════════════════════════════════════════════ */
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <>
-      {/* 불투명 블러 제거: 완전한 솔리드 화이트 단색 헤더 */}
       <header className="sticky top-0 z-50 w-full bg-white border-b border-[#E4E0D8]">
         <div className="mx-auto flex h-[74px] sm:h-[78px] w-full max-w-[1280px] items-center justify-between px-6 sm:px-8">
           
-          {/* 좌측: 로고 영역 */}
-          <div className="flex shrink-0 items-center">
-            <a href="/" className="flex items-center group py-1" aria-label="한밭중고전자 홈">
+          {/* 좌측 묶음: 로고 바로 옆에 메뉴를 나란히 배치 */}
+          <div className="flex items-center gap-8 xl:gap-10">
+            {/* 로고 */}
+            <a href="/" className="flex shrink-0 items-center py-1 group" aria-label="한밭중고전자 홈">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
                 alt="한밭중고전자"
-                className="h-10 sm:h-[46px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.01]"
+                className="h-10 sm:h-[48px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.01]"
               />
             </a>
+
+            {/* 로고 바로 옆 메뉴 (항목별 여백 보장) */}
+            <nav className="hidden lg:flex items-center gap-1 xl:gap-2" aria-label="주요 메뉴">
+              <a
+                href="/gallery"
+                className="px-3.5 py-2 rounded-md text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] hover:bg-neutral-100 transition-colors"
+              >
+                판매 제품
+              </a>
+              <a
+                href="/#reviews-section"
+                className="px-3.5 py-2 rounded-md text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] hover:bg-neutral-100 transition-colors"
+              >
+                배송·설치 인증
+              </a>
+              <a
+                href="/#location-section"
+                className="px-3.5 py-2 rounded-md text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] hover:bg-neutral-100 transition-colors"
+              >
+                오시는 길
+              </a>
+              <a
+                href="/inquiry"
+                className="px-3.5 py-2 rounded-md text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] hover:bg-neutral-100 transition-colors"
+              >
+                문의게시판
+              </a>
+            </nav>
           </div>
 
-          {/* 중앙: 네비게이션 메뉴 (중앙 정렬 및 시안 비율의 자간·간격) */}
-          <nav className="hidden lg:flex items-center gap-9 xl:gap-11" aria-label="주요 메뉴">
-            <a
-              href="/gallery"
-              className="text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] transition-colors py-1"
-            >
-              판매 제품
-            </a>
-            <a
-              href="/#reviews-section"
-              className="text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] transition-colors py-1"
-            >
-              배송·설치 인증
-            </a>
-            <a
-              href="/#location-section"
-              className="text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] transition-colors py-1"
-            >
-              오시는 길
-            </a>
-            <a
-              href="/inquiry"
-              className="text-[15px] font-bold text-[#2B3240] hover:text-[#D9531E] transition-colors py-1"
-            >
-              문의게시판
-            </a>
-          </nav>
-
-          {/* 우측: 액션 버튼 영역 */}
+          {/* 우측 묶음: 문의하기 버튼 및 모바일 햄버거 메뉴 */}
           <div className="flex items-center gap-3">
             {children}
 
-            {/* 모바일 햄버거 메뉴 버튼 */}
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
@@ -258,7 +257,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
             </a>
             <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-[#FEE500] text-[14px] font-bold text-[#191600] shadow-xs">
-              <Icon d={ICON.chat} className="w-4 h-4" /> 카카오톡
+              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
             </a>
           </div>
         </div>
