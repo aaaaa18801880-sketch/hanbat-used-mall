@@ -8,7 +8,7 @@ import {
   compressImage, validateImageFiles, MAX_PHOTOS,
 } from "../../lib/site";
 import {
-  Icon, ICON, SafeImg, Modal, SiteFooter, MobileCtaBar,
+  Icon, ICON, SafeImg, Modal, SiteHeader, SiteFooter, MobileCtaBar,
 } from "../../lib/ui";
 
 /* ════════════════════════════════════════════════════════════
@@ -420,48 +420,24 @@ export default function InquiryBoardPage() {
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
       
       {/* 프리미엄 상단 헤더 */}
-      <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
-          <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
-            <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
-              한밭
-            </span>
-            <span className="leading-tight">
-              <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
-              <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE 1997</span>
-            </span>
-          </a>
-
-          <nav className="hidden items-center gap-2 lg:flex" aria-label="주요 메뉴">
-            <a href="/gallery" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors">
-              판매 제품
-            </a>
-            <a href="/#reviews-section" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors">
-              배송·설치 인증
-            </a>
-            <a href="/#location-section" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors">
-              오시는 길
-            </a>
-            <a href="/inquiry" className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-bold text-[#D9531E] bg-[#FFF5F0] transition-colors">
-              문의게시판
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-2.5">
-            {isAdmin && (
-              <button type="button" onClick={handleAdminLogout} title="클릭하여 관리자 모드 종료" className="hidden sm:inline-flex bg-red-500/10 text-red-600 border border-red-500/20 text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-red-500/20 whitespace-nowrap">
-                관리자 OFF
-              </button>
-            )}
-            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} hidden sm:inline-flex h-10 px-3.5 text-[14px]`}>
-              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
-            </a>
-            <button type="button" onClick={handleOpenWrite} className={`${BTN_NAVY} h-10 px-4 text-[14px]`}>
-              문의 글쓰기
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteHeader>
+  {isAdmin && (
+    <button
+      type="button"
+      onClick={handleAdminLogout}
+      className="hidden sm:inline-flex bg-red-500/10 text-red-600 border border-red-500/20 text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-red-500/20 whitespace-nowrap"
+    >
+      관리자 OFF
+    </button>
+  )}
+  <button
+    type="button"
+    onClick={handleOpenWrite}
+    className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] hover:bg-[#22324A] text-white font-bold h-10 px-4 text-[13px] shadow-xs transition-colors"
+  >
+    문의 글쓰기
+  </button>
+</SiteHeader>
 
       {/* 타이틀 밴드 */}
       <section className="bg-white border-b border-[#E4E0D8]">

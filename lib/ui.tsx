@@ -1,273 +1,378 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { ReactNode } from "react";
-import { STORE, telHref } from "./site";
+import React, { useState, useEffect } from "react";
+import { STORE } from "./site";
 
-/* ───────── 아이콘 (SVG path, 이모지 대체) ───────── */
+/* ════════════════════════════════════════════════════════════
+   1. 아이콘 모음 (ICON & Icon 컴포넌트)
+   ════════════════════════════════════════════════════════════ */
 export const ICON = {
-  phone: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z",
-  chat: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z",
-  search: "M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3",
+  phone: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z",
+  chat: "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z",
+  check: "M20 6 9 17l-5-5",
   close: "M18 6 6 18M6 6l12 12",
   plus: "M12 5v14M5 12h14",
+  search: "m21 21-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z",
   left: "m15 18-6-6 6-6",
   right: "m9 18 6-6-6-6",
-  down: "m6 9 6 6 6-6",
-  up: "m18 15-6-6-6 6",
-  check: "M20 6 9 17l-5-5",
-  arrow: "M5 12h14M12 5l7 7-7 7",
-  lock: "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zM7 11V7a5 5 0 0 1 10 0v4",
-  image: "M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zM8.5 10a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM21 15l-5-5L5 21",
-  bell: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0",
-  pin: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
-  clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
-  car: "M5 17h14M3 13l2-6h14l2 6v4H3v-4zM7 17v2M17 17v2",
-  truck: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
-  shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
-  tool: "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
-  receipt: "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8",
-  calendar: "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18",
-  tag: "M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82zM7 7h.01",
-  list: "M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01",
-  edit: "M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z",
-  home: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10",
-} as const;
+  lock: "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-12 0V7a5 5 0 0 1 10 0v4",
+  bell: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9zm-4.27 13a2 2 0 0 1-3.46 0",
+  image: "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm12.5 5-5-5-6 6-3-3-4 4",
+  menu: "M4 7h16M4 12h16M4 17h16",
+};
 
-export function Icon({ d, className = "w-4 h-4" }: { d: string; className?: string }) {
+export function Icon({
+  d,
+  className = "w-4 h-4",
+  strokeWidth = 2,
+  ...props
+}: {
+  d: string;
+  className?: string;
+  strokeWidth?: number;
+  [key: string]: any;
+}) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={strokeWidth}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      {...props}
+    >
       <path d={d} />
     </svg>
   );
 }
 
-/* ───────── 이미지: 지연 로딩 + 오류 시 대체 ───────── */
-const PLACEHOLDER =
-  "data:image/svg+xml;utf8," +
-  encodeURIComponent(
-    "<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><rect width='400' height='400' fill='#f1f5f9'/><text x='50%' y='50%' fill='#94a3b8' font-size='18' font-family='sans-serif' text-anchor='middle' dominant-baseline='middle'>이미지 준비 중</text></svg>"
-  );
-
-export function SafeImg({ src, alt, className, eager = false, hideOnError = false }: {
-  src?: string; alt: string; className?: string; eager?: boolean; hideOnError?: boolean;
+/* ════════════════════════════════════════════════════════════
+   2. 안전 이미지 컴포넌트 (SafeImg)
+   ════════════════════════════════════════════════════════════ */
+export function SafeImg({
+  src,
+  alt = "",
+  className = "",
+  eager = false,
+  ...props
+}: {
+  src?: string | null;
+  alt?: string;
+  className?: string;
+  eager?: boolean;
+  [key: string]: any;
 }) {
-  const [failed, setFailed] = useState(false);
-  useEffect(() => setFailed(false), [src]);
-  if (hideOnError && (failed || !src)) return null;
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  if (!src || error) {
+    return (
+      <div className={`flex items-center justify-center bg-[#EFECE6] text-[#8A8478] text-[12px] font-medium select-none ${className}`}>
+        이미지 준비중
+      </div>
+    );
+  }
+
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src={failed || !src ? PLACEHOLDER : src}
+      src={src}
       alt={alt}
       loading={eager ? "eager" : "lazy"}
-      decoding="async"
-      onError={() => setFailed(true)}
+      onError={() => setError(true)}
       className={className}
+      {...props}
     />
   );
 }
 
-/* ───────── 모달: ESC / 배경 클릭 / 스크롤 잠금 / 포커스 복귀 / 중첩 대응 ───────── */
-const modalStack: symbol[] = [];
-let lockCount = 0;
-
+/* ════════════════════════════════════════════════════════════
+   3. 모달 컴포넌트 (Modal)
+   ════════════════════════════════════════════════════════════ */
 export function Modal({
-  label, onClose, children,
-  panelClassName = "max-w-md",
-  overlayClassName = "bg-black/50",
-  z = "z-50",
-  sheet = true,
-  closeOnBackdrop = true,
-  closeOnEsc = true,
+  children,
+  onClose,
+  label = "모달",
+  panelClassName = "",
+  overlayClassName = "",
+  sheet = false,
 }: {
-  label: string; onClose: () => void; children: ReactNode;
-  panelClassName?: string; overlayClassName?: string; z?: string;
-  sheet?: boolean; closeOnBackdrop?: boolean; closeOnEsc?: boolean;
+  children: React.ReactNode;
+  onClose: () => void;
+  label?: string;
+  panelClassName?: string;
+  overlayClassName?: string;
+  sheet?: boolean;
 }) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
-
   useEffect(() => {
-    const id = Symbol("modal");
-    modalStack.push(id);
-    const previous = document.activeElement as HTMLElement | null;
-    if (lockCount++ === 0) document.body.style.overflow = "hidden";
-    const panel = panelRef.current;
-    if (panel && !panel.contains(document.activeElement)) panel.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && closeOnEsc && modalStack[modalStack.length - 1] === id) closeRef.current();
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
     };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      modalStack.splice(modalStack.indexOf(id), 1);
-      if (--lockCount === 0) document.body.style.overflow = "";
-      previous?.focus?.();
-    };
-  }, [closeOnEsc]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   return (
     <div
-      className={`fixed inset-0 ${z} ${overlayClassName} backdrop-blur-sm flex justify-center ${sheet ? "items-end sm:items-center sm:p-4" : "items-center p-4"}`}
-      onMouseDown={(e) => { if (closeOnBackdrop && e.target === e.currentTarget) onClose(); }}
+      role="dialog"
+      aria-modal="true"
+      aria-label={label}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-fadeIn ${overlayClassName}`}
+      onClick={onClose}
     >
-      <div ref={panelRef} role="dialog" aria-modal="true" aria-label={label} tabIndex={-1} className={`w-full outline-none ${panelClassName}`}>
+      <div
+        className={`w-full ${panelClassName}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {children}
       </div>
     </div>
   );
 }
 
-/* ───────── 섹션 제목 ───────── */
-export function SectionHead({ eyebrow, title, desc, dark = false, children }: {
-  eyebrow?: string; title: string; desc?: string; dark?: boolean; children?: ReactNode;
+/* ════════════════════════════════════════════════════════════
+   4. 상단 공통 헤더 (SiteHeader) - 공식 로고 및 네비게이션
+   ════════════════════════════════════════════════════════════ */
+export function SiteHeader({ children }: { children?: React.ReactNode }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
+        <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
+          {/* 공식 로고 이미지 */}
+          <a href="/" className="flex shrink-0 items-center py-1 group" aria-label="한밭중고전자 홈">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.png"
+              alt="한밭중고전자"
+              className="h-9 sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+            />
+          </a>
+
+          {/* 데스크톱 메뉴 */}
+          <nav className="hidden items-center gap-2 lg:flex" aria-label="주요 메뉴">
+            <a
+              href="/gallery"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-semibold text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+            >
+              판매 제품
+            </a>
+            <a
+              href="/#reviews-section"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-semibold text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+            >
+              배송·설치 인증
+            </a>
+            <a
+              href="/#location-section"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-semibold text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+            >
+              오시는 길
+            </a>
+            <a
+              href="/inquiry"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-semibold text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+            >
+              문의게시판
+            </a>
+          </nav>
+
+          {/* 우측 공통 버튼 영역 */}
+          <div className="flex items-center gap-2.5">
+            {children}
+
+            <a
+              href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`}
+              className="hidden xl:inline-flex items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors ml-1"
+            >
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+              <span>{STORE.tel}</span>
+            </a>
+
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-md bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] font-semibold h-10 px-3.5 text-[13px] shadow-xs transition-colors"
+              aria-label="카카오톡 상담"
+            >
+              <Icon d={ICON.chat} className="w-4 h-4" />
+              <span>카카오톡</span>
+            </a>
+
+            {/* 모바일 햄버거 메뉴 버튼 */}
+            <button
+              type="button"
+              onClick={() => setMenuOpen(true)}
+              className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B] lg:hidden hover:bg-neutral-100"
+              aria-label="메뉴 열기"
+            >
+              <Icon d={ICON.menu} className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* 모바일 전체화면 메뉴 */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-[60] flex flex-col bg-white lg:hidden" role="dialog" aria-modal="true">
+          <div className="flex h-16 items-center justify-between border-b border-[#EEEBE5] px-5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="한밭중고전자" className="h-8 w-auto object-contain" />
+            <button
+              type="button"
+              onClick={() => setMenuOpen(false)}
+              className="grid h-10 w-10 place-items-center text-[#0E1A2B]"
+              aria-label="메뉴 닫기"
+            >
+              <Icon d={ICON.close} className="w-6 h-6" />
+            </button>
+          </div>
+
+          <nav className="flex-1 overflow-y-auto px-5 py-4">
+            <ul className="divide-y divide-[#F0EDE7]">
+              <li>
+                <a href="/gallery" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[16px] font-bold text-[#0E1A2B]">
+                  판매 제품 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
+                </a>
+              </li>
+              <li>
+                <a href="/#reviews-section" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[16px] font-bold text-[#0E1A2B]">
+                  배송·설치 인증 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
+                </a>
+              </li>
+              <li>
+                <a href="/#location-section" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[16px] font-bold text-[#0E1A2B]">
+                  오시는 길 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
+                </a>
+              </li>
+              <li>
+                <a href="/inquiry" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[16px] font-bold text-[#0E1A2B]">
+                  문의게시판 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
+                </a>
+              </li>
+            </ul>
+
+            <div className="mt-6 rounded-md bg-[#F6F5F2] p-4 text-[14px] text-[#4B5260]">
+              <p className="font-bold text-[#0E1A2B]">{STORE.hours}</p>
+              <p className="mt-1">{STORE.address}</p>
+            </div>
+          </nav>
+
+          <div className="grid grid-cols-2 gap-2 border-t border-[#EEEBE5] p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+            <a href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`} className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-[#0E1A2B] text-[15px] font-bold text-white">
+              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+            </a>
+            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-[#FEE500] text-[15px] font-bold text-[#191600]">
+              <Icon d={ICON.chat} className="w-4 h-4" /> 카카오톡
+            </a>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   5. 하단 푸터 (SiteFooter)
+   ════════════════════════════════════════════════════════════ */
+export function SiteFooter({
+  isAdmin = false,
+  onAdminClick,
+}: {
+  isAdmin?: boolean;
+  onAdminClick?: () => void;
 }) {
   return (
-    <div className="text-center mb-10 sm:mb-12">
-      {eyebrow && <p className={`text-xs font-black tracking-widest uppercase mb-2 ${dark ? "text-blue-300" : "text-[#0b4b8b]"}`}>{eyebrow}</p>}
-      <h2 className={`text-2xl sm:text-3xl font-black tracking-tight break-keep ${dark ? "text-white" : "text-slate-900"}`}>{title}</h2>
-      {desc && <p className={`mt-3 text-sm sm:text-base break-keep max-w-2xl mx-auto ${dark ? "text-slate-300" : "text-slate-500"}`}>{desc}</p>}
-      {children}
-    </div>
-  );
-}
-
-/* ───────── 공통 헤더 / 푸터 / 모바일 상담 바 ───────── */
-const NAV = [
-  { label: "판매 제품", href: "/gallery" },
-  { label: "배송·설치 인증", href: "/#reviews-section" },
-  { label: "오시는 길", href: "/#location-section" },
-  { label: "문의게시판", href: "/inquiry" },
-];
-
-// lib/ui.tsx 파일 내부
-export function SiteHeader({ children }: { children?: React.ReactNode }) {
-  return (
-    <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
-      <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
-        {/* 로고 영역 */}
-        <a href="/" className="flex shrink-0 items-center group py-1" aria-label="한밭중고전자 홈">
-  {/* eslint-disable-next-line @next/next/no-img-element */}
-  <img
-    src="/logo.png"
-    alt="한밭중고전자"
-    className="h-9 sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-  />
-</a>
-
-        {/* 중앙 메뉴 (간격 분리 및 패딩 적용으로 뭉침 완벽 해결) */}
-        <nav className="hidden items-center gap-1.5 lg:flex" aria-label="주요 메뉴">
-          <a
-            href="/gallery"
-            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-bold text-[#D9531E] bg-[#FFF5F0] transition-colors"
-          >
-            판매 제품
-          </a>
-          <a
-            href="/#reviews-section"
-            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
-          >
-            배송·설치 인증
-          </a>
-          <a
-            href="/#location-section"
-            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
-          >
-            오시는 길
-          </a>
-          <a
-            href="/inquiry"
-            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
-          >
-            문의게시판
-          </a>
-        </nav>
-
-        {/* 우측 액션 버튼 영역 */}
-        <div className="flex items-center gap-3">
-          {children}
-        </div>
-      </div>
-    </header>
-  );
-}
-
-export function SiteFooter({ isAdmin, onAdminClick }: { isAdmin: boolean; onAdminClick: () => void }) {
-  return (
-    <footer className="bg-slate-950 text-slate-400 py-10 pb-28 sm:pb-10 text-xs border-t border-slate-800 w-full mt-auto">
-      <div className="max-w-7xl mx-auto px-4 space-y-3">
-        <div className="flex flex-wrap items-center justify-center sm:justify-between gap-3 pb-4 border-b border-slate-900 text-slate-300 font-bold">
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
-            <a href="/privacy" target="_blank" className="hover:text-white transition">개인정보처리방침</a><span aria-hidden="true" className="text-slate-700">|</span>
-            <a href="/#location-section" className="hover:text-white transition">오시는 길</a><span aria-hidden="true" className="text-slate-700">|</span>
-            <a href={STORE.kakaoChannel} target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-yellow-400">카카오채널</a><span aria-hidden="true" className="text-slate-700">|</span>
-            <a href={STORE.cafe} target="_blank" rel="noopener noreferrer" className="hover:text-white transition text-emerald-400">제품 확인 카페</a>
+    <footer className="border-t border-[#E4E0D8] bg-white text-[#4B5260] text-[13px] py-10 sm:py-12 mt-auto">
+      <div className="mx-auto max-w-[1240px] px-5 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-[#EEEBE5]">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="font-bold text-[16px] text-[#0E1A2B]">{STORE.name}</span>
+              <span className="text-[11px] font-semibold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2 py-0.5 rounded">
+                SINCE {STORE.since}
+              </span>
+            </div>
+            <p className="text-[13px] text-[#6B7280] leading-relaxed break-keep">
+              대전·충청 중고가전 및 식당·카페 업소용 주방기기 전문 매입·판매 매장
+            </p>
           </div>
-          <div className="text-slate-500 text-[11px]">© {new Date().getFullYear()} {STORE.name}. All rights reserved.</div>
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`}
+              className="inline-flex items-center gap-1.5 font-bold text-[#0E1A2B] bg-[#F6F5F2] border border-[#DDD9D1] px-3.5 py-2 rounded-md hover:bg-[#EFECE6] transition-colors"
+            >
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+              {STORE.tel}
+            </a>
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-bold text-[#191600] bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 rounded-md transition-colors"
+            >
+              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+              카카오톡 상담
+            </a>
+          </div>
         </div>
-        <div className="space-y-1 text-[11px] sm:text-xs leading-relaxed text-center sm:text-left break-keep">
-          <p><strong className="text-slate-200">상호 :</strong> {STORE.name} &nbsp;|&nbsp; <strong className="text-slate-200">대표자 :</strong> {STORE.ceo} &nbsp;|&nbsp; <strong className="text-slate-200">주소 :</strong> {STORE.address}</p>
-          <p>
-            <strong className="text-slate-200">TEL :</strong> <a href={telHref(STORE.tel)} className="hover:text-white">{STORE.tel}</a> / {STORE.tel2} &nbsp;|&nbsp;{" "}
-            <strong className="text-slate-200">HP :</strong> <a href={telHref(STORE.mobile)} className="hover:text-white">{STORE.mobile}</a> &nbsp;|&nbsp;{" "}
-            <strong className="text-slate-200">사업자번호 :</strong> {STORE.bizNo} &nbsp;|&nbsp;{" "}
-            <strong className="text-slate-200">통신판매신고번호 :</strong> {STORE.mailOrderNo}
-          </p>
-          <p className="text-slate-500">개인정보 보호책임자 : {STORE.privacyOfficer}</p>
-        </div>
-        <div className="pt-4 border-t border-slate-900 flex justify-center sm:justify-end">
-          <button type="button" onClick={onAdminClick} className="text-slate-600 hover:text-slate-400 transition underline text-[11px]">
-            {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
-          </button>
+
+        <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[12px] text-[#8A8478]">
+          <div className="space-y-1">
+            <p>
+              매장 주소: {STORE.address} | 영업시간: {STORE.hours}
+            </p>
+            <p>© {STORE.name}. All rights reserved.</p>
+          </div>
+          {onAdminClick && (
+            <button
+              type="button"
+              onClick={onAdminClick}
+              className="text-[11px] text-[#8A8478] hover:text-[#0E1A2B] underline decoration-neutral-300 underline-offset-4 transition-colors"
+            >
+              {isAdmin ? "관리자 모드 로그아웃" : "관리자 로그인"}
+            </button>
+          )}
         </div>
       </div>
     </footer>
   );
 }
 
-export function MobileCtaBar({ inquiryHref }: { inquiryHref?: string }) {
+/* ════════════════════════════════════════════════════════════
+   6. 모바일 하단 CTA 바 (MobileCtaBar)
+   ════════════════════════════════════════════════════════════ */
+export function MobileCtaBar() {
   return (
-    <div className={`sm:hidden fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-sm border-t border-slate-200 px-3 pt-2.5 pb-[calc(0.625rem+env(safe-area-inset-bottom))] grid gap-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] ${inquiryHref ? "grid-cols-3" : "grid-cols-2"}`}>
-      <a href={telHref(STORE.tel)} className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-[#0b4b8b] text-white font-bold text-sm">
-        <Icon d={ICON.phone} /> 전화
-      </a>
-      <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-[#FEE500] text-slate-900 font-bold text-sm">
-        <Icon d={ICON.chat} /> 카톡
-      </a>
-      {inquiryHref && (
-        <a href={inquiryHref} className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-slate-900 text-white font-bold text-sm">
-          <Icon d={ICON.edit} /> 견적문의
+    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-[#DDD9D1] bg-white/95 backdrop-blur-md px-4 py-2.5 pb-[max(10px,env(safe-area-inset-bottom))] shadow-lg">
+      <div className="grid grid-cols-2 gap-2">
+        <a
+          href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`}
+          className="flex h-11 items-center justify-center gap-1.5 rounded-md bg-[#0E1A2B] text-[14px] font-bold text-white shadow-xs active:bg-[#22324A]"
+        >
+          <Icon d={ICON.phone} className="w-4 h-4 text-white" /> 전화 문의
         </a>
-      )}
+        <a
+          href={STORE.kakaoChat}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex h-11 items-center justify-center gap-1.5 rounded-md bg-[#FEE500] text-[14px] font-bold text-[#191600] shadow-xs active:bg-[#F2D900]"
+        >
+          <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+        </a>
+      </div>
     </div>
   );
 }
 
-/* ───────── 관리자 로그인 모달 (3개 페이지 공통) ───────── */
-export function AdminLoginModal({ email, password, loading, onEmail, onPassword, onSubmit, onClose }: {
-  email: string; password: string; loading: boolean;
-  onEmail: (v: string) => void; onPassword: (v: string) => void;
-  onSubmit: (e: React.FormEvent) => void; onClose: () => void;
-}) {
-  const field = "w-full border border-slate-300 rounded-xl p-2.5 text-sm outline-none focus:border-[#0b4b8b] focus:ring-2 focus:ring-[#0b4b8b]/15";
-  return (
-    <Modal label="관리자 로그인" onClose={onClose} sheet={false} panelClassName="max-w-xs">
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 text-center">
-        <h3 className="font-bold text-slate-900 text-base mb-1">관리자 로그인</h3>
-        <p className="text-xs text-slate-500 mb-4">관리자 이메일과 비밀번호를 입력해 주세요.</p>
-        <form onSubmit={onSubmit} className="space-y-3">
-          <input type="email" value={email} onChange={(e) => onEmail(e.target.value)} placeholder="이메일 주소" required autoFocus autoComplete="username" className={field} />
-          <input type="password" value={password} onChange={(e) => onPassword(e.target.value)} placeholder="비밀번호" required autoComplete="current-password" className={field} />
-          <div className="flex gap-2 pt-2">
-            <button type="button" onClick={onClose} className="w-1/2 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition">취소</button>
-            <button type="submit" disabled={loading} className="w-1/2 py-2.5 rounded-xl bg-[#0b4b8b] text-white font-bold text-xs hover:bg-[#093c70] transition disabled:opacity-50">
-              {loading ? "인증 중..." : "로그인"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </Modal>
-  );
+/* 호환용 빈 컴포넌트 */
+export function AdminLoginModal() {
+  return null;
 }

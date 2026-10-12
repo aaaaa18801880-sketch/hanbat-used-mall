@@ -8,8 +8,9 @@ import {
   compressImage, validateImageFiles, MAX_PHOTOS,
 } from "../../lib/site";
 import {
-  Icon, ICON, SafeImg, Modal, SiteFooter, MobileCtaBar, AdminLoginModal,
+  Icon, ICON, SafeImg, Modal, SiteHeader, SiteFooter, MobileCtaBar,
 } from "../../lib/ui";
+
 
 /* ════════════════════════════════════════════════════════════
    타입 및 공용 상수
@@ -921,77 +922,27 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
-      {/* ───── 상단 헤더 (글자 뭉침 해결 및 세련된 네비게이션) ───── */}
-      <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
-        <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
-          <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
-            <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
-              한밭
-            </span>
-            <span className="leading-tight">
-              <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
-              <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE 1997</span>
-            </span>
-          </a>
 
-          {/* 중앙 네비게이션 */}
-          <nav className="hidden items-center gap-2 lg:flex" aria-label="주요 메뉴">
-            <a
-              href="/gallery"
-              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-bold text-[#D9531E] bg-[#FFF5F0] transition-colors"
-            >
-              판매 제품
-            </a>
-            <a
-              href="/#reviews-section"
-              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
-            >
-              배송·설치 인증
-            </a>
-            <a
-              href="/#location-section"
-              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
-            >
-              오시는 길
-            </a>
-            <a
-              href="/inquiry"
-              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
-            >
-              문의게시판
-            </a>
-          </nav>
-
-          {/* 우측 관리자 액션 & 전화번호 */}
-          <div className="flex items-center gap-3">
-            {isAdmin && (
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsUploadModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 rounded-md bg-[#0E1A2B] px-3.5 py-2 text-[13px] font-bold text-white shadow-xs transition-colors hover:bg-[#22324A]"
-                >
-                  <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
-                </button>
-                <button
-                  type="button"
-                  onClick={handleAdminLogout}
-                  className="inline-flex items-center rounded-md border border-neutral-300 bg-neutral-100 px-2.5 py-2 text-[12px] font-semibold text-neutral-600 transition-colors hover:bg-neutral-200"
-                  title="관리자 로그아웃"
-                >
-                  관리자 OFF
-                </button>
-              </div>
-            )}
-            <a
-              href={`tel:${STORE.tel}`}
-              className="hidden items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors sm:inline-flex"
-            >
-              <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" /> {STORE.tel}
-            </a>
-          </div>
-        </div>
-      </header>
+<SiteHeader>
+  {isAdmin && (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setIsUploadModalOpen(true)}
+        className="inline-flex items-center gap-1.5 rounded-md bg-[#0E1A2B] px-3.5 py-2 text-[13px] font-bold text-white shadow-xs transition-colors hover:bg-[#22324A]"
+      >
+        <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
+      </button>
+      <button
+        type="button"
+        onClick={handleAdminLogout}
+        className="inline-flex items-center rounded-md border border-neutral-300 bg-neutral-100 px-2.5 py-2 text-[12px] font-semibold text-neutral-600 transition-colors hover:bg-neutral-200"
+      >
+        관리자 OFF
+      </button>
+    </div>
+  )}
+</SiteHeader>
 
       <section className="bg-white border-b border-[#E4E0D8]">
         <div className="max-w-[1000px] mx-auto px-5 py-12 sm:py-20 text-center">

@@ -5,6 +5,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
+import { SiteHeader } from "../lib/ui";
 
 /* ════════════════════════════════════════════════════════════
    0. 설정값
@@ -613,83 +614,15 @@ export default function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* ─────────────── ① HEADER ─────────────── */}
-      <header
-        className={`sticky top-0 z-50 border-b transition-all duration-300 ${
-          scrolled
-            ? "border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs"
-            : "border-transparent bg-white/80 backdrop-blur-sm sm:bg-[#F6F5F2]"
-        }`}
-      >
-        <div className={`${WRAP} flex h-16 items-center justify-between lg:h-[72px]`}>
-          {/* 브랜드 로고 */}
-          <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
-            <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
-              한밭
-            </span>
-            <span className="leading-tight">
-              <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
-              <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE {STORE.since}</span>
-            </span>
-          </a>
-
-          {/* 중앙 네비게이션 (답답하지 않은 간격과 호버 효과) */}
-          <nav className="hidden flex-1 justify-center lg:flex" aria-label="주요 메뉴">
-            <ul className="flex items-center gap-1 xl:gap-2">
-              {NAV.map((n) => (
-                <li key={n.label}>
-                  <a
-                    href={n.href}
-                    className="rounded-md px-3 py-2 text-[14px] xl:text-[15px] font-semibold text-[#4B5260] hover:text-[#0E1A2B] hover:bg-[#0E1A2B]/5 transition-all"
-                  >
-                    {n.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* 우측 연락처 및 문의 버튼 */}
-          <div className="hidden items-center gap-3 lg:flex">
-            <a
-              href={telHref(STORE.tel)}
-              className="inline-flex items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors"
-            >
-              <Icon d={I.phone} className="h-4 w-4 text-[#D9531E]" />
-              {STORE.tel}
-            </a>
-            <a
-              href={STORE.kakaoChat}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${BTN_KAKAO} h-10 px-3.5 text-[13px] font-bold shadow-xs`}
-              aria-label="카카오톡 상담"
-            >
-              <Icon d={I.chat} className="h-4 w-4" />
-              <span>카톡상담</span>
-            </a>
-            <button
-              type="button"
-              onClick={() => openInquiry()}
-              className={`${BTN_NAVY} h-10 px-4 text-[13px] font-bold shadow-xs`}
-            >
-              문의하기
-            </button>
-          </div>
-
-          {/* 모바일 햄버거 메뉴 버튼 */}
-          <div className="ml-auto flex items-center gap-1 lg:hidden">
-            <a href={telHref(STORE.tel)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="전화 상담">
-              <Icon d={I.phone} />
-            </a>
-            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="카카오톡 상담">
-              <Icon d={I.chat} />
-            </a>
-            <button type="button" onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="메뉴 열기">
-              <Icon d={I.menu} />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SiteHeader>
+  <button
+    type="button"
+    onClick={() => openInquiry()}
+    className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] hover:bg-[#22324A] text-white font-bold h-10 px-4 text-[13px] shadow-xs transition-colors"
+  >
+    문의하기
+  </button>
+</SiteHeader>
 
       {/* 모바일 메뉴 */}
       {menuOpen && (
