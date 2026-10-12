@@ -142,10 +142,10 @@ const NAV = [
   { label: "문의게시판", href: "/inquiry" },
 ];
 
-// lib/ui.tsx 내부의 SiteHeader 컴포넌트 교체
+// lib/ui.tsx 파일 내부
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md transition-colors duration-200">
+    <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
       <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
         {/* 로고 영역 */}
         <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
@@ -158,18 +158,30 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </span>
         </a>
 
-        {/* 중앙 메뉴 (글자 붙는 버그 해결 & 간격 정돈) */}
-        <nav className="hidden items-center gap-7 lg:flex" aria-label="주요 메뉴">
-          <a href="/gallery" className="text-[15px] font-bold text-[#D9531E] transition-colors">
+        {/* 중앙 메뉴 (간격 분리 및 패딩 적용으로 뭉침 완벽 해결) */}
+        <nav className="hidden items-center gap-1.5 lg:flex" aria-label="주요 메뉴">
+          <a
+            href="/gallery"
+            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-bold text-[#D9531E] bg-[#FFF5F0] transition-colors"
+          >
             판매 제품
           </a>
-          <a href="/#reviews-section" className="text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] transition-colors">
+          <a
+            href="/#reviews-section"
+            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+          >
             배송·설치 인증
           </a>
-          <a href="/#location-section" className="text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] transition-colors">
+          <a
+            href="/#location-section"
+            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+          >
             오시는 길
           </a>
-          <a href="/inquiry" className="text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] transition-colors">
+          <a
+            href="/inquiry"
+            className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+          >
             문의게시판
           </a>
         </nav>
