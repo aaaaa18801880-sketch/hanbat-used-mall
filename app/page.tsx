@@ -618,7 +618,7 @@ export default function Home() {
   <button
     type="button"
     onClick={() => openInquiry()}
-    className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] hover:bg-[#22324A] text-white font-bold h-10 px-4 text-[13px] shadow-xs transition-colors"
+    className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] hover:bg-[#22324A] text-white font-bold h-11 px-5 text-[14px] shadow-xs transition-colors"
   >
     문의하기
   </button>
