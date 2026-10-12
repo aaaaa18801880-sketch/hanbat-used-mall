@@ -145,15 +145,15 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
     <>
       <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
         <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
-          {/* 공식 로고 이미지 */}
-          <a href="/" className="flex shrink-0 items-center py-1 group" aria-label="한밭중고전자 홈">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png"
-              alt="한밭중고전자"
-              className="h-9 sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
-            />
-          </a>
+          {/* lib/ui.tsx 파일 내 로고 링크 영역 */}
+<a href="/" className="flex shrink-0 items-center py-1 group" aria-label="한밭중고전자 홈">
+  {/* eslint-disable-next-line @next/next/no-img-element */}
+  <img
+    src="/logo.png" // 또는 /images/logo.png
+    alt="한밭중고전자"
+    className="h-11 sm:h-[50px] lg:h-[54px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+  />
+</a>
 
           {/* 데스크톱 메뉴 */}
           <nav className="hidden items-center gap-2 lg:flex" aria-label="주요 메뉴">
