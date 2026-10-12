@@ -142,21 +142,42 @@ const NAV = [
   { label: "문의게시판", href: "/inquiry" },
 ];
 
-export function SiteHeader({ children }: { children?: ReactNode }) {
+// lib/ui.tsx 내부의 SiteHeader 컴포넌트 교체
+export function SiteHeader({ children }: { children?: React.ReactNode }) {
   return (
-    <header className="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-40 shadow-md">
-      <div className="max-w-7xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-3">
-        <a href="/" className="flex items-center gap-2.5 shrink-0 hover:opacity-80 transition" aria-label={`${STORE.name} 홈`}>
-          <span className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#0b4b8b] flex items-center justify-center font-black text-base sm:text-lg ring-1 ring-white/20">한</span>
-          <span className="whitespace-nowrap leading-tight">
-            <span className="block text-base sm:text-xl font-black">{STORE.name}</span>
-            <span className="hidden sm:block text-[10px] text-slate-400">대전 중구 중촌동 · SINCE {STORE.since}</span>
+    <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md transition-colors duration-200">
+      <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
+        {/* 로고 영역 */}
+        <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
+          <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
+            한밭
+          </span>
+          <span className="leading-tight">
+            <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
+            <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE 1997</span>
           </span>
         </a>
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-bold text-slate-300" aria-label="주요 메뉴">
-          {NAV.map((n) => <a key={n.href} href={n.href} className="hover:text-white transition">{n.label}</a>)}
+
+        {/* 중앙 메뉴 (글자 붙는 버그 해결 & 간격 정돈) */}
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="주요 메뉴">
+          <a href="/gallery" className="text-[15px] font-bold text-[#D9531E] transition-colors">
+            판매 제품
+          </a>
+          <a href="/#reviews-section" className="text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] transition-colors">
+            배송·설치 인증
+          </a>
+          <a href="/#location-section" className="text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] transition-colors">
+            오시는 길
+          </a>
+          <a href="/inquiry" className="text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] transition-colors">
+            문의게시판
+          </a>
         </nav>
-        <div className="flex items-center gap-2">{children}</div>
+
+        {/* 우측 액션 버튼 영역 */}
+        <div className="flex items-center gap-3">
+          {children}
+        </div>
       </div>
     </header>
   );

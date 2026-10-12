@@ -834,16 +834,28 @@ export default function GalleryPage() {
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
-          <button type="button" onClick={() => setIsUploadModalOpen(true)} className="hidden sm:inline-flex bg-[#0E1A2B] text-white text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-[#22324A] whitespace-nowrap gap-1 items-center shadow-sm">
-            <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsUploadModalOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md bg-[#0E1A2B] px-3.5 py-2 text-[13px] font-bold text-white shadow-xs transition-colors hover:bg-[#22324A]"
+            >
+              <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
+            </button>
+            <button
+              type="button"
+              onClick={handleAdminLogout}
+              className="inline-flex items-center rounded-md border border-neutral-300 bg-neutral-100 px-2.5 py-2 text-[12px] font-semibold text-neutral-600 transition-colors hover:bg-neutral-200"
+              title="관리자 로그아웃"
+            >
+              관리자 OFF
+            </button>
+          </div>
         )}
-        {isAdmin && (
-          <button type="button" onClick={handleAdminLogout} title="클릭하여 관리자 모드 종료" className="hidden sm:inline-flex bg-red-500/10 text-red-500 border border-red-500/20 text-[12px] font-bold px-3 py-1.5 rounded text-center transition hover:bg-red-500/20 whitespace-nowrap">
-            관리자 모드 ON
-          </button>
-        )}
-        <a href={`tel:${STORE.tel}`} className="hidden sm:inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#0E1A2B] px-2 xl:px-3 hover:underline underline-offset-4 whitespace-nowrap">
+        <a
+          href={`tel:${STORE.tel}`}
+          className="hidden items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors sm:inline-flex"
+        >
           <Icon d={ICON.phone} className="w-4 h-4" /> {STORE.tel}
         </a>
       </SiteHeader>

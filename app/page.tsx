@@ -614,24 +614,33 @@ export default function Home() {
 
       {/* ─────────────── ① HEADER ─────────────── */}
       <header
-        className={`sticky top-0 z-50 border-b transition-[background-color,border-color] duration-300 ${
-          scrolled ? "border-[#E4E0D8] bg-white" : "border-transparent bg-[#F6F5F2]"
+        className={`sticky top-0 z-50 border-b transition-all duration-300 ${
+          scrolled
+            ? "border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs"
+            : "border-transparent bg-white/80 backdrop-blur-sm sm:bg-[#F6F5F2]"
         }`}
       >
-        <div className={`${WRAP} flex h-16 items-center gap-4 lg:h-[72px]`}>
-          <a href="/" className="flex shrink-0 items-center gap-2.5" aria-label="한밭중고전자 홈">
-            <span className="grid h-9 w-9 place-items-center rounded-[5px] bg-[#0E1A2B] text-[12px] font-bold tracking-tight text-white">한밭</span>
-            <span className="leading-none">
+        <div className={`${WRAP} flex h-16 items-center justify-between lg:h-[72px]`}>
+          {/* 브랜드 로고 */}
+          <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
+            <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
+              한밭
+            </span>
+            <span className="leading-tight">
               <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
-              <span className="mt-1 block text-[10px] font-medium tracking-[0.22em] text-neutral-500">SINCE {STORE.since}</span>
+              <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE {STORE.since}</span>
             </span>
           </a>
 
+          {/* 중앙 네비게이션 (답답하지 않은 간격과 호버 효과) */}
           <nav className="hidden flex-1 justify-center lg:flex" aria-label="주요 메뉴">
-            <ul className="flex items-center">
+            <ul className="flex items-center gap-1 xl:gap-2">
               {NAV.map((n) => (
                 <li key={n.label}>
-                  <a href={n.href} className="relative rounded px-2.5 py-2 text-[14px] font-medium text-[#2A3140] transition-colors hover:text-[#0E1A2B] xl:px-3.5 xl:text-[15px] after:absolute after:inset-x-2.5 after:-bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-[#0E1A2B] after:transition-transform after:duration-300 hover:after:scale-x-100">
+                  <a
+                    href={n.href}
+                    className="rounded-md px-3 py-2 text-[14px] xl:text-[15px] font-semibold text-[#4B5260] hover:text-[#0E1A2B] hover:bg-[#0E1A2B]/5 transition-all"
+                  >
                     {n.label}
                   </a>
                 </li>
@@ -639,28 +648,43 @@ export default function Home() {
             </ul>
           </nav>
 
-          <div className="ml-auto hidden items-center gap-2 lg:flex">
-            <a href={telHref(STORE.tel)} className="hidden items-center gap-1.5 px-2 text-[14px] font-semibold text-[#0E1A2B] xl:inline-flex">
-              <Icon d={I.phone} className="h-4 w-4" />
+          {/* 우측 연락처 및 문의 버튼 */}
+          <div className="hidden items-center gap-3 lg:flex">
+            <a
+              href={telHref(STORE.tel)}
+              className="inline-flex items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors"
+            >
+              <Icon d={I.phone} className="h-4 w-4 text-[#D9531E]" />
               {STORE.tel}
             </a>
-            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className={`${BTN_KAKAO} h-10 px-3.5 text-[14px]`} aria-label="카카오톡 상담">
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${BTN_KAKAO} h-10 px-3.5 text-[13px] font-bold shadow-xs`}
+              aria-label="카카오톡 상담"
+            >
               <Icon d={I.chat} className="h-4 w-4" />
-              <span className="hidden xl:inline">카카오톡</span>
+              <span>카카오톡</span>
             </a>
-            <button type="button" onClick={() => openInquiry()} className={`${BTN_NAVY} h-10 px-4 text-[14px]`}>
+            <button
+              type="button"
+              onClick={() => openInquiry()}
+              className={`${BTN_NAVY} h-10 px-4 text-[13px] font-bold shadow-xs`}
+            >
               문의하기
             </button>
           </div>
 
+          {/* 모바일 햄버거 메뉴 버튼 */}
           <div className="ml-auto flex items-center gap-1 lg:hidden">
-            <a href={telHref(STORE.tel)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label={`전화 상담 ${STORE.tel}`}>
+            <a href={telHref(STORE.tel)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="전화 상담">
               <Icon d={I.phone} />
             </a>
             <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="카카오톡 상담">
               <Icon d={I.chat} />
             </a>
-            <button type="button" onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="메뉴 열기" aria-expanded={menuOpen}>
+            <button type="button" onClick={() => setMenuOpen(true)} className="grid h-10 w-10 place-items-center rounded-md text-[#0E1A2B]" aria-label="메뉴 열기">
               <Icon d={I.menu} />
             </button>
           </div>
