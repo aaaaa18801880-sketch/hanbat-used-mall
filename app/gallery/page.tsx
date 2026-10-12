@@ -8,7 +8,7 @@ import {
   compressImage, validateImageFiles, MAX_PHOTOS,
 } from "../../lib/site";
 import {
-  Icon, ICON, SafeImg, Modal, SiteHeader, SiteFooter, MobileCtaBar, AdminLoginModal,
+  Icon, ICON, SafeImg, Modal, SiteFooter, MobileCtaBar, AdminLoginModal,
 } from "../../lib/ui";
 
 /* ════════════════════════════════════════════════════════════
@@ -30,6 +30,21 @@ const isNewProduct = (createdAt: string) => Date.now() - new Date(createdAt).get
 const hasPrice = (p: Product) => !!p.price && p.price > 0;
 const formatPrice = (p: Product) => (hasPrice(p) ? `${Number(p.price).toLocaleString()}원` : "가격 문의");
 const isSold = (p: Product) => p.status === "판매완료";
+
+/* 카테고리별 맞춤 상담 문구 반환 */
+const getInquiryLabel = (category: string | null) => {
+  switch (category) {
+    case "에어컨/냉난방기":
+      return "설치 환경별 견적 상담";
+    case "업소용기기":
+      return "수량별·세트 할인 문의";
+    case "냉장고":
+    case "세탁기/건조기":
+      return "배송·설치 맞춤 견적";
+    default:
+      return "실시간 재고·특가 문의";
+  }
+};
 
 const BTN = "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
 const BTN_ACCENT = `${BTN} bg-[#D9531E] text-white hover:bg-[#BF4715] focus-visible:ring-[#D9531E]`;
@@ -305,7 +320,7 @@ function ProductDetailModal({
                       value={editPrice ? Number(editPrice).toLocaleString() : ""}
                       onChange={(e) => setEditPrice(e.target.value.replace(/[^0-9]/g, ""))}
                       className={INPUT}
-                      placeholder="비워두면 '가격 문의'"
+                      placeholder="비워두면 맞춤 상담 문구로 노출"
                     />
                   </div>
 
@@ -340,12 +355,12 @@ function ProductDetailModal({
                       ) : (
                         <a
                           href={telHref(STORE.tel)}
-                          className="group inline-flex items-center gap-2 text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
+                          className="group inline-flex items-center gap-2 text-[22px] sm:text-[26px] font-bold tracking-tight leading-none text-[#D9531E] hover:text-[#BF4715] transition-colors whitespace-nowrap"
                           title="전화 문의하기 (042-523-8179)"
                         >
-                          <span className="underline decoration-2 underline-offset-4">가격 문의</span>
+                          <span className="underline decoration-2 underline-offset-4">{getInquiryLabel(product.category)}</span>
                           <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded group-hover:bg-[#D9531E] group-hover:text-white transition-all shadow-xs shrink-0">
-                            <Icon d={ICON.phone} className="w-3 h-3" /> 연결
+                            <Icon d={ICON.phone} className="w-3 h-3" /> 전화 연결
                           </span>
                         </a>
                       )}
@@ -577,7 +592,6 @@ export default function GalleryPage() {
   };
 
   const handleProductClick = async (product: Product) => {
-    // 선택 관리 모드일 때는 체크박스 토글
     if (isSelectMode) {
       toggleSelectProduct(product.id);
       return;
@@ -907,33 +921,77 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
-      <SiteHeader>
-        {isAdmin && (
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsUploadModalOpen(true)}
-              className="inline-flex items-center gap-1.5 rounded-md bg-[#0E1A2B] px-3.5 py-2 text-[13px] font-bold text-white shadow-xs transition-colors hover:bg-[#22324A]"
+      {/* ───── 상단 헤더 (글자 뭉침 해결 및 세련된 네비게이션) ───── */}
+      <header className="sticky top-0 z-50 border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md shadow-xs">
+        <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center justify-between px-5 sm:px-6 lg:h-[72px] lg:px-8">
+          <a href="/" className="flex shrink-0 items-center gap-3 group" aria-label="한밭중고전자 홈">
+            <span className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-[13px] font-bold text-white shadow-xs transition-transform duration-200 group-hover:scale-105">
+              한밭
+            </span>
+            <span className="leading-tight">
+              <span className="block text-[17px] font-bold tracking-[-0.02em] text-[#0E1A2B]">한밭중고전자</span>
+              <span className="block text-[10px] font-medium tracking-[0.2em] text-[#8A8478]">SINCE 1997</span>
+            </span>
+          </a>
+
+          {/* 중앙 네비게이션 */}
+          <nav className="hidden items-center gap-2 lg:flex" aria-label="주요 메뉴">
+            <a
+              href="/gallery"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-bold text-[#D9531E] bg-[#FFF5F0] transition-colors"
             >
-              <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
-            </button>
-            <button
-              type="button"
-              onClick={handleAdminLogout}
-              className="inline-flex items-center rounded-md border border-neutral-300 bg-neutral-100 px-2.5 py-2 text-[12px] font-semibold text-neutral-600 transition-colors hover:bg-neutral-200"
-              title="관리자 로그아웃"
+              판매 제품
+            </a>
+            <a
+              href="/#reviews-section"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
             >
-              관리자 OFF
-            </button>
+              배송·설치 인증
+            </a>
+            <a
+              href="/#location-section"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+            >
+              오시는 길
+            </a>
+            <a
+              href="/inquiry"
+              className="rounded-md px-3.5 py-2 text-[14px] xl:text-[15px] font-medium text-[#4B5260] hover:text-[#0E1A2B] hover:bg-neutral-100 transition-colors"
+            >
+              문의게시판
+            </a>
+          </nav>
+
+          {/* 우측 관리자 액션 & 전화번호 */}
+          <div className="flex items-center gap-3">
+            {isAdmin && (
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsUploadModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 rounded-md bg-[#0E1A2B] px-3.5 py-2 text-[13px] font-bold text-white shadow-xs transition-colors hover:bg-[#22324A]"
+                >
+                  <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAdminLogout}
+                  className="inline-flex items-center rounded-md border border-neutral-300 bg-neutral-100 px-2.5 py-2 text-[12px] font-semibold text-neutral-600 transition-colors hover:bg-neutral-200"
+                  title="관리자 로그아웃"
+                >
+                  관리자 OFF
+                </button>
+              </div>
+            )}
+            <a
+              href={`tel:${STORE.tel}`}
+              className="hidden items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors sm:inline-flex"
+            >
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" /> {STORE.tel}
+            </a>
           </div>
-        )}
-        <a
-          href={`tel:${STORE.tel}`}
-          className="hidden items-center gap-1.5 text-[14px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors sm:inline-flex"
-        >
-          <Icon d={ICON.phone} className="w-4 h-4" /> {STORE.tel}
-        </a>
-      </SiteHeader>
+        </div>
+      </header>
 
       <section className="bg-white border-b border-[#E4E0D8]">
         <div className="max-w-[1000px] mx-auto px-5 py-12 sm:py-20 text-center">
@@ -1011,7 +1069,6 @@ export default function GalleryPage() {
               판매중만 보기
             </label>
 
-            {/* 관리자 전용: 선택 관리 모드 토글 */}
             {isAdmin && (
               <button
                 type="button"
@@ -1086,7 +1143,6 @@ export default function GalleryPage() {
                       </div>
                     )}
 
-                    {/* 선택 모드 체크박스 */}
                     {isSelectMode ? (
                       <div className={`absolute top-2.5 left-2.5 w-6 h-6 rounded border flex items-center justify-center transition-all z-20 ${
                         isSelected
@@ -1127,8 +1183,21 @@ export default function GalleryPage() {
                       </span>
                     </div>
                     <h3 className="font-bold text-[#0E1A2B] text-[15px] sm:text-base leading-snug mb-3 line-clamp-2 flex-1 group-hover:underline underline-offset-4 transition-all">{product.title}</h3>
-                    <div className="mt-auto pt-4 border-t border-[#EEEBE5]">
-                      <p className={`font-bold text-[18px] sm:text-[20px] tracking-tight ${sold ? "text-[#8A8478]" : hasPrice(product) ? "text-[#D9531E]" : "text-[#4B5260]"}`}>{formatPrice(product)}</p>
+                    
+                    {/* 카드 하단 가격 또는 맞춤 상담 뱃지 영역 */}
+                    <div className="mt-auto pt-3.5 border-t border-[#EEEBE5]">
+                      {sold ? (
+                        <p className="font-bold text-[18px] sm:text-[20px] tracking-tight text-[#8A8478]">판매완료</p>
+                      ) : hasPrice(product) ? (
+                        <p className="font-bold text-[18px] sm:text-[20px] tracking-tight text-[#D9531E]">{formatPrice(product)}</p>
+                      ) : (
+                        <div className="flex items-center">
+                          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-[#0E1A2B] bg-[#F6F5F2] border border-[#DDD9D1] px-2.5 py-1.5 rounded-md group-hover:border-[#D9531E] group-hover:text-[#D9531E] group-hover:bg-[#FFF5F0] transition-all">
+                            <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                            <span>{getInquiryLabel(product.category)}</span>
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </article>
@@ -1279,7 +1348,7 @@ export default function GalleryPage() {
                     value={productPrice ? Number(productPrice).toLocaleString() : ""}
                     onChange={(e) => setProductPrice(e.target.value.replace(/[^0-9]/g, ""))}
                     className={INPUT}
-                    placeholder="비우면 가격 문의"
+                    placeholder="비우면 맞춤 상담 문구로 노출"
                   />
                 </div>
                 <div>
