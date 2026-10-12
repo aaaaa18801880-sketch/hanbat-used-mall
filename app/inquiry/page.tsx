@@ -461,28 +461,39 @@ export default function InquiryBoardPage() {
       {/* 메인 리스트 영역 */}
       <main className="max-w-[1100px] mx-auto px-4 sm:px-6 py-12 sm:py-16 flex-1 w-full">
         {/* 탭 & 검색 */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 mb-8">
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide pb-1" role="tablist">
-            {TABS.map((tab) => {
-              const active = activeTab === tab;
-              return (
-                <button key={tab} type="button" role="tab" aria-selected={active} onClick={() => { setActiveTab(tab); setCurrentPage(1); }}
-                  className={`px-4 py-2 rounded text-[14px] font-semibold whitespace-nowrap transition-colors border shrink-0 ${active ? "bg-[#0E1A2B] text-white border-[#0E1A2B]" : "bg-white text-[#4B5260] border-[#DDD9D1] hover:bg-[#F6F5F2]"}`}>
-                  {tab}<span className={`ml-1.5 text-[12px] font-medium ${active ? "text-white/60" : "text-[#8A8478]"}`}>{countOf(tab)}</span>
-                </button>
-              );
-            })}
-          </div>
-          <div className="relative w-full sm:w-64 shrink-0">
-            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400"><Icon d={ICON.search} className="w-4 h-4" /></span>
-            <input type="search" value={keyword} onChange={(e) => { setKeyword(e.target.value); setCurrentPage(1); }} placeholder="제목 검색" aria-label="제목 검색"
-              className="w-full pl-10 pr-3 py-2.5 rounded border border-[#DDD9D1] bg-white text-[14px] text-[#0E1A2B] placeholder:text-neutral-400 outline-none focus:border-[#0E1A2B] focus:ring-1 focus:ring-[#0E1A2B] transition-colors" />
-          </div>
-        </div>
+        {/* 탭 & 검색창/글쓰기 영역 */}
+<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+  {/* 좌측: 카테고리 탭 (전체, 구매 문의, 내 물건 팔기...) */}
+  <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+    {/* 기존 탭 버튼들 */}
+  </div>
 
-        <div className="flex items-center justify-between mb-4 text-[13px] text-[#8A8478]">
-          <p>총 <strong className="text-[#0E1A2B]">{filteredList.length}</strong>건{showNotices && <span> (공지 {noticeList.length}건 별도)</span>}</p>
-        </div>
+  {/* 우측: 검색창 + 문의 글쓰기 버튼 한 묶음 */}
+  <div className="flex items-center gap-2.5 shrink-0">
+    {/* 검색 인풋 */}
+    <div className="relative">
+      <input
+        type="text"
+        placeholder="제목 검색"
+        className="h-10 w-[200px] sm:w-[240px] rounded-md border border-neutral-300 px-3 pl-9 text-[14px] focus:border-[#0E1A2B] focus:outline-none"
+      />
+      {/* 돋보기 아이콘 */}
+      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+        <Icon d={ICON.search} className="w-4 h-4" />
+      </span>
+    </div>
+
+    {/* 문의 글쓰기 버튼 */}
+    <button
+      type="button"
+      onClick={() => setIsWriteOpen(true)}
+      className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-[#0E1A2B] px-4 text-[14px] font-bold text-white shadow-xs hover:bg-[#1E2E44] transition-colors whitespace-nowrap"
+    >
+      <Icon d={ICON.plus} className="w-4 h-4" />
+      <span>문의 글쓰기</span>
+    </button>
+  </div>
+</div>
 
         {/* 데스크톱 테이블 */}
         <div className="hidden md:block overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-sm">
