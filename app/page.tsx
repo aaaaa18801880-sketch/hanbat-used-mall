@@ -662,62 +662,78 @@ export default function Home() {
 
       <main>
         {/* ─────────────── ② HERO (프리미엄 텍스트 오버레이형) ─────────────── */}
-        <section className="relative w-full bg-[#0E1A2B] overflow-hidden">
-          <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[680px] flex items-center">
-            {HERO_IMAGES.map((src, i) => (
-              <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
-                <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-cover object-center" />
-              </div>
-            ))}
-            <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent sm:via-[#0E1A2B]/60" />
-            <div className="absolute inset-0 z-10 bg-black/10" />
+        {/* ─────────────── ② HERO (프리미엄 텍스트 오버레이형 - 가독성 강화) ─────────────── */}
+<section className="relative w-full bg-[#0E1A2B] overflow-hidden">
+  <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[680px] flex items-center">
+    {HERO_IMAGES.map((src, i) => (
+      <div key={src} className={`absolute inset-0 transition-opacity duration-1000 ${heroIdx === i ? "opacity-100 z-10" : "opacity-0 z-0"}`}>
+        <SafeImg src={src} alt={`한밭중고전자 메인 배너 ${i + 1}`} eager={i === 0} className="h-full w-full object-cover object-center" />
+      </div>
+    ))}
 
-            <div className={`relative z-20 w-full ${WRAP} py-16 sm:py-20`}>
-              <div className="max-w-2xl text-white">
-                <p className="inline-flex items-center gap-2 text-[13px] font-medium text-white/80">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E] motion-safe:animate-pulse" aria-hidden="true" />
-                  SINCE {STORE.since} · 대전 중촌동 오프라인 매장
-                </p>
-                <h1 id="hero-title" className="mt-4 font-bold tracking-[-0.03em] text-white">
-                  <span className="block text-[15px] font-semibold tracking-normal text-white/80 sm:text-base">
-                    대전 중고가전 판매·매입 전문 한밭중고전자
-                  </span>
-                  <span className="mt-3 block text-[36px] leading-[1.2] sm:text-[46px] lg:text-[54px] lg:leading-[1.15] drop-shadow-lg">
-                    새것 같은 중고가전,<br />
-                    합리적인 가격으로.
-                  </span>
-                </h1>
-                <p className="mt-6 max-w-[520px] text-[16px] leading-[1.75] text-white/90 sm:text-[17px] drop-shadow-md break-keep">
-                  {STORE.since}년부터 가정용 가전과 업소용 냉장·주방 설비를 판매하고 매입해 왔습니다. 전국 배송·설치와 매장 정리 같은 대량 거래도 상담해 드립니다.
-                </p>
-                
-                <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[420px]">
-                  <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] text-[15px] sm:text-base shadow-lg w-full`}>
-                    무료 매입 견적 문의
-                  </button>
-                  <Link href="/gallery" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 border border-white/40 bg-white/10 text-white hover:bg-white/20 hover:border-white/60 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white h-[52px] text-[15px] sm:text-base w-full shadow-lg">
-                    판매 제품 보기
-                    <Icon d={I.arrow} className="h-4 w-4" />
-                  </Link>
-                </div>
-                
-                <p className="mt-6 text-[14px] text-white/70 flex items-center gap-2">
-                  <Icon d={I.phone} className="h-4 w-4" />
-                  전화 상담 <a href={telHref(STORE.tel)} className="font-bold text-white hover:underline">{STORE.tel}</a>
-                  <span className="mx-1.5 text-white/30">|</span>
-                  {STORE.hours}
-                </p>
-              </div>
-            </div>
+    {/* 1. 베이스 딤 처리: 밝은 가전제품과 간판 빛 반사 억제 */}
+    <div className="absolute inset-0 z-10 bg-black/25" />
 
-            <div className="absolute bottom-6 sm:bottom-8 inset-x-0 flex justify-center gap-2.5 z-20">
-              {HERO_IMAGES.map((_, i) => (
-                <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
-                  className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 shadow-md ${heroIdx === i ? "bg-white w-8 sm:w-10" : "bg-white/40 w-2 sm:w-2.5 hover:bg-white/70"}`} />
-              ))}
-            </div>
-          </div>
-        </section>
+    {/* 2. 좌측 텍스트 집중형 반응형 그라디언트 (모바일은 전면 보호, 데스크톱은 좌측 55% 집중) */}
+    <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#0E1A2B] via-[#0E1A2B]/85 to-[#0E1A2B]/50 sm:bg-gradient-to-r sm:from-[#0E1A2B]/98 sm:via-[#0E1A2B]/85 sm:via-55% sm:to-transparent" />
+
+    {/* 3. 상단 헤더 경계선 은은한 그림자 */}
+    <div className="absolute inset-x-0 top-0 h-24 z-10 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+
+    <div className={`relative z-20 w-full ${WRAP} py-16 sm:py-20`}>
+      <div className="max-w-2xl text-white">
+        
+        {/* 독립형 캡슐 뱃지: 배경 간판 글씨 완벽 차단 */}
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/40 px-3.5 py-1 text-[13px] font-medium text-white/95 backdrop-blur-md shadow-xs">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E] motion-safe:animate-pulse" aria-hidden="true" />
+          <span>SINCE {STORE.since} · 대전 중촌동 오프라인 매장</span>
+        </div>
+
+        <h1 id="hero-title" className="mt-4 font-bold tracking-[-0.03em] text-white">
+          <span className="block text-[15px] font-bold tracking-normal text-[#FF8A50] sm:text-base drop-shadow-sm">
+            대전 중고가전 판매·매입 전문 한밭중고전자
+          </span>
+          <span className="mt-3 block text-[36px] leading-[1.2] sm:text-[46px] lg:text-[54px] lg:leading-[1.15] drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+            새것 같은 중고가전,<br />
+            합리적인 가격으로.
+          </span>
+        </h1>
+
+        <p className="mt-6 max-w-[540px] text-[16px] leading-[1.75] text-neutral-100 sm:text-[17px] drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)] break-keep">
+          {STORE.since}년부터 가정용 가전과 업소용 냉장·주방 설비를 판매하고 매입해 왔습니다. 전국 배송·설치와 매장 정리 같은 대량 거래도 상담해 드립니다.
+        </p>
+        
+        {/* CTA 버튼 그룹 */}
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-[420px]">
+          <button type="button" onClick={() => openInquiry()} className={`${BTN_ACCENT} h-[52px] text-[15px] sm:text-base shadow-xl hover:brightness-110 transition-all w-full`}>
+            무료 매입 견적 문의
+          </button>
+          <Link href="/gallery" className="inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-all duration-200 border border-white/40 bg-white/10 text-white hover:bg-white/20 hover:border-white/60 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white h-[52px] text-[15px] sm:text-base w-full shadow-xl">
+            판매 제품 보기
+            <Icon d={I.arrow} className="h-4 w-4" />
+          </Link>
+        </div>
+        
+        {/* 하단 매장 정보 텍스트 */}
+        <div className="mt-7 inline-flex flex-wrap items-center gap-2 rounded-lg bg-black/30 border border-white/10 px-3.5 py-2 text-[13px] sm:text-[14px] text-neutral-200 backdrop-blur-xs">
+          <Icon d={I.phone} className="h-4 w-4 text-[#D9531E]" />
+          <span>전화 상담</span>
+          <a href={telHref(STORE.tel)} className="font-bold text-white hover:underline text-[14px] sm:text-[15px]">{STORE.tel}</a>
+          <span className="mx-1 text-white/30">|</span>
+          <span className="text-neutral-300">{STORE.hours}</span>
+        </div>
+      </div>
+    </div>
+
+    {/* 슬라이드 인디케이터 점 */}
+    <div className="absolute bottom-6 sm:bottom-8 inset-x-0 flex justify-center gap-2.5 z-20">
+      {HERO_IMAGES.map((_, i) => (
+        <button key={i} type="button" onClick={() => setHeroIdx(i)} aria-label={`${i + 1}번째 사진 보기`}
+          className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 shadow-md ${heroIdx === i ? "bg-white w-8 sm:w-10" : "bg-white/40 w-2 sm:w-2.5 hover:bg-white/70"}`} />
+      ))}
+    </div>
+  </div>
+</section>
 
         {/* 신뢰 지표 */}
         <div className="border-y border-[#E4E0D8] bg-white">
