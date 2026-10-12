@@ -224,7 +224,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         <div className="fixed inset-0 z-[60] flex flex-col bg-white lg:hidden" role="dialog" aria-modal="true">
           <div className="flex h-16 items-center justify-between border-b border-[#EEEBE5] px-5">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="한밭중고전자" className="h-8 w-auto object-contain" />
+            <img src="/images/logo.png" alt="한밭중고전자" className="h-9 sm:h-[42px] w-auto object-contain transition-transform duration-200 group-hover:scale-[1.02]" />
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
