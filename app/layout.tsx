@@ -42,6 +42,8 @@ export const metadata: Metadata = {
     ],
   },
   verification: {
+    // 👇 구글 서치 콘솔 [HTML 태그]에서 content="..." 따옴표 안쪽 문자열 복사해서 입력
+    google: "여기에_구글_태그_코드_붙여넣기",
     other: {
       "naver-site-verification": "28b921dfd15b72fe192b25063353615683ea4864",
     },
