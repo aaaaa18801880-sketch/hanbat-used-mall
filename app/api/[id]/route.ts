@@ -1,0 +1,263 @@
+import { NextRequest, NextResponse } from "next/server";
+import { extractInquiryImages, getInquiryTypeLabel, maskName } from "../../../../lib/site";
+import { createServerSupabaseClient } from "../../../../lib/supabase";
+import {
+  checkRateLimit,
+  getClientIp,
+  verifyAdminRequest,
+  verifyInquiryPassword,
+} from "../../../../lib/server-security";
+
+export const runtime = "nodejs";
+
+/**
+ * POST /api/inquiries/[id]
+ * - 비밀글 비밀번호 서버 측 검증 후 일치할 때만 상세 내용(description, images, admin_reply) 반환
+ * - 비밀번호는 응답에 절대 포함하지 않음
+ */
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const ip = getClientIp(req);
+
+    // 5분 동안 동일 IP+게시글에 대해 최대 5회까지 비밀번호 시도 허용 (Brute-force 방어)
+    const rate = checkRateLimit(`pw_verify:${ip}:${id}`, 5, 5 * 60 * 1000);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        {
+          error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+        },
+        { status: 429 }
+      );
+    }
+
+    const adminCheck = await verifyAdminRequest(req);
+    const isAdmin = adminCheck.ok;
+
+    const body = await req.json().catch(() => ({}));
+    const inputPassword = String(body.password || "").trim();
+
+    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+    const { data: row, error } = await supabase
+      .from("purchase_requests")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !row) {
+      return NextResponse.json(
+        { error: "해당 문의글을 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+
+    const isNotice = Boolean(row.is_notice);
+
+    if (!isNotice && !isAdmin) {
+      const matched = verifyInquiryPassword(inputPassword, row.password);
+      if (!matched) {
+        return NextResponse.json(
+          { error: "비밀번호가 일치하지 않습니다." },
+          { status: 401 }
+        );
+      }
+    }
+
+    const images = extractInquiryImages(row);
+
+    return NextResponse.json({
+      inquiry: {
+        id: row.id,
+        name: isAdmin || isNotice ? row.name : maskName(row.name),
+        phone: isAdmin ? row.phone : null,
+        inquiry_type: isNotice
+          ? "공지사항"
+          : getInquiryTypeLabel(row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")),
+        category: row.category || "문의 내용",
+        model: row.model || null,
+        condition_grade: row.condition_grade || null,
+        region: row.region || null,
+        description: row.description || "",
+        images,
+        is_notice: isNotice,
+        status: row.status || "접수",
+        admin_reply: row.admin_reply || null,
+        created_at: row.created_at,
+      },
+    });
+  } catch {
+    return NextResponse.json(
+      { error: "문의글 열람 처리 중 서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * PATCH /api/inquiries/[id]
+ * - 작성자(비밀번호 재검증 통과)가 제목/내용/문의구분 수정
+ * - 또는 검증된 관리자가 답변(admin_reply) 및 상태(status) 변경
+ */
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const adminCheck = await verifyAdminRequest(req);
+    const isAdmin = adminCheck.ok;
+
+    const body = await req.json();
+    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+
+    const { data: existing, error: fetchError } = await supabase
+      .from("purchase_requests")
+      .select("id, password, is_notice")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !existing) {
+      return NextResponse.json(
+        { error: "수정할 문의글을 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+
+    // 관리자 전용 작업(답변 작성 또는 상태 변경)인지 확인
+    const isStatusOrReplyUpdate =
+      typeof body.admin_reply === "string" || typeof body.status === "string";
+
+    if (isStatusOrReplyUpdate && !isAdmin) {
+      return NextResponse.json(
+        { error: "답변 등록 및 상태 변경은 관리자 권한이 필요합니다." },
+        { status: 403 }
+      );
+    }
+
+    // 비관리자의 일반 게시글 수정 시 비밀번호 검증 필수
+    if (!isAdmin) {
+      if (existing.is_notice) {
+        return NextResponse.json(
+          { error: "공지사항은 관리자만 수정할 수 있습니다." },
+          { status: 403 }
+        );
+      }
+      const inputPassword = String(body.password || "").trim();
+      if (!verifyInquiryPassword(inputPassword, existing.password)) {
+        return NextResponse.json(
+          { error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다." },
+          { status: 401 }
+        );
+      }
+    }
+
+    const patch: Record<string, any> = {};
+    if (typeof body.category === "string") {
+      patch.category = body.category.trim().slice(0, 120);
+    }
+    if (typeof body.description === "string") {
+      patch.description = body.description.trim().slice(0, 5000);
+    }
+    if (typeof body.inquiry_type === "string") {
+      patch.inquiry_type = existing.is_notice
+        ? "공지사항"
+        : body.inquiry_type.trim().slice(0, 40);
+    }
+    if (isAdmin && typeof body.admin_reply === "string") {
+      patch.admin_reply = body.admin_reply.trim().slice(0, 5000);
+    }
+    if (isAdmin && typeof body.status === "string") {
+      patch.status = body.status.trim().slice(0, 30);
+    }
+
+    const { data: updated, error: updateError } = await supabase
+      .from("purchase_requests")
+      .update(patch)
+      .eq("id", id)
+      .select("id, category, description, inquiry_type, status, admin_reply")
+      .single();
+
+    if (updateError || !updated) {
+      return NextResponse.json(
+        { error: "문의글 수정 권한이 없거나 업데이트에 실패했습니다." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true, updated });
+  } catch {
+    return NextResponse.json(
+      { error: "문의글 수정 중 서버 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/inquiries/[id]
+ * - 작성자(비밀번호 검증 통과) 또는 검증된 관리자만 삭제 가능
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const adminCheck = await verifyAdminRequest(req);
+    const isAdmin = adminCheck.ok;
+
+    const body = await req.json().catch(() => ({}));
+    const inputPassword = String(body.password || "").trim();
+
+    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+    const { data: existing, error: fetchError } = await supabase
+      .from("purchase_requests")
+      .select("id, password, is_notice")
+      .eq("id", id)
+      .single();
+
+    if (fetchError || !existing) {
+      return NextResponse.json(
+        { error: "삭제할 게시글을 찾을 수 없습니다." },
+        { status: 404 }
+      );
+    }
+
+    if (!isAdmin) {
+      if (existing.is_notice) {
+        return NextResponse.json(
+          { error: "공지사항은 관리자만 삭제할 수 있습니다." },
+          { status: 403 }
+        );
+      }
+      if (!verifyInquiryPassword(inputPassword, existing.password)) {
+        return NextResponse.json(
+          { error: "비밀번호가 일치하지 않아 삭제할 수 없습니다." },
+          { status: 401 }
+        );
+      }
+    }
+
+    const { error: deleteError } = await supabase
+      .from("purchase_requests")
+      .delete()
+      .eq("id", id);
+
+    if (deleteError) {
+      return NextResponse.json(
+        { error: "게시글 삭제 권한이 없거나 실패했습니다." },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json(
+      { error: "게시글 삭제 처리 중 오류가 발생했습니다." },
+      { status: 500 }
+    );
+  }
+}

@@ -1,46 +1,67 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import { PRODUCT_CATEGORIES, normalizeProductCategory } from "../../../lib/site";
+import {
+  checkRateLimit,
+  getClientIp,
+  validateServerImageFiles,
+  verifyAdminRequest,
+} from "../../../lib/server-security";
 
 export const runtime = "nodejs";
 
 const MAX_FILES = 3;
-const MAX_FILE_SIZE = 8 * 1024 * 1024;
-
-const ALLOWED_TYPES = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/heic",
-  "image/heif",
-]);
-
-const VALID_CATEGORIES = [
-  "에어컨/냉난방기",
-  "냉장고",
-  "세탁기/건조기",
-  "업소용기기",
-  "기타",
-];
+const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
+const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 export async function POST(req: NextRequest) {
   try {
+    // 1. 서버 측 관리자 인증·권한 검증
+    const adminCheck = await verifyAdminRequest(req);
+    if (!adminCheck.ok) {
+      return NextResponse.json(
+        { error: adminCheck.error || "관리자 권한이 필요합니다." },
+        { status: adminCheck.status }
+      );
+    }
+
+    // 2. API 비용 통제를 위한 Rate Limit (분당 10회)
+    const ip = getClientIp(req);
+    const rate = checkRateLimit(`analyze_product:${adminCheck.email || ip}`, 10, 60 * 1000);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: `AI 분석 요청이 너무 많습니다. ${rate.retryAfterSec}초 후 다시 시도해 주세요.` },
+        { status: 429 }
+      );
+    }
+
+    // 3. API 키 설정 확인 (미설정 시 성공으로 위장하지 않음)
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY 환경변수가 설정되지 않았습니다." },
-        { status: 500 }
+        {
+          success: false,
+          skipped: true,
+          error: "서버에 GEMINI_API_KEY가 설정되어 있지 않아 AI 분석을 수행할 수 없습니다.",
+        },
+        { status: 503 }
       );
     }
 
     const formData = await req.formData();
     const multipleFiles = formData.getAll("files");
     const entries = multipleFiles.length ? multipleFiles : formData.getAll("file");
-
     const files = entries.filter((item): item is File => item instanceof File);
 
-    if (files.length === 0) {
+    // 4. 파일 개수, 크기, MIME 타입 및 실제 바이너리 매직바이트(시그니처) 검증
+    const fileValidation = await validateServerImageFiles(files, {
+      maxFiles: MAX_FILES,
+      maxFileSizeBytes: MAX_FILE_SIZE,
+    });
+
+    if (!fileValidation.ok || !fileValidation.validated) {
       return NextResponse.json(
-        { error: "제품 사진을 첨부해 주세요." },
+        { error: fileValidation.error || "유효하지 않은 이미지 파일입니다." },
         { status: 400 }
       );
     }
@@ -51,6 +72,7 @@ export async function POST(req: NextRequest) {
 
     const useSearch = formData.get("searchSpecs") === "true";
 
+    // 기존 프롬프트 구조와 응답 포맷을 보존하면서 미확인 제원 추측 금지(needsReview 기록) 지침 유지
     const prompt = `
 당신은 한밭중고전자의 상품 등록 보조자입니다.
 중고 가전과 업소용 주방기기의 상품 상세 정보를 모바일 가독성에 최적화된 형식으로 작성합니다.
@@ -76,6 +98,7 @@ export async function POST(req: NextRequest) {
   - 에어컨/냉난방기: 모델명, 제품 유형, 적용 면적(평형), 정격 냉난방능력(소비전력), 전원 규격 등
   - 냉장고/쇼케이스: 모델명, 전체 용량, 제품 크기(가로 × 높이 × 깊이 mm), 에너지효율등급, 도어 구성 등
   - 세탁기/건조기/업소용기기: 모델명, 용량, 크기, 소비전력 등
+• 중요 원칙: 사진이나 공식 검색 결과에서 상품 모델명, 냉난방 능력, 소비전력, 용량, 연식 등을 명확히 확인하지 못한 경우 절대 추측하여 사실처럼 생성하지 말고, 해당 항목은 생략한 뒤 반드시 "needsReview" 배열에 관리자가 직접 확인해야 할 항목으로 기재하세요.
 
 3. [설치 전 체크] (크기나 배관 등 사전 확인이 필요한 경우 1줄 작성)
 • 가로/깊이 치수 통과 폭 또는 에어컨 배관·전원 확인 권장 안내 1줄
@@ -91,14 +114,12 @@ export async function POST(req: NextRequest) {
 }
 `;
 
-    const imageParts = await Promise.all(
-      files.slice(0, MAX_FILES).map(async (file) => ({
-        inlineData: {
-          mimeType: file.type || "image/jpeg",
-          data: Buffer.from(await file.arrayBuffer()).toString("base64"),
-        },
-      }))
-    );
+    const imageParts = fileValidation.validated.map((item) => ({
+      inlineData: {
+        mimeType: item.mimeType,
+        data: item.base64,
+      },
+    }));
 
     const ai = new GoogleGenAI({ apiKey });
 
@@ -107,7 +128,7 @@ export async function POST(req: NextRequest) {
       : { responseMimeType: "application/json" };
 
     const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
+      model: DEFAULT_GEMINI_MODEL,
       contents: [
         {
           role: "user",
@@ -118,32 +139,22 @@ export async function POST(req: NextRequest) {
     });
 
     const responseText = response.text?.trim() || "";
-
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
     let rawParsed: Record<string, any> = {};
 
     if (jsonMatch) {
       try {
         rawParsed = JSON.parse(jsonMatch[0]);
-      } catch (parseErr) {
-        console.warn("JSON 파싱 보정 시도:", parseErr);
+      } catch {
+        console.warn("AI 응답 JSON 파싱 보정 처리");
       }
     }
 
-    let finalCategory = "기타";
-    const aiCategory = typeof rawParsed.category === "string" ? rawParsed.category.trim() : "";
-
-    if (VALID_CATEGORIES.includes(aiCategory)) {
-      finalCategory = aiCategory;
-    } else if (aiCategory.includes("세탁") || aiCategory.includes("건조")) {
-      finalCategory = "세탁기/건조기";
-    } else if (aiCategory.includes("냉장") || aiCategory.includes("김치")) {
-      finalCategory = "냉장고";
-    } else if (aiCategory.includes("에어컨") || aiCategory.includes("냉난방")) {
-      finalCategory = "에어컨/냉난방기";
-    } else if (aiCategory.includes("업소") || aiCategory.includes("주방")) {
-      finalCategory = "업소용기기";
-    }
+    const aiCategory =
+      typeof rawParsed.category === "string" ? rawParsed.category.trim() : "";
+    const finalCategory = (PRODUCT_CATEGORIES as readonly string[]).includes(aiCategory)
+      ? aiCategory
+      : normalizeProductCategory(aiCategory);
 
     const title =
       rawParsed.title && typeof rawParsed.title === "string"
@@ -153,12 +164,12 @@ export async function POST(req: NextRequest) {
     let specDetails =
       rawParsed.specDetails && typeof rawParsed.specDetails === "string"
         ? rawParsed.specDetails.trim()
-        : (rawParsed.description || "");
+        : rawParsed.description || "";
 
-    const modelNumber =
-      rawParsed.modelNumber ? String(rawParsed.modelNumber).trim() : "";
+    const modelNumber = rawParsed.modelNumber
+      ? String(rawParsed.modelNumber).trim()
+      : "";
 
-    // 모델명이 확인되었으나 specDetails [주요 사양]에 모델명 표기가 빠져 있는 경우 자동 삽입
     if (modelNumber && !specDetails.includes("모델명")) {
       if (specDetails.includes("[주요 사양]")) {
         specDetails = specDetails.replace(
@@ -195,12 +206,13 @@ export async function POST(req: NextRequest) {
       sourceUrls,
     });
   } catch (error: unknown) {
-    console.error("AI 상품 분석 에러:", error);
+    console.error(
+      "AI 상품 분석 에러:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+    // 내부 스택 트레이스나 API 키 정보를 브라우저에 노출하지 않음
     return NextResponse.json(
-      {
-        error: "상품 분석에 실패했습니다.",
-        detail: error instanceof Error ? error.message : String(error),
-      },
+      { error: "상품 이미지 분석 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요." },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase, isAuthorizedAdminUser, getAdminAuthHeaders } from "../../lib/supabase";
 import toast from "react-hot-toast";
 import {
   STORE, telHref, formatPhone, isValidPhone, maskName, splitImages,
@@ -10,6 +10,12 @@ import {
 import {
   Icon, ICON, SafeImg, Modal, SiteHeader, SiteFooter, MobileCtaBar,
 } from "../../lib/ui";
+import {
+  isProductSold,
+  getProductStatusLabel,
+  normalizeProductCategory,
+  PRODUCT_CATEGORIES,
+} from "../../lib/site";
 
 
 /* ════════════════════════════════════════════════════════════
@@ -30,7 +36,7 @@ interface Product {
 const isNewProduct = (createdAt: string) => Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
 const hasPrice = (p: Product) => !!p.price && p.price > 0;
 const formatPrice = (p: Product) => (hasPrice(p) ? `${Number(p.price).toLocaleString()}원` : "가격 문의");
-const isSold = (p: Product) => p.status === "판매완료";
+const isSold = (p: Product) => isProductSold(p.status);
 
 /* 카테고리별 맞춤 상담 문구 반환 */
 const getInquiryLabel = (category: string | null) => {
@@ -568,12 +574,12 @@ export default function GalleryPage() {
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setIsAdmin(!!session);
+      setIsAdmin(isAuthorizedAdminUser(session?.user));
     };
     checkSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setIsAdmin(!!session);
+      setIsAdmin(isAuthorizedAdminUser(session?.user));
       if (!session) {
         setIsSelectMode(false);
         setSelectedIds(new Set());
@@ -755,10 +761,13 @@ export default function GalleryPage() {
         formData.append("files", optimizedFile);
       }
 
-      const res = await fetch("/api/analyze-product", {
-        method: "POST",
-        body: formData,
-      });
+      const authHeaders = await getAdminAuthHeaders();
+const res = await fetch("/api/analyze-product", {
+  method: "POST",
+  headers: authHeaders,
+  body: formData,
+});
+      
 
       const data = await res.json();
 

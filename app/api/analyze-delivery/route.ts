@@ -1,29 +1,66 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
+import {
+  checkRateLimit,
+  getClientIp,
+  validateServerImageFiles,
+  verifyAdminRequest,
+} from "../../../lib/server-security";
 
 export const runtime = "nodejs";
 
 const MAX_FILES = 2;
+const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
+const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
 export async function POST(req: NextRequest) {
   try {
+    // 1. 서버 측 관리자 인증·권한 검증
+    const adminCheck = await verifyAdminRequest(req);
+    if (!adminCheck.ok) {
+      return NextResponse.json(
+        { error: adminCheck.error || "관리자 권한이 필요합니다." },
+        { status: adminCheck.status }
+      );
+    }
+
+    // 2. 요청 제한 (분당 10회)
+    const ip = getClientIp(req);
+    const rate = checkRateLimit(`analyze_delivery:${adminCheck.email || ip}`, 10, 60 * 1000);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: `요청이 너무 많습니다. ${rate.retryAfterSec}초 후 다시 시도해 주세요.` },
+        { status: 429 }
+      );
+    }
+
+    // 3. API 키 확인
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
-        { error: "GEMINI_API_KEY 환경변수가 설정되지 않았습니다." },
-        { status: 500 }
+        {
+          success: false,
+          skipped: true,
+          error: "서버에 GEMINI_API_KEY가 설정되어 있지 않아 분석을 수행할 수 없습니다.",
+        },
+        { status: 503 }
       );
     }
 
     const formData = await req.formData();
     const multipleFiles = formData.getAll("files");
     const entries = multipleFiles.length ? multipleFiles : formData.getAll("file");
-
     const files = entries.filter((item): item is File => item instanceof File);
 
-    if (files.length === 0) {
+    // 4. 파일 개수, 크기, 시그니처(매직바이트) 검증
+    const fileValidation = await validateServerImageFiles(files, {
+      maxFiles: MAX_FILES,
+      maxFileSizeBytes: MAX_FILE_SIZE,
+    });
+
+    if (!fileValidation.ok || !fileValidation.validated) {
       return NextResponse.json(
-        { error: "배송/설치 사진을 첨부해 주세요." },
+        { error: fileValidation.error || "배송/설치 사진을 올바르게 첨부해 주세요." },
         { status: 400 }
       );
     }
@@ -48,20 +85,17 @@ export async function POST(req: NextRequest) {
 }
 `;
 
-    const imageParts = await Promise.all(
-      files.slice(0, MAX_FILES).map(async (file) => ({
-        inlineData: {
-          mimeType: file.type || "image/jpeg",
-          data: Buffer.from(await file.arrayBuffer()).toString("base64"),
-        },
-      }))
-    );
+    const imageParts = fileValidation.validated.map((item) => ({
+      inlineData: {
+        mimeType: item.mimeType,
+        data: item.base64,
+      },
+    }));
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // 구버전(gemini-2.5-flash) 대신 최신 모델(gemini-3.8-flash) 적용
     const response = await ai.models.generateContent({
-      model: "gemini-3.8-flash",
+      model: DEFAULT_GEMINI_MODEL,
       contents: [
         {
           role: "user",
@@ -81,19 +115,19 @@ export async function POST(req: NextRequest) {
         if (raw.title && typeof raw.title === "string") {
           parsedTitle = raw.title.trim();
         }
-      } catch (e) {
-        console.warn("JSON 파싱 보정 시도:", e);
+      } catch {
+        console.warn("배송 사진 제목 JSON 파싱 보정");
       }
     }
 
     return NextResponse.json({ title: parsedTitle });
   } catch (error: unknown) {
-    console.error("배송 사진 분석 에러:", error);
+    console.error(
+      "배송 사진 분석 에러:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
     return NextResponse.json(
-      {
-        error: "배송 사진 분석에 실패했습니다.",
-        detail: error instanceof Error ? error.message : String(error),
-      },
+      { error: "배송 사진 분석에 실패했습니다. 직접 제목을 입력해 주세요." },
       { status: 500 }
     );
   }

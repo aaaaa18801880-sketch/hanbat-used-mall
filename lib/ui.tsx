@@ -1,11 +1,15 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { STORE } from "./site";
+import Link from "next/link";
+import { STORE, telHref } from "./site";
 
-/* 아이콘 모음 (ICON & Icon 컴포넌트) */
+/* ════════════════════════════════════════════════════════════
+   1. 공통 아이콘 시스템
+   ════════════════════════════════════════════════════════════ */
 export const ICON = {
-  phone: "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z",
+  phone:
+    "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z",
   chat: "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z",
   check: "M20 6 9 17l-5-5",
   close: "M18 6 6 18M6 6l12 12",
@@ -13,16 +17,24 @@ export const ICON = {
   search: "m21 21-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z",
   left: "m15 18-6-6 6-6",
   right: "m9 18 6-6-6-6",
+  down: "m6 9 6 6 6-6",
+  arrow: "M5 12h14M13 6l6 6-6 6",
   lock: "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-12 0V7a5 5 0 0 1 10 0v4",
   bell: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9zm-4.27 13a2 2 0 0 1-3.46 0",
-  image: "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm12.5 5-5-5-6 6-3-3-4 4",
+  image:
+    "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm12.5 5-5-5-6 6-3-3-4 4",
+  camera:
+    "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+  pen: "M4 20h4L19 9l-4-4L4 16v4z",
+  pin: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
+  clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
   menu: "M4 7h16M4 12h16M4 17h16",
-};
+} as const;
 
 export function Icon({
   d,
   className = "w-4 h-4",
-  strokeWidth = 2,
+  strokeWidth = 1.9,
   ...props
 }: {
   d: string;
@@ -39,6 +51,7 @@ export function Icon({
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
+      aria-hidden="true"
       {...props}
     >
       <path d={d} />
@@ -46,7 +59,9 @@ export function Icon({
   );
 }
 
-/* 안전 이미지 컴포넌트 (SafeImg) */
+/* ════════════════════════════════════════════════════════════
+   2. 안전 이미지 컴포넌트 (SafeImg)
+   ════════════════════════════════════════════════════════════ */
 export function SafeImg({
   src,
   alt = "",
@@ -68,8 +83,10 @@ export function SafeImg({
 
   if (!src || error) {
     return (
-      <div className={`flex items-center justify-center bg-[#EFECE6] text-[#8A8478] text-[12px] font-medium select-none ${className}`}>
-        이미지 준비중
+      <div
+        className={`flex items-center justify-center bg-[#EFECE6] text-[#8A8478] text-[13px] font-medium select-none ${className}`}
+      >
+        이미지 준비 중
       </div>
     );
   }
@@ -80,6 +97,7 @@ export function SafeImg({
       src={src}
       alt={alt}
       loading={eager ? "eager" : "lazy"}
+      decoding="async"
       onError={() => setError(true)}
       className={className}
       {...props}
@@ -87,7 +105,54 @@ export function SafeImg({
   );
 }
 
-/* 모달 컴포넌트 (Modal) */
+/* ════════════════════════════════════════════════════════════
+   3. 공통 섹션 헤더 (SectionHeading)
+   ════════════════════════════════════════════════════════════ */
+export function SectionHeading({
+  eyebrow,
+  title,
+  desc,
+  dark = false,
+  className = "",
+}: {
+  eyebrow: string;
+  title: React.ReactNode;
+  desc?: React.ReactNode;
+  dark?: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={className}>
+      <p
+        className={`text-[12px] font-bold uppercase tracking-[0.2em] ${
+          dark ? "text-[#F08A5D]" : "text-[#D9531E]"
+        }`}
+      >
+        {eyebrow}
+      </p>
+      <h2
+        className={`mt-2.5 text-[25px] font-bold leading-[1.28] tracking-[-0.02em] break-keep sm:text-[31px] lg:text-[35px] ${
+          dark ? "text-white" : "text-[#0E1A2B]"
+        }`}
+      >
+        {title}
+      </h2>
+      {desc && (
+        <p
+          className={`mt-3.5 max-w-2xl text-[15px] leading-[1.7] break-keep sm:text-[16px] ${
+            dark ? "text-white/75" : "text-[#4B5260]"
+          }`}
+        >
+          {desc}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   4. 모달 컴포넌트 (Modal - 배경 스크롤 잠금 및 ESC 닫기 지원)
+   ════════════════════════════════════════════════════════════ */
 export function Modal({
   children,
   onClose,
@@ -95,6 +160,7 @@ export function Modal({
   panelClassName = "",
   overlayClassName = "",
   sheet = false,
+  open = true,
 }: {
   children: React.ReactNode;
   onClose: () => void;
@@ -102,21 +168,34 @@ export function Modal({
   panelClassName?: string;
   overlayClassName?: string;
   sheet?: boolean;
+  open?: boolean;
 }) {
   useEffect(() => {
+    if (!open) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
 
   return (
     <div
       role="dialog"
       aria-modal="true"
       aria-label={label}
-      className={`fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-fadeIn ${overlayClassName}`}
+      className={`fixed inset-0 z-[70] flex justify-center ${
+        sheet
+          ? "items-end sm:items-center p-0 sm:p-4"
+          : "items-center p-3 sm:p-6"
+      } bg-[#0E1A2B]/60 backdrop-blur-xs ${overlayClassName}`}
       onClick={onClose}
     >
       <div
@@ -129,136 +208,170 @@ export function Modal({
   );
 }
 
-/* 상단 공통 헤더 (SiteHeader) - 로고 대형 확대 버전 */
+/* ════════════════════════════════════════════════════════════
+   5. 상단 공통 헤더 (SiteHeader)
+   ════════════════════════════════════════════════════════════ */
+const HEADER_NAV = [
+  { label: "판매 제품 갤러리", href: "/gallery" },
+  { label: "가정용·업소용 품목", href: "/#category-section" },
+  { label: "매입 안내", href: "/#sell-section" },
+  { label: "배송·설치 사례", href: "/#reviews-section" },
+  { label: "오시는 길", href: "/#location-section" },
+  { label: "문의게시판", href: "/inquiry" },
+] as const;
+
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuOpen]);
+
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-neutral-200 bg-white shadow-[0_2px_12px_rgba(14,26,43,0.05)]">
-        {/* 대형 로고에 맞춰 헤더 높이를 시원하게 h-[92px] sm:h-[96px]로 확장 */}
-        <div className="mx-auto flex h-[92px] sm:h-[96px] w-full max-w-[1440px] items-center justify-between px-5 sm:px-8">
-          
-          {/* 좌측 영역: 시원하고 큼직하게 확대한 공식 로고 */}
-          <div className="flex flex-1 items-center justify-start min-w-0">
-            <a href="/" className="flex items-center py-1 group" aria-label="한밭중고전자 홈">
+      <header className="sticky top-0 z-50 w-full border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex h-[76px] sm:h-[84px] w-full max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-4">
+          {/* 좌측: 브랜드 로고 (원본 비율 유지 및 균형 잡힌 높이) */}
+          <div className="flex items-center shrink-0">
+            <Link
+              href="/"
+              className="flex items-center py-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B]"
+              aria-label="한밭중고전자 홈으로 이동"
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/logo.png"
                 alt="한밭중고전자"
-                style={{ height: "72px", maxHeight: "72px", width: "auto" }}
-                className="block object-contain transition-transform duration-200 group-hover:scale-[1.02]"
+                className="h-[52px] sm:h-[60px] w-auto object-contain transition-opacity hover:opacity-90"
               />
-            </a>
+            </Link>
           </div>
 
-          {/* 중앙 영역: 화면 정중앙 3대 주요 메뉴 */}
+          {/* 중앙: 데스크톱 내비게이션 */}
           <nav
-            className="hidden lg:flex shrink-0 items-center justify-center gap-8 xl:gap-11"
+            className="hidden lg:flex items-center justify-center gap-6 xl:gap-8"
             aria-label="주요 메뉴"
           >
-            <a
-              href="/gallery"
-              className="py-1 text-[17px] font-bold text-[#1F2530] hover:text-[#D9531E] transition-colors whitespace-nowrap"
-            >
-              제품 갤러리
-            </a>
-            <a
-              href="/#location-section"
-              className="py-1 text-[17px] font-bold text-[#1F2530] hover:text-[#D9531E] transition-colors whitespace-nowrap"
-            >
-              오시는 길
-            </a>
-            <a
-              href="/inquiry"
-              className="py-1 text-[17px] font-bold text-[#1F2530] hover:text-[#D9531E] transition-colors whitespace-nowrap"
-            >
-              문의게시판
-            </a>
+            {HEADER_NAV.map((item) => (
+              <Link
+                key={item.label}
+                href={item.href}
+                className="py-1.5 text-[15px] font-semibold text-[#1F2530] hover:text-[#D9531E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] rounded transition-colors whitespace-nowrap"
+              >
+                {item.label}
+              </Link>
+            ))}
           </nav>
 
-          {/* 우측 영역: 카톡 상담 및 액션 버튼 */}
-          <div className="flex flex-1 items-center justify-end gap-3 min-w-0">
+          {/* 우측: 전화·카톡 구분 상담 진입점 + 페이지별 액션(children) + 모바일 메뉴 버튼 */}
+          <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
+            <a
+              href={telHref(STORE.tel)}
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3.5 h-10 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap"
+              aria-label={`대표 전화 ${STORE.tel} 연결`}
+            >
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+              <span>{STORE.tel}</span>
+            </a>
+
             <a
               href={STORE.kakaoChat}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] font-bold h-11 px-4 text-[14px] shadow-xs transition-colors whitespace-nowrap"
-              aria-label="카카오톡 상담"
+              className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] font-bold h-10 px-3.5 text-[13px] transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B]"
+              aria-label="카카오톡 채널 상담 열기"
             >
-              <Icon d={ICON.chat} className="w-4 h-4" />
-              <span>카톡상담</span>
+              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+              <span>카톡 상담</span>
             </a>
 
             {children}
 
-            {/* 모바일 햄버거 메뉴 버튼 */}
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-11 w-11 place-items-center rounded-md text-[#0E1A2B] lg:hidden hover:bg-neutral-100 transition-colors shrink-0"
-              aria-label="메뉴 열기"
+              className="grid h-10 w-10 place-items-center rounded-md border border-[#E4E0D8] text-[#0E1A2B] lg:hidden hover:bg-[#F6F5F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
+              aria-label="전체 메뉴 열기"
+              aria-expanded={menuOpen}
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                <path d="M4 7h16M4 12h16M4 17h16" />
-              </svg>
+              <Icon d={ICON.menu} className="w-5 h-5" strokeWidth={2.2} />
             </button>
           </div>
         </div>
       </header>
 
-      {/* 모바일 전체화면 메뉴 드로어 */}
+      {/* 모바일 내비게이션 드로어 */}
       {menuOpen && (
-        <div className="fixed inset-0 z-[60] flex flex-col bg-white lg:hidden" role="dialog" aria-modal="true">
-          <div className="flex h-20 items-center justify-between border-b border-[#EEEBE5] px-5">
+        <div
+          className="fixed inset-0 z-[80] flex flex-col bg-white lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label="모바일 전체 메뉴"
+        >
+          <div className="flex h-[76px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.png"
               alt="한밭중고전자"
-              style={{ height: "48px", maxHeight: "48px", width: "auto" }}
-              className="object-contain"
+              className="h-[46px] w-auto object-contain"
             />
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
-              className="grid h-11 w-11 place-items-center text-[#0E1A2B]"
+              className="grid h-10 w-10 place-items-center rounded-md border border-[#E4E0D8] text-[#0E1A2B]"
               aria-label="메뉴 닫기"
             >
-              <Icon d={ICON.close} className="w-6 h-6" />
+              <Icon d={ICON.close} className="w-5 h-5" />
             </button>
           </div>
 
-          <nav className="flex-1 overflow-y-auto px-5 py-4">
-            <ul className="divide-y divide-[#F0EDE7]">
-              <li>
-                <a href="/gallery" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[17px] font-bold text-[#0E1A2B]">
-                  제품 갤러리 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
-                </a>
-              </li>
-              <li>
-                <a href="/#location-section" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[17px] font-bold text-[#0E1A2B]">
-                  오시는 길 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
-                </a>
-              </li>
-              <li>
-                <a href="/inquiry" onClick={() => setMenuOpen(false)} className="flex items-center justify-between py-4 text-[17px] font-bold text-[#0E1A2B]">
-                  문의게시판 <Icon d={ICON.right} className="w-4 h-4 text-neutral-400" />
-                </a>
-              </li>
+          <nav className="flex-1 overflow-y-auto px-5 py-4" aria-label="모바일 메뉴 목록">
+            <ul className="divide-y divide-[#EEEBE5]">
+              {HEADER_NAV.map((item) => (
+                <li key={item.label}>
+                  <a
+                    href={item.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-between py-4 text-[16px] font-bold text-[#0E1A2B] hover:text-[#D9531E]"
+                  >
+                    <span>{item.label}</span>
+                    <Icon d={ICON.right} className="w-4 h-4 text-[#8A8478]" />
+                  </a>
+                </li>
+              ))}
             </ul>
 
-            <div className="mt-6 rounded-md bg-[#F6F5F2] p-4 text-[13px] text-[#4B5260] space-y-1">
-              <p className="font-bold text-[#0E1A2B]">{STORE.name}</p>
-              <p>{STORE.hours}</p>
-              <p>{STORE.address}</p>
+            <div className="mt-6 rounded-md border border-[#E4E0D8] bg-[#F6F5F2] p-4 text-[13px] text-[#4B5260] space-y-1.5">
+              <p className="font-bold text-[#0E1A2B]">{STORE.name} 오프라인 매장</p>
+              <p>주소: {STORE.address} ({STORE.addressNote})</p>
+              <p>영업시간: {STORE.hours} ({STORE.closed})</p>
+              <p>대표전화: {STORE.tel}</p>
             </div>
           </nav>
 
-          <div className="grid grid-cols-2 gap-2 border-t border-[#EEEBE5] p-4 pb-[max(16px,env(safe-area-inset-bottom))] bg-white">
-            <a href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`} className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-[#0E1A2B] text-[14px] font-bold text-white">
-              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+          <div className="grid grid-cols-2 gap-2.5 border-t border-[#E4E0D8] bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+            <a
+              href={telHref(STORE.tel)}
+              className="flex h-12 items-center justify-center gap-2 rounded-md bg-[#0E1A2B] text-[14px] font-bold text-white"
+            >
+              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 상담
             </a>
-            <a href={STORE.kakaoChat} target="_blank" rel="noopener noreferrer" className="flex h-12 items-center justify-center gap-1.5 rounded-md bg-[#FEE500] text-[14px] font-bold text-[#191600]">
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-12 items-center justify-center gap-2 rounded-md bg-[#FEE500] text-[14px] font-bold text-[#191600]"
+            >
               <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
             </a>
           </div>
@@ -268,7 +381,9 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
   );
 }
 
-/* 하단 푸터 (SiteFooter) */
+/* ════════════════════════════════════════════════════════════
+   6. 하단 공통 푸터 (SiteFooter)
+   ════════════════════════════════════════════════════════════ */
 export function SiteFooter({
   isAdmin = false,
   onAdminClick,
@@ -277,81 +392,192 @@ export function SiteFooter({
   onAdminClick?: () => void;
 }) {
   return (
-    <footer className="border-t border-[#E4E0D8] bg-white text-[#4B5260] text-[13px] py-10 sm:py-12 mt-auto">
-      <div className="mx-auto max-w-[1240px] px-5 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-[#EEEBE5]">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-bold text-[16px] text-[#0E1A2B]">{STORE.name}</span>
-              <span className="text-[11px] font-semibold text-[#8A8478] bg-[#F6F5F2] border border-[#E4E0D8] px-2 py-0.5 rounded">
+    <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#0E1A2B]">
+      <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
+          <div className="lg:col-span-5">
+            <div className="flex items-center gap-2.5">
+              <span className="text-[19px] font-bold text-white tracking-tight">
+                {STORE.name}
+              </span>
+              <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/85">
                 SINCE {STORE.since}
               </span>
             </div>
-            <p className="text-[13px] text-[#6B7280] leading-relaxed break-keep">
-              대전·충청 중고가전 및 식당·카페 업소용 주방기기 전문 매입·판매 매장
+            <p className="mt-3 max-w-md text-[14px] leading-[1.7] text-white/65 break-keep">
+              가정용 중고가전(냉장고·세탁기·에어컨·냉난방기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 검수·세척하여 판매하고 합리적인 기준으로 매입합니다.
             </p>
+            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+              <a
+                href={telHref(STORE.tel)}
+                className="inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/15 px-3.5 py-2 text-[13px] font-bold text-white transition-colors"
+              >
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                {STORE.tel}
+              </a>
+              <a
+                href={STORE.kakaoChat}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[13px] font-bold text-[#191600] transition-colors"
+              >
+                <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                카카오톡 상담
+              </a>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <a
-              href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`}
-              className="inline-flex items-center gap-1.5 font-bold text-[#0E1A2B] bg-[#F6F5F2] border border-[#DDD9D1] px-3.5 py-2 rounded-md hover:bg-[#EFECE6] transition-colors"
-            >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
-              {STORE.tel}
-            </a>
-            <a
-              href={STORE.kakaoChat}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 font-bold text-[#191600] bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 rounded-md transition-colors"
-            >
-              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-              카카오톡 상담
-            </a>
-          </div>
+
+          <nav
+            className="grid grid-cols-2 gap-8 text-[14px] sm:grid-cols-3 lg:col-span-7"
+            aria-label="푸터 메뉴"
+          >
+            <div>
+              <p className="font-bold text-white text-[13px] uppercase tracking-wider">
+                취급 품목
+              </p>
+              <ul className="mt-3.5 space-y-2 text-white/65">
+                <li>
+                  <Link href="/gallery?category=에어컨/냉난방기" className="hover:text-white">
+                    에어컨 · 냉난방기
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/gallery?category=냉장고" className="hover:text-white">
+                    냉장고 · 김치냉장고
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/gallery?category=세탁기/건조기" className="hover:text-white">
+                    세탁기 · 건조기
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/gallery?category=업소용기기" className="hover:text-white">
+                    업소용 냉장 · 주방기기
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <p className="font-bold text-white text-[13px] uppercase tracking-wider">
+                고객 지원
+              </p>
+              <ul className="mt-3.5 space-y-2 text-white/65">
+                <li>
+                  <Link href="/#sell-section" className="hover:text-white">
+                    중고가전 매입 안내
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/#reviews-section" className="hover:text-white">
+                    배송 · 설치 사례
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/inquiry" className="hover:text-white">
+                    문의게시판
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/privacy" className="hover:text-white">
+                    개인정보처리방침
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <p className="font-bold text-white text-[13px] uppercase tracking-wider">
+                오프라인 매장
+              </p>
+              <ul className="mt-3.5 space-y-2 text-white/65 text-[13px]">
+                <li>{STORE.address}</li>
+                <li>({STORE.addressNote})</li>
+                <li>영업시간: {STORE.hours}</li>
+                <li>휴무안내: {STORE.closed}</li>
+              </ul>
+            </div>
+          </nav>
         </div>
 
-        <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-[12px] text-[#8A8478]">
-          <div className="space-y-1">
+        <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-[12px] leading-relaxed text-white/45">
+          <div>
             <p>
-              매장 주소: {STORE.address} | 영업시간: {STORE.hours}
+              상호: {STORE.name} · 대표: {STORE.ceo} · 사업자등록번호: {STORE.bizNo} · 통신판매업신고: {STORE.mailOrderNo}
             </p>
-            <p>© {STORE.name}. All rights reserved.</p>
+            <p className="mt-0.5">
+              개인정보보호책임자: {STORE.privacyOfficer} · 주소: {STORE.address}
+            </p>
+            <p className="mt-1">© {new Date().getFullYear()} {STORE.name}. All rights reserved.</p>
           </div>
+
           {onAdminClick && (
             <button
               type="button"
               onClick={onAdminClick}
-              className="text-[11px] text-[#8A8478] hover:text-[#0E1A2B] underline decoration-neutral-300 underline-offset-4 transition-colors"
+              className="text-[12px] text-white/40 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end"
             >
-              {isAdmin ? "관리자 모드 로그아웃" : "관리자 로그인"}
+              {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
             </button>
           )}
         </div>
       </div>
+      {/* 모바일 고정 하단 바 여백 확보 */}
+      <div className="h-[64px] lg:hidden" aria-hidden="true" />
     </footer>
   );
 }
 
-/* 모바일 하단 CTA 바 (MobileCtaBar) */
-export function MobileCtaBar() {
+/* ════════════════════════════════════════════════════════════
+   7. 단일화된 모바일 하단 고정 CTA 바 (MobileCtaBar)
+   ════════════════════════════════════════════════════════════ */
+export function MobileCtaBar({
+  onInquiryClick,
+}: {
+  onInquiryClick?: () => void;
+}) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-[#DDD9D1] bg-white/95 backdrop-blur-md px-4 py-2.5 pb-[max(10px,env(safe-area-inset-bottom))] shadow-lg">
-      <div className="grid grid-cols-2 gap-2">
+    <div
+      role="region"
+      aria-label="모바일 빠른 상담 바"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+    >
+      <div className="grid h-[58px] grid-cols-3 divide-x divide-[#EEEBE5]">
         <a
-          href={`tel:${STORE.tel.replace(/[^0-9]/g, "")}`}
-          className="flex h-11 items-center justify-center gap-1.5 rounded-md bg-[#0E1A2B] text-[14px] font-bold text-white shadow-xs active:bg-[#22324A]"
+          href={telHref(STORE.tel)}
+          className="flex items-center justify-center gap-1.5 bg-[#0E1A2B] text-[13px] font-bold text-white active:bg-[#1C2D47]"
         >
-          <Icon d={ICON.phone} className="w-4 h-4 text-white" /> 전화 문의
+          <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+          <span>전화 상담</span>
         </a>
         <a
           href={STORE.kakaoChat}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex h-11 items-center justify-center gap-1.5 rounded-md bg-[#FEE500] text-[14px] font-bold text-[#191600] shadow-xs active:bg-[#F2D900]"
+          className="flex items-center justify-center gap-1.5 bg-[#FEE500] text-[13px] font-bold text-[#191600] active:bg-[#F2D900]"
         >
-          <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+          <Icon d={ICON.chat} className="w-4 h-4" />
+          <span>카톡 상담</span>
         </a>
+        {onInquiryClick ? (
+          <button
+            type="button"
+            onClick={onInquiryClick}
+            className="flex items-center justify-center gap-1.5 bg-white text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
+          >
+            <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
+            <span>문의 남기기</span>
+          </button>
+        ) : (
+          <Link
+            href="/inquiry"
+            className="flex items-center justify-center gap-1.5 bg-white text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
+          >
+            <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
+            <span>문의게시판</span>
+          </Link>
+        )}
       </div>
     </div>
   );

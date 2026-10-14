@@ -1,400 +1,656 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
+import { useState, useEffect, useCallback } from "react";
+import toast from "react-hot-toast";
+import {
+   supabase,
+  isAuthorizedAdminUser,
+  getAdminAuthHeaders,
+} from "../../lib/supabase";
+import {
+  PRODUCT_CATEGORIES,
+  PRODUCT_STATUS,
+  STORAGE_BUCKETS,
+  isProductSold,
+  getProductStatusLabel,
+  normalizeProductCategory,
+  formatProductPrice,
+  splitImages,
+  compressImage,
+  validateImageFiles,
+  extractInquiryImages,
+} from "../../lib/site";
 
 export default function AdminPage() {
-  // 탭 상태 ("products" 또는 "purchases")
+  const [authChecking, setAuthChecking] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
+
   const [activeTab, setActiveTab] = useState<"products" | "purchases">("products");
 
-  // 상품 관련 상태
+  // 상품 등록 상태 (표준 카테고리/상태값 적용)
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("냉장고");
+  const [category, setCategory] = useState<string>(PRODUCT_CATEGORIES[0]);
   const [conditionGrade, setConditionGrade] = useState("A급 (사용감 적음)");
   const [description, setDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
 
-  // 매입 신청 목록 상태
+  // 문의/매입 신청 목록 상태
   const [purchaseRequests, setPurchaseRequests] = useState<any[]>([]);
 
-  const categories = ["냉장고", "세탁기", "TV", "에어컨", "업소용 주방기기", "사무용 가전", "기타가전"];
-  const grades = ["S급 (새상품급)", "A급 (사용감 적음)", "B급 (보통)", "C급 (저렴이)"];
+  const grades = [
+    "S급 (새상품급)",
+    "A급 (사용감 적음)",
+    "B급 (보통)",
+    "C급 (저렴이)",
+  ];
 
-  // 데이터 불러오기
-  const fetchData = async () => {
-    // 상품 목록
-    const { data: prodData } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (prodData) setProducts(prodData);
+  // 관리자 권한이 확인된 경우에만 데이터를 조회합니다.
+  const fetchData = useCallback(async () => {
+    try {
+      const { data: prodData, error: prodErr } = await supabase
+        .from("products")
+        .select("*")
+        .neq("category", "배송인증")
+        .order("created_at", { ascending: false });
 
-    // 매입 신청 목록
-    const { data: purData } = await supabase
-      .from("purchase_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (purData) setPurchaseRequests(purData);
-  };
+      if (!prodErr && prodData) {
+        setProducts(prodData);
+      }
 
-  useEffect(() => {
-    fetchData();
+      // 서버 API를 통해 관리자 토큰 검증 후 문의/매입 목록 조회
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch("/api/inquiries", { headers });
+      if (res.ok) {
+        const json = await res.json();
+        setPurchaseRequests(json.inquiries || []);
+      }
+    } catch (err) {
+      console.error("관리자 데이터 로드 오류:", err);
+    }
   }, []);
 
-  // 1. 상품 등록
+  useEffect(() => {
+    const verifySession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const authorized = isAuthorizedAdminUser(session?.user);
+      setIsAdmin(authorized);
+      setAuthChecking(false);
+      if (authorized) {
+        fetchData();
+      }
+    };
+
+    verifySession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        const authorized = isAuthorizedAdminUser(session?.user);
+        setIsAdmin(authorized);
+        setAuthChecking(false);
+        if (authorized) {
+          fetchData();
+        } else {
+          setProducts([]);
+          setPurchaseRequests([]);
+        }
+      }
+    );
+
+    return () => authListener.subscription.unsubscribe();
+  }, [fetchData]);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoggingIn(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: adminEmail.trim(),
+        password: adminPassword,
+      });
+      if (error) throw error;
+
+      if (!isAuthorizedAdminUser(data.user)) {
+        await supabase.auth.signOut();
+        toast.error("관리자 권한이 허용되지 않은 계정입니다.");
+        return;
+      }
+
+      toast.success("관리자 인증이 완료되었습니다.");
+      setAdminPassword("");
+    } catch {
+      toast.error("로그인 실패: 이메일 또는 비밀번호를 확인해 주세요.");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setIsAdmin(false);
+    toast.success("로그아웃되었습니다.");
+  };
+
+  // 1. 상품 등록 (표준 상태값 '판매중' 및 'inquiries' 스토리지 버킷으로 통일)
   const handleSubmitProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !price) {
-      alert("상품명과 가격을 입력해주세요.");
+    if (!isAdmin) return;
+    if (!title.trim()) {
+      toast.error("상품명을 입력해 주세요.");
       return;
     }
 
     setLoading(true);
-
     try {
       let imageUrl = "";
       if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
+        const { ok, error: fileErr } = validateImageFiles([imageFile], 1);
+        if (fileErr || ok.length === 0) {
+          throw new Error(fileErr || "유효하지 않은 이미지 파일입니다.");
+        }
+        const blob = await compressImage(ok[0]);
+        const fileName = `product_${Date.now()}_${Math.random()
+          .toString(36)
+          .slice(2, 8)}.jpg`;
         const { error: uploadError } = await supabase.storage
-          .from("product-images")
-          .upload(fileName, imageFile);
+          .from(STORAGE_BUCKETS.inquiries)
+          .upload(fileName, blob, { contentType: "image/jpeg" });
 
         if (uploadError) throw uploadError;
 
         const { data: publicUrlData } = supabase.storage
-          .from("product-images")
+          .from(STORAGE_BUCKETS.inquiries)
           .getPublicUrl(fileName);
 
         imageUrl = publicUrlData.publicUrl;
       }
 
-      const { error: insertError } = await supabase
-        .from("products")
-        .insert({
-          title,
-          price: Number(price),
-          category,
-          condition_grade: conditionGrade,
-          description,
-          image_url: imageUrl,
-          status: 'sale'
-        });
+      const parsedPrice = price ? Number(price.replace(/[^0-9]/g, "")) : 0;
+
+      const { error: insertError } = await supabase.from("products").insert({
+        title: title.trim(),
+        price: parsedPrice,
+        category: normalizeProductCategory(category),
+        condition_grade: conditionGrade,
+        description: description.trim(),
+        image_url: imageUrl,
+        status: PRODUCT_STATUS.SELLING,
+        views: 0,
+      });
 
       if (insertError) throw insertError;
 
-      alert("상품이 성공적으로 등록되었습니다!");
+      toast.success("상품이 정상적으로 등록되었습니다.");
       setTitle("");
       setPrice("");
       setDescription("");
       setImageFile(null);
       fetchData();
     } catch (error: any) {
-      alert("등록 중 오류가 발생했습니다: " + error.message);
+      toast.error("등록 중 오류가 발생했습니다: " + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   // 2. 상품 삭제
-  const handleDeleteProduct = async (id: string, imageUrl: string) => {
+  const handleDeleteProduct = async (id: string) => {
+    if (!isAdmin) return;
     if (!confirm("정말 이 상품을 삭제하시겠습니까?")) return;
 
     try {
-      if (imageUrl) {
-        const fileName = imageUrl.split('/').pop();
-        if (fileName) {
-          await supabase.storage.from("product-images").remove([fileName]);
-        }
-      }
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
-      alert("삭제되었습니다.");
+      toast.success("삭제되었습니다.");
       fetchData();
-    } catch (error) {
-      alert("삭제 중 오류가 발생했습니다.");
+    } catch {
+      toast.error("삭제 중 오류가 발생했습니다.");
     }
   };
 
-  // 3. 상품 판매상태 토글
+  // 3. 상품 판매상태 토글 (표준 상태값 '판매중' <-> '판매완료' 사용, 기존 'sale'/'sold' 호환)
   const handleToggleProductStatus = async (id: string, currentStatus: string) => {
-    const newStatus = currentStatus === 'sale' ? 'sold' : 'sale';
+    if (!isAdmin) return;
+    const currentlySold = isProductSold(currentStatus);
+    const newStatus = currentlySold
+      ? PRODUCT_STATUS.SELLING
+      : PRODUCT_STATUS.SOLD;
+
     try {
-      const { error } = await supabase.from("products").update({ status: newStatus }).eq("id", id);
+      const { error } = await supabase
+        .from("products")
+        .update({ status: newStatus })
+        .eq("id", id);
       if (error) throw error;
       fetchData();
-    } catch (error) {
-      alert("상태 변경 중 오류가 발생했습니다.");
+    } catch {
+      toast.error("상태 변경 중 오류가 발생했습니다.");
     }
   };
 
-  // 4. 매입 신청 상태 변경 (접수 -> 검토중 -> 방문예정 -> 매입완료 -> 취소)
+  // 4. 문의/매입 신청 상태 변경 (서버 API 경유)
   const handleUpdatePurchaseStatus = async (id: string, currentStatus: string) => {
-    const statusFlow = ['접수', '검토중', '방문예정', '매입완료', '취소'];
+    if (!isAdmin) return;
+    const statusFlow = ["접수", "검토중", "방문예정", "답변완료", "매입완료", "취소"];
     const nextIndex = (statusFlow.indexOf(currentStatus) + 1) % statusFlow.length;
     const newStatus = statusFlow[nextIndex];
 
     try {
-      const { error } = await supabase.from("purchase_requests").update({ status: newStatus }).eq("id", id);
-      if (error) throw error;
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch(`/api/inquiries/${id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res.ok) throw new Error("상태 변경 실패");
       fetchData();
-    } catch (error) {
-      alert("매입 상태 변경 중 오류가 발생했습니다.");
+    } catch {
+      toast.error("상태 변경 중 오류가 발생했습니다.");
     }
   };
 
-  // 5. 매입 신청 삭제
+  // 5. 문의/매입 신청 삭제 (서버 API 경유)
   const handleDeletePurchase = async (id: string) => {
-    if (!confirm("이 매입 신청 내역을 삭제하시겠습니까?")) return;
+    if (!isAdmin) return;
+    if (!confirm("이 문의/매입 신청 내역을 삭제하시겠습니까?")) return;
     try {
-      const { error } = await supabase.from("purchase_requests").delete().eq("id", id);
-      if (error) throw error;
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch(`/api/inquiries/${id}`, {
+        method: "DELETE",
+        headers: { ...headers, "Content-Type": "application/json" },
+      });
+      if (!res.ok) throw new Error("삭제 실패");
+      toast.success("삭제되었습니다.");
       fetchData();
-    } catch (error) {
-      alert("삭제 중 오류가 발생했습니다.");
+    } catch {
+      toast.error("삭제 중 오류가 발생했습니다.");
     }
   };
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F6F5F2] text-sm text-[#4B5260]">
+        관리자 권한을 확인하고 있습니다...
+      </div>
+    );
+  }
+
+  // 비로그인 또는 비인가 사용자 접근 차단 화면
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#F6F5F2] p-4 font-sans">
+        <div className="bg-white p-8 rounded-xl shadow-md border border-[#E4E0D8] w-full max-w-sm">
+          <h1 className="text-xl font-bold text-[#0E1A2B] mb-1 text-center">
+            한밭중고전자 관리자 인증
+          </h1>
+          <p className="text-xs text-[#6B7280] mb-6 text-center">
+            인가된 관리자 계정으로 로그인해야 접근할 수 있습니다.
+          </p>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                관리자 이메일
+              </label>
+              <input
+                type="email"
+                required
+                autoComplete="username"
+                value={adminEmail}
+                onChange={(e) => setAdminEmail(e.target.value)}
+                className="w-full border border-[#DDD9D1] p-3 rounded-md text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                비밀번호
+              </label>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                className="w-full border border-[#DDD9D1] p-3 rounded-md text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loggingIn}
+              className="w-full bg-[#0E1A2B] text-white font-bold py-3 rounded-md text-sm hover:bg-[#22324A] disabled:opacity-50"
+            >
+              {loggingIn ? "인증 확인 중..." : "관리자 로그인"}
+            </button>
+          </form>
+          <div className="mt-5 text-center">
+            <a href="/" className="text-xs text-[#6B7280] hover:underline">
+              ← 홈으로 돌아가기
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-xl mx-auto p-4 sm:p-6 bg-gray-100 min-h-screen font-sans pb-24">
-      {/* 상단 타이틀 */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm mb-6 text-center border border-gray-200">
-        <h1 className="text-2xl font-black text-gray-900">한밭중고전자 관리자</h1>
-        <p className="text-sm text-gray-500 mt-1">상품 재고 및 고객 매입 신청 통합 관리</p>
-        
-        {/* 관리자 탭 전환 버튼 */}
-        <div className="flex gap-2 mt-5 bg-gray-100 p-1 rounded-xl">
-          <button 
-            onClick={() => setActiveTab("products")}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition ${activeTab === 'products' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+    <div className="max-w-2xl mx-auto p-4 sm:p-6 bg-[#F6F5F2] min-h-screen font-sans pb-24">
+      <div className="bg-white p-6 rounded-xl shadow-xs mb-6 border border-[#E4E0D8]">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-[#0E1A2B]">
+              한밭중고전자 통합 관리자
+            </h1>
+            <p className="text-xs text-[#6B7280] mt-0.5">
+              상품 재고 및 고객 문의·매입 신청 관리
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-3 py-1.5 rounded-md"
           >
-            📦 상품 관리 ({products.length})
+            로그아웃
           </button>
-          <button 
-            onClick={() => setActiveTab("purchases")}
-            className={`flex-1 py-2.5 rounded-lg text-xs font-bold transition ${activeTab === 'purchases' ? 'bg-white text-blue-600 shadow-sm' : 'text-gray-500 hover:text-gray-900'}`}
+        </div>
+
+        <div className="flex gap-2 mt-5 bg-[#F6F5F2] p-1 rounded-lg">
+          <button
+            type="button"
+            onClick={() => setActiveTab("products")}
+            className={`flex-1 py-2.5 rounded-md text-xs font-bold transition ${
+              activeTab === "products"
+                ? "bg-[#0E1A2B] text-white shadow-xs"
+                : "text-[#4B5260]"
+            }`}
           >
-            📥 매입 신청 내역 ({purchaseRequests.length})
+            상품 관리 ({products.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("purchases")}
+            className={`flex-1 py-2.5 rounded-md text-xs font-bold transition ${
+              activeTab === "purchases"
+                ? "bg-[#0E1A2B] text-white shadow-xs"
+                : "text-[#4B5260]"
+            }`}
+          >
+            문의·매입 내역 ({purchaseRequests.length})
           </button>
         </div>
       </div>
-      
-      {/* TAB 1: 상품 관리 */}
-      {activeTab === 'products' && (
+
+      {activeTab === "products" && (
         <>
-          {/* 상품 등록 폼 */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 mb-8">
-            <h2 className="text-lg font-bold mb-4 text-gray-800">📦 새 가전제품 등록</h2>
+          <div className="bg-white p-6 rounded-xl shadow-xs border border-[#E4E0D8] mb-8">
+            <h2 className="text-base font-bold mb-4 text-[#0E1A2B]">
+              새 가전제품 등록
+            </h2>
             <form onSubmit={handleSubmitProduct} className="flex flex-col gap-4">
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">카테고리</label>
-                <select 
-                  value={category} 
+                <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                  표준 카테고리
+                </label>
+                <select
+                  value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full border border-gray-300 p-3 rounded-xl bg-gray-50 text-sm font-medium outline-none"
+                  className="w-full border border-[#DDD9D1] p-3 rounded-md bg-white text-sm font-medium"
                 >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">상품명</label>
-                <input 
-                  type="text" 
-                  value={title} 
-                  onChange={(e) => setTitle(e.target.value)} 
-                  required 
-                  className="w-full border border-gray-300 p-3 rounded-xl bg-gray-50 text-sm outline-none" 
-                  placeholder="예: 삼성 양문형 냉장고 800L" 
+                <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                  상품명 *
+                </label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  required
+                  className="w-full border border-[#DDD9D1] p-3 rounded-md text-sm"
+                  placeholder="예: 삼성 양문형 냉장고 800L"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">가격 (원)</label>
-                  <input 
-                    type="number" 
-                    value={price} 
-                    onChange={(e) => setPrice(e.target.value)} 
-                    required 
-                    className="w-full border border-gray-300 p-3 rounded-xl bg-gray-50 text-sm outline-none" 
-                    placeholder="350000" 
+                  <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                    가격 (원, 비우면 상담문의)
+                  </label>
+                  <input
+                    type="number"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    className="w-full border border-[#DDD9D1] p-3 rounded-md text-sm"
+                    placeholder="350000"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-600 mb-1">제품 상태 등급</label>
-                  <select 
-                    value={conditionGrade} 
+                  <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                    제품 상태 등급
+                  </label>
+                  <select
+                    value={conditionGrade}
                     onChange={(e) => setConditionGrade(e.target.value)}
-                    className="w-full border border-gray-300 p-3 rounded-xl bg-gray-50 text-sm outline-none"
+                    className="w-full border border-[#DDD9D1] p-3 rounded-md bg-white text-sm"
                   >
                     {grades.map((g) => (
-                      <option key={g} value={g}>{g}</option>
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">제품 설명 및 특이사항</label>
-                <textarea 
-                  value={description} 
-                  onChange={(e) => setDescription(e.target.value)} 
+                <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                  제품 설명 및 특이사항
+                </label>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                   rows={3}
-                  className="w-full border border-gray-300 p-3 rounded-xl bg-gray-50 text-sm outline-none resize-none" 
-                  placeholder="예: 2023년식, 내외부 청소 완료, 무상 AS 3개월" 
+                  className="w-full border border-[#DDD9D1] p-3 rounded-md text-sm resize-none"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-gray-600 mb-1">상품 사진</label>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={(e) => { if (e.target.files && e.target.files.length > 0) { setImageFile(e.target.files[0]); } }} 
-                  className="w-full border border-gray-300 p-2.5 rounded-xl text-xs bg-gray-50 cursor-pointer" 
+                <label className="block text-xs font-bold text-[#0E1A2B] mb-1">
+                  상품 사진
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      setImageFile(e.target.files[0]);
+                    }
+                  }}
+                  className="w-full border border-[#DDD9D1] p-2.5 rounded-md text-xs bg-white"
                 />
               </div>
 
-              <button 
-                type="submit" 
-                disabled={loading} 
-                className="mt-2 w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-700 transition shadow-md text-sm"
+              <button
+                type="submit"
+                disabled={loading}
+                className="mt-2 w-full bg-[#0E1A2B] text-white font-bold py-3.5 rounded-md hover:bg-[#22324A] transition text-sm"
               >
                 {loading ? "등록 처리 중..." : "상품 등록하기"}
               </button>
             </form>
           </div>
 
-          {/* 등록된 상품 목록 */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h2 className="text-lg font-bold mb-4 text-gray-800 flex items-center justify-between">
-              <span>📋 등록된 상품 목록</span>
-              <span className="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">총 {products.length}개</span>
+          <div className="bg-white p-6 rounded-xl shadow-xs border border-[#E4E0D8]">
+            <h2 className="text-base font-bold mb-4 text-[#0E1A2B]">
+              등록된 상품 목록 ({products.length}개)
             </h2>
-            
             <div className="flex flex-col gap-3">
-              {products.length === 0 ? (
-                <div className="text-center text-gray-400 py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-sm">
-                  등록된 상품이 없습니다.
-                </div>
-              ) : (
-                products.map((product) => (
-                  <div key={product.id} className="flex items-center gap-3 border border-gray-200 p-3.5 rounded-xl bg-white">
-                    <div className="w-16 h-16 bg-gray-100 rounded-lg shrink-0 relative overflow-hidden border border-gray-100">
-                      {product.image_url ? (
-                        <img src={product.image_url} alt={product.title} className="object-cover w-full h-full" />
-                      ) : (
-                        <span className="text-[10px] text-gray-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">사진없음</span>
-                      )}
+              {products.map((product) => {
+                const imgs = splitImages(product.image_url);
+                const sold = isProductSold(product.status);
+                const statusLabel = getProductStatusLabel(product.status);
+                const catLabel = normalizeProductCategory(product.category);
+
+                return (
+                  <div
+                    key={product.id}
+                    className="flex items-center gap-3 border border-[#E4E0D8] p-3.5 rounded-lg bg-white"
+                  >
+                    <div className="w-16 h-16 bg-[#F6F5F2] rounded overflow-hidden shrink-0 border border-[#E4E0D8]">
+                      {imgs[0] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={imgs[0]}
+                          alt={product.title}
+                          className="object-cover w-full h-full"
+                        />
+                      ) : null}
                     </div>
-                    
-                    <div className="flex-1 overflow-hidden pr-2">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[11px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-bold">{product.category}</span>
-                        <span className="text-[11px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold">{product.condition_grade}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-[11px] bg-[#F6F5F2] text-[#4B5260] px-2 py-0.5 rounded font-bold">
+                          {catLabel}
+                        </span>
                       </div>
-                      <h3 className="font-bold text-gray-900 text-sm truncate mb-0.5">{product.title}</h3>
-                      <p className="text-blue-600 font-extrabold text-sm">{product.price.toLocaleString()}원</p>
+                      <h3 className="font-bold text-[#0E1A2B] text-sm truncate">
+                        {product.title}
+                      </h3>
+                      <p className="text-[#D9531E] font-bold text-sm">
+                        {formatProductPrice(product.price, catLabel)}
+                      </p>
                     </div>
-                    
                     <div className="flex flex-col gap-1.5 shrink-0">
-                      <button 
-                        onClick={() => handleToggleProductStatus(product.id, product.status)}
-                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${product.status === 'sold' ? 'bg-gray-600 text-white' : 'bg-green-600 text-white hover:bg-green-700'}`}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleToggleProductStatus(product.id, product.status)
+                        }
+                        className={`px-3 py-1.5 text-xs font-bold rounded transition ${
+                          sold
+                            ? "bg-[#8A8478] text-white"
+                            : "bg-[#0E1A2B] text-white"
+                        }`}
                       >
-                        {product.status === 'sold' ? '판매완료' : '판매중'}
+                        {statusLabel}
                       </button>
-                      <button 
-                        onClick={() => handleDeleteProduct(product.id, product.image_url)}
-                        className="px-3 py-1.5 text-xs font-bold bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition border border-red-100"
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="px-3 py-1.5 text-xs font-bold bg-red-50 text-red-600 rounded border border-red-200"
                       >
                         삭제
                       </button>
                     </div>
                   </div>
-                ))
-              )}
+                );
+              })}
             </div>
           </div>
         </>
       )}
 
-      {/* TAB 2: 매입 신청 내역 관리 */}
-      {activeTab === 'purchases' && (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-          <h2 className="text-lg font-bold mb-4 text-gray-800 flex items-center justify-between">
-            <span>📥 들어온 매입 신청</span>
-            <span className="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-bold">총 {purchaseRequests.length}건</span>
+      {activeTab === "purchases" && (
+        <div className="bg-white p-6 rounded-xl shadow-xs border border-[#E4E0D8]">
+          <h2 className="text-base font-bold mb-4 text-[#0E1A2B]">
+            접수된 문의 및 매입 신청 ({purchaseRequests.length}건)
           </h2>
-          
           <div className="flex flex-col gap-4">
-            {purchaseRequests.length === 0 ? (
-              <div className="text-center text-gray-400 py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-sm">
-                접수된 매입 신청이 없습니다.
-              </div>
-            ) : (
-              purchaseRequests.map((req) => (
-                <div key={req.id} className="border border-gray-200 p-4 rounded-xl bg-white shadow-2xs flex flex-col gap-3">
+            {purchaseRequests.map((req) => {
+              const imgs = extractInquiryImages(req);
+              return (
+                <div
+                  key={req.id}
+                  className="border border-[#E4E0D8] p-4 rounded-lg bg-white flex flex-col gap-3"
+                >
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className={`text-xs px-2.5 py-0.5 rounded-md font-bold ${
-                          req.status === '매입완료' ? 'bg-blue-600 text-white' :
-                          req.status === '방문예정' ? 'bg-green-600 text-white' :
-                          req.status === '검토중' ? 'bg-orange-500 text-white' :
-                          req.status === '취소' ? 'bg-gray-300 text-gray-700' : 'bg-gray-100 text-gray-800'
-                        }`}>
-                          {req.status}
+                        <span className="text-xs px-2 py-0.5 rounded bg-[#0E1A2B] text-white font-bold">
+                          {req.status || "접수"}
                         </span>
-                        <span className="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-bold">{req.category}</span>
-                        <span className="text-xs text-gray-400">{new Date(req.created_at).toLocaleDateString()}</span>
+                        <span className="text-xs bg-[#F6F5F2] text-[#4B5260] px-2 py-0.5 rounded font-bold">
+                          {req.inquiry_type || "문의"}
+                        </span>
+                        <span className="text-xs text-[#8A8478]">
+                          {new Date(req.created_at).toLocaleDateString("ko-KR")}
+                        </span>
                       </div>
-                      <h3 className="font-bold text-gray-900 text-base">{req.name} <span className="text-sm font-normal text-gray-600">({req.phone})</span></h3>
-                      <p className="text-xs text-gray-500 mt-0.5">📍 수거 지역: <strong className="text-gray-700">{req.region}</strong></p>
+                      <h3 className="font-bold text-[#0E1A2B] text-sm">
+                        {req.category}
+                      </h3>
+                      <p className="text-xs text-[#4B5260] mt-0.5">
+                        고객명: <strong>{req.name}</strong>{" "}
+                        {req.phone && `(${req.phone})`}
+                      </p>
                     </div>
-
-                    {req.image_url && (
-                      <a href={req.image_url} target="_blank" rel="noopener noreferrer" className="w-14 h-14 bg-gray-100 rounded-lg shrink-0 overflow-hidden border border-gray-200">
-                        <img src={req.image_url} alt="신청 제품 사진" className="object-cover w-full h-full" />
+                    {imgs[0] && (
+                      <a
+                        href={imgs[0]}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-14 h-14 bg-[#F6F5F2] rounded shrink-0 overflow-hidden border border-[#E4E0D8]"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={imgs[0]}
+                          alt="첨부 사진"
+                          className="object-cover w-full h-full"
+                        />
                       </a>
                     )}
                   </div>
 
-                  <div className="bg-gray-50 p-3 rounded-lg text-xs text-gray-700 flex flex-col gap-1">
-                    <p><strong>모델명:</strong> {req.model || '미입력'}</p>
-                    <p><strong>상태등급:</strong> {req.condition_grade}</p>
-                    {req.description && <p><strong>설명:</strong> {req.description}</p>}
-                  </div>
+                  {req.description && (
+                    <div className="bg-[#FAF9F7] p-3 rounded text-xs text-[#4B5260] whitespace-pre-wrap">
+                      {req.description}
+                    </div>
+                  )}
 
-                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                    <a href={`tel:${req.phone}`} className="text-xs font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
-                      📞 전화 걸기
-                    </a>
-                    
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleUpdatePurchaseStatus(req.id, req.status)}
-                        className="text-xs font-bold bg-gray-900 text-white px-3 py-2 rounded-lg hover:bg-gray-800 transition"
+                  <div className="flex items-center justify-between pt-2 border-t border-[#EEEBE5]">
+                    {req.phone ? (
+                      <a
+                        href={`tel:${req.phone}`}
+                        className="text-xs font-bold bg-[#F6F5F2] text-[#0E1A2B] px-3 py-1.5 rounded border border-[#DDD9D1]"
                       >
-                        상태 변경 🔄
+                        📞 전화 걸기
+                      </a>
+                    ) : (
+                      <span />
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleUpdatePurchaseStatus(req.id, req.status || "접수")
+                        }
+                        className="text-xs font-bold bg-[#0E1A2B] text-white px-3 py-1.5 rounded"
+                      >
+                        상태 변경
                       </button>
-                      <button 
+                      <button
+                        type="button"
                         onClick={() => handleDeletePurchase(req.id)}
-                        className="text-xs font-bold bg-red-50 text-red-600 px-3 py-2 rounded-lg hover:bg-red-100 transition border border-red-100"
+                        className="text-xs font-bold bg-red-50 text-red-600 px-3 py-1.5 rounded border border-red-200"
                       >
                         삭제
                       </button>
                     </div>
                   </div>
                 </div>
-              ))
-            )}
+              );
+            })}
           </div>
         </div>
       )}
