@@ -153,7 +153,7 @@ export default function InquiryBoardPage() {
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
-  // 브라우저에서 직접 purchase_requests 전체를 select("*")하지 않고, 민감 정보가 제거된 서버 API를 호출
+  // 민감 정보(연락처, 평문 비밀번호)가 제거된 서버 API(/api/inquiries) 호출
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setLoadError(false);
@@ -282,7 +282,7 @@ export default function InquiryBoardPage() {
           return;
         }
       } catch {
-        // 관리자 토큰 만료 시 비밀번호 모달로 폴백
+        // 관리자 세션 만료 시 비밀번호 모달로 폴백
       }
     }
 
@@ -673,7 +673,6 @@ export default function InquiryBoardPage() {
       </section>
 
       <main className="max-w-[1100px] mx-auto px-4 sm:px-6 py-12 sm:py-16 flex-1 w-full">
-        {/* 복구된 카테고리 탭 및 검색창 바인딩 */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div
             className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
@@ -1046,7 +1045,7 @@ export default function InquiryBoardPage() {
       />
       <MobileCtaBar />
 
-      {/* ───── 비밀번호 확인 모달 (서버 검증) ───── */}
+      {/* 비밀번호 확인 모달 (서버 검증) */}
       {isPwModalOpen && (
         <Modal
           label="비밀글 열람"
@@ -1107,7 +1106,7 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* ───── 상세 내용 모달 ───── */}
+      {/* 상세 내용 모달 */}
       {isDetailOpen && selectedItem && (
         <Modal
           label={`${selectedItem.category || "문의"} 상세`}
@@ -1311,15 +1310,13 @@ export default function InquiryBoardPage() {
                       <button
                         type="button"
                         onClick={handleOpenEdit}
-                        className={`${BTN_LINE} px-4 h-10 text-[13px]`}
-                      >
+                        className={`${BTN_LINE} px-4 h-10 text-[13px]`}>
                         게시글 수정
                       </button>
                       <button
                         type="button"
                         onClick={handleDelete}
-                        className={`${BTN} border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-4 h-10 text-[13px]`}
-                      >
+                        className={`${BTN} border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-4 h-10 text-[13px]`}>
                         삭제
                       </button>
                     </>
@@ -1328,8 +1325,7 @@ export default function InquiryBoardPage() {
                 <button
                   type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className={`${BTN_NAVY} px-6 h-10 text-[13px]`}
-                >
+                  className={`${BTN_NAVY} px-6 h-10 text-[13px]`}>
                   창 닫기
                 </button>
               </div>
@@ -1338,7 +1334,7 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* ───── 글쓰기 / 수정 모달창 ───── */}
+      {/* 글쓰기 / 수정 모달창 */}
       {(isWriteOpen || isEditOpen) && (
         <Modal
           label={
@@ -1349,8 +1345,7 @@ export default function InquiryBoardPage() {
               : "게시글 수정"
           }
           onClose={isWriteOpen ? closeWrite : () => setIsEditOpen(false)}
-          panelClassName="sm:max-w-xl"
-        >
+          panelClassName="sm:max-w-xl">
           <div className="bg-white max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-lg shadow-2xl w-full flex flex-col">
             <div className="flex items-center justify-between px-6 py-5 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">
@@ -1364,16 +1359,14 @@ export default function InquiryBoardPage() {
                 type="button"
                 onClick={isWriteOpen ? closeWrite : () => setIsEditOpen(false)}
                 className="grid h-8 w-8 place-items-center text-neutral-500 hover:text-[#0E1A2B]"
-                aria-label="닫기"
-              >
+                aria-label="닫기">
                 <Icon d={ICON.close} className="h-5 w-5" />
               </button>
             </div>
 
             <form
               onSubmit={isWriteOpen ? handleWriteSubmit : handleEditSubmit}
-              className="p-6 sm:p-8 space-y-6"
-            >
+              className="p-6 sm:p-8 space-y-6">
               {isWriteOpen && isAdmin && (
                 <label className="bg-[#FEF5F2] border border-[#FDECE4] rounded-md p-4 flex items-center justify-between cursor-pointer group">
                   <span>
@@ -1413,8 +1406,7 @@ export default function InquiryBoardPage() {
                           (isEditOpen ? editInquiryType : inquiryType) === type
                             ? "bg-white text-[#0E1A2B] shadow-sm"
                             : "text-[#6B7280] hover:text-[#0E1A2B]"
-                        }`}
-                      >
+                        }`}>
                         {type}
                       </button>
                     ))}
@@ -1538,9 +1530,7 @@ export default function InquiryBoardPage() {
                     {filePreviews.map((preview, index) => (
                       <div
                         key={preview}
-                        className="relative aspect-square w-20 rounded overflow-hidden bg-[#EFECE6] border border-[#DDD9D1]"
-                      >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        className="relative aspect-square w-20 rounded overflow-hidden bg-[#EFECE6] border border-[#DDD9D1]">
                         <img
                           src={preview}
                           alt={`첨부 사진 ${index + 1}`}
@@ -1550,8 +1540,7 @@ export default function InquiryBoardPage() {
                           type="button"
                           onClick={() => handleRemoveFile(index)}
                           aria-label="사진 삭제"
-                          className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center transition"
-                        >
+                          className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center transition">
                           <Icon d={ICON.close} className="w-3 h-3" />
                         </button>
                       </div>
@@ -1586,8 +1575,7 @@ export default function InquiryBoardPage() {
                     <a
                       href="/privacy"
                       target="_blank"
-                      className="underline font-bold text-[#0E1A2B]"
-                    >
+                      className="underline font-bold text-[#0E1A2B]">
                       개인정보 수집·이용
                     </a>
                     에 동의합니다. *
@@ -1601,8 +1589,7 @@ export default function InquiryBoardPage() {
                   onClick={
                     isWriteOpen ? closeWrite : () => setIsEditOpen(false)
                   }
-                  className={`${BTN_LINE} px-6 h-12 text-[15px]`}
-                >
+                  className={`${BTN_LINE} px-6 h-12 text-[15px]`}>
                   취소
                 </button>
                 <button
@@ -1614,8 +1601,7 @@ export default function InquiryBoardPage() {
                   }
                   className={`${
                     isNotice ? BTN_ACCENT : BTN_NAVY
-                  } px-8 h-12 text-[15px] disabled:opacity-50`}
-                >
+                  } px-8 h-12 text-[15px] disabled:opacity-50`}>
                   {isWriteOpen
                     ? submitting
                       ? "등록 중..."
@@ -1638,22 +1624,19 @@ export default function InquiryBoardPage() {
           aria-modal="true"
           aria-label="사진 전체화면 확대 보기"
           onClick={() => setEnlargedImage(null)}
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 select-none animate-fadeIn cursor-zoom-out"
-        >
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 select-none animate-fadeIn cursor-zoom-out">
           <div className="absolute top-4 right-4 z-20">
             <button
               type="button"
               onClick={() => setEnlargedImage(null)}
               className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors text-white"
-              aria-label="닫기"
-            >
+              aria-label="닫기">
               <Icon d={ICON.close} className="w-6 h-6" />
             </button>
           </div>
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-full max-h-[88vh] overflow-y-auto flex items-center justify-center p-1"
-          >
+            className="relative max-w-full max-h-[88vh] overflow-y-auto flex items-center justify-center p-1">
             <SafeImg
               src={enlargedImage}
               alt="확대 사진"
@@ -1669,12 +1652,10 @@ export default function InquiryBoardPage() {
           label="관리자 로그인"
           onClose={() => setIsAdminAuthModalOpen(false)}
           sheet={false}
-          panelClassName="max-w-sm"
-        >
+          panelClassName="max-w-sm">
           <form
             onSubmit={handleAdminAuth}
-            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E4E0D8]"
-          >
+            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E4E0D8]">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">
                 관리자 로그인
@@ -1683,8 +1664,7 @@ export default function InquiryBoardPage() {
                 type="button"
                 onClick={() => setIsAdminAuthModalOpen(false)}
                 className="grid h-9 w-9 place-items-center text-neutral-500 hover:text-[#0E1A2B]"
-                aria-label="닫기"
-              >
+                aria-label="닫기">
                 <Icon d={ICON.close} className="h-5 w-5" />
               </button>
             </div>
@@ -1715,8 +1695,7 @@ export default function InquiryBoardPage() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}
-            >
+              className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}>
               {isLoggingIn ? "로그인 중…" : "로그인"}
             </button>
           </form>

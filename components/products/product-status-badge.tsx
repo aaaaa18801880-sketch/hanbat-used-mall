@@ -9,10 +9,12 @@ export function ProductStatusBadge({
   status,
   createdAt,
   showNew = true,
+  className = "",
 }: {
   status?: string | null;
   createdAt?: string | null;
   showNew?: boolean;
+  className?: string;
 }) {
   const sold = isProductSold(status);
   const reserved = isProductReserved(status);
@@ -25,7 +27,7 @@ export function ProductStatusBadge({
     Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
 
   return (
-    <div className="inline-flex items-center gap-1.5">
+    <div className={`inline-flex flex-wrap items-center gap-1.5 ${className}`}>
       <span
         className={`inline-block rounded-sm px-2.5 py-1 text-[11px] font-bold tracking-wide text-white shadow-2xs ${
           sold
