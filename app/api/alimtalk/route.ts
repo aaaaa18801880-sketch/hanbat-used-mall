@@ -1,14 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { STORE } from "../../../lib/site";
+import {
+  NOTIFICATION_STATUS,
+  STORE,
+  type NotificationDispatchResult,
+} from "../../../lib/site";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const nowIso = new Date().toISOString();
+
   try {
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
       return NextResponse.json(
-        { success: false, sent: false, error: "잘못된 요청 본문입니다." },
+        {
+          success: false,
+          channel: "alimtalk",
+          status: "EXTERNAL_ERROR",
+          statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+          sent: false,
+          retryable: false,
+          message: "잘못된 요청 본문입니다.",
+          timestamp: nowIso,
+        },
         { status: 400 }
       );
     }
@@ -17,31 +32,47 @@ export async function POST(req: NextRequest) {
     const ALIMTALK_USER_ID = process.env.ALIMTALK_USER_ID;
     const SENDER_PHONE = STORE.tel.replace(/[^0-9]/g, "");
 
-    // API 키가 없거나 대행사 연동이 완료되지 않은 경우 성공(success: true)으로 오인되지 않게 반환
     if (!ALIMTALK_API_KEY || !ALIMTALK_USER_ID) {
+      const notConfigured: NotificationDispatchResult = {
+        channel: "alimtalk",
+        status: "NOT_CONFIGURED",
+        statusLabel: NOTIFICATION_STATUS.NOT_CONFIGURED,
+        sent: false,
+        retryable: false,
+        message:
+          "알림톡 서비스 API 키(ALIMTALK_API_KEY, ALIMTALK_USER_ID)가 아직 설정되지 않았습니다.",
+        timestamp: nowIso,
+      };
       return NextResponse.json(
         {
           success: false,
-          sent: false,
           skipped: true,
           configured: false,
           senderConfigured: Boolean(SENDER_PHONE),
           reason: "ALIMTALK_NOT_CONFIGURED",
-          message: "알림톡 API 환경변수가 설정되지 않아 발송되지 않았습니다.",
+          ...notConfigured,
         },
         { status: 501 }
       );
     }
 
-    // 대행사 실연동 코드가 아직 구현되지 않은 상태임을 정직하게 반환
+    const providerNotLinked: NotificationDispatchResult = {
+      channel: "alimtalk",
+      status: "NOT_CONFIGURED",
+      statusLabel: NOTIFICATION_STATUS.NOT_CONFIGURED,
+      sent: false,
+      retryable: false,
+      message: "알림톡 발송 대행사 연동이 아직 완료되지 않았습니다.",
+      timestamp: nowIso,
+    };
+
     return NextResponse.json(
       {
         success: false,
-        sent: false,
         skipped: true,
         configured: false,
         reason: "ALIMTALK_PROVIDER_NOT_IMPLEMENTED",
-        message: "알림톡 발송 대행사 연동 모듈이 아직 연결되지 않았습니다.",
+        ...providerNotLinked,
       },
       { status: 501 }
     );
@@ -49,8 +80,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         success: false,
+        channel: "alimtalk",
+        status: "RETRY_REQUIRED",
+        statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
         sent: false,
-        error: "알림톡 요청 처리 중 서버 오류가 발생했습니다.",
+        retryable: true,
+        message: "알림톡 요청 처리 중 서버 오류가 발생했습니다.",
+        timestamp: nowIso,
       },
       { status: 500 }
     );

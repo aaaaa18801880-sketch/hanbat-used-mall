@@ -30,7 +30,7 @@ export const STORAGE_BUCKETS = {
 } as const;
 
 /* ════════════════════════════════════════════════════════════
-   상품(products) 상태 및 카테고리 표준 정의
+   1. 상품(products) 상태 및 카테고리 표준 정의
    ════════════════════════════════════════════════════════════ */
 export const PRODUCT_STATUS = {
   SELLING: "판매중",
@@ -40,6 +40,12 @@ export const PRODUCT_STATUS = {
 
 export type ProductStatusValue =
   (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
+
+export const PRODUCT_STATUS_LIST: readonly ProductStatusValue[] = [
+  PRODUCT_STATUS.SELLING,
+  PRODUCT_STATUS.RESERVED,
+  PRODUCT_STATUS.SOLD,
+] as const;
 
 export const PRODUCT_CATEGORIES = [
   "에어컨/냉난방기",
@@ -53,21 +59,25 @@ export type ProductCategoryValue = (typeof PRODUCT_CATEGORIES)[number];
 
 export const DELIVERY_REVIEW_CATEGORY = "배송인증" as const;
 
-/** DB에 'sold' 또는 '판매완료' 등으로 저장된 모든 판매완료 상태를 일관되게 판별 */
+export const PRODUCT_CONDITION_GRADES = [
+  "S급 (새상품급)",
+  "A급 (사용감 적음)",
+  "B급 (보통)",
+  "C급 (노후/점검필요)",
+] as const;
+
 export function isProductSold(status?: string | null): boolean {
   if (!status) return false;
   const s = status.trim().toLowerCase();
   return s === "판매완료" || s === "sold" || s === "soldout";
 }
 
-/** DB에 'reserved' 또는 '예약중'으로 저장된 상태 판별 */
 export function isProductReserved(status?: string | null): boolean {
   if (!status) return false;
   const s = status.trim().toLowerCase();
   return s === "예약중" || s === "reserved";
 }
 
-/** 어떤 레거시 상태값이 들어와도 표준 DB 상태값('판매중' | '예약중' | '판매완료')으로 정규화 */
 export function normalizeProductStatus(
   status?: string | null
 ): ProductStatusValue {
@@ -76,12 +86,10 @@ export function normalizeProductStatus(
   return PRODUCT_STATUS.SELLING;
 }
 
-/** 화면 표시용 한글 상태 라벨 반환 */
 export function getProductStatusLabel(status?: string | null): string {
   return normalizeProductStatus(status);
 }
 
-/** 구형 관리자 페이지('업소용 주방기기', '세탁기', 'TV' 등)의 카테고리를 5대 표준 카테고리로 정규화 */
 export function normalizeProductCategory(
   raw?: string | null
 ): ProductCategoryValue {
@@ -103,7 +111,6 @@ export function normalizeProductCategory(
   return "기타";
 }
 
-/** 카테고리별 가격 미정 시 맞춤 상담 문구 반환 */
 export function getInquiryLabel(category?: string | null): string {
   const normalized = normalizeProductCategory(category);
   switch (normalized) {
@@ -132,16 +139,11 @@ export function formatProductPrice(
     : getInquiryLabel(category);
 }
 
-/**
- * 상품 상세 설명이나 제목에서 확인된 모델명만 안전하게 추출합니다.
- * 확인되지 않은 경우 null을 반환하며 절대 임의 생성하지 않습니다.
- */
 export function extractModelName(
   description?: string | null,
   title?: string | null
 ): string | null {
   const desc = description ?? "";
-  // 1) "• 모델명: XXX" 또는 "- 모델명 : XXX" 또는 "[모델명] XXX" 패턴 추출
   const explicitMatch = desc.match(
     /(?:[•\-*]\s*모델명\s*[:：]\s*|\[모델명\]\s*)([^\n\r]+)/i
   );
@@ -157,7 +159,6 @@ export function extractModelName(
     }
   }
 
-  // 2) 제목에 괄호나 영문+숫자 조합의 명확한 가전 모델코드(예: CSV-Q095GU, RF85B9111AP 등)가 있는 경우
   const t = title ?? "";
   const codeMatch = t.match(/\b([A-Z]{2,5}[0-9A-Z\-]{4,18})\b/);
   if (codeMatch && /[0-9]/.test(codeMatch[1])) {
@@ -167,9 +168,6 @@ export function extractModelName(
   return null;
 }
 
-/**
- * 상품 설명 텍스트에서 [핵심 특징], [주요 사양], [설치 전 체크] 섹션을 분리하여 구조화합니다.
- */
 export function parseProductDescription(description?: string | null): {
   features: string[];
   specs: Array<{ label: string; value: string }>;
@@ -245,9 +243,6 @@ export function parseProductDescription(description?: string | null): {
   };
 }
 
-/**
- * Supabase Storage Public URL 목록에서 버킷별 파일 경로를 추출합니다.
- */
 export function extractStorageFilesByBucket(imageUrls: string[]): {
   inquiries: string[];
   productImages: string[];
@@ -257,7 +252,9 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
 
   for (const url of imageUrls) {
     if (!url) continue;
-    const inqMatch = url.match(/\/storage\/v1\/object\/public\/inquiries\/([^?#]+)/);
+    const inqMatch = url.match(
+      /\/storage\/v1\/object\/public\/inquiries\/([^?#]+)/
+    );
     if (inqMatch && inqMatch[1]) {
       inquiries.push(decodeURIComponent(inqMatch[1]));
       continue;
@@ -274,9 +271,15 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
 }
 
 /* ════════════════════════════════════════════════════════════
-   문의(purchase_requests) 구분 및 상태 표준 정의
+   2. 문의(purchase_requests) 역할 구분 및 표준 상태 전이 정의
    ════════════════════════════════════════════════════════════ */
-export const INQUIRY_TYPES = ["구매 문의", "내 물건 팔기", "기타 문의"] as const;
+export const INQUIRY_TYPES = [
+  "구매 문의",
+  "내 물건 팔기",
+  "대량·업소용 상담",
+  "기타 문의",
+] as const;
+
 export type InquiryTypeValue = (typeof INQUIRY_TYPES)[number];
 
 export const INQUIRY_STATUS = {
@@ -289,24 +292,107 @@ export const INQUIRY_STATUS = {
   NOTICE: "공지",
 } as const;
 
+export type InquiryStatusValue =
+  (typeof INQUIRY_STATUS)[keyof typeof INQUIRY_STATUS];
+
+/** 관리자가 명시적으로 선택하여 변경할 수 있는 표준 상태 목록 */
+export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
+  value: InquiryStatusValue;
+  label: string;
+  desc: string;
+  badgeClass: string;
+}> = [
+  {
+    value: INQUIRY_STATUS.RECEIVED,
+    label: "접수",
+    desc: "신규 접수되어 확인 대기 중인 상태",
+    badgeClass: "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]",
+  },
+  {
+    value: INQUIRY_STATUS.REVIEWING,
+    label: "검토중",
+    desc: "담당자가 사진·재고·견적을 확인 중인 상태",
+    badgeClass: "bg-amber-50 text-amber-800 border border-amber-200",
+  },
+  {
+    value: INQUIRY_STATUS.VISIT_SCHEDULED,
+    label: "방문예정",
+    desc: "매입 수거 또는 배송·설치 방문 일정이 조율된 상태",
+    badgeClass: "bg-blue-50 text-blue-800 border border-blue-200",
+  },
+  {
+    value: INQUIRY_STATUS.ANSWERED,
+    label: "답변완료",
+    desc: "고객에게 온라인 답변 또는 전화 안내를 완료한 상태",
+    badgeClass: "bg-[#0E1A2B] text-white border border-[#0E1A2B]",
+  },
+  {
+    value: INQUIRY_STATUS.COMPLETED,
+    label: "매입완료",
+    desc: "현장 수거 및 대금 정산(또는 판매 거래)이 완료된 상태",
+    badgeClass: "bg-emerald-700 text-white border border-emerald-700",
+  },
+  {
+    value: INQUIRY_STATUS.CANCELED,
+    label: "취소",
+    desc: "고객 요청 또는 조건 불일치로 취소된 상태",
+    badgeClass: "bg-neutral-200 text-neutral-600 border border-neutral-300",
+  },
+] as const;
+
+export function isPriorityInquiryStatus(status?: string | null): boolean {
+  const s = (status ?? "접수").trim();
+  return s === "접수" || s === "검토중";
+}
+
 export const isSellInquiry = (t?: string | null) =>
   t === "내 물건 팔기" ||
   t === "내 물건팔기" ||
   t === "매입문의" ||
   t === "매입 신청";
+
 export const isBuyInquiry = (t?: string | null) =>
-  t === "구매 문의" || t === "구매문의";
-export const getInquiryTypeLabel = (t?: string | null): string =>
-  isSellInquiry(t)
-    ? "내 물건 팔기"
-    : isBuyInquiry(t)
-    ? "구매 문의"
-    : t === "공지사항"
-    ? "공지사항"
-    : "기타 문의";
+  t === "구매 문의" || t === "구매문의" || t === "판매 제품 상담";
+
+export const isBulkBizInquiry = (t?: string | null) =>
+  t === "대량·업소용 상담" || t === "업소용 상담" || t === "대량 문의";
+
+export const getInquiryTypeLabel = (t?: string | null): string => {
+  if (t === "공지사항") return "공지사항";
+  if (isSellInquiry(t)) return "내 물건 팔기";
+  if (isBulkBizInquiry(t)) return "대량·업소용 상담";
+  if (isBuyInquiry(t)) return "구매 문의";
+  return "기타 문의";
+};
 
 /* ════════════════════════════════════════════════════════════
-   전화번호, 마스킹, 이미지 유틸리티
+   3. 외부 알림(Telegram / 알림톡) 5대 발송 상태 표준 정의
+   ════════════════════════════════════════════════════════════ */
+export const NOTIFICATION_STATUS = {
+  PENDING: "발송 대기",
+  SUCCESS: "발송 성공",
+  NOT_CONFIGURED: "설정 미완료",
+  EXTERNAL_ERROR: "외부 서비스 오류",
+  RETRY_REQUIRED: "재시도 필요",
+} as const;
+
+export type NotificationStatusCode = keyof typeof NOTIFICATION_STATUS;
+export type NotificationStatusLabel =
+  (typeof NOTIFICATION_STATUS)[NotificationStatusCode];
+
+export interface NotificationDispatchResult {
+  channel: "telegram" | "alimtalk";
+  status: NotificationStatusCode;
+  statusLabel: NotificationStatusLabel;
+  sent: boolean;
+  retryable: boolean;
+  deduplicated?: boolean;
+  message: string;
+  timestamp: string;
+}
+
+/* ════════════════════════════════════════════════════════════
+   4. 전화번호, 마스킹, 이미지 유틸리티
    ════════════════════════════════════════════════════════════ */
 export const telHref = (num: string) => `tel:${num.replace(/[^0-9+]/g, "")}`;
 
@@ -337,7 +423,12 @@ export function maskName(rawName?: string | null): string {
   return `${t.charAt(0)}${"*".repeat(Math.min(t.length - 2, 3))}${t.slice(-1)}`;
 }
 
-/** 문자열(콤마 구분) 또는 문자열 배열 모두 안전하게 이미지 URL 배열로 변환 */
+export function maskPhone(rawPhone?: string | null): string {
+  const cleaned = (rawPhone ?? "").replace(/\D/g, "");
+  if (cleaned.length < 7) return "***-****";
+  return `${cleaned.slice(0, 3)}-****-${cleaned.slice(-4)}`;
+}
+
 export function splitImages(value?: unknown): string[] {
   if (Array.isArray(value)) {
     return value
@@ -353,7 +444,6 @@ export function splitImages(value?: unknown): string[] {
   return [];
 }
 
-/** 문의 레코드에서 images 배열과 레거시 image_url 단일 문자열을 모두 호환 추출 */
 export function extractInquiryImages(row: {
   images?: unknown;
   image_url?: unknown;
@@ -367,7 +457,6 @@ export const MAX_PHOTOS = 3;
 export const MAX_REVIEW_PHOTOS = 5;
 export const MAX_FILE_MB = 15;
 
-/** 클라이언트 측 1차 이미지 파일 검증 */
 export function validateImageFiles(
   files: File[],
   maxCount = MAX_PHOTOS
@@ -392,7 +481,6 @@ export function validateImageFiles(
   return { ok, error };
 }
 
-/** 클라이언트 측 Canvas 이미지 압축 (긴 변 1280px, JPEG 0.78) */
 export function compressImage(
   file: File,
   maxDim = 1280,

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   supabase,
   isAuthorizedAdminUser,
@@ -10,15 +10,13 @@ import toast from "react-hot-toast";
 import {
   STORE,
   telHref,
-  formatPhone,
-  isValidPhone,
   maskName,
-  compressImage,
-  validateImageFiles,
-  MAX_PHOTOS,
   isSellInquiry,
   isBuyInquiry,
+  isBulkBizInquiry,
   getInquiryTypeLabel,
+  INQUIRY_ADMIN_STATUS_OPTIONS,
+  type InquiryTypeValue,
 } from "../../lib/site";
 import {
   Icon,
@@ -29,6 +27,10 @@ import {
   SiteFooter,
   MobileCtaBar,
 } from "../../lib/ui";
+import {
+  UnifiedInquiryForm,
+  type LinkedProductContext,
+} from "../../components/inquiry/unified-inquiry-form";
 
 interface Inquiry {
   id: string;
@@ -37,6 +39,9 @@ interface Inquiry {
   phone: string | null;
   inquiry_type: string | null;
   category: string | null;
+  model?: string | null;
+  condition_grade?: string | null;
+  region?: string | null;
   description: string | null;
   images: string[] | null;
   has_images?: boolean;
@@ -47,12 +52,20 @@ interface Inquiry {
 }
 
 const ITEMS_PER_PAGE = 10;
-const TABS = ["전체", "구매 문의", "내 물건 팔기", "기타 문의"] as const;
+const TABS = [
+  "전체",
+  "구매 문의",
+  "내 물건 팔기",
+  "대량·업소용 상담",
+  "기타 문의",
+] as const;
 type Tab = (typeof TABS)[number];
 
 const typeStyle = (t?: string | null) =>
   isSellInquiry(t)
     ? "bg-[#FBE9E1] text-[#B5431A]"
+    : isBulkBizInquiry(t)
+    ? "bg-amber-100 text-amber-900"
     : isBuyInquiry(t)
     ? "bg-[#E8ECF2] text-[#0E1A2B]"
     : "bg-[#F0EDE7] text-[#4B5260]";
@@ -67,16 +80,6 @@ const formatDate = (dateStr: string) => {
     : `${String(d.getFullYear()).slice(2)}-${mm}-${dd}`;
 };
 
-const BTN =
-  "inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2";
-const BTN_ACCENT = `${BTN} bg-[#D9531E] text-white hover:bg-[#BF4715] focus-visible:ring-[#D9531E]`;
-const BTN_NAVY = `${BTN} bg-[#0E1A2B] text-white hover:bg-[#22324A] focus-visible:ring-[#0E1A2B]`;
-const BTN_LINE = `${BTN} border border-[#0E1A2B]/15 bg-white text-[#0E1A2B] hover:border-[#0E1A2B]/60 focus-visible:ring-[#0E1A2B]`;
-const BTN_KAKAO = `${BTN} bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] focus-visible:ring-[#191600]`;
-const INPUT =
-  "w-full rounded-md border border-[#DDD9D1] bg-white px-3.5 py-3 text-[15px] text-[#0E1A2B] placeholder:text-neutral-400 transition-colors focus:border-[#0E1A2B] focus:outline-none focus:ring-1 focus:ring-[#0E1A2B]";
-const LABEL = "mb-1.5 block text-[13px] font-semibold text-[#0E1A2B]";
-
 function StatusBadge({
   status,
   notice,
@@ -85,14 +88,15 @@ function StatusBadge({
   notice?: boolean;
 }) {
   if (notice) return <span className="text-neutral-400">-</span>;
-  const done = status === "답변완료" || status === "매입완료";
+  const s = status || "접수";
+  const matched = INQUIRY_ADMIN_STATUS_OPTIONS.find((o) => o.value === s);
   return (
     <span
       className={`inline-block px-2.5 py-1 rounded-[4px] text-[11px] font-bold whitespace-nowrap ${
-        done ? "bg-[#0E1A2B] text-white" : "bg-[#F0EDE7] text-[#4B5260]"
+        matched ? matched.badgeClass : "bg-[#F0EDE7] text-[#4B5260]"
       }`}
     >
-      {status || "접수"}
+      {s}
     </span>
   );
 }
@@ -115,22 +119,14 @@ export default function InquiryBoardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAdmin, setIsAdmin] = useState(false);
 
-  /* 글쓰기 상태 */
+  /* 글쓰기 모달 및 상품 상세 연동 프리필 상태 */
   const [isWriteOpen, setIsWriteOpen] = useState(false);
-  const [inquiryType, setInquiryType] = useState("내 물건 팔기");
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [password, setPassword] = useState("");
-  const [showWritePassword, setShowWritePassword] = useState(false);
-  const [isNotice, setIsNotice] = useState(false);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const [agreed, setAgreed] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [writeDefaultType, setWriteDefaultType] =
+    useState<InquiryTypeValue>("내 물건 팔기");
+  const [linkedProduct, setLinkedProduct] =
+    useState<LinkedProductContext | null>(null);
 
-  /* 상세 / 서버 비밀번호 검증 / 수정 */
+  /* 상세 / 비밀번호 검증 / 수정 */
   const [selectedItem, setSelectedItem] = useState<Inquiry | null>(null);
   const [verifiedPassword, setVerifiedPassword] = useState("");
   const [isPwModalOpen, setIsPwModalOpen] = useState(false);
@@ -139,6 +135,7 @@ export default function InquiryBoardPage() {
   const [inputPw, setInputPw] = useState("");
   const [showVerifyPassword, setShowVerifyPassword] = useState(false);
   const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
@@ -153,7 +150,6 @@ export default function InquiryBoardPage() {
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
-  // 민감 정보(연락처, 평문 비밀번호)가 제거된 서버 API(/api/inquiries) 호출
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setLoadError(false);
@@ -189,6 +185,35 @@ export default function InquiryBoardPage() {
     return () => authListener.subscription.unsubscribe();
   }, [loadData]);
 
+  /* 상품 상세 페이지(/gallery 또는 /[id])에서 넘어온 쿼리 파라미터 자동 프리필 */
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("write") === "1" || params.get("title")) {
+      const qType = params.get("type");
+      const qTitle = params.get("title") || "";
+      const qModel = params.get("model") || "";
+      const qCategory = params.get("category") || "";
+      const qProductId = params.get("productId") || "";
+
+      if (qType === "구매 문의" || qType === "내 물건 팔기" || qType === "대량·업소용 상담") {
+        setWriteDefaultType(qType);
+      } else {
+        setWriteDefaultType("구매 문의");
+      }
+
+      if (qTitle || qModel || qProductId) {
+        setLinkedProduct({
+          productId: qProductId || undefined,
+          productTitle: qTitle || undefined,
+          modelName: qModel || undefined,
+          category: qCategory || undefined,
+        });
+      }
+      setIsWriteOpen(true);
+    }
+  }, []);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && enlargedImage) {
@@ -199,7 +224,6 @@ export default function InquiryBoardPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [enlargedImage]);
 
-  /* ───── 목록 계산 ───── */
   const noticeList = useMemo(
     () => inquiries.filter((i) => i.is_notice),
     [inquiries]
@@ -212,15 +236,22 @@ export default function InquiryBoardPage() {
   const tabCounts = useMemo(
     () => ({
       전체: regularList.length,
-      "구매 문의": regularList.filter((i) => isBuyInquiry(i.inquiry_type)).length,
-      "내 물건 팔기": regularList.filter((i) => isSellInquiry(i.inquiry_type)).length,
+      "구매 문의": regularList.filter((i) => isBuyInquiry(i.inquiry_type))
+        .length,
+      "내 물건 팔기": regularList.filter((i) => isSellInquiry(i.inquiry_type))
+        .length,
+      "대량·업소용 상담": regularList.filter((i) =>
+        isBulkBizInquiry(i.inquiry_type)
+      ).length,
       "기타 문의": regularList.filter(
-        (i) => !isBuyInquiry(i.inquiry_type) && !isSellInquiry(i.inquiry_type)
+        (i) =>
+          !isBuyInquiry(i.inquiry_type) &&
+          !isSellInquiry(i.inquiry_type) &&
+          !isBulkBizInquiry(i.inquiry_type)
       ).length,
     }),
     [regularList]
   );
-  const countOf = (tab: Tab) => tabCounts[tab] || 0;
 
   const filteredList = useMemo(() => {
     const q = keyword.trim().toLowerCase();
@@ -229,9 +260,12 @@ export default function InquiryBoardPage() {
         activeTab === "전체" ||
         (activeTab === "구매 문의" && isBuyInquiry(item.inquiry_type)) ||
         (activeTab === "내 물건 팔기" && isSellInquiry(item.inquiry_type)) ||
+        (activeTab === "대량·업소용 상담" &&
+          isBulkBizInquiry(item.inquiry_type)) ||
         (activeTab === "기타 문의" &&
           !isBuyInquiry(item.inquiry_type) &&
-          !isSellInquiry(item.inquiry_type));
+          !isSellInquiry(item.inquiry_type) &&
+          !isBulkBizInquiry(item.inquiry_type));
       return tabOk && (!q || (item.category || "").toLowerCase().includes(q));
     });
   }, [regularList, activeTab, keyword]);
@@ -253,7 +287,12 @@ export default function InquiryBoardPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  /* ───── 열람 / 서버 측 비밀번호 검증 ───── */
+  const handleOpenWrite = () => {
+    setLinkedProduct(null);
+    setWriteDefaultType("내 물건 팔기");
+    setIsWriteOpen(true);
+  };
+
   const handleItemClick = async (item: Inquiry) => {
     setSelectedItem(item);
     setInputPw("");
@@ -282,7 +321,7 @@ export default function InquiryBoardPage() {
           return;
         }
       } catch {
-        // 관리자 세션 만료 시 비밀번호 모달로 폴백
+        // 폴백
       }
     }
 
@@ -316,7 +355,6 @@ export default function InquiryBoardPage() {
     }
   };
 
-  /* ───── 관리자: 답변 / 상태 변경 (서버 API 검증) ───── */
   const handleReplySubmit = async () => {
     if (!selectedItem) return;
     if (!replyContent.trim()) {
@@ -368,7 +406,7 @@ export default function InquiryBoardPage() {
       setSelectedItem((prev) =>
         prev ? { ...prev, status: newStatus } : prev
       );
-      toast.success(`상태가 '${newStatus}'(으)로 변경되었습니다.`);
+      toast.success(`진행 상태가 '${newStatus}'(으)로 변경되었습니다.`);
     } catch (err: any) {
       toast.error("상태 업데이트 실패: " + err.message);
     }
@@ -406,148 +444,6 @@ export default function InquiryBoardPage() {
     }
   };
 
-  /* ───── 글쓰기 / 파일 업로드 ───── */
-  const resetFiles = () => {
-    filePreviews.forEach((u) => URL.revokeObjectURL(u));
-    setSelectedFiles([]);
-    setFilePreviews([]);
-  };
-
-  const handleOpenWrite = () => {
-    setIsNotice(false);
-    setInquiryType("내 물건 팔기");
-    setShowWritePassword(false);
-    setName(isAdmin ? STORE.name : "");
-    setPhone(isAdmin ? STORE.tel : "");
-    setPassword("");
-    setTitle("");
-    setContent("");
-    resetFiles();
-    setAgreed(false);
-    setIsWriteOpen(true);
-  };
-
-  const closeWrite = () => {
-    resetFiles();
-    setIsWriteOpen(false);
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = Array.from(e.target.files ?? []);
-    e.target.value = "";
-    if (!picked.length) return;
-    const { ok, error } = validateImageFiles(picked);
-    if (error) toast.error(error);
-    if (selectedFiles.length + ok.length > MAX_PHOTOS) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 올릴 수 있습니다.`);
-      return;
-    }
-    setSelectedFiles([...selectedFiles, ...ok]);
-    setFilePreviews((prev) => [
-      ...prev,
-      ...ok.map((f) => URL.createObjectURL(f)),
-    ]);
-  };
-
-  const handleRemoveFile = (index: number) => {
-    URL.revokeObjectURL(filePreviews[index]);
-    setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
-    setFilePreviews(filePreviews.filter((_, i) => i !== index));
-  };
-
-  const handleWriteSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title.trim()) {
-      toast.error("제목을 입력해 주세요.");
-      return;
-    }
-    if (!isNotice) {
-      if (!name.trim() || !phone.trim() || !password.trim()) {
-        toast.error("성함, 연락처, 비밀번호를 모두 입력해 주세요.");
-        return;
-      }
-      if (!isValidPhone(phone)) {
-        toast.error("연락처를 정확히 입력해 주세요.");
-        return;
-      }
-      if (password.trim().length < 4) {
-        toast.error("조회용 비밀번호는 4자 이상 입력해 주세요.");
-        return;
-      }
-      if (!agreed) {
-        toast.error("개인정보 수집·이용에 동의해 주세요.");
-        return;
-      }
-    }
-
-    setSubmitting(true);
-    try {
-      const uploadedUrls: string[] = [];
-      for (const file of selectedFiles) {
-        const blob = await compressImage(file);
-        const fileName = `${Date.now()}_${Math.random()
-          .toString(36)
-          .substring(7)}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from("inquiries")
-          .upload(fileName, blob, { contentType: "image/jpeg" });
-        if (uploadError) throw new Error("이미지 업로드 실패");
-        const { data } = supabase.storage
-          .from("inquiries")
-          .getPublicUrl(fileName);
-        if (data?.publicUrl) uploadedUrls.push(data.publicUrl);
-      }
-
-      const authHeaders = isNotice ? await getAdminAuthHeaders() : {};
-      const res = await fetch("/api/inquiries", {
-        method: "POST",
-        headers: { ...authHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: isNotice ? name || STORE.name : name.trim(),
-          phone: isNotice ? phone || STORE.tel : phone,
-          password: isNotice ? "0000" : password.trim(),
-          inquiry_type: isNotice ? "공지사항" : inquiryType,
-          category: title.trim(),
-          description: content.trim(),
-          images: uploadedUrls,
-          is_notice: isNotice,
-        }),
-      });
-
-      const resJson = await res.json();
-      if (!res.ok) {
-        throw new Error(resJson.error || "문의 등록에 실패했습니다.");
-      }
-
-      if (!isNotice) {
-        fetch("/api/telegram", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: name.trim(),
-            phone,
-            type: inquiryType,
-            title: title.trim(),
-          }),
-        }).catch(() => {});
-      }
-
-      toast.success(
-        isNotice
-          ? "공지사항이 등록되었습니다."
-          : "문의가 정상적으로 접수되었습니다."
-      );
-      closeWrite();
-      setCurrentPage(1);
-      loadData();
-    } catch (err: any) {
-      toast.error("오류 발생: " + err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  /* ───── 수정 / 삭제 (서버 검증 경유) ───── */
   const handleOpenEdit = () => {
     if (!selectedItem) return;
     setEditTitle(selectedItem.category || "");
@@ -625,18 +521,17 @@ export default function InquiryBoardPage() {
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
-          <button
-            type="button"
-            onClick={handleAdminLogout}
-            className="hidden sm:inline-flex bg-red-500/10 text-red-600 border border-red-500/20 text-[12px] font-bold px-3 py-1.5 rounded transition hover:bg-red-500/20 whitespace-nowrap"
+          <a
+            href="/admin"
+            className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
           >
-            관리자 OFF
-          </button>
+            통합 관리자 대시보드
+          </a>
         )}
         <button
           type="button"
           onClick={handleOpenWrite}
-          className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] hover:bg-[#22324A] text-white font-bold h-10 px-4 text-[13px] shadow-xs transition-colors"
+          className="hb-btn-primary h-10 px-4 text-[13px]"
         >
           문의 글쓰기
         </button>
@@ -644,35 +539,17 @@ export default function InquiryBoardPage() {
 
       <section className="bg-white border-b border-[#E4E0D8]">
         <div className="max-w-[1000px] mx-auto px-5 py-12 sm:py-16 text-center">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-[#D9531E] mb-3">
-            Q&amp;A Board
-          </p>
+          <p className="hb-eyebrow mb-3">Q&amp;A &amp; Buyback Board</p>
           <h1 className="text-[28px] sm:text-[36px] font-bold text-[#0E1A2B] mb-4 tracking-[-0.02em]">
-            문의 게시판
+            고객 문의 · 매입 신청 게시판
           </h1>
           <p className="text-[15px] text-[#4B5260] leading-relaxed max-w-xl mx-auto break-keep">
-            남겨주신 문의는 개인정보 보호를 위해 비밀번호를 입력해야 확인할 수 있습니다. 빠른 상담이 필요하신 경우 전화나 카카오톡을 이용해 주세요.
+            남겨주신 구매 상담과 매입 신청은 개인정보 보호를 위해 설정하신 비밀번호로 안전하게 열람할 수 있습니다.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2.5 mt-8">
-            <a
-              href={telHref(STORE.tel)}
-              className={`${BTN_NAVY} h-[46px] px-6 text-[14px]`}
-            >
-              <Icon d={ICON.phone} className="w-4 h-4" /> {STORE.tel}
-            </a>
-            <a
-              href={STORE.kakaoChat}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${BTN_KAKAO} h-[46px] px-6 text-[14px]`}
-            >
-              <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
-            </a>
-          </div>
         </div>
       </section>
 
-      <main className="max-w-[1100px] mx-auto px-4 sm:px-6 py-12 sm:py-16 flex-1 w-full">
+      <main className="max-w-[1100px] mx-auto px-4 sm:px-6 py-10 sm:py-14 flex-1 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div
             className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
@@ -690,7 +567,7 @@ export default function InquiryBoardPage() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`px-3.5 py-2 rounded-md text-[13px] sm:text-[14px] font-semibold whitespace-nowrap border transition-colors ${
+                  className={`px-3.5 py-2 rounded-md text-[13px] font-semibold whitespace-nowrap border transition-colors ${
                     active
                       ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
                       : "bg-white text-[#4B5260] border-[#DDD9D1] hover:bg-[#F6F5F2]"
@@ -698,11 +575,11 @@ export default function InquiryBoardPage() {
                 >
                   {tab}
                   <span
-                    className={`ml-1.5 text-[12px] ${
+                    className={`ml-1.5 text-[11.5px] ${
                       active ? "text-white/70" : "text-[#8A8478]"
                     }`}
                   >
-                    {countOf(tab)}
+                    {tabCounts[tab] || 0}
                   </span>
                 </button>
               );
@@ -720,9 +597,9 @@ export default function InquiryBoardPage() {
                 }}
                 placeholder="제목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-[200px] sm:w-[240px] rounded-md border border-neutral-300 bg-white px-3 pl-9 text-[14px] focus:border-[#0E1A2B] focus:outline-none"
+                className="h-10 w-[190px] sm:w-[230px] rounded-md border border-[#DDD9D1] bg-white px-3 pl-9 text-[13.5px] focus:border-[#0E1A2B] focus:outline-none"
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8478]">
                 <Icon d={ICON.search} className="w-4 h-4" />
               </span>
             </div>
@@ -730,23 +607,23 @@ export default function InquiryBoardPage() {
             <button
               type="button"
               onClick={handleOpenWrite}
-              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-md bg-[#0E1A2B] px-4 text-[14px] font-bold text-white shadow-xs hover:bg-[#1E2E44] transition-colors whitespace-nowrap"
+              className="hb-btn-primary h-10 px-4 text-[13.5px] whitespace-nowrap"
             >
               <Icon d={ICON.plus} className="w-4 h-4" />
-              <span>문의 글쓰기</span>
+              <span>문의·매입 접수</span>
             </button>
           </div>
         </div>
 
         {/* 데스크톱 테이블 */}
-        <div className="hidden md:block overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-sm">
+        <div className="hidden md:block overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-2xs">
           <table className="w-full text-[14px] text-center text-[#1F2530]">
             <thead className="bg-[#FAF9F7] text-[#8A8478] text-[13px] font-semibold border-b border-[#E4E0D8]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
-                <th className="w-28">구분</th>
+                <th className="w-32">구분</th>
                 <th className="text-left px-5">제목</th>
-                <th className="w-28">답변상태</th>
+                <th className="w-28">진행상태</th>
                 <th className="w-24">작성자</th>
                 <th className="w-24">등록일</th>
               </tr>
@@ -755,23 +632,8 @@ export default function InquiryBoardPage() {
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={`sk-${i}`} className="h-14 animate-pulse">
-                    <td>
-                      <div className="h-3.5 bg-[#EFECE6] rounded w-6 mx-auto" />
-                    </td>
-                    <td>
-                      <div className="h-6 bg-[#EFECE6] rounded w-16 mx-auto" />
-                    </td>
-                    <td className="px-5">
-                      <div className="h-4 bg-[#EFECE6] rounded w-2/3" />
-                    </td>
-                    <td>
-                      <div className="h-5 bg-[#EFECE6] rounded w-12 mx-auto" />
-                    </td>
-                    <td>
-                      <div className="h-3.5 bg-[#EFECE6] rounded w-10 mx-auto" />
-                    </td>
-                    <td>
-                      <div className="h-3.5 bg-[#EFECE6] rounded w-10 mx-auto" />
+                    <td colSpan={6} className="px-5">
+                      <div className="h-4 bg-[#EFECE6] rounded w-full" />
                     </td>
                   </tr>
                 ))
@@ -794,23 +656,14 @@ export default function InquiryBoardPage() {
                             공지사항
                           </span>
                         </td>
-                        <td className="px-5 text-left">
-                          <button
-                            type="button"
-                            className="flex items-center gap-2 font-bold text-[#0E1A2B] text-left max-w-full"
-                          >
+                        <td className="px-5 text-left font-bold text-[#0E1A2B]">
+                          <div className="flex items-center gap-2">
                             <Icon
                               d={ICON.bell}
                               className="w-4 h-4 text-[#D9531E] shrink-0"
                             />
                             <span className="truncate">{notice.category}</span>
-                            {hasImages(notice) && (
-                              <Icon
-                                d={ICON.image}
-                                className="w-4 h-4 text-[#D9531E] shrink-0"
-                              />
-                            )}
-                          </button>
+                          </div>
                         </td>
                         <td>
                           <StatusBadge status={null} notice />
@@ -843,10 +696,7 @@ export default function InquiryBoardPage() {
                         </span>
                       </td>
                       <td className="px-5 text-left">
-                        <button
-                          type="button"
-                          className="flex items-center gap-2 font-medium text-[#1F2530] hover:text-[#D9531E] transition-colors text-left max-w-full"
-                        >
+                        <div className="flex items-center gap-2 font-medium text-[#1F2530]">
                           {!isAdmin && (
                             <Icon
                               d={ICON.lock}
@@ -860,7 +710,7 @@ export default function InquiryBoardPage() {
                               className="w-4 h-4 text-neutral-400 shrink-0"
                             />
                           )}
-                        </button>
+                        </div>
                       </td>
                       <td>
                         <StatusBadge status={item.status} />
@@ -881,131 +731,49 @@ export default function InquiryBoardPage() {
 
         {/* 모바일 리스트 */}
         <ul className="md:hidden space-y-3">
-          {isLoading ? (
-            Array.from({ length: 4 }).map((_, i) => (
-              <li
-                key={`msk-${i}`}
-                className="h-28 bg-white rounded-md border border-[#E4E0D8] animate-pulse"
-              />
-            ))
-          ) : (
-            <>
-              {showNotices &&
-                noticeList.map((notice) => (
-                  <li key={notice.id}>
-                    <button
-                      type="button"
-                      onClick={() => handleItemClick(notice)}
-                      className="w-full text-left bg-[#FEF5F2] border border-[#FDECE4] rounded-md p-5 hover:bg-[#FDECE4] transition-colors shadow-sm"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="bg-[#D9531E] text-white text-[11px] font-bold px-2 py-0.5 rounded-sm">
-                          공지
-                        </span>
-                        <span className="text-[12px] text-[#8A8478]">
-                          {formatDate(notice.created_at)}
-                        </span>
-                      </div>
-                      <p className="font-bold text-[#0E1A2B] text-[15px] line-clamp-2 flex items-start gap-1.5">
-                        <Icon
-                          d={ICON.bell}
-                          className="w-4 h-4 text-[#D9531E] shrink-0 mt-0.5"
-                        />
-                        {notice.category}
-                      </p>
-                    </button>
-                  </li>
-                ))}
-              {currentItems.map((item) => (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    onClick={() => handleItemClick(item)}
-                    className="w-full text-left bg-white border border-[#E4E0D8] rounded-md p-5 hover:border-[#0E1A2B] transition-colors shadow-sm"
+          {currentItems.map((item) => (
+            <li key={item.id}>
+              <button
+                type="button"
+                onClick={() => handleItemClick(item)}
+                className="w-full text-left bg-white border border-[#E4E0D8] rounded-md p-4 hover:border-[#0E1A2B] transition-colors"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <span
+                    className={`px-2 py-0.5 rounded text-[11px] font-semibold ${typeStyle(
+                      item.inquiry_type
+                    )}`}
                   >
-                    <div className="flex items-center justify-between mb-3">
-                      <span
-                        className={`px-2.5 py-1 rounded text-[11px] font-semibold ${typeStyle(
-                          item.inquiry_type
-                        )}`}
-                      >
-                        {getInquiryTypeLabel(item.inquiry_type)}
-                      </span>
-                      <StatusBadge status={item.status} />
-                    </div>
-                    <p className="font-semibold text-[#0E1A2B] text-[15px] line-clamp-2 flex items-start gap-1.5 mb-3">
-                      {!isAdmin && (
-                        <Icon
-                          d={ICON.lock}
-                          className="w-3.5 h-3.5 text-neutral-400 shrink-0 mt-1"
-                        />
-                      )}
-                      <span>{rowTitle(item)}</span>
-                      {hasImages(item) && (
-                        <Icon
-                          d={ICON.image}
-                          className="w-4 h-4 text-neutral-400 shrink-0 mt-0.5"
-                        />
-                      )}
-                    </p>
-                    <div className="flex items-center justify-between text-[12px] text-[#8A8478]">
-                      <span>{item.masked_name || maskName(item.name)}</span>
-                      <span>{formatDate(item.created_at)}</span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </>
-          )}
+                    {getInquiryTypeLabel(item.inquiry_type)}
+                  </span>
+                  <StatusBadge status={item.status} />
+                </div>
+                <p className="font-semibold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
+                  {!isAdmin && (
+                    <Icon
+                      d={ICON.lock}
+                      className="w-3.5 h-3.5 text-neutral-400 shrink-0"
+                    />
+                  )}
+                  <span>{rowTitle(item)}</span>
+                </p>
+                <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#8A8478]">
+                  <span>{item.masked_name || maskName(item.name)}</span>
+                  <span>{formatDate(item.created_at)}</span>
+                </div>
+              </button>
+            </li>
+          ))}
         </ul>
-
-        {!isLoading && loadError && (
-          <div className="mt-6 py-14 text-center bg-white rounded-md border border-[#E4E0D8]">
-            <p className="text-[#0E1A2B] font-bold mb-4">
-              문의 목록을 불러오지 못했습니다.
-            </p>
-            <button
-              type="button"
-              onClick={loadData}
-              className={`${BTN_NAVY} h-10 px-5 text-[14px]`}
-            >
-              다시 시도
-            </button>
-          </div>
-        )}
-        {!isLoading && !loadError && currentItems.length === 0 && (
-          <div className="mt-6 py-16 text-center bg-white rounded-md border border-[#E4E0D8] text-[14px]">
-            <p className="text-[#4B5260] font-medium mb-1">
-              {keyword.trim()
-                ? "검색 결과가 없습니다."
-                : "등록된 문의 내역이 없습니다."}
-            </p>
-            <p className="text-neutral-400">
-              첫 문의를 남겨주시면 빠르게 확인하고 연락드립니다.
-            </p>
-          </div>
-        )}
 
         {totalPages > 1 && !isLoading && (
           <nav
-            className="flex justify-center gap-1.5 mt-10"
+            className="flex justify-center gap-1.5 mt-8"
             aria-label="페이지 이동"
           >
-            <button
-              type="button"
-              onClick={() => goPage(Math.max(safePage - 1, 1))}
-              disabled={safePage === 1}
-              aria-label="이전 페이지"
-              className="w-9 h-9 flex items-center justify-center rounded border border-[#DDD9D1] bg-white text-[#4B5260] hover:bg-[#F6F5F2] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <Icon d={ICON.left} className="w-4 h-4" />
-            </button>
             {pageWindow(safePage, totalPages).map((p, i) =>
               p === "…" ? (
-                <span
-                  key={`e${i}`}
-                  className="w-6 flex items-center justify-center text-neutral-400"
-                >
+                <span key={`e${i}`} className="w-6 text-center text-[#8A8478]">
                   …
                 </span>
               ) : (
@@ -1013,26 +781,16 @@ export default function InquiryBoardPage() {
                   key={p}
                   type="button"
                   onClick={() => goPage(p)}
-                  aria-current={safePage === p ? "page" : undefined}
-                  className={`w-9 h-9 flex items-center justify-center rounded text-[14px] font-semibold transition-colors ${
+                  className={`w-9 h-9 rounded text-[13.5px] font-semibold ${
                     safePage === p
                       ? "bg-[#0E1A2B] text-white"
-                      : "border border-[#DDD9D1] bg-white text-[#4B5260] hover:bg-[#F6F5F2]"
+                      : "border border-[#DDD9D1] bg-white text-[#4B5260]"
                   }`}
                 >
                   {p}
                 </button>
               )
             )}
-            <button
-              type="button"
-              onClick={() => goPage(Math.min(safePage + 1, totalPages))}
-              disabled={safePage === totalPages}
-              aria-label="다음 페이지"
-              className="w-9 h-9 flex items-center justify-center rounded border border-[#DDD9D1] bg-white text-[#4B5260] hover:bg-[#F6F5F2] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            >
-              <Icon d={ICON.right} className="w-4 h-4" />
-            </button>
           </nav>
         )}
       </main>
@@ -1043,60 +801,81 @@ export default function InquiryBoardPage() {
           isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true)
         }
       />
-      <MobileCtaBar />
+      <MobileCtaBar onInquiryClick={handleOpenWrite} />
 
-      {/* 비밀번호 확인 모달 (서버 검증) */}
+      {/* 글쓰기 모달 (UnifiedInquiryForm 통합 사용) */}
+      {isWriteOpen && (
+        <Modal
+          label="문의 및 매입 신청 작성"
+          onClose={() => setIsWriteOpen(false)}
+          panelClassName="max-w-2xl"
+        >
+          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-lg shadow-2xl border border-[#E4E0D8] w-full">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
+              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+                문의 · 매입 신청 작성
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsWriteOpen(false)}
+                className="grid h-8 w-8 place-items-center text-[#6B7280] hover:text-[#0E1A2B]"
+                aria-label="닫기"
+              >
+                <Icon d={ICON.close} className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <UnifiedInquiryForm
+                defaultType={writeDefaultType}
+                linkedProduct={linkedProduct}
+                isAdmin={isAdmin}
+                allowNoticeToggle={isAdmin}
+                onSuccess={() => {
+                  loadData();
+                }}
+                onCancel={() => setIsWriteOpen(false)}
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* 비밀번호 확인 모달 */}
       {isPwModalOpen && (
         <Modal
           label="비밀글 열람"
           onClose={() => setIsPwModalOpen(false)}
-          sheet={false}
           panelClassName="max-w-sm"
         >
           <div className="bg-white rounded-lg shadow-xl border border-[#E4E0D8] p-6 sm:p-8 text-center w-full">
-            <div className="w-12 h-12 bg-[#F6F5F2] rounded-full flex items-center justify-center mx-auto mb-4 text-[#8A8478]">
-              <Icon d={ICON.lock} className="w-5 h-5" />
-            </div>
             <h3 className="font-bold text-[#0E1A2B] text-[18px] mb-1.5">
               비밀글 열람
             </h3>
-            <p className="text-[13px] text-[#6B7280] mb-6">
-              작성 시 등록하신 조회 비밀번호를 입력해 주세요.
+            <p className="text-[13px] text-[#6B7280] mb-5">
+              작성 시 설정하신 조회용 비밀번호를 입력해 주세요.
             </p>
-            <form onSubmit={handleVerifyPassword} className="space-y-4 text-left">
-              <div>
-                <input
-                  type={showVerifyPassword ? "text" : "password"}
-                  value={inputPw}
-                  onChange={(e) => setInputPw(e.target.value)}
-                  placeholder="비밀번호 입력"
-                  required
-                  autoFocus
-                  autoComplete="off"
-                  className={`${INPUT} text-center tracking-widest`}
-                />
-                <label className="flex items-center justify-center gap-1.5 mt-2.5 text-[12px] text-[#6B7280] cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={showVerifyPassword}
-                    onChange={(e) => setShowVerifyPassword(e.target.checked)}
-                    className="w-4 h-4 rounded accent-[#0E1A2B]"
-                  />{" "}
-                  비밀번호 표시
-                </label>
-              </div>
-              <div className="flex gap-2 pt-2">
+            <form onSubmit={handleVerifyPassword} className="space-y-4">
+              <input
+                type={showVerifyPassword ? "text" : "password"}
+                value={inputPw}
+                onChange={(e) => setInputPw(e.target.value)}
+                placeholder="비밀번호 입력"
+                required
+                autoFocus
+                className="hb-input text-center tracking-widest"
+              />
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setIsPwModalOpen(false)}
-                  className={`${BTN_LINE} w-1/2 h-12 text-[14px]`}
+                  className="hb-btn-outline w-1/2 h-11 text-[14px]"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
                   disabled={isVerifyingPw}
-                  className={`${BTN_NAVY} w-1/2 h-12 text-[14px] disabled:opacity-50`}
+                  className="hb-btn-primary w-1/2 h-11 text-[14px]"
                 >
                   {isVerifyingPw ? "확인 중..." : "확인"}
                 </button>
@@ -1106,43 +885,36 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* 상세 내용 모달 */}
+      {/* 상세 보기 모달 (명시적 상태 변경 드롭다운 적용) */}
       {isDetailOpen && selectedItem && (
         <Modal
-          label={`${selectedItem.category || "문의"} 상세`}
+          label="문의 상세"
           onClose={() => setIsDetailOpen(false)}
-          panelClassName="sm:max-w-2xl"
+          panelClassName="max-w-2xl"
         >
-          <div className="bg-white rounded-t-lg sm:rounded-lg shadow-2xl border border-[#E4E0D8] max-h-[92vh] flex flex-col w-full overflow-hidden">
-            <div
-              className={`px-6 py-5 flex items-center justify-between text-white ${
-                selectedItem.is_notice ? "bg-[#D9531E]" : "bg-[#0E1A2B]"
-              }`}
-            >
-              <span className="text-[12px] font-bold bg-white/20 px-2.5 py-1 rounded-sm">
-                {selectedItem.is_notice
-                  ? "공지사항"
-                  : getInquiryTypeLabel(selectedItem.inquiry_type)}
+          <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] max-h-[90vh] flex flex-col w-full overflow-hidden">
+            <div className="px-6 py-4 flex items-center justify-between bg-[#0E1A2B] text-white">
+              <span className="text-[12px] font-bold bg-white/15 px-2.5 py-1 rounded-sm">
+                {getInquiryTypeLabel(selectedItem.inquiry_type)}
               </span>
               <button
                 type="button"
                 onClick={() => setIsDetailOpen(false)}
                 aria-label="닫기"
-                className="text-white/80 hover:text-white transition-colors"
               >
-                <Icon d={ICON.close} className="w-6 h-6" />
+                <Icon d={ICON.close} className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-6 sm:p-8 overflow-y-auto space-y-6 text-[15px] bg-white">
-              <div className="border-b border-[#E4E0D8] pb-5">
-                <h2 className="text-[20px] sm:text-[23px] font-bold text-[#0E1A2B] mb-3 break-words leading-snug">
-                  {selectedItem.category || "문의 내용"}
+            <div className="p-6 overflow-y-auto space-y-5 text-[14.5px]">
+              <div className="border-b border-[#E4E0D8] pb-4">
+                <h2 className="text-[20px] font-bold text-[#0E1A2B] mb-2">
+                  {selectedItem.category}
                 </h2>
-                <div className="flex flex-wrap gap-y-2 gap-x-5 text-[#8A8478] text-[13px]">
+                <div className="flex flex-wrap gap-4 text-[13px] text-[#6B7280]">
                   <span>
-                    작성자{" "}
-                    <strong className="text-[#0E1A2B] font-semibold">
+                    작성자:{" "}
+                    <strong className="text-[#0E1A2B]">
                       {isAdmin || selectedItem.is_notice
                         ? selectedItem.name
                         : maskName(selectedItem.name)}
@@ -1150,173 +922,117 @@ export default function InquiryBoardPage() {
                   </span>
                   {isAdmin && selectedItem.phone && (
                     <span>
-                      연락처{" "}
+                      연락처:{" "}
                       <a
                         href={telHref(selectedItem.phone)}
-                        className="font-semibold text-[#0E1A2B] underline"
+                        className="font-bold text-[#0E1A2B] underline"
                       >
                         {selectedItem.phone}
                       </a>
                     </span>
                   )}
                   <span>
-                    등록일{" "}
-                    {new Date(selectedItem.created_at).toLocaleDateString(
-                      "ko-KR"
-                    )}
+                    진행상태:{" "}
+                    <strong className="text-[#D9531E]">
+                      {selectedItem.status || "접수"}
+                    </strong>
                   </span>
-                  {!selectedItem.is_notice && (
-                    <span>
-                      진행상태{" "}
-                      <strong className="text-[#D9531E] font-semibold">
-                        {selectedItem.status || "접수"}
-                      </strong>
-                    </span>
-                  )}
                 </div>
               </div>
 
-              {selectedItem.is_notice &&
-                selectedItem.images &&
-                selectedItem.images.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded flex items-center gap-1.5">
-                        <Icon d={ICON.image} className="w-3.5 h-3.5" /> 안내 포스터 확인
-                      </span>
-                      <span className="text-[12px] text-[#8A8478]">
-                        클릭 시 고화질로 확대됩니다
-                      </span>
-                    </div>
-
-                    <div className="flex flex-col gap-4">
-                      {selectedItem.images.map((imgUrl, idx) => (
-                        <div
-                          key={imgUrl + idx}
-                          onClick={() => setEnlargedImage(imgUrl)}
-                          className="group relative w-full rounded-lg overflow-hidden border border-[#DDD9D1] bg-[#FAF9F7] cursor-zoom-in shadow-xs hover:shadow-md transition-all"
-                        >
-                          <SafeImg
-                            src={imgUrl}
-                            alt={`${selectedItem.category || "공지사항"} 안내 이미지`}
-                            eager
-                            className="w-full h-auto max-h-[560px] object-contain mx-auto"
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
               {selectedItem.description && (
-                <div className="bg-[#FAF9F7] p-5 sm:p-6 rounded-md text-[#4B5260] leading-[1.8] whitespace-pre-wrap min-h-[100px] border border-[#EEEBE5] break-words">
+                <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
                   {selectedItem.description}
                 </div>
               )}
 
-              {!selectedItem.is_notice &&
-                selectedItem.images &&
-                selectedItem.images.length > 0 && (
-                  <div className="pt-2">
-                    <h4 className="font-bold text-[#0E1A2B] mb-3 flex items-center gap-1.5 text-[14px]">
-                      <Icon d={ICON.image} className="w-4 h-4 text-neutral-400" />{" "}
-                      첨부 사진 ({selectedItem.images.length}장)
-                    </h4>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
-                      {selectedItem.images.map((imgUrl, idx) => (
-                        <button
-                          key={imgUrl + idx}
-                          type="button"
-                          onClick={() => setEnlargedImage(imgUrl)}
-                          className="aspect-square bg-[#EFECE6] rounded-md overflow-hidden border border-[#E4E0D8] group relative cursor-zoom-in"
-                        >
-                          <SafeImg
-                            src={imgUrl}
-                            alt={`첨부사진 ${idx + 1}`}
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {selectedItem.images && selectedItem.images.length > 0 && (
+                <div className="grid grid-cols-3 gap-2.5">
+                  {selectedItem.images.map((imgUrl, idx) => (
+                    <button
+                      key={imgUrl + idx}
+                      type="button"
+                      onClick={() => setEnlargedImage(imgUrl)}
+                      className="aspect-square rounded overflow-hidden border border-[#E4E0D8] bg-[#EFECE6]"
+                    >
+                      <SafeImg
+                        src={imgUrl}
+                        alt={`첨부사진 ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
 
-              {selectedItem.admin_reply && !isAdmin && (
-                <div className="bg-[#FEF5F2] rounded-md p-6 border border-[#FDECE4] mt-2">
-                  <h3 className="font-bold text-[#0E1A2B] flex items-center gap-2 mb-3 text-[15px]">
-                    <span className="bg-[#0E1A2B] text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px]">
-                      한밭
-                    </span>
-                    {STORE.name} 답변
+              {selectedItem.admin_reply && (
+                <div className="bg-[#FEF5F2] rounded-md p-5 border border-[#FDECE4]">
+                  <h3 className="font-bold text-[#0E1A2B] text-[14px] mb-2">
+                    {STORE.name} 공식 답변
                   </h3>
-                  <div className="text-[14px] text-[#4B5260] leading-relaxed whitespace-pre-wrap sm:pl-8 break-words">
+                  <p className="text-[14px] text-[#4B5260] whitespace-pre-wrap leading-relaxed">
                     {selectedItem.admin_reply}
-                  </div>
+                  </p>
                 </div>
               )}
 
               {!selectedItem.is_notice && isAdmin && (
-                <>
-                  <div className="bg-[#FAF9F7] rounded-md p-5 sm:p-6 border border-[#E4E0D8] mt-6">
-                    <h3 className="font-bold text-[#0E1A2B] mb-3 text-[14px]">
-                      관리자 답변 달기
-                    </h3>
-                    <textarea
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                      rows={4}
-                      placeholder="고객에게 남길 답변을 작성해 주세요."
-                      className={`${INPUT} resize-y leading-relaxed mb-4`}
-                    />
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={handleReplySubmit}
-                        disabled={isReplying}
-                        className={`${BTN_NAVY} px-6 h-11 text-[14px] disabled:opacity-50`}
-                      >
-                        {isReplying ? "등록 중..." : "답변 저장 (상태 자동 변경)"}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="bg-white border border-[#E4E0D8] rounded-md p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <span className="text-[13px] font-bold text-[#4B5260]">
-                      수동 상태 변경
-                    </span>
-                    <div className="flex gap-2">
-                      {["접수", "답변완료"].map((s) => (
-                        <button
-                          key={s}
-                          type="button"
-                          onClick={() => handleStatusUpdate(selectedItem.id, s)}
-                          className={`px-4 py-2 rounded text-[13px] font-semibold transition-colors ${
-                            selectedItem.status === s
-                              ? "bg-[#0E1A2B] text-white"
-                              : "bg-white border border-[#DDD9D1] text-[#4B5260] hover:bg-[#F6F5F2]"
-                          }`}
-                        >
-                          {s}
-                        </button>
+                <div className="bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label className="text-[13px] font-bold text-[#0E1A2B]">
+                      진행 상태 명시적 변경
+                    </label>
+                    <select
+                      value={selectedItem.status || "접수"}
+                      onChange={(e) =>
+                        handleStatusUpdate(selectedItem.id, e.target.value)
+                      }
+                      className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-[13px] font-bold text-[#0E1A2B]"
+                    >
+                      {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label} — {opt.desc}
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
-                </>
+
+                  <textarea
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    rows={3}
+                    placeholder="고객에게 남길 답변 내용을 입력해 주세요."
+                    className="hb-input text-[13.5px]"
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleReplySubmit}
+                      disabled={isReplying}
+                      className="hb-btn-primary h-10 px-5 text-[13px]"
+                    >
+                      {isReplying ? "저장 중..." : "답변 저장 및 답변완료 처리"}
+                    </button>
+                  </div>
+                </div>
               )}
 
-              <div className="flex items-center justify-between pt-6 border-t border-[#E4E0D8] mt-6">
+              <div className="flex items-center justify-between pt-4 border-t border-[#E4E0D8]">
                 <div className="flex gap-2">
                   {canManage && (
                     <>
                       <button
                         type="button"
                         onClick={handleOpenEdit}
-                        className={`${BTN_LINE} px-4 h-10 text-[13px]`}>
-                        게시글 수정
+                        className="hb-btn-outline h-10 px-4 text-[13px]"
+                      >
+                        수정
                       </button>
                       <button
                         type="button"
                         onClick={handleDelete}
-                        className={`${BTN} border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 px-4 h-10 text-[13px]`}>
+                        className="rounded border border-red-200 bg-red-50 px-4 h-10 text-[13px] font-bold text-red-600"
+                      >
                         삭제
                       </button>
                     </>
@@ -1325,8 +1041,9 @@ export default function InquiryBoardPage() {
                 <button
                   type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className={`${BTN_NAVY} px-6 h-10 text-[13px]`}>
-                  창 닫기
+                  className="hb-btn-primary h-10 px-6 text-[13px]"
+                >
+                  닫기
                 </button>
               </div>
             </div>
@@ -1334,316 +1051,71 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* 글쓰기 / 수정 모달창 */}
-      {(isWriteOpen || isEditOpen) && (
+      {/* 게시글 수정 모달 */}
+      {isEditOpen && (
         <Modal
-          label={
-            isWriteOpen
-              ? isNotice
-                ? "공지사항 등록"
-                : "문의글 작성"
-              : "게시글 수정"
-          }
-          onClose={isWriteOpen ? closeWrite : () => setIsEditOpen(false)}
-          panelClassName="sm:max-w-xl">
-          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-t-lg sm:rounded-lg shadow-2xl w-full flex flex-col">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
-              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
-                {isWriteOpen
-                  ? isNotice
-                    ? "공지사항 등록"
-                    : "문의글 작성하기"
-                  : "게시글 수정"}
-              </h2>
+          label="게시글 수정"
+          onClose={() => setIsEditOpen(false)}
+          panelClassName="max-w-lg"
+        >
+          <form
+            onSubmit={handleEditSubmit}
+            className="bg-white rounded-lg p-6 shadow-2xl border border-[#E4E0D8] space-y-4"
+          >
+            <h3 className="text-[18px] font-bold text-[#0E1A2B]">
+              게시글 수정
+            </h3>
+            <div>
+              <label className="hb-label">제목</label>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                required
+                className="hb-input mt-1"
+              />
+            </div>
+            <div>
+              <label className="hb-label">내용</label>
+              <textarea
+                rows={5}
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                required
+                className="hb-input mt-1"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-3">
               <button
                 type="button"
-                onClick={isWriteOpen ? closeWrite : () => setIsEditOpen(false)}
-                className="grid h-8 w-8 place-items-center text-neutral-500 hover:text-[#0E1A2B]"
-                aria-label="닫기">
-                <Icon d={ICON.close} className="h-5 w-5" />
+                onClick={() => setIsEditOpen(false)}
+                className="hb-btn-outline h-10 px-5 text-[13.5px]"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                disabled={editUpdating}
+                className="hb-btn-primary h-10 px-6 text-[13.5px]"
+              >
+                {editUpdating ? "수정 중..." : "수정 완료"}
               </button>
             </div>
-
-            <form
-              onSubmit={isWriteOpen ? handleWriteSubmit : handleEditSubmit}
-              className="p-6 sm:p-8 space-y-6">
-              {isWriteOpen && isAdmin && (
-                <label className="bg-[#FEF5F2] border border-[#FDECE4] rounded-md p-4 flex items-center justify-between cursor-pointer group">
-                  <span>
-                    <span className="font-bold text-[#B5431A] block text-[14px]">
-                      최상단 고정 공지사항
-                    </span>
-                    <span className="text-[12px] text-[#D9531E] mt-0.5 block">
-                      체크 시 모든 탭 상단에 고정 표시됩니다.
-                    </span>
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={isNotice}
-                    onChange={(e) => setIsNotice(e.target.checked)}
-                    className="w-5 h-5 accent-[#D9531E] cursor-pointer"
-                  />
-                </label>
-              )}
-
-              {(!isNotice || isEditOpen) && (
-                <fieldset>
-                  <legend className={LABEL}>문의 구분 *</legend>
-                  <div className="grid grid-cols-3 gap-1.5 bg-[#F6F5F2] p-1.5 rounded-md">
-                    {["내 물건 팔기", "구매 문의", "기타 문의"].map((type) => (
-                      <button
-                        type="button"
-                        key={type}
-                        onClick={() =>
-                          isEditOpen
-                            ? setEditInquiryType(type)
-                            : setInquiryType(type)
-                        }
-                        aria-pressed={
-                          (isEditOpen ? editInquiryType : inquiryType) === type
-                        }
-                        className={`py-2.5 rounded font-semibold transition-colors text-[14px] ${
-                          (isEditOpen ? editInquiryType : inquiryType) === type
-                            ? "bg-white text-[#0E1A2B] shadow-sm"
-                            : "text-[#6B7280] hover:text-[#0E1A2B]"
-                        }`}>
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </fieldset>
-              )}
-
-              {isWriteOpen && (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="w-name" className={LABEL}>
-                        작성자 {isNotice ? "(공지표시명)" : "*"}
-                      </label>
-                      <input
-                        id="w-name"
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder={isNotice ? STORE.name : "성함을 입력하세요"}
-                        required={!isNotice}
-                        autoComplete="name"
-                        className={INPUT}
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="w-phone" className={LABEL}>
-                        연락처 {isNotice ? "(안내용)" : "*"}
-                      </label>
-                      <input
-                        id="w-phone"
-                        type="tel"
-                        inputMode="numeric"
-                        value={phone}
-                        onChange={(e) => setPhone(formatPhone(e.target.value))}
-                        placeholder={isNotice ? STORE.tel : "010-0000-0000"}
-                        required={!isNotice}
-                        autoComplete="tel"
-                        className={INPUT}
-                      />
-                    </div>
-                  </div>
-
-                  {!isNotice && (
-                    <div>
-                      <label htmlFor="w-pw" className={LABEL}>
-                        조회용 비밀번호 *
-                      </label>
-                      <input
-                        id="w-pw"
-                        type={showWritePassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="게시글 열람용 (4자리 이상)"
-                        required
-                        minLength={4}
-                        autoComplete="new-password"
-                        className={INPUT}
-                      />
-                      <label className="flex items-center gap-1.5 mt-2 text-[12px] text-slate-500 cursor-pointer select-none">
-                        <input
-                          type="checkbox"
-                          checked={showWritePassword}
-                          onChange={(e) =>
-                            setShowWritePassword(e.target.checked)
-                          }
-                          className="w-4 h-4 rounded accent-[#0E1A2B]"
-                        />{" "}
-                        문자 표시
-                      </label>
-                    </div>
-                  )}
-                </>
-              )}
-
-              <div>
-                <label htmlFor="w-title" className={LABEL}>
-                  {isNotice ? "공지 제목 *" : "제목 *"}
-                </label>
-                <input
-                  id="w-title"
-                  type="text"
-                  value={isWriteOpen ? title : editTitle}
-                  onChange={(e) =>
-                    isWriteOpen
-                      ? setTitle(e.target.value)
-                      : setEditTitle(e.target.value)
-                  }
-                  required
-                  className={INPUT}
-                />
-              </div>
-
-              <div>
-                <label htmlFor="w-content" className={LABEL}>
-                  {isNotice ? "상세 내용 *" : "문의 내용 *"}
-                </label>
-                <textarea
-                  id="w-content"
-                  rows={5}
-                  value={isWriteOpen ? content : editContent}
-                  onChange={(e) =>
-                    isWriteOpen
-                      ? setContent(e.target.value)
-                      : setEditContent(e.target.value)
-                  }
-                  required
-                  className={`${INPUT} resize-y leading-relaxed`}
-                />
-              </div>
-
-              {isWriteOpen && (
-                <div>
-                  <p className={LABEL}>
-                    사진{" "}
-                    <span className="font-normal text-[#8A8478]">
-                      (최대 {MAX_PHOTOS}장)
-                    </span>
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {filePreviews.map((preview, index) => (
-                      <div
-                        key={preview}
-                        className="relative aspect-square w-20 rounded overflow-hidden bg-[#EFECE6] border border-[#DDD9D1]">
-                        <img
-                          src={preview}
-                          alt={`첨부 사진 ${index + 1}`}
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFile(index)}
-                          aria-label="사진 삭제"
-                          className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center transition">
-                          <Icon d={ICON.close} className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                    {selectedFiles.length < MAX_PHOTOS && (
-                      <label className="flex aspect-square w-20 cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CFCAC0] text-[11px] font-medium text-[#8A8478] transition-colors hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
-                        <Icon d={ICON.image} className="h-5 w-5" />
-                        사진 추가
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handleFileChange}
-                          className="sr-only"
-                        />
-                      </label>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {isWriteOpen && !isNotice && (
-                <label className="flex items-start gap-2.5 pt-2 text-[13px] leading-relaxed text-[#4B5260] cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={agreed}
-                    onChange={(e) => setAgreed(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 shrink-0 accent-[#0E1A2B]"
-                  />
-                  <span>
-                    상담을 위해 이름·연락처·문의 내용을 수집하며, 상담 완료 후 관련 법령에 따라 처리합니다.{" "}
-                    <a
-                      href="/privacy"
-                      target="_blank"
-                      className="underline font-bold text-[#0E1A2B]">
-                      개인정보 수집·이용
-                    </a>
-                    에 동의합니다. *
-                  </span>
-                </label>
-              )}
-
-              <div className="flex items-center justify-end gap-2.5 pt-6 border-t border-[#E4E0D8]">
-                <button
-                  type="button"
-                  onClick={
-                    isWriteOpen ? closeWrite : () => setIsEditOpen(false)
-                  }
-                  className={`${BTN_LINE} px-6 h-12 text-[15px]`}>
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    isWriteOpen
-                      ? submitting || (!isNotice && !agreed)
-                      : editUpdating
-                  }
-                  className={`${
-                    isNotice ? BTN_ACCENT : BTN_NAVY
-                  } px-8 h-12 text-[15px] disabled:opacity-50`}>
-                  {isWriteOpen
-                    ? submitting
-                      ? "등록 중..."
-                      : isNotice
-                      ? "공지사항 등록"
-                      : "문의 접수완료"
-                    : editUpdating
-                    ? "수정 중..."
-                    : "수정 완료"}
-                </button>
-              </div>
-            </form>
-          </div>
+          </form>
         </Modal>
       )}
 
       {enlargedImage && (
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="사진 전체화면 확대 보기"
           onClick={() => setEnlargedImage(null)}
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 sm:p-6 select-none animate-fadeIn cursor-zoom-out">
-          <div className="absolute top-4 right-4 z-20">
-            <button
-              type="button"
-              onClick={() => setEnlargedImage(null)}
-              className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center transition-colors text-white"
-              aria-label="닫기">
-              <Icon d={ICON.close} className="w-6 h-6" />
-            </button>
-          </div>
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-w-full max-h-[88vh] overflow-y-auto flex items-center justify-center p-1">
-            <SafeImg
-              src={enlargedImage}
-              alt="확대 사진"
-              eager
-              className="max-w-full max-h-[86vh] w-auto h-auto object-contain rounded-md shadow-2xl"
-            />
-          </div>
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+        >
+          <SafeImg
+            src={enlargedImage}
+            alt="확대 이미지"
+            eager
+            className="max-w-full max-h-[88vh] object-contain"
+          />
         </div>
       )}
 
@@ -1651,52 +1123,37 @@ export default function InquiryBoardPage() {
         <Modal
           label="관리자 로그인"
           onClose={() => setIsAdminAuthModalOpen(false)}
-          sheet={false}
-          panelClassName="max-w-sm">
+          panelClassName="max-w-sm"
+        >
           <form
             onSubmit={handleAdminAuth}
-            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E4E0D8]">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
-                관리자 로그인
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsAdminAuthModalOpen(false)}
-                className="grid h-9 w-9 place-items-center text-neutral-500 hover:text-[#0E1A2B]"
-                aria-label="닫기">
-                <Icon d={ICON.close} className="h-5 w-5" />
-              </button>
-            </div>
-            <label className={LABEL} htmlFor="admin-email">
-              이메일
-            </label>
+            className="bg-white rounded-lg p-6 shadow-2xl border border-[#E4E0D8] space-y-4"
+          >
+            <h3 className="text-[18px] font-bold text-[#0E1A2B]">
+              관리자 로그인
+            </h3>
             <input
-              id="admin-email"
               type="email"
-              autoComplete="username"
               required
+              placeholder="관리자 이메일"
               value={adminEmail}
               onChange={(e) => setAdminEmail(e.target.value)}
-              className={`${INPUT} mb-4`}
+              className="hb-input"
             />
-            <label className={LABEL} htmlFor="admin-pw">
-              비밀번호
-            </label>
             <input
-              id="admin-pw"
               type="password"
-              autoComplete="current-password"
               required
+              placeholder="비밀번호"
               value={adminPassword}
               onChange={(e) => setAdminPassword(e.target.value)}
-              className={INPUT}
+              className="hb-input"
             />
             <button
               type="submit"
               disabled={isLoggingIn}
-              className={`${BTN_NAVY} mt-6 h-12 w-full text-[15px] disabled:opacity-60`}>
-              {isLoggingIn ? "로그인 중…" : "로그인"}
+              className="hb-btn-primary h-11 w-full text-[14px]"
+            >
+              {isLoggingIn ? "로그인 중..." : "로그인"}
             </button>
           </form>
         </Modal>

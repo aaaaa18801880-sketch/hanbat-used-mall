@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { extractInquiryImages, getInquiryTypeLabel, maskName } from "../../../../lib/site";
+import {
+  extractInquiryImages,
+  getInquiryTypeLabel,
+  INQUIRY_STATUS,
+  maskName,
+} from "../../../../lib/site";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 import {
   checkRateLimit,
@@ -10,11 +15,8 @@ import {
 
 export const runtime = "nodejs";
 
-/**
- * POST /api/inquiries/[id]
- * - 비밀글 비밀번호 서버 측 검증 후 일치할 때만 상세 내용(description, images, admin_reply) 반환
- * - 비밀번호는 응답에 절대 포함하지 않음
- */
+const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -23,7 +25,6 @@ export async function POST(
     const { id } = await params;
     const ip = getClientIp(req);
 
-    // 5분 동안 동일 IP+게시글에 대해 최대 5회까지 비밀번호 시도 허용 (Brute-force 방어)
     const rate = checkRateLimit(`pw_verify:${ip}:${id}`, 5, 5 * 60 * 1000);
     if (!rate.allowed) {
       return NextResponse.json(
@@ -75,7 +76,9 @@ export async function POST(
         phone: isAdmin ? row.phone : null,
         inquiry_type: isNotice
           ? "공지사항"
-          : getInquiryTypeLabel(row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")),
+          : getInquiryTypeLabel(
+              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
+            ),
         category: row.category || "문의 내용",
         model: row.model || null,
         condition_grade: row.condition_grade || null,
@@ -96,11 +99,6 @@ export async function POST(
   }
 }
 
-/**
- * PATCH /api/inquiries/[id]
- * - 작성자(비밀번호 재검증 통과)가 제목/내용/문의구분 수정
- * - 또는 검증된 관리자가 답변(admin_reply) 및 상태(status) 변경
- */
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -110,12 +108,19 @@ export async function PATCH(
     const adminCheck = await verifyAdminRequest(req);
     const isAdmin = adminCheck.ok;
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json(
+        { error: "잘못된 수정 요청입니다." },
+        { status: 400 }
+      );
+    }
+
     const supabase = createServerSupabaseClient(adminCheck.accessToken);
 
     const { data: existing, error: fetchError } = await supabase
       .from("purchase_requests")
-      .select("id, password, is_notice")
+      .select("id, password, is_notice, status")
       .eq("id", id)
       .single();
 
@@ -126,18 +131,16 @@ export async function PATCH(
       );
     }
 
-    // 관리자 전용 작업(답변 작성 또는 상태 변경)인지 확인
     const isStatusOrReplyUpdate =
       typeof body.admin_reply === "string" || typeof body.status === "string";
 
     if (isStatusOrReplyUpdate && !isAdmin) {
       return NextResponse.json(
-        { error: "답변 등록 및 상태 변경은 관리자 권한이 필요합니다." },
+        { error: "답변 등록 및 진행 상태 변경은 관리자 권한이 필요합니다." },
         { status: 403 }
       );
     }
 
-    // 비관리자의 일반 게시글 수정 시 비밀번호 검증 필수
     if (!isAdmin) {
       if (existing.is_notice) {
         return NextResponse.json(
@@ -148,7 +151,10 @@ export async function PATCH(
       const inputPassword = String(body.password || "").trim();
       if (!verifyInquiryPassword(inputPassword, existing.password)) {
         return NextResponse.json(
-          { error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다." },
+          {
+            error:
+              "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
+          },
           { status: 401 }
         );
       }
@@ -166,11 +172,20 @@ export async function PATCH(
         ? "공지사항"
         : body.inquiry_type.trim().slice(0, 40);
     }
+
     if (isAdmin && typeof body.admin_reply === "string") {
       patch.admin_reply = body.admin_reply.trim().slice(0, 5000);
     }
+
     if (isAdmin && typeof body.status === "string") {
-      patch.status = body.status.trim().slice(0, 30);
+      const nextStatus = body.status.trim();
+      if (!ALLOWED_STATUS_VALUES.has(nextStatus)) {
+        return NextResponse.json(
+          { error: `허용되지 않는 진행 상태값입니다: ${nextStatus}` },
+          { status: 400 }
+        );
+      }
+      patch.status = nextStatus;
     }
 
     const { data: updated, error: updateError } = await supabase
@@ -187,7 +202,11 @@ export async function PATCH(
       );
     }
 
-    return NextResponse.json({ success: true, updated });
+    return NextResponse.json({
+      success: true,
+      previousStatus: existing.status,
+      updated,
+    });
   } catch {
     return NextResponse.json(
       { error: "문의글 수정 중 서버 오류가 발생했습니다." },
@@ -196,10 +215,6 @@ export async function PATCH(
   }
 }
 
-/**
- * DELETE /api/inquiries/[id]
- * - 작성자(비밀번호 검증 통과) 또는 검증된 관리자만 삭제 가능
- */
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

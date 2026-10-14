@@ -2,9 +2,6 @@ import crypto from "crypto";
 import { NextRequest } from "next/server";
 import { createServerSupabaseClient, isAuthorizedAdminUser } from "./supabase";
 
-/* ════════════════════════════════════════════════════════════
-   1. 서버 측 관리자 요청 검증 (Route Handler용)
-   ════════════════════════════════════════════════════════════ */
 export async function verifyAdminRequest(req: NextRequest | Request): Promise<{
   ok: boolean;
   email?: string;
@@ -63,9 +60,6 @@ export async function verifyAdminRequest(req: NextRequest | Request): Promise<{
   }
 }
 
-/* ════════════════════════════════════════════════════════════
-   2. 문의 비밀번호 해시 및 레거시 평문 하위호환 검증
-   ════════════════════════════════════════════════════════════ */
 const HASH_PREFIX = "scrypt$";
 
 export function hashInquiryPassword(plainPassword: string): string {
@@ -84,7 +78,6 @@ export function verifyInquiryPassword(
   const stored = storedPassword.trim();
   if (!candidate || !stored) return false;
 
-  // 1) 신규 scrypt 해시 포맷 검증: scrypt$<salt>$<hexHash>
   if (stored.startsWith(HASH_PREFIX)) {
     const parts = stored.split("$");
     if (parts.length !== 3) return false;
@@ -99,22 +92,19 @@ export function verifyInquiryPassword(
     }
   }
 
-  // 2) 기존 운영 DB의 평문 비밀번호 레코드 하위 호환 검증 (타이밍 공격 방지)
   const candidateBuf = Buffer.from(candidate, "utf8");
   const storedBuf = Buffer.from(stored, "utf8");
   if (candidateBuf.length !== storedBuf.length) return false;
   return crypto.timingSafeEqual(candidateBuf, storedBuf);
 }
 
-/* ════════════════════════════════════════════════════════════
-   3. 요청 제한 (Rate Limiter - 비밀번호 대입 및 외부 API 남용 방지)
-   ════════════════════════════════════════════════════════════ */
 interface RateBucket {
   count: number;
   resetAt: number;
 }
 
 const rateBuckets = new Map<string, RateBucket>();
+const notificationDedupCache = new Map<string, number>();
 
 export function getClientIp(req: NextRequest | Request): string {
   const forwarded = req.headers.get("x-forwarded-for");
@@ -136,7 +126,10 @@ export function checkRateLimit(
   }
 
   if (current.count >= maxAttempts) {
-    const retryAfterSec = Math.max(1, Math.ceil((current.resetAt - now) / 1000));
+    const retryAfterSec = Math.max(
+      1,
+      Math.ceil((current.resetAt - now) / 1000)
+    );
     return { allowed: false, retryAfterSec };
   }
 
@@ -144,9 +137,27 @@ export function checkRateLimit(
   return { allowed: true, retryAfterSec: 0 };
 }
 
-/* ════════════════════════════════════════════════════════════
-   4. 서버 측 이미지 업로드 정밀 검증 (확장자 불신, 매직바이트 시그니처 검사)
-   ════════════════════════════════════════════════════════════ */
+export function checkNotificationIdempotency(
+  dedupKey: string,
+  ttlMs = 3 * 60 * 1000,
+  forceRetry = false
+): { isDuplicate: boolean } {
+  const now = Date.now();
+  for (const [k, expiresAt] of notificationDedupCache.entries()) {
+    if (now > expiresAt) notificationDedupCache.delete(k);
+  }
+
+  if (!forceRetry) {
+    const existingExpiry = notificationDedupCache.get(dedupKey);
+    if (existingExpiry && now < existingExpiry) {
+      return { isDuplicate: true };
+    }
+  }
+
+  notificationDedupCache.set(dedupKey, now + ttlMs);
+  return { isDuplicate: false };
+}
+
 const ALLOWED_MIME_TYPES = new Set([
   "image/jpeg",
   "image/png",
@@ -157,13 +168,7 @@ const ALLOWED_MIME_TYPES = new Set([
 
 function hasValidImageMagicBytes(buf: Buffer): boolean {
   if (buf.length < 12) return false;
-
-  // JPEG: FF D8 FF
-  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
-    return true;
-  }
-
-  // PNG: 89 50 4E 47 0D 0A 1A 0A
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return true;
   if (
     buf[0] === 0x89 &&
     buf[1] === 0x50 &&
@@ -176,16 +181,12 @@ function hasValidImageMagicBytes(buf: Buffer): boolean {
   ) {
     return true;
   }
-
-  // WebP: "RIFF" .... "WEBP"
   if (
     buf.subarray(0, 4).toString("ascii") === "RIFF" &&
     buf.subarray(8, 12).toString("ascii") === "WEBP"
   ) {
     return true;
   }
-
-  // HEIC / HEIF / AVIF: ISO Base Media File Format ("ftyp" at offset 4)
   if (buf.subarray(4, 8).toString("ascii") === "ftyp") {
     const brand = buf.subarray(8, 12).toString("ascii").toLowerCase();
     if (
@@ -197,7 +198,6 @@ function hasValidImageMagicBytes(buf: Buffer): boolean {
       return true;
     }
   }
-
   return false;
 }
 
@@ -212,7 +212,6 @@ export async function validateServerImageFiles(
   if (!files || files.length === 0) {
     return { ok: false, error: "첨부된 이미지 파일이 없습니다." };
   }
-
   if (files.length > options.maxFiles) {
     return {
       ok: false,
@@ -226,7 +225,6 @@ export async function validateServerImageFiles(
     if (file.size <= 0) {
       return { ok: false, error: "비어 있는 파일은 업로드할 수 없습니다." };
     }
-
     if (file.size > options.maxFileSizeBytes) {
       const maxMb = Math.round(options.maxFileSizeBytes / (1024 * 1024));
       return {

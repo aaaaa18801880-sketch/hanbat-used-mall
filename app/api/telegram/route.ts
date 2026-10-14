@@ -1,19 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkRateLimit, getClientIp } from "../../../lib/server-security";
+import {
+  maskPhone,
+  NOTIFICATION_STATUS,
+  type NotificationDispatchResult,
+} from "../../../lib/site";
+import {
+  checkNotificationIdempotency,
+  checkRateLimit,
+  getClientIp,
+} from "../../../lib/server-security";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
+  const nowIso = new Date().toISOString();
+
   try {
     const ip = getClientIp(req);
-    const rate = checkRateLimit(`telegram_notify:${ip}`, 10, 60 * 1000);
+    const rate = checkRateLimit(`telegram_notify:${ip}`, 12, 60 * 1000);
     if (!rate.allowed) {
+      const rateResult: NotificationDispatchResult = {
+        channel: "telegram",
+        status: "RETRY_REQUIRED",
+        statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
+        sent: false,
+        retryable: true,
+        message: `알림 요청 제한을 초과했습니다. ${rate.retryAfterSec}초 후 재시도해 주세요.`,
+        timestamp: nowIso,
+      };
       return NextResponse.json(
-        {
-          success: false,
-          sent: false,
-          error: "알림 요청 제한을 초과했습니다.",
-        },
+        { success: false, ...rateResult },
         { status: 429 }
       );
     }
@@ -21,19 +37,39 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
       return NextResponse.json(
-        { success: false, sent: false, error: "잘못된 요청 형식입니다." },
+        {
+          success: false,
+          channel: "telegram",
+          status: "EXTERNAL_ERROR",
+          statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+          sent: false,
+          retryable: false,
+          message: "잘못된 알림 요청 형식입니다.",
+          timestamp: nowIso,
+        },
         { status: 400 }
       );
     }
 
+    const inquiryId = String(body.inquiryId || "").trim().slice(0, 64);
     const name = String(body.name || "").trim().slice(0, 40);
     const phone = String(body.phone || "").trim().slice(0, 20);
     const type = String(body.type || "문의").trim().slice(0, 30);
     const title = String(body.title || "").trim().slice(0, 100);
+    const forceRetry = Boolean(body.forceRetry);
 
     if (!name || !title) {
       return NextResponse.json(
-        { success: false, sent: false, error: "필수 알림 항목이 누락되었습니다." },
+        {
+          success: false,
+          channel: "telegram",
+          status: "EXTERNAL_ERROR",
+          statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+          sent: false,
+          retryable: false,
+          message: "필수 알림 항목(고객명, 제목)이 누락되었습니다.",
+          timestamp: nowIso,
+        },
         { status: 400 }
       );
     }
@@ -41,29 +77,59 @@ export async function POST(req: NextRequest) {
     const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
     const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
-    // 환경변수가 없을 때 실제 발송 성공(success: true)으로 위장하지 않고 명확히 구분
     if (!BOT_TOKEN || !CHAT_ID) {
+      const notConfiguredResult: NotificationDispatchResult = {
+        channel: "telegram",
+        status: "NOT_CONFIGURED",
+        statusLabel: NOTIFICATION_STATUS.NOT_CONFIGURED,
+        sent: false,
+        retryable: true,
+        message:
+          "텔레그램 환경변수(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)가 설정되지 않았습니다.",
+        timestamp: nowIso,
+      };
       return NextResponse.json(
         {
           success: false,
-          sent: false,
           skipped: true,
           reason: "MISSING_TELEGRAM_ENV",
-          message: "텔레그램 환경변수가 설정되지 않아 알림 발송을 건너뛰었습니다.",
+          ...notConfiguredResult,
         },
         { status: 503 }
       );
     }
 
+    const dedupKey = inquiryId || `${type}:${name}:${title}`;
+    const { isDuplicate } = checkNotificationIdempotency(
+      dedupKey,
+      3 * 60 * 1000,
+      forceRetry
+    );
+
+    if (isDuplicate) {
+      const dedupResult: NotificationDispatchResult = {
+        channel: "telegram",
+        status: "SUCCESS",
+        statusLabel: NOTIFICATION_STATUS.SUCCESS,
+        sent: true,
+        retryable: false,
+        deduplicated: true,
+        message: "이미 동일한 문의 알림이 발송되어 중복 전송을 건너뛰었습니다.",
+        timestamp: nowIso,
+      };
+      return NextResponse.json({ success: true, ...dedupResult });
+    }
+
+    const maskedPhone = phone ? maskPhone(phone) : "미입력";
     const message = [
-      "🚨 [한밭중고전자 신규 문의 접수]",
+      "🚨 [한밭중고전자 신규 접수 알림]",
       "",
-      `- 구분: ${type}`,
-      `- 고객명: ${name}`,
-      phone ? `- 연락처: ${phone}` : null,
-      `- 제목: ${title}`,
+      `• 구분: ${type}`,
+      `• 접수자: ${name} (${maskedPhone})`,
+      `• 제목: ${title}`,
+      inquiryId ? `• 접수번호: #${inquiryId.slice(0, 8)}` : null,
       "",
-      "👉 홈페이지 문의게시판(관리자 모드)에서 상세 내용을 확인해 주세요.",
+      "🔒 개인정보 보호를 위해 전체 연락처와 첨부 사진은 홈페이지 관리자 대시보드(/admin)에서 확인해 주세요.",
     ]
       .filter(Boolean)
       .join("\n");
@@ -82,29 +148,49 @@ export async function POST(req: NextRequest) {
     const resultJson = await res.json().catch(() => null);
 
     if (!res.ok || !resultJson?.ok) {
+      const errorResult: NotificationDispatchResult = {
+        channel: "telegram",
+        status: "EXTERNAL_ERROR",
+        statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+        sent: false,
+        retryable: true,
+        message:
+          "텔레그램 서버 응답 오류로 발송에 실패했습니다. 관리자 대시보드에서 재시도할 수 있습니다.",
+        timestamp: nowIso,
+      };
       return NextResponse.json(
-        {
-          success: false,
-          sent: false,
-          error: "텔레그램 서버로 알림을 전송하지 못했습니다.",
-        },
+        { success: false, ...errorResult },
         { status: 502 }
       );
     }
 
+    const okResult: NotificationDispatchResult = {
+      channel: "telegram",
+      status: "SUCCESS",
+      statusLabel: NOTIFICATION_STATUS.SUCCESS,
+      sent: true,
+      retryable: false,
+      message: "텔레그램 알림이 정상 발송되었습니다.",
+      timestamp: nowIso,
+    };
+
     return NextResponse.json({
       success: true,
-      sent: true,
+      ...okResult,
     });
   } catch {
-    // 서버 콘솔에 고객 이름/전화번호 등 민감 정보를 출력하지 않음
     console.error("텔레그램 알림 발송 중 예외 발생");
+    const retryResult: NotificationDispatchResult = {
+      channel: "telegram",
+      status: "RETRY_REQUIRED",
+      statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
+      sent: false,
+      retryable: true,
+      message: "네트워크 일시 오류로 알림 발송 재시도가 필요합니다.",
+      timestamp: nowIso,
+    };
     return NextResponse.json(
-      {
-        success: false,
-        sent: false,
-        error: "텔레그램 알림 처리 중 오류가 발생했습니다.",
-      },
+      { success: false, ...retryResult },
       { status: 500 }
     );
   }
