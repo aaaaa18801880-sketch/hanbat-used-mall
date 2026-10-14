@@ -1,12 +1,13 @@
 import { MetadataRoute } from "next";
+import { STORE } from "../lib/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin"], // 관리자 페이지는 검색 노출 제외
+      disallow: ["/admin", "/api/"],
     },
-    sitemap: "https://hanbatmall.com/sitemap.xml",
+    sitemap: `${STORE.url}/sitemap.xml`,
   };
 }

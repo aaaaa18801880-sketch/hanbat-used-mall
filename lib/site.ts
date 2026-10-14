@@ -295,7 +295,6 @@ export const INQUIRY_STATUS = {
 export type InquiryStatusValue =
   (typeof INQUIRY_STATUS)[keyof typeof INQUIRY_STATUS];
 
-/** 관리자가 명시적으로 선택하여 변경할 수 있는 표준 상태 목록 */
 export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
   value: InquiryStatusValue;
   label: string;
@@ -392,7 +391,60 @@ export interface NotificationDispatchResult {
 }
 
 /* ════════════════════════════════════════════════════════════
-   4. 전화번호, 마스킹, 이미지 유틸리티
+   4. 개인정보(PII) 원천 차단 GA4 이벤트 추적 유틸리티
+   ════════════════════════════════════════════════════════════ */
+export type AnalyticsEventName =
+  | "view_item" // 상품 상세 조회
+  | "click_tel_consult" // 전화 상담 클릭
+  | "click_kakao_consult" // 카카오톡 상담 클릭
+  | "begin_buyback_inquiry" // 매입 신청 시작
+  | "submit_inquiry_success" // 문의 제출 성공
+  | "filter_gallery"; // 상품 갤러리 필터 사용
+
+const FORBIDDEN_PII_KEYS = new Set([
+  "name",
+  "username",
+  "phone",
+  "tel",
+  "mobile",
+  "password",
+  "pw",
+  "description",
+  "content",
+  "email",
+  "address",
+]);
+
+export function trackEvent(
+  eventName: AnalyticsEventName,
+  params?: Record<string, string | number | boolean | null | undefined>
+): void {
+  if (typeof window === "undefined") return;
+  const gtag = (window as any).gtag;
+  if (typeof gtag !== "function") return;
+
+  const safeParams: Record<string, string | number | boolean> = {};
+  if (params) {
+    for (const [key, val] of Object.entries(params)) {
+      if (val === undefined || val === null) continue;
+      if (FORBIDDEN_PII_KEYS.has(key.toLowerCase())) continue;
+      // 전화번호 패턴이 값에 포함된 경우 전송 차단
+      if (typeof val === "string" && /01[016789][-\s]?\d{3,4}[-\s]?\d{4}/.test(val)) {
+        continue;
+      }
+      safeParams[key] = typeof val === "string" ? val.slice(0, 80) : val;
+    }
+  }
+
+  try {
+    gtag("event", eventName, safeParams);
+  } catch {
+    // 분석 스크립트 차단 환경에서도 사용자 기능에 영향을 주지 않음
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   5. 전화번호, 마스킹, 이미지 유틸리티
    ════════════════════════════════════════════════════════════ */
 export const telHref = (num: string) => `tel:${num.replace(/[^0-9+]/g, "")}`;
 

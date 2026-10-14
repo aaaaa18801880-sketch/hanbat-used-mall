@@ -1,43 +1,49 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { STORE } from "../lib/site";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
 
 export const metadata: Metadata = {
-  title: "한밭중고전자 | 대전 중고가전 매입·판매 전문",
-  description: "대전/충청 지역 중고가전 최고가 매입 및 판매. 업소용 냉장고, 에어컨, 세탁기, 냉난방기 등 신속 방문 수거 및 견적 안내. (대전 중구 중촌동 144, SINCE 1997)",
+  metadataBase: new URL(STORE.url),
+  title: {
+    default: `${STORE.name} | 대전 중고가전·업소용 주방기기 매입·판매 전문`,
+    template: `%s | ${STORE.name}`,
+  },
+  description:
+    "대전·충청 중고가전 및 업소용 주방기기 판매·매입 전문. 냉장고, 세탁기, 에어컨, 냉난방기, 업소용 45박스 냉장고, 제빙기, 쇼케이스 실매물 확인 및 방문 수거·설치 상담. (대전 중구 중촌동 144, SINCE 1997)",
   keywords: [
-    "대전 중고가전", 
-    "대전 중고가전 매입", 
-    "대전 업소용 냉장고", 
-    "대전 중고에어컨", 
-    "대전 중고세탁기", 
-    "한밭중고전자", 
+    "대전 중고가전",
+    "대전 중고가전 매입",
+    "대전 업소용 냉장고",
+    "대전 중고에어컨",
+    "대전 중고세탁기",
+    "대전 업소용 주방기기",
+    "한밭중고전자",
     "중촌동 중고가전",
-    "중고 주방기기 매입"
   ],
-  authors: [{ name: "한밭중고전자" }],
-  creator: "한밭중고전자",
-  publisher: "한밭중고전자",
-  metadataBase: new URL("https://hanbatmall.com"),
+  authors: [{ name: STORE.name }],
+  creator: STORE.name,
+  publisher: STORE.name,
   alternates: {
-    canonical: "https://hanbatmall.com",
+    canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "ko_KR",
-    url: "https://hanbatmall.com",
-    siteName: "한밭중고전자",
-    title: "한밭중고전자 | 대전 중고가전 매입·판매",
-    description: "어떤 가전이든 최고가 매입! 업소용/가정용 중고가전 판매 및 신속 수거 전문입니다.",
+    url: STORE.url,
+    siteName: STORE.name,
+    title: `${STORE.name} | 대전 중고가전·업소용 주방기기 매입·판매`,
+    description:
+      "SINCE 1997 대전 중촌동 오프라인 매장 운영. 가정용 중고가전부터 식당·카페 업소용 냉장·주방설비까지 판매 및 방문 매입 상담.",
     images: [
       {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: "한밭중고전자 대표 이미지",
+        alt: `${STORE.name} 대표 이미지`,
       },
     ],
   },
@@ -54,44 +60,53 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 구글 검색 사이트명 인식을 위한 WebSite + 매장 정보(LocalBusiness) 동시 등록
+  // 실제 화면 표시 정보(STORE 상수)와 100% 일치하는 WebSite + LocalBusiness 구조화 데이터
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "WebSite",
-        "@id": "https://hanbatmall.com/#website",
-        "url": "https://hanbatmall.com",
-        "name": "한밭중고전자",
-        "alternateName": ["hanbatmall", "한밭몰", "대전한밭중고전자"],
-        "inLanguage": "ko-KR"
+        "@id": `${STORE.url}/#website`,
+        url: STORE.url,
+        name: STORE.name,
+        alternateName: ["hanbatmall", "한밭몰", "대전한밭중고전자"],
+        inLanguage: "ko-KR",
       },
       {
         "@type": "LocalBusiness",
-        "@id": "https://hanbatmall.com/#localbusiness",
-        "name": "한밭중고전자",
-        "image": "https://hanbatmall.com/og-image.jpg",
-        "telephone": "042-523-8179",
-        "url": "https://hanbatmall.com",
-        "priceRange": "₩₩",
-        "address": {
+        "@id": `${STORE.url}/#localbusiness`,
+        name: STORE.name,
+        image: `${STORE.url}/og-image.jpg`,
+        telephone: STORE.tel,
+        url: STORE.url,
+        foundingDate: String(STORE.since),
+        priceRange: "₩₩",
+        address: {
           "@type": "PostalAddress",
-          "streetAddress": "대전광역시 중구 중촌동 144",
-          "addressLocality": "대전광역시",
-          "addressRegion": "중구",
-          "postalCode": "34800",
-          "addressCountry": "KR"
+          streetAddress: STORE.address,
+          addressLocality: "대전광역시",
+          addressRegion: "중구",
+          postalCode: "34800",
+          addressCountry: "KR",
         },
-        "openingHoursSpecification": [
+        openingHoursSpecification: [
           {
             "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-            "opens": "09:00",
-            "closes": "19:00"
-          }
-        ]
-      }
-    ]
+            dayOfWeek: [
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ],
+            opens: "09:00",
+            closes: "19:00",
+          },
+        ],
+        sameAs: [STORE.cafe, STORE.kakaoChannel],
+      },
+    ],
   };
 
   return (
@@ -101,7 +116,6 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
-        {/* 구글 애널리틱스 스크립트 */}
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
@@ -115,13 +129,15 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', '${GA_MEASUREMENT_ID}', {
-                page_path: window.location.pathname,
+                send_page_view: true,
+                allow_google_signals: false,
+                allow_ad_personalization_signals: false
               });
             `,
           }}
         />
       </head>
-      <body>
+      <body id="main-content">
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         {children}
       </body>
