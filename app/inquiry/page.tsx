@@ -61,6 +61,21 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number];
 
+const REPLY_TEMPLATES = [
+  {
+    label: "매입 견적 안내",
+    text: `안녕하세요, ${STORE.name}입니다.\n남겨주신 매입 문의와 사진을 확인했습니다. 정확한 수거 일정 및 견적 안내를 위해 기재해주신 연락처로 곧 전화드리겠습니다. 감사합니다.`,
+  },
+  {
+    label: "구매·재고 안내",
+    text: `안녕하세요, ${STORE.name}입니다.\n문의하신 제품은 현재 매장 실물 확인 및 배송·설치 상담이 가능합니다. 설치 지역과 여건에 맞춰 담당자가 곧 연락드리겠습니다.`,
+  },
+  {
+    label: "방문 일정 조율",
+    text: `안녕하세요, ${STORE.name}입니다.\n요청하신 희망 방문 일정을 확인했습니다. 기사님 배차 스케줄을 확인한 뒤 오늘 중으로 유선 연락드리겠습니다.`,
+  },
+] as const;
+
 const typeStyle = (t?: string | null) =>
   isSellInquiry(t)
     ? "bg-[#FBE9E1] text-[#B5431A]"
@@ -196,7 +211,11 @@ export default function InquiryBoardPage() {
       const qCategory = params.get("category") || "";
       const qProductId = params.get("productId") || "";
 
-      if (qType === "구매 문의" || qType === "내 물건 팔기" || qType === "대량·업소용 상담") {
+      if (
+        qType === "구매 문의" ||
+        qType === "내 물건 팔기" ||
+        qType === "대량·업소용 상담"
+      ) {
         setWriteDefaultType(qType);
       } else {
         setWriteDefaultType("구매 문의");
@@ -663,6 +682,12 @@ export default function InquiryBoardPage() {
                               className="w-4 h-4 text-[#D9531E] shrink-0"
                             />
                             <span className="truncate">{notice.category}</span>
+                            {hasImages(notice) && (
+                              <Icon
+                                d={ICON.image}
+                                className="w-4 h-4 text-[#D9531E] shrink-0"
+                              />
+                            )}
                           </div>
                         </td>
                         <td>
@@ -729,48 +754,132 @@ export default function InquiryBoardPage() {
           </table>
         </div>
 
-        {/* 모바일 리스트 */}
+        {/* 모바일 리스트 (누락되었던 공지사항 noticeList 복구 완료) */}
         <ul className="md:hidden space-y-3">
-          {currentItems.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() => handleItemClick(item)}
-                className="w-full text-left bg-white border border-[#E4E0D8] rounded-md p-4 hover:border-[#0E1A2B] transition-colors"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span
-                    className={`px-2 py-0.5 rounded text-[11px] font-semibold ${typeStyle(
-                      item.inquiry_type
-                    )}`}
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <li
+                key={`msk-${i}`}
+                className="h-24 bg-white rounded-md border border-[#E4E0D8] animate-pulse"
+              />
+            ))
+          ) : (
+            <>
+              {showNotices &&
+                noticeList.map((notice) => (
+                  <li key={notice.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleItemClick(notice)}
+                      className="w-full text-left bg-[#FEF5F2] border border-[#FDECE4] rounded-md p-4 hover:bg-[#FDECE4] transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="bg-[#D9531E] text-white text-[11px] font-bold px-2 py-0.5 rounded-sm">
+                          공지사항
+                        </span>
+                        <span className="text-[12px] text-[#8A8478]">
+                          {formatDate(notice.created_at)}
+                        </span>
+                      </div>
+                      <p className="font-bold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
+                        <Icon
+                          d={ICON.bell}
+                          className="w-4 h-4 text-[#D9531E] shrink-0"
+                        />
+                        <span>{notice.category}</span>
+                      </p>
+                    </button>
+                  </li>
+                ))}
+              {currentItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleItemClick(item)}
+                    className="w-full text-left bg-white border border-[#E4E0D8] rounded-md p-4 hover:border-[#0E1A2B] transition-colors"
                   >
-                    {getInquiryTypeLabel(item.inquiry_type)}
-                  </span>
-                  <StatusBadge status={item.status} />
-                </div>
-                <p className="font-semibold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
-                  {!isAdmin && (
-                    <Icon
-                      d={ICON.lock}
-                      className="w-3.5 h-3.5 text-neutral-400 shrink-0"
-                    />
-                  )}
-                  <span>{rowTitle(item)}</span>
-                </p>
-                <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#8A8478]">
-                  <span>{item.masked_name || maskName(item.name)}</span>
-                  <span>{formatDate(item.created_at)}</span>
-                </div>
-              </button>
-            </li>
-          ))}
+                    <div className="flex items-center justify-between mb-2">
+                      <span
+                        className={`px-2 py-0.5 rounded text-[11px] font-semibold ${typeStyle(
+                          item.inquiry_type
+                        )}`}
+                      >
+                        {getInquiryTypeLabel(item.inquiry_type)}
+                      </span>
+                      <StatusBadge status={item.status} />
+                    </div>
+                    <p className="font-semibold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
+                      {!isAdmin && (
+                        <Icon
+                          d={ICON.lock}
+                          className="w-3.5 h-3.5 text-neutral-400 shrink-0"
+                        />
+                      )}
+                      <span>{rowTitle(item)}</span>
+                      {hasImages(item) && (
+                        <Icon
+                          d={ICON.image}
+                          className="w-4 h-4 text-neutral-400 shrink-0"
+                        />
+                      )}
+                    </p>
+                    <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#8A8478]">
+                      <span>{item.masked_name || maskName(item.name)}</span>
+                      <span>{formatDate(item.created_at)}</span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </>
+          )}
         </ul>
+
+        {/* 에러 및 빈 목록 상태 안내 복구 */}
+        {!isLoading && loadError && (
+          <div className="mt-6 py-14 text-center bg-white rounded-md border border-[#E4E0D8]">
+            <p className="text-[#0E1A2B] font-bold mb-4">
+              문의 목록을 불러오지 못했습니다.
+            </p>
+            <button
+              type="button"
+              onClick={loadData}
+              className="hb-btn-primary h-10 px-5 text-[13.5px]"
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
+
+        {!isLoading &&
+          !loadError &&
+          currentItems.length === 0 &&
+          (!showNotices || noticeList.length === 0) && (
+            <div className="mt-6 py-16 text-center bg-white rounded-md border border-[#E4E0D8] text-[14px]">
+              <p className="text-[#4B5260] font-bold mb-1">
+                {keyword.trim()
+                  ? "검색 조건에 맞는 문의글이 없습니다."
+                  : "아직 등록된 문의 내역이 없습니다."}
+              </p>
+              <p className="text-[#8A8478]">
+                궁금하신 점이나 매입 견적 문의를 남겨주시면 빠르게 안내해 드립니다.
+              </p>
+            </div>
+          )}
 
         {totalPages > 1 && !isLoading && (
           <nav
-            className="flex justify-center gap-1.5 mt-8"
+            className="flex justify-center items-center gap-1.5 mt-8"
             aria-label="페이지 이동"
           >
+            <button
+              type="button"
+              onClick={() => goPage(Math.max(safePage - 1, 1))}
+              disabled={safePage === 1}
+              aria-label="이전 페이지"
+              className="w-9 h-9 flex items-center justify-center rounded border border-[#DDD9D1] bg-white text-[#4B5260] disabled:opacity-30"
+            >
+              <Icon d={ICON.left} className="w-4 h-4" />
+            </button>
             {pageWindow(safePage, totalPages).map((p, i) =>
               p === "…" ? (
                 <span key={`e${i}`} className="w-6 text-center text-[#8A8478]">
@@ -791,6 +900,15 @@ export default function InquiryBoardPage() {
                 </button>
               )
             )}
+            <button
+              type="button"
+              onClick={() => goPage(Math.min(safePage + 1, totalPages))}
+              disabled={safePage === totalPages}
+              aria-label="다음 페이지"
+              className="w-9 h-9 flex items-center justify-center rounded border border-[#DDD9D1] bg-white text-[#4B5260] disabled:opacity-30"
+            >
+              <Icon d={ICON.right} className="w-4 h-4" />
+            </button>
           </nav>
         )}
       </main>
@@ -803,7 +921,7 @@ export default function InquiryBoardPage() {
       />
       <MobileCtaBar onInquiryClick={handleOpenWrite} />
 
-      {/* 글쓰기 모달 (UnifiedInquiryForm 통합 사용) */}
+      {/* 글쓰기 모달 */}
       {isWriteOpen && (
         <Modal
           label="문의 및 매입 신청 작성"
@@ -840,7 +958,7 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* 비밀번호 확인 모달 */}
+      {/* 비밀번호 확인 모달 (비밀번호 표시 체크박스 복구 완료) */}
       {isPwModalOpen && (
         <Modal
           label="비밀글 열람"
@@ -855,15 +973,26 @@ export default function InquiryBoardPage() {
               작성 시 설정하신 조회용 비밀번호를 입력해 주세요.
             </p>
             <form onSubmit={handleVerifyPassword} className="space-y-4">
-              <input
-                type={showVerifyPassword ? "text" : "password"}
-                value={inputPw}
-                onChange={(e) => setInputPw(e.target.value)}
-                placeholder="비밀번호 입력"
-                required
-                autoFocus
-                className="hb-input text-center tracking-widest"
-              />
+              <div>
+                <input
+                  type={showVerifyPassword ? "text" : "password"}
+                  value={inputPw}
+                  onChange={(e) => setInputPw(e.target.value)}
+                  placeholder="비밀번호 입력"
+                  required
+                  autoFocus
+                  className="hb-input text-center tracking-widest"
+                />
+                <label className="mt-2 inline-flex items-center gap-1.5 text-[12px] text-[#6B7280] cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={showVerifyPassword}
+                    onChange={(e) => setShowVerifyPassword(e.target.checked)}
+                    className="h-3.5 w-3.5 accent-[#0E1A2B]"
+                  />
+                  <span>비밀번호 문자 표시</span>
+                </label>
+              </div>
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -885,7 +1014,7 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {/* 상세 보기 모달 (명시적 상태 변경 드롭다운 적용) */}
+      {/* 상세 보기 모달 (관리자 빠른 답변 템플릿 추가) */}
       {isDetailOpen && selectedItem && (
         <Modal
           label="문의 상세"
@@ -995,6 +1124,23 @@ export default function InquiryBoardPage() {
                         </option>
                       ))}
                     </select>
+                  </div>
+
+                  {/* 자주 쓰는 답변 템플릿 버튼 */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[11.5px] font-bold text-[#6B7280] mr-1">
+                      빠른 답변 템플릿:
+                    </span>
+                    {REPLY_TEMPLATES.map((tpl) => (
+                      <button
+                        key={tpl.label}
+                        type="button"
+                        onClick={() => setReplyContent(tpl.text)}
+                        className="rounded border border-[#DDD9D1] bg-white px-2.5 py-1 text-[11.5px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                      >
+                        + {tpl.label}
+                      </button>
+                    ))}
                   </div>
 
                   <textarea

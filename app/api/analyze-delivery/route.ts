@@ -100,16 +100,43 @@ export async function POST(req: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    const response = await ai.models.generateContent({
-      model: DEFAULT_GEMINI_MODEL,
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }, ...imageParts],
-        },
-      ],
-      config: { responseMimeType: "application/json" },
-    });
+     const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash";
+    let response;
+
+    try {
+      response = await ai.models.generateContent({
+        model: DEFAULT_GEMINI_MODEL,
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }, ...imageParts],
+          },
+        ],
+        config: { responseMimeType: "application/json" },
+      });
+    } catch (modelErr: any) {
+      const msg = String(modelErr?.message || "");
+      if (
+        DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
+        (msg.includes("404") ||
+          msg.toLowerCase().includes("not found") ||
+          msg.toLowerCase().includes("not supported"))
+      ) {
+        response = await ai.models.generateContent({
+          model: FALLBACK_GEMINI_MODEL,
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }, ...imageParts],
+            },
+          ],
+          config: { responseMimeType: "application/json" },
+        });
+      } else {
+        throw modelErr;
+      }
+    }
+
 
     const responseText = response.text?.trim() || "";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);

@@ -133,16 +133,45 @@ export async function POST(req: NextRequest) {
       ? { tools: [{ googleSearch: {} }] }
       : { responseMimeType: "application/json" };
 
-    const response = await ai.models.generateContent({
-      model: DEFAULT_GEMINI_MODEL,
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: prompt }, ...imageParts],
-        },
-      ],
-      config,
-    });
+    const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
+    let modelUsed = DEFAULT_GEMINI_MODEL;
+    let response;
+
+    try {
+      response = await ai.models.generateContent({
+        model: DEFAULT_GEMINI_MODEL,
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: prompt }, ...imageParts],
+          },
+        ],
+        config,
+      });
+    } catch (modelErr: any) {
+      const msg = String(modelErr?.message || "");
+      if (
+        DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
+        (msg.includes("404") ||
+          msg.toLowerCase().includes("not found") ||
+          msg.toLowerCase().includes("not supported"))
+      ) {
+        modelUsed = FALLBACK_GEMINI_MODEL;
+        response = await ai.models.generateContent({
+          model: FALLBACK_GEMINI_MODEL,
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: prompt }, ...imageParts],
+            },
+          ],
+          config,
+        });
+      } else {
+        throw modelErr;
+      }
+    }
+
 
     const responseText = response.text?.trim() || "";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
