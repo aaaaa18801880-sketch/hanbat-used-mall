@@ -152,8 +152,7 @@ export async function PATCH(
       if (!verifyInquiryPassword(inputPassword, existing.password)) {
         return NextResponse.json(
           {
-            error:
-              "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
+            error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
           },
           { status: 401 }
         );
@@ -172,11 +171,9 @@ export async function PATCH(
         ? "공지사항"
         : body.inquiry_type.trim().slice(0, 40);
     }
-
     if (isAdmin && typeof body.admin_reply === "string") {
       patch.admin_reply = body.admin_reply.trim().slice(0, 5000);
     }
-
     if (isAdmin && typeof body.status === "string") {
       const nextStatus = body.status.trim();
       if (!ALLOWED_STATUS_VALUES.has(nextStatus)) {
@@ -188,17 +185,26 @@ export async function PATCH(
       patch.status = nextStatus;
     }
 
+    // DB 업데이트 실행
     const { data: updated, error: updateError } = await supabase
       .from("purchase_requests")
       .update(patch)
       .eq("id", id)
-      .select("id, category, description, inquiry_type, status, admin_reply")
-      .single();
+      .select("*")
+      .maybeSingle();
 
-    if (updateError || !updated) {
+    if (updateError) {
+      console.error("DB 업데이트 에러 상세:", updateError);
       return NextResponse.json(
-        { error: "문의글 수정 권한이 없거나 업데이트에 실패했습니다." },
+        { error: `DB 업데이트 실패: ${updateError.message}` },
         { status: 500 }
+      );
+    }
+
+    if (!updated) {
+      return NextResponse.json(
+        { error: "해당 글을 수정할 권한(RLS)이 없거나 글을 찾을 수 없습니다." },
+        { status: 403 }
       );
     }
 
@@ -207,9 +213,9 @@ export async function PATCH(
       previousStatus: existing.status,
       updated,
     });
-  } catch {
+  } catch (err: any) {
     return NextResponse.json(
-      { error: "문의글 수정 중 서버 오류가 발생했습니다." },
+      { error: `서버 오류: ${err.message || "알 수 없는 오류"}` },
       { status: 500 }
     );
   }
@@ -263,7 +269,7 @@ export async function DELETE(
 
     if (deleteError) {
       return NextResponse.json(
-        { error: "게시글 삭제 권한이 없거나 실패했습니다." },
+        { error: `게시글 삭제 실패: ${deleteError.message}` },
         { status: 500 }
       );
     }
