@@ -1,6 +1,7 @@
+// 파일 경로: app/sitemap.ts
 import { MetadataRoute } from "next";
 import { supabase } from "../lib/supabase";
-import { STORE } from "../lib/site";
+import { STORE, isProductSold } from "../lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = STORE.url;
@@ -19,6 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/purchase`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
       url: `${baseUrl}/inquiry`,
       lastModified: new Date(),
       changeFrequency: "daily",
@@ -35,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     const { data: products } = await supabase
       .from("products")
-      .select("id, created_at, category")
+      .select("id, created_at, category, status")
       .neq("category", "배송인증")
       .order("created_at", { ascending: false })
       .limit(200);
@@ -44,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/${p.id}`,
       lastModified: p.created_at ? new Date(p.created_at) : new Date(),
       changeFrequency: "weekly" as const,
-      priority: 0.7,
+      priority: isProductSold(p.status) ? 0.5 : 0.8,
     }));
 
     return [...staticRoutes, ...productRoutes];

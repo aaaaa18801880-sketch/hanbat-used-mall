@@ -1,3 +1,4 @@
+// 파일 경로: app/api/inquiries/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
   extractInquiryImages,
@@ -23,18 +24,16 @@ export async function GET(req: NextRequest) {
 
     const url = new URL(req.url);
     const limitParam = Number(url.searchParams.get("limit") || "0");
+    const effectiveLimit =
+      limitParam > 0 && limitParam <= 300 ? limitParam : 200;
 
     const supabase = createServerSupabaseClient(adminCheck.accessToken);
-    let query = supabase
+    const { data, error } = await supabase
       .from("purchase_requests")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(effectiveLimit);
 
-    if (limitParam > 0 && limitParam <= 100) {
-      query = query.limit(limitParam);
-    }
-
-    const { data, error } = await query;
     if (error) {
       console.error("문의 목록 조회 오류:", error.message);
       return NextResponse.json(
@@ -218,7 +217,7 @@ export async function POST(req: NextRequest) {
       : hashInquiryPassword(rawPassword);
 
     const supabase = createServerSupabaseClient(adminAccessToken);
-    const insertPayload: Record<string, any> = {
+    const basePayload: Record<string, any> = {
       name,
       phone,
       password: hashedPassword,
@@ -231,13 +230,24 @@ export async function POST(req: NextRequest) {
       status: isNotice ? "공지" : "접수",
     };
 
-    if (model) insertPayload.model = model;
-    if (conditionGrade) insertPayload.condition_grade = conditionGrade;
+    const extendedPayload: Record<string, any> = { ...basePayload };
+    if (model) extendedPayload.model = model;
+    if (conditionGrade) extendedPayload.condition_grade = conditionGrade;
 
-    const { data: insertedRows, error: insertError } = await supabase
+    let { data: insertedRows, error: insertError } = await supabase
       .from("purchase_requests")
-      .insert(insertPayload)
+      .insert(extendedPayload)
       .select("id, created_at");
+
+    // DB에 model 또는 condition_grade 컬럼이 아직 없을 경우 기본 컬럼으로 즉시 폴백 재시도
+    if (insertError && (model || conditionGrade)) {
+      const retry = await supabase
+        .from("purchase_requests")
+        .insert(basePayload)
+        .select("id, created_at");
+      insertedRows = retry.data;
+      insertError = retry.error;
+    }
 
     if (insertError) {
       console.error("문의 저장 DB 오류:", insertError.message);

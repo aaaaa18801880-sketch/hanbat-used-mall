@@ -1,3 +1,4 @@
+// 파일 경로: app/layout.tsx
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
@@ -60,7 +61,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 실제 화면 표시 정보(STORE 상수)와 100% 일치하는 WebSite + LocalBusiness 구조화 데이터
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -137,7 +137,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body id="main-content">
+      <body>
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
         {children}
       </body>

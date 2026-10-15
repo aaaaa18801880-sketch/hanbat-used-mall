@@ -27,7 +27,9 @@ import {
   formatProductPrice,
   extractModelName,
   extractStorageFilesByBucket,
+  trackEvent,
 } from "../../lib/site";
+
 import {
   Icon,
   ICON,
@@ -314,9 +316,17 @@ function ProductDetailModal({
     setIsEditing(false);
   };
 
-  const inquiryHref = `/inquiry?write=1&type=${encodeURIComponent(
-    "구매 문의"
-  )}&title=${encodeURIComponent(`[상품문의] ${product.title}`)}`;
+    const inquiryParams = new URLSearchParams({
+    write: "1",
+    type: "구매 문의",
+    productId: String(product.id),
+    title: `[상품문의] ${product.title}`,
+    category: categoryLabel,
+  });
+  if (modelName) {
+    inquiryParams.set("model", modelName);
+  }
+  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
   return (
     <>
@@ -1098,6 +1108,11 @@ export default function GalleryPage() {
     }
 
     setSelectedProduct(product);
+    trackEvent("view_item", {
+      category: normalizeProductCategory(product.category),
+      status: normalizeProductStatus(product.status),
+    });
+
     if (isAdmin) return;
 
     const prevViews = product.views || 0;
@@ -1107,7 +1122,6 @@ export default function GalleryPage() {
       if (viewedList.includes(product.id)) return;
 
       const newViews = prevViews + 1;
-      // 낙관적 업데이트
       setProducts((prev) =>
         prev.map((p) => (p.id === product.id ? { ...p, views: newViews } : p))
       );
@@ -1115,13 +1129,10 @@ export default function GalleryPage() {
         prev && prev.id === product.id ? { ...prev, views: newViews } : prev
       );
 
-      const { error } = await supabase
-        .from("products")
-        .update({ views: newViews })
-        .eq("id", product.id);
-
-      if (error) {
-        // DB 반영 실패 시 즉시 롤백
+      const res = await fetch(`/api/products/${product.id}/view`, {
+        method: "POST",
+      });
+      if (!res.ok) {
         setProducts((prev) =>
           prev.map((p) =>
             p.id === product.id ? { ...p, views: prevViews } : p
@@ -1136,12 +1147,12 @@ export default function GalleryPage() {
       viewedList.push(product.id);
       sessionStorage.setItem("viewed_products", JSON.stringify(viewedList));
     } catch {
-      // 예외 시 롤백
       setProducts((prev) =>
         prev.map((p) => (p.id === product.id ? { ...p, views: prevViews } : p))
       );
     }
   };
+
 
   const handleProductUpdated = (updated: ProductItem) => {
     setProducts((prev) =>

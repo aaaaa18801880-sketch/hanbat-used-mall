@@ -34,38 +34,42 @@ function runPredeployChecks() {
     }
   }
 
-  // 1. 잘못된 위치의 레거시 API 폴더(app/api/[id]) 제거 확인
   check(
     "1. 잘못된 경로의 app/api/[id] 폴더가 존재하지 않음",
     !fileExists("app/api/[id]/route.ts"),
     "app/api/[id] 폴더를 삭제하고 app/api/inquiries/[id]/route.ts만 남겨두세요."
   );
 
-  // 2. 올바른 문의 상세 API 경로 확인
+  const inqDetailRoute = readFileSafe("app/api/inquiries/[id]/route.ts");
   check(
-    "2. 올바른 문의 단건 API(app/api/inquiries/[id]/route.ts) 존재 확인",
-    fileExists("app/api/inquiries/[id]/route.ts")
+    "2. 문의 단건 API(app/api/inquiries/[id]/route.ts)에 POST/PATCH/DELETE 핸들러 정상 존재",
+    fileExists("app/api/inquiries/[id]/route.ts") &&
+      inqDetailRoute.includes("export async function POST") &&
+      inqDetailRoute.includes("export async function PATCH") &&
+      inqDetailRoute.includes("export async function DELETE"),
+    "app/api/inquiries/[id]/route.ts에 목록 코드가 잘못 덮어써지지 않았는지 확인하세요."
   );
 
-  // 3. tailwind.config.js에 ./lib/** 및 ./components/** 포함 확인
   const twConfig = readFileSafe("tailwind.config.js");
   check(
     "3. tailwind.config.js에 ./lib/** 및 ./components/** 스캔 경로 포함",
     twConfig.includes("./lib/") && twConfig.includes("./components/")
   );
 
-  // 4. Gemini 모델 ID("gemini-3.8-flash") 보존 여부 확인
   const analyzeProd = readFileSafe("app/api/analyze-product/route.ts");
   const analyzeDeliv = readFileSafe("app/api/analyze-delivery/route.ts");
   check(
-    "4. Gemini 상품/배송 분석 API에 gemini-3.8-flash 모델 ID 유지 및 관리자 검증 포함",
+    "4. Gemini 상품/배송 분석 API에 gemini-3.8-flash 유지, gemini-2.5-flash 폴백 및 관리자 검증 포함",
     analyzeProd.includes("gemini-3.8-flash") &&
+      analyzeProd.includes("gemini-2.5-flash") &&
       analyzeProd.includes("verifyAdminRequest") &&
       analyzeDeliv.includes("gemini-3.8-flash") &&
-      analyzeDeliv.includes("verifyAdminRequest")
+      analyzeDeliv.includes("gemini-2.5-flash") &&
+      !analyzeDeliv.includes("gemini-3.5-flash") &&
+      analyzeDeliv.includes("verifyAdminRequest"),
+    "analyze-delivery의 폴백 모델명이 gemini-2.5-flash인지 확인하세요."
   );
 
-  // 5. 서브 페이지별 Canonical 메타데이터 레이아웃 확인
   check(
     "5. 서브 페이지(/gallery, /inquiry, /purchase, /admin) 레이아웃 메타데이터 분리",
     fileExists("app/gallery/layout.tsx") &&
@@ -74,7 +78,6 @@ function runPredeployChecks() {
       fileExists("app/admin/layout.tsx")
   );
 
-  // 6. 404 및 전역 에러 복구 페이지 확인
   check(
     "6. 404(app/not-found.tsx) 및 오류 복구(app/error.tsx) 페이지 존재 확인",
     fileExists("app/not-found.tsx") && fileExists("app/error.tsx")

@@ -1,8 +1,8 @@
+// 파일 경로: app/gallery/layout.tsx
 import type { Metadata } from "next";
 import { STORE } from "../../lib/site";
 
 export const metadata: Metadata = {
-  // ... 기존 내용 유지
   title: "판매 제품 갤러리 — 중고가전·업소용 주방기기 실매물",
   description:
     "한밭중고전자에서 직접 세척·검수를 마친 에어컨, 냉난방기, 냉장고, 세탁기, 건조기, 업소용 냉장고·제빙기·쇼케이스 실매물 재고를 확인하세요.",

@@ -1,3 +1,4 @@
+// 파일 경로: lib/server-security.ts
 import crypto from "crypto";
 import { NextRequest } from "next/server";
 import { createServerSupabaseClient, isAuthorizedAdminUser } from "./supabase";
@@ -118,6 +119,14 @@ export function checkRateLimit(
   windowMs: number
 ): { allowed: boolean; retryAfterSec: number } {
   const now = Date.now();
+
+  // 만료된 RateBucket 메모리 정리 (Garbage Collection)
+  if (rateBuckets.size > 200) {
+    for (const [k, bucket] of rateBuckets.entries()) {
+      if (now > bucket.resetAt) rateBuckets.delete(k);
+    }
+  }
+
   const current = rateBuckets.get(key);
 
   if (!current || now > current.resetAt) {

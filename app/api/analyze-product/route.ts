@@ -277,7 +277,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       isDraft: true,
-      modelUsed: DEFAULT_GEMINI_MODEL,
+      modelUsed, // <-- 실제 사용된 모델(폴백 포함) 반환
       category: finalCategory,
       title,
       specDetails,
@@ -289,6 +289,7 @@ export async function POST(req: NextRequest) {
       needsReview,
       sourceUrls,
     });
+
   } catch (error: unknown) {
     console.error(
       "AI 상품 분석 에러:",

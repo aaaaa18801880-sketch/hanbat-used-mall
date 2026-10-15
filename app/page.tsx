@@ -1,3 +1,4 @@
+// 파일 경로: app/page.tsx
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
@@ -29,6 +30,7 @@ import {
   STORAGE_BUCKETS,
   isProductSold,
   getInquiryTypeLabel,
+  extractStorageFilesByBucket,
   trackEvent,
   type InquiryTypeValue,
 } from "../lib/site";
@@ -228,7 +230,7 @@ export default function Home() {
   const [uploadingReview, setUploadingReview] = useState(false);
   const [isAnalyzingReview, setIsAnalyzingReview] = useState(false);
 
-  /* ── 1) 실시간 판매 매물 로드 ── */
+  /* ── 1) 실시간 판매 매물 로드 (배송인증 제외) ── */
   const loadFeaturedProducts = useCallback(async () => {
     setProductsLoading(true);
     setProductsError(false);
@@ -256,14 +258,15 @@ export default function Home() {
     }
   }, []);
 
-  /* ── 2) 배송·설치 인증 사진 로드 ── */
+  /* ── 2) 배송·설치 인증 사진 로드 (상한선 24건) ── */
   const loadReviews = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("products")
         .select("id, title, image_url, created_at")
         .eq("category", "배송인증")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(24);
       if (error) throw error;
       setReviews((data ?? []) as Review[]);
     } catch (err) {
@@ -466,8 +469,21 @@ export default function Home() {
   const handleDeleteReview = async (id: Review["id"]) => {
     if (!confirm("이 인증사진을 정말 삭제하시겠습니까?")) return;
     try {
+      const target = reviews.find((r) => r.id === id);
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
+
+      if (target?.image_url) {
+        const { inquiries: inqFiles } = extractStorageFilesByBucket(
+          splitImages(target.image_url)
+        );
+        if (inqFiles.length > 0) {
+          await supabase.storage
+            .from(STORAGE_BUCKETS.inquiries)
+            .remove(inqFiles);
+        }
+      }
+
       toast.success("삭제했습니다.");
       setReviews((prev) => prev.filter((r) => r.id !== id));
     } catch {
@@ -525,7 +541,7 @@ export default function Home() {
       </SiteHeader>
 
       <main className="flex-1">
-        {/* ② HERO 섹션 (사용자 확인 완료된 프리미엄 오버레이 배너) */}
+        {/* ② HERO 섹션 */}
         <section className="relative w-full bg-[#0E1A2B] overflow-hidden">
           <div className="relative w-full max-w-[1920px] mx-auto min-h-[500px] sm:min-h-[600px] lg:min-h-[660px] flex items-center">
             {HERO_IMAGES.map((src, i) => (
@@ -656,7 +672,7 @@ export default function Home() {
           </dl>
         </div>
 
-        {/* ④ 실시간 판매 중인 추천 매물 섹션 (누락 복구 완료) */}
+        {/* ④ 실시간 판매 중인 추천 매물 섹션 */}
         <FeaturedProductsSection
           products={featuredProducts}
           loading={productsLoading}
@@ -1283,7 +1299,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ⑫ 통합 문의 섹션 (UnifiedInquiryForm 단일 통합 + 최근 접수 현황) */}
+        {/* ⑫ 통합 문의 섹션 */}
         <section
           id="inquiry-section"
           className="py-16 sm:py-20 lg:py-24"
@@ -1377,7 +1393,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* 데스크톱 전용 슬림 퀵바 (1024px 이상 노출) */}
+        {/* 데스크톱 전용 슬림 퀵바 */}
         <aside
           aria-label="빠른 바로가기"
           className="fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col bg-white shadow-[0_8px_28px_rgba(14,26,43,0.12)] border-y border-l border-neutral-200 rounded-l-2xl overflow-hidden w-[82px]"

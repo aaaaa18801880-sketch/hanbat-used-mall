@@ -1,3 +1,4 @@
+// 파일 경로: app/api/telegram/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
   maskPhone,
@@ -143,6 +144,7 @@ export async function POST(req: NextRequest) {
         chat_id: CHAT_ID,
         text: message,
       }),
+      signal: AbortSignal.timeout(5000),
     });
 
     const resultJson = await res.json().catch(() => null);
@@ -179,14 +181,14 @@ export async function POST(req: NextRequest) {
       ...okResult,
     });
   } catch {
-    console.error("텔레그램 알림 발송 중 예외 발생");
+    console.error("텔레그램 알림 발송 중 예외 또는 타임아웃 발생");
     const retryResult: NotificationDispatchResult = {
       channel: "telegram",
       status: "RETRY_REQUIRED",
       statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
       sent: false,
       retryable: true,
-      message: "네트워크 일시 오류로 알림 발송 재시도가 필요합니다.",
+      message: "네트워크 지연 또는 타임아웃으로 알림 발송 재시도가 필요합니다.",
       timestamp: nowIso,
     };
     return NextResponse.json(

@@ -1,3 +1,4 @@
+// 파일 경로: app/admin/page.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
@@ -9,6 +10,7 @@ import {
   getAdminAuthHeaders,
 } from "../../lib/supabase";
 import {
+  STORE,
   PRODUCT_CATEGORIES,
   PRODUCT_STATUS,
   PRODUCT_STATUS_LIST,
@@ -23,6 +25,7 @@ import {
   splitImages,
   compressImage,
   validateImageFiles,
+  extractModelName,
   extractInquiryImages,
   extractStorageFilesByBucket,
   type NotificationDispatchResult,
@@ -31,6 +34,21 @@ import {
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 
 type AdminTab = "overview" | "inquiries" | "products" | "delivery" | "notifications";
+
+const ADMIN_REPLY_TEMPLATES = [
+  {
+    label: "매입 견적 안내",
+    text: `안녕하세요, ${STORE.name}입니다.\n남겨주신 매입 문의와 사진을 확인했습니다. 정확한 수거 일정 및 견적 안내를 위해 기재해주신 연락처로 곧 전화드리겠습니다. 감사합니다.`,
+  },
+  {
+    label: "구매·재고 안내",
+    text: `안녕하세요, ${STORE.name}입니다.\n문의하신 제품은 현재 매장 실물 확인 및 배송·설치 상담이 가능합니다. 설치 지역과 여건에 맞춰 담당자가 곧 연락드리겠습니다.`,
+  },
+  {
+    label: "방문 일정 조율",
+    text: `안녕하세요, ${STORE.name}입니다.\n요청하신 희망 방문 일정을 확인했습니다. 기사님 배차 스케줄을 확인한 뒤 오늘 중으로 유선 연락드리겠습니다.`,
+  },
+] as const;
 
 export default function IntegratedAdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
@@ -51,7 +69,7 @@ export default function IntegratedAdminDashboard() {
 
   /* 문의/매입 필터 상태 */
   const [inqTypeFilter, setInqTypeFilter] = useState<string>("전체");
-  const [inqStatusFilter, setInqStatusFilter] = useState<string>("priority"); // 기본: 미처리 신규 우선
+  const [inqStatusFilter, setInqStatusFilter] = useState<string>("priority");
   const [inqKeyword, setInqKeyword] = useState("");
   const [activeReplyId, setActiveReplyId] = useState<string | null>(null);
   const [replyDraft, setReplyDraft] = useState("");
@@ -62,6 +80,7 @@ export default function IntegratedAdminDashboard() {
   const [prodKeyword, setProdKeyword] = useState("");
 
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [editingExistingImages, setEditingExistingImages] = useState<string[]>([]);
   const [prodTitle, setProdTitle] = useState("");
   const [prodModel, setProdModel] = useState("");
   const [prodPrice, setProdPrice] = useState("");
@@ -152,9 +171,10 @@ export default function IntegratedAdminDashboard() {
     const priorityCount = regularInquiries.filter((i) =>
       isPriorityInquiryStatus(i.status)
     ).length;
-    const buybackCount = regularInquiries.filter((i) =>
-      (i.inquiry_type || "").includes("팔기") ||
-      (i.inquiry_type || "").includes("매입")
+    const buybackCount = regularInquiries.filter(
+      (i) =>
+        (i.inquiry_type || "").includes("팔기") ||
+        (i.inquiry_type || "").includes("매입")
     ).length;
     const sellingProducts = products.filter(
       (p) => normalizeProductStatus(p.status) === "판매중"
@@ -176,19 +196,23 @@ export default function IntegratedAdminDashboard() {
     };
   }, [inquiries, products, deliveryCases]);
 
-  /* ───── 문의/매입 필터링 (신규 미처리 우선 정렬) ───── */
+  /* ───── 문의/매입 필터링 (공지사항 필터 포함) ───── */
   const filteredInquiries = useMemo(() => {
     const q = inqKeyword.trim().toLowerCase();
     return inquiries
-      .filter((i) => !i.is_notice)
       .filter((i) => {
+        if (inqStatusFilter === "notice") return Boolean(i.is_notice);
+        if (i.is_notice) return false;
         if (inqTypeFilter !== "전체" && i.inquiry_type !== inqTypeFilter) {
           return false;
         }
         if (inqStatusFilter === "priority") {
           return isPriorityInquiryStatus(i.status);
         }
-        if (inqStatusFilter !== "전체" && (i.status || "접수") !== inqStatusFilter) {
+        if (
+          inqStatusFilter !== "전체" &&
+          (i.status || "접수") !== inqStatusFilter
+        ) {
           return false;
         }
         if (q) {
@@ -350,7 +374,7 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
-  /* ───── 알림 수동 재발송 (Telegram / 알림톡 상태 확인) ───── */
+  /* ───── 알림 수동 재발송 ───── */
   const handleManualNotificationDispatch = async (
     channel: "telegram" | "alimtalk",
     inq: { id: string; name: string; phone: string; inquiry_type: string; category: string }
@@ -443,7 +467,12 @@ export default function IntegratedAdminDashboard() {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
     e.target.value = "";
-    const { ok, error } = validateImageFiles(picked, 3 - prodFiles.length);
+    const remaining = 3 - (editingExistingImages.length + prodFiles.length);
+    if (remaining <= 0) {
+      toast.error("상품 사진은 최대 3장까지 등록할 수 있습니다.");
+      return;
+    }
+    const { ok, error } = validateImageFiles(picked, remaining);
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
@@ -459,6 +488,7 @@ export default function IntegratedAdminDashboard() {
   const resetProductForm = () => {
     prodPreviews.forEach((u) => URL.revokeObjectURL(u));
     setEditingProductId(null);
+    setEditingExistingImages([]);
     setProdTitle("");
     setProdModel("");
     setProdPrice("");
@@ -478,9 +508,13 @@ export default function IntegratedAdminDashboard() {
   const startEditProduct = (product: any) => {
     resetProductForm();
     setEditingProductId(product.id);
+    setEditingExistingImages(splitImages(product.image_url));
     setProdTitle(product.title || "");
+    setProdModel(extractModelName(product.description, product.title) || "");
     setProdCategory(normalizeProductCategory(product.category));
-    setProdPrice(product.price && product.price > 0 ? String(product.price) : "");
+    setProdPrice(
+      product.price && product.price > 0 ? String(product.price) : ""
+    );
     setProdGrade(product.condition_grade || PRODUCT_CONDITION_GRADES[1]);
     setProdStatus(normalizeProductStatus(product.status));
     setProdDesc(product.description || "");
@@ -525,6 +559,7 @@ export default function IntegratedAdminDashboard() {
       }
 
       if (editingProductId) {
+        const mergedImages = [...editingExistingImages, ...uploadedUrls];
         const patch: Record<string, any> = {
           title: prodTitle.trim(),
           price: numericPrice,
@@ -532,10 +567,8 @@ export default function IntegratedAdminDashboard() {
           condition_grade: prodGrade,
           status: normalizeProductStatus(prodStatus),
           description: finalDesc,
+          image_url: mergedImages.join(","),
         };
-        if (uploadedUrls.length > 0) {
-          patch.image_url = uploadedUrls.join(",");
-        }
 
         const { error } = await supabase
           .from("products")
@@ -738,8 +771,21 @@ export default function IntegratedAdminDashboard() {
   const handleDeleteDeliveryCase = async (id: string, title: string) => {
     if (!confirm(`'${title}' 배송·설치 사례를 삭제하시겠습니까?`)) return;
     try {
+      const target = deliveryCases.find((d) => d.id === id);
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
+
+      if (target?.image_url) {
+        const { inquiries: inqFiles } = extractStorageFilesByBucket(
+          splitImages(target.image_url)
+        );
+        if (inqFiles.length > 0) {
+          await supabase.storage
+            .from(STORAGE_BUCKETS.inquiries)
+            .remove(inqFiles);
+        }
+      }
+
       setDeliveryCases((prev) => prev.filter((d) => d.id !== id));
       toast.success("삭제되었습니다.");
     } catch {
@@ -891,7 +937,7 @@ export default function IntegratedAdminDashboard() {
       </header>
 
       <main className="hb-container py-8 space-y-8">
-        {/* 1. 기본 운영 지표 카드 (항상 상단 노출) */}
+        {/* 1. 기본 운영 지표 카드 */}
         <section
           aria-label="운영 지표 요약"
           className="grid grid-cols-2 sm:grid-cols-4 gap-3.5"
@@ -960,6 +1006,7 @@ export default function IntegratedAdminDashboard() {
                 >
                   <option value="priority">⚡ 미처리 신규(접수·검토중)만</option>
                   <option value="전체">전체 상태 보기</option>
+                  <option value="notice">📢 등록된 공지사항만 보기</option>
                   {INQUIRY_ADMIN_STATUS_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label} 상태만
@@ -1012,16 +1059,16 @@ export default function IntegratedAdminDashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            {isPriority && (
+                            {isPriority && !req.is_notice && (
                               <span className="rounded-sm bg-[#D9531E] px-2 py-0.5 text-[11px] font-bold text-white">
                                 우선 확인
                               </span>
                             )}
                             <span className="rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-[11px] font-bold text-white">
-                              {req.status || "접수"}
+                              {req.is_notice ? "공지" : req.status || "접수"}
                             </span>
                             <span className="rounded-sm bg-[#F2F0EC] px-2 py-0.5 text-[11.5px] font-bold text-[#4B5260]">
-                              {req.inquiry_type || "문의"}
+                              {req.is_notice ? "공지사항" : req.inquiry_type || "문의"}
                             </span>
                             <span className="text-[12px] text-[#8A8478]">
                               {new Date(req.created_at).toLocaleString("ko-KR")}
@@ -1050,42 +1097,45 @@ export default function IntegratedAdminDashboard() {
                           </p>
                         </div>
 
-                        {/* 명시적 상태 선택 드롭다운 (단순 순환 버튼 대체) */}
                         <div className="flex flex-wrap items-center gap-2 shrink-0">
-                          <label className="text-[12px] font-bold text-[#6B7280]">
-                            상태 변경:
-                          </label>
-                          <select
-                            aria-label={`${req.category} 진행 상태 선택`}
-                            value={req.status || "접수"}
-                            disabled={busyActionId === `inq-status-${req.id}`}
-                            onChange={(e) =>
-                              handleExplicitInquiryStatusChange(
-                                req.id,
-                                e.target.value
-                              )
-                            }
-                            className="h-9 rounded border border-[#0E1A2B] bg-white px-2.5 text-[12.5px] font-bold text-[#0E1A2B]"
-                          >
-                            {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
+                          {!req.is_notice && (
+                            <>
+                              <label className="text-[12px] font-bold text-[#6B7280]">
+                                상태 변경:
+                              </label>
+                              <select
+                                aria-label={`${req.category} 진행 상태 선택`}
+                                value={req.status || "접수"}
+                                disabled={busyActionId === `inq-status-${req.id}`}
+                                onChange={(e) =>
+                                  handleExplicitInquiryStatusChange(
+                                    req.id,
+                                    e.target.value
+                                  )
+                                }
+                                className="h-9 rounded border border-[#0E1A2B] bg-white px-2.5 text-[12.5px] font-bold text-[#0E1A2B]"
+                              >
+                                {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
+                                  <option key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveReplyId(
-                                activeReplyId === req.id ? null : req.id
-                              );
-                              setReplyDraft(req.admin_reply || "");
-                            }}
-                            className="h-9 rounded bg-[#0E1A2B] px-3 text-[12px] font-bold text-white hover:bg-[#1C2D47]"
-                          >
-                            {req.admin_reply ? "답변 수정" : "답변 작성"}
-                          </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setActiveReplyId(
+                                    activeReplyId === req.id ? null : req.id
+                                  );
+                                  setReplyDraft(req.admin_reply || "");
+                                }}
+                                className="h-9 rounded bg-[#0E1A2B] px-3 text-[12px] font-bold text-white hover:bg-[#1C2D47]"
+                              >
+                                {req.admin_reply ? "답변 수정" : "답변 작성"}
+                              </button>
+                            </>
+                          )}
 
                           <button
                             type="button"
@@ -1138,6 +1188,21 @@ export default function IntegratedAdminDashboard() {
 
                       {activeReplyId === req.id && (
                         <div className="mt-3 space-y-2 border-t border-[#EEEBE5] pt-3">
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[11.5px] font-bold text-[#6B7280] mr-1">
+                              빠른 답변 템플릿:
+                            </span>
+                            {ADMIN_REPLY_TEMPLATES.map((tpl) => (
+                              <button
+                                key={tpl.label}
+                                type="button"
+                                onClick={() => setReplyDraft(tpl.text)}
+                                className="rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                              >
+                                + {tpl.label}
+                              </button>
+                            ))}
+                          </div>
                           <textarea
                             rows={3}
                             value={replyDraft}
@@ -1182,7 +1247,6 @@ export default function IntegratedAdminDashboard() {
         {/* 3. 탭별 본문: PRODUCTS (AI 상품 등록·수정 및 재고 상태 관리) */}
         {activeTab === "products" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            {/* 좌측: AI 보조 상품 등록/수정 폼 */}
             <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-[17px] font-bold text-[#0E1A2B]">
@@ -1200,8 +1264,69 @@ export default function IntegratedAdminDashboard() {
               </div>
 
               <form onSubmit={handleSaveProduct} className="space-y-4 text-[13.5px]">
+                {/* 수정 모드 시 기존 사진 관리 UI */}
+                {editingProductId && editingExistingImages.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="hb-label">
+                        기존 등록 사진 ({editingExistingImages.length}장)
+                      </span>
+                      <span className="text-[11px] font-semibold text-[#D9531E]">
+                        1번 사진이 대표 이미지입니다
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {editingExistingImages.map((imgUrl, idx) => (
+                        <div
+                          key={imgUrl + idx}
+                          className="relative aspect-square rounded border border-[#DDD9D1] overflow-hidden bg-[#EFECE6]"
+                        >
+                          <SafeImg
+                            src={imgUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                          {idx === 0 ? (
+                            <span className="absolute left-1 top-1 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              대표
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setEditingExistingImages((prev) => {
+                                  const next = [...prev];
+                                  const [picked] = next.splice(idx, 1);
+                                  return [picked, ...next];
+                                })
+                              }
+                              className="absolute left-1 top-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-[#D9531E]"
+                            >
+                              대표 지정
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setEditingExistingImages((prev) =>
+                                prev.filter((_, i) => i !== idx)
+                              )
+                            }
+                            aria-label="기존 사진 제거"
+                            className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
+                          >
+                            <Icon d={ICON.close} className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div>
-                  <label className="hb-label">상품 사진 (최대 3장)</label>
+                  <label className="hb-label">
+                    {editingProductId ? "추가할 상품 사진" : "상품 사진 (최대 3장)"}
+                  </label>
                   <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E4E0D8] bg-[#FAF9F7] p-2.5 text-[12px]">
                     <label className="flex items-center gap-2 font-semibold text-[#0E1A2B] cursor-pointer">
                       <input
@@ -1235,13 +1360,13 @@ export default function IntegratedAdminDashboard() {
 
                   {analyzingProduct && (
                     <p className="mt-2 rounded bg-[#FFF5F0] p-2.5 text-[12px] font-bold text-[#D9531E] animate-pulse">
-                      Gemini 3.8 Flash가 사진 판독 및 사양 초안을 작성 중입니다...
+                      AI가 사진 판독 및 사양 초안을 작성 중입니다...
                     </p>
                   )}
 
                   {prodPreviews.length > 0 && (
                     <div className="mt-2.5 grid grid-cols-3 gap-2">
-                      {prodPreviews.map((src, i) => (
+                      {prodPreviews.map((src) => (
                         <div
                           key={src}
                           className="relative aspect-square rounded border border-[#DDD9D1] overflow-hidden"
@@ -1386,6 +1511,21 @@ export default function IntegratedAdminDashboard() {
                 </div>
 
                 <div>
+                  <label className="hb-label">상태 등급</label>
+                  <select
+                    value={prodGrade}
+                    onChange={(e) => setProdGrade(e.target.value)}
+                    className="hb-input mt-1 py-2 text-[13px] font-semibold"
+                  >
+                    {PRODUCT_CONDITION_GRADES.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className="hb-label">
                     AI 작성 설명 초안 (검토 및 편집 후 저장)
                   </label>
@@ -1527,7 +1667,7 @@ export default function IntegratedAdminDashboard() {
           </div>
         )}
 
-        {/* 4. 탭별 본문: DELIVERY (배송·설치 사례 AI 보조 등록 및 관리) */}
+        {/* 4. 탭별 본문: DELIVERY */}
         {activeTab === "delivery" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4">
@@ -1635,7 +1775,7 @@ export default function IntegratedAdminDashboard() {
           </div>
         )}
 
-        {/* 5. 탭별 본문: NOTIFICATIONS (알림 발송 결과 5대 상태 확인 및 수동 재시도) */}
+        {/* 5. 탭별 본문: NOTIFICATIONS */}
         {activeTab === "notifications" && (
           <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 space-y-5">
             <div>

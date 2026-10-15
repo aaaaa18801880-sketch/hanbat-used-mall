@@ -1,3 +1,4 @@
+// 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "../../lib/supabase";
@@ -24,6 +25,7 @@ import {
   ProductDetailGallery,
   CopyProductLinkButton,
 } from "../../components/products/product-detail-gallery";
+import { ProductCard, type ProductItem } from "../../components/products/product-card";
 
 export async function generateMetadata({
   params,
@@ -147,11 +149,31 @@ export default async function ProductDetailPage({
     ? new Date(product.created_at).toLocaleDateString("ko-KR")
     : null;
 
-  const inquiryHref = `/inquiry?write=1&type=${encodeURIComponent(
-    "구매 문의"
-  )}&title=${encodeURIComponent(`[상품문의] ${product.title}`)}`;
+  // 상품ID, 상품명, 모델명, 카테고리를 모두 온라인 문의 폼으로 전달
+  const inquiryParams = new URLSearchParams({
+    write: "1",
+    type: "구매 문의",
+    productId: String(product.id),
+    title: `[상품문의] ${product.title}`,
+    category: categoryLabel,
+  });
+  if (modelName) {
+    inquiryParams.set("model", modelName);
+  }
+  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
-  // 구조화 데이터 (Product Schema - 확인된 사실만 포함)
+  // 동일 카테고리 다른 추천 매물 최대 4건 조회
+  const { data: relatedRows } = await supabase
+    .from("products")
+    .select("*")
+    .neq("category", "배송인증")
+    .neq("id", id)
+    .eq("category", product.category)
+    .order("created_at", { ascending: false })
+    .limit(4);
+
+  const relatedProducts = (relatedRows ?? []) as ProductItem[];
+
   const productJsonLd: Record<string, any> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -196,7 +218,6 @@ export default async function ProductDetailPage({
       <SiteHeader />
 
       <main className="hb-container py-8 sm:py-12 flex-1">
-        {/* 9. 갤러리 복귀 경로 (브레드크럼 & 카테고리 바로가기) */}
         <nav
           aria-label="경로 이동"
           className="mb-6 flex flex-wrap items-center justify-between gap-3"
@@ -221,9 +242,7 @@ export default async function ProductDetailPage({
           <CopyProductLinkButton productTitle={product.title} />
         </nav>
 
-        {/* 상단 메인 상품 카드 (좌측 갤러리 + 우측 핵심 구매 정보) */}
         <div className="overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-xs grid grid-cols-1 lg:grid-cols-12">
-          {/* 1. 상품 이미지 갤러리 (좌측 7컬럼) */}
           <div className="border-b lg:border-b-0 lg:border-r border-[#E4E0D8] lg:col-span-7">
             <ProductDetailGallery
               title={product.title}
@@ -233,10 +252,8 @@ export default async function ProductDetailPage({
             />
           </div>
 
-          {/* 2~8. 상품 핵심 정보 및 상담 동선 (우측 5컬럼) */}
           <div className="flex flex-col justify-between p-6 sm:p-8 lg:col-span-5">
             <div>
-              {/* 2. 카테고리 및 상태 등급 배지 */}
               <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
@@ -256,12 +273,10 @@ export default async function ProductDetailPage({
                 )}
               </div>
 
-              {/* 2. 상품명 */}
               <h1 className="mt-3.5 text-[22px] sm:text-[26px] font-bold leading-[1.3] tracking-[-0.02em] text-[#0E1A2B] break-keep">
                 {product.title}
               </h1>
 
-              {/* 3. 모델명 (확인된 경우에만 표시) */}
               <dl className="mt-4 grid grid-cols-2 gap-2 rounded-md border border-[#EEEBE5] bg-[#FAF9F7] p-3.5 text-[13px]">
                 <div>
                   <dt className="text-[#8A8478] font-medium">모델명</dt>
@@ -281,7 +296,6 @@ export default async function ProductDetailPage({
                 </div>
               </dl>
 
-              {/* 4. 가격과 판매 상태 */}
               <div className="mt-4 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-[12px] font-bold text-[#6B7280]">
@@ -314,7 +328,6 @@ export default async function ProductDetailPage({
                 )}
               </div>
 
-              {/* 5 & 6. 제품 사양 및 확인된 특이사항 */}
               <div className="mt-6 space-y-4">
                 {parsedDesc.hasStructuredSections ? (
                   <>
@@ -388,7 +401,6 @@ export default async function ProductDetailPage({
               </div>
             </div>
 
-            {/* 8. 전화 · 카카오톡 · 온라인 문의 상담 동선 */}
             <div className="mt-8 pt-5 border-t border-[#E4E0D8] space-y-2.5">
               {sold && (
                 <p className="text-[13px] font-semibold text-[#D9531E] text-center pb-1">
@@ -424,7 +436,6 @@ export default async function ProductDetailPage({
           </div>
         </div>
 
-        {/* 7. 배송·설치 및 오프라인 매장 거래 안내 (확인된 사실만 기재) */}
         <section
           aria-label="거래 및 배송·설치 안내"
           className="mt-8 grid gap-4 sm:grid-cols-3"
@@ -454,6 +465,31 @@ export default async function ProductDetailPage({
             </p>
           </div>
         </section>
+
+        {/* 동일 카테고리 추천 매물 4선 */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-12 pt-10 border-t border-[#E4E0D8]">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <p className="hb-eyebrow">Related Products</p>
+                <h2 className="mt-1 text-[20px] sm:text-[24px] font-bold text-[#0E1A2B]">
+                  같은 카테고리의 다른 매물
+                </h2>
+              </div>
+              <Link
+                href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
+                className="text-[13.5px] font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4"
+              >
+                {categoryLabel} 전체 보기 →
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+              {relatedProducts.map((rel) => (
+                <ProductCard key={rel.id} product={rel} />
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <SiteFooter />

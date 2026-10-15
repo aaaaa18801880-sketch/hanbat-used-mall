@@ -379,6 +379,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </div>
         </div>
       </header>
+      <div id="main-content" tabIndex={-1} className="sr-only focus:outline-none" />
 
       {/* 모바일 내비게이션 드로어 */}
       {menuOpen && (

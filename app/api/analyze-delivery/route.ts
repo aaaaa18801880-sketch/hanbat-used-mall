@@ -1,3 +1,4 @@
+// 파일 경로: app/api/analyze-delivery/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import {
@@ -11,8 +12,8 @@ export const runtime = "nodejs";
 
 const MAX_FILES = 2;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
-// 요구사항 6 준수: 기존 사이트 내부의 Gemini API 모델 ID("gemini-3.8-flash") 유지
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash";
 
 export async function POST(req: NextRequest) {
   try {
@@ -99,8 +100,7 @@ export async function POST(req: NextRequest) {
     }));
 
     const ai = new GoogleGenAI({ apiKey });
-
-     const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash";
+    let modelUsed = DEFAULT_GEMINI_MODEL;
     let response;
 
     try {
@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
           msg.toLowerCase().includes("not found") ||
           msg.toLowerCase().includes("not supported"))
       ) {
+        modelUsed = FALLBACK_GEMINI_MODEL;
         response = await ai.models.generateContent({
           model: FALLBACK_GEMINI_MODEL,
           contents: [
@@ -136,7 +137,6 @@ export async function POST(req: NextRequest) {
         throw modelErr;
       }
     }
-
 
     const responseText = response.text?.trim() || "";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       isDraft: true,
-      modelUsed: DEFAULT_GEMINI_MODEL,
+      modelUsed,
       title: parsedTitle,
       observedElements,
       needsReview,

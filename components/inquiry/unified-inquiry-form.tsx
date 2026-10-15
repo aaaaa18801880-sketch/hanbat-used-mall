@@ -1,3 +1,4 @@
+// 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -18,18 +19,18 @@ import {
   STORAGE_BUCKETS,
   STORE,
   telHref,
+  trackEvent,
   validateImageFiles,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
-/** 요구사항 2: 6단계 문의 제출 상태 */
 export type SubmissionPhase =
-  | "idle" // 1. 초기 입력
-  | "validating" // 2. 입력 검증
-  | "submitting" // 3. 제출 중
-  | "success" // 4. 제출 성공 (실제 DB 저장 확인 시에만)
-  | "error" // 5. 제출 실패
-  | "retrying"; // 6. 재시도 중
+  | "idle"
+  | "validating"
+  | "submitting"
+  | "success"
+  | "error"
+  | "retrying";
 
 export interface LinkedProductContext {
   productId?: string;
@@ -137,7 +138,7 @@ export function UnifiedInquiryForm({
 
   const validateFields = (): boolean => {
     setPhase("validating");
-const errors: Record<string, string> = {};
+    const errors: Record<string, string> = {};
 
     if (!isNotice) {
       if (!name.trim()) {
@@ -277,6 +278,11 @@ const errors: Record<string, string> = {};
       const newId = resJson.inquiryId || null;
       setCreatedInquiryId(newId);
       setPhase("success");
+      trackEvent("submit_inquiry_success", {
+        inquiry_type: isNotice ? "공지사항" : inquiryType,
+        has_photos: uploadedUrls.length > 0,
+      });
+
       toast.success(
         isNotice
           ? "공지사항이 등록되었습니다."
@@ -789,7 +795,6 @@ const errors: Record<string, string> = {};
         </div>
       )}
 
-      {/* 5단계 & 6단계: 제출 실패 시 입력 데이터를 유지한 채 재시도 제공 */}
       {phase === "error" && submitErrorMsg && (
         <div
           role="alert"
