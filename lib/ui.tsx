@@ -1,3 +1,4 @@
+// 파일 경로: lib/ui.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -60,7 +61,7 @@ export function Icon({
 }
 
 /* ════════════════════════════════════════════════════════════
-   2. 안전 이미지 컴포넌트 (SafeImg - LCP 우선순위 및 에러 대체 화면)
+   2. 안전 이미지 컴포넌트 (SafeImg - LCP 우선순위 및 정돈된 대체 화면)
    ════════════════════════════════════════════════════════════ */
 export function SafeImg({
   src,
@@ -86,9 +87,10 @@ export function SafeImg({
       <div
         role="img"
         aria-label={alt || "상품 이미지 준비 중"}
-        className={`flex items-center justify-center bg-[#EFECE6] text-[#6B7280] text-[13px] font-medium select-none ${className}`}
+        className={`flex flex-col items-center justify-center gap-1.5 bg-[#EFECE6] text-[#8A8478] text-[12px] font-medium select-none ${className}`}
       >
-        이미지 준비 중
+        <Icon d={ICON.image} className="h-5 w-5 text-[#B5AFA3]" />
+        <span>이미지 준비 중</span>
       </div>
     );
   }
@@ -109,7 +111,7 @@ export function SafeImg({
 }
 
 /* ════════════════════════════════════════════════════════════
-   3. 공통 섹션 헤더 (SectionHeading)
+   3. 공통 섹션 헤더 (SectionHeading - 정보 위계 강화)
    ════════════════════════════════════════════════════════════ */
 export function SectionHeading({
   eyebrow,
@@ -127,14 +129,20 @@ export function SectionHeading({
   return (
     <div className={className}>
       <p
-        className={`text-[12px] font-bold uppercase tracking-[0.2em] ${
+        className={`inline-flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-[0.16em] ${
           dark ? "text-[#FF8A50]" : "text-[#D9531E]"
         }`}
       >
-        {eyebrow}
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${
+            dark ? "bg-[#FF8A50]" : "bg-[#D9531E]"
+          }`}
+          aria-hidden="true"
+        />
+        <span>{eyebrow}</span>
       </p>
       <h2
-        className={`mt-2.5 text-[25px] font-bold leading-[1.28] tracking-[-0.02em] break-keep sm:text-[31px] lg:text-[35px] ${
+        className={`mt-2 text-[24px] font-bold leading-[1.28] tracking-[-0.025em] break-keep sm:text-[30px] lg:text-[34px] ${
           dark ? "text-white" : "text-[#0E1A2B]"
         }`}
       >
@@ -142,8 +150,8 @@ export function SectionHeading({
       </h2>
       {desc && (
         <p
-          className={`mt-3.5 max-w-2xl text-[15px] leading-[1.7] break-keep sm:text-[16px] ${
-            dark ? "text-white/80" : "text-[#4B5260]"
+          className={`mt-3 max-w-2xl text-[14.5px] leading-[1.7] break-keep sm:text-[15.5px] ${
+            dark ? "text-white/75" : "text-[#4B5260]"
           }`}
         >
           {desc}
@@ -184,7 +192,6 @@ export function Modal({
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
-    // 모달 오픈 시 첫 번째 포커스 가능 요소(입력창 우선, 없으면 첫 버튼)로 포커스 이동
     const timer = window.setTimeout(() => {
       if (!panelRef.current) return;
       const autoFocusEl = panelRef.current.querySelector<HTMLElement>(
@@ -249,7 +256,7 @@ export function Modal({
         sheet
           ? "items-end sm:items-center p-0 sm:p-4"
           : "items-center p-3 sm:p-6"
-      } bg-[#0E1A2B]/65 backdrop-blur-xs ${overlayClassName}`}
+      } bg-[#0E1A2B]/70 backdrop-blur-xs ${overlayClassName}`}
       onClick={onClose}
     >
       <div
@@ -265,11 +272,11 @@ export function Modal({
 }
 
 /* ════════════════════════════════════════════════════════════
-   5. 상단 공통 헤더 (SiteHeader - 스킵 링크 및 명시적 로고 치수)
+   5. 상단 공통 헤더 (SiteHeader - 균형 잡힌 간격 및 반응형 정렬)
    ════════════════════════════════════════════════════════════ */
 const HEADER_NAV = [
   { label: "판매 제품 갤러리", href: "/gallery" },
-  { label: "가정용·업소용 품목", href: "/#category-section" },
+  { label: "취급 품목", href: "/#category-section" },
   { label: "매입 안내", href: "/#sell-section" },
   { label: "배송·설치 사례", href: "/#reviews-section" },
   { label: "오시는 길", href: "/#location-section" },
@@ -295,7 +302,6 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
 
   return (
     <>
-      {/* 키보드 사용자용 본문 바로가기 링크 */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-[#0E1A2B] focus:px-4 focus:py-2.5 focus:text-[14px] focus:font-bold focus:text-white focus:shadow-lg"
@@ -304,7 +310,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       </a>
 
       <header className="sticky top-0 z-50 w-full border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-[76px] sm:h-[84px] w-full max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-4">
+        <div className="mx-auto flex h-[72px] sm:h-[80px] w-full max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-3">
+          {/* 로고 영역 */}
           <div className="flex items-center shrink-0">
             <Link
               href="/"
@@ -315,36 +322,38 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <img
                 src="/logo.png"
                 alt="한밭중고전자"
-                width={200}
-                height={60}
+                width={190}
+                height={56}
                 fetchPriority="high"
-                className="h-[52px] sm:h-[60px] w-auto object-contain transition-opacity hover:opacity-90"
+                className="h-[46px] sm:h-[54px] w-auto object-contain transition-opacity hover:opacity-90"
               />
             </Link>
           </div>
 
+          {/* 데스크톱 내비게이션 */}
           <nav
-            className="hidden lg:flex items-center justify-center gap-6 xl:gap-8"
+            className="hidden lg:flex items-center justify-center gap-5 xl:gap-7"
             aria-label="주요 메뉴"
           >
             {HEADER_NAV.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
-                className="py-1.5 text-[15px] font-semibold text-[#1F2530] hover:text-[#D9531E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] rounded transition-colors whitespace-nowrap"
+                className="py-2 text-[14.5px] font-bold text-[#1F2530] hover:text-[#D9531E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] rounded transition-colors whitespace-nowrap"
               >
                 {item.label}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
+          {/* 우측 상담 및 액션 버튼 그룹 */}
+          <div className="flex items-center justify-end gap-2 shrink-0">
             <a
               href={telHref(STORE.tel)}
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3.5 h-10 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap"
               aria-label={`대표 전화 ${STORE.tel} 연결`}
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
@@ -370,16 +379,20 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-md border border-[#E4E0D8] text-[#0E1A2B] lg:hidden hover:bg-[#F6F5F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
+              className="grid h-10 w-10 place-items-center rounded-md border border-[#DDD9D1] bg-white text-[#0E1A2B] lg:hidden hover:bg-[#F6F5F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >
-              <Icon d={ICON.menu} className="w-5 h-5" strokeWidth={2.2} />
+              <Icon d={ICON.menu} className="w-5 h-5" strokeWidth={2.1} />
             </button>
           </div>
         </div>
       </header>
-      <div id="main-content" tabIndex={-1} className="sr-only focus:outline-none" />
+      <div
+        id="main-content"
+        tabIndex={-1}
+        className="sr-only focus:outline-none"
+      />
 
       {/* 모바일 내비게이션 드로어 */}
       {menuOpen && (
@@ -389,14 +402,14 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           aria-modal="true"
           aria-label="모바일 전체 메뉴"
         >
-          <div className="flex h-[76px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6">
+          <div className="flex h-[72px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/logo.png"
               alt="한밭중고전자"
-              width={160}
-              height={46}
-              className="h-[46px] w-auto object-contain"
+              width={156}
+              height={44}
+              className="h-[44px] w-auto object-contain"
             />
             <button
               type="button"
@@ -427,17 +440,19 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               ))}
             </ul>
 
-            <div className="mt-6 rounded-md border border-[#E4E0D8] bg-[#F6F5F2] p-4 text-[13px] text-[#4B5260] space-y-1.5">
+            <div className="mt-6 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4 text-[13px] text-[#4B5260] space-y-1.5">
               <p className="font-bold text-[#0E1A2B]">
-                {STORE.name} 오프라인 매장
+                {STORE.name} 오프라인 쇼룸
               </p>
               <p>
-                주소: {STORE.address} ({STORE.addressNote})
+                위치: {STORE.address} ({STORE.addressNote})
               </p>
               <p>
                 영업시간: {STORE.hours} ({STORE.closed})
               </p>
-              <p>대표전화: {STORE.tel}</p>
+              <p className="font-semibold text-[#0E1A2B]">
+                대표전화: {STORE.tel} / {STORE.mobile}
+              </p>
             </div>
           </nav>
 
@@ -449,7 +464,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               }
               className="flex h-12 items-center justify-center gap-2 rounded-md bg-[#0E1A2B] text-[14px] font-bold text-white"
             >
-              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 상담
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" /> 전화 상담
             </a>
             <a
               href={STORE.kakaoChat}
@@ -470,7 +485,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
 }
 
 /* ════════════════════════════════════════════════════════════
-   6. 하단 공통 푸터 (SiteFooter)
+   6. 하단 공통 푸터 (SiteFooter - 정돈된 그룹 위계)
    ════════════════════════════════════════════════════════════ */
 export function SiteFooter({
   isAdmin = false,
@@ -480,31 +495,32 @@ export function SiteFooter({
   onAdminClick?: () => void;
 }) {
   return (
-    <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#0E1A2B]">
-      <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-8 py-12 sm:py-16">
+    <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#1C2B40]">
+      <div className="mx-auto max-w-[1280px] px-5 sm:px-6 lg:px-8 py-12 sm:py-14">
         <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
+          {/* 브랜드 및 직통 연락처 요약 */}
           <div className="lg:col-span-5">
             <div className="flex items-center gap-2.5">
-              <span className="text-[19px] font-bold text-white tracking-tight">
+              <span className="text-[18px] font-bold text-white tracking-tight">
                 {STORE.name}
               </span>
-              <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/85">
+              <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/80">
                 SINCE {STORE.since}
               </span>
             </div>
-            <p className="mt-3 max-w-md text-[14px] leading-[1.7] text-white/70 break-keep">
-              가정용 중고가전(냉장고·세탁기·에어컨·냉난방기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 검수·세척하여 판매하고 합리적인 기준으로 매입합니다.
+            <p className="mt-3 max-w-md text-[13.5px] leading-[1.7] text-white/65 break-keep">
+              가정용 중고가전(냉장고·세탁기·에어컨·냉난방기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 검수·세척하여 판매하고 합리적인 기준으로 방문 매입합니다.
             </p>
-            <div className="mt-5 flex flex-wrap items-center gap-2.5">
+            <div className="mt-5 flex flex-wrap items-center gap-2">
               <a
                 href={telHref(STORE.tel)}
                 onClick={() =>
                   trackEvent("click_tel_consult", { location: "site_footer" })
                 }
-                className="inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/15 px-3.5 py-2 text-[13px] font-bold text-white transition-colors"
+                className="inline-flex items-center gap-1.5 rounded border border-white/15 bg-white/5 hover:bg-white/10 px-3.5 py-2 text-[13px] font-bold text-white transition-colors"
               >
                 <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                {STORE.tel}
+                <span>{STORE.tel}</span>
               </a>
               <a
                 href={STORE.kakaoChat}
@@ -513,27 +529,28 @@ export function SiteFooter({
                 onClick={() =>
                   trackEvent("click_kakao_consult", { location: "site_footer" })
                 }
-                className="inline-flex items-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[13px] font-bold text-[#191600] transition-colors"
+                className="inline-flex items-center gap-1.5 rounded bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[13px] font-bold text-[#191600] transition-colors"
               >
                 <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                카카오톡 상담
+                <span>카카오톡 상담</span>
               </a>
             </div>
           </div>
 
+          {/* 3열 정보 그룹 */}
           <nav
-            className="grid grid-cols-2 gap-8 text-[14px] sm:grid-cols-3 lg:col-span-7"
+            className="grid grid-cols-2 gap-8 text-[13.5px] sm:grid-cols-3 lg:col-span-7"
             aria-label="푸터 메뉴"
           >
             <div>
-              <p className="font-bold text-white text-[13px] uppercase tracking-wider">
+              <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
                 취급 품목
               </p>
-              <ul className="mt-3.5 space-y-2 text-white/70">
+              <ul className="mt-3.5 space-y-2 text-white/65">
                 <li>
                   <Link
                     href="/gallery?category=에어컨/냉난방기"
-                    className="hover:text-white"
+                    className="hover:text-white transition-colors"
                   >
                     에어컨 · 냉난방기
                   </Link>
@@ -541,7 +558,7 @@ export function SiteFooter({
                 <li>
                   <Link
                     href="/gallery?category=냉장고"
-                    className="hover:text-white"
+                    className="hover:text-white transition-colors"
                   >
                     냉장고 · 김치냉장고
                   </Link>
@@ -549,7 +566,7 @@ export function SiteFooter({
                 <li>
                   <Link
                     href="/gallery?category=세탁기/건조기"
-                    className="hover:text-white"
+                    className="hover:text-white transition-colors"
                   >
                     세탁기 · 건조기
                   </Link>
@@ -557,7 +574,7 @@ export function SiteFooter({
                 <li>
                   <Link
                     href="/gallery?category=업소용기기"
-                    className="hover:text-white"
+                    className="hover:text-white transition-colors"
                   >
                     업소용 냉장 · 주방기기
                   </Link>
@@ -566,27 +583,39 @@ export function SiteFooter({
             </div>
 
             <div>
-              <p className="font-bold text-white text-[13px] uppercase tracking-wider">
-                고객 지원
+              <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
+                서비스 안내
               </p>
-              <ul className="mt-3.5 space-y-2 text-white/70">
+              <ul className="mt-3.5 space-y-2 text-white/65">
                 <li>
-                  <Link href="/purchase" className="hover:text-white">
-                    중고가전 매입 신청
+                  <Link
+                    href="/purchase"
+                    className="hover:text-white transition-colors"
+                  >
+                    중고가전 방문 매입 신청
                   </Link>
                 </li>
                 <li>
-                  <Link href="/#reviews-section" className="hover:text-white">
-                    배송 · 설치 사례
+                  <Link
+                    href="/#reviews-section"
+                    className="hover:text-white transition-colors"
+                  >
+                    배송 · 설치 현장 기록
                   </Link>
                 </li>
                 <li>
-                  <Link href="/inquiry" className="hover:text-white">
-                    문의게시판
+                  <Link
+                    href="/inquiry"
+                    className="hover:text-white transition-colors"
+                  >
+                    고객 문의게시판
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-white">
+                  <Link
+                    href="/privacy"
+                    className="hover:text-white transition-colors"
+                  >
                     개인정보처리방침
                   </Link>
                 </li>
@@ -594,12 +623,12 @@ export function SiteFooter({
             </div>
 
             <div className="col-span-2 sm:col-span-1">
-              <p className="font-bold text-white text-[13px] uppercase tracking-wider">
-                오프라인 매장
+              <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
+                매장 방문 및 영업 안내
               </p>
-              <ul className="mt-3.5 space-y-2 text-white/70 text-[13px]">
-                <li>{STORE.address}</li>
-                <li>({STORE.addressNote})</li>
+              <ul className="mt-3.5 space-y-1.5 text-white/65 text-[13px] leading-relaxed">
+                <li className="text-white/85 font-medium">{STORE.address}</li>
+                <li>({STORE.addressNote} · 주차 가능)</li>
                 <li>영업시간: {STORE.hours}</li>
                 <li>휴무안내: {STORE.closed}</li>
               </ul>
@@ -607,7 +636,8 @@ export function SiteFooter({
           </nav>
         </div>
 
-        <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-[12px] leading-relaxed text-white/55">
+        {/* 사업자 등록 정보 */}
+        <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-[12px] leading-relaxed text-white/50">
           <div>
             <p>
               상호: {STORE.name} · 대표: {STORE.ceo} · 사업자등록번호:{" "}
@@ -625,14 +655,14 @@ export function SiteFooter({
             <button
               type="button"
               onClick={onAdminClick}
-              className="text-[12px] text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end"
+              className="text-[12px] text-white/50 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end"
             >
               {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
             </button>
           )}
         </div>
       </div>
-      <div className="h-[64px] lg:hidden" aria-hidden="true" />
+      <div className="h-[60px] lg:hidden" aria-hidden="true" />
     </footer>
   );
 }
@@ -651,7 +681,7 @@ export function MobileCtaBar({
       aria-label="모바일 빠른 상담 바"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
     >
-      <div className="grid h-[58px] grid-cols-3 divide-x divide-[#EEEBE5]">
+      <div className="grid h-[56px] grid-cols-3 divide-x divide-[#EEEBE5]">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
