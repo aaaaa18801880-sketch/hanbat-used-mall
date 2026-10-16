@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-16T11:24:43.500Z">
+<project name="hanbat-mall" generated_at="2026-10-16T11:31:56.179Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -13929,7 +13929,7 @@ export function TrustSection() {
 }
 ]]>
     </file>
-    <file path="components/inquiry/unified-inquiry-form.tsx" lines="1195">
+    <file path="components/inquiry/unified-inquiry-form.tsx" lines="1294">
       <![CDATA[
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
@@ -13962,7 +13962,7 @@ import {
   trackEvent,
   validateImageFiles,
 } from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
+import { Icon, ICON, Modal } from "../../lib/ui";
 
 export type SubmissionPhase =
   | "idle"
@@ -14064,6 +14064,12 @@ export function UnifiedInquiryForm({
     null
   );
   const [showPhotoGuide, setShowPhotoGuide] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState<{
+    src: string;
+    alt: string;
+    title: string;
+    desc?: string;
+  } | null>(null);
 
   const [agreed, setAgreed] = useState(false);
   const [phase, setPhase] = useState<SubmissionPhase>("idle");
@@ -14782,22 +14788,36 @@ export function UnifiedInquiryForm({
           {filePreviews.map((preview, idx) => (
             <div
               key={preview}
-              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0"
+              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0 group"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={preview}
-                alt={`첨부 사진 ${idx + 1}`}
-                className="h-full w-full object-cover"
-              />
-              <span className="absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
+              <button
+                type="button"
+                onClick={() =>
+                  setZoomedImage({
+                    src: preview,
+                    alt: `첨부 사진 ${idx + 1}`,
+                    title: `첨부 사진 ${idx + 1}번 확대 보기`,
+                    desc: "고객님이 첨부하신 원본 사진입니다.",
+                  })
+                }
+                className="h-full w-full cursor-zoom-in text-left focus:outline-hidden"
+                aria-label={`첨부 사진 ${idx + 1} 크게 보기`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview}
+                  alt={`첨부 사진 ${idx + 1}`}
+                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                />
+              </button>
+              <span className="pointer-events-none absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
                 #{idx + 1}
               </span>
               <button
                 type="button"
                 onClick={() => handleRemoveFile(idx)}
                 aria-label="첨부 사진 삭제"
-                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
+                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600 transition-colors"
               >
                 <Icon d={ICON.close} className="h-2.5 w-2.5" />
               </button>
@@ -14842,15 +14862,34 @@ export function UnifiedInquiryForm({
               </span>
             </div>
 
-            {/* 실제 촬영 예시 그래픽 안내 이미지 (사례 사진 포함, 항상 노출) */}
+            {/* 실제 촬영 예시 그래픽 안내 이미지 (사례 사진 포함, 항상 노출, 클릭 시 원본 확대) */}
             <div className="overflow-hidden rounded border border-[#DDD9D1] bg-white shadow-2xs">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/photo-guide.jpg"
-                alt="한밭중고전자 상품 사진 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진"
-                className="w-full h-auto object-contain max-h-[380px] sm:max-h-[420px] mx-auto"
-                loading="eager"
-              />
+              <button
+                type="button"
+                onClick={() =>
+                  setZoomedImage({
+                    src: "/images/photo-guide.jpg",
+                    alt: "한밭중고전자 상품 사진 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진",
+                    title: "권장 촬영 예시 (KC인증 라벨 · 제조년월 · 외관)",
+                    desc: "명판 스티커의 모델명과 제조년월이 선명하게 보이도록 촬영해 주시면 가장 빠르고 정확한 견적을 산출해 드립니다.",
+                  })
+                }
+                className="group relative block w-full text-left focus:outline-hidden cursor-zoom-in"
+                aria-label="권장 촬영 예시 사진 원본 크게 보기"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/photo-guide.jpg"
+                  alt="한밭중고전자 상품 사진 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진 (클릭 시 확대)"
+                  className="w-full h-auto object-contain max-h-[380px] sm:max-h-[420px] mx-auto transition-transform duration-200 group-hover:scale-[1.008]"
+                  loading="eager"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+                <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1.5 text-[11.5px] font-bold text-white shadow-md backdrop-blur-xs transition-all group-hover:bg-[#D9531E] group-hover:scale-105">
+                  <Icon d={ICON.search} className="w-3.5 h-3.5" />
+                  <span>사진 클릭 시 크게 보기</span>
+                </span>
+              </button>
             </div>
 
             {/* 3컷 요약 뱃지 그리드 */}
@@ -15122,6 +15161,66 @@ export function UnifiedInquiryForm({
             </a>
           </div>
         </div>
+      )}
+
+      {/* ── 사진 원본 / 권장 촬영 예시 확대 보기 라이트박스 모달 ── */}
+      {zoomedImage && (
+        <Modal
+          open={!!zoomedImage}
+          onClose={() => setZoomedImage(null)}
+          label={zoomedImage.title}
+          panelClassName="max-w-4xl w-full"
+          overlayClassName="!z-[90]"
+        >
+          <div className="relative flex w-full flex-col rounded-lg bg-[#0E1A2B] p-4 sm:p-5 text-white shadow-2xl border border-white/15">
+            <div className="mb-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF8A50] block">
+                  Photo Preview &amp; Guide
+                </span>
+                <p className="truncate text-[15px] sm:text-[16px] font-bold text-white">
+                  {zoomedImage.title}
+                </p>
+                {zoomedImage.desc && (
+                  <p className="mt-0.5 text-[12px] text-white/75 leading-relaxed">
+                    {zoomedImage.desc}
+                  </p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setZoomedImage(null)}
+                aria-label="닫기"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              >
+                <Icon d={ICON.close} className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="relative flex items-center justify-center bg-[#070D16] rounded-md p-2 overflow-auto max-h-[75vh]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={zoomedImage.src}
+                alt={zoomedImage.alt || zoomedImage.title}
+                className="max-h-[72vh] w-auto max-w-full rounded object-contain select-none"
+              />
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11.5px] text-white/60">
+              <span className="flex items-center gap-1">
+                <span>💡</span>
+                <span>모바일에서는 두 손가락으로 화면을 확대(핀치 줌)하여 작은 글씨까지 선명하게 보실 수 있습니다.</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setZoomedImage(null)}
+                className="hb-btn-outline border-white/30 text-white hover:bg-white/10 text-[12px] h-8 px-4 ml-auto"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </Modal>
       )}
     </form>
   );
