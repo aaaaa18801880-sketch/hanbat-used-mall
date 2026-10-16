@@ -1522,79 +1522,64 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ⑩ FAQ (반응형 아코디언 카드 + 카테고리 필터 + 좌측 고정 문의 바) */}
+        {/* ⑩ FAQ (Section 7과 완벽히 크기·그리드·컨테이너를 일치시킨 5선 아코디언) */}
         <section
           id="faq-section"
           className="border-b border-[#E4E0D8] bg-[#F6F5F2] py-14 sm:py-20"
           aria-labelledby="faq-title"
         >
-          <div className="hb-container grid gap-8 lg:grid-cols-12 lg:gap-14 items-start">
-            {/* 좌측: 타이틀 및 빠른 상담 연결 카드 (데스크톱 스티키 고정) */}
-            <div className="lg:col-span-4 lg:sticky lg:top-28">
+          <div className="hb-container grid gap-10 lg:grid-cols-12 lg:gap-14 items-start">
+            {/* 좌측: Section 7과 동일한 5컬럼 그리드 & 여백 */}
+            <div className="lg:col-span-5 lg:sticky lg:top-28">
               <SectionHeading
                 eyebrow="FAQ"
                 title={<span id="faq-title">자주 묻는 질문</span>}
-                desc="배송·설치, 무상 A/S 보증, 매입 절차 등 고객님들이 가장 자주 문의하시는 내용을 투명하게 안내해 드립니다."
+                desc="배송·설치, 무상 A/S 보증, 매입 절차 등 고객님들이 가장 자주 문의하시는 5가지 핵심 사항을 투명하게 안내해 드립니다."
               />
 
-              <div className="mt-6 rounded-xl border border-[#DDD9D1] bg-white p-5 shadow-2xs">
-                <p className="text-[11.5px] font-bold uppercase tracking-wider text-[#D9531E]">
-                  Customer Support
-                </p>
-                <p className="mt-1 text-[15px] font-extrabold text-[#0E1A2B]">
-                  원하시는 답변을 찾지 못하셨나요?
-                </p>
-                <p className="mt-1 text-[13px] leading-relaxed text-[#4B5260]">
-                  가전 전문 상담원이 제품 상태와 견적을 친절하고 신속하게 안내해 드립니다.
-                </p>
+              <p className="mt-4 text-[14px] leading-relaxed text-[#4B5260]">
+                추가 문의는 대표전화{" "}
+                <a
+                  href={telHref(STORE.tel)}
+                  className="font-bold text-[#0E1A2B] underline tabular-nums"
+                >
+                  {STORE.tel}
+                </a>{" "}
+                또는 직통{" "}
+                <a
+                  href={telHref(STORE.mobile)}
+                  className="font-bold text-[#0E1A2B] underline tabular-nums"
+                >
+                  {STORE.mobile}
+                </a>
+                로 연락해 주세요.
+              </p>
 
-                <div className="mt-4 space-y-2 border-t border-[#F0EDE6] pt-3.5">
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="flex items-center justify-between rounded-lg bg-[#FAF9F7] px-3.5 py-2.5 text-[13px] font-bold text-[#0E1A2B] hover:bg-[#F2EFE9] transition-colors border border-[#EAE6DF]"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Icon d={ICON.phone} className="h-4 w-4 text-[#D9531E]" />
-                      매장 대표전화
-                    </span>
-                    <span className="text-[#D9531E] tabular-nums">{STORE.tel}</span>
-                  </a>
-                  <a
-                    href={telHref(STORE.mobile)}
-                    className="flex items-center justify-between rounded-lg bg-[#FAF9F7] px-3.5 py-2.5 text-[13px] font-bold text-[#0E1A2B] hover:bg-[#F2EFE9] transition-colors border border-[#EAE6DF]"
-                  >
-                    <span className="flex items-center gap-2">
-                      <Icon d={ICON.phone} className="h-4 w-4 text-[#D9531E]" />
-                      직통 핸드폰
-                    </span>
-                    <span className="text-[#D9531E] tabular-nums">{STORE.mobile}</span>
-                  </a>
-                </div>
-
+              <div className="mt-6 flex flex-wrap gap-2.5">
                 <button
                   type="button"
                   onClick={() => openInquiry("구매 문의")}
-                  className="mt-3.5 flex w-full items-center justify-center gap-1.5 rounded-lg bg-[#0E1A2B] py-2.5 text-[13px] font-bold text-white hover:bg-[#1C2D47] transition-colors shadow-2xs"
+                  className="hb-btn-primary h-10 px-4 text-[13px]"
                 >
                   <Icon d={ICON.chat} className="h-4 w-4 text-[#FF8A50]" />
-                  <span>1:1 온라인 문의 남기기</span>
+                  <span>1:1 온라인 문의하기</span>
                 </button>
+                <a
+                  href={telHref(STORE.tel)}
+                  className="hb-btn-outline h-10 px-4 text-[13px]"
+                >
+                  <Icon d={ICON.phone} className="h-4 w-4 text-[#D9531E]" />
+                  <span>전화 바로 연결</span>
+                </a>
               </div>
             </div>
 
-            {/* 우측: 핵심 5대 질문 아코디언 카드 리스트 */}
-            <div className="lg:col-span-8 space-y-3">
+            {/* 우측: Section 7과 규격이 완전히 일치하는 단일 화이트 패널 (7컬럼, rounded-xl border divide-y) */}
+            <div className="lg:col-span-7 rounded-xl border border-[#DDD9D1] bg-white shadow-xs divide-y divide-[#EAE6DF] overflow-hidden">
               {FAQS.map((f, i) => {
                 const open = openFaq === f.q;
                 return (
-                  <div
-                    key={f.q}
-                    className={`overflow-hidden rounded-xl border transition-all duration-200 ${
-                      open
-                        ? "border-[#0E1A2B] bg-white shadow-sm ring-1 ring-[#0E1A2B]/10 border-l-4 border-l-[#D9531E]"
-                        : "border-[#DDD9D1] bg-white hover:border-[#0E1A2B]/40 hover:shadow-2xs"
-                    }`}
-                  >
+                  <div key={f.q} className="transition-colors">
                     <h3>
                       <button
                         type="button"
@@ -1602,11 +1587,13 @@ export default function Home() {
                         aria-expanded={open}
                         aria-controls={`faq-a-${i}`}
                         onClick={() => setOpenFaq(open ? null : f.q)}
-                        className="flex w-full items-start justify-between gap-3 sm:gap-4 p-4.5 sm:p-5.5 text-left focus:outline-hidden"
+                        className={`flex w-full items-center justify-between gap-3 sm:gap-4 p-5 sm:p-6 text-left transition-colors focus:outline-hidden ${
+                          open ? "bg-[#FAF9F7]" : "hover:bg-[#FAF9F7]"
+                        }`}
                       >
-                        <div className="flex items-start gap-2.5 sm:gap-3.5 flex-1 min-w-0">
+                        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                           <span
-                            className={`flex h-6.5 w-6.5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md text-[13px] sm:text-[14px] font-black transition-colors ${
+                            className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg text-[13px] sm:text-[14px] font-black transition-colors ${
                               open
                                 ? "bg-[#D9531E] text-white"
                                 : "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]"
@@ -1615,18 +1602,18 @@ export default function Home() {
                             Q
                           </span>
                           <div className="flex-1 min-w-0">
-                            <span className="mb-1 inline-flex items-center gap-1 rounded bg-[#F4F2EE] px-2 py-0.5 text-[11px] font-semibold text-[#4B5260]">
+                            <span className="mb-0.5 inline-flex items-center gap-1 rounded bg-[#F4F2EE] px-2 py-0.5 text-[10.5px] font-semibold text-[#4B5260]">
                               <span>{f.icon}</span>
                               <span>{f.tag}</span>
                             </span>
-                            <p className="text-[15px] sm:text-[16.5px] font-bold leading-snug text-[#0E1A2B]">
+                            <p className="text-[15.5px] sm:text-[16.5px] font-extrabold leading-snug text-[#0E1A2B]">
                               {f.q}
                             </p>
                           </div>
                         </div>
 
                         <span
-                          className={`mt-0.5 grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full border transition-all duration-200 ${
+                          className={`grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full border transition-all duration-200 ${
                             open
                               ? "rotate-45 bg-[#0E1A2B] text-white border-[#0E1A2B]"
                               : "bg-[#F8F6F2] text-[#6B7280] border-[#DDD9D1] hover:text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -1642,10 +1629,10 @@ export default function Home() {
                         id={`faq-a-${i}`}
                         role="region"
                         aria-labelledby={`faq-q-${i}`}
-                        className="border-t border-[#F0EDE6] bg-[#FAF9F7]/90 p-4.5 sm:p-5.5 rounded-b-xl animate-in fade-in duration-150"
+                        className="bg-[#FAF9F7] px-5 pb-6 sm:px-6 sm:pb-6 border-t border-[#F0EDE6] animate-in fade-in duration-150"
                       >
-                        <div className="flex items-start gap-2.5 sm:gap-3.5">
-                          <span className="flex h-6.5 w-6.5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md bg-[#0E1A2B] text-[13px] sm:text-[14px] font-bold text-[#FF8A50] mt-0.5 shadow-2xs">
+                        <div className="flex items-start gap-3 sm:gap-4 pt-4 border-t border-[#EAE6DF]/60">
+                          <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-[#0E1A2B] text-[12px] sm:text-[13px] font-bold text-[#FF8A50] mt-0.5 shadow-2xs">
                             A
                           </span>
                           <p className="flex-1 text-[13.5px] sm:text-[14.5px] leading-[1.8] text-[#374151]">
