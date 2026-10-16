@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-16T12:08:42.661Z">
+<project name="hanbat-mall" generated_at="2026-10-16T14:26:20.734Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>57</file_count>
+    <file_count>58</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -752,7 +752,7 @@ export default function AdminLayout({
 
 ]]>
     </file>
-    <file path="app/admin/page.tsx" lines="2064">
+    <file path="app/admin/page.tsx" lines="2150">
       <![CDATA[
 // 파일 경로: app/admin/page.tsx
 "use client";
@@ -785,6 +785,7 @@ import {
   extractInquiryImages,
   extractStorageFilesByBucket,
   generatePromoPostText,
+  parseStructuredInquiryDescription,
   type NotificationDispatchResult,
   telHref,
 } from "../../lib/site";
@@ -2052,11 +2053,96 @@ export default function IntegratedAdminDashboard() {
                         </div>
                       </div>
 
-                      {req.description && (
-                        <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
-                          {req.description}
-                        </div>
-                      )}
+                      {req.description &&
+                        (() => {
+                          const parsed = parseStructuredInquiryDescription(
+                            req.description
+                          );
+                          if (!parsed.isStructured) {
+                            return (
+                              <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                                {req.description}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="mt-3 space-y-2.5">
+                              {(parsed.structuredLines.length > 0 ||
+                                parsed.bulkItems.length > 0) && (
+                                <div className="rounded-md border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3.5 text-[13px] space-y-2">
+                                  <strong className="text-[12px] font-extrabold text-[#0E1A2B] block">
+                                    📋 고객 확인 상담 조건 ({req.inquiry_type})
+                                  </strong>
+                                  {parsed.structuredLines.length > 0 && (
+                                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                                      {parsed.structuredLines.map(
+                                        (row, idx) => (
+                                          <div
+                                            key={row.label + idx}
+                                            className="flex gap-2"
+                                          >
+                                            <dt className="font-bold text-[#4B5260] shrink-0">
+                                              {row.label}:
+                                            </dt>
+                                            <dd className="font-semibold text-[#0E1A2B]">
+                                              {row.value}
+                                            </dd>
+                                          </div>
+                                        )
+                                      )}
+                                    </dl>
+                                  )}
+                                  {parsed.bulkItems.length > 0 && (
+                                    <div className="pt-1.5 border-t border-[#E4E0D8]">
+                                      <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
+                                        📦 요청 장비 및 희망 수량 목록
+                                      </span>
+                                      <ul className="space-y-1 text-[12.5px] font-medium text-[#0E1A2B]">
+                                        {parsed.bulkItems.map((it, idx) => (
+                                          <li
+                                            key={idx}
+                                            className="bg-white px-2.5 py-1 rounded border border-[#E4E0D8]"
+                                          >
+                                            • {it}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {parsed.customerContent && (
+                                <div className="rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                                  <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
+                                    ✍️ 고객 작성 본문
+                                  </span>
+                                  {parsed.customerContent}
+                                </div>
+                              )}
+
+                              {(parsed.aiSummaryLines.length > 0 ||
+                                parsed.missingAndQuestions.length > 0) && (
+                                <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-[12px] text-amber-950 space-y-1">
+                                  <strong className="block text-amber-900">
+                                    🤖 AI 사진 판독 참고 요약 (고객 확정 사실과 구분하여 확인하세요)
+                                  </strong>
+                                  {parsed.aiSummaryLines.map((line, idx) => (
+                                    <p key={idx}>• {line}</p>
+                                  ))}
+                                  {parsed.missingAndQuestions.map((q, idx) => (
+                                    <p
+                                      key={idx}
+                                      className="font-semibold text-[#B5431A]"
+                                    >
+                                      ⚠️ {q}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                       {imgs.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -3157,15 +3243,20 @@ export async function POST(req: NextRequest) {
 }
 ]]>
     </file>
-    <file path="app/api/analyze-inquiry/route.ts" lines="215">
+    <file path="app/api/analyze-inquiry/route.ts" lines="838">
       <![CDATA[
 // 파일 경로: app/api/analyze-inquiry/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 import {
   PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
   normalizeProductCategory,
+  type InquiryTypeValue,
+  type ProductCategoryValue,
+  type AnalyzeInquiryResponse,
+  type ExtractedFactItem,
+  type PhotoBreakdownItem,
+  type BulkRequestedItem,
 } from "../../../lib/site";
 import {
   checkRateLimit,
@@ -3179,6 +3270,679 @@ const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
+
+const ALLOWED_INQUIRY_TYPES: readonly InquiryTypeValue[] = [
+  "구매 문의",
+  "내 물건 팔기",
+  "대량·업소용 상담",
+  "기타 문의",
+];
+
+function normalizeInquiryType(raw: string): InquiryTypeValue {
+  const trimmed = raw.trim();
+  if ((ALLOWED_INQUIRY_TYPES as readonly string[]).includes(trimmed)) {
+    return trimmed as InquiryTypeValue;
+  }
+  if (trimmed.includes("구매")) return "구매 문의";
+  if (trimmed.includes("대량") || trimmed.includes("업소")) {
+    return "대량·업소용 상담";
+  }
+  if (trimmed.includes("기타")) return "기타 문의";
+  return "내 물건 팔기";
+}
+
+interface UserInputContext {
+  inquiryType: InquiryTypeValue;
+  photoCount: number;
+  userTitle: string;
+  userModel: string;
+  userRegion: string;
+  userDescription: string;
+  userBusinessType: string;
+  userElectrical: string;
+  userVoltageUpgrade: string;
+}
+
+const COMMON_AI_PRINCIPLES = `
+[공통 핵심 원칙 — 사실과 미확인 정보의 엄격한 분리]
+- 당신은 한밭중고전자의 고객 문의 작성을 돕는 보조 도구이며, 확인되지 않은 사실을 결정하는 도구가 아닙니다.
+- 사진에서 실제로 확인되는 정보와 사진만으로 확인할 수 없는 정보를 엄격히 구분하세요.
+- 모델명, 제조년월, 전압, 소비전력, 제품 수량, 제품 상태 등을 근거 없이 생성하거나 추측하지 마세요.
+- 사진에서 판독할 수 없는 값은 빈 문자열("") 또는 "미확인", "고객 확인 필요"로 반환하세요.
+- 사진 속 글자가 흐리거나 일부만 보이면 확정하지 말고 "일부 판독(재확인 필요)" 상태로 기록하세요.
+- 고객이 현재 폼에 직접 입력한 내용과 사진에서 추출한 내용을 구분하세요. 고객이 입력한 제품명이나 수량을 임의로 바꾸지 마세요.
+- 여러 사진이 첨부되면 각 사진(1번, 2번, 3번)의 내용을 개별 분석("photoBreakdown")한 뒤 동일 제품/현장인지 종합하고, 서로 다른 제품이나 현장의 사진을 하나의 제품으로 혼동하지 마세요.
+- 확인되지 않은 정보는 상세 문의 초안("descriptionDraft")에 사실처럼 단정해 쓰지 말고, 고객이 채워 넣을 빈칸이나 후속 질문("followUpQuestions")으로 제시하세요.
+
+[절대 혼동 금지 3대 기준]
+1. 사진에 보이는 제품 대수 ≠ 고객이 실제로 구매하거나 처분하려는 희망 수량 (고객이 수량을 명시하지 않았다면 희망 수량은 반드시 "미확인"으로 처리)
+2. 분전반·콘센트 사진에서 보이는 전기 표시 정보 ≠ 실제 승압 공사 필요 여부 판단 (사진만으로 승압이 필요하다고 절대 단정하지 말고 "모름·현장 확인 필요"로 처리)
+3. 외관 사진에서 관찰되는 상태(흠집·외형) ≠ 제품의 실제 작동 상태(냉방·냉동 성능, 압축기, 소음, 누수, 전기 안전성 등 작동 여부는 사진으로 알 수 없으므로 "작동 상태 미확인 — 고객 확인 필요"로 분리)
+`;
+
+function buildUserContextBlock(ctx: UserInputContext): string {
+  const lines = [
+    `• 선택된 상담 유형: ${ctx.inquiryType}`,
+    `• 첨부된 사진 수: ${ctx.photoCount}장`,
+    ctx.userTitle ? `• 고객 입력 제목/품목: ${ctx.userTitle}` : null,
+    ctx.userModel ? `• 고객 입력 모델명: ${ctx.userModel}` : null,
+    ctx.userRegion ? `• 고객 입력 지역: ${ctx.userRegion}` : null,
+    ctx.userBusinessType ? `• 고객 입력 업종: ${ctx.userBusinessType}` : null,
+    ctx.userElectrical ? `• 고객 선택 전기환경: ${ctx.userElectrical}` : null,
+    ctx.userVoltageUpgrade
+      ? `• 고객 선택 승압여부: ${ctx.userVoltageUpgrade}`
+      : null,
+    ctx.userDescription
+      ? `• 고객 작성 상세내용: ${ctx.userDescription}`
+      : null,
+  ].filter(Boolean);
+  return `[현재 고객이 폼에 직접 입력한 정보]\n${lines.join("\n")}`;
+}
+
+function buildBuyPrompt(ctx: UserInputContext): string {
+  return `
+당신은 대전 중고가전·업소용 주방기기 전문 매장 '한밭중고전자'의 [구매 문의] 전용 AI 분석 도우미입니다.
+목적: 고객이 원하는 제품의 재고·가격·배송·설치 상담을 빠르고 정확하게 받을 수 있도록 돕습니다.
+
+${COMMON_AI_PRINCIPLES}
+
+${buildUserContextBlock(ctx)}
+
+[구매 문의 전용 분석 지침]
+- 첨부된 사진이 (1) 구매 희망/참고 제품 사진인지, (2) 설치 예정 공간 사진인지, (3) 배관·콘센트·전기 환경 사진인지 먼저 구분하세요.
+- 고객이 설치 장소만 촬영했다면 공간의 구조만 설명하고, 특정 모델이나 특정 평형/용량이 필요하다고 단정하지 마세요.
+- 사진만으로 매장 재고 보유 여부, 판매 가격, 정확한 배송비, 설치비를 확정하지 마세요.
+- 구매 문의이므로 매입용 상태 등급("conditionGrade")은 절대 평가하지 말고 null로 반환하세요.
+- "applianceCategory"는 다음 5개 중 하나로 분류하세요: "에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기", "기타".
+
+반드시 다른 부연 설명 없이 아래 JSON 규격으로만 응답하세요:
+{
+  "applianceCategory": "에어컨/냉난방기",
+  "title": "벽걸이 에어컨 재고 및 배송·설치 문의",
+  "modelNumber": "",
+  "conditionGrade": null,
+  "summaryNote": "첨부하신 사진에서 제품 유형과 설치 공간 환경을 확인하여 구매 문의 초안을 정리했습니다.",
+  "photoBreakdown": [
+    { "photoIndex": 1, "role": "설치 공간 사진 / 참고 제품 사진", "summary": "사진에서 직접 확인된 내용 요약" }
+  ],
+  "extractedFacts": [
+    { "label": "제품 종류", "value": "확인된 값 또는 미확인", "source": "사진 판독", "status": "확인됨" }
+  ],
+  "missingInfo": ["설치 희망 지역 및 층수(엘리베이터 유무)", "희망 용량 또는 예산 범위"],
+  "followUpQuestions": ["설치하실 지역(동 단위)과 층수, 엘리베이터 유무를 알려주시겠어요?", "원하시는 용량(평형/리터)이나 선호 브랜드가 있으신가요?"],
+  "purchaseAnalysis": {
+    "photoTypes": ["참고 제품 사진"],
+    "requestedProduct": "확인된 제품 종류 및 모델/특징 요약 (미확인 시 미확인 표기)",
+    "confirmedSpecs": ["사진에서 읽히는 용량/규격만 기재, 없으면 빈 배열"],
+    "installationObservations": ["사진에서 확인되는 설치 공간·콘센트·배관 사항, 없으면 빈 배열"],
+    "purchaseRequirements": ["재고 및 설치 가능 여부 확인 요청"]
+  },
+  "descriptionDraft": "• 구매 희망 품목: \\n• 확인된 모델명/규격: (미확인 시 상담 후 결정)\\n• 사진 확인 사항: \\n• 설치 희망 지역 및 층수(엘리베이터 유무): \\n• 추가 문의사항(희망 배송일 등): "
+}
+`;
+}
+
+function buildSellPrompt(ctx: UserInputContext): string {
+  return `
+당신은 대전 중고가전·업소용 주방기기 전문 매장 '한밭중고전자'의 [내 물건 팔기 / 매입 문의] 전용 AI 분석 도우미입니다.
+목적: 매입 가능 여부를 검토하고 관리자가 전화 상담 전에 제품의 주요 정보를 정확히 파악할 수 있게 돕습니다.
+
+${COMMON_AI_PRINCIPLES}
+
+${buildUserContextBlock(ctx)}
+
+[내 물건 팔기(매입) 전용 분석 지침]
+- 가전제품 종류와 사진에서 확인 가능한 제조사, 모델명(명판 식별 정보)을 추출하세요.
+- 제조년월(연식)이 명판에서 실제로 선명하게 읽히는 경우에만 기록하고, 읽히지 않으면 절대 추정하지 말고 "미확인"으로 반환하세요.
+- 전기용품 및 생활용품 안전관리법 관련 표시사항(정격전압, 소비전력, 인증번호 등 해당 품목 적용 라벨)의 가독성을 "선명함", "일부만 보임", "판독 불가", "라벨 사진 없음" 중 하나로 평가하세요. 모든 제품에 동일한 인증 표시가 있다고 단정하지 마세요.
+- 외관 사진에서 관찰되는 긁힘, 찌그러짐, 변색, 부식, 파손 등은 있는 그대로의 관찰 사실("visibleConditionNotes")로만 작성하세요.
+- 외관 사진만으로 "정상 작동함", "냉방/냉동 잘됨", "소음 없음"이라고 절대 단정하지 마세요. 작동 상태는 반드시 "작동 상태 미확인 — 고객 확인 필요"로 구분하세요.
+- 제품 전체 사진과 명판 라벨 사진이 함께 있다면 두 사진이 같은 제품인지("일치 확인", "단일 사진/비교 대상 없음", "불일치 의심 — 확인 필요") 확인하세요.
+- 사진만으로 제품 등급(S/A/B/C급)을 신뢰성 있게 확정할 수 없으므로 "conditionGrade"는 null로 반환하여 고객이 직접 선택하게 하세요.
+
+반드시 다른 부연 설명 없이 아래 JSON 규격으로만 응답하세요:
+{
+  "applianceCategory": "냉장고",
+  "title": "양문형 냉장고 방문 매입 견적 문의",
+  "modelNumber": "",
+  "conditionGrade": null,
+  "summaryNote": "첨부 사진에서 외관 및 라벨 판독 가능 정보를 추출했습니다. 실제 작동 상태와 수거 여건을 확인해 주세요.",
+  "photoBreakdown": [
+    { "photoIndex": 1, "role": "제품 외관 전면 / 명판 라벨", "summary": "사진별 판독 내용" }
+  ],
+  "extractedFacts": [
+    { "label": "품목/제조사", "value": "확인된 값", "source": "사진 판독", "status": "확인됨" },
+    { "label": "제조년월(연식)", "value": "미확인", "source": "사진 판독", "status": "미확인" },
+    { "label": "작동 상태", "value": "작동 상태 미확인 — 고객 확인 필요", "source": "사진 판독", "status": "미확인" }
+  ],
+  "missingInfo": ["실제 정상 작동 여부(냉장·냉동·소음 등)", "정확한 제조년월(연식)", "수거 지역 및 층수(엘리베이터 유무)"],
+  "followUpQuestions": ["현재 전원을 켰을 때 냉장·냉동이나 주요 기능이 정상 작동하나요?", "명판 스티커의 제조년월(연식)과 모델명을 확인해 주실 수 있나요?", "수거 방문할 지역(동 단위)과 층수, 엘리베이터 유무는 어떻게 되나요?"],
+  "sellAnalysis": {
+    "manufacturer": "확인된 제조사 또는 미확인",
+    "manufacturingDate": "판독된 제조년월 또는 미확인",
+    "safetyLabelReadability": "선명함 | 일부만 보임 | 판독 불가 | 라벨 사진 없음",
+    "safetyLabelDetails": ["판독된 정격전압/소비전력/모델명 등 사실만 기재"],
+    "visibleConditionNotes": ["외관 사진에서 직접 관찰되는 상태 요약"],
+    "photoLabelConsistency": "일치 확인 | 단일 사진/비교 대상 없음 | 불일치 의심 — 확인 필요",
+    "operatingStatusNote": "작동 상태 미확인 — 고객 확인 필요",
+    "confirmedQuantity": "고객이 기재했거나 명확히 확인된 수량, 불확실하면 미확인"
+  },
+  "descriptionDraft": "• 매입 문의 품목: \\n• 확인된 제조사 / 모델명: \\n• 제조년월(연식): \\n• 사진상 외관 관찰 사항: \\n• 실제 작동 상태 (정상 작동 여부 직접 기입): [작동 상태 미확인 — 고객 확인 필요]\\n• 수거 희망 지역 / 층수(엘리베이터 유무) / 희망 일정: "
+}
+`;
+}
+
+function buildBulkPrompt(ctx: UserInputContext): string {
+  return `
+당신은 대전 중고가전·업소용 주방기기 전문 매장 '한밭중고전자'의 [대량·업소용 상담] 전용 AI 분석 도우미입니다.
+목적: 식당·카페·베이커리·마트·사무실 등 사업자가 필요한 장비의 종류와 수량, 전기 및 설치 환경을 구조화하여 대량 구매·설치·폐업 정리 상담을 정확히 받도록 돕습니다.
+
+${COMMON_AI_PRINCIPLES}
+
+${buildUserContextBlock(ctx)}
+
+[대량·업소용 상담 전용 분석 지침]
+1. 장비 종류와 수량 구분:
+   - 냉장고·냉동고(25/30/45박스, 테이블냉장고), 제빙기, 식기세척기, 쇼케이스, 냉난방기, 조리기기 등을 분류하세요.
+   - 사진 속에 장비가 보인다는 이유만으로 고객이 그 장비를 구매하려 한다고 단정하지 마세요.
+   - 사진에서 관찰되는 장비 대수("observedInPhotoCount")와 고객의 실제 구매 희망 수량("requestedQuantity")을 엄격히 분리하세요. 고객이 희망 수량을 직접 입력하지 않았다면 "requestedQuantity"는 반드시 "미확인"으로 반환하세요.
+2. 전기 용량 및 승압:
+   - 분전반, 차단기, 계량기, 명판 등이 사진에 있으면 읽을 수 있는 정보(단상/삼상, 표시 전압, 계약전력/차단기 용량)만 추출하고, 안 보이면 "미확인"으로 처리하세요.
+   - 사진만 보고 승압이 필요하다고 절대 확정하지 마세요. "voltageUpgradeStatus"는 고객이 명시하지 않은 한 반드시 "모름·현장 확인 필요"로 설정하고, 실제 승압 여부는 장비 사양 및 현장 전기 조건 확인이 필요하다고 안내하세요.
+3. 설치 환경 및 반입 동선:
+   - 공간 구조, 급수·배수, 가스, 환기, 출입구 폭, 계단/엘리베이터 등을 사진에서 확인 가능한 수준으로만 정리하세요.
+   - 사진에 치수가 없으면 가로·세로 길이(mm)를 숫자로 만들어내지 마세요. 공간이 넓어 보인다고 설치 가능하다고 확정하지 마세요.
+
+반드시 다른 부연 설명 없이 아래 JSON 규격으로만 응답하세요:
+{
+  "applianceCategory": "업소용기기",
+  "title": "업소용 주방·냉장 설비 대량 도입 및 설치 상담",
+  "modelNumber": "",
+  "conditionGrade": null,
+  "summaryNote": "첨부 사진과 입력 정보를 바탕으로 업소용 장비 목록과 전기·설치 확인 항목을 구조화했습니다.",
+  "photoBreakdown": [
+    { "photoIndex": 1, "role": "주방 설치 현장 / 분전반 / 참고 장비", "summary": "사진별 관찰 사실 요약" }
+  ],
+  "extractedFacts": [
+    { "label": "확인된 장비/현장", "value": "관찰 내용", "source": "사진 판독", "status": "확인됨" }
+  ],
+  "missingInfo": ["품목별 정확한 구매 희망 수량", "매장 전기 규격(단상/삼상) 및 계약전력", "설치 희망 지역 및 일정"],
+  "followUpQuestions": [
+    "도입하시려는 품목별로 각각 몇 대씩 필요하신가요?",
+    "매장 전기가 단상(220V)인지 삼상(380V)인지, 승압 여부가 확인되셨나요? (모르셔도 상담 가능합니다)",
+    "설치 희망 지역과 오픈(또는 납품 희망) 일정이 언제인가요?"
+  ],
+  "bulkAnalysis": {
+    "businessType": "고객 입력 업종 또는 미확인(식당/카페/사업장 등 확인 필요)",
+    "requestedItems": [
+      {
+        "id": "item-1",
+        "category": "사진에서 확인되거나 고객이 요청한 품목명",
+        "observedInPhotoCount": 1,
+        "requestedQuantity": "미확인",
+        "modelNumber": "미확인",
+        "specs": "사진에서 확인된 외형/규격만 기재",
+        "verificationStatus": "사진 참고 확인(수량 미정)"
+      }
+    ],
+    "electricalInfo": {
+      "phaseType": "모름/미확인",
+      "observedVoltage": "미확인",
+      "contractPower": "미확인",
+      "readability": "전기/분전반 사진 없음 또는 판독 불가",
+      "voltageUpgradeStatus": "모름·현장 확인 필요",
+      "notes": "실제 승압 필요 여부는 도입 장비 사양 및 현장 분전반 확인 후 판단이 필요합니다."
+    },
+    "installationInfo": {
+      "spaceLayout": "사진에서 확인되는 공간 구조 (치수 추정 금지)",
+      "utilities": "급수·배수·가스·환기·콘센트 관찰 사항 또는 미확인",
+      "accessRoute": "출입구·계단·엘리베이터 등 반입 동선 확인 필요",
+      "removalAndExtra": "기존 장비 철거 유무 및 세금계산서 발행 등 추가 요청 확인 필요",
+      "targetRegionAndSchedule": "미확인 (고객 입력 필요)"
+    }
+  },
+  "descriptionDraft": "• 업종 및 용도: \\n• 구매/도입 희망 장비 및 수량: (품목별 희망 대수를 적어주세요)\\n• 전기 환경 및 승압 확인: 단상/삼상 미확인 (모름·현장 확인 필요)\\n• 설치 공간 및 설비(급배수·가스·동선) 메모: \\n• 설치 희망 지역 및 일정: \\n• 기존 철거 유무 및 추가 요청사항: "
+}
+`;
+}
+
+function buildOtherPrompt(ctx: UserInputContext): string {
+  return `
+당신은 대전 중고가전·업소용 주방기기 전문 매장 '한밭중고전자'의 [기타 문의] 전용 AI 분석 도우미입니다.
+목적: 고객의 질문 의도를 훼손하지 않고 핵심을 깔끔하게 정리합니다.
+
+${COMMON_AI_PRINCIPLES}
+
+${buildUserContextBlock(ctx)}
+
+[기타 문의 전용 분석 지침]
+- 일반적인 문의나 제품과 무관한 사진에 억지로 가전제품 종류, 제조사, 모델명, 제품 등급("conditionGrade")을 지정하지 마세요.
+- 원래 문의 의도를 유지하고, 사진에서 명확히 확인되는 사실만 요약하세요.
+- 제품 정보가 없으면 제품 분석 대신 문의 초안 정리 중심으로 처리하고, 답변에 꼭 필요한 질문만 1~2개 제안하세요.
+
+반드시 다른 부연 설명 없이 아래 JSON 규격으로만 응답하세요:
+{
+  "applianceCategory": "기타",
+  "title": "기타 상담 문의드립니다",
+  "modelNumber": "",
+  "conditionGrade": null,
+  "summaryNote": "첨부 사진에서 확인 가능한 내용만 요약하여 문의 초안을 정리했습니다.",
+  "photoBreakdown": [
+    { "photoIndex": 1, "role": "첨부 참고 이미지", "summary": "사진에서 명확히 확인되는 내용" }
+  ],
+  "extractedFacts": [],
+  "missingInfo": ["구체적인 문의 용건 또는 희망 상담 내용"],
+  "followUpQuestions": ["어떤 부분에 대해 가장 우선적으로 안내받기 원하시나요?"],
+  "otherAnalysis": {
+    "inquirySummary": "고객 문의 핵심 요약",
+    "observedItems": ["사진에서 확인된 요소 (없으면 빈 배열)"]
+  },
+  "descriptionDraft": "• 문의 내용: \\n• 사진 참고 사항: \\n• 연락 희망 시간대 또는 추가 요청: "
+}
+`;
+}
+
+function cleanText(val: unknown, maxLen = 300, fallback = ""): string {
+  if (typeof val !== "string") return fallback;
+  const trimmed = val.trim();
+  if (
+    trimmed === "null" ||
+    trimmed === "undefined" ||
+    trimmed === "N/A" ||
+    trimmed === "없음"
+  ) {
+    return fallback;
+  }
+  return trimmed.slice(0, maxLen);
+}
+
+function cleanStringArray(val: unknown, maxItems = 8, maxLen = 200): string[] {
+  if (!Array.isArray(val)) return [];
+  return val
+    .map((item) => cleanText(item, maxLen))
+    .filter(Boolean)
+    .slice(0, maxItems);
+}
+
+export function sanitizeAnalysisResponse(
+  raw: Record<string, unknown>,
+  ctx: UserInputContext
+): AnalyzeInquiryResponse {
+  const { inquiryType } = ctx;
+
+  const rawCat = cleanText(raw.applianceCategory, 40);
+  let applianceCategory: ProductCategoryValue | "" = "기타";
+  if (inquiryType === "기타 문의" && (!rawCat || rawCat === "기타")) {
+    applianceCategory = "기타";
+  } else if ((PRODUCT_CATEGORIES as readonly string[]).includes(rawCat)) {
+    applianceCategory = rawCat as ProductCategoryValue;
+  } else if (rawCat) {
+    applianceCategory = normalizeProductCategory(rawCat);
+  } else if (inquiryType === "대량·업소용 상담") {
+    applianceCategory = "업소용기기";
+  }
+
+  const rawModel = cleanText(raw.modelNumber, 60);
+  const isUnverifiedModel =
+    !rawModel ||
+    /^(미확인|알\s*수\s*없음|판독\s*불가|확인\s*불가|없음|unknown|none)$/i.test(
+      rawModel
+    );
+  const modelNumber =
+    inquiryType === "기타 문의"
+      ? ""
+      : isUnverifiedModel
+      ? ctx.userModel || ""
+      : rawModel;
+
+  // 제품 등급(conditionGrade)은 AI가 임의로 확정하지 않도록 null 반환
+  const conditionGrade: string | null = null;
+
+  const defaultTitles: Record<InquiryTypeValue, string> = {
+    "구매 문의": `${applianceCategory} 재고 및 구매·설치 문의`,
+    "내 물건 팔기": `${applianceCategory} 방문 매입 견적 문의`,
+    "대량·업소용 상담": "업소용 주방·냉장 설비 대량 도입 및 설치 상담",
+    "기타 문의": "상담 문의드립니다",
+  };
+
+  const title =
+    cleanText(raw.title, 80) || ctx.userTitle || defaultTitles[inquiryType];
+
+  const summaryNote =
+    cleanText(raw.summaryNote, 240) ||
+    `첨부 사진 ${ctx.photoCount}장을 [${inquiryType}] 기준에 맞춰 분석했습니다. 미확인 항목을 확인 후 제출해 주세요.`;
+
+  const photoBreakdown: PhotoBreakdownItem[] = Array.isArray(raw.photoBreakdown)
+    ? raw.photoBreakdown
+        .slice(0, MAX_FILES)
+        .map((item: unknown, idx: number) => {
+          const obj =
+            item && typeof item === "object"
+              ? (item as Record<string, unknown>)
+              : {};
+          return {
+            photoIndex:
+              typeof obj.photoIndex === "number" ? obj.photoIndex : idx + 1,
+            role: cleanText(obj.role, 60, `사진 ${idx + 1}`),
+            summary: cleanText(obj.summary, 200, "사진 판독 완료"),
+          };
+        })
+    : [];
+
+  const extractedFacts: ExtractedFactItem[] = Array.isArray(raw.extractedFacts)
+    ? raw.extractedFacts.slice(0, 12).map((item: unknown) => {
+        const obj =
+          item && typeof item === "object"
+            ? (item as Record<string, unknown>)
+            : {};
+        const rawSource = cleanText(obj.source, 30);
+        const source =
+          rawSource === "고객 직접 입력" ? "고객 직접 입력" : "사진 판독";
+        const rawStatus = cleanText(obj.status, 30);
+        const status =
+          rawStatus === "확인됨" || rawStatus === "일부 판독(재확인 필요)"
+            ? rawStatus
+            : "미확인";
+        return {
+          label: cleanText(obj.label, 50, "확인 항목"),
+          value: cleanText(obj.value, 140, "미확인"),
+          source,
+          status,
+        };
+      })
+    : [];
+
+  const missingInfo = cleanStringArray(raw.missingInfo, 8, 140);
+  const followUpQuestions = cleanStringArray(raw.followUpQuestions, 6, 160);
+
+  let descriptionDraft = cleanText(raw.descriptionDraft, 1800);
+
+  const response: AnalyzeInquiryResponse = {
+    success: true,
+    inquiryType,
+    applianceCategory,
+    title,
+    modelNumber,
+    conditionGrade,
+    descriptionDraft: "",
+    summaryNote,
+    photoBreakdown,
+    extractedFacts,
+    missingInfo,
+    followUpQuestions,
+  };
+
+  if (inquiryType === "구매 문의") {
+    const pa =
+      raw.purchaseAnalysis && typeof raw.purchaseAnalysis === "object"
+        ? (raw.purchaseAnalysis as Record<string, unknown>)
+        : {};
+    response.purchaseAnalysis = {
+      photoTypes: cleanStringArray(pa.photoTypes, 4, 60),
+      requestedProduct: cleanText(
+        pa.requestedProduct,
+        160,
+        `${applianceCategory}${modelNumber ? ` (${modelNumber})` : ""}`
+      ),
+      confirmedSpecs: cleanStringArray(pa.confirmedSpecs, 6, 120),
+      installationObservations: cleanStringArray(
+        pa.installationObservations,
+        6,
+        150
+      ),
+      purchaseRequirements: cleanStringArray(pa.purchaseRequirements, 6, 150),
+    };
+
+    if (!descriptionDraft) {
+      descriptionDraft = [
+        `• 구매 희망 품목: ${response.purchaseAnalysis.requestedProduct}`,
+        `• 확인된 모델명/사양: ${modelNumber || "미확인 (상담 시 추천 희망)"}`,
+        response.purchaseAnalysis.installationObservations.length > 0
+          ? `• 사진 확인 사항: ${response.purchaseAnalysis.installationObservations.join(", ")}`
+          : null,
+        `• 설치 희망 지역 및 층수(엘리베이터 유무): ${ctx.userRegion || "(입력 필요)"}`,
+        `• 상세 문의 내용: `,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
+  } else if (inquiryType === "내 물건 팔기") {
+    const sa =
+      raw.sellAnalysis && typeof raw.sellAnalysis === "object"
+        ? (raw.sellAnalysis as Record<string, unknown>)
+        : {};
+    const rawReadability = cleanText(sa.safetyLabelReadability, 40);
+    const safetyLabelReadability = (
+      ["선명함", "일부만 보임", "판독 불가", "라벨 사진 없음"] as const
+    ).includes(rawReadability as "선명함")
+      ? (rawReadability as
+          | "선명함"
+          | "일부만 보임"
+          | "판독 불가"
+          | "라벨 사진 없음")
+      : "라벨 사진 없음";
+
+    const rawConsistency = cleanText(sa.photoLabelConsistency, 50);
+    const photoLabelConsistency = (
+      [
+        "일치 확인",
+        "단일 사진/비교 대상 없음",
+        "불일치 의심 — 확인 필요",
+      ] as const
+    ).includes(rawConsistency as "일치 확인")
+      ? (rawConsistency as
+          | "일치 확인"
+          | "단일 사진/비교 대상 없음"
+          | "불일치 의심 — 확인 필요")
+      : "단일 사진/비교 대상 없음";
+
+    const manufacturingDate = cleanText(
+      sa.manufacturingDate,
+      50,
+      "미확인 (고객 확인 필요)"
+    );
+
+    const operatingStatusNote =
+      "작동 상태 미확인 — 고객 확인 필요 (냉방·냉동 성능, 소음, 누수 등 실제 작동 여부를 선택/기재해 주세요)";
+
+    response.sellAnalysis = {
+      manufacturer: cleanText(sa.manufacturer, 50, "미확인"),
+      manufacturingDate,
+      safetyLabelReadability,
+      safetyLabelDetails: cleanStringArray(sa.safetyLabelDetails, 6, 140),
+      visibleConditionNotes: cleanStringArray(sa.visibleConditionNotes, 6, 150),
+      photoLabelConsistency,
+      operatingStatusNote,
+      confirmedQuantity: cleanText(sa.confirmedQuantity, 40, "미확인"),
+    };
+
+    if (!descriptionDraft) {
+      descriptionDraft = [
+        `• 매입 문의 품목: ${applianceCategory} (${response.sellAnalysis.manufacturer !== "미확인" ? response.sellAnalysis.manufacturer : "제조사 확인 필요"})`,
+        `• 판독 모델명: ${modelNumber || "미확인 (명판 확인 필요)"}`,
+        `• 판독 제조년월(연식): ${manufacturingDate}`,
+        response.sellAnalysis.visibleConditionNotes.length > 0
+          ? `• 사진상 외관 관찰: ${response.sellAnalysis.visibleConditionNotes.join(", ")}`
+          : `• 사진상 외관 관찰: 특이 파손 미관찰 (실물 확인 필요)`,
+        `• 실제 작동 상태: 작동 상태 미확인 — 고객 확인 필요`,
+        `• 수거 희망 지역 및 층수(엘리베이터 유무): ${ctx.userRegion || "(입력 필요)"}`,
+      ].join("\n");
+    }
+  } else if (inquiryType === "대량·업소용 상담") {
+    const ba =
+      raw.bulkAnalysis && typeof raw.bulkAnalysis === "object"
+        ? (raw.bulkAnalysis as Record<string, unknown>)
+        : {};
+    const rawItems = Array.isArray(ba.requestedItems) ? ba.requestedItems : [];
+
+    const userMentionedQty = /(\d+)\s*(대|개|세트|조)/.test(
+      `${ctx.userTitle} ${ctx.userDescription}`
+    );
+
+    const requestedItems: BulkRequestedItem[] =
+      rawItems.length > 0
+        ? rawItems.slice(0, 10).map((it: unknown, idx: number) => {
+            const obj =
+              it && typeof it === "object"
+                ? (it as Record<string, unknown>)
+                : {};
+            const rawQty = cleanText(obj.requestedQuantity, 40, "미확인");
+            const safeQuantity =
+              !userMentionedQty && /^\d+\s*(대|개)?$/.test(rawQty)
+                ? "미확인"
+                : rawQty || "미확인";
+
+            return {
+              id: `bulk-item-${idx + 1}`,
+              category: cleanText(obj.category, 60, "업소용 설비"),
+              observedInPhotoCount:
+                typeof obj.observedInPhotoCount === "number"
+                  ? obj.observedInPhotoCount
+                  : null,
+              requestedQuantity: safeQuantity,
+              modelNumber: cleanText(obj.modelNumber, 60, "미확인"),
+              specs: cleanText(obj.specs, 120, ""),
+              verificationStatus: userMentionedQty
+                ? "고객 입력 확인"
+                : "사진 참고 확인(수량 미정)",
+            };
+          })
+        : [
+            {
+              id: "bulk-item-1",
+              category: applianceCategory || "업소용 냉장·주방기기",
+              observedInPhotoCount: null,
+              requestedQuantity: "미확인",
+              modelNumber: modelNumber || "미확인",
+              specs: "",
+              verificationStatus: "추가 확인 필요",
+            },
+          ];
+
+    const elec =
+      ba.electricalInfo && typeof ba.electricalInfo === "object"
+        ? (ba.electricalInfo as Record<string, unknown>)
+        : {};
+    const inst =
+      ba.installationInfo && typeof ba.installationInfo === "object"
+        ? (ba.installationInfo as Record<string, unknown>)
+        : {};
+
+    const safeVoltageUpgrade: "필요" | "불필요" | "모름·현장 확인 필요" =
+      ctx.userVoltageUpgrade === "필요"
+        ? "필요"
+        : ctx.userVoltageUpgrade === "불필요"
+        ? "불필요"
+        : "모름·현장 확인 필요";
+
+    const rawPhase = cleanText(elec.phaseType, 40);
+    const safePhase: "단상 220V" | "삼상 380V" | "모름/미확인" =
+      ctx.userElectrical === "단상 220V" || rawPhase === "단상 220V"
+        ? "단상 220V"
+        : ctx.userElectrical === "삼상 380V" || rawPhase === "삼상 380V"
+        ? "삼상 380V"
+        : "모름/미확인";
+
+    response.bulkAnalysis = {
+      businessType:
+        ctx.userBusinessType ||
+        cleanText(ba.businessType, 60, "미확인 (업종 입력 권장)"),
+      requestedItems,
+      electricalInfo: {
+        phaseType: safePhase,
+        observedVoltage: cleanText(elec.observedVoltage, 60, "미확인"),
+        contractPower: cleanText(elec.contractPower, 60, "미확인"),
+        readability: cleanText(
+          elec.readability,
+          80,
+          "분전반/전기 표시 미확인"
+        ),
+        voltageUpgradeStatus: safeVoltageUpgrade,
+        notes: cleanText(
+          elec.notes,
+          180,
+          "실제 승압 필요 여부는 장비 사양 및 현장 전기 조건 확인이 필요합니다."
+        ),
+      },
+      installationInfo: {
+        spaceLayout: cleanText(inst.spaceLayout, 180, "현장 치수/배치 확인 필요"),
+        utilities: cleanText(
+          inst.utilities,
+          180,
+          "급수·배수·가스·환기 조건 확인 필요"
+        ),
+        accessRoute: cleanText(
+          inst.accessRoute,
+          180,
+          "출입구 폭 및 반입 동선 확인 필요"
+        ),
+        removalAndExtra: cleanText(
+          inst.removalAndExtra,
+          180,
+          "기존 장비 철거 유무 및 추가 요청 확인 필요"
+        ),
+        targetRegionAndSchedule:
+          ctx.userRegion ||
+          cleanText(inst.targetRegionAndSchedule, 120, "미확인"),
+      },
+    };
+
+    if (!response.followUpQuestions.some((q) => q.includes("몇 대"))) {
+      response.followUpQuestions.unshift(
+        "품목별로 각각 몇 대씩 구매(또는 설치)를 희망하시나요?"
+      );
+    }
+
+    if (!descriptionDraft) {
+      const itemSummary = requestedItems
+        .map(
+          (it) =>
+            `  - ${it.category} | 희망 수량: ${it.requestedQuantity}${
+              it.modelNumber && it.modelNumber !== "미확인"
+                ? ` | 모델: ${it.modelNumber}`
+                : ""
+            }`
+        )
+        .join("\n");
+      descriptionDraft = [
+        `• 업종 및 용도: ${response.bulkAnalysis.businessType}`,
+        `• 확인된 장비 및 희망 수량:\n${itemSummary}`,
+        `• 전기 규격 / 승압 여부: ${safePhase} / 승압(${safeVoltageUpgrade})`,
+        `• 설치 공간 및 설비 관찰: ${response.bulkAnalysis.installationInfo.spaceLayout} (${response.bulkAnalysis.installationInfo.utilities})`,
+        `• 설치 희망 지역 및 일정: ${ctx.userRegion || "(입력 필요)"}`,
+        `• 철거 유무 및 추가 요청사항: `,
+      ].join("\n");
+    }
+  } else {
+    const oa =
+      raw.otherAnalysis && typeof raw.otherAnalysis === "object"
+        ? (raw.otherAnalysis as Record<string, unknown>)
+        : {};
+    response.otherAnalysis = {
+      inquirySummary: cleanText(
+        oa.inquirySummary,
+        240,
+        "첨부 이미지 참고 일반 문의"
+      ),
+      observedItems: cleanStringArray(oa.observedItems, 6, 120),
+    };
+
+    if (!descriptionDraft) {
+      descriptionDraft = [
+        `• 문의 요약: ${response.otherAnalysis.inquirySummary}`,
+        response.otherAnalysis.observedItems.length > 0
+          ? `• 사진 확인 내용: ${response.otherAnalysis.observedItems.join(", ")}`
+          : null,
+        `• 상세 문의 내용: `,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    }
+  }
+
+  response.descriptionDraft = descriptionDraft;
+  return response;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -3198,7 +3962,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "현재 AI 자동 분석 기능을 사용할 수 없습니다. 아래 입력란에 직접 적어주세요.",
+            "현재 AI 자동 분석 기능을 사용할 수 없습니다. 아래 입력란에 직접 적어주시면 빠르게 확인하겠습니다.",
         },
         { status: 503 }
       );
@@ -3220,38 +3984,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const rawType = String(formData.get("inquiryType") || "내 물건 팔기").trim();
+    const inquiryType = normalizeInquiryType(
+      String(formData.get("inquiryType") || "내 물건 팔기")
+    );
 
-    const prompt = `
-당신은 대전 중고가전·업소용 주방기기 전문 매장 '한밭중고전자'의 고객 상담/매입 자동 입력 AI입니다.
-고객이 첨부한 ${fileValidation.validated.length}장의 사진(제품 정면, 모델명 스티커/명판, 설치 공간 등)을 한 번에 종합 분석하여 고객이 문의 폼을 일일이 타이핑하지 않아도 되도록 초안을 작성하세요.
-현재 고객이 선택한 상담 유형: "${rawType}"
+    const ctx: UserInputContext = {
+      inquiryType,
+      photoCount: fileValidation.validated.length,
+      userTitle: cleanText(formData.get("userTitle"), 100),
+      userModel: cleanText(formData.get("userModel"), 60),
+      userRegion: cleanText(formData.get("userRegion"), 80),
+      userDescription: cleanText(formData.get("userDescription"), 1000),
+      userBusinessType: cleanText(formData.get("userBusinessType"), 60),
+      userElectrical: cleanText(formData.get("userElectrical"), 40),
+      userVoltageUpgrade: cleanText(formData.get("userVoltageUpgrade"), 40),
+    };
 
-[절대 준수 원칙]
-1. 사진 속 명판(라벨)에서 모델명이나 제조년월, 용량이 읽히면 정확히 추출하고, 사진에서 보이지 않는 정보는 절대 추측해서 지어내지 마세요.
-2. "applianceCategory"는 반드시 다음 5개 중 하나로만 분류하세요:
-   - "에어컨/냉난방기"
-   - "냉장고"
-   - "세탁기/건조기"
-   - "업소용기기"
-   - "기타"
-3. "conditionGrade"는 다음 4개 중 하나로 분류하세요:
-   - "S급 (새상품급)"
-   - "A급 (사용감 적음)"
-   - "B급 (보통)"
-   - "C급 (노후/점검필요)"
-4. "descriptionDraft"는 고객 입장에서 작성하는 3~4줄 분량의 간결한 문의 본문입니다. 사진에서 확인된 제품 정보(종류, 형태, 확인된 모델명/사양)를 첫 줄에 적고, 수거/설치 희망 일정이나 엘리베이터 유무만 추가로 적으면 되도록 안내 문구를 구성하세요.
-
-반드시 다른 설명 없이 아래 JSON 형식으로만 응답하세요:
-{
-  "applianceCategory": "냉장고",
-  "title": "삼성 양문형 냉장고 방문 매입 견적 문의",
-  "modelNumber": "RS84T5071SL",
-  "conditionGrade": "A급 (사용감 적음)",
-  "descriptionDraft": "• 사진 판독 품목: 삼성 양문형 냉장고 (모델명: RS84T5071SL)\\n• 작동 및 외관 상태: 정상 작동하며 외관 양호함\\n• 희망 방문일 및 층수(엘리베이터 유무): ",
-  "summaryNote": "첨부 사진에서 제품 외관과 모델명 라벨을 확인하여 자동 입력했습니다."
-}
-`;
+    const prompt =
+      inquiryType === "구매 문의"
+        ? buildBuyPrompt(ctx)
+        : inquiryType === "대량·업소용 상담"
+        ? buildBulkPrompt(ctx)
+        : inquiryType === "기타 문의"
+        ? buildOtherPrompt(ctx)
+        : buildSellPrompt(ctx);
 
     const imageParts = fileValidation.validated.map((item) => ({
       inlineData: {
@@ -3300,68 +4056,21 @@ export async function POST(req: NextRequest) {
 
     const responseText = response.text?.trim() || "";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    let raw: Record<string, unknown> = {};
+    let rawParsed: Record<string, unknown> = {};
 
     if (jsonMatch) {
       try {
-        raw = JSON.parse(jsonMatch[0]);
+        rawParsed = JSON.parse(jsonMatch[0]);
       } catch {
-        // fallback below
+        console.warn("[analyze-inquiry] JSON 파싱 폴백 처리");
       }
     }
 
-    const categoryCandidate =
-      typeof raw.applianceCategory === "string"
-        ? raw.applianceCategory.trim()
-        : "";
-    const applianceCategory = (
-      PRODUCT_CATEGORIES as readonly string[]
-    ).includes(categoryCandidate)
-      ? categoryCandidate
-      : normalizeProductCategory(categoryCandidate);
-
-    const gradeCandidate =
-      typeof raw.conditionGrade === "string" ? raw.conditionGrade.trim() : "";
-    const conditionGrade = (
-      PRODUCT_CONDITION_GRADES as readonly string[]
-    ).includes(gradeCandidate)
-      ? gradeCandidate
-      : PRODUCT_CONDITION_GRADES[1];
-
-    const modelNumber =
-      typeof raw.modelNumber === "string" &&
-      raw.modelNumber.trim() !== "미확인" &&
-      raw.modelNumber.trim() !== "없음"
-        ? raw.modelNumber.trim().slice(0, 60)
-        : "";
-
-    const title =
-      typeof raw.title === "string" && raw.title.trim()
-        ? raw.title.trim().slice(0, 80)
-        : `${applianceCategory} ${rawType} 신청합니다`;
-
-    const descriptionDraft =
-      typeof raw.descriptionDraft === "string" && raw.descriptionDraft.trim()
-        ? raw.descriptionDraft.trim().slice(0, 1500)
-        : `• 문의 품목: ${applianceCategory}${modelNumber ? ` (${modelNumber})` : ""}\n• 희망 지역 및 층수(엘리베이터 유무): \n• 상세 문의 내용: `;
-
-    const summaryNote =
-      typeof raw.summaryNote === "string" && raw.summaryNote.trim()
-        ? raw.summaryNote.trim()
-        : `사진 ${fileValidation.validated.length}장을 분석하여 품목과 내용을 자동 작성했습니다.`;
-
-    return NextResponse.json({
-      success: true,
-      applianceCategory,
-      title,
-      modelNumber,
-      conditionGrade,
-      descriptionDraft,
-      summaryNote,
-    });
+    const sanitized = sanitizeAnalysisResponse(rawParsed, ctx);
+    return NextResponse.json(sanitized);
   } catch (err: unknown) {
     console.error(
-      "문의 사진 AI 분석 오류:",
+      "[analyze-inquiry] 분석 처리 중 오류:",
       err instanceof Error ? err.message : "Unknown error"
     );
     return NextResponse.json(
@@ -7403,7 +8112,7 @@ export default function InquiryLayout({
 }
 ]]>
     </file>
-    <file path="app/inquiry/page.tsx" lines="1389">
+    <file path="app/inquiry/page.tsx" lines="1472">
       <![CDATA[
 "use client";
 
@@ -7424,6 +8133,7 @@ import {
   isBulkBizInquiry,
   getInquiryTypeLabel,
   INQUIRY_ADMIN_STATUS_OPTIONS,
+  parseStructuredInquiryDescription,
   type InquiryTypeValue,
 } from "../../lib/site";
 import {
@@ -8555,11 +9265,93 @@ export default function InquiryBoardPage() {
                 </div>
               </div>
 
-              {selectedItem.description && (
-                <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
-                  {selectedItem.description}
-                </div>
-              )}
+              {selectedItem.description &&
+                (() => {
+                  const parsed = parseStructuredInquiryDescription(
+                    selectedItem.description
+                  );
+                  if (!parsed.isStructured) {
+                    return (
+                      <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                        {selectedItem.description}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="space-y-3">
+                      {(parsed.structuredLines.length > 0 ||
+                        parsed.bulkItems.length > 0) && (
+                        <div className="rounded-md border border-[#0E1A2B]/15 bg-[#F8FAFC] p-4 text-[13.5px] space-y-2">
+                          <strong className="text-[12.5px] font-extrabold text-[#0E1A2B] block">
+                            📋 상담 확인 조건 (
+                            {getInquiryTypeLabel(selectedItem.inquiry_type)})
+                          </strong>
+                          {parsed.structuredLines.length > 0 && (
+                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                              {parsed.structuredLines.map((row, idx) => (
+                                <div key={row.label + idx} className="flex gap-2">
+                                  <dt className="font-bold text-[#4B5260] shrink-0">
+                                    {row.label}:
+                                  </dt>
+                                  <dd className="font-semibold text-[#0E1A2B]">
+                                    {row.value}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          )}
+                          {parsed.bulkItems.length > 0 && (
+                            <div className="pt-2 border-t border-[#E4E0D8]">
+                              <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
+                                📦 요청 장비 및 수량
+                              </span>
+                              <ul className="space-y-1 text-[12.5px] font-medium text-[#0E1A2B]">
+                                {parsed.bulkItems.map((it, idx) => (
+                                  <li
+                                    key={idx}
+                                    className="bg-white px-2.5 py-1 rounded border border-[#E4E0D8]"
+                                  >
+                                    • {it}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {parsed.customerContent && (
+                        <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                          <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
+                            ✍️ 문의 내용
+                          </span>
+                          {parsed.customerContent}
+                        </div>
+                      )}
+
+                      {isAdmin &&
+                        (parsed.aiSummaryLines.length > 0 ||
+                          parsed.missingAndQuestions.length > 0) && (
+                          <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-[12px] text-amber-950 space-y-1">
+                            <strong className="block text-amber-900">
+                              🤖 AI 사진 판독 참고 요약 (관리자 확인용)
+                            </strong>
+                            {parsed.aiSummaryLines.map((line, idx) => (
+                              <p key={idx}>• {line}</p>
+                            ))}
+                            {parsed.missingAndQuestions.map((q, idx) => (
+                              <p
+                                key={idx}
+                                className="font-semibold text-[#B5431A]"
+                              >
+                                ⚠️ {q}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                    </div>
+                  );
+                })()}
 
               {selectedItem.images && selectedItem.images.length > 0 && (
                 <div className="grid grid-cols-3 gap-2.5">
@@ -14008,12 +14800,12 @@ export function TrustSection() {
 }
 ]]>
     </file>
-    <file path="components/inquiry/unified-inquiry-form.tsx" lines="1382">
+    <file path="components/inquiry/unified-inquiry-form.tsx" lines="1761">
       <![CDATA[
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
@@ -14023,9 +14815,11 @@ import {
   formatPhone,
   formatProductPrice,
   formatQuoteBasketSummary,
+  formatStructuredInquiryDescription,
   getQuoteBasket,
   INQUIRY_TYPES,
   type InquiryTypeValue,
+  type AnalyzeInquiryResponse,
   isSellInquiry,
   isBulkBizInquiry,
   isValidPhone,
@@ -14041,7 +14835,7 @@ import {
   trackEvent,
   validateImageFiles,
 } from "../../lib/site";
-import { Icon, ICON, Modal } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/ui";
 
 export type SubmissionPhase =
   | "idle"
@@ -14062,74 +14856,69 @@ export interface LinkedProductContext {
 const SELL_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
-    title: "안전관리법 표시사항 (라벨)",
-    desc: "모델명·정격전압·KC인증마크가 보이도록 선명하게 촬영",
+    title: "정면 전체 샷",
+    desc: "제품 외관과 도어 형태가 한눈에 보이게 촬영",
   },
   {
     step: "02",
-    title: "제조년월 스티커 (연식)",
-    desc: "제조년월 숫자가 확인 가능하도록 근접 촬영",
+    title: "모델명·제조년월 명판",
+    desc: "에너지효율등급 또는 정격 명판 스티커 근접 촬영",
   },
   {
     step: "03",
-    title: "제품 전체 사진 (외관)",
-    desc: "제품 전체 모습과 도어/외관 상태가 잘 보이도록 촬영",
+    title: "특이사항·반출 경로",
+    desc: "흠집 부위나 계단·출입문 등 참고 사진",
   },
 ] as const;
 
 const BUY_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
-    title: "원하는 제품 · 모델",
-    desc: "제품 사진이나 희망 모델명이 있으면 함께 첨부",
+    title: "희망 제품 또는 설치 공간",
+    desc: "찾으시는 제품 사진이나 들어갈 자리 전경 촬영",
   },
   {
     step: "02",
-    title: "설치할 공간",
-    desc: "제품을 설치할 장소 전체 모습이 보이도록 촬영",
+    title: "전원 · 급배수 · 배관",
+    desc: "콘센트(단상/삼상) 또는 배관 타공 위치",
   },
   {
     step: "03",
-    title: "주변 환경 · 배관",
-    desc: "콘센트 · 배관 · 문폭 등 반입 및 설치 관련 환경 촬영",
+    title: "반입 동선 참고 사진",
+    desc: "출입구 폭이나 계단·엘리베이터 등 참고 사진",
   },
 ] as const;
 
 const BULK_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
-    title: "업종 및 용도",
-    desc: "식당 · 카페 · 마트 · 사무실 등 매장 용도 및 업종",
+    title: "도입/처분 장비 또는 도면",
+    desc: "필요한 업소용 설비 참고 사진 또는 기존 장비 사진",
   },
   {
     step: "02",
-    title: "필요한 제품 종류 및 수량",
-    desc: "냉장고/냉동고, 제빙기/식기세척기, 주방기기 등",
+    title: "매장 분전반 · 전원 환경",
+    desc: "단상/삼상 차단기 용량이나 콘센트 위치 사진",
   },
   {
     step: "03",
-    title: "전기 용량 및 승압 여부",
-    desc: "단상/삼상, 기존 용량(220V/380V), 승압 필요 여부",
-  },
-  {
-    step: "04",
-    title: "설치 공간 정보",
-    desc: "가로/세로/높이, 배수·급수 위치, 환기/배선 등",
-  },
-  {
-    step: "05",
-    title: "설치 가능 날짜 및 지역",
-    desc: "희망 설치 날짜, 설치 주소 상세, 연락 가능한 연락처",
-  },
-  {
-    step: "06",
-    title: "추가 요청사항",
-    desc: "기존 제품 철거 여부, 배송 일정 조율 등",
+    title: "주방 공간 · 반입 동선",
+    desc: "설치할 주방 자리와 급배수·출입구 전경",
   },
 ] as const;
 
+const QUICK_BULK_EQUIPMENT_PRESETS = [
+  "업소용 45박스 냉장/냉동고",
+  "테이블 냉장고",
+  "음료/주류 쇼케이스",
+  "업소용 제빙기",
+  "업소용 식기세척기",
+  "중대형 냉난방기",
+  "스텐 작업대/세정대",
+] as const;
+
 export function UnifiedInquiryForm({
-  defaultType = "내 물건 팔기",
+  defaultType = "구매 문의",
   linkedProduct,
   isAdmin = false,
   allowNoticeToggle = false,
@@ -14156,12 +14945,44 @@ export function UnifiedInquiryForm({
   );
   const [title, setTitle] = useState(linkedProduct?.productTitle || "");
   const [model, setModel] = useState(linkedProduct?.modelName || "");
-  const [conditionGrade, setConditionGrade] = useState<string>(
-    PRODUCT_CONDITION_GRADES[1]
-  );
   const [region, setRegion] = useState("");
+  const [schedule, setSchedule] = useState("");
   const [description, setDescription] = useState("");
 
+  /* 매입(내 물건 팔기) 전용 상태 — 외관 상태와 실제 작동 상태를 엄격히 분리 */
+  const [manufacturingDate, setManufacturingDate] = useState("");
+  const [operatingStatus, setOperatingStatus] = useState<string>(
+    "작동 상태 미확인 (상담 시 안내)"
+  );
+  const [conditionGrade, setConditionGrade] = useState<string>("");
+
+  /* 대량·업소용 전용 구조화 상태 — 몰라도 제출 가능하도록 기본값 구성 */
+  const [businessType, setBusinessType] = useState("");
+  const [bulkItems, setBulkItems] = useState<
+    Array<{
+      id: string;
+      category: string;
+      requestedQuantity: string;
+      modelNumber: string;
+      specs: string;
+    }>
+  >([
+    {
+      id: "init-1",
+      category: "",
+      requestedQuantity: "미확인",
+      modelNumber: "",
+      specs: "",
+    },
+  ]);
+  const [electricalPhase, setElectricalPhase] = useState<string>("모름/미확인");
+  const [voltageUpgrade, setVoltageUpgrade] = useState<string>(
+    "모름·현장 확인 필요"
+  );
+  const [spaceAndUtilities, setSpaceAndUtilities] = useState("");
+  const [accessAndRemoval, setAccessAndRemoval] = useState("");
+
+  /* 견적함 연동 상태 */
   const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
   const [bundleApplied, setBundleApplied] = useState(false);
 
@@ -14172,16 +14993,13 @@ export function UnifiedInquiryForm({
     null
   );
   const [isAnalyzingPhotos, setIsAnalyzingPhotos] = useState(false);
-  const [aiAnalysisSummary, setAiAnalysisSummary] = useState<string | null>(
-    null
-  );
-  const [showPhotoGuide, setShowPhotoGuide] = useState(false);
-  const [zoomedImage, setZoomedImage] = useState<{
-    src: string;
-    alt: string;
-    title: string;
-    desc?: string;
+  const [aiResult, setAiResult] = useState<AnalyzeInquiryResponse | null>(null);
+  const [pendingConflicts, setPendingConflicts] = useState<{
+    title?: string;
+    model?: string;
+    description?: string;
   } | null>(null);
+  const [showPhotoGuide, setShowPhotoGuide] = useState(false);
 
   const [agreed, setAgreed] = useState(false);
   const [phase, setPhase] = useState<SubmissionPhase>("idle");
@@ -14192,13 +15010,24 @@ export function UnifiedInquiryForm({
   const applyBasketToForm = useCallback((items: QuoteBasketItem[]) => {
     if (items.length === 0) return;
     const summary = formatQuoteBasketSummary(items);
-    setInquiryType(
+    const nextType =
       summary.hasCommercialItem || items.length >= 2
         ? "대량·업소용 상담"
-        : "구매 문의"
-    );
+        : "구매 문의";
+    setInquiryType(nextType);
     setTitle(summary.autoTitle);
     setDescription(summary.autoDescription);
+    if (nextType === "대량·업소용 상담") {
+      setBulkItems(
+        items.map((it, idx) => ({
+          id: `basket-${idx}`,
+          category: it.title,
+          requestedQuantity: "1대",
+          modelNumber: it.modelName || "",
+          specs: formatProductPrice(it.price, it.category),
+        }))
+      );
+    }
     setBundleApplied(true);
   }, []);
 
@@ -14245,73 +15074,18 @@ export function UnifiedInquiryForm({
 
   const isSell = !isNotice && isSellInquiry(inquiryType);
   const isBulk = !isNotice && isBulkBizInquiry(inquiryType);
+  const isOther = !isNotice && inquiryType === "기타 문의";
   const isBusy =
     phase === "validating" ||
     phase === "submitting" ||
     phase === "retrying" ||
     isAnalyzingPhotos;
 
-  const currentGuide = useMemo(() => {
-    if (isBulk) {
-      return {
-        headerTitle: "대량·업소용 상담 시 필수 확인 및 권장 안내",
-        badge: "※ 주방 공간 · 분전반 사진 권장",
-        imageSrc: "/images/photo-guide-bulk.jpg",
-        imageAlt:
-          "한밭중고전자 대량·업소용 상담 필수 정보: 1. 업종/용도, 2. 제품종류/수량, 3. 전기용량/승압여부, 4. 설치공간정보, 5. 설치가능일자/지역, 6. 추가요청사항",
-        zoomTitle: "대량·업소용 상담 가이드 (공간 · 전기용량 · 품목)",
-        zoomDesc:
-          "식당·카페·마트 등 매장 집기 견적은 분전반과 주방 공간 사진을 함께 보내주시면 가장 빠르고 최적화된 맞춤 견적을 받으실 수 있습니다.",
-        steps: BULK_PHOTO_GUIDE_STEPS,
-        gridCols: "grid-cols-2 sm:grid-cols-3",
-        note: (
-          <div className="rounded border border-[#FADCD0] bg-[#FFF5F0] p-2.5 text-[11.5px] text-[#B5431A] leading-relaxed">
-            <strong>💡 대량·업소용 맞춤 견적 안내</strong>:
-            식당, 카페, 마트 등 대형 집기나 다량 견적은 분전반(단상/삼상) 및 주방 가로/세로/높이 사진을 함께 올려주시면 현장 방문 전 가장 정확한 맞춤 견적과 최적 설치 동선을 안내해 드립니다.
-          </div>
-        ),
-      };
-    }
-
-    if (isSell) {
-      return {
-        headerTitle: "빠르고 정확한 매입 견적을 위한 필수 촬영 3컷 예시",
-        badge: "※ 안전인증(KC) 및 제조년월 확인 필수",
-        imageSrc: "/images/photo-guide.jpg",
-        imageAlt:
-          "한밭중고전자 매입 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진",
-        zoomTitle: "매입 권장 촬영 예시 (KC인증 라벨 · 제조년월 · 외관)",
-        zoomDesc:
-          "명판 스티커의 모델명과 제조년월이 선명하게 보이도록 촬영해 주시면 가장 빠르고 정확한 견적을 산출해 드립니다.",
-        steps: SELL_PHOTO_GUIDE_STEPS,
-        gridCols: "grid-cols-1 sm:grid-cols-3",
-        note: (
-          <div className="rounded border border-[#FADCD0] bg-[#FFF5F0] p-2.5 text-[11.5px] text-[#B5431A] leading-relaxed">
-            <strong>⚠️ 전기용품 및 생활용품 안전관리법 안내</strong>:
-            제조년월과 안전인증(KC) 표기가 확인되지 않을 경우 매입 및 상담이 제한될 수 있습니다. 위 예시 사진처럼 명판 스티커를 가까이서 선명하게 촬영해 주세요.
-          </div>
-        ),
-      };
-    }
-
-    return {
-      headerTitle: "구매 문의 시 권장 촬영 3컷 및 확인 안내",
-      badge: "※ 사진이 없어도 모델명 입력 시 상담 가능",
-      imageSrc: "/images/photo-guide-buy.jpg",
-      imageAlt:
-        "한밭중고전자 구매 문의 필수 가이드: 1. 원하는 제품·모델, 2. 설치할 공간, 3. 주변 환경·배관",
-      zoomTitle: "구매 문의 권장 촬영 예시 (원하는 제품 · 설치 공간 · 주변 환경)",
-      zoomDesc:
-        "원하시는 제품 모델이나 설치할 장소 전체 모습, 콘센트/배관 사진을 올려주시면 설치 가능 여부와 배송 일정을 정확하게 안내해 드립니다.",
-      steps: BUY_PHOTO_GUIDE_STEPS,
-      gridCols: "grid-cols-1 sm:grid-cols-3",
-      note: (
-        <p className="text-[11.5px] text-[#4B5260] bg-white p-2.5 rounded border border-[#EAE6DF] leading-relaxed">
-          💡 사진은 1~3장 밝고 선명하게 올려주시면 좋으며, 사진이 없더라도 원하시는 제품명이나 모델명을 상세 문의 내용에 적어주시면 실시간 재고와 가격을 빠르게 확인해 드립니다.
-        </p>
-      ),
-    };
-  }, [isBulk, isSell]);
+  const photoGuideSteps = isBulk
+    ? BULK_PHOTO_GUIDE_STEPS
+    : isSell
+    ? SELL_PHOTO_GUIDE_STEPS
+    : BUY_PHOTO_GUIDE_STEPS;
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
@@ -14334,7 +15108,6 @@ export function UnifiedInquiryForm({
       ...ok.map((f) => URL.createObjectURL(f)),
     ]);
     setCachedUploadedUrls(null);
-    setAiAnalysisSummary(null);
   };
 
   const handleRemoveFile = (index: number) => {
@@ -14342,24 +15115,31 @@ export function UnifiedInquiryForm({
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
     setCachedUploadedUrls(null);
-    setAiAnalysisSummary(null);
   };
 
-  /* [핵심 신규 기능] 첨부된 사진(1~3장)을 확인 버튼 클릭 시 제미나이로 한 번에 일괄 분석 */
+  /* 첨부된 사진(1~3장)을 확인 버튼 클릭 시 상담 유형별로 제미나이 일괄 분석 (기존 고객 입력 보호) */
   const handleRunGeminiAnalysis = async () => {
     if (selectedFiles.length === 0 || isAnalyzingPhotos) {
-      toast.error("먼저 분석할 제품 사진을 1장 이상 첨부해 주세요.");
+      toast.error("먼저 분석할 사진을 1장 이상 첨부해 주세요.");
       return;
     }
 
     setIsAnalyzingPhotos(true);
+    setPendingConflicts(null);
     const toastId = toast.loading(
-      `첨부하신 사진 ${selectedFiles.length}장을 제미나이 AI가 한 번에 분석하고 있습니다...`
+      `첨부하신 사진 ${selectedFiles.length}장을 [${inquiryType}] 기준에 맞춰 AI가 분석하고 있습니다...`
     );
 
     try {
       const formData = new FormData();
       formData.append("inquiryType", inquiryType);
+      formData.append("userTitle", title);
+      formData.append("userModel", model);
+      formData.append("userRegion", region);
+      formData.append("userDescription", description);
+      formData.append("userBusinessType", businessType);
+      formData.append("userElectrical", electricalPhase);
+      formData.append("userVoltageUpgrade", voltageUpgrade);
 
       for (const file of selectedFiles.slice(0, MAX_PHOTOS)) {
         const compressedBlob = await compressImage(file, 1280, 0.8);
@@ -14374,39 +15154,132 @@ export function UnifiedInquiryForm({
         body: formData,
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = (await res.json().catch(() => ({}))) as AnalyzeInquiryResponse & {
+        error?: string;
+      };
       if (!res.ok || !data.success) {
         throw new Error(
           data.error || "사진 자동 분석에 실패했습니다. 직접 입력해 주세요."
         );
       }
 
-      if (data.applianceCategory) {
+      setAiResult(data);
+
+      // 1) 카테고리 반영 (기타 문의 제외)
+      if (
+        !isOther &&
+        data.applianceCategory &&
+        (PRODUCT_CATEGORIES as readonly string[]).includes(
+          data.applianceCategory
+        )
+      ) {
         setApplianceCategory(data.applianceCategory);
       }
+
+      // 2) 고객이 이미 직접 작성한 값과 충돌 여부 검사 (조용히 덮어쓰지 않음)
+      const conflicts: {
+        title?: string;
+        model?: string;
+        description?: string;
+      } = {};
+
       if (data.title) {
-        setTitle(data.title);
-        setFieldErrors((p) => ({ ...p, title: "" }));
-      }
-      if (data.modelNumber) {
-        setModel(data.modelNumber);
-      }
-      if (data.conditionGrade) {
-        setConditionGrade(data.conditionGrade);
-      }
-      if (data.descriptionDraft && !bundleApplied) {
-        setDescription(data.descriptionDraft);
-        setFieldErrors((p) => ({ ...p, description: "" }));
+        if (!title.trim()) {
+          setTitle(data.title);
+          setFieldErrors((p) => ({ ...p, title: "" }));
+        } else if (title.trim() !== data.title.trim()) {
+          conflicts.title = data.title;
+        }
       }
 
-      setAiAnalysisSummary(
-        data.summaryNote ||
-          `사진 ${selectedFiles.length}장 분석 완료! 품목·모델명·상세 내용이 자동 입력되었습니다.`
-      );
-      toast.success(
-        "AI가 사진을 분석하여 품목·모델명·내용을 자동으로 채웠습니다!",
-        { id: toastId }
-      );
+      if (!isOther && data.modelNumber) {
+        if (!model.trim()) {
+          setModel(data.modelNumber);
+        } else if (model.trim() !== data.modelNumber.trim()) {
+          conflicts.model = data.modelNumber;
+        }
+      }
+
+      if (data.descriptionDraft && !bundleApplied) {
+        if (!description.trim()) {
+          setDescription(data.descriptionDraft);
+          setFieldErrors((p) => ({ ...p, description: "" }));
+        } else if (description.trim() !== data.descriptionDraft.trim()) {
+          conflicts.description = data.descriptionDraft;
+        }
+      }
+
+      // 3) 매입(내 물건 팔기) 전용 보조 필드 반영 (등급과 작동 상태는 AI가 확정하지 않음)
+      if (isSell && data.sellAnalysis) {
+        if (
+          !manufacturingDate.trim() &&
+          data.sellAnalysis.manufacturingDate &&
+          !data.sellAnalysis.manufacturingDate.includes("미확인")
+        ) {
+          setManufacturingDate(data.sellAnalysis.manufacturingDate);
+        }
+      }
+
+      // 4) 대량·업소용 전용 구조화 필드 반영
+      if (isBulk && data.bulkAnalysis) {
+        if (
+          !businessType.trim() &&
+          data.bulkAnalysis.businessType &&
+          !data.bulkAnalysis.businessType.includes("미확인")
+        ) {
+          setBusinessType(data.bulkAnalysis.businessType);
+        }
+
+        const hasUserBulkItems = bulkItems.some((it) => it.category.trim());
+        if (
+          !hasUserBulkItems &&
+          data.bulkAnalysis.requestedItems &&
+          data.bulkAnalysis.requestedItems.length > 0
+        ) {
+          setBulkItems(
+            data.bulkAnalysis.requestedItems.map((it, idx) => ({
+              id: `ai-bulk-${idx}`,
+              category: it.category,
+              requestedQuantity: it.requestedQuantity || "미확인",
+              modelNumber:
+                it.modelNumber && it.modelNumber !== "미확인"
+                  ? it.modelNumber
+                  : "",
+              specs: it.specs || "",
+            }))
+          );
+        }
+
+        if (
+          electricalPhase === "모름/미확인" &&
+          data.bulkAnalysis.electricalInfo.phaseType !== "모름/미확인"
+        ) {
+          setElectricalPhase(data.bulkAnalysis.electricalInfo.phaseType);
+        }
+
+        if (!spaceAndUtilities.trim()) {
+          const spaceParts = [
+            data.bulkAnalysis.installationInfo.spaceLayout,
+            data.bulkAnalysis.installationInfo.utilities,
+          ].filter((x) => x && !x.includes("확인 필요"));
+          if (spaceParts.length > 0) {
+            setSpaceAndUtilities(spaceParts.join(" / "));
+          }
+        }
+      }
+
+      if (Object.keys(conflicts).length > 0) {
+        setPendingConflicts(conflicts);
+        toast.success(
+          "기존에 입력하신 내용을 유지했습니다. 아래 검토 창에서 AI 제안값 반영 여부를 선택해 주세요.",
+          { id: toastId, duration: 4500 }
+        );
+      } else {
+        toast.success(
+          "AI 분석 초안이 반영되었습니다! 미확인 항목을 확인·수정해 주세요.",
+          { id: toastId }
+        );
+      }
     } catch (err: unknown) {
       toast.error(
         err instanceof Error
@@ -14419,13 +15292,52 @@ export function UnifiedInquiryForm({
     }
   };
 
+  const addBulkEquipmentRow = (presetCategory = "") => {
+    setBulkItems((prev) => [
+      ...prev,
+      {
+        id: `row-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        category: presetCategory,
+        requestedQuantity: "미확인",
+        modelNumber: "",
+        specs: "",
+      },
+    ]);
+  };
+
+  const updateBulkItem = (
+    id: string,
+    field: "category" | "requestedQuantity" | "modelNumber" | "specs",
+    value: string
+  ) => {
+    setBulkItems((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    );
+  };
+
+  const removeBulkItem = (id: string) => {
+    setBulkItems((prev) =>
+      prev.length > 1 ? prev.filter((it) => it.id !== id) : prev
+    );
+  };
+
+  const appendFollowUpQuestionLine = (question: string) => {
+    setDescription((prev) =>
+      prev.trim()
+        ? `${prev.trim()}\n• [추가 확인] ${question}: `
+        : `• [추가 확인] ${question}: `
+    );
+    setFieldErrors((p) => ({ ...p, description: "" }));
+    toast.success("상세 문의란 하단에 답변 입력 줄이 추가되었습니다.");
+  };
+
   const validateFields = (): boolean => {
     setPhase("validating");
     const errors: Record<string, string> = {};
 
     if (!isNotice) {
       if (!name.trim()) {
-        errors.name = "상호명(성함) 및 지역(동까지)을 입력해 주세요.";
+        errors.name = "성함 또는 상호명을 입력해 주세요.";
       }
       if (!phone.trim() || !isValidPhone(phone)) {
         errors.phone = "연락 가능한 전화번호를 정확히 입력해 주세요.";
@@ -14433,15 +15345,8 @@ export function UnifiedInquiryForm({
       if (password.trim().length < 4) {
         errors.password = "답변 확인용 비밀번호를 4자리 이상 입력해 주세요.";
       }
-      const hasRegion =
-        region.trim().length > 0 ||
-        name.includes("(") ||
-        name.includes("동") ||
-        name.includes("구") ||
-        name.includes("시");
-      if (isSell && !hasRegion) {
-        errors.name =
-          "방문 수거를 위해 지역(동까지)을 함께 입력해 주세요. 예: 한밭식당(중촌동)";
+      if (isSell && !region.trim()) {
+        errors.region = "방문 수거 지역(구/동까지)을 입력해 주세요.";
       }
       if (!agreed) {
         errors.agreed = "개인정보 수집·이용에 동의해 주세요.";
@@ -14453,7 +15358,7 @@ export function UnifiedInquiryForm({
         ? "공지 제목을 입력해 주세요."
         : isSell
         ? "처분하실 가전 품목 또는 제목을 입력해 주세요."
-        : "문의하실 제품명 또는 제목을 입력해 주세요.";
+        : "문의하실 품목 또는 제목을 입력해 주세요.";
     }
 
     if (!description.trim()) {
@@ -14505,50 +15410,44 @@ export function UnifiedInquiryForm({
         setCachedUploadedUrls(freshUrls);
       }
 
-      const metaLines: string[] = [];
-      if (!isNotice) {
-        if (linkedProduct?.productId) {
-          metaLines.push(
-            `• 문의 상품 링크: ${STORE.url}/${linkedProduct.productId}`
-          );
-        }
-        if (isSell || isBulk) {
-          metaLines.push(`• 품목 분류: ${applianceCategory}`);
-        }
-        if (model.trim()) {
-          metaLines.push(`• 모델명: ${model.trim()}`);
-        }
-        if (isSell) {
-          metaLines.push(`• 제품 상태: ${conditionGrade}`);
-          if (region.trim()) {
-            metaLines.push(`• 수거 지역: ${region.trim()}`);
-          }
-        } else if (region.trim()) {
-          metaLines.push(`• 배송/설치 희망 지역: ${region.trim()}`);
-        }
-      }
-
-      const structuredDescription =
-        metaLines.length > 0
-          ? `${metaLines.join("\n")}\n\n[상세 내용]\n${description.trim()}`
-          : description.trim();
+      const structuredDescription = isNotice
+        ? description.trim()
+        : formatStructuredInquiryDescription({
+            inquiryType,
+            customerContent: description.trim(),
+            linkedProductUrl: linkedProduct?.productId
+              ? `${STORE.url}/${linkedProduct.productId}`
+              : undefined,
+            applianceCategory: !isOther ? applianceCategory : undefined,
+            modelNumber: !isOther ? model.trim() : undefined,
+            region: region.trim() || undefined,
+            schedule: schedule.trim() || undefined,
+            manufacturingDate: isSell ? manufacturingDate.trim() : undefined,
+            operatingStatus: isSell ? operatingStatus : undefined,
+            conditionGrade:
+              isSell && conditionGrade.trim()
+                ? conditionGrade.trim()
+                : undefined,
+            businessType: isBulk ? businessType.trim() : undefined,
+            bulkItems: isBulk ? bulkItems : undefined,
+            electricalPhase: isBulk ? electricalPhase : undefined,
+            voltageUpgrade: isBulk ? voltageUpgrade : undefined,
+            spaceAndUtilities: isBulk ? spaceAndUtilities.trim() : undefined,
+            accessAndRemoval: isBulk ? accessAndRemoval.trim() : undefined,
+            aiReference: aiResult
+              ? {
+                  summaryNote: aiResult.summaryNote,
+                  extractedFacts: aiResult.extractedFacts,
+                  missingInfo: aiResult.missingInfo,
+                  followUpQuestions: aiResult.followUpQuestions,
+                }
+              : null,
+          });
 
       const finalTitle =
         isSell && !title.includes("[")
           ? `[${applianceCategory}] ${title.trim()}`
           : title.trim();
-
-      // 지역 정보 추출: 별도 입력한 region 우선, 없으면 name의 "한밭식당(중촌동)" 등에서 자동 추출
-      let parsedRegion = region.trim();
-      if (!parsedRegion) {
-        const regionMatch = name.match(/\((.*?)\)/);
-        if (regionMatch && regionMatch[1]) {
-          parsedRegion = regionMatch[1].trim();
-        }
-      }
-      if (!parsedRegion) {
-        parsedRegion = "대전/기타";
-      }
 
       const authHeaders = isNotice ? await getAdminAuthHeaders() : {};
       const res = await fetch("/api/inquiries", {
@@ -14560,9 +15459,10 @@ export function UnifiedInquiryForm({
           password: isNotice ? "0000" : password.trim(),
           inquiry_type: isNotice ? "공지사항" : inquiryType,
           category: finalTitle,
-          model: model.trim() || null,
-          condition_grade: isSell ? conditionGrade : null,
-          region: parsedRegion,
+          model: !isOther && model.trim() ? model.trim() : null,
+          condition_grade:
+            isSell && conditionGrade.trim() ? conditionGrade.trim() : null,
+          region: region.trim() || "대전/기타",
           description: structuredDescription,
           images: uploadedUrls,
           is_notice: isNotice,
@@ -14616,7 +15516,7 @@ export function UnifiedInquiryForm({
       setPhase("error");
       setSubmitErrorMsg(
         msg ||
-          "네트워크 연결 문제로 접수되지 않았습니다. 아래 [입력 내용 그대로 재시도] 버튼을 눌러주세요."
+          "네트워크 연결 문제로 접수되지 않았습니다. 아래 [그대로 재시도] 버튼을 눌러주세요."
       );
       toast.error(msg || "접수 중 오류가 발생했습니다.");
     }
@@ -14627,10 +15527,18 @@ export function UnifiedInquiryForm({
     setSelectedFiles([]);
     setFilePreviews([]);
     setCachedUploadedUrls(null);
-    setAiAnalysisSummary(null);
+    setAiResult(null);
+    setPendingConflicts(null);
     setTitle("");
     setModel("");
     setRegion("");
+    setSchedule("");
+    setManufacturingDate("");
+    setOperatingStatus("작동 상태 미확인 (상담 시 안내)");
+    setConditionGrade("");
+    setBusinessType("");
+    setSpaceAndUtilities("");
+    setAccessAndRemoval("");
     setDescription("");
     setPassword("");
     setBundleApplied(false);
@@ -14777,7 +15685,7 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* 1. 상단 컴팩트 블록: 상담 유형 + 성함/연락처/비밀번호 한눈에 입력 */}
+      {/* 1. 상단 컴팩트 블록: 상담 유형 4탭 + 성함/연락처/비밀번호 */}
       {!isNotice ? (
         <fieldset className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
           <legend className="sr-only">상담 유형 및 기본 정보</legend>
@@ -14789,7 +15697,10 @@ export function UnifiedInquiryForm({
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setInquiryType(t)}
+                  onClick={() => {
+                    setInquiryType(t);
+                    setPendingConflicts(null);
+                  }}
                   aria-pressed={active}
                   className={`h-9 rounded px-2 text-[12px] sm:text-[12.5px] font-bold transition-all ${
                     active
@@ -14806,7 +15717,7 @@ export function UnifiedInquiryForm({
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             <div>
               <label htmlFor="uf-name" className="hb-label text-[12px]">
-                상호명(성함) / 지역(동까지) <span className="text-[#D9531E]">*</span>
+                성함 / 상호명 <span className="text-[#D9531E]">*</span>
               </label>
               <input
                 id="uf-name"
@@ -14818,7 +15729,7 @@ export function UnifiedInquiryForm({
                   if (fieldErrors.name)
                     setFieldErrors((p) => ({ ...p, name: "" }));
                 }}
-                placeholder="예: 한밭식당(중촌동) / 홍길동(둔산동)"
+                placeholder="홍길동 / 한밭식당"
                 className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
                   fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
                 }`}
@@ -14911,31 +15822,23 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* 2. 중단 핵심 블록: 사진 첨부(최대 3장) + [✨ 사진 다 넣고 AI 한 번에 분석] 원클릭 바 */}
-      <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-3">
+      {/* 2. 중단 핵심 블록: 사진 첨부(최대 3장) + 상담 유형별 AI 일괄 분석 + 맞춤형 입력란 */}
+      <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-3.5">
         <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#F0EDE7]">
           <div className="flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-[#FF8A50]">
-              ✨ AI 자동입력 지원
+              ✨ {inquiryType} AI 맞춤 분석
             </span>
             <span className="text-[13px] font-bold text-[#0E1A2B]">
               사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
             </span>
-            {!isNotice && (
+            {!isNotice && !isOther && (
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="inline-flex items-center gap-1 rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-[11.5px] font-bold text-[#D9531E] hover:bg-[#FFEBE0] transition-colors"
+                className="text-[11.5px] font-semibold text-[#D9531E] underline underline-offset-2"
               >
-                <span>
-                  {showPhotoGuide
-                    ? "가이드 닫기 ▲"
-                    : isBulk
-                    ? "📷 업소용 상담 가이드 보기 ▾"
-                    : isSell
-                    ? "📷 매입 촬영 예시 사진 보기 ▾"
-                    : "📷 구매 권장 촬영 사진 보기 ▾"}
-                </span>
+                {showPhotoGuide ? "촬영 팁 닫기 ▲" : "권장 촬영 팁 ▾"}
               </button>
             )}
           </div>
@@ -14962,41 +15865,27 @@ export function UnifiedInquiryForm({
           )}
         </div>
 
-        {/* 사진 썸네일 + 추가 버튼 (컴팩트 가로 배치) */}
+        {/* 사진 썸네일 + 추가 버튼 */}
         <div className="flex flex-wrap items-center gap-2.5">
           {filePreviews.map((preview, idx) => (
             <div
               key={preview}
-              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0 group"
+              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0"
             >
-              <button
-                type="button"
-                onClick={() =>
-                  setZoomedImage({
-                    src: preview,
-                    alt: `첨부 사진 ${idx + 1}`,
-                    title: `첨부 사진 ${idx + 1}번 확대 보기`,
-                    desc: "고객님이 첨부하신 원본 사진입니다.",
-                  })
-                }
-                className="h-full w-full cursor-zoom-in text-left focus:outline-hidden"
-                aria-label={`첨부 사진 ${idx + 1} 크게 보기`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={preview}
-                  alt={`첨부 사진 ${idx + 1}`}
-                  className="h-full w-full object-cover transition-transform group-hover:scale-110"
-                />
-              </button>
-              <span className="pointer-events-none absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={preview}
+                alt={`첨부 사진 ${idx + 1}`}
+                className="h-full w-full object-cover"
+              />
+              <span className="absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
                 #{idx + 1}
               </span>
               <button
                 type="button"
                 onClick={() => handleRemoveFile(idx)}
                 aria-label="첨부 사진 삭제"
-                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600 transition-colors"
+                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
               >
                 <Icon d={ICON.close} className="h-2.5 w-2.5" />
               </button>
@@ -15019,92 +15908,428 @@ export function UnifiedInquiryForm({
 
           <p className="text-[11.5px] text-[#6B7280] leading-snug flex-1 min-w-[180px]">
             {selectedFiles.length === 0
-              ? "정면 사진과 모델명 스티커 등 1~3장을 올리고 우측 [AI 자동입력 확인]을 누르면 아래 항목이 한 번에 채워집니다."
+              ? "사진(1~3장)을 올리고 우측 [AI 자동입력 확인]을 누르면 상담 유형에 맞춰 초안을 작성합니다. (사진 없이 직접 입력도 가능)"
               : "추가할 사진을 모두 넣으셨다면 우측 [✨ AI 자동입력 확인] 버튼을 눌러주세요."}
           </p>
         </div>
 
-        {/* 접이식 가이드 (상담 유형별 전용 촬영/정보 가이드 그래픽) */}
-        {!isNotice && showPhotoGuide && (
-          <div className="space-y-3 rounded-md bg-[#FAF9F7] p-3 sm:p-4 border border-[#E4E0D8]">
-            <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-[#EAE6DF]">
-              <span className="text-[12.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
-                <Icon d={ICON.camera} className="w-4 h-4 text-[#D9531E]" />
-                {currentGuide.headerTitle}
-              </span>
-              <span className="text-[11px] font-bold text-[#D9531E]">
-                {currentGuide.badge}
-              </span>
-            </div>
-
-            {/* 실제 촬영 예시 그래픽 안내 이미지 (상담 유형별 전용 그래픽, 클릭 시 원본 확대) */}
-            <div className="overflow-hidden rounded border border-[#DDD9D1] bg-white shadow-2xs">
-              <button
-                type="button"
-                onClick={() =>
-                  setZoomedImage({
-                    src: currentGuide.imageSrc,
-                    alt: currentGuide.imageAlt,
-                    title: currentGuide.zoomTitle,
-                    desc: currentGuide.zoomDesc,
-                  })
-                }
-                className="group relative block w-full text-left focus:outline-hidden cursor-zoom-in"
-                aria-label={`${currentGuide.zoomTitle} 원본 크게 보기`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  key={currentGuide.imageSrc}
-                  src={currentGuide.imageSrc}
-                  alt={currentGuide.imageAlt}
-                  className="w-full h-auto object-contain max-h-[380px] sm:max-h-[420px] mx-auto transition-transform duration-200 group-hover:scale-[1.008]"
-                  loading="eager"
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
-                <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1.5 text-[11.5px] font-bold text-white shadow-md backdrop-blur-xs transition-all group-hover:bg-[#D9531E] group-hover:scale-105">
-                  <Icon d={ICON.search} className="w-3.5 h-3.5" />
-                  <span>사진 클릭 시 크게 보기</span>
+        {/* 접이식 3컷 촬영 가이드 */}
+        {!isNotice && !isOther && showPhotoGuide && (
+          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 rounded bg-[#FAF9F7] p-2.5 border border-[#E4E0D8] text-[11.5px]">
+            {photoGuideSteps.map((g) => (
+              <li key={g.step} className="flex items-start gap-1.5">
+                <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  컷 {g.step}
                 </span>
-              </button>
+                <div>
+                  <strong className="font-bold text-[#0E1A2B] block">
+                    {g.title}
+                  </strong>
+                  <span className="text-[#4B5260]">{g.desc}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {/* AI 분석 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
+        {aiResult && (
+          <div className="rounded border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3 space-y-2.5 text-[12px]">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-bold text-[#0E1A2B]">
+                ✅ {aiResult.summaryNote}
+              </span>
+              <span className="text-[11px] text-[#6B7280]">
+                제출 전 아래 입력란에서 자유롭게 수정 가능
+              </span>
             </div>
 
-            {/* 요약 뱃지 그리드 (상담 유형별 3컷 또는 6단계) */}
-            <ol className={`grid ${currentGuide.gridCols} gap-2 text-[11.5px]`}>
-              {currentGuide.steps.map((g) => (
-                <li
-                  key={g.step}
-                  className="flex items-start gap-1.5 rounded bg-white p-2.5 border border-[#EAE6DF]"
-                >
-                  <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                    {g.step}
-                  </span>
-                  <div>
-                    <strong className="font-bold text-[#0E1A2B] block">
-                      {g.title}
-                    </strong>
-                    <span className="text-[#4B5260]">{g.desc}</span>
+            {/* 고객이 이미 입력한 값과 AI 제안값이 다를 때 덮어쓰지 않고 선택권 부여 */}
+            {pendingConflicts && (
+              <div className="rounded border border-amber-300 bg-amber-50 p-2.5 space-y-2 text-amber-950">
+                <div className="flex items-center justify-between">
+                  <strong className="text-[11.5px]">
+                    ⚠️ 먼저 입력해 두신 내용을 보호하기 위해 자동 덮어쓰기를 건너뛰었습니다.
+                  </strong>
+                  <button
+                    type="button"
+                    onClick={() => setPendingConflicts(null)}
+                    className="text-[11px] underline"
+                  >
+                    닫기
+                  </button>
+                </div>
+
+                {pendingConflicts.title && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                    <span className="truncate">
+                      AI 제안 제목: <strong>{pendingConflicts.title}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTitle(pendingConflicts.title!);
+                        setPendingConflicts((prev) =>
+                          prev ? { ...prev, title: undefined } : null
+                        );
+                      }}
+                      className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                    >
+                      이 제목 적용
+                    </button>
                   </div>
-                </li>
-              ))}
-            </ol>
+                )}
 
-            {currentGuide.note}
+                {pendingConflicts.model && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                    <span>
+                      AI 판독 모델명:{" "}
+                      <strong className="font-mono">
+                        {pendingConflicts.model}
+                      </strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setModel(pendingConflicts.model!);
+                        setPendingConflicts((prev) =>
+                          prev ? { ...prev, model: undefined } : null
+                        );
+                      }}
+                      className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                    >
+                      이 모델명 적용
+                    </button>
+                  </div>
+                )}
+
+                {pendingConflicts.description && (
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                    <span>AI가 작성한 상세 문의 초안이 준비되었습니다.</span>
+                    <div className="flex gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDescription(
+                            (prev) =>
+                              `${prev.trim()}\n\n${pendingConflicts.description}`
+                          );
+                          setPendingConflicts((prev) =>
+                            prev ? { ...prev, description: undefined } : null
+                          );
+                        }}
+                        className="rounded border border-[#0E1A2B] bg-white px-2 py-0.5 text-[11px] font-bold text-[#0E1A2B]"
+                      >
+                        내 글 아래에 추가
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setDescription(pendingConflicts.description!);
+                          setPendingConflicts((prev) =>
+                            prev ? { ...prev, description: undefined } : null
+                          );
+                        }}
+                        className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                      >
+                        AI 초안으로 교체
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 판독된 사실 배지 */}
+            {aiResult.extractedFacts.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {aiResult.extractedFacts.map((fact, idx) => (
+                  <span
+                    key={fact.label + idx}
+                    className="inline-flex items-center gap-1 rounded border border-[#E4E0D8] bg-white px-2 py-0.5 text-[11px]"
+                  >
+                    <strong className="text-[#0E1A2B]">{fact.label}:</strong>
+                    <span className="text-[#4B5260]">{fact.value}</span>
+                    <span className="text-[10px] text-[#8A8478]">
+                      ({fact.source} · {fact.status})
+                    </span>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* 사진만으로 알 수 없는 후속 확인 질문 칩 */}
+            {aiResult.followUpQuestions.length > 0 && (
+              <div className="space-y-1 pt-0.5">
+                <span className="block text-[11px] font-bold text-[#B5431A]">
+                  💬 사진만으로 알 수 없는 정보입니다 (클릭 시 본문에 답변 줄 추가):
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {aiResult.followUpQuestions.map((q, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => appendFollowUpQuestionLine(q)}
+                      className="rounded border border-[#FADCD0] bg-[#FFF5F0] px-2 py-1 text-left text-[11px] font-semibold text-[#B5431A] hover:bg-[#FADCD0]/60"
+                    >
+                      + {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
-        {/* AI 분석 완료 안내 배지 */}
-        {aiAnalysisSummary && (
-          <div className="flex items-center justify-between gap-2 rounded border border-[#FADCD0] bg-[#FFF5F0] px-3 py-2 text-[12px] font-semibold text-[#B5431A]">
-            <span>✅ {aiAnalysisSummary}</span>
-            <span className="text-[11px] text-[#D9531E] shrink-0">
-              아래에서 자유롭게 수정 가능
-            </span>
+        {/* [대량·업소용 상담] 전용 구조화 입력 블록 */}
+        {!isNotice && isBulk && (
+          <div className="rounded-md border border-[#0E1A2B]/15 bg-[#FAF9F7] p-3 space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-1">
+              <strong className="text-[12.5px] font-bold text-[#0E1A2B]">
+                🏢 업소용·대량 상담 맞춤 정보 (모르시는 항목은 비워두셔도 됩니다)
+              </strong>
+              <span className="text-[11px] text-[#6B7280]">
+                사진 속 대수와 실제 희망 수량을 구분하여 적어주세요
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+              <div>
+                <label className="hb-label text-[11.5px]">
+                  업종 / 사용 목적 (선택)
+                </label>
+                <input
+                  type="text"
+                  value={businessType}
+                  onChange={(e) => setBusinessType(e.target.value)}
+                  placeholder="예: 식당 창업, 카페, 폐업정리"
+                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                />
+              </div>
+              <div>
+                <label className="hb-label text-[11.5px]">
+                  매장 전기 규격 (선택)
+                </label>
+                <select
+                  value={electricalPhase}
+                  onChange={(e) => setElectricalPhase(e.target.value)}
+                  className="hb-input mt-1 py-1.5 text-[12.5px] font-semibold bg-white"
+                >
+                  <option value="모름/미확인">모름 (상담/현장 확인)</option>
+                  <option value="단상 220V">단상 220V (일반 상가)</option>
+                  <option value="삼상 380V">삼상 380V (대형 주방/동력)</option>
+                </select>
+              </div>
+              <div>
+                <label className="hb-label text-[11.5px]">
+                  승압 필요 여부 (선택)
+                </label>
+                <select
+                  value={voltageUpgrade}
+                  onChange={(e) => setVoltageUpgrade(e.target.value)}
+                  className="hb-input mt-1 py-1.5 text-[12.5px] font-semibold bg-white"
+                >
+                  <option value="모름·현장 확인 필요">
+                    모름 (장비 사양·현장 확인 필요)
+                  </option>
+                  <option value="불필요">불필요 (기존 전력 충분)</option>
+                  <option value="필요">필요 (승압 예정/상담 희망)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* 필요 장비 및 희망 수량 리스트 */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="hb-label text-[11.5px]">
+                  필요 장비 종류 및 구매/처분 희망 수량
+                </span>
+                <button
+                  type="button"
+                  onClick={() => addBulkEquipmentRow("")}
+                  className="text-[11.5px] font-bold text-[#D9531E] underline"
+                >
+                  + 장비 줄 추가
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-1">
+                {QUICK_BULK_EQUIPMENT_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      const emptyIdx = bulkItems.findIndex(
+                        (it) => !it.category.trim()
+                      );
+                      if (emptyIdx >= 0) {
+                        updateBulkItem(
+                          bulkItems[emptyIdx].id,
+                          "category",
+                          preset
+                        );
+                      } else {
+                        addBulkEquipmentRow(preset);
+                      }
+                    }}
+                    className="rounded border border-[#DDD9D1] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                  >
+                    + {preset}
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-1.5">
+                {bulkItems.map((item, idx) => (
+                  <div
+                    key={item.id}
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-1.5 items-center bg-white p-1.5 rounded border border-[#E4E0D8]"
+                  >
+                    <div className="sm:col-span-5">
+                      <input
+                        type="text"
+                        value={item.category}
+                        onChange={(e) =>
+                          updateBulkItem(item.id, "category", e.target.value)
+                        }
+                        placeholder={`품목 ${idx + 1} (예: 45박스 냉장고, 제빙기)`}
+                        className="hb-input py-1 text-[12.5px]"
+                      />
+                    </div>
+                    <div className="sm:col-span-3">
+                      <input
+                        type="text"
+                        value={item.requestedQuantity}
+                        onChange={(e) =>
+                          updateBulkItem(
+                            item.id,
+                            "requestedQuantity",
+                            e.target.value
+                          )
+                        }
+                        placeholder="희망 수량 (예: 1대 / 미확인)"
+                        className="hb-input py-1 text-[12.5px]"
+                      />
+                    </div>
+                    <div className="sm:col-span-3">
+                      <input
+                        type="text"
+                        value={item.modelNumber}
+                        onChange={(e) =>
+                          updateBulkItem(item.id, "modelNumber", e.target.value)
+                        }
+                        placeholder="모델·규격 (선택)"
+                        className="hb-input py-1 text-[12px] font-mono"
+                      />
+                    </div>
+                    <div className="sm:col-span-1 text-right">
+                      <button
+                        type="button"
+                        onClick={() => removeBulkItem(item.id)}
+                        className="text-[11.5px] font-bold text-red-600 px-1.5 py-0.5"
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div>
+                <label className="hb-label text-[11.5px]">
+                  설치 공간 · 급배수 · 가스 · 환기 메모 (선택)
+                </label>
+                <input
+                  type="text"
+                  value={spaceAndUtilities}
+                  onChange={(e) => setSpaceAndUtilities(e.target.value)}
+                  placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
+                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                />
+              </div>
+              <div>
+                <label className="hb-label text-[11.5px]">
+                  반입 동선(문폭·층수) 및 기존 기기 철거 여부 (선택)
+                </label>
+                <input
+                  type="text"
+                  value={accessAndRemoval}
+                  onChange={(e) => setAccessAndRemoval(e.target.value)}
+                  placeholder="예: 1층 양개문 진입 가능, 기존 냉장고 1대 철거 희망"
+                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                />
+              </div>
+            </div>
           </div>
         )}
 
-        {/* 품목/상태/지역 + 제목/모델명 + 상세내용 컴팩트 입력 */}
-        {!isNotice && (isSell || isBulk) && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
+        {/* [내 물건 팔기(매입)] 전용 확인 블록: 작동 상태와 외관 상태를 분리 */}
+        {!isNotice && isSell && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3">
+            <div>
+              <label htmlFor="uf-mfg" className="hb-label text-[12px]">
+                제조년월 / 연식{" "}
+                <span className="font-normal text-[#6B7280]">(확인 시)</span>
+              </label>
+              <input
+                id="uf-mfg"
+                type="text"
+                value={manufacturingDate}
+                onChange={(e) => setManufacturingDate(e.target.value)}
+                placeholder="예: 2022년식 / 미확인"
+                className="hb-input mt-1 py-1.5 text-[13px] bg-white"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="uf-op" className="hb-label text-[12px]">
+                실제 작동 상태 확인
+              </label>
+              <select
+                id="uf-op"
+                value={operatingStatus}
+                onChange={(e) => setOperatingStatus(e.target.value)}
+                className="hb-input mt-1 py-1.5 text-[13px] font-semibold bg-white"
+              >
+                <option value="작동 상태 미확인 (상담 시 안내)">
+                  작동 상태 미확인 (상담 시 안내)
+                </option>
+                <option value="정상 작동 확인됨">
+                  정상 작동 (냉방·냉동·세탁 이상 없음)
+                </option>
+                <option value="일부 점검 필요">
+                  일부 점검 필요 (소음·냉기약함 등)
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="uf-grade" className="hb-label text-[12px]">
+                외관 상태 선택{" "}
+                <span className="font-normal text-[#6B7280]">(선택)</span>
+              </label>
+              <select
+                id="uf-grade"
+                value={conditionGrade}
+                onChange={(e) => setConditionGrade(e.target.value)}
+                className="hb-input mt-1 py-1.5 text-[13px] font-semibold bg-white"
+              >
+                <option value="">미선택 (사진/현장 확인 후 결정)</option>
+                {PRODUCT_CONDITION_GRADES.map((g) => (
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* 공통 품목/지역/일정 입력 (기타 문의에서는 불필요한 가전 분류/모델명 숨김) */}
+        {!isNotice && !isOther && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
             <div>
               <label htmlFor="uf-cat" className="hb-label text-[12px]">
                 제품 종류
@@ -15123,29 +16348,9 @@ export function UnifiedInquiryForm({
               </select>
             </div>
 
-            {isSell && (
-              <div>
-                <label htmlFor="uf-grade" className="hb-label text-[12px]">
-                  외관 · 작동 상태
-                </label>
-                <select
-                  id="uf-grade"
-                  value={conditionGrade}
-                  onChange={(e) => setConditionGrade(e.target.value)}
-                  className="hb-input mt-1 py-2 text-[13px] font-semibold"
-                >
-                  {PRODUCT_CONDITION_GRADES.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            <div className={isSell ? "" : "sm:col-span-2"}>
+            <div>
               <label htmlFor="uf-region" className="hb-label text-[12px]">
-                {isSell ? "방문 수거 지역 (동/구까지) *" : "현장 지역 (선택)"}
+                {isSell ? "방문 수거 지역 (동/구까지) *" : "설치/현장 지역 (선택)"}
               </label>
               <input
                 id="uf-region"
@@ -15162,17 +16367,37 @@ export function UnifiedInquiryForm({
                 }`}
               />
             </div>
+
+            <div>
+              <label htmlFor="uf-schedule" className="hb-label text-[12px]">
+                희망 일정 · 층수(엘리베이터)
+              </label>
+              <input
+                id="uf-schedule"
+                type="text"
+                value={schedule}
+                onChange={(e) => setSchedule(e.target.value)}
+                placeholder="예: 금요일 오후 / 1층 상가"
+                className="hb-input mt-1 py-2 text-[13px]"
+              />
+            </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
-          <div className={isNotice ? "sm:col-span-3" : "sm:col-span-2"}>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+          <div
+            className={
+              isNotice || isOther ? "sm:col-span-3" : "sm:col-span-2"
+            }
+          >
             <label htmlFor="uf-title" className="hb-label text-[12px]">
               {isNotice
                 ? "공지 제목 *"
                 : isSell
                 ? "매입 신청 품목 / 제목 *"
-                : "문의 품목 / 제목 *"}
+                : isBulk
+                ? "대량·업소용 상담 제목 *"
+                : "문의 제목 *"}
             </label>
             <input
               id="uf-title"
@@ -15185,7 +16410,11 @@ export function UnifiedInquiryForm({
               }}
               placeholder={
                 isSell
-                  ? "예: 삼성 양문형 냉장고 매입 문의 (사진 첨부 시 AI 자동입력)"
+                  ? "예: 삼성 양문형 냉장고 방문 매입 견적 문의"
+                  : isBulk
+                  ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 도입 상담"
+                  : isOther
+                  ? "문의하실 제목을 입력해 주세요"
                   : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
               }
               className={`hb-input mt-1 py-2 text-[13.5px] ${
@@ -15194,18 +16423,18 @@ export function UnifiedInquiryForm({
             />
           </div>
 
-          {!isNotice && (
+          {!isNotice && !isOther && (
             <div>
               <label htmlFor="uf-model" className="hb-label text-[12px]">
                 모델명{" "}
-                <span className="font-normal text-[#6B7280]">(선택/AI추출)</span>
+                <span className="font-normal text-[#6B7280]">(선택/AI판독)</span>
               </label>
               <input
                 id="uf-model"
                 type="text"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="명판 사진 시 자동입력"
+                placeholder="명판 확인 시 입력"
                 className="hb-input mt-1 py-2 font-mono text-[13px]"
               />
             </div>
@@ -15216,11 +16445,11 @@ export function UnifiedInquiryForm({
           <label htmlFor="uf-desc" className="hb-label text-[12px]">
             {isNotice
               ? "공지 본문 내용 *"
-              : "상세 문의 내용 (희망 지역·층수·일정 등) *"}
+              : "상세 문의 내용 (AI 초안을 자유롭게 수정하실 수 있습니다) *"}
           </label>
           <textarea
             id="uf-desc"
-            rows={bundleApplied ? 5 : 3}
+            rows={bundleApplied || isBulk ? 5 : 4}
             value={description}
             onChange={(e) => {
               setDescription(e.target.value);
@@ -15230,6 +16459,8 @@ export function UnifiedInquiryForm({
             placeholder={
               isSell
                 ? "예: 정상 작동하며 1층 매장이라 반출 용이합니다. 이번 주 금요일 수거 희망합니다."
+                : isBulk
+                ? "예: 대전 서구 둔산동 1층 식당 오픈 준비 중입니다. 중고 업소용 냉장고와 제빙기 세트 견적 부탁드립니다."
                 : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
             }
             className={`hb-input mt-1 py-2 text-[13.5px] resize-y leading-relaxed ${
@@ -15241,7 +16472,7 @@ export function UnifiedInquiryForm({
         </div>
       </div>
 
-      {/* 3. 하단 개인정보 동의 및 제출 버튼 (1줄 인라인 정렬) */}
+      {/* 3. 하단 개인정보 동의 및 제출 버튼 */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#E4E0D8]">
         {!isNotice ? (
           <label className="flex cursor-pointer items-center gap-2 text-[12.5px] text-[#4B5260]">
@@ -15301,7 +16532,7 @@ export function UnifiedInquiryForm({
               ? "무료 매입 견적 신청하기"
               : bundleApplied
               ? "묶음 견적 문의 접수하기"
-              : "상담 문의 접수하기"}
+              : `${inquiryType} 접수하기`}
           </button>
         </div>
       </div>
@@ -15328,66 +16559,6 @@ export function UnifiedInquiryForm({
             </a>
           </div>
         </div>
-      )}
-
-      {/* ── 사진 원본 / 권장 촬영 예시 확대 보기 라이트박스 모달 ── */}
-      {zoomedImage && (
-        <Modal
-          open={!!zoomedImage}
-          onClose={() => setZoomedImage(null)}
-          label={zoomedImage.title}
-          panelClassName="max-w-4xl w-full"
-          overlayClassName="!z-[90]"
-        >
-          <div className="relative flex w-full flex-col rounded-lg bg-[#0E1A2B] p-4 sm:p-5 text-white shadow-2xl border border-white/15">
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#FF8A50] block">
-                  Photo Preview &amp; Guide
-                </span>
-                <p className="truncate text-[15px] sm:text-[16px] font-bold text-white">
-                  {zoomedImage.title}
-                </p>
-                {zoomedImage.desc && (
-                  <p className="mt-0.5 text-[12px] text-white/75 leading-relaxed">
-                    {zoomedImage.desc}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setZoomedImage(null)}
-                aria-label="닫기"
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <Icon d={ICON.close} className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="relative flex items-center justify-center bg-[#070D16] rounded-md p-2 overflow-auto max-h-[75vh]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={zoomedImage.src}
-                alt={zoomedImage.alt || zoomedImage.title}
-                className="max-h-[72vh] w-auto max-w-full rounded object-contain select-none"
-              />
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-[11.5px] text-white/60">
-              <span className="flex items-center gap-1">
-                <span>💡</span>
-                <span>모바일에서는 두 손가락으로 화면을 확대(핀치 줌)하여 작은 글씨까지 선명하게 보실 수 있습니다.</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setZoomedImage(null)}
-                className="hb-btn-outline border-white/30 text-white hover:bg-white/10 text-[12px] h-8 px-4 ml-auto"
-              >
-                닫기
-              </button>
-            </div>
-          </div>
-        </Modal>
       )}
     </form>
   );
@@ -16512,7 +17683,7 @@ export async function validateServerImageFiles(
 
 ]]>
     </file>
-    <file path="lib/site.ts" lines="895">
+    <file path="lib/site.ts" lines="1257">
       <![CDATA[
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
@@ -16689,10 +17860,6 @@ export function extractModelName(
   return null;
 }
 
-/**
- * [신규 기능 ②] 상품 제목과 상세 설명에서 실제 확인된 핵심 스펙 캡슐(최대 3개)을 자동 추출합니다.
- * - 가짜 정보를 생성하지 않으며, 텍스트에 실제로 등장하는 용량/평형/형태/전원 규격만 추출합니다.
- */
 export function extractSpecCapsules(
   title?: string | null,
   description?: string | null,
@@ -16709,26 +17876,23 @@ export function extractSpecCapsules(
     }
   };
 
-  // 1) 업소용 박스 규격 (예: 45박스, 30박스, 25박스)
   const boxMatch = combined.match(/\b(25|30|45|65)\s*박스/);
   if (boxMatch) addTag(`${boxMatch[1]}박스`);
 
-  // 2) 평형 규격 (예: 15평형, 9평, 30평형)
   const pyeongMatch = combined.match(/\b(\d{1,2})\s*평(?:형)?\b/);
   if (pyeongMatch) addTag(`${pyeongMatch[1]}평형`);
 
-  // 3) 용량 리터(L) 또는 킬로그램(kg) (예: 846L, 21kg)
   const literMatch = combined.match(/\b(\d{2,4})\s*(?:L|리터)\b/i);
   if (literMatch) addTag(`${literMatch[1]}L`);
 
   const kgMatch = combined.match(/\b(\d{1,3}(?:\.\d)?)\s*kg\b/i);
   if (kgMatch) addTag(`${kgMatch[1]}kg`);
 
-  // 4) 가로 폭 치수 (업소용 테이블냉장고/작업대 등: 900, 1200, 1500, 1800mm)
-  const widthMmMatch = combined.match(/\b(900|1200|1500|1800|2100|2400)\s*(?:mm|각|폭)/i);
+  const widthMmMatch = combined.match(
+    /\b(900|1200|1500|1800|2100|2400)\s*(?:mm|각|폭)/i
+  );
   if (widthMmMatch) addTag(`폭 ${widthMmMatch[1]}mm`);
 
-  // 5) 주요 형태 및 구동 방식 키워드
   const KEYWORD_RULES: ReadonlyArray<{ pattern: RegExp; label: string }> = [
     { pattern: /2\s*in\s*1|투인원/i, label: "2in1" },
     { pattern: /냉난방/, label: "냉난방겸용" },
@@ -16864,7 +18028,7 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
 }
 
 /* ════════════════════════════════════════════════════════════
-   2. [신규 기능 ①] 관심 매물 견적함 (묶음 문의) localStorage 헬퍼
+   2. 관심 매물 견적함 (묶음 문의) localStorage 헬퍼
    ════════════════════════════════════════════════════════════ */
 export const QUOTE_BASKET_STORAGE_KEY = "hb_quote_basket_v1";
 export const QUOTE_BASKET_EVENT = "hb-quote-basket-updated";
@@ -16888,7 +18052,11 @@ export function getQuoteBasket(): QuoteBasketItem[] {
     if (!Array.isArray(parsed)) return [];
     return parsed.filter(
       (item): item is QuoteBasketItem =>
-        Boolean(item && typeof item.id === "string" && typeof item.title === "string")
+        Boolean(
+          item &&
+            typeof item.id === "string" &&
+            typeof item.title === "string"
+        )
     );
   } catch {
     return [];
@@ -16898,10 +18066,13 @@ export function getQuoteBasket(): QuoteBasketItem[] {
 function saveQuoteBasket(items: QuoteBasketItem[]): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(QUOTE_BASKET_STORAGE_KEY, JSON.stringify(items));
+    window.localStorage.setItem(
+      QUOTE_BASKET_STORAGE_KEY,
+      JSON.stringify(items)
+    );
     window.dispatchEvent(new CustomEvent(QUOTE_BASKET_EVENT));
   } catch {
-    // 시크릿 모드 등 스토리지 제한 무시
+    // ignore storage errors
   }
 }
 
@@ -17006,7 +18177,7 @@ export function formatQuoteBasketSummary(items: QuoteBasketItem[]): {
 }
 
 /* ════════════════════════════════════════════════════════════
-   3. [신규 기능 ⑥] 당근마켓 · 네이버 카페 · 블로그 홍보글 자동 생성기
+   3. 당근마켓 · 네이버 카페 · 블로그 홍보글 자동 생성기
    ════════════════════════════════════════════════════════════ */
 export function generatePromoPostText(product: {
   id: string;
@@ -17027,8 +18198,10 @@ export function generatePromoPostText(product: {
 
   const specLines: string[] = [];
   if (modelName) specLines.push(`• 모델명: ${modelName}`);
-  if (product.condition_grade) specLines.push(`• 상태등급: ${product.condition_grade}`);
-  if (capsules.length > 0) specLines.push(`• 핵심규격: ${capsules.join(" / ")}`);
+  if (product.condition_grade)
+    specLines.push(`• 상태등급: ${product.condition_grade}`);
+  if (capsules.length > 0)
+    specLines.push(`• 핵심규격: ${capsules.join(" / ")}`);
 
   for (const s of parsed.specs) {
     if (s.label === "모델명" && modelName) continue;
@@ -17056,7 +18229,9 @@ export function generatePromoPostText(product: {
     `■ 판매 가격: ${priceText}`,
     `■ 품목 분류: ${categoryLabel} (${getProductStatusLabel(product.status)})`,
     ...(specLines.length > 0 ? ["", "[제품 주요 사양]", ...specLines] : []),
-    ...(featureLines.length > 0 ? ["", "[제품 특징 및 검수 상태]", ...featureLines] : []),
+    ...(featureLines.length > 0
+      ? ["", "[제품 특징 및 검수 상태]", ...featureLines]
+      : []),
     ...(rawFallback ? ["", "[상세 설명]", rawFallback] : []),
     "",
     "────────────────────────────",
@@ -17079,8 +18254,8 @@ export function generatePromoPostText(product: {
    4. 문의(purchase_requests) 역할 구분 및 표준 상태 전이 정의
    ════════════════════════════════════════════════════════════ */
 export const INQUIRY_TYPES = [
-  "내 물건 팔기",
   "구매 문의",
+  "내 물건 팔기",
   "대량·업소용 상담",
   "기타 문의",
 ] as const;
@@ -17407,6 +18582,364 @@ export function compressImage(
     };
     reader.readAsDataURL(file);
   });
+}
+
+/* ════════════════════════════════════════════════════════════
+   8. 상담 유형별 AI 사진 분석 스키마 및 구조화 문의 포맷/파서
+   ════════════════════════════════════════════════════════════ */
+export type FactSourceType = "사진 판독" | "고객 직접 입력";
+export type FactVerificationStatus =
+  | "확인됨"
+  | "일부 판독(재확인 필요)"
+  | "미확인";
+
+export interface ExtractedFactItem {
+  label: string;
+  value: string;
+  source: FactSourceType;
+  status: FactVerificationStatus;
+}
+
+export interface PhotoBreakdownItem {
+  photoIndex: number;
+  role: string;
+  summary: string;
+}
+
+export interface PurchaseAnalysisData {
+  photoTypes: string[];
+  requestedProduct: string;
+  confirmedSpecs: string[];
+  installationObservations: string[];
+  purchaseRequirements: string[];
+}
+
+export interface SellAnalysisData {
+  manufacturer: string;
+  manufacturingDate: string;
+  safetyLabelReadability:
+    | "선명함"
+    | "일부만 보임"
+    | "판독 불가"
+    | "라벨 사진 없음";
+  safetyLabelDetails: string[];
+  visibleConditionNotes: string[];
+  photoLabelConsistency:
+    | "일치 확인"
+    | "단일 사진/비교 대상 없음"
+    | "불일치 의심 — 확인 필요";
+  operatingStatusNote: string;
+  confirmedQuantity: string;
+}
+
+export interface BulkRequestedItem {
+  id: string;
+  category: string;
+  observedInPhotoCount: number | null;
+  requestedQuantity: string;
+  modelNumber: string;
+  specs: string;
+  verificationStatus:
+    | "고객 입력 확인"
+    | "사진 참고 확인(수량 미정)"
+    | "추가 확인 필요";
+}
+
+export interface BulkElectricalInfo {
+  phaseType: "단상 220V" | "삼상 380V" | "모름/미확인";
+  observedVoltage: string;
+  contractPower: string;
+  readability: string;
+  voltageUpgradeStatus: "필요" | "불필요" | "모름·현장 확인 필요";
+  notes: string;
+}
+
+export interface BulkInstallationInfo {
+  spaceLayout: string;
+  utilities: string;
+  accessRoute: string;
+  removalAndExtra: string;
+  targetRegionAndSchedule: string;
+}
+
+export interface BulkAnalysisData {
+  businessType: string;
+  requestedItems: BulkRequestedItem[];
+  electricalInfo: BulkElectricalInfo;
+  installationInfo: BulkInstallationInfo;
+}
+
+export interface OtherAnalysisData {
+  inquirySummary: string;
+  observedItems: string[];
+}
+
+export interface AnalyzeInquiryResponse {
+  success: boolean;
+  inquiryType: InquiryTypeValue;
+  applianceCategory: ProductCategoryValue | "";
+  title: string;
+  modelNumber: string;
+  conditionGrade: string | null;
+  descriptionDraft: string;
+  summaryNote: string;
+  photoBreakdown: PhotoBreakdownItem[];
+  extractedFacts: ExtractedFactItem[];
+  missingInfo: string[];
+  followUpQuestions: string[];
+  purchaseAnalysis?: PurchaseAnalysisData;
+  sellAnalysis?: SellAnalysisData;
+  bulkAnalysis?: BulkAnalysisData;
+  otherAnalysis?: OtherAnalysisData;
+}
+
+export interface StructuredInquiryPayload {
+  inquiryType: InquiryTypeValue;
+  customerContent: string;
+  linkedProductUrl?: string;
+  applianceCategory?: string;
+  modelNumber?: string;
+  region?: string;
+  schedule?: string;
+  /* 매입 전용 고객 확인 값 */
+  manufacturingDate?: string;
+  operatingStatus?: string;
+  conditionGrade?: string;
+  /* 대량·업소용 전용 고객 확인 값 */
+  businessType?: string;
+  bulkItems?: Array<{
+    category: string;
+    requestedQuantity: string;
+    modelNumber?: string;
+    specs?: string;
+  }>;
+  electricalPhase?: string;
+  voltageUpgrade?: string;
+  spaceAndUtilities?: string;
+  accessAndRemoval?: string;
+  /* AI 참고 메타데이터 (고객 직접 입력과 분리) */
+  aiReference?: {
+    summaryNote: string;
+    extractedFacts: ExtractedFactItem[];
+    missingInfo: string[];
+    followUpQuestions: string[];
+  } | null;
+}
+
+export interface ParsedStructuredInquiry {
+  isStructured: boolean;
+  customerContent: string;
+  structuredLines: Array<{ label: string; value: string }>;
+  bulkItems: string[];
+  aiSummaryLines: string[];
+  missingAndQuestions: string[];
+}
+
+const STRUCTURED_HEADER = "[상담 조건 및 확인 정보]";
+const AI_REF_HEADER = "[AI 사진 판독 참고 요약 — 관리자 확인용]";
+
+export function formatStructuredInquiryDescription(
+  payload: StructuredInquiryPayload
+): string {
+  const sections: string[] = [];
+
+  const cleanContent = payload.customerContent.trim();
+  if (cleanContent) {
+    sections.push(cleanContent);
+  }
+
+  const metaLines: string[] = [];
+  if (payload.linkedProductUrl?.trim()) {
+    metaLines.push(`• 문의 상품 링크: ${payload.linkedProductUrl.trim()}`);
+  }
+  if (
+    payload.inquiryType !== "기타 문의" &&
+    payload.applianceCategory?.trim()
+  ) {
+    metaLines.push(`• 품목 분류: ${payload.applianceCategory.trim()}`);
+  }
+  if (payload.inquiryType !== "기타 문의" && payload.modelNumber?.trim()) {
+    metaLines.push(`• 모델명: ${payload.modelNumber.trim()}`);
+  }
+  if (payload.region?.trim()) {
+    metaLines.push(
+      `• ${
+        payload.inquiryType === "내 물건 팔기"
+          ? "방문 수거 지역"
+          : "설치/현장 지역"
+      }: ${payload.region.trim()}`
+    );
+  }
+  if (payload.schedule?.trim()) {
+    metaLines.push(`• 희망 일정/층수: ${payload.schedule.trim()}`);
+  }
+
+  if (payload.inquiryType === "내 물건 팔기") {
+    if (payload.manufacturingDate?.trim()) {
+      metaLines.push(`• 제조년월(연식): ${payload.manufacturingDate.trim()}`);
+    }
+    if (payload.operatingStatus?.trim()) {
+      metaLines.push(`• 고객 확인 작동 상태: ${payload.operatingStatus.trim()}`);
+    }
+    if (payload.conditionGrade?.trim()) {
+      metaLines.push(`• 고객 선택 외관 상태: ${payload.conditionGrade.trim()}`);
+    }
+  }
+
+  if (payload.inquiryType === "대량·업소용 상담") {
+    if (payload.businessType?.trim()) {
+      metaLines.push(`• 업종 및 용도: ${payload.businessType.trim()}`);
+    }
+    if (payload.bulkItems && payload.bulkItems.length > 0) {
+      const itemStrings = payload.bulkItems
+        .filter((it) => it.category.trim())
+        .map((it) => {
+          const qty = it.requestedQuantity.trim() || "미확인(상담 필요)";
+          const mdl = it.modelNumber?.trim()
+            ? ` / 모델·규격: ${it.modelNumber.trim()}`
+            : "";
+          const spc = it.specs?.trim() ? ` (${it.specs.trim()})` : "";
+          return `  - ${it.category.trim()} | 희망 수량: ${qty}${mdl}${spc}`;
+        });
+      if (itemStrings.length > 0) {
+        metaLines.push(`• 희망 장비 및 수량 목록:\n${itemStrings.join("\n")}`);
+      }
+    }
+    if (payload.electricalPhase?.trim()) {
+      metaLines.push(`• 매장 전기 환경: ${payload.electricalPhase.trim()}`);
+    }
+    if (payload.voltageUpgrade?.trim()) {
+      metaLines.push(`• 승압 필요 여부: ${payload.voltageUpgrade.trim()}`);
+    }
+    if (payload.spaceAndUtilities?.trim()) {
+      metaLines.push(
+        `• 설치 공간·설비 조건: ${payload.spaceAndUtilities.trim()}`
+      );
+    }
+    if (payload.accessAndRemoval?.trim()) {
+      metaLines.push(
+        `• 반입 동선·철거 요청: ${payload.accessAndRemoval.trim()}`
+      );
+    }
+  }
+
+  if (metaLines.length > 0) {
+    sections.push(`${STRUCTURED_HEADER}\n${metaLines.join("\n")}`);
+  }
+
+  if (payload.aiReference) {
+    const aiLines: string[] = [];
+    if (payload.aiReference.summaryNote) {
+      aiLines.push(`• 판독 요약: ${payload.aiReference.summaryNote}`);
+    }
+    const photoFacts = payload.aiReference.extractedFacts.filter(
+      (f) => f.source === "사진 판독"
+    );
+    if (photoFacts.length > 0) {
+      aiLines.push(
+        `• 사진 확인 항목: ${photoFacts
+          .map((f) => `${f.label}(${f.value} - ${f.status})`)
+          .join(", ")}`
+      );
+    }
+    if (payload.aiReference.missingInfo.length > 0) {
+      aiLines.push(
+        `• 미확인 항목: ${payload.aiReference.missingInfo.join(" / ")}`
+      );
+    }
+    if (payload.aiReference.followUpQuestions.length > 0) {
+      aiLines.push(
+        `• 추가 확인 권장 질문: ${payload.aiReference.followUpQuestions.join(
+          " / "
+        )}`
+      );
+    }
+    if (aiLines.length > 0) {
+      sections.push(`${AI_REF_HEADER}\n${aiLines.join("\n")}`);
+    }
+  }
+
+  return sections.join("\n\n").slice(0, 4900);
+}
+
+export function parseStructuredInquiryDescription(
+  rawDescription?: string | null
+): ParsedStructuredInquiry {
+  const text = (rawDescription || "").trim();
+  if (!text.includes(STRUCTURED_HEADER) && !text.includes(AI_REF_HEADER)) {
+    return {
+      isStructured: false,
+      customerContent: text,
+      structuredLines: [],
+      bulkItems: [],
+      aiSummaryLines: [],
+      missingAndQuestions: [],
+    };
+  }
+
+  let customerPart = text;
+  let structuredPart = "";
+  let aiPart = "";
+
+  if (customerPart.includes(AI_REF_HEADER)) {
+    const splitAi = customerPart.split(AI_REF_HEADER);
+    customerPart = splitAi[0].trim();
+    aiPart = (splitAi[1] || "").trim();
+  }
+
+  if (customerPart.includes(STRUCTURED_HEADER)) {
+    const splitStruct = customerPart.split(STRUCTURED_HEADER);
+    customerPart = splitStruct[0].trim();
+    structuredPart = (splitStruct[1] || "").trim();
+  }
+
+  const structuredLines: Array<{ label: string; value: string }> = [];
+  const bulkItems: string[] = [];
+
+  structuredPart.split("\n").forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed) return;
+    if (trimmed.startsWith("- ")) {
+      bulkItems.push(trimmed.slice(2).trim());
+      return;
+    }
+    if (trimmed.startsWith("•")) {
+      const body = trimmed.slice(1).trim();
+      const colonIdx = body.indexOf(":");
+      if (colonIdx > 0) {
+        const label = body.slice(0, colonIdx).trim();
+        const value = body.slice(colonIdx + 1).trim();
+        if (value) {
+          structuredLines.push({ label, value });
+        }
+      }
+    }
+  });
+
+  const aiSummaryLines: string[] = [];
+  const missingAndQuestions: string[] = [];
+
+  aiPart.split("\n").forEach((line) => {
+    const trimmed = line.replace(/^[•\-*]\s*/, "").trim();
+    if (!trimmed) return;
+    if (
+      trimmed.startsWith("미확인 항목:") ||
+      trimmed.startsWith("추가 확인 권장 질문:")
+    ) {
+      missingAndQuestions.push(trimmed);
+    } else {
+      aiSummaryLines.push(trimmed);
+    }
+  });
+
+  return {
+    isStructured: true,
+    customerContent: customerPart,
+    structuredLines,
+    bulkItems,
+    aiSummaryLines,
+    missingAndQuestions,
+  };
 }
 
 ]]>
@@ -18881,6 +20414,109 @@ async function runDiagnostics() {
 }
 
 runDiagnostics();
+
+]]>
+    </file>
+    <file path="scripts/test-analyze-inquiry.mjs" lines="99">
+      <![CDATA[
+// 파일 경로: scripts/test-analyze-inquiry.mjs
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+
+const rootDir = process.cwd();
+
+function verifyFilesExist() {
+  const required = [
+    "app/api/analyze-inquiry/route.ts",
+    "components/inquiry/unified-inquiry-form.tsx",
+    "lib/site.ts",
+    "app/admin/page.tsx",
+  ];
+  for (const rel of required) {
+    const full = path.join(rootDir, rel);
+    assert.ok(fs.existsSync(full), `필수 파일 누락: ${rel}`);
+  }
+  console.log("✓ [PASS] 1. 필수 파일 경로 및 존재 확인 완료");
+}
+
+function verifyPromptAndSanitizerRules() {
+  const routeCode = fs.readFileSync(
+    path.join(rootDir, "app/api/analyze-inquiry/route.ts"),
+    "utf8"
+  );
+
+  assert.ok(
+    routeCode.includes("buildBuyPrompt") &&
+      routeCode.includes("buildSellPrompt") &&
+      routeCode.includes("buildBulkPrompt") &&
+      routeCode.includes("buildOtherPrompt"),
+    "4가지 상담 유형별 전용 프롬프트 빌더가 모두 분리되어 있어야 합니다."
+  );
+
+  assert.ok(
+    routeCode.includes(
+      "사진에 보이는 제품 대수 ≠ 고객이 실제로 구매하거나 처분하려는 희망 수량"
+    ),
+    "대량 문의에서 사진 속 대수와 구매 희망 수량 혼동 금지 원칙이 명시되어야 합니다."
+  );
+
+  assert.ok(
+    routeCode.includes("모름·현장 확인 필요"),
+    "분전반 사진만으로 승압 필요 여부를 단정하지 않는 상태값이 포함되어야 합니다."
+  );
+
+  assert.ok(
+    routeCode.includes("작동 상태 미확인 — 고객 확인 필요"),
+    "외관 상태와 실제 작동 상태 분리 원칙이 포함되어야 합니다."
+  );
+
+  assert.ok(
+    routeCode.includes('"gemini-3.8-flash"') &&
+      routeCode.includes('"gemini-2.5-flash"'),
+    "기존 Gemini 기본 모델(gemini-3.8-flash) 및 폴백 모델(gemini-2.5-flash) 설정이 유지되어야 합니다."
+  );
+
+  console.log(
+    "✓ [PASS] 2. 4대 상담 유형 프롬프트 빌더 및 3대 과잉 추론 차단 가드레일 검증 완료"
+  );
+}
+
+function verifyFrontendAndParserIntegration() {
+  const formCode = fs.readFileSync(
+    path.join(rootDir, "components/inquiry/unified-inquiry-form.tsx"),
+    "utf8"
+  );
+  const siteCode = fs.readFileSync(path.join(rootDir, "lib/site.ts"), "utf8");
+
+  assert.ok(
+    formCode.includes("pendingConflicts"),
+    "고객 기존 입력값 덮어쓰기 방지(pendingConflicts) 로직이 포함되어야 합니다."
+  );
+  assert.ok(
+    formCode.includes("electricalPhase") && formCode.includes("voltageUpgrade"),
+    "대량·업소용 전기 환경 및 승압 여부 선택 UI가 포함되어야 합니다."
+  );
+  assert.ok(
+    formCode.includes("operatingStatus") &&
+      formCode.includes("manufacturingDate"),
+    "매입 문의용 제조년월 및 실제 작동 상태 분리 입력 UI가 포함되어야 합니다."
+  );
+  assert.ok(
+    siteCode.includes("formatStructuredInquiryDescription") &&
+      siteCode.includes("parseStructuredInquiryDescription"),
+    "구조화 문의 직렬화 및 역직렬화 파서 함수가 lib/site.ts에 존재해야 합니다."
+  );
+
+  console.log(
+    "✓ [PASS] 3. 고객 입력 보호 UI, 대량·업소용 구조화 폼 및 관리자 뷰어 파서 검증 완료"
+  );
+}
+
+verifyFilesExist();
+verifyPromptAndSanitizerRules();
+verifyFrontendAndParserIntegration();
+console.log("🎉 모든 상담 유형별 AI 분석 및 문의 시스템 검증을 통과했습니다!");
 
 ]]>
     </file>

@@ -29,6 +29,7 @@ import {
   extractInquiryImages,
   extractStorageFilesByBucket,
   generatePromoPostText,
+  parseStructuredInquiryDescription,
   type NotificationDispatchResult,
   telHref,
 } from "../../lib/site";
@@ -1296,11 +1297,96 @@ export default function IntegratedAdminDashboard() {
                         </div>
                       </div>
 
-                      {req.description && (
-                        <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
-                          {req.description}
-                        </div>
-                      )}
+                      {req.description &&
+                        (() => {
+                          const parsed = parseStructuredInquiryDescription(
+                            req.description
+                          );
+                          if (!parsed.isStructured) {
+                            return (
+                              <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                                {req.description}
+                              </div>
+                            );
+                          }
+                          return (
+                            <div className="mt-3 space-y-2.5">
+                              {(parsed.structuredLines.length > 0 ||
+                                parsed.bulkItems.length > 0) && (
+                                <div className="rounded-md border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3.5 text-[13px] space-y-2">
+                                  <strong className="text-[12px] font-extrabold text-[#0E1A2B] block">
+                                    📋 고객 확인 상담 조건 ({req.inquiry_type})
+                                  </strong>
+                                  {parsed.structuredLines.length > 0 && (
+                                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                                      {parsed.structuredLines.map(
+                                        (row, idx) => (
+                                          <div
+                                            key={row.label + idx}
+                                            className="flex gap-2"
+                                          >
+                                            <dt className="font-bold text-[#4B5260] shrink-0">
+                                              {row.label}:
+                                            </dt>
+                                            <dd className="font-semibold text-[#0E1A2B]">
+                                              {row.value}
+                                            </dd>
+                                          </div>
+                                        )
+                                      )}
+                                    </dl>
+                                  )}
+                                  {parsed.bulkItems.length > 0 && (
+                                    <div className="pt-1.5 border-t border-[#E4E0D8]">
+                                      <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
+                                        📦 요청 장비 및 희망 수량 목록
+                                      </span>
+                                      <ul className="space-y-1 text-[12.5px] font-medium text-[#0E1A2B]">
+                                        {parsed.bulkItems.map((it, idx) => (
+                                          <li
+                                            key={idx}
+                                            className="bg-white px-2.5 py-1 rounded border border-[#E4E0D8]"
+                                          >
+                                            • {it}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {parsed.customerContent && (
+                                <div className="rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                                  <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
+                                    ✍️ 고객 작성 본문
+                                  </span>
+                                  {parsed.customerContent}
+                                </div>
+                              )}
+
+                              {(parsed.aiSummaryLines.length > 0 ||
+                                parsed.missingAndQuestions.length > 0) && (
+                                <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-[12px] text-amber-950 space-y-1">
+                                  <strong className="block text-amber-900">
+                                    🤖 AI 사진 판독 참고 요약 (고객 확정 사실과 구분하여 확인하세요)
+                                  </strong>
+                                  {parsed.aiSummaryLines.map((line, idx) => (
+                                    <p key={idx}>• {line}</p>
+                                  ))}
+                                  {parsed.missingAndQuestions.map((q, idx) => (
+                                    <p
+                                      key={idx}
+                                      className="font-semibold text-[#B5431A]"
+                                    >
+                                      ⚠️ {q}
+                                    </p>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
 
                       {imgs.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">

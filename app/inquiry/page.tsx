@@ -17,6 +17,7 @@ import {
   isBulkBizInquiry,
   getInquiryTypeLabel,
   INQUIRY_ADMIN_STATUS_OPTIONS,
+  parseStructuredInquiryDescription,
   type InquiryTypeValue,
 } from "../../lib/site";
 import {
@@ -1148,11 +1149,93 @@ export default function InquiryBoardPage() {
                 </div>
               </div>
 
-              {selectedItem.description && (
-                <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
-                  {selectedItem.description}
-                </div>
-              )}
+              {selectedItem.description &&
+                (() => {
+                  const parsed = parseStructuredInquiryDescription(
+                    selectedItem.description
+                  );
+                  if (!parsed.isStructured) {
+                    return (
+                      <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                        {selectedItem.description}
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="space-y-3">
+                      {(parsed.structuredLines.length > 0 ||
+                        parsed.bulkItems.length > 0) && (
+                        <div className="rounded-md border border-[#0E1A2B]/15 bg-[#F8FAFC] p-4 text-[13.5px] space-y-2">
+                          <strong className="text-[12.5px] font-extrabold text-[#0E1A2B] block">
+                            📋 상담 확인 조건 (
+                            {getInquiryTypeLabel(selectedItem.inquiry_type)})
+                          </strong>
+                          {parsed.structuredLines.length > 0 && (
+                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
+                              {parsed.structuredLines.map((row, idx) => (
+                                <div key={row.label + idx} className="flex gap-2">
+                                  <dt className="font-bold text-[#4B5260] shrink-0">
+                                    {row.label}:
+                                  </dt>
+                                  <dd className="font-semibold text-[#0E1A2B]">
+                                    {row.value}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          )}
+                          {parsed.bulkItems.length > 0 && (
+                            <div className="pt-2 border-t border-[#E4E0D8]">
+                              <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
+                                📦 요청 장비 및 수량
+                              </span>
+                              <ul className="space-y-1 text-[12.5px] font-medium text-[#0E1A2B]">
+                                {parsed.bulkItems.map((it, idx) => (
+                                  <li
+                                    key={idx}
+                                    className="bg-white px-2.5 py-1 rounded border border-[#E4E0D8]"
+                                  >
+                                    • {it}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {parsed.customerContent && (
+                        <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                          <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
+                            ✍️ 문의 내용
+                          </span>
+                          {parsed.customerContent}
+                        </div>
+                      )}
+
+                      {isAdmin &&
+                        (parsed.aiSummaryLines.length > 0 ||
+                          parsed.missingAndQuestions.length > 0) && (
+                          <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-[12px] text-amber-950 space-y-1">
+                            <strong className="block text-amber-900">
+                              🤖 AI 사진 판독 참고 요약 (관리자 확인용)
+                            </strong>
+                            {parsed.aiSummaryLines.map((line, idx) => (
+                              <p key={idx}>• {line}</p>
+                            ))}
+                            {parsed.missingAndQuestions.map((q, idx) => (
+                              <p
+                                key={idx}
+                                className="font-semibold text-[#B5431A]"
+                              >
+                                ⚠️ {q}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                    </div>
+                  );
+                })()}
 
               {selectedItem.images && selectedItem.images.length > 0 && (
                 <div className="grid grid-cols-3 gap-2.5">
