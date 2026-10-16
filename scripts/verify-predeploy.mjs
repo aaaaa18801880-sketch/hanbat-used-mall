@@ -83,9 +83,23 @@ function runPredeployChecks() {
     fileExists("app/not-found.tsx") && fileExists("app/error.tsx")
   );
 
+  const prodDetailPage = readFileSafe("app/[id]/page.tsx");
+  const prodCardComp = readFileSafe("components/products/product-card.tsx");
+  check(
+    "7. 상품 상세 페이지(app/[id]/page.tsx) 및 상품 카드(components/products/product-card.tsx) 컴포넌트 무결성 확인",
+    prodDetailPage.includes("export default async function ProductDetailPage") &&
+      prodDetailPage.includes("export async function generateMetadata") &&
+      prodCardComp.includes("export function ProductCard"),
+    "상품 상세 페이지 또는 ProductCard 컴포넌트가 다른 코드로 덮어써지지 않았는지 확인하세요."
+  );
+
   console.log("\n=========================================================");
   console.log(`검증 완료: ${passed} / ${total} 항목 통과`);
   console.log("=========================================================");
+
+  if (passed < total) {
+    process.exit(1);
+  }
 }
 
 runPredeployChecks();

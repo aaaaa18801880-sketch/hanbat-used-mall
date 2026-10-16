@@ -162,7 +162,7 @@ export async function PATCH(
       }
     }
 
-    const patch: Record<string, any> = {};
+    const patch: Record<string, unknown> = {};
     if (typeof body.category === "string") {
       patch.category = body.category.trim().slice(0, 120);
     }
@@ -215,9 +215,10 @@ export async function PATCH(
       previousStatus: existing.status,
       updated,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "알 수 없는 오류";
     return NextResponse.json(
-      { error: `서버 오류: ${err.message || "알 수 없는 오류"}` },
+      { error: `서버 오류: ${msg}` },
       { status: 500 }
     );
   }

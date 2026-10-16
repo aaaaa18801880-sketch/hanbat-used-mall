@@ -1,17 +1,27 @@
+// 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
-import { isProductSold } from "../../lib/site";
+import {
+  generatePromoPostText,
+  getQuoteBasket,
+  isProductSold,
+  QUOTE_BASKET_EVENT,
+  toggleQuoteBasketItem,
+  type QuoteBasketItem,
+} from "../../lib/site";
 
 export function ProductDetailGallery({
+  id,
   title,
   images,
   status,
   createdAt,
 }: {
+  id?: string;
   title: string;
   images: string[];
   status: string | null;
@@ -21,6 +31,20 @@ export function ProductDetailGallery({
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
   const sold = isProductSold(status);
+
+  useEffect(() => {
+    if (!id) return;
+    try {
+      const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
+      const viewedList = JSON.parse(viewedStr) as string[];
+      if (viewedList.includes(id)) return;
+      viewedList.push(id);
+      sessionStorage.setItem("viewed_products", JSON.stringify(viewedList));
+      fetch(`/api/products/${id}/view`, { method: "POST" }).catch(() => {});
+    } catch {
+      // ignore
+    }
+  }, [id]);
 
   const moveSlide = useCallback(
     (delta: number) => {
@@ -57,7 +81,6 @@ export function ProductDetailGallery({
 
   return (
     <div className="flex flex-col bg-[#FAF9F7]">
-      {/* 메인 이미지 뷰포트 (고정 비율로 로딩 중 레이아웃 이동 방지) */}
       <div
         onClick={() => displayImages[0] && setZoomOpen(true)}
         className={`relative aspect-[4/3] sm:aspect-square w-full overflow-hidden bg-[#EFECE6] flex items-center justify-center p-3 sm:p-5 select-none ${
@@ -133,7 +156,6 @@ export function ProductDetailGallery({
         )}
       </div>
 
-      {/* 하단 썸네일 리스트 */}
       {displayImages.length > 1 && (
         <div
           className="flex gap-2.5 overflow-x-auto border-t border-[#E4E0D8] bg-white p-3.5"
@@ -164,7 +186,6 @@ export function ProductDetailGallery({
         </div>
       )}
 
-      {/* 전체화면 확대 라이트박스 (모바일 및 데스크톱 대응) */}
       {zoomOpen && (
         <div
           role="dialog"
@@ -253,10 +274,119 @@ export function CopyProductLinkButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="hb-btn-outline h-10 px-3.5 text-[13px]"
+      className="hb-btn-outline h-9 px-3 text-[12.5px]"
       aria-label={`${productTitle} 링크 복사`}
     >
       <span>링크 복사</span>
+    </button>
+  );
+}
+
+/**
+ * [신규 기능 ⑥] 당근마켓 · 네이버 카페 · 블로그 홍보글 원클릭 복사 버튼
+ */
+export function CopyPromoPostButton({
+  product,
+  className = "",
+}: {
+  product: {
+    id: string;
+    title: string;
+    category?: string | null;
+    price?: number | null;
+    status?: string | null;
+    condition_grade?: string | null;
+    description?: string | null;
+  };
+  className?: string;
+}) {
+  const handleCopyPromo = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      const text = generatePromoPostText(product);
+      await navigator.clipboard.writeText(text);
+      toast.success("당근마켓·네이버카페·블로그 홍보 원고가 복사되었습니다!");
+    } catch {
+      toast.error("홍보 원고 복사에 실패했습니다.");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopyPromo}
+      className={
+        className ||
+        "inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-9 text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
+      }
+      title="당근마켓·네이버카페·블로그 업로드용 홍보 문구 복사"
+    >
+      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
+      <span>당근·카페 홍보글 복사</span>
+    </button>
+  );
+}
+
+/**
+ * [신규 기능 ①] 상세 페이지용 관심 매물 견적함 담기 토글 버튼
+ */
+export function QuoteBasketButton({
+  item,
+  className = "",
+}: {
+  item: QuoteBasketItem;
+  className?: string;
+}) {
+  const [inBasket, setInBasket] = useState(false);
+
+  useEffect(() => {
+    const sync = () => {
+      setInBasket(getQuoteBasket().some((x) => x.id === item.id));
+    };
+    sync();
+    window.addEventListener(QUOTE_BASKET_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [item.id]);
+
+  const handleToggle = () => {
+    const res = toggleQuoteBasketItem(item);
+    if (res.limitReached) {
+      toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
+    } else if (res.added) {
+      toast.success("관심 매물 견적함에 담았습니다.");
+    } else {
+      toast("견적함에서 제외했습니다.");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleToggle}
+      aria-pressed={inBasket}
+      className={
+        className ||
+        `inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-md border text-[13.5px] font-bold transition-colors ${
+          inBasket
+            ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+            : "border-[#DDD9D1] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+        }`
+      }
+    >
+      <Icon
+        d={inBasket ? ICON.check : ICON.plus}
+        className="w-4 h-4 text-[#D9531E]"
+      />
+      <span>
+        {inBasket
+          ? "견적함에 담김 (우측 하단에서 묶음 문의 가능)"
+          : "관심 매물 견적함에 담기 (복수 품목 묶음 문의)"}
+      </span>
     </button>
   );
 }

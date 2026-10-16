@@ -1,9 +1,22 @@
-// 파일 경로: lib/ui.tsx
+
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { STORE, telHref, trackEvent } from "./site";
+import toast from "react-hot-toast";
+import {
+  STORE,
+  telHref,
+  trackEvent,
+  getQuoteBasket,
+  removeQuoteBasketItem,
+  clearQuoteBasket,
+  toggleQuoteBasketItem,
+  QUOTE_BASKET_EVENT,
+  formatProductPrice,
+  isProductSold,
+  type QuoteBasketItem,
+} from "./site";
 
 /* ════════════════════════════════════════════════════════════
    1. 공통 아이콘 시스템
@@ -30,6 +43,8 @@ export const ICON = {
   pin: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
   clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
   menu: "M4 7h16M4 12h16M4 17h16",
+  bag: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0",
+  copy: "M9 9h11v11H9zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
 } as const;
 
 export function Icon({
@@ -37,11 +52,10 @@ export function Icon({
   className = "w-4 h-4",
   strokeWidth = 1.9,
   ...props
-}: {
+}: React.SVGProps<SVGSVGElement> & {
   d: string;
   className?: string;
   strokeWidth?: number;
-  [key: string]: any;
 }) {
   return (
     <svg
@@ -69,18 +83,16 @@ export function SafeImg({
   className = "",
   eager = false,
   ...props
-}: {
+}: Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "alt" | "className"> & {
   src?: string | null;
   alt?: string;
   className?: string;
   eager?: boolean;
-  [key: string]: any;
 }) {
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    setError(false);
-  }, [src]);
+  const [failedSrc, setFailedSrc] = useState<string | null | undefined>(
+    undefined
+  );
+  const error = Boolean(src && failedSrc === src);
 
   if (!src || error) {
     return (
@@ -102,7 +114,7 @@ export function SafeImg({
       loading={eager ? "eager" : "lazy"}
       fetchPriority={eager ? "high" : "auto"}
       decoding={eager ? "sync" : "async"}
-      onError={() => setError(true)}
+      onError={() => setFailedSrc(src)}
       className={className}
       {...props}
     />
@@ -176,7 +188,10 @@ export function Modal({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -265,7 +280,7 @@ export function Modal({
 }
 
 /* ════════════════════════════════════════════════════════════
-   5. 상단 공통 헤더 (SiteHeader)
+   5. 상단 공통 헤더 (SiteHeader - 견적함 배지 연동)
    ════════════════════════════════════════════════════════════ */
 const HEADER_NAV = [
   { label: "판매 제품 갤러리", href: "/gallery" },
@@ -278,6 +293,18 @@ const HEADER_NAV = [
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [basketCount, setBasketCount] = useState(0);
+
+  useEffect(() => {
+    const syncBasket = () => setBasketCount(getQuoteBasket().length);
+    syncBasket();
+    window.addEventListener(QUOTE_BASKET_EVENT, syncBasket);
+    window.addEventListener("storage", syncBasket);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, syncBasket);
+      window.removeEventListener("storage", syncBasket);
+    };
+  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -338,6 +365,20 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </nav>
 
           <div className="flex items-center justify-end gap-2 shrink-0">
+            {basketCount > 0 && (
+              <Link
+                href="/inquiry?write=1&bundle=1"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2.5 sm:px-3 h-10 text-[12.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
+                title="담아둔 관심 매물 일괄 견적 문의하기"
+              >
+                <Icon d={ICON.bag} className="w-3.5 h-3.5" />
+                <span className="hidden xs:inline">견적함</span>
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-[11px] font-bold text-white">
+                  {basketCount}
+                </span>
+              </Link>
+            )}
+
             <a
               href={telHref(STORE.tel)}
               onClick={() =>
@@ -378,7 +419,11 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <div id="main-content" tabIndex={-1} className="sr-only focus:outline-none" />
+      <div
+        id="main-content"
+        tabIndex={-1}
+        className="sr-only focus:outline-none"
+      />
 
       {/* 모바일 내비게이션 드로어 */}
       {menuOpen && (
@@ -469,7 +514,103 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
 }
 
 /* ════════════════════════════════════════════════════════════
-   6. 하단 공통 푸터 (SiteFooter - 기존 문구 보존 및 위계 정리)
+   6. [신규 기능 ①] 관심 매물 플로팅 견적함 바 (QuoteBasketFloatingBar)
+   ════════════════════════════════════════════════════════════ */
+export function QuoteBasketFloatingBar() {
+  const [items, setItems] = useState<QuoteBasketItem[]>([]);
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    const sync = () => setItems(getQuoteBasket());
+    sync();
+    window.addEventListener(QUOTE_BASKET_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  if (items.length === 0) return null;
+
+  return (
+    <aside
+      aria-label="관심 매물 견적함"
+      className="fixed bottom-[64px] lg:bottom-5 right-3 sm:right-6 z-40 w-[calc(100vw-24px)] max-w-[420px] rounded-md border border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xl"
+    >
+      {expanded && (
+        <div className="border-b border-white/15 p-3.5 max-h-[240px] overflow-y-auto space-y-2 bg-[#132238]">
+          <div className="flex items-center justify-between text-[12px] text-white/70 pb-1">
+            <span>담아둔 관심 매물 ({items.length}건)</span>
+            <button
+              type="button"
+              onClick={() => {
+                clearQuoteBasket();
+                toast.success("견적함을 비웠습니다.");
+              }}
+              className="text-[11.5px] text-[#FF8A50] hover:underline"
+            >
+              전체 비우기
+            </button>
+          </div>
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="flex items-center justify-between gap-2 rounded bg-white/5 px-2.5 py-2 text-[12.5px]"
+            >
+              <Link
+                href={`/${item.id}`}
+                className="min-w-0 flex-1 truncate font-semibold text-white hover:text-[#FF8A50]"
+              >
+                {item.title}
+              </Link>
+              <span className="shrink-0 text-[11.5px] text-white/75">
+                {formatProductPrice(item.price, item.category)}
+              </span>
+              <button
+                type="button"
+                onClick={() => removeQuoteBasketItem(item.id)}
+                aria-label={`${item.title} 견적함에서 제거`}
+                className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-red-600 hover:text-white"
+              >
+                <Icon d={ICON.close} className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+        <button
+          type="button"
+          onClick={() => setExpanded((v) => !v)}
+          className="flex items-center gap-2 text-left text-[13px] font-bold text-white hover:text-[#FF8A50]"
+        >
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
+            {items.length}
+          </span>
+          <span className="truncate">
+            관심 매물 견적함{" "}
+            <span className="text-[11.5px] font-normal text-white/70">
+              ({expanded ? "목록 접기" : "목록 보기"})
+            </span>
+          </span>
+        </button>
+
+        <Link
+          href="/inquiry?write=1&bundle=1"
+          className="hb-btn-accent h-9 px-3.5 text-[12.5px] shrink-0 whitespace-nowrap"
+        >
+          <span>일괄 견적 문의</span>
+          <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+    </aside>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   7. 하단 공통 푸터 (SiteFooter)
    ════════════════════════════════════════════════════════════ */
 export function SiteFooter({
   isAdmin = false,
@@ -479,171 +620,308 @@ export function SiteFooter({
   onAdminClick?: () => void;
 }) {
   return (
-    <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#0E1A2B]">
-      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
-        <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
-          <div className="lg:col-span-5">
-            <div className="flex items-center gap-2.5">
-              <span className="text-[19px] font-bold text-white tracking-tight">
-                {STORE.name}
-              </span>
-              <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/85">
-                SINCE {STORE.since}
-              </span>
-            </div>
-            <p className="mt-3 max-w-md text-[13.5px] leading-[1.7] text-white/70 break-keep">
-              가정용 중고가전(냉장고·세탁기·에어컨·냉난방기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 검수·세척하여 판매하고 합리적인 기준으로 매입합니다.
-            </p>
-            <div className="mt-5 flex flex-wrap items-center gap-2.5">
-              <a
-                href={telHref(STORE.tel)}
-                onClick={() =>
-                  trackEvent("click_tel_consult", { location: "site_footer" })
-                }
-                className="inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/15 px-3.5 py-2 text-[13px] font-bold text-white transition-colors"
-              >
-                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                {STORE.tel}
-              </a>
-              <a
-                href={STORE.kakaoChat}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={() =>
-                  trackEvent("click_kakao_consult", { location: "site_footer" })
-                }
-                className="inline-flex items-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[13px] font-bold text-[#191600] transition-colors"
-              >
-                <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                카카오톡 상담
-              </a>
-            </div>
-          </div>
-
-          <nav
-            className="grid grid-cols-2 gap-8 text-[13.5px] sm:grid-cols-3 lg:col-span-7"
-            aria-label="푸터 메뉴"
-          >
-            <div>
-              <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
-                취급 품목
+    <>
+      <QuoteBasketFloatingBar />
+      <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#0E1A2B]">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+          <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
+            <div className="lg:col-span-5">
+              <div className="flex items-center gap-2.5">
+                <span className="text-[19px] font-bold text-white tracking-tight">
+                  {STORE.name}
+                </span>
+                <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/85">
+                  SINCE {STORE.since}
+                </span>
+              </div>
+              <p className="mt-3 max-w-md text-[13.5px] leading-[1.7] text-white/70 break-keep">
+                가정용 중고가전(냉장고·세탁기·에어컨·냉난방기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 검수·세척하여 판매하고 합리적인 기준으로 매입합니다.
               </p>
-              <ul className="mt-3.5 space-y-2 text-white/70">
-                <li>
-                  <Link
-                    href="/gallery?category=에어컨/냉난방기"
-                    className="hover:text-white"
-                  >
-                    에어컨 · 냉난방기
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/gallery?category=냉장고"
-                    className="hover:text-white"
-                  >
-                    냉장고 · 김치냉장고
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/gallery?category=세탁기/건조기"
-                    className="hover:text-white"
-                  >
-                    세탁기 · 건조기
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/gallery?category=업소용기기"
-                    className="hover:text-white"
-                  >
-                    업소용 냉장 · 주방기기
-                  </Link>
-                </li>
-              </ul>
+              <div className="mt-5 flex flex-wrap items-center gap-2.5">
+                <a
+                  href={telHref(STORE.tel)}
+                  onClick={() =>
+                    trackEvent("click_tel_consult", { location: "site_footer" })
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/15 px-3.5 py-2 text-[13px] font-bold text-white transition-colors"
+                >
+                  <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                  {STORE.tel}
+                </a>
+                <a
+                  href={STORE.kakaoChat}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("click_kakao_consult", { location: "site_footer" })
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[13px] font-bold text-[#191600] transition-colors"
+                >
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                  카카오톡 상담
+                </a>
+              </div>
             </div>
 
-            <div>
-              <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
-                고객 지원
-              </p>
-              <ul className="mt-3.5 space-y-2 text-white/70">
-                <li>
-                  <Link href="/purchase" className="hover:text-white">
-                    중고가전 매입 신청
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#reviews-section" className="hover:text-white">
-                    배송 · 설치 사례
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/inquiry" className="hover:text-white">
-                    문의게시판
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-white">
-                    개인정보처리방침
-                  </Link>
-                </li>
-              </ul>
-            </div>
-
-            <div className="col-span-2 sm:col-span-1">
-              <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
-                오프라인 매장
-              </p>
-              <ul className="mt-3.5 space-y-2 text-white/70 text-[13px]">
-                <li>{STORE.address}</li>
-                <li>({STORE.addressNote})</li>
-                <li>영업시간: {STORE.hours}</li>
-                <li>휴무안내: {STORE.closed}</li>
-              </ul>
-            </div>
-          </nav>
-        </div>
-
-        <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-[12px] leading-relaxed text-white/55">
-          <div>
-            <p>
-              상호: {STORE.name} · 대표: {STORE.ceo} · 사업자등록번호:{" "}
-              {STORE.bizNo} · 통신판매업신고: {STORE.mailOrderNo}
-            </p>
-            <p className="mt-0.5">
-              개인정보보호책임자: {STORE.privacyOfficer} · 주소: {STORE.address}
-            </p>
-            <p className="mt-1">
-              © {new Date().getFullYear()} {STORE.name}. All rights reserved.
-            </p>
-          </div>
-
-          {onAdminClick && (
-            <button
-              type="button"
-              onClick={onAdminClick}
-              className="text-[12px] text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end"
+            <nav
+              className="grid grid-cols-2 gap-8 text-[13.5px] sm:grid-cols-3 lg:col-span-7"
+              aria-label="푸터 메뉴"
             >
-              {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
-            </button>
-          )}
+              <div>
+                <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
+                  취급 품목
+                </p>
+                <ul className="mt-3.5 space-y-2 text-white/70">
+                  <li>
+                    <Link
+                      href="/gallery?category=에어컨/냉난방기"
+                      className="hover:text-white"
+                    >
+                      에어컨 · 냉난방기
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/gallery?category=냉장고"
+                      className="hover:text-white"
+                    >
+                      냉장고 · 김치냉장고
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/gallery?category=세탁기/건조기"
+                      className="hover:text-white"
+                    >
+                      세탁기 · 건조기
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/gallery?category=업소용기기"
+                      className="hover:text-white"
+                    >
+                      업소용 냉장 · 주방기기
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
+                  고객 지원
+                </p>
+                <ul className="mt-3.5 space-y-2 text-white/70">
+                  <li>
+                    <Link href="/purchase" className="hover:text-white">
+                      중고가전 매입 신청
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/#reviews-section" className="hover:text-white">
+                      배송 · 설치 사례
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/inquiry" className="hover:text-white">
+                      문의게시판
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/privacy" className="hover:text-white">
+                      개인정보처리방침
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="col-span-2 sm:col-span-1">
+                <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
+                  오프라인 매장
+                </p>
+                <ul className="mt-3.5 space-y-2 text-white/70 text-[13px]">
+                  <li>{STORE.address}</li>
+                  <li>({STORE.addressNote})</li>
+                  <li>영업시간: {STORE.hours}</li>
+                  <li>휴무안내: {STORE.closed}</li>
+                </ul>
+              </div>
+            </nav>
+          </div>
+
+          <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-[12px] leading-relaxed text-white/55">
+            <div>
+              <p>
+                상호: {STORE.legalName} · 대표자: {STORE.ceo} · 사업자등록번호:{" "}
+                {STORE.bizNo} · 통신판매업신고: {STORE.mailOrderNo}
+              </p>
+              <p className="mt-0.5">
+                개인정보보호책임자: {STORE.privacyOfficer} · 주소:{" "}
+                {STORE.address} ({STORE.addressNote}) · 대표전화: {STORE.tel} · 휴대전화: {STORE.mobile}
+              </p>
+              <p className="mt-1">
+                © {new Date().getFullYear()} {STORE.name}. All rights reserved.
+              </p>
+            </div>
+
+            {onAdminClick && (
+              <button
+                type="button"
+                onClick={onAdminClick}
+                className="text-[12px] text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end"
+              >
+                {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-      <div className="h-[60px] lg:hidden" aria-hidden="true" />
-    </footer>
+        <div className="h-[60px] lg:hidden" aria-hidden="true" />
+      </footer>
+    </>
   );
 }
 
 /* ════════════════════════════════════════════════════════════
-   7. 단일화된 모바일 하단 고정 CTA 바 (MobileCtaBar)
+   8. [신규 기능 ④] 모바일 하단 고정 CTA 바 (상품 상세 전용 모드 지원)
    ════════════════════════════════════════════════════════════ */
+export interface MobileProductCtaContext {
+  id: string;
+  title: string;
+  category: string;
+  price: number | null;
+  status?: string | null;
+  modelName?: string | null;
+  imageUrl?: string | null;
+  inquiryHref: string;
+}
+
 export function MobileCtaBar({
   onInquiryClick,
+  productContext,
 }: {
   onInquiryClick?: () => void;
+  productContext?: MobileProductCtaContext;
 }) {
+  const [inBasket, setInBasket] = useState(false);
+
+  useEffect(() => {
+    if (!productContext) return;
+    const sync = () => {
+      setInBasket(getQuoteBasket().some((x) => x.id === productContext.id));
+    };
+    sync();
+    window.addEventListener(QUOTE_BASKET_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [productContext]);
+
+  // 상품 상세 페이지(app/[id]/page.tsx) 전용 당근마켓·오늘의집 스타일 하단 고정 액션 바
+  if (productContext) {
+    const sold = isProductSold(productContext.status);
+    const priceLabel = sold
+      ? "판매완료"
+      : formatProductPrice(productContext.price, productContext.category);
+
+    return (
+      <div
+        role="region"
+        aria-label="상품 상세 모바일 구매·문의 바"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/98 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_18px_rgba(14,26,43,0.1)] lg:hidden"
+      >
+        <div className="flex h-[60px] items-center justify-between gap-2 px-3">
+          {/* 좌측: 현재 상품 가격 및 견적함 담기 토글 */}
+          <div className="min-w-0 flex items-center gap-2">
+            {!sold && (
+              <button
+                type="button"
+                onClick={() => {
+                  const res = toggleQuoteBasketItem({
+                    id: productContext.id,
+                    title: productContext.title,
+                    category: productContext.category,
+                    price: productContext.price,
+                    modelName: productContext.modelName,
+                    imageUrl: productContext.imageUrl,
+                  });
+                  if (res.limitReached) {
+                    toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
+                  } else if (res.added) {
+                    toast.success("견적함에 상품을 담았습니다.");
+                  } else {
+                    toast("견적함에서 제외했습니다.");
+                  }
+                }}
+                aria-pressed={inBasket}
+                className={`flex h-10 shrink-0 flex-col items-center justify-center rounded border px-2 text-[10.5px] font-bold transition-colors ${
+                  inBasket
+                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                    : "border-[#DDD9D1] bg-[#FAF9F7] text-[#4B5260]"
+                }`}
+              >
+                <Icon
+                  d={inBasket ? ICON.check : ICON.plus}
+                  className="h-3.5 w-3.5"
+                />
+                <span>{inBasket ? "담김" : "견적함"}</span>
+              </button>
+            )}
+            <div className="min-w-0">
+              <span className="block truncate text-[10.5px] font-semibold text-[#6B7280]">
+                {productContext.category}
+              </span>
+              <strong
+                className={`block truncate text-[14.5px] font-bold leading-tight ${
+                  sold ? "text-[#8A8478]" : "text-[#0E1A2B]"
+                }`}
+              >
+                {priceLabel}
+              </strong>
+            </div>
+          </div>
+
+          {/* 우측: 전화 · 카톡 · 이 상품 온라인 문의 버튼 */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <a
+              href={telHref(STORE.tel)}
+              onClick={() =>
+                trackEvent("click_tel_consult", {
+                  location: "product_mobile_bar",
+                })
+              }
+              aria-label="전화 상담"
+              className="grid h-10 w-10 place-items-center rounded bg-[#0E1A2B] text-white"
+            >
+              <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
+            </a>
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent("click_kakao_consult", {
+                  location: "product_mobile_bar",
+                })
+              }
+              aria-label="카카오톡 문의"
+              className="grid h-10 w-10 place-items-center rounded bg-[#FEE500] text-[#191600]"
+            >
+              <Icon d={ICON.chat} className="h-4 w-4" />
+            </a>
+            <Link
+              href={productContext.inquiryHref}
+              className="hb-btn-accent h-10 px-3.5 text-[13px] whitespace-nowrap"
+            >
+              <span>이 상품 문의</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       role="region"

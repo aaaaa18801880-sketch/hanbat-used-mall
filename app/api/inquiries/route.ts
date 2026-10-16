@@ -44,7 +44,24 @@ export async function GET(req: NextRequest) {
 
     const rows = data ?? [];
 
-    const sanitized = rows.map((row: any) => {
+    const sanitized = rows.map(
+      (row: {
+        id: number | string;
+        name?: string | null;
+        phone?: string | null;
+        inquiry_type?: string | null;
+        category?: string | null;
+        model?: string | null;
+        condition_grade?: string | null;
+        region?: string | null;
+        description?: string | null;
+        images?: unknown;
+        image_url?: unknown;
+        is_notice?: boolean | null;
+        status?: string | null;
+        admin_reply?: string | null;
+        created_at?: string | null;
+      }) => {
       const normalizedImages = extractInquiryImages(row);
       const isNotice = Boolean(row.is_notice);
       const rawTitle =
@@ -217,7 +234,7 @@ export async function POST(req: NextRequest) {
       : hashInquiryPassword(rawPassword);
 
     const supabase = createServerSupabaseClient(adminAccessToken);
-    const basePayload: Record<string, any> = {
+    const basePayload: Record<string, unknown> = {
       name,
       phone,
       password: hashedPassword,
@@ -230,7 +247,7 @@ export async function POST(req: NextRequest) {
       status: isNotice ? "공지" : "접수",
     };
 
-    const extendedPayload: Record<string, any> = { ...basePayload };
+    const extendedPayload: Record<string, unknown> = { ...basePayload };
     if (model) extendedPayload.model = model;
     if (conditionGrade) extendedPayload.condition_grade = conditionGrade;
 

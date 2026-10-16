@@ -232,6 +232,7 @@ export default function Home() {
 
   /* ── 1) 실시간 판매 매물 로드 (배송인증 제외) ── */
   const loadFeaturedProducts = useCallback(async () => {
+    await Promise.resolve();
     setProductsLoading(true);
     setProductsError(false);
     try {
@@ -293,9 +294,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    loadFeaturedProducts();
-    loadReviews();
-    loadRecent();
+    queueMicrotask(() => {
+      void loadFeaturedProducts();
+      void loadReviews();
+      void loadRecent();
+    });
     supabase.auth
       .getSession()
       .then(({ data }) =>

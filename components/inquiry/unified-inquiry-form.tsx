@@ -1,13 +1,17 @@
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
 import {
+  clearQuoteBasket,
   compressImage,
   formatPhone,
+  formatProductPrice,
+  formatQuoteBasketSummary,
+  getQuoteBasket,
   INQUIRY_TYPES,
   type InquiryTypeValue,
   isSellInquiry,
@@ -16,6 +20,9 @@ import {
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
   PRODUCT_CONDITION_GRADES,
+  QUOTE_BASKET_EVENT,
+  type QuoteBasketItem,
+  removeQuoteBasketItem,
   STORAGE_BUCKETS,
   STORE,
   telHref,
@@ -37,6 +44,7 @@ export interface LinkedProductContext {
   productTitle?: string;
   modelName?: string;
   category?: string;
+  useBundle?: boolean;
 }
 
 const SELL_PHOTO_GUIDE_STEPS = [
@@ -109,6 +117,9 @@ export function UnifiedInquiryForm({
   const [region, setRegion] = useState("");
   const [description, setDescription] = useState("");
 
+  const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
+  const [bundleApplied, setBundleApplied] = useState(false);
+
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
@@ -121,21 +132,59 @@ export function UnifiedInquiryForm({
   const [submitErrorMsg, setSubmitErrorMsg] = useState<string | null>(null);
   const [createdInquiryId, setCreatedInquiryId] = useState<string | null>(null);
 
+  const applyBasketToForm = useCallback((items: QuoteBasketItem[]) => {
+    if (items.length === 0) return;
+    const summary = formatQuoteBasketSummary(items);
+    setInquiryType(
+      summary.hasCommercialItem || items.length >= 2
+        ? "대량·업소용 상담"
+        : "구매 문의"
+    );
+    setTitle(summary.autoTitle);
+    setDescription(summary.autoDescription);
+    setBundleApplied(true);
+  }, []);
+
   useEffect(() => {
-    setInquiryType(defaultType);
+    const syncBasket = () => {
+      const current = getQuoteBasket();
+      setBasketItems(current);
+    };
+    syncBasket();
+    window.addEventListener(QUOTE_BASKET_EVENT, syncBasket);
+    window.addEventListener("storage", syncBasket);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, syncBasket);
+      window.removeEventListener("storage", syncBasket);
+    };
+  }, []);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setInquiryType(defaultType);
+    });
   }, [defaultType]);
 
   useEffect(() => {
-    if (linkedProduct?.productTitle) {
-      setTitle(linkedProduct.productTitle);
-    }
-    if (linkedProduct?.modelName) {
-      setModel(linkedProduct.modelName);
-    }
-    if (linkedProduct?.category) {
-      setApplianceCategory(linkedProduct.category);
-    }
-  }, [linkedProduct]);
+    queueMicrotask(() => {
+      if (linkedProduct?.useBundle) {
+        const items = getQuoteBasket();
+        if (items.length > 0) {
+          applyBasketToForm(items);
+          return;
+        }
+      }
+      if (linkedProduct?.productTitle) {
+        setTitle(linkedProduct.productTitle);
+      }
+      if (linkedProduct?.modelName) {
+        setModel(linkedProduct.modelName);
+      }
+      if (linkedProduct?.category) {
+        setApplianceCategory(linkedProduct.category);
+      }
+    });
+  }, [linkedProduct, applyBasketToForm]);
 
   const isSell = !isNotice && isSellInquiry(inquiryType);
   const isBulk = !isNotice && isBulkBizInquiry(inquiryType);
@@ -317,6 +366,9 @@ export function UnifiedInquiryForm({
       const newId = resJson.inquiryId || null;
       setCreatedInquiryId(newId);
       setPhase("success");
+      if (bundleApplied) {
+        clearQuoteBasket();
+      }
       trackEvent("submit_inquiry_success", {
         inquiry_type: isNotice ? "공지사항" : inquiryType,
         has_photos: uploadedUrls.length > 0,
@@ -345,13 +397,14 @@ export function UnifiedInquiryForm({
       if (onSuccess) {
         onSuccess(newId);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
       setPhase("error");
       setSubmitErrorMsg(
-        err.message ||
+        msg ||
           "네트워크 연결 문제로 접수되지 않았습니다. 아래 [입력 내용 그대로 재시도] 버튼을 눌러주세요."
       );
-      toast.error(err.message || "접수 중 오류가 발생했습니다.");
+      toast.error(msg || "접수 중 오류가 발생했습니다.");
     }
   };
 
@@ -365,6 +418,7 @@ export function UnifiedInquiryForm({
     setRegion("");
     setDescription("");
     setPassword("");
+    setBundleApplied(false);
     setFieldErrors({});
     setSubmitErrorMsg(null);
     setCreatedInquiryId(null);
@@ -451,6 +505,65 @@ export function UnifiedInquiryForm({
         </label>
       )}
 
+      {/* [신규 기능 ①] 관심 매물 견적함(묶음 문의) 자동 불러오기 배너 */}
+      {!isNotice && basketItems.length > 0 && (
+        <div className="rounded-md border border-[#0E1A2B] bg-[#F8FAFC] p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
+                {basketItems.length}
+              </span>
+              <strong className="text-[13.5px] font-bold text-[#0E1A2B]">
+                견적함에 담아둔 관심 매물 {basketItems.length}건이 있습니다
+              </strong>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                applyBasketToForm(basketItems);
+                toast.success(
+                  `견적함 상품 ${basketItems.length}건이 문의 내용에 자동 입력되었습니다.`
+                );
+              }}
+              className="rounded bg-[#0E1A2B] px-3 py-1.5 text-[12px] font-bold text-white hover:bg-[#1C2D47]"
+            >
+              {bundleApplied
+                ? "견적함 목록 다시 반영하기"
+                : "이 상품들 묶음 견적으로 자동 입력"}
+            </button>
+          </div>
+
+          <ul className="mt-2.5 flex flex-wrap gap-1.5">
+            {basketItems.map((item) => (
+              <li
+                key={item.id}
+                className="inline-flex items-center gap-1.5 rounded border border-[#DDD9D1] bg-white px-2.5 py-1 text-[12px]"
+              >
+                <span className="font-semibold text-[#0E1A2B] truncate max-w-[180px]">
+                  {item.title}
+                </span>
+                <span className="text-[#D9531E] font-bold">
+                  ({formatProductPrice(item.price, item.category)})
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = removeQuoteBasketItem(item.id);
+                    if (bundleApplied && next.length > 0) {
+                      applyBasketToForm(next);
+                    }
+                  }}
+                  aria-label={`${item.title} 제외`}
+                  className="text-[#8A8478] hover:text-red-600"
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {!isNotice && (
         <fieldset>
           <legend className="hb-label mb-1.5">
@@ -488,10 +601,12 @@ export function UnifiedInquiryForm({
         </fieldset>
       )}
 
-      {!isNotice && linkedProduct?.productTitle && (
+      {!isNotice && linkedProduct?.productTitle && !bundleApplied && (
         <div className="flex items-center justify-between gap-3 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-4 py-3 text-[13px]">
           <div className="min-w-0">
-            <span className="font-bold text-[#D9531E]">선택 상품 자동 연결됨: </span>
+            <span className="font-bold text-[#D9531E]">
+              선택 상품 자동 연결됨:{" "}
+            </span>
             <strong className="text-[#0E1A2B]">
               {linkedProduct.productTitle}
             </strong>
@@ -693,7 +808,7 @@ export function UnifiedInquiryForm({
         </label>
         <textarea
           id="uf-desc"
-          rows={4}
+          rows={bundleApplied ? 7 : 4}
           value={description}
           onChange={(e) => {
             setDescription(e.target.value);
@@ -716,7 +831,6 @@ export function UnifiedInquiryForm({
         )}
       </div>
 
-      {/* 사진 첨부 + 조회용 비밀번호 + 3컷 촬영 시각 가이드 */}
       <div className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <div>
@@ -803,7 +917,7 @@ export function UnifiedInquiryForm({
           )}
         </div>
 
-        {/* 신규: 사진 촬영 3컷 시각 가이드 박스 */}
+        {/* 사진 촬영 3컷 시각 가이드 박스 */}
         {!isNotice && (
           <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5">
             <div className="flex items-center justify-between gap-2 mb-2.5">
@@ -929,6 +1043,8 @@ export function UnifiedInquiryForm({
             ? "공지사항 등록하기"
             : isSell
             ? "무료 매입 견적 신청하기"
+            : bundleApplied
+            ? "묶음 견적 문의 접수하기"
             : "상담 문의 접수하기"}
         </button>
       </div>

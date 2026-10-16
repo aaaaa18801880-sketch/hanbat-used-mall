@@ -13,7 +13,7 @@ export const runtime = "nodejs";
 const MAX_FILES = 2;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash";
+const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
 
 export async function POST(req: NextRequest) {
   try {
@@ -114,8 +114,11 @@ export async function POST(req: NextRequest) {
         ],
         config: { responseMimeType: "application/json" },
       });
-    } catch (modelErr: any) {
-      const msg = String(modelErr?.message || "");
+    } catch (modelErr: unknown) {
+      const msg =
+        modelErr instanceof Error
+          ? modelErr.message
+          : String(modelErr || "");
       if (
         DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
         (msg.includes("404") ||

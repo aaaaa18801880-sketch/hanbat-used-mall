@@ -28,12 +28,55 @@ import {
   extractModelName,
   extractInquiryImages,
   extractStorageFilesByBucket,
+  generatePromoPostText,
   type NotificationDispatchResult,
   telHref,
 } from "../../lib/site";
+
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 
 type AdminTab = "overview" | "inquiries" | "products" | "delivery" | "notifications";
+
+interface AdminProductRow {
+  id: string;
+  title: string;
+  price?: number | null;
+  category?: string | null;
+  condition_grade?: string | null;
+  status?: string | null;
+  description?: string | null;
+  image_url?: string | null;
+  views?: number | null;
+  created_at?: string | null;
+}
+
+interface AdminDeliveryRow {
+  id: string;
+  title: string;
+  description?: string | null;
+  image_url?: string | null;
+  created_at?: string | null;
+}
+
+interface AdminInquiryRow {
+  id: string;
+  name: string;
+  masked_name?: string;
+  phone: string;
+  inquiry_type: string;
+  category: string;
+  model?: string | null;
+  condition_grade?: string | null;
+  region?: string | null;
+  description?: string | null;
+  images?: string[];
+  image_url?: string | null;
+  has_images?: boolean;
+  is_notice?: boolean;
+  status: string;
+  admin_reply?: string | null;
+  created_at: string;
+}
 
 const ADMIN_REPLY_TEMPLATES = [
   {
@@ -62,9 +105,9 @@ export default function IntegratedAdminDashboard() {
   const [busyActionId, setBusyActionId] = useState<string | null>(null);
 
   /* 데이터 상태 */
-  const [products, setProducts] = useState<any[]>([]);
-  const [deliveryCases, setDeliveryCases] = useState<any[]>([]);
-  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [products, setProducts] = useState<AdminProductRow[]>([]);
+  const [deliveryCases, setDeliveryCases] = useState<AdminDeliveryRow[]>([]);
+  const [inquiries, setInquiries] = useState<AdminInquiryRow[]>([]);
   const [loadingData, setLoadingData] = useState(false);
 
   /* 문의/매입 필터 상태 */
@@ -305,8 +348,10 @@ export default function IntegratedAdminDashboard() {
         )
       );
       toast.success(`진행 상태가 '${nextStatus}'(으)로 변경되었습니다.`);
-    } catch (err: any) {
-      toast.error(err.message || "상태 변경에 실패했습니다.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "상태 변경에 실패했습니다."
+      );
     } finally {
       setBusyActionId(null);
     }
@@ -342,8 +387,10 @@ export default function IntegratedAdminDashboard() {
       setActiveReplyId(null);
       setReplyDraft("");
       toast.success("답변이 등록되고 '답변완료' 상태로 변경되었습니다.");
-    } catch (err: any) {
-      toast.error(err.message || "답변 등록 중 오류가 발생했습니다.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "답변 등록 중 오류가 발생했습니다."
+      );
     } finally {
       setBusyActionId(null);
     }
@@ -384,10 +431,11 @@ export default function IntegratedAdminDashboard() {
     setBusyActionId(actionKey);
 
     try {
+      const headers = await getAdminAuthHeaders();
       const endpoint = channel === "telegram" ? "/api/telegram" : "/api/alimtalk";
       const res = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { ...headers, "Content-Type": "application/json" },
         body: JSON.stringify({
           inquiryId: inq.id,
           name: inq.name,
@@ -456,8 +504,11 @@ export default function IntegratedAdminDashboard() {
       toast.success("AI 초안이 작성되었습니다. 확인 후 저장해 주세요.", {
         id: toastId,
       });
-    } catch (err: any) {
-      toast.error(err.message || "AI 분석에 실패했습니다.", { id: toastId });
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "AI 분석에 실패했습니다.",
+        { id: toastId }
+      );
     } finally {
       setAnalyzingProduct(false);
     }
@@ -505,7 +556,7 @@ export default function IntegratedAdminDashboard() {
     setAiSources([]);
   };
 
-  const startEditProduct = (product: any) => {
+  const startEditProduct = (product: AdminProductRow) => {
     resetProductForm();
     setEditingProductId(product.id);
     setEditingExistingImages(splitImages(product.image_url));
@@ -522,11 +573,31 @@ export default function IntegratedAdminDashboard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const removeStorageImagesSafe = async (urls: string[]) => {
+    if (urls.length === 0) return;
+    const { inquiries: inqBucketFiles, productImages: prodBucketFiles } =
+      extractStorageFilesByBucket(urls);
+    if (inqBucketFiles.length > 0) {
+      await supabase.storage
+        .from(STORAGE_BUCKETS.inquiries)
+        .remove(inqBucketFiles);
+    }
+    if (prodBucketFiles.length > 0) {
+      await supabase.storage
+        .from(STORAGE_BUCKETS.legacyProductImages)
+        .remove(prodBucketFiles);
+    }
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (savingProduct) return;
     if (!prodTitle.trim()) {
       toast.error("상품명을 입력해 주세요.");
+      return;
+    }
+    if (editingExistingImages.length + prodFiles.length === 0) {
+      toast.error("최소 1장의 상품 사진을 등록해 주세요.");
       return;
     }
 
@@ -559,8 +630,14 @@ export default function IntegratedAdminDashboard() {
       }
 
       if (editingProductId) {
+        const originalProd = products.find((p) => p.id === editingProductId);
+        const originalUrls = splitImages(originalProd?.image_url);
+        const removedUrls = originalUrls.filter(
+          (u) => !editingExistingImages.includes(u)
+        );
+
         const mergedImages = [...editingExistingImages, ...uploadedUrls];
-        const patch: Record<string, any> = {
+        const patch: Record<string, unknown> = {
           title: prodTitle.trim(),
           price: numericPrice,
           category: normalizeProductCategory(prodCategory),
@@ -575,6 +652,10 @@ export default function IntegratedAdminDashboard() {
           .update(patch)
           .eq("id", editingProductId);
         if (error) throw error;
+
+        if (removedUrls.length > 0) {
+          await removeStorageImagesSafe(removedUrls).catch(() => {});
+        }
         toast.success("상품 정보가 수정되었습니다.");
       } else {
         const { error } = await supabase.from("products").insert({
@@ -593,8 +674,11 @@ export default function IntegratedAdminDashboard() {
 
       resetProductForm();
       await fetchAllAdminData();
-    } catch (err: any) {
-      toast.error("상품 저장 실패: " + err.message);
+    } catch (err: unknown) {
+      toast.error(
+        "상품 저장 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류")
+      );
     } finally {
       setSavingProduct(false);
     }
@@ -625,7 +709,7 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
-  const handleDeleteProduct = async (product: any) => {
+  const handleDeleteProduct = async (product: AdminProductRow) => {
     if (
       !confirm(
         `'${product.title}' 상품을 영구 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`
@@ -644,12 +728,7 @@ export default function IntegratedAdminDashboard() {
 
       const imgs = splitImages(product.image_url);
       if (imgs.length > 0) {
-        const { inquiries: inqBucketFiles } = extractStorageFilesByBucket(imgs);
-        if (inqBucketFiles.length > 0) {
-          await supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .remove(inqBucketFiles);
-        }
+        await removeStorageImagesSafe(imgs).catch(() => {});
       }
 
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
@@ -776,14 +855,9 @@ export default function IntegratedAdminDashboard() {
       if (error) throw error;
 
       if (target?.image_url) {
-        const { inquiries: inqFiles } = extractStorageFilesByBucket(
-          splitImages(target.image_url)
+        await removeStorageImagesSafe(splitImages(target.image_url)).catch(
+          () => {}
         );
-        if (inqFiles.length > 0) {
-          await supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .remove(inqFiles);
-        }
       }
 
       setDeliveryCases((prev) => prev.filter((d) => d.id !== id));
@@ -1624,7 +1698,26 @@ export default function IntegratedAdminDashboard() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              await navigator.clipboard.writeText(
+                                generatePromoPostText(product)
+                              );
+                              toast.success(
+                                "당근마켓·네이버카페·블로그 홍보글이 복사되었습니다!"
+                              );
+                            } catch {
+                              toast.error("복사에 실패했습니다.");
+                            }
+                          }}
+                          className="h-8 rounded border border-[#FADCD0] bg-[#FFF5F0] px-2.5 text-[12px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+                          title="당근마켓·네이버카페·블로그 업로드용 홍보 원고 복사"
+                        >
+                          📋 홍보글 복사
+                        </button>
                         <select
                           aria-label={`${product.title} 판매 상태 선택`}
                           value={statValue}

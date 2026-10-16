@@ -1,15 +1,20 @@
 // 파일 경로: components/products/product-card.tsx
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import {
   extractModelName,
+  extractSpecCapsules,
   formatProductPrice,
+  getQuoteBasket,
   hasProductPrice,
   isProductSold,
   normalizeProductCategory,
+  QUOTE_BASKET_EVENT,
   splitImages,
+  toggleQuoteBasketItem,
 } from "../../lib/site";
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
@@ -48,6 +53,42 @@ export function ProductCard({
   const priced = hasProductPrice(product.price);
   const priceText = formatProductPrice(product.price, categoryLabel);
   const modelName = extractModelName(product.description, product.title);
+  const specCapsules = extractSpecCapsules(product.title, product.description, 3);
+
+  const [inBasket, setInBasket] = useState(false);
+
+  useEffect(() => {
+    const sync = () => {
+      setInBasket(getQuoteBasket().some((x) => x.id === product.id));
+    };
+    sync();
+    window.addEventListener(QUOTE_BASKET_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [product.id]);
+
+  const handleToggleBasket = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const res = toggleQuoteBasketItem({
+      id: product.id,
+      title: product.title,
+      category: categoryLabel,
+      price: product.price,
+      modelName,
+      imageUrl: images[0] || null,
+    });
+    if (res.limitReached) {
+      toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
+    } else if (res.added) {
+      toast.success("관심 매물 견적함에 담았습니다.");
+    } else {
+      toast("견적함에서 제외했습니다.");
+    }
+  };
 
   const cardInner = (
     <article
@@ -94,7 +135,7 @@ export function ProductCard({
           </div>
         )}
 
-        {isAdmin && !isSelectMode && onDelete && (
+        {isAdmin && !isSelectMode && onDelete ? (
           <button
             type="button"
             onClick={(e) => {
@@ -108,6 +149,25 @@ export function ProductCard({
           >
             <Icon d={ICON.close} className="h-4 w-4" />
           </button>
+        ) : (
+          !isSelectMode &&
+          !sold && (
+            <button
+              type="button"
+              onClick={handleToggleBasket}
+              aria-pressed={inBasket}
+              title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
+              aria-label={`${product.title} ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
+              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded-sm border px-2 py-1 text-[11px] font-bold shadow-2xs transition-colors ${
+                inBasket
+                  ? "border-[#D9531E] bg-[#D9531E] text-white"
+                  : "border-[#DDD9D1] bg-white/95 text-[#0E1A2B] hover:border-[#0E1A2B]"
+              }`}
+            >
+              <Icon d={inBasket ? ICON.check : ICON.plus} className="h-3 w-3" />
+              <span>{inBasket ? "담김" : "견적함"}</span>
+            </button>
+          )
         )}
 
         {images.length > 1 && (
@@ -131,6 +191,19 @@ export function ProductCard({
         <h3 className="mt-1.5 line-clamp-2 min-h-[2.75rem] text-[14.5px] font-bold leading-[1.4] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors sm:text-[15.5px]">
           {product.title}
         </h3>
+
+        {specCapsules.length > 0 && (
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {specCapsules.map((tag) => (
+              <span
+                key={tag}
+                className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-1.5 py-0.5 text-[10.5px] font-semibold text-[#4B5260]"
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
 
         {modelName && (
           <p className="mt-1 truncate text-[12px] font-medium text-[#6B7280]">

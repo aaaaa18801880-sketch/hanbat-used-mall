@@ -21,7 +21,6 @@ import {
   isProductSold,
   isProductReserved,
   normalizeProductStatus,
-  getProductStatusLabel,
   normalizeProductCategory,
   hasProductPrice,
   formatProductPrice,
@@ -294,8 +293,11 @@ function ProductDetailModal({
       setIdx(0);
       setIsEditing(false);
       toast.success("상품 정보가 저장되었습니다.");
-    } catch (err: any) {
-      toast.error("저장 실패: " + (err.message || "오류가 발생했습니다."));
+    } catch (err: unknown) {
+      toast.error(
+        "저장 실패: " +
+          (err instanceof Error ? err.message : "오류가 발생했습니다.")
+      );
     } finally {
       setIsSaving(false);
     }
@@ -935,32 +937,34 @@ export default function GalleryPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
-      const catParam = params.get("category");
-      if (catParam) {
-        const normalized =
-          catParam === "전체" ? "전체" : normalizeProductCategory(catParam);
-        if ((CATEGORIES_WITH_ALL as readonly string[]).includes(normalized)) {
-          setActiveCategory(normalized);
+      queueMicrotask(() => {
+        const catParam = params.get("category");
+        if (catParam) {
+          const normalized =
+            catParam === "전체" ? "전체" : normalizeProductCategory(catParam);
+          if ((CATEGORIES_WITH_ALL as readonly string[]).includes(normalized)) {
+            setActiveCategory(normalized);
+          }
         }
-      }
-      const qParam = params.get("q");
-      if (qParam) setSearch(qParam);
+        const qParam = params.get("q");
+        if (qParam) setSearch(qParam);
 
-      const sortParam = params.get("sort") as SortOption | null;
-      if (
-        sortParam &&
-        ["latest", "views", "priceAsc", "priceDesc"].includes(sortParam)
-      ) {
-        setSort(sortParam);
-      }
+        const sortParam = params.get("sort") as SortOption | null;
+        if (
+          sortParam &&
+          ["latest", "views", "priceAsc", "priceDesc"].includes(sortParam)
+        ) {
+          setSort(sortParam);
+        }
 
-      const statusParam = params.get("status") as StatusFilter | null;
-      if (
-        statusParam &&
-        ["all", "selling", "reserved", "sold"].includes(statusParam)
-      ) {
-        setStatusFilter(statusParam);
-      }
+        const statusParam = params.get("status") as StatusFilter | null;
+        if (
+          statusParam &&
+          ["all", "selling", "reserved", "sold"].includes(statusParam)
+        ) {
+          setStatusFilter(statusParam);
+        }
+      });
     }
 
     supabase.auth
@@ -980,7 +984,9 @@ export default function GalleryPage() {
       }
     );
 
-    fetchProducts();
+    queueMicrotask(() => {
+      void fetchProducts();
+    });
     return () => authListener.subscription.unsubscribe();
   }, [fetchProducts]);
 
@@ -1211,8 +1217,12 @@ export default function GalleryPage() {
         { id: toastId }
       );
       setSelectedIds(new Set());
-    } catch (err: any) {
-      toast.error("상태 변경 실패: " + err.message, { id: toastId });
+    } catch (err: unknown) {
+      toast.error(
+        "상태 변경 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류"),
+        { id: toastId }
+      );
     } finally {
       setIsBulkLoading(false);
     }
@@ -1247,8 +1257,12 @@ export default function GalleryPage() {
       setProducts((prev) => prev.filter((p) => !selectedIds.has(p.id)));
       toast.success(`${ids.length}개 상품이 삭제되었습니다.`, { id: toastId });
       setSelectedIds(new Set());
-    } catch (err: any) {
-      toast.error("삭제 실패: " + err.message, { id: toastId });
+    } catch (err: unknown) {
+      toast.error(
+        "삭제 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류"),
+        { id: toastId }
+      );
     } finally {
       setIsBulkLoading(false);
     }
@@ -1276,8 +1290,11 @@ export default function GalleryPage() {
         setSelectedProduct(null);
       }
       toast.success("상품이 삭제되었습니다.");
-    } catch (error: any) {
-      toast.error("삭제 실패: " + error.message);
+    } catch (error: unknown) {
+      toast.error(
+        "삭제 실패: " +
+          (error instanceof Error ? error.message : "알 수 없는 오류")
+      );
     }
   };
 
@@ -1393,10 +1410,11 @@ export default function GalleryPage() {
         "AI 초안이 작성되었습니다. 검토 필요 항목을 확인해 주세요.",
         { id: toastId }
       );
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("AI 분석 오류:", error);
       toast.error(
-        error.message || "자동 분석에 실패했습니다. 직접 입력해 주세요.",
+        (error instanceof Error && error.message) ||
+          "자동 분석에 실패했습니다. 직접 입력해 주세요.",
         { id: toastId }
       );
     } finally {
@@ -1534,8 +1552,11 @@ export default function GalleryPage() {
       setIsUploadModalOpen(false);
       resetUploadForm();
       await fetchProducts();
-    } catch (error: any) {
-      toast.error("등록 실패: " + error.message);
+    } catch (error: unknown) {
+      toast.error(
+        "등록 실패: " +
+          (error instanceof Error ? error.message : "알 수 없는 오류")
+      );
     } finally {
       setUploadingProduct(false);
     }

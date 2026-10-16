@@ -12,6 +12,7 @@ import {
   formatProductPrice,
   hasProductPrice,
   extractModelName,
+  extractSpecCapsules,
   parseProductDescription,
   type ProductCategoryValue,
 } from "../../lib/site";
@@ -25,6 +26,8 @@ import {
 import {
   ProductDetailGallery,
   CopyProductLinkButton,
+  CopyPromoPostButton,
+  QuoteBasketButton,
 } from "../../components/products/product-detail-gallery";
 import {
   ProductCard,
@@ -223,6 +226,11 @@ export default async function ProductDetailPage({
     : formatProductPrice(product.price, categoryLabel);
 
   const modelName = extractModelName(product.description, product.title);
+  const specCapsules = extractSpecCapsules(
+    product.title,
+    product.description,
+    4
+  );
   const parsedDesc = parseProductDescription(product.description);
   const createdDate = product.created_at
     ? new Date(product.created_at).toLocaleDateString("ko-KR")
@@ -251,7 +259,7 @@ export default async function ProductDetailPage({
 
   const relatedProducts = (relatedRows ?? []) as ProductItem[];
 
-  const productJsonLd: Record<string, any> = {
+  const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.title,
@@ -316,13 +324,27 @@ export default async function ProductDetailPage({
             </Link>
           </div>
 
-          <CopyProductLinkButton productTitle={product.title} />
+          <div className="flex flex-wrap items-center gap-2">
+            <CopyPromoPostButton
+              product={{
+                id: String(product.id),
+                title: product.title,
+                category: product.category,
+                price: product.price,
+                status: product.status,
+                condition_grade: product.condition_grade,
+                description: product.description,
+              }}
+            />
+            <CopyProductLinkButton productTitle={product.title} />
+          </div>
         </nav>
 
         <div className="overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-xs grid grid-cols-1 lg:grid-cols-12">
           {/* 좌측 7컬럼: 상품 이미지 뷰어 */}
           <div className="border-b lg:border-b-0 lg:border-r border-[#E4E0D8] lg:col-span-7">
             <ProductDetailGallery
+              id={String(product.id)}
               title={product.title}
               images={images}
               status={product.status}
@@ -360,6 +382,19 @@ export default async function ProductDetailPage({
               <h1 className="mt-3 text-[21px] sm:text-[25px] font-bold leading-[1.3] tracking-[-0.02em] text-[#0E1A2B] break-keep">
                 {product.title}
               </h1>
+
+              {specCapsules.length > 0 && (
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {specCapsules.map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-2 py-0.5 text-[11.5px] font-semibold text-[#4B5260]"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               {/* 2순위: 판매 가격 */}
               <div className="mt-4 pb-5 border-b border-[#EEEBE5]">
@@ -534,6 +569,18 @@ export default async function ProductDetailPage({
                     본 상품은 판매가 완료되었습니다. 동일·유사 모델 재고는 문의해 주세요.
                   </p>
                 )}
+                {!sold && (
+                  <QuoteBasketButton
+                    item={{
+                      id: String(product.id),
+                      title: product.title,
+                      category: categoryLabel,
+                      price: product.price,
+                      modelName,
+                      imageUrl: images[0] || null,
+                    }}
+                  />
+                )}
                 <div className="grid grid-cols-2 gap-2.5">
                   <a
                     href={telHref(STORE.tel)}
@@ -622,7 +669,18 @@ export default async function ProductDetailPage({
       </main>
 
       <SiteFooter />
-      <MobileCtaBar />
+      <MobileCtaBar
+        productContext={{
+          id: String(product.id),
+          title: product.title,
+          category: categoryLabel,
+          price: product.price,
+          status: product.status,
+          modelName,
+          imageUrl: images[0] || null,
+          inquiryHref,
+        }}
+      />
     </div>
   );
 }

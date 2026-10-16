@@ -31,10 +31,10 @@ async function runPhase4RegressionTests() {
   }
 
   if (!serverOnline) {
-    console.warn(
-      `⚠️ 로컬 개발 서버(${BASE_URL})가 켜져 있지 않습니다. 'npm run dev' 실행 후 다시 테스트하면 전체 HTTP 시나리오가 검증됩니다.`
+    console.error(
+      `❌ 로컬 개발 서버(${BASE_URL})가 켜져 있지 않아 HTTP 시나리오 테스트를 실행할 수 없습니다. 'npm run dev' 실행 후 다시 테스트하세요.`
     );
-    return;
+    process.exit(1);
   }
 
   // 시나리오 1: 매입 신청 실패 검증 (필수 항목 누락 또는 잘못된 전화번호/비밀번호)
@@ -56,30 +56,24 @@ async function runPhase4RegressionTests() {
     );
   }
 
-  // 시나리오 2 & 3: 상품 문의 및 매입 신청 제출 (DB 연결 여부에 따른 정직한 응답 확인)
+  // 시나리오 2: 무인증 공지사항 등록 차단 (운영 DB 오염 없이 POST 권한 검증)
   {
     const res = await fetch(`${BASE_URL}/api/inquiries`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: "테스트고객",
-        phone: "010-1234-5678",
-        password: "4321",
-        inquiry_type: "구매 문의",
-        category: "[상품문의] 캐리어 벽걸이 냉난방기 9평형",
-        model: "CSV-Q095GU",
-        description: "상품 상세 연동 문의 테스트입니다.",
+        is_notice: true,
+        category: "무인증 공지 등록 시도",
+        description: "차단되어야 합니다.",
       }),
     });
-    const body = await res.json().catch(() => ({}));
     check(
-      "2. 상품 문의 제출 시나리오 (성공 시 200+inquiryId, DB 미연결 시 거짓 성공 없이 500 반환)",
-      (res.status === 200 && body.success === true) ||
-        (res.status === 500 && body.error)
+      "2. 무인증 공지사항 등록 차단 (401 또는 403 반환, 운영 DB 오염 방지)",
+      res.status === 401 || res.status === 403
     );
   }
 
-  // 시나리오 4 & 10: 권한 없는 사용자의 관리자 답변 등록 및 상태 변경 차단
+  // 시나리오 3 & 4: 권한 없는 사용자의 관리자 답변 등록 및 상태 변경 차단
   {
     const res = await fetch(`${BASE_URL}/api/inquiries/00000000-0000-0000-0000-000000000000`, {
       method: "PATCH",
@@ -90,7 +84,7 @@ async function runPhase4RegressionTests() {
       }),
     });
     check(
-      "3 & 10. 권한 없는 관리자 답변/상태 변경 요청 차단 (403 또는 404 반환)",
+      "3 & 4. 권한 없는 관리자 답변/상태 변경 요청 차단 (403 또는 404 반환)",
       res.status === 403 || res.status === 404
     );
   }
@@ -106,7 +100,7 @@ async function runPhase4RegressionTests() {
     );
   }
 
-  // 시나리오 7 & 8: 알림 설정 누락(Alimtalk/Telegram) 시 거짓 성공 응답 방지
+  // 시나리오 7 & 8: 알림 설정 누락(Alimtalk) 및 텔레그램 무인증 수동 재발송(forceRetry) 차단 검증
   {
     const alimRes = await fetch(`${BASE_URL}/api/alimtalk`, {
       method: "POST",
@@ -121,7 +115,7 @@ async function runPhase4RegressionTests() {
         alimBody.status === "NOT_CONFIGURED"
     );
 
-    const tgRes = await fetch(`${BASE_URL}/api/telegram`, {
+    const tgForceRes = await fetch(`${BASE_URL}/api/telegram`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -129,14 +123,12 @@ async function runPhase4RegressionTests() {
         phone: "010-1234-5678",
         type: "내 물건 팔기",
         title: "매입 테스트",
+        forceRetry: true,
       }),
     });
-    const tgBody = await tgRes.json().catch(() => ({}));
     check(
-      "8. 텔레그램 발송 상태 구분 (설정 시 SUCCESS, 미설정 시 503 NOT_CONFIGURED, 외부 실패 시 502)",
-      ["SUCCESS", "NOT_CONFIGURED", "EXTERNAL_ERROR", "RETRY_REQUIRED"].includes(
-        tgBody.status
-      )
+      "8. 텔레그램 무인증 수동 재발송(forceRetry: true) 차단 (401 Unauthorized, 실제 알림 오발송 방지)",
+      tgForceRes.status === 401
     );
   }
 
@@ -153,6 +145,10 @@ async function runPhase4RegressionTests() {
   console.log(`\n=========================================================`);
   console.log(`최종 결과: ${passed} / ${total} 시나리오 검증 통과`);
   console.log(`=========================================================`);
+
+  if (passed < total) {
+    process.exit(1);
+  }
 }
 
 runPhase4RegressionTests();

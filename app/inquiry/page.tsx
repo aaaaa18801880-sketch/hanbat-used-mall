@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
 import {
   supabase,
   isAuthorizedAdminUser,
@@ -166,6 +167,7 @@ export default function InquiryBoardPage() {
   const [isReplying, setIsReplying] = useState(false);
 
   const loadData = useCallback(async () => {
+    await Promise.resolve();
     setIsLoading(true);
     setLoadError(false);
     try {
@@ -193,10 +195,12 @@ export default function InquiryBoardPage() {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_e, session) => {
         setIsAdmin(isAuthorizedAdminUser(session?.user));
-        loadData();
+        void loadData();
       }
     );
-    loadData();
+    queueMicrotask(() => {
+      void loadData();
+    });
     return () => authListener.subscription.unsubscribe();
   }, [loadData]);
 
@@ -204,34 +208,43 @@ export default function InquiryBoardPage() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
-    if (params.get("write") === "1" || params.get("title")) {
-      const qType = params.get("type");
-      const qTitle = params.get("title") || "";
-      const qModel = params.get("model") || "";
-      const qCategory = params.get("category") || "";
-      const qProductId = params.get("productId") || "";
+    if (
+      params.get("write") === "1" ||
+      params.get("bundle") === "1" ||
+      params.get("title")
+    ) {
+      queueMicrotask(() => {
+        const isBundle = params.get("bundle") === "1";
+        const qType = params.get("type");
+        const qTitle = params.get("title") || "";
+        const qModel = params.get("model") || "";
+        const qCategory = params.get("category") || "";
+        const qProductId = params.get("productId") || "";
 
-      if (
-        qType === "구매 문의" ||
-        qType === "내 물건 팔기" ||
-        qType === "대량·업소용 상담"
-      ) {
-        setWriteDefaultType(qType);
-      } else {
-        setWriteDefaultType("구매 문의");
-      }
+        if (
+          qType === "구매 문의" ||
+          qType === "내 물건 팔기" ||
+          qType === "대량·업소용 상담"
+        ) {
+          setWriteDefaultType(qType);
+        } else {
+          setWriteDefaultType(isBundle ? "대량·업소용 상담" : "구매 문의");
+        }
 
-      if (qTitle || qModel || qProductId) {
-        setLinkedProduct({
-          productId: qProductId || undefined,
-          productTitle: qTitle || undefined,
-          modelName: qModel || undefined,
-          category: qCategory || undefined,
-        });
-      }
-      setIsWriteOpen(true);
+        if (isBundle || qTitle || qModel || qProductId) {
+          setLinkedProduct({
+            productId: qProductId || undefined,
+            productTitle: qTitle || undefined,
+            modelName: qModel || undefined,
+            category: qCategory || undefined,
+            useBundle: isBundle,
+          });
+        }
+        setIsWriteOpen(true);
+      });
     }
   }, []);
+
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -401,8 +414,11 @@ export default function InquiryBoardPage() {
         admin_reply: replyContent.trim(),
       });
       await loadData();
-    } catch (error: any) {
-      toast.error("답변 등록 실패: " + error.message);
+    } catch (error: unknown) {
+      toast.error(
+        "답변 등록 실패: " +
+          (error instanceof Error ? error.message : "알 수 없는 오류")
+      );
     } finally {
       setIsReplying(false);
     }
@@ -426,8 +442,11 @@ export default function InquiryBoardPage() {
         prev ? { ...prev, status: newStatus } : prev
       );
       toast.success(`진행 상태가 '${newStatus}'(으)로 변경되었습니다.`);
-    } catch (err: any) {
-      toast.error("상태 업데이트 실패: " + err.message);
+    } catch (err: unknown) {
+      toast.error(
+        "상태 업데이트 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류")
+      );
     }
   };
 
@@ -501,8 +520,11 @@ export default function InquiryBoardPage() {
       });
       setIsEditOpen(false);
       loadData();
-    } catch (err: any) {
-      toast.error("수정 실패: " + err.message);
+    } catch (err: unknown) {
+      toast.error(
+        "수정 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류")
+      );
     } finally {
       setEditUpdating(false);
     }
@@ -525,8 +547,10 @@ export default function InquiryBoardPage() {
       setInquiries((prev) => prev.filter((i) => i.id !== id));
       setIsDetailOpen(false);
       toast.success("삭제했습니다.");
-    } catch (err: any) {
-      toast.error(err.message || "삭제하지 못했습니다.");
+    } catch (err: unknown) {
+      toast.error(
+        (err instanceof Error && err.message) || "삭제하지 못했습니다."
+      );
       loadData();
     }
   };
@@ -540,12 +564,12 @@ export default function InquiryBoardPage() {
     <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
-          <a
+          <Link
             href="/admin"
             className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
           >
             통합 관리자 대시보드
-          </a>
+          </Link>
         )}
         <button
           type="button"

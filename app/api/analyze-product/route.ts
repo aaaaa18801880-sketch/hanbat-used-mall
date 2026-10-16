@@ -148,8 +148,11 @@ export async function POST(req: NextRequest) {
         ],
         config,
       });
-    } catch (modelErr: any) {
-      const msg = String(modelErr?.message || "");
+    } catch (modelErr: unknown) {
+      const msg =
+        modelErr instanceof Error
+          ? modelErr.message
+          : String(modelErr || "");
       if (
         DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
         (msg.includes("404") ||
@@ -175,7 +178,7 @@ export async function POST(req: NextRequest) {
 
     const responseText = response.text?.trim() || "";
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    let rawParsed: Record<string, any> = {};
+    let rawParsed: Record<string, unknown> = {};
 
     if (jsonMatch) {
       try {
@@ -201,7 +204,9 @@ export async function POST(req: NextRequest) {
     let specDetails =
       rawParsed.specDetails && typeof rawParsed.specDetails === "string"
         ? rawParsed.specDetails.trim()
-        : rawParsed.description || "";
+        : typeof rawParsed.description === "string"
+        ? rawParsed.description
+        : "";
 
     const modelNumber = rawParsed.modelNumber
       ? String(rawParsed.modelNumber).trim()
@@ -245,7 +250,7 @@ export async function POST(req: NextRequest) {
 
     const sourceUrls = Array.from(
       new Set(
-        chunks.flatMap((chunk: any) => {
+        chunks.flatMap((chunk: { web?: { uri?: string } }) => {
           const url = chunk.web?.uri;
           return url && /^https?:\/\//i.test(url) ? [url] : [];
         })

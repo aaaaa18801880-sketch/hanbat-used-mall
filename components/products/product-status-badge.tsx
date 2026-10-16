@@ -3,6 +3,7 @@ import {
   getProductStatusLabel,
   isProductReserved,
   isProductSold,
+  isRecentlyCreated,
 } from "../../lib/site";
 
 export function ProductStatusBadge({
@@ -20,11 +21,7 @@ export function ProductStatusBadge({
   const reserved = isProductReserved(status);
   const label = getProductStatusLabel(status);
 
-  const isFresh =
-    showNew &&
-    !sold &&
-    createdAt &&
-    Date.now() - new Date(createdAt).getTime() < 7 * 24 * 60 * 60 * 1000;
+  const isFresh = showNew && !sold && isRecentlyCreated(createdAt, 7);
 
   return (
     <div className={`inline-flex flex-wrap items-center gap-1.5 ${className}`}>

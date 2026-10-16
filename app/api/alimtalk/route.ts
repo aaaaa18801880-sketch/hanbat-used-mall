@@ -4,6 +4,11 @@ import {
   STORE,
   type NotificationDispatchResult,
 } from "../../../lib/site";
+import {
+  checkRateLimit,
+  getClientIp,
+  verifyAdminRequest,
+} from "../../../lib/server-security";
 
 export const runtime = "nodejs";
 
@@ -11,6 +16,24 @@ export async function POST(req: NextRequest) {
   const nowIso = new Date().toISOString();
 
   try {
+    const ip = getClientIp(req);
+    const rate = checkRateLimit(`alimtalk_notify:${ip}`, 12, 60 * 1000);
+    if (!rate.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          channel: "alimtalk",
+          status: "RETRY_REQUIRED",
+          statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
+          sent: false,
+          retryable: true,
+          message: `요청 제한을 초과했습니다. ${rate.retryAfterSec}초 후 다시 시도해 주세요.`,
+          timestamp: nowIso,
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
       return NextResponse.json(
@@ -26,6 +49,25 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    if (body.forceRetry) {
+      const adminCheck = await verifyAdminRequest(req);
+      if (!adminCheck.ok) {
+        return NextResponse.json(
+          {
+            success: false,
+            channel: "alimtalk",
+            status: "EXTERNAL_ERROR",
+            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+            sent: false,
+            retryable: false,
+            message: adminCheck.error || "관리자 인증이 필요합니다.",
+            timestamp: nowIso,
+          },
+          { status: adminCheck.status }
+        );
+      }
     }
 
     const ALIMTALK_API_KEY = process.env.ALIMTALK_API_KEY;

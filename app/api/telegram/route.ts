@@ -1,14 +1,17 @@
 // 파일 경로: app/api/telegram/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
+  getInquiryTypeLabel,
   maskPhone,
   NOTIFICATION_STATUS,
   type NotificationDispatchResult,
 } from "../../../lib/site";
+import { createServerSupabaseClient } from "../../../lib/supabase";
 import {
   checkNotificationIdempotency,
   checkRateLimit,
   getClientIp,
+  verifyAdminRequest,
 } from "../../../lib/server-security";
 
 export const runtime = "nodejs";
@@ -53,11 +56,67 @@ export async function POST(req: NextRequest) {
     }
 
     const inquiryId = String(body.inquiryId || "").trim().slice(0, 64);
-    const name = String(body.name || "").trim().slice(0, 40);
-    const phone = String(body.phone || "").trim().slice(0, 20);
-    const type = String(body.type || "문의").trim().slice(0, 30);
-    const title = String(body.title || "").trim().slice(0, 100);
+    let name = String(body.name || "").trim().slice(0, 40);
+    let phone = String(body.phone || "").trim().slice(0, 20);
+    let type = String(body.type || "문의").trim().slice(0, 30);
+    let title = String(body.title || "").trim().slice(0, 100);
     const forceRetry = Boolean(body.forceRetry);
+
+    let adminAccessToken: string | undefined;
+    if (forceRetry) {
+      const adminCheck = await verifyAdminRequest(req);
+      if (!adminCheck.ok) {
+        return NextResponse.json(
+          {
+            success: false,
+            channel: "telegram",
+            status: "EXTERNAL_ERROR",
+            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+            sent: false,
+            retryable: false,
+            message: adminCheck.error || "수동 재발송은 관리자 인증이 필요합니다.",
+            timestamp: nowIso,
+          },
+          { status: adminCheck.status }
+        );
+      }
+      adminAccessToken = adminCheck.accessToken;
+    }
+
+    // inquiryId가 전달된 경우 DB에 실제 저장된 문의 데이터와 대조하여 클라이언트 변조 방지
+    if (inquiryId) {
+      const supabase = createServerSupabaseClient(adminAccessToken, true);
+      const { data: dbInquiry, error: dbErr } = await supabase
+        .from("purchase_requests")
+        .select("id, name, phone, inquiry_type, category, is_notice")
+        .eq("id", inquiryId)
+        .maybeSingle();
+
+      if (!dbErr && !dbInquiry) {
+        return NextResponse.json(
+          {
+            success: false,
+            channel: "telegram",
+            status: "EXTERNAL_ERROR",
+            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+            sent: false,
+            retryable: false,
+            message: "존재하지 않는 접수 번호입니다.",
+            timestamp: nowIso,
+          },
+          { status: 404 }
+        );
+      }
+
+      if (dbInquiry) {
+        name = String(dbInquiry.name || name || "고객").trim().slice(0, 40);
+        phone = String(dbInquiry.phone || phone || "").trim().slice(0, 20);
+        type = getInquiryTypeLabel(dbInquiry.inquiry_type || type);
+        title = String(dbInquiry.category || title || "문의 접수")
+          .trim()
+          .slice(0, 100);
+      }
+    }
 
     if (!name || !title) {
       return NextResponse.json(
