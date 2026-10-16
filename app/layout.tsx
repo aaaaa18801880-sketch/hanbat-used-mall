@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: `%s | ${STORE.name}`,
   },
   description:
-    "대전·충청 중고가전 및 업소용 주방기기 판매·매입 전문. 냉장고, 세탁기, 에어컨, 냉난방기, 업소용 45박스 냉장고, 제빙기, 쇼케이스 실매물 확인 및 방문 수거·설치 상담. (대전 중구 중촌동 144, SINCE 1997)",
+    "대전·충청 중고가전 및 업소용 주방기기 판매·매입 전문. 냉장고, 세탁기, 에어컨, 냉난방기, 업소용 45박스 냉장고, 제빙기, 쇼케이스 실매물 확인 및 방문 수거·설치 상담. (대전 중구 대전천서로 691-62 1, 2층, 중촌동 144, SINCE 1997)",
   keywords: [
     "대전 중고가전",
     "대전 중고가전 매입",
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     "대전 업소용 주방기기",
     "한밭중고전자",
     "중촌동 중고가전",
+    "대전천서로 중고가전",
   ],
   authors: [{ name: STORE.name }],
   creator: STORE.name,
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     siteName: STORE.name,
     title: `${STORE.name} | 대전 중고가전·업소용 주방기기 매입·판매`,
     description:
-      "SINCE 1997 대전 중촌동 오프라인 매장 운영. 가정용 중고가전부터 식당·카페 업소용 냉장·주방설비까지 판매 및 방문 매입 상담.",
+      "SINCE 1997 대전 중구 대전천서로 691-62(중촌동 144) 오프라인 직영 매장 운영. 가정용 중고가전부터 식당·카페 업소용 냉장·주방설비까지 판매 및 방문 매입 상담.",
     images: [
       {
         url: "/og-image.jpg",

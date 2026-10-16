@@ -13,7 +13,7 @@ export function LocationSection() {
         <SectionHeading
           eyebrow="Showroom Location"
           title={<span id="location-heading">오프라인 매장 오시는 길</span>}
-          desc="대전 중촌고가도로 밑 전용 주차장이 마련된 매장에서 다양한 실물을 직접 확인하실 수 있습니다."
+          desc={`${STORE.roadAddress} (${STORE.jibunAddress} · 중촌고가도로 밑) · 매장 앞 전용 주차 가능`}
         />
 
         <div className="mt-10 grid overflow-hidden rounded-md border border-[#E4E0D8] bg-[#FAF9F7] lg:grid-cols-12">
@@ -36,10 +36,10 @@ export function LocationSection() {
                 {STORE.name}
               </span>
               <h3 className="mt-2 text-[24px] font-bold tracking-tight">
-                {STORE.address}
+                {STORE.roadAddress}
               </h3>
-              <p className="mt-1 text-[14px] text-white/75">
-                {STORE.addressNote} · {STORE.parking}
+              <p className="mt-1 text-[13.5px] text-white/80">
+                (지번: {STORE.jibunAddress}) · {STORE.addressNote} · {STORE.parking}
               </p>
 
               <dl className="mt-8 space-y-5 border-t border-white/15 pt-6 text-[14.5px]">

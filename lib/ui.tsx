@@ -353,31 +353,35 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       </a>
 
       {/* 데스크톱 상단 쇼룸 신뢰 바 (스크롤 시 자연스럽게 올라가도록 비고정 처리) */}
-      <div className="hidden lg:block bg-[#0E1A2B] text-white/80 border-b border-white/10 text-[12px]">
-        <div className="mx-auto flex h-8 max-w-[1280px] items-center justify-between px-8">
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5 font-semibold text-white">
+      <div className="hidden lg:block bg-[#0E1A2B] text-white/80 border-b border-white/10 text-[12px] whitespace-nowrap overflow-hidden">
+        <div className="mx-auto flex h-8 max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 xl:gap-4 shrink-0">
+            <span className="inline-flex items-center gap-1.5 font-semibold text-white shrink-0">
               <span className="h-1.5 w-1.5 rounded-full bg-[#FF8A50]" />
               SINCE {STORE.since} {STORE.name} 직영 쇼룸
             </span>
-            <span className="text-white/25" aria-hidden="true">
+            <span className="text-white/25 hidden xl:inline" aria-hidden="true">
               |
             </span>
-            <span>전 품목 분해·고압세척 및 작동 검수 완료</span>
-            <span className="text-white/25" aria-hidden="true">
+            <span className="hidden xl:inline text-white/75 shrink-0">
+              전 품목 분해·세척 및 성능 검수 완료
+            </span>
+            <span className="text-white/25 hidden 2xl:inline" aria-hidden="true">
               |
             </span>
-            <span>에어컨 8개월 · 일반가전 4개월 무상 A/S 보증</span>
+            <span className="hidden 2xl:inline text-white/75 shrink-0">
+              에어컨 8개월 · 가전 4개월 무상 A/S
+            </span>
           </div>
-          <div className="flex items-center gap-4 tabular-nums">
-            <span>
-              매장위치: <strong className="text-white">{STORE.address}</strong>{" "}
-              ({STORE.addressNote})
+          <div className="flex items-center gap-3 xl:gap-4 tabular-nums shrink-0 text-white/80">
+            <span className="shrink-0">
+              매장: <strong className="text-white font-semibold">대전 중구 대전천서로 691-62</strong>
+              <span className="hidden xl:inline text-white/70"> (중촌동 144)</span>
             </span>
             <span className="text-white/25" aria-hidden="true">
               |
             </span>
-            <span>영업시간: {STORE.hours}</span>
+            <span className="shrink-0">영업: {STORE.hours}</span>
           </div>
         </div>
       </div>
@@ -927,7 +931,8 @@ export function SiteFooter({
                   오프라인 매장 안내
                 </p>
                 <ul className="mt-3.5 space-y-2 text-white/70 text-[13px] leading-relaxed">
-                  <li className="text-white font-semibold">{STORE.address}</li>
+                  <li className="text-white font-semibold">{STORE.roadAddress}</li>
+                  <li className="text-white/85">지번: {STORE.jibunAddress}</li>
                   <li>({STORE.addressNote})</li>
                   <li>영업시간: {STORE.hours}</li>
                   <li>휴무안내: {STORE.closed}</li>
@@ -947,7 +952,7 @@ export function SiteFooter({
               </p>
               <p className="mt-0.5">
                 개인정보보호책임자: {STORE.privacyOfficer} · 주소:{" "}
-                {STORE.address} ({STORE.addressNote}) · 대표전화: {STORE.tel} ·
+                {STORE.roadAddress} (지번: {STORE.jibunAddress}, {STORE.addressNote}) · 대표전화: {STORE.tel} ·
                 휴대전화: {STORE.mobile}
               </p>
               <p className="mt-1">
