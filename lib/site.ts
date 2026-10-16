@@ -563,8 +563,8 @@ export function generatePromoPostText(product: {
    4. 문의(purchase_requests) 역할 구분 및 표준 상태 전이 정의
    ════════════════════════════════════════════════════════════ */
 export const INQUIRY_TYPES = [
-  "구매 문의",
   "내 물건 팔기",
+  "구매 문의",
   "대량·업소용 상담",
   "기타 문의",
 ] as const;

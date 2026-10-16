@@ -84,7 +84,7 @@ const BUY_PHOTO_GUIDE_STEPS = [
 ] as const;
 
 export function UnifiedInquiryForm({
-  defaultType = "구매 문의",
+  defaultType = "내 물건 팔기",
   linkedProduct,
   isAdmin = false,
   allowNoticeToggle = false,

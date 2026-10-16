@@ -266,7 +266,7 @@ export default function Home() {
 
   /* 통합 문의 폼 연동 상태 */
   const [inquiryType, setInquiryType] =
-    useState<InquiryTypeValue>("구매 문의");
+    useState<InquiryTypeValue>("내 물건 팔기");
   const [linkedProduct, setLinkedProduct] =
     useState<LinkedProductContext | null>(null);
 
