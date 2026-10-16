@@ -51,17 +51,17 @@ const SELL_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
     title: "정면 전체 샷",
-    desc: "제품 외관 전체와 도어 형태가 한눈에 보이도록 촬영해 주세요.",
+    desc: "제품 외관과 도어 형태가 한눈에 보이게 촬영",
   },
   {
     step: "02",
     title: "모델명·연식 스티커",
-    desc: "전면·측면·내부의 에너지효율등급 또는 명판 라벨을 가까이 찍어 주세요.",
+    desc: "에너지효율등급 또는 명판 라벨 근접 촬영",
   },
   {
     step: "03",
-    title: "흠집 · 반출 경로",
-    desc: "외관 찍힘 부위나 계단·출입문 등 특이사항이 있다면 함께 찍어 주세요.",
+    title: "특이사항·반출 경로",
+    desc: "흠집 부위나 계단·출입문 등 참고 사진",
   },
 ] as const;
 
@@ -69,17 +69,17 @@ const BUY_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
     title: "설치할 공간 전경",
-    desc: "제품이 들어갈 자리와 주변 여유 공간을 찍어 주시면 치수 상담이 빠릅니다.",
+    desc: "제품이 들어갈 자리와 여유 공간 촬영",
   },
   {
     step: "02",
     title: "전원 · 배관 위치",
-    desc: "업소용 기기·에어컨의 경우 콘센트(단상/삼상)나 배관 위치를 찍어 주세요.",
+    desc: "콘센트(단상/삼상) 또는 배관 타공 위치",
   },
   {
     step: "03",
-    title: "찾으시는 모델 사진",
-    desc: "원하시는 디자인이나 기존 사용하시던 제품의 명판 사진도 좋습니다.",
+    title: "희망 모델 참고 사진",
+    desc: "원하시는 형태나 기존 사용 제품 사진",
   },
 ] as const;
 
@@ -120,11 +120,17 @@ export function UnifiedInquiryForm({
   const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
   const [bundleApplied, setBundleApplied] = useState(false);
 
+  /* 사진 첨부 및 Gemini 일괄 분석 상태 */
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
     null
   );
+  const [isAnalyzingPhotos, setIsAnalyzingPhotos] = useState(false);
+  const [aiAnalysisSummary, setAiAnalysisSummary] = useState<string | null>(
+    null
+  );
+  const [showPhotoGuide, setShowPhotoGuide] = useState(false);
 
   const [agreed, setAgreed] = useState(false);
   const [phase, setPhase] = useState<SubmissionPhase>("idle");
@@ -189,7 +195,10 @@ export function UnifiedInquiryForm({
   const isSell = !isNotice && isSellInquiry(inquiryType);
   const isBulk = !isNotice && isBulkBizInquiry(inquiryType);
   const isBusy =
-    phase === "validating" || phase === "submitting" || phase === "retrying";
+    phase === "validating" ||
+    phase === "submitting" ||
+    phase === "retrying" ||
+    isAnalyzingPhotos;
 
   const photoGuideSteps =
     isSell || isBulk ? SELL_PHOTO_GUIDE_STEPS : BUY_PHOTO_GUIDE_STEPS;
@@ -215,6 +224,7 @@ export function UnifiedInquiryForm({
       ...ok.map((f) => URL.createObjectURL(f)),
     ]);
     setCachedUploadedUrls(null);
+    setAiAnalysisSummary(null);
   };
 
   const handleRemoveFile = (index: number) => {
@@ -222,6 +232,81 @@ export function UnifiedInquiryForm({
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
     setCachedUploadedUrls(null);
+    setAiAnalysisSummary(null);
+  };
+
+  /* [핵심 신규 기능] 첨부된 사진(1~3장)을 확인 버튼 클릭 시 제미나이로 한 번에 일괄 분석 */
+  const handleRunGeminiAnalysis = async () => {
+    if (selectedFiles.length === 0 || isAnalyzingPhotos) {
+      toast.error("먼저 분석할 제품 사진을 1장 이상 첨부해 주세요.");
+      return;
+    }
+
+    setIsAnalyzingPhotos(true);
+    const toastId = toast.loading(
+      `첨부하신 사진 ${selectedFiles.length}장을 제미나이 AI가 한 번에 분석하고 있습니다...`
+    );
+
+    try {
+      const formData = new FormData();
+      formData.append("inquiryType", inquiryType);
+
+      for (const file of selectedFiles.slice(0, MAX_PHOTOS)) {
+        const compressedBlob = await compressImage(file, 1280, 0.8);
+        const optimizedFile = new File([compressedBlob], file.name, {
+          type: "image/jpeg",
+        });
+        formData.append("files", optimizedFile);
+      }
+
+      const res = await fetch("/api/analyze-inquiry", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(
+          data.error || "사진 자동 분석에 실패했습니다. 직접 입력해 주세요."
+        );
+      }
+
+      if (data.applianceCategory) {
+        setApplianceCategory(data.applianceCategory);
+      }
+      if (data.title) {
+        setTitle(data.title);
+        setFieldErrors((p) => ({ ...p, title: "" }));
+      }
+      if (data.modelNumber) {
+        setModel(data.modelNumber);
+      }
+      if (data.conditionGrade) {
+        setConditionGrade(data.conditionGrade);
+      }
+      if (data.descriptionDraft && !bundleApplied) {
+        setDescription(data.descriptionDraft);
+        setFieldErrors((p) => ({ ...p, description: "" }));
+      }
+
+      setAiAnalysisSummary(
+        data.summaryNote ||
+          `사진 ${selectedFiles.length}장 분석 완료! 품목·모델명·상세 내용이 자동 입력되었습니다.`
+      );
+      toast.success(
+        "AI가 사진을 분석하여 품목·모델명·내용을 자동으로 채웠습니다!",
+        { id: toastId }
+      );
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "사진 분석 중 오류가 발생했습니다.",
+        { id: toastId }
+      );
+    } finally {
+      setIsAnalyzingPhotos(false);
+    }
   };
 
   const validateFields = (): boolean => {
@@ -239,7 +324,7 @@ export function UnifiedInquiryForm({
         errors.password = "답변 확인용 비밀번호를 4자리 이상 입력해 주세요.";
       }
       if (isSell && !region.trim()) {
-        errors.region = "방문 수거를 위해 지역(구/동까지)을 입력해 주세요.";
+        errors.region = "방문 수거 지역(구/동까지)을 입력해 주세요.";
       }
       if (!agreed) {
         errors.agreed = "개인정보 수집·이용에 동의해 주세요.";
@@ -413,6 +498,7 @@ export function UnifiedInquiryForm({
     setSelectedFiles([]);
     setFilePreviews([]);
     setCachedUploadedUrls(null);
+    setAiAnalysisSummary(null);
     setTitle("");
     setModel("");
     setRegion("");
@@ -484,15 +570,15 @@ export function UnifiedInquiryForm({
         executeSubmit(false);
       }}
       noValidate
-      className="space-y-5"
+      className="space-y-4"
     >
       {isAdmin && allowNoticeToggle && (
-        <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#FADCD0] bg-[#FFF5F0] p-4">
+        <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3">
           <div>
-            <span className="block text-[14px] font-bold text-[#B5431A]">
+            <span className="block text-[13.5px] font-bold text-[#B5431A]">
               최상단 고정 공지사항으로 등록
             </span>
-            <span className="mt-0.5 block text-[12px] text-[#D9531E]">
+            <span className="mt-0.5 block text-[11.5px] text-[#D9531E]">
               체크 시 모든 방문자가 비밀번호 없이 열람할 수 있는 공지로 게시됩니다.
             </span>
           </div>
@@ -505,16 +591,16 @@ export function UnifiedInquiryForm({
         </label>
       )}
 
-      {/* [신규 기능 ①] 관심 매물 견적함(묶음 문의) 자동 불러오기 배너 */}
+      {/* 관심 매물 견적함(묶음 문의) 자동 불러오기 배너 */}
       {!isNotice && basketItems.length > 0 && (
-        <div className="rounded-md border border-[#0E1A2B] bg-[#F8FAFC] p-4">
+        <div className="rounded-md border border-[#0E1A2B] bg-[#F8FAFC] p-3.5">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
+              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#D9531E] text-[11px] font-bold text-white">
                 {basketItems.length}
               </span>
-              <strong className="text-[13.5px] font-bold text-[#0E1A2B]">
-                견적함에 담아둔 관심 매물 {basketItems.length}건이 있습니다
+              <strong className="text-[13px] font-bold text-[#0E1A2B]">
+                견적함에 담아둔 관심 매물 {basketItems.length}건
               </strong>
             </div>
             <button
@@ -525,21 +611,19 @@ export function UnifiedInquiryForm({
                   `견적함 상품 ${basketItems.length}건이 문의 내용에 자동 입력되었습니다.`
                 );
               }}
-              className="rounded bg-[#0E1A2B] px-3 py-1.5 text-[12px] font-bold text-white hover:bg-[#1C2D47]"
+              className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[11.5px] font-bold text-white hover:bg-[#1C2D47]"
             >
-              {bundleApplied
-                ? "견적함 목록 다시 반영하기"
-                : "이 상품들 묶음 견적으로 자동 입력"}
+              {bundleApplied ? "목록 다시 반영" : "묶음 견적으로 자동 입력"}
             </button>
           </div>
 
-          <ul className="mt-2.5 flex flex-wrap gap-1.5">
+          <ul className="mt-2 flex flex-wrap gap-1.5">
             {basketItems.map((item) => (
               <li
                 key={item.id}
-                className="inline-flex items-center gap-1.5 rounded border border-[#DDD9D1] bg-white px-2.5 py-1 text-[12px]"
+                className="inline-flex items-center gap-1.5 rounded border border-[#DDD9D1] bg-white px-2 py-0.5 text-[11.5px]"
               >
-                <span className="font-semibold text-[#0E1A2B] truncate max-w-[180px]">
+                <span className="font-semibold text-[#0E1A2B] truncate max-w-[160px]">
                   {item.title}
                 </span>
                 <span className="text-[#D9531E] font-bold">
@@ -564,23 +648,12 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {!isNotice && (
-        <fieldset className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-2 mb-2.5">
-            <legend className="hb-label flex items-center gap-2 text-[14px]">
-              <span className="inline-flex h-5 items-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10.5px] font-extrabold tracking-wider text-[#FF8A50]">
-                STEP 01
-              </span>
-              <span>
-                상담 유형 및 연락처 <span className="text-[#D9531E]">*</span>
-              </span>
-            </legend>
-            <span className="hidden sm:inline text-[11.5px] font-semibold text-[#8A8478]">
-              필수 항목(*)을 입력해 주세요
-            </span>
-          </div>
+      {/* 1. 상단 컴팩트 블록: 상담 유형 + 성함/연락처/비밀번호 한눈에 입력 */}
+      {!isNotice ? (
+        <fieldset className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
+          <legend className="sr-only">상담 유형 및 기본 정보</legend>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-md bg-[#EAE6DF] p-1.5">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-md bg-[#EAE6DF] p-1">
             {INQUIRY_TYPES.map((t) => {
               const active = inquiryType === t;
               return (
@@ -589,9 +662,9 @@ export function UnifiedInquiryForm({
                   type="button"
                   onClick={() => setInquiryType(t)}
                   aria-pressed={active}
-                  className={`h-10 rounded px-2 text-[12.5px] sm:text-[13px] font-bold transition-all ${
+                  className={`h-9 rounded px-2 text-[12px] sm:text-[12.5px] font-bold transition-all ${
                     active
-                      ? "bg-[#0E1A2B] text-white shadow-xs"
+                      ? "bg-[#0E1A2B] text-white shadow-2xs"
                       : "bg-white/60 text-[#4B5260] hover:bg-white hover:text-[#0E1A2B]"
                   }`}
                 >
@@ -600,19 +673,10 @@ export function UnifiedInquiryForm({
               );
             })}
           </div>
-          <p className="mt-2 text-[12px] sm:text-[12.5px] text-[#4B5260] leading-snug">
-            {isSell
-              ? "💡 고객님이 보유하신 중고 가전·주방설비의 방문 수거 및 매입 견적을 신청합니다."
-              : isBulk
-              ? "💡 식당·카페·사무실 창업 패키지 도입 또는 폐업·이전 대량 정리를 상담합니다."
-              : inquiryType === "구매 문의"
-              ? "💡 보고 계신 판매 상품 상담 또는 찾으시는 규격의 재고·가격을 문의합니다."
-              : "💡 배송·설치 일정, A/S, 세금계산서 등 기타 문의를 남깁니다."}
-          </p>
 
-          <div className="mt-4 pt-4 border-t border-[#E4E0D8] grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             <div>
-              <label htmlFor="uf-name" className="hb-label">
+              <label htmlFor="uf-name" className="hb-label text-[12px]">
                 성함 / 상호명 <span className="text-[#D9531E]">*</span>
               </label>
               <input
@@ -625,20 +689,15 @@ export function UnifiedInquiryForm({
                   if (fieldErrors.name)
                     setFieldErrors((p) => ({ ...p, name: "" }));
                 }}
-                placeholder="예: 홍길동 / 한밭식당"
-                className={`hb-input mt-1 bg-white ${
+                placeholder="홍길동 / 한밭식당"
+                className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
                   fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
                 }`}
               />
-              {fieldErrors.name && (
-                <p className="mt-1 text-[12px] font-semibold text-red-600">
-                  {fieldErrors.name}
-                </p>
-              )}
             </div>
 
             <div>
-              <label htmlFor="uf-phone" className="hb-label">
+              <label htmlFor="uf-phone" className="hb-label text-[12px]">
                 연락처 <span className="text-[#D9531E]">*</span>
               </label>
               <input
@@ -653,24 +712,49 @@ export function UnifiedInquiryForm({
                     setFieldErrors((p) => ({ ...p, phone: "" }));
                 }}
                 placeholder="010-0000-0000"
-                className={`hb-input mt-1 bg-white tabular-nums ${
+                className={`hb-input mt-1 py-2 text-[13.5px] bg-white tabular-nums ${
                   fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
                 }`}
               />
-              {fieldErrors.phone && (
-                <p className="mt-1 text-[12px] font-semibold text-red-600">
-                  {fieldErrors.phone}
-                </p>
-              )}
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between">
+                <label htmlFor="uf-pw" className="hb-label text-[12px]">
+                  비밀번호 <span className="text-[#D9531E]">*</span>
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="text-[11px] font-semibold text-[#6B7280] hover:text-[#0E1A2B]"
+                >
+                  {showPassword ? "숨기기" : "표시"}
+                </button>
+              </div>
+              <input
+                id="uf-pw"
+                type={showPassword ? "text" : "password"}
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (fieldErrors.password)
+                    setFieldErrors((p) => ({ ...p, password: "" }));
+                }}
+                placeholder="내 글 확인용 (4자 이상)"
+                className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
+                  fieldErrors.password
+                    ? "border-red-500 ring-1 ring-red-500"
+                    : ""
+                }`}
+              />
             </div>
           </div>
         </fieldset>
-      )}
-
-      {isNotice && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label htmlFor="uf-name" className="hb-label">
+            <label htmlFor="uf-name" className="hb-label text-[12.5px]">
               작성자명
             </label>
             <input
@@ -679,11 +763,11 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1"
+              className="hb-input mt-1 py-2"
             />
           </div>
           <div>
-            <label htmlFor="uf-phone" className="hb-label">
+            <label htmlFor="uf-phone" className="hb-label text-[12.5px]">
               연락처 표시
             </label>
             <input
@@ -692,59 +776,144 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1"
+              className="hb-input mt-1 py-2"
             />
           </div>
         </div>
       )}
 
-      {!isNotice && linkedProduct?.productTitle && !bundleApplied && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3 text-[13px]">
-          <div className="min-w-0">
-            <span className="font-bold text-[#D9531E]">
-              선택 상품 자동 연결됨:{" "}
+      {/* 2. 중단 핵심 블록: 사진 첨부(최대 3장) + [✨ 사진 다 넣고 AI 한 번에 분석] 원클릭 바 */}
+      <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#F0EDE7]">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-[#FF8A50]">
+              ✨ AI 자동입력 지원
             </span>
-            <strong className="text-[#0E1A2B]">
-              {linkedProduct.productTitle}
-            </strong>
-            {linkedProduct.modelName && (
-              <span className="ml-1.5 font-mono text-[12px] text-[#6B7280]">
-                ({linkedProduct.modelName})
-              </span>
+            <span className="text-[13px] font-bold text-[#0E1A2B]">
+              사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
+            </span>
+            {!isNotice && (
+              <button
+                type="button"
+                onClick={() => setShowPhotoGuide((v) => !v)}
+                className="text-[11.5px] font-semibold text-[#D9531E] underline underline-offset-2"
+              >
+                {showPhotoGuide ? "촬영 팁 닫기 ▲" : "권장 촬영 팁 ▾"}
+              </button>
             )}
           </div>
-          <span className="shrink-0 text-[11.5px] font-semibold text-[#B5431A]">
-            아래에서 수정 가능
-          </span>
-        </div>
-      )}
 
-      <div className="rounded-md border border-[#E4E0D8] bg-white p-4 sm:p-5 space-y-4">
-        {!isNotice && (
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F0EDE7]">
-            <div className="flex items-center gap-2 text-[14px] font-bold text-[#0E1A2B]">
-              <span className="inline-flex h-5 items-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10.5px] font-extrabold tracking-wider text-[#FF8A50]">
-                STEP 02
+          {!isNotice && (
+            <button
+              type="button"
+              onClick={handleRunGeminiAnalysis}
+              disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-[12.5px] font-bold transition-all shadow-2xs ${
+                selectedFiles.length > 0
+                  ? "bg-[#D9531E] text-white hover:bg-[#BF4715] ring-2 ring-[#D9531E]/25"
+                  : "bg-[#F2F0EC] text-[#8A8478] cursor-not-allowed"
+              }`}
+            >
+              <span>
+                {isAnalyzingPhotos
+                  ? "제미나이 AI 분석 중..."
+                  : selectedFiles.length > 0
+                  ? `✨ 사진 ${selectedFiles.length}장 AI 자동입력 확인`
+                  : "사진 첨부 후 AI 자동입력"}
               </span>
-              <span>품목 및 상세 문의 내용</span>
+            </button>
+          )}
+        </div>
+
+        {/* 사진 썸네일 + 추가 버튼 (컴팩트 가로 배치) */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {filePreviews.map((preview, idx) => (
+            <div
+              key={preview}
+              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={preview}
+                alt={`첨부 사진 ${idx + 1}`}
+                className="h-full w-full object-cover"
+              />
+              <span className="absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
+                #{idx + 1}
+              </span>
+              <button
+                type="button"
+                onClick={() => handleRemoveFile(idx)}
+                aria-label="첨부 사진 삭제"
+                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
+              >
+                <Icon d={ICON.close} className="h-2.5 w-2.5" />
+              </button>
             </div>
-            <span className="text-[11.5px] text-[#8A8478]">
-              {isSell ? "매입 희망 품목·지역 입력" : "문의 품목·내용 입력"}
+          ))}
+
+          {selectedFiles.length < MAX_PHOTOS && (
+            <label className="flex h-14 w-20 cursor-pointer flex-col items-center justify-center gap-0.5 rounded border border-dashed border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-bold text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors shrink-0">
+              <Icon d={ICON.camera} className="h-4 w-4 text-[#D9531E]" />
+              <span>+ 사진 추가</span>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="sr-only"
+              />
+            </label>
+          )}
+
+          <p className="text-[11.5px] text-[#6B7280] leading-snug flex-1 min-w-[180px]">
+            {selectedFiles.length === 0
+              ? "정면 사진과 모델명 스티커 등 1~3장을 올리고 우측 [AI 자동입력 확인]을 누르면 아래 항목이 한 번에 채워집니다."
+              : "추가할 사진을 모두 넣으셨다면 우측 [✨ AI 자동입력 확인] 버튼을 눌러주세요."}
+          </p>
+        </div>
+
+        {/* 접이식 3컷 촬영 가이드 (클릭 시에만 열려 평소 세로 길이 절약) */}
+        {!isNotice && showPhotoGuide && (
+          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 rounded bg-[#FAF9F7] p-2.5 border border-[#E4E0D8] text-[11.5px]">
+            {photoGuideSteps.map((g) => (
+              <li key={g.step} className="flex items-start gap-1.5">
+                <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  컷 {g.step}
+                </span>
+                <div>
+                  <strong className="font-bold text-[#0E1A2B] block">
+                    {g.title}
+                  </strong>
+                  <span className="text-[#4B5260]">{g.desc}</span>
+                </div>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {/* AI 분석 완료 안내 배지 */}
+        {aiAnalysisSummary && (
+          <div className="flex items-center justify-between gap-2 rounded border border-[#FADCD0] bg-[#FFF5F0] px-3 py-2 text-[12px] font-semibold text-[#B5431A]">
+            <span>✅ {aiAnalysisSummary}</span>
+            <span className="text-[11px] text-[#D9531E] shrink-0">
+              아래에서 자유롭게 수정 가능
             </span>
           </div>
         )}
 
+        {/* 품목/상태/지역 + 제목/모델명 + 상세내용 컴팩트 입력 */}
         {!isNotice && (isSell || isBulk) && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
             <div>
-              <label htmlFor="uf-cat" className="hb-label text-[12.5px]">
+              <label htmlFor="uf-cat" className="hb-label text-[12px]">
                 제품 종류
               </label>
               <select
                 id="uf-cat"
                 value={applianceCategory}
                 onChange={(e) => setApplianceCategory(e.target.value)}
-                className="hb-input mt-1 py-2.5 text-[13.5px] font-semibold bg-white"
+                className="hb-input mt-1 py-2 text-[13px] font-semibold"
               >
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -756,14 +925,14 @@ export function UnifiedInquiryForm({
 
             {isSell && (
               <div>
-                <label htmlFor="uf-grade" className="hb-label text-[12.5px]">
+                <label htmlFor="uf-grade" className="hb-label text-[12px]">
                   외관 · 작동 상태
                 </label>
                 <select
                   id="uf-grade"
                   value={conditionGrade}
                   onChange={(e) => setConditionGrade(e.target.value)}
-                  className="hb-input mt-1 py-2.5 text-[13.5px] font-semibold bg-white"
+                  className="hb-input mt-1 py-2 text-[13px] font-semibold"
                 >
                   {PRODUCT_CONDITION_GRADES.map((g) => (
                     <option key={g} value={g}>
@@ -775,8 +944,8 @@ export function UnifiedInquiryForm({
             )}
 
             <div className={isSell ? "" : "sm:col-span-2"}>
-              <label htmlFor="uf-region" className="hb-label text-[12.5px]">
-                {isSell ? "방문 수거 지역 (동/구까지) *" : "매장/현장 지역 (선택)"}
+              <label htmlFor="uf-region" className="hb-label text-[12px]">
+                {isSell ? "방문 수거 지역 (동/구까지) *" : "현장 지역 (선택)"}
               </label>
               <input
                 id="uf-region"
@@ -788,22 +957,17 @@ export function UnifiedInquiryForm({
                     setFieldErrors((p) => ({ ...p, region: "" }));
                 }}
                 placeholder="예: 대전 중구 중촌동"
-                className={`hb-input mt-1 py-2.5 text-[13.5px] bg-white ${
+                className={`hb-input mt-1 py-2 text-[13px] ${
                   fieldErrors.region ? "border-red-500" : ""
                 }`}
               />
-              {fieldErrors.region && (
-                <p className="mt-1 text-[11.5px] font-semibold text-red-600">
-                  {fieldErrors.region}
-                </p>
-              )}
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-1">
           <div className={isNotice ? "sm:col-span-3" : "sm:col-span-2"}>
-            <label htmlFor="uf-title" className="hb-label">
+            <label htmlFor="uf-title" className="hb-label text-[12px]">
               {isNotice
                 ? "공지 제목 *"
                 : isSell
@@ -821,51 +985,42 @@ export function UnifiedInquiryForm({
               }}
               placeholder={
                 isSell
-                  ? "예: 삼성 양문형 냉장고 800L 매입 문의"
-                  : isBulk
-                  ? "예: 카페 오픈용 제빙기·테이블냉장고 세트 견적"
+                  ? "예: 삼성 양문형 냉장고 매입 문의 (사진 첨부 시 AI 자동입력)"
                   : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
               }
-              className={`hb-input mt-1 ${
+              className={`hb-input mt-1 py-2 text-[13.5px] ${
                 fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
-            {fieldErrors.title && (
-              <p className="mt-1 text-[12px] font-semibold text-red-600">
-                {fieldErrors.title}
-              </p>
-            )}
           </div>
 
           {!isNotice && (
             <div>
-              <label htmlFor="uf-model" className="hb-label">
+              <label htmlFor="uf-model" className="hb-label text-[12px]">
                 모델명{" "}
-                <span className="font-normal text-[#6B7280]">(선택)</span>
+                <span className="font-normal text-[#6B7280]">(선택/AI추출)</span>
               </label>
               <input
                 id="uf-model"
                 type="text"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="아시는 경우 입력"
-                className="hb-input mt-1 font-mono text-[13.5px]"
+                placeholder="명판 사진 시 자동입력"
+                className="hb-input mt-1 py-2 font-mono text-[13px]"
               />
             </div>
           )}
         </div>
 
         <div>
-          <label htmlFor="uf-desc" className="hb-label">
+          <label htmlFor="uf-desc" className="hb-label text-[12px]">
             {isNotice
               ? "공지 본문 내용 *"
-              : isSell
-              ? "상세 상태 및 요청 사항 (구매 연도, 엘리베이터 유무, 희망 방문일 등) *"
-              : "상세 문의 내용 (희망 지역, 설치 환경, 수량 등) *"}
+              : "상세 문의 내용 (희망 지역·층수·일정 등) *"}
           </label>
           <textarea
             id="uf-desc"
-            rows={bundleApplied ? 7 : 4}
+            rows={bundleApplied ? 5 : 3}
             value={description}
             onChange={(e) => {
               setDescription(e.target.value);
@@ -874,165 +1029,22 @@ export function UnifiedInquiryForm({
             }}
             placeholder={
               isSell
-                ? "예: 2022년 구매했고 정상 작동합니다. 1층 매장이라 바로 반출 가능하며 이번 주 금요일 수거 희망합니다."
+                ? "예: 정상 작동하며 1층 매장이라 반출 용이합니다. 이번 주 금요일 수거 희망합니다."
                 : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
             }
-            className={`hb-input mt-1 resize-y leading-relaxed ${
-              fieldErrors.description ? "border-red-500 ring-1 ring-red-500" : ""
+            className={`hb-input mt-1 py-2 text-[13.5px] resize-y leading-relaxed ${
+              fieldErrors.description
+                ? "border-red-500 ring-1 ring-red-500"
+                : ""
             }`}
           />
-          {fieldErrors.description && (
-            <p className="mt-1 text-[12px] font-semibold text-red-600">
-              {fieldErrors.description}
-            </p>
-          )}
         </div>
       </div>
 
-      <div className="rounded-md border border-[#E4E0D8] bg-white p-4 sm:p-5 space-y-4">
-        {!isNotice && (
-          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F0EDE7]">
-            <div className="flex items-center gap-2 text-[14px] font-bold text-[#0E1A2B]">
-              <span className="inline-flex h-5 items-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10.5px] font-extrabold tracking-wider text-[#FF8A50]">
-                STEP 03
-              </span>
-              <span>사진 첨부 및 열람 비밀번호</span>
-            </div>
-            <span className="text-[11.5px] font-semibold text-[#8A8478] tabular-nums">
-              사진 {selectedFiles.length} / {MAX_PHOTOS}장
-            </span>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-          <div>
-            <p className="hb-label">
-              사진 첨부{" "}
-              <span className="font-normal text-[#6B7280]">
-                (최대 {MAX_PHOTOS}장{isSell ? " · 전면/모델명 스티커 권장" : ""})
-              </span>
-            </p>
-            <div className="mt-1.5 flex flex-wrap gap-2">
-              {filePreviews.map((preview, idx) => (
-                <div
-                  key={preview}
-                  className="relative h-16 w-16 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6]"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={preview}
-                    alt={`첨부 사진 ${idx + 1}`}
-                    className="h-full w-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveFile(idx)}
-                    aria-label="첨부 사진 삭제"
-                    className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
-                  >
-                    <Icon d={ICON.close} className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-              {selectedFiles.length < MAX_PHOTOS && (
-                <label className="flex h-16 w-16 cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-semibold text-[#6B7280] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors">
-                  <Icon d={ICON.camera} className="h-4 w-4 text-[#D9531E]" />
-                  <span>사진 추가</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    onChange={handleFileChange}
-                    className="sr-only"
-                  />
-                </label>
-              )}
-            </div>
-          </div>
-
-          {!isNotice && (
-            <div>
-              <label htmlFor="uf-pw" className="hb-label">
-                조회용 비밀번호 <span className="text-[#D9531E]">*</span>{" "}
-                <span className="font-normal text-[#6B7280]">(4자리 이상)</span>
-              </label>
-              <input
-                id="uf-pw"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (fieldErrors.password)
-                    setFieldErrors((p) => ({ ...p, password: "" }));
-                }}
-                placeholder="문의게시판 내 글 열람 시 사용"
-                className={`hb-input mt-1 ${
-                  fieldErrors.password ? "border-red-500 ring-1 ring-red-500" : ""
-                }`}
-              />
-              {fieldErrors.password && (
-                <p className="mt-1 text-[12px] font-semibold text-red-600">
-                  {fieldErrors.password}
-                </p>
-              )}
-              <label className="mt-1.5 inline-flex cursor-pointer items-center gap-1.5 text-[12px] text-[#6B7280] select-none">
-                <input
-                  type="checkbox"
-                  checked={showPassword}
-                  onChange={(e) => setShowPassword(e.target.checked)}
-                  className="h-3.5 w-3.5 accent-[#0E1A2B]"
-                />
-                <span>비밀번호 문자 표시</span>
-              </label>
-            </div>
-          )}
-        </div>
-
-        {/* 사진 촬영 3컷 시각 가이드 박스 */}
-        {!isNotice && (
-          <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5">
-            <div className="flex items-center justify-between gap-2 mb-2.5">
-              <p className="flex items-center gap-1.5 text-[12.5px] font-bold text-[#0E1A2B]">
-                <Icon d={ICON.camera} className="h-3.5 w-3.5 text-[#D9531E]" />
-                <span>
-                  {isSell || isBulk
-                    ? "이렇게 3장을 찍어주시면 매입 견적이 가장 정확합니다"
-                    : "설치 환경이나 참고 사진을 함께 올려주시면 상담이 더욱 빠릅니다"}
-                </span>
-              </p>
-              <span className="hidden sm:inline text-[11px] font-semibold text-[#8A8478]">
-                권장 촬영 가이드
-              </span>
-            </div>
-
-            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {photoGuideSteps.map((g) => (
-                <li
-                  key={g.step}
-                  className="rounded border border-[#E4E0D8] bg-white px-3 py-2.5 flex flex-col justify-between"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="inline-flex h-4.5 items-center justify-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10px] font-bold tabular-nums text-white">
-                      컷 {g.step}
-                    </span>
-                    <strong className="text-[12.5px] font-bold text-[#0E1A2B]">
-                      {g.title}
-                    </strong>
-                  </div>
-                  <p className="mt-1 text-[11.5px] leading-snug text-[#4B5260]">
-                    {g.desc}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        )}
-      </div>
-
-      {!isNotice && (
-        <div>
-          <label className="flex cursor-pointer items-start gap-2.5 text-[13px] leading-relaxed text-[#4B5260]">
+      {/* 3. 하단 개인정보 동의 및 제출 버튼 (1줄 인라인 정렬) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#E4E0D8]">
+        {!isNotice ? (
+          <label className="flex cursor-pointer items-center gap-2 text-[12.5px] text-[#4B5260]">
             <input
               type="checkbox"
               checked={agreed}
@@ -1041,10 +1053,10 @@ export function UnifiedInquiryForm({
                 if (fieldErrors.agreed)
                   setFieldErrors((p) => ({ ...p, agreed: "" }));
               }}
-              className="mt-0.5 h-4 w-4 shrink-0 accent-[#0E1A2B]"
+              className="h-4 w-4 shrink-0 accent-[#0E1A2B]"
             />
             <span>
-              상담 및 견적 안내를 위해 성함·연락처·문의 내용을 수집하며,{" "}
+              상담·견적 안내를 위한{" "}
               <Link
                 href="/privacy"
                 target="_blank"
@@ -1055,71 +1067,68 @@ export function UnifiedInquiryForm({
               에 동의합니다. <span className="text-[#D9531E]">*</span>
             </span>
           </label>
-          {fieldErrors.agreed && (
-            <p className="mt-1 text-[12px] font-semibold text-red-600">
-              {fieldErrors.agreed}
-            </p>
+        ) : (
+          <div />
+        )}
+
+        <div className="flex items-center justify-end gap-2 shrink-0">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={isBusy}
+              className="hb-btn-outline h-11 px-5 text-[13.5px]"
+            >
+              취소
+            </button>
           )}
+          <button
+            type="submit"
+            disabled={isBusy}
+            className={`${
+              isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
+            } h-11 px-7 text-[14px] w-full sm:w-auto whitespace-nowrap`}
+          >
+            {phase === "validating"
+              ? "확인 중..."
+              : phase === "submitting"
+              ? "안전하게 접수 중..."
+              : phase === "retrying"
+              ? "재시도 중..."
+              : isNotice
+              ? "공지사항 등록하기"
+              : isSell
+              ? "무료 매입 견적 신청하기"
+              : bundleApplied
+              ? "묶음 견적 문의 접수하기"
+              : "상담 문의 접수하기"}
+          </button>
         </div>
-      )}
+      </div>
 
       {phase === "error" && submitErrorMsg && (
         <div
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 p-4 text-[13px] text-red-800 space-y-2.5"
+          className="rounded-md border border-red-200 bg-red-50 p-3.5 text-[12.5px] text-red-800 flex flex-wrap items-center justify-between gap-2"
         >
-          <p className="font-bold">{submitErrorMsg}</p>
-          <div className="flex flex-wrap gap-2">
+          <span className="font-bold">{submitErrorMsg}</span>
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={() => executeSubmit(true)}
-              className="rounded bg-red-600 px-3.5 py-2 text-[12.5px] font-bold text-white hover:bg-red-700"
+              className="rounded bg-red-600 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-red-700"
             >
-              입력 내용 그대로 재시도
+              그대로 재시도
             </button>
             <a
               href={telHref(STORE.tel)}
-              className="rounded border border-red-300 bg-white px-3.5 py-2 text-[12.5px] font-bold text-red-700"
+              className="rounded border border-red-300 bg-white px-3 py-1.5 text-[12px] font-bold text-red-700"
             >
-              전화({STORE.tel})로 바로 문의
+              전화({STORE.tel}) 문의
             </a>
           </div>
         </div>
       )}
-
-      <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#E4E0D8]">
-        {onCancel && (
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={isBusy}
-            className="hb-btn-outline h-12 px-6 text-[14px]"
-          >
-            취소
-          </button>
-        )}
-        <button
-          type="submit"
-          disabled={isBusy}
-          className={`${
-            isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
-          } h-12 px-8 text-[15px] w-full sm:w-auto`}
-        >
-          {phase === "validating"
-            ? "입력 내용 확인 중..."
-            : phase === "submitting"
-            ? "안전하게 접수 중..."
-            : phase === "retrying"
-            ? "재시도 처리 중..."
-            : isNotice
-            ? "공지사항 등록하기"
-            : isSell
-            ? "무료 매입 견적 신청하기"
-            : bundleApplied
-            ? "묶음 견적 문의 접수하기"
-            : "상담 문의 접수하기"}
-        </button>
-      </div>
     </form>
   );
 }
