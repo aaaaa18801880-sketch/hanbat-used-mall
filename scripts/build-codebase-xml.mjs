@@ -21,6 +21,7 @@ const IGNORED_FILES = new Set([
   "yarn.lock",
   "pnpm-lock.yaml",
   "아르곤_디자인.xml",
+  "repomix-output.xml",
   "scripts/build-codebase-xml.mjs",
 ]);
 
