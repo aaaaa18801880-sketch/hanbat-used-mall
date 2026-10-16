@@ -878,13 +878,18 @@ export default function IntegratedAdminDashboard() {
   if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F6F5F2] p-4 font-sans">
-        <div className="bg-white p-8 rounded-lg shadow-md border border-[#E4E0D8] w-full max-w-sm">
-          <h1 className="text-[20px] font-bold text-[#0E1A2B] text-center">
-            한밭중고전자 통합 관리자
-          </h1>
-          <p className="mt-1 text-[13px] text-[#6B7280] text-center mb-6">
-            인가된 관리자 계정으로 로그인해야 접근할 수 있습니다.
-          </p>
+        <div className="bg-white p-7 sm:p-9 rounded-md shadow-card border border-[#E4E0D8] w-full max-w-sm">
+          <div className="text-center mb-6">
+            <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-[10.5px] font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
+              Admin Console
+            </span>
+            <h1 className="mt-2 text-[21px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+              한밭중고전자 통합 관리자
+            </h1>
+            <p className="mt-1 text-[13px] text-[#6B7280]">
+              인가된 관리자 계정으로 로그인해야 접근할 수 있습니다.
+            </p>
+          </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="hb-label">관리자 이메일</label>
@@ -893,6 +898,7 @@ export default function IntegratedAdminDashboard() {
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="admin@example.com"
                 className="hb-input mt-1"
               />
             </div>
@@ -903,6 +909,7 @@ export default function IntegratedAdminDashboard() {
                 required
                 value={loginPw}
                 onChange={(e) => setLoginPw(e.target.value)}
+                placeholder="••••••••"
                 className="hb-input mt-1"
               />
             </div>
@@ -914,9 +921,12 @@ export default function IntegratedAdminDashboard() {
               {loggingIn ? "인증 확인 중..." : "관리자 로그인"}
             </button>
           </form>
-          <div className="mt-5 text-center">
-            <Link href="/" className="text-[12.5px] text-[#6B7280] underline">
-              ← 홈으로 돌아가기
+          <div className="mt-5 pt-4 border-t border-[#EEEBE5] text-center">
+            <Link
+              href="/"
+              className="text-[12.5px] font-semibold text-[#6B7280] hover:text-[#0E1A2B] underline underline-offset-4"
+            >
+              ← 고객용 홈 화면으로 돌아가기
             </Link>
           </div>
         </div>
@@ -927,41 +937,47 @@ export default function IntegratedAdminDashboard() {
   return (
     <div className="min-h-screen bg-[#F6F5F2] font-sans text-[#1F2530] pb-20">
       {/* 상단 관리자 헤더 */}
-      <header className="sticky top-0 z-40 bg-[#0E1A2B] text-white border-b border-white/10">
-        <div className="hb-container py-4 flex flex-wrap items-center justify-between gap-3">
+      <header className="sticky top-0 z-40 bg-[#0E1A2B] text-white border-b border-white/10 shadow-md">
+        <div className="hb-container py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded bg-[#D9531E] px-2 py-0.5 text-[11px] font-bold">
+              <span className="rounded-sm bg-[#D9531E] px-2 py-0.5 text-[10.5px] font-extrabold tracking-wider">
                 ADMIN
               </span>
-              <h1 className="text-[18px] sm:text-[20px] font-bold">
+              <h1 className="text-[17px] sm:text-[20px] font-extrabold tracking-[-0.02em]">
                 한밭중고전자 통합 운영 대시보드
               </h1>
             </div>
-            <p className="text-[12px] text-white/65 mt-0.5">
+            <p className="text-[11.5px] text-white/65 mt-0.5 font-mono">
               접속 계정: {adminUserEmail}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={fetchAllAdminData}
               disabled={loadingData}
-              className="rounded border border-white/25 bg-white/10 px-3 py-1.5 text-[12.5px] font-semibold hover:bg-white/20"
+              className="rounded border border-white/20 bg-white/10 px-2.5 sm:px-3 py-1.5 text-[12px] font-bold hover:bg-white/20 transition-colors"
             >
-              {loadingData ? "갱신 중..." : "데이터 새로고침"}
+              {loadingData ? "갱신 중..." : "↻ 데이터 새로고침"}
             </button>
             <Link
+              href="/gallery"
+              className="hidden sm:inline-flex rounded border border-white/20 bg-white/10 px-3 py-1.5 text-[12px] font-semibold hover:bg-white/20 transition-colors"
+            >
+              갤러리 관리
+            </Link>
+            <Link
               href="/"
-              className="rounded border border-white/25 bg-white/10 px-3 py-1.5 text-[12.5px] font-semibold hover:bg-white/20"
+              className="rounded border border-white/20 bg-white/10 px-2.5 sm:px-3 py-1.5 text-[12px] font-semibold hover:bg-white/20 transition-colors"
             >
               사이트 보기
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded bg-red-600 px-3 py-1.5 text-[12.5px] font-bold text-white hover:bg-red-700"
+              className="rounded bg-red-600/90 px-2.5 sm:px-3 py-1.5 text-[12px] font-bold text-white hover:bg-red-700 transition-colors ml-1"
             >
               로그아웃
             </button>
@@ -969,105 +985,159 @@ export default function IntegratedAdminDashboard() {
         </div>
 
         {/* 탭 내비게이션 */}
-        <div className="hb-container flex gap-1 overflow-x-auto border-t border-white/10 pt-2">
+        <div className="hb-container flex gap-1 overflow-x-auto scrollbar-none border-t border-white/10 pt-2">
           {(
             [
               {
                 id: "overview",
-                label: `운영 요약 · 신규 접수 (${metrics.priorityCount})`,
+                label: "운영 요약 · 신규 접수",
+                badge: metrics.priorityCount,
+                highlight: metrics.priorityCount > 0,
               },
               {
                 id: "inquiries",
-                label: `문의 · 매입 관리 (${metrics.totalInquiries})`,
+                label: "문의 · 매입 관리",
+                badge: metrics.totalInquiries,
+                highlight: false,
               },
               {
                 id: "products",
-                label: `상품 등록 · 재고 (${metrics.totalProducts})`,
+                label: "상품 등록 · 재고",
+                badge: metrics.totalProducts,
+                highlight: false,
               },
               {
                 id: "delivery",
-                label: `배송·설치 사례 (${metrics.deliveryCount})`,
+                label: "배송·설치 사례",
+                badge: metrics.deliveryCount,
+                highlight: false,
               },
               {
                 id: "notifications",
                 label: "알림 발송 상태 · 재시도",
+                badge: null,
+                highlight: false,
               },
             ] as const
-          ).map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setActiveTab(t.id)}
-              className={`px-4 py-2.5 text-[13px] font-bold whitespace-nowrap rounded-t transition-colors ${
-                activeTab === t.id
-                  ? "bg-[#F6F5F2] text-[#0E1A2B]"
-                  : "text-white/75 hover:text-white hover:bg-white/5"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
+          ).map((t) => {
+            const active = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setActiveTab(t.id)}
+                className={`px-3.5 sm:px-4 py-2.5 text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
+                  active
+                    ? "bg-[#F6F5F2] text-[#0E1A2B]"
+                    : "text-white/75 hover:text-white hover:bg-white/8"
+                }`}
+              >
+                <span>{t.label}</span>
+                {t.badge !== null && (
+                  <span
+                    className={`rounded-full px-1.5 py-0.2 text-[11px] font-extrabold tabular-nums ${
+                      t.highlight
+                        ? "bg-[#D9531E] text-white"
+                        : active
+                        ? "bg-[#0E1A2B]/12 text-[#0E1A2B]"
+                        : "bg-white/15 text-white/85"
+                    }`}
+                  >
+                    {t.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </header>
 
-      <main className="hb-container py-8 space-y-8">
-        {/* 1. 기본 운영 지표 카드 */}
+      <main className="hb-container py-6 sm:py-8 space-y-6 sm:space-y-8">
+        {/* 1. 기본 운영 지표 카드 (클릭 시 해당 필터/탭으로 즉시 전환) */}
         <section
           aria-label="운영 지표 요약"
-          className="grid grid-cols-2 sm:grid-cols-4 gap-3.5"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4"
         >
-          <div className="rounded-md border border-[#FADCD0] bg-[#FFF5F0] p-4">
-            <span className="text-[12px] font-bold text-[#B5431A]">
-              우선 확인 필요 (접수·검토중)
-            </span>
-            <p className="mt-1 text-[26px] font-bold text-[#D9531E]">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("inquiries");
+              setInqStatusFilter("priority");
+            }}
+            className="text-left rounded-md border border-[#FADCD0] bg-[#FFF5F0] p-4 hover:border-[#D9531E] transition-colors shadow-2xs"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11.5px] sm:text-[12px] font-bold text-[#B5431A]">
+                우선 확인 필요 (접수·검토중)
+              </span>
+              <span className="h-2 w-2 rounded-full bg-[#D9531E]" />
+            </div>
+            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#D9531E] tabular-nums">
               {metrics.priorityCount}건
             </p>
-          </div>
-          <div className="rounded-md border border-[#E4E0D8] bg-white p-4">
-            <span className="text-[12px] font-bold text-[#6B7280]">
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab("inquiries");
+              setInqStatusFilter("전체");
+            }}
+            className="text-left rounded-md border border-[#E4E0D8] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+          >
+            <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
               전체 문의 · 매입 신청
             </span>
-            <p className="mt-1 text-[26px] font-bold text-[#0E1A2B]">
+            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#0E1A2B] tabular-nums">
               {metrics.totalInquiries}건{" "}
-              <span className="text-[13px] font-medium text-[#6B7280]">
+              <span className="text-[12px] sm:text-[13px] font-semibold text-[#6B7280]">
                 (매입 {metrics.buybackCount})
               </span>
             </p>
-          </div>
-          <div className="rounded-md border border-[#E4E0D8] bg-white p-4">
-            <span className="text-[12px] font-bold text-[#6B7280]">
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("products")}
+            className="text-left rounded-md border border-[#E4E0D8] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+          >
+            <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
               현재 판매중 / 예약중 재고
             </span>
-            <p className="mt-1 text-[26px] font-bold text-[#0E1A2B]">
+            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#0E1A2B] tabular-nums">
               {metrics.sellingProducts}건{" "}
-              <span className="text-[13px] font-medium text-amber-700">
+              <span className="text-[12px] sm:text-[13px] font-semibold text-amber-700">
                 (예약 {metrics.reservedProducts})
               </span>
             </p>
-          </div>
-          <div className="rounded-md border border-[#E4E0D8] bg-white p-4">
-            <span className="text-[12px] font-bold text-[#6B7280]">
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("delivery")}
+            className="text-left rounded-md border border-[#E4E0D8] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+          >
+            <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
               판매완료 / 배송사례
             </span>
-            <p className="mt-1 text-[26px] font-bold text-[#4B5260]">
+            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#4B5260] tabular-nums">
               {metrics.soldProducts}건{" "}
-              <span className="text-[13px] font-medium text-[#6B7280]">
+              <span className="text-[12px] sm:text-[13px] font-semibold text-[#6B7280]">
                 (사례 {metrics.deliveryCount})
               </span>
             </p>
-          </div>
+          </button>
         </section>
 
         {/* 2. 탭별 본문: OVERVIEW 또는 INQUIRIES */}
         {(activeTab === "overview" || activeTab === "inquiries") && (
-          <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E4E0D8] pb-4">
+          <section className="rounded-md border border-[#E4E0D8] bg-white p-4 sm:p-6 shadow-card space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E4E0D8] pb-4">
               <div>
-                <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+                <h2 className="text-[17px] sm:text-[18px] font-extrabold text-[#0E1A2B]">
                   고객 문의 및 매입 신청 통합 관리
                 </h2>
-                <p className="text-[13px] text-[#6B7280]">
+                <p className="mt-0.5 text-[12.5px] sm:text-[13px] text-[#6B7280]">
                   신규 접수 건을 우선 확인하고, 진행 상태를 명시적으로 선택하여 변경하거나 답변을 등록하세요.
                 </p>
               </div>
@@ -1076,7 +1146,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqStatusFilter}
                   onChange={(e) => setInqStatusFilter(e.target.value)}
-                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-[13px] font-bold text-[#0E1A2B]"
+                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-[12.5px] sm:text-[13px] font-bold text-[#0E1A2B]"
                 >
                   <option value="priority">⚡ 미처리 신규(접수·검토중)만</option>
                   <option value="전체">전체 상태 보기</option>
@@ -1091,7 +1161,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqTypeFilter}
                   onChange={(e) => setInqTypeFilter(e.target.value)}
-                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-[13px] font-semibold text-[#4B5260]"
+                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-[12.5px] sm:text-[13px] font-semibold text-[#4B5260]"
                 >
                   <option value="전체">모든 문의 유형</option>
                   <option value="내 물건 팔기">내 물건 팔기 (매입)</option>
@@ -1105,7 +1175,7 @@ export default function IntegratedAdminDashboard() {
                   value={inqKeyword}
                   onChange={(e) => setInqKeyword(e.target.value)}
                   placeholder="고객명·연락처·제목 검색"
-                  className="h-9 rounded border border-[#DDD9D1] px-3 text-[13px]"
+                  className="h-9 flex-1 sm:flex-none rounded border border-[#DDD9D1] px-3 text-[12.5px] sm:text-[13px]"
                 />
               </div>
             </div>
@@ -1126,13 +1196,13 @@ export default function IntegratedAdminDashboard() {
                       key={req.id}
                       className={`rounded-md border p-4 sm:p-5 transition-colors ${
                         isPriority
-                          ? "border-[#D9531E]/50 bg-[#FFFDFB]"
+                          ? "border-[#D9531E]/50 bg-[#FFFDFB] shadow-2xs"
                           : "border-[#E4E0D8] bg-white"
                       }`}
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
                         <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             {isPriority && !req.is_notice && (
                               <span className="rounded-sm bg-[#D9531E] px-2 py-0.5 text-[11px] font-bold text-white">
                                 우선 확인
@@ -1144,38 +1214,40 @@ export default function IntegratedAdminDashboard() {
                             <span className="rounded-sm bg-[#F2F0EC] px-2 py-0.5 text-[11.5px] font-bold text-[#4B5260]">
                               {req.is_notice ? "공지사항" : req.inquiry_type || "문의"}
                             </span>
-                            <span className="text-[12px] text-[#8A8478]">
+                            <span className="text-[11.5px] sm:text-[12px] text-[#8A8478] tabular-nums">
                               {new Date(req.created_at).toLocaleString("ko-KR")}
                             </span>
                           </div>
 
-                          <h3 className="text-[16px] font-bold text-[#0E1A2B] pt-1">
+                          <h3 className="text-[15.5px] sm:text-[16px] font-bold text-[#0E1A2B] pt-1">
                             {req.category}
                           </h3>
 
-                          <p className="text-[13.5px] text-[#4B5260]">
-                            접수자: <strong>{req.name}</strong>{" "}
+                          <p className="text-[13px] sm:text-[13.5px] text-[#4B5260] flex flex-wrap items-center gap-x-3 gap-y-1">
+                            <span>
+                              접수자: <strong className="text-[#0E1A2B]">{req.name}</strong>
+                            </span>
                             {req.phone && (
                               <a
                                 href={telHref(req.phone)}
-                                className="ml-2 font-bold text-[#D9531E] underline"
+                                className="font-bold text-[#D9531E] underline tabular-nums"
                               >
                                 📞 {req.phone}
                               </a>
                             )}
                             {req.region && (
-                              <span className="ml-3 text-[#6B7280]">
+                              <span className="text-[#6B7280]">
                                 📍 지역: {req.region}
                               </span>
                             )}
                           </p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 shrink-0">
+                        <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[#F2EFE9]">
                           {!req.is_notice && (
                             <>
                               <label className="text-[12px] font-bold text-[#6B7280]">
-                                상태 변경:
+                                상태:
                               </label>
                               <select
                                 aria-label={`${req.category} 진행 상태 선택`}
@@ -1217,7 +1289,7 @@ export default function IntegratedAdminDashboard() {
                             onClick={() =>
                               handleDeleteInquiry(req.id, req.category)
                             }
-                            className="h-9 rounded border border-red-200 bg-red-50 px-3 text-[12px] font-bold text-red-600 hover:bg-red-100"
+                            className="h-9 rounded border border-red-200 bg-red-50 px-2.5 text-[12px] font-bold text-red-600 hover:bg-red-100 ml-auto md:ml-1"
                           >
                             삭제
                           </button>

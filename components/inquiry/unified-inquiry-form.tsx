@@ -565,11 +565,22 @@ export function UnifiedInquiryForm({
       )}
 
       {!isNotice && (
-        <fieldset>
-          <legend className="hb-label mb-1.5">
-            상담 유형 선택 <span className="text-[#D9531E]">*</span>
-          </legend>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-md bg-[#F2F0EC] p-1.5">
+        <fieldset className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <legend className="hb-label flex items-center gap-2 text-[14px]">
+              <span className="inline-flex h-5 items-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10.5px] font-extrabold tracking-wider text-[#FF8A50]">
+                STEP 01
+              </span>
+              <span>
+                상담 유형 및 연락처 <span className="text-[#D9531E]">*</span>
+              </span>
+            </legend>
+            <span className="hidden sm:inline text-[11.5px] font-semibold text-[#8A8478]">
+              필수 항목(*)을 입력해 주세요
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-md bg-[#EAE6DF] p-1.5">
             {INQUIRY_TYPES.map((t) => {
               const active = inquiryType === t;
               return (
@@ -578,10 +589,10 @@ export function UnifiedInquiryForm({
                   type="button"
                   onClick={() => setInquiryType(t)}
                   aria-pressed={active}
-                  className={`h-10 rounded px-2.5 text-[13px] font-bold transition-colors ${
+                  className={`h-10 rounded px-2 text-[12.5px] sm:text-[13px] font-bold transition-all ${
                     active
-                      ? "bg-[#0E1A2B] text-white shadow-2xs"
-                      : "text-[#4B5260] hover:text-[#0E1A2B]"
+                      ? "bg-[#0E1A2B] text-white shadow-xs"
+                      : "bg-white/60 text-[#4B5260] hover:bg-white hover:text-[#0E1A2B]"
                   }`}
                 >
                   {t === "내 물건 팔기" ? "내 물건 팔기(매입)" : t}
@@ -589,7 +600,7 @@ export function UnifiedInquiryForm({
               );
             })}
           </div>
-          <p className="mt-1.5 text-[12.5px] text-[#6B7280]">
+          <p className="mt-2 text-[12px] sm:text-[12.5px] text-[#4B5260] leading-snug">
             {isSell
               ? "💡 고객님이 보유하신 중고 가전·주방설비의 방문 수거 및 매입 견적을 신청합니다."
               : isBulk
@@ -598,11 +609,97 @@ export function UnifiedInquiryForm({
               ? "💡 보고 계신 판매 상품 상담 또는 찾으시는 규격의 재고·가격을 문의합니다."
               : "💡 배송·설치 일정, A/S, 세금계산서 등 기타 문의를 남깁니다."}
           </p>
+
+          <div className="mt-4 pt-4 border-t border-[#E4E0D8] grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
+            <div>
+              <label htmlFor="uf-name" className="hb-label">
+                성함 / 상호명 <span className="text-[#D9531E]">*</span>
+              </label>
+              <input
+                id="uf-name"
+                type="text"
+                autoComplete="name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name)
+                    setFieldErrors((p) => ({ ...p, name: "" }));
+                }}
+                placeholder="예: 홍길동 / 한밭식당"
+                className={`hb-input mt-1 bg-white ${
+                  fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
+                }`}
+              />
+              {fieldErrors.name && (
+                <p className="mt-1 text-[12px] font-semibold text-red-600">
+                  {fieldErrors.name}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="uf-phone" className="hb-label">
+                연락처 <span className="text-[#D9531E]">*</span>
+              </label>
+              <input
+                id="uf-phone"
+                type="tel"
+                inputMode="numeric"
+                autoComplete="tel"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(formatPhone(e.target.value));
+                  if (fieldErrors.phone)
+                    setFieldErrors((p) => ({ ...p, phone: "" }));
+                }}
+                placeholder="010-0000-0000"
+                className={`hb-input mt-1 bg-white tabular-nums ${
+                  fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
+                }`}
+              />
+              {fieldErrors.phone && (
+                <p className="mt-1 text-[12px] font-semibold text-red-600">
+                  {fieldErrors.phone}
+                </p>
+              )}
+            </div>
+          </div>
         </fieldset>
       )}
 
+      {isNotice && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="uf-name" className="hb-label">
+              작성자명
+            </label>
+            <input
+              id="uf-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={STORE.name}
+              className="hb-input mt-1"
+            />
+          </div>
+          <div>
+            <label htmlFor="uf-phone" className="hb-label">
+              연락처 표시
+            </label>
+            <input
+              id="uf-phone"
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(formatPhone(e.target.value))}
+              placeholder={STORE.tel}
+              className="hb-input mt-1"
+            />
+          </div>
+        </div>
+      )}
+
       {!isNotice && linkedProduct?.productTitle && !bundleApplied && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-4 py-3 text-[13px]">
+        <div className="flex items-center justify-between gap-3 rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3 text-[13px]">
           <div className="min-w-0">
             <span className="font-bold text-[#D9531E]">
               선택 상품 자동 연결됨:{" "}
@@ -616,222 +713,197 @@ export function UnifiedInquiryForm({
               </span>
             )}
           </div>
-          <span className="shrink-0 text-[11.5px] text-[#8A8478]">
+          <span className="shrink-0 text-[11.5px] font-semibold text-[#B5431A]">
             아래에서 수정 가능
           </span>
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label htmlFor="uf-name" className="hb-label">
-            성함 / 상호명 {!isNotice && <span className="text-[#D9531E]">*</span>}
-          </label>
-          <input
-            id="uf-name"
-            type="text"
-            autoComplete="name"
-            value={name}
-            onChange={(e) => {
-              setName(e.target.value);
-              if (fieldErrors.name)
-                setFieldErrors((p) => ({ ...p, name: "" }));
-            }}
-            placeholder={isNotice ? STORE.name : "예: 홍길동 / 한밭식당"}
-            className={`hb-input mt-1 ${
-              fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
-            }`}
-          />
-          {fieldErrors.name && (
-            <p className="mt-1 text-[12px] font-semibold text-red-600">
-              {fieldErrors.name}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="uf-phone" className="hb-label">
-            연락처 {!isNotice && <span className="text-[#D9531E]">*</span>}
-          </label>
-          <input
-            id="uf-phone"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            value={phone}
-            onChange={(e) => {
-              setPhone(formatPhone(e.target.value));
-              if (fieldErrors.phone)
-                setFieldErrors((p) => ({ ...p, phone: "" }));
-            }}
-            placeholder={isNotice ? STORE.tel : "010-0000-0000"}
-            className={`hb-input mt-1 ${
-              fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
-            }`}
-          />
-          {fieldErrors.phone && (
-            <p className="mt-1 text-[12px] font-semibold text-red-600">
-              {fieldErrors.phone}
-            </p>
-          )}
-        </div>
-      </div>
-
-      {!isNotice && (isSell || isBulk) && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
-          <div>
-            <label htmlFor="uf-cat" className="hb-label text-[12.5px]">
-              제품 종류
-            </label>
-            <select
-              id="uf-cat"
-              value={applianceCategory}
-              onChange={(e) => setApplianceCategory(e.target.value)}
-              className="hb-input mt-1 py-2.5 text-[13.5px] font-semibold"
-            >
-              {PRODUCT_CATEGORIES.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
+      <div className="rounded-md border border-[#E4E0D8] bg-white p-4 sm:p-5 space-y-4">
+        {!isNotice && (
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F0EDE7]">
+            <div className="flex items-center gap-2 text-[14px] font-bold text-[#0E1A2B]">
+              <span className="inline-flex h-5 items-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10.5px] font-extrabold tracking-wider text-[#FF8A50]">
+                STEP 02
+              </span>
+              <span>품목 및 상세 문의 내용</span>
+            </div>
+            <span className="text-[11.5px] text-[#8A8478]">
+              {isSell ? "매입 희망 품목·지역 입력" : "문의 품목·내용 입력"}
+            </span>
           </div>
+        )}
 
-          {isSell && (
+        {!isNotice && (isSell || isBulk) && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5">
             <div>
-              <label htmlFor="uf-grade" className="hb-label text-[12.5px]">
-                외관 · 작동 상태
+              <label htmlFor="uf-cat" className="hb-label text-[12.5px]">
+                제품 종류
               </label>
               <select
-                id="uf-grade"
-                value={conditionGrade}
-                onChange={(e) => setConditionGrade(e.target.value)}
-                className="hb-input mt-1 py-2.5 text-[13.5px] font-semibold"
+                id="uf-cat"
+                value={applianceCategory}
+                onChange={(e) => setApplianceCategory(e.target.value)}
+                className="hb-input mt-1 py-2.5 text-[13.5px] font-semibold bg-white"
               >
-                {PRODUCT_CONDITION_GRADES.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
+                {PRODUCT_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
                   </option>
                 ))}
               </select>
             </div>
-          )}
 
-          <div className={isSell ? "" : "sm:col-span-2"}>
-            <label htmlFor="uf-region" className="hb-label text-[12.5px]">
-              {isSell ? "방문 수거 지역 (동/구까지) *" : "매장/현장 지역 (선택)"}
+            {isSell && (
+              <div>
+                <label htmlFor="uf-grade" className="hb-label text-[12.5px]">
+                  외관 · 작동 상태
+                </label>
+                <select
+                  id="uf-grade"
+                  value={conditionGrade}
+                  onChange={(e) => setConditionGrade(e.target.value)}
+                  className="hb-input mt-1 py-2.5 text-[13.5px] font-semibold bg-white"
+                >
+                  {PRODUCT_CONDITION_GRADES.map((g) => (
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            <div className={isSell ? "" : "sm:col-span-2"}>
+              <label htmlFor="uf-region" className="hb-label text-[12.5px]">
+                {isSell ? "방문 수거 지역 (동/구까지) *" : "매장/현장 지역 (선택)"}
+              </label>
+              <input
+                id="uf-region"
+                type="text"
+                value={region}
+                onChange={(e) => {
+                  setRegion(e.target.value);
+                  if (fieldErrors.region)
+                    setFieldErrors((p) => ({ ...p, region: "" }));
+                }}
+                placeholder="예: 대전 중구 중촌동"
+                className={`hb-input mt-1 py-2.5 text-[13.5px] bg-white ${
+                  fieldErrors.region ? "border-red-500" : ""
+                }`}
+              />
+              {fieldErrors.region && (
+                <p className="mt-1 text-[11.5px] font-semibold text-red-600">
+                  {fieldErrors.region}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+          <div className={isNotice ? "sm:col-span-3" : "sm:col-span-2"}>
+            <label htmlFor="uf-title" className="hb-label">
+              {isNotice
+                ? "공지 제목 *"
+                : isSell
+                ? "매입 신청 품목 / 제목 *"
+                : "문의 품목 / 제목 *"}
             </label>
             <input
-              id="uf-region"
+              id="uf-title"
               type="text"
-              value={region}
+              value={title}
               onChange={(e) => {
-                setRegion(e.target.value);
-                if (fieldErrors.region)
-                  setFieldErrors((p) => ({ ...p, region: "" }));
+                setTitle(e.target.value);
+                if (fieldErrors.title)
+                  setFieldErrors((p) => ({ ...p, title: "" }));
               }}
-              placeholder="예: 대전 중구 중촌동"
-              className={`hb-input mt-1 py-2.5 text-[13.5px] ${
-                fieldErrors.region ? "border-red-500" : ""
+              placeholder={
+                isSell
+                  ? "예: 삼성 양문형 냉장고 800L 매입 문의"
+                  : isBulk
+                  ? "예: 카페 오픈용 제빙기·테이블냉장고 세트 견적"
+                  : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
+              }
+              className={`hb-input mt-1 ${
+                fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
-            {fieldErrors.region && (
-              <p className="mt-1 text-[11.5px] font-semibold text-red-600">
-                {fieldErrors.region}
+            {fieldErrors.title && (
+              <p className="mt-1 text-[12px] font-semibold text-red-600">
+                {fieldErrors.title}
               </p>
             )}
           </div>
-        </div>
-      )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className={isNotice ? "sm:col-span-3" : "sm:col-span-2"}>
-          <label htmlFor="uf-title" className="hb-label">
-            {isNotice
-              ? "공지 제목 *"
-              : isSell
-              ? "매입 신청 품목 / 제목 *"
-              : "문의 품목 / 제목 *"}
-          </label>
-          <input
-            id="uf-title"
-            type="text"
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              if (fieldErrors.title)
-                setFieldErrors((p) => ({ ...p, title: "" }));
-            }}
-            placeholder={
-              isSell
-                ? "예: 삼성 양문형 냉장고 800L 매입 문의"
-                : isBulk
-                ? "예: 카페 오픈용 제빙기·테이블냉장고 세트 견적"
-                : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
-            }
-            className={`hb-input mt-1 ${
-              fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
-            }`}
-          />
-          {fieldErrors.title && (
-            <p className="mt-1 text-[12px] font-semibold text-red-600">
-              {fieldErrors.title}
-            </p>
+          {!isNotice && (
+            <div>
+              <label htmlFor="uf-model" className="hb-label">
+                모델명{" "}
+                <span className="font-normal text-[#6B7280]">(선택)</span>
+              </label>
+              <input
+                id="uf-model"
+                type="text"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                placeholder="아시는 경우 입력"
+                className="hb-input mt-1 font-mono text-[13.5px]"
+              />
+            </div>
           )}
         </div>
 
+        <div>
+          <label htmlFor="uf-desc" className="hb-label">
+            {isNotice
+              ? "공지 본문 내용 *"
+              : isSell
+              ? "상세 상태 및 요청 사항 (구매 연도, 엘리베이터 유무, 희망 방문일 등) *"
+              : "상세 문의 내용 (희망 지역, 설치 환경, 수량 등) *"}
+          </label>
+          <textarea
+            id="uf-desc"
+            rows={bundleApplied ? 7 : 4}
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              if (fieldErrors.description)
+                setFieldErrors((p) => ({ ...p, description: "" }));
+            }}
+            placeholder={
+              isSell
+                ? "예: 2022년 구매했고 정상 작동합니다. 1층 매장이라 바로 반출 가능하며 이번 주 금요일 수거 희망합니다."
+                : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
+            }
+            className={`hb-input mt-1 resize-y leading-relaxed ${
+              fieldErrors.description ? "border-red-500 ring-1 ring-red-500" : ""
+            }`}
+          />
+          {fieldErrors.description && (
+            <p className="mt-1 text-[12px] font-semibold text-red-600">
+              {fieldErrors.description}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="rounded-md border border-[#E4E0D8] bg-white p-4 sm:p-5 space-y-4">
         {!isNotice && (
-          <div>
-            <label htmlFor="uf-model" className="hb-label">
-              모델명{" "}
-              <span className="font-normal text-[#6B7280]">(선택)</span>
-            </label>
-            <input
-              id="uf-model"
-              type="text"
-              value={model}
-              onChange={(e) => setModel(e.target.value)}
-              placeholder="아시는 경우 입력"
-              className="hb-input mt-1 font-mono text-[13.5px]"
-            />
+          <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#F0EDE7]">
+            <div className="flex items-center gap-2 text-[14px] font-bold text-[#0E1A2B]">
+              <span className="inline-flex h-5 items-center rounded-sm bg-[#0E1A2B] px-1.5 text-[10.5px] font-extrabold tracking-wider text-[#FF8A50]">
+                STEP 03
+              </span>
+              <span>사진 첨부 및 열람 비밀번호</span>
+            </div>
+            <span className="text-[11.5px] font-semibold text-[#8A8478] tabular-nums">
+              사진 {selectedFiles.length} / {MAX_PHOTOS}장
+            </span>
           </div>
         )}
-      </div>
 
-      <div>
-        <label htmlFor="uf-desc" className="hb-label">
-          {isNotice
-            ? "공지 본문 내용 *"
-            : isSell
-            ? "상세 상태 및 요청 사항 (구매 연도, 엘리베이터 유무, 희망 방문일 등) *"
-            : "상세 문의 내용 (희망 지역, 설치 환경, 수량 등) *"}
-        </label>
-        <textarea
-          id="uf-desc"
-          rows={bundleApplied ? 7 : 4}
-          value={description}
-          onChange={(e) => {
-            setDescription(e.target.value);
-            if (fieldErrors.description)
-              setFieldErrors((p) => ({ ...p, description: "" }));
-          }}
-          placeholder={
-            isSell
-              ? "예: 2022년 구매했고 정상 작동합니다. 1층 매장이라 바로 반출 가능하며 이번 주 금요일 수거 희망합니다."
-              : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
-          }
-          className={`hb-input mt-1 resize-y leading-relaxed ${
-            fieldErrors.description ? "border-red-500 ring-1 ring-red-500" : ""
-          }`}
-        />
-        {fieldErrors.description && (
-          <p className="mt-1 text-[12px] font-semibold text-red-600">
-            {fieldErrors.description}
-          </p>
-        )}
-      </div>
-
-      <div className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
           <div>
             <p className="hb-label">

@@ -1613,38 +1613,45 @@ export default function GalleryPage() {
 
       {/* 상단 쇼룸 헤더 */}
       <section className="bg-white border-b border-[#E4E0D8]">
-        <div className="hb-container py-10 sm:py-14">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div className="hb-container py-8 sm:py-12">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             <div>
-              <p className="hb-eyebrow">Showroom Inventory</p>
-              <h1 className="mt-2 text-[28px] sm:text-[36px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
+              <div className="inline-flex items-center gap-2 mb-2">
+                <span className="hb-eyebrow">Showroom Inventory</span>
+                <span className="text-[11px] text-[#CFCAC0]">|</span>
+                <span className="text-[12px] font-semibold text-[#6B7280]">
+                  대전 중촌동 직영 매장 실매물
+                </span>
+              </div>
+              <h1 className="text-[26px] sm:text-[34px] font-extrabold text-[#0E1A2B] tracking-[-0.025em] leading-[1.2]">
                 판매 제품 갤러리
               </h1>
-              <p className="mt-2 text-[15px] text-[#4B5260] leading-relaxed max-w-2xl break-keep">
+              <p className="mt-2 text-[14px] sm:text-[15px] text-[#4B5260] leading-relaxed max-w-2xl break-keep">
                 매장에서 직접 세척과 작동 검수를 마친 실매물입니다. 제품명이나 모델명으로 검색하실 수 있으며, 온라인에 아직 등록되지 않은 재고는 전화나 카톡으로 문의해 주세요.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               {!isLoading && (
-                <span className="px-3 py-1.5 rounded-sm bg-[#0E1A2B] text-white text-[12.5px] font-bold">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#0E1A2B] text-white text-[12px] sm:text-[12.5px] font-bold tabular-nums">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF8A50]" />
                   현재 구매 가능 {sellingCount}건
                 </span>
               )}
-              <span className="px-3 py-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] text-[#4B5260] text-[12.5px] font-semibold">
-                실매물 검수 완료
+              <span className="px-2.5 sm:px-3 py-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] text-[#4B5260] text-[12px] sm:text-[12.5px] font-semibold">
+                ✓ 분해·고압세척 검수
               </span>
-              <span className="px-3 py-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] text-[#4B5260] text-[12.5px] font-semibold">
-                세금계산서 발행
+              <span className="px-2.5 sm:px-3 py-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] text-[#4B5260] text-[12px] sm:text-[12.5px] font-semibold">
+                ✓ 세금계산서 발행
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이에 맞춘 top-[76px] sm:top-[84px]) */}
-      <div className="sticky top-[76px] sm:top-[84px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E4E0D8] shadow-2xs">
-        <div className="hb-container py-2 sm:py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
+      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[64px] sm:h-[74px]에 정확히 밀착) */}
+      <div className="sticky top-[64px] sm:top-[74px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E4E0D8] shadow-2xs">
+        <div className="hb-container py-2 sm:py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
           {/* 카테고리 탭 */}
           <div
             className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
@@ -1663,16 +1670,16 @@ export default function GalleryPage() {
                     setActiveCategory(cat);
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  className={`px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded text-[12.5px] sm:text-[13.5px] font-semibold whitespace-nowrap transition-colors border shrink-0 ${
+                  className={`px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded text-[12px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
                     active
-                      ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                      : "bg-white text-[#4B5260] border-[#DDD9D1] hover:bg-[#F6F5F2]"
+                      ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
+                      : "bg-white text-[#4B5260] border-[#DDD9D1] hover:border-[#0E1A2B]/40 hover:bg-[#F6F5F2]"
                   }`}
                 >
                   {cat}
                   <span
-                    className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] ${
-                      active ? "text-white/70" : "text-[#8A8478]"
+                    className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] tabular-nums ${
+                      active ? "text-[#FF8A50]" : "text-[#8A8478]"
                     }`}
                   >
                     {categoryCounts[cat] || 0}
@@ -1685,7 +1692,7 @@ export default function GalleryPage() {
           {/* 검색창 + 판매 상태 필터 + 정렬 (모바일 1줄 인라인 슬림 압축 / 데스크톱 sm 이상 기존 동일) */}
           <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
             <div className="relative flex-1 min-w-0 sm:w-64">
-              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#8A8478]">
+              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#8A8478] pointer-events-none">
                 <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </span>
               <input
@@ -1697,8 +1704,21 @@ export default function GalleryPage() {
                 }}
                 placeholder="제품명·모델명 검색"
                 aria-label="제품명 또는 모델명 검색"
-                className="w-full h-8 sm:h-10 pl-8 sm:pl-9 pr-2.5 sm:pr-3 rounded border border-[#DDD9D1] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+                className="w-full h-8 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded border border-[#DDD9D1] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
               />
+              {search.trim() !== "" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
+                    setVisibleLimit(PAGE_STEP);
+                  }}
+                  aria-label="검색어 지우기"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                >
+                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             <select
@@ -1732,22 +1752,32 @@ export default function GalleryPage() {
       </div>
 
       {/* 메인 상품 그리드 */}
-      <main className="hb-container py-8 sm:py-10 flex-1">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
-          <div className="flex items-center gap-3">
-            <p className="text-[13.5px] text-[#6B7280]">
+      <main className="hb-container py-6 sm:py-10 flex-1">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <p className="text-[13.5px] text-[#4B5260]">
               {isLoading ? (
                 "상품 목록을 불러오는 중..."
               ) : (
                 <>
-                  검색 결과{" "}
-                  <strong className="text-[#0E1A2B]">
+                  조회 매물{" "}
+                  <strong className="text-[#0E1A2B] font-extrabold tabular-nums">
                     {filteredProducts.length}
                   </strong>
                   건
                 </>
               )}
             </p>
+            {activeCategory !== "전체" && (
+              <span className="inline-flex items-center gap-1 rounded-sm bg-[#0E1A2B]/8 px-2 py-0.5 text-[11.5px] font-bold text-[#0E1A2B]">
+                {activeCategory}
+              </span>
+            )}
+            {search.trim() !== "" && (
+              <span className="inline-flex items-center gap-1 rounded-sm bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                검색: &ldquo;{search.trim()}&rdquo;
+              </span>
+            )}
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
@@ -1796,7 +1826,7 @@ export default function GalleryPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={`sk-${idx}`}
@@ -1855,7 +1885,7 @@ export default function GalleryPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
               {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -1885,6 +1915,37 @@ export default function GalleryPage() {
             )}
           </>
         )}
+
+        {/* 미등록 매장 재고 및 맞춤 사양 문의 배너 */}
+        <div className="mt-12 rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs">
+          <div>
+            <span className="hb-eyebrow">Unlisted Stock Inquiry</span>
+            <h2 className="mt-1 text-[16px] sm:text-[18px] font-bold text-[#0E1A2B]">
+              찾으시는 모델이나 용량·수량이 목록에 없으신가요?
+            </h2>
+            <p className="mt-1 text-[13px] sm:text-[13.5px] text-[#4B5260] leading-relaxed break-keep">
+              중촌동 매장에는 세척·점검을 마치고 아직 홈페이지에 업로드되지 않은 가전과 업소용 주방설비가 상시 대기 중입니다.
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <a
+              href={telHref(STORE.tel)}
+              className="hb-btn-primary h-10 px-4 text-[13px]"
+            >
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
+              <span>전화 재고 문의 ({STORE.tel})</span>
+            </a>
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hb-btn-kakao h-10 px-4 text-[13px]"
+            >
+              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+              <span>카톡 실물사진 요청</span>
+            </a>
+          </div>
+        </div>
       </main>
 
       {/* 관리자 일괄 선택 플로팅 작업 바 */}

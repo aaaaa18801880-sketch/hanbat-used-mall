@@ -580,23 +580,54 @@ export default function InquiryBoardPage() {
         </button>
       </SiteHeader>
 
+      {/* 상단 게시판 헤더 */}
       <section className="bg-white border-b border-[#E4E0D8]">
-        <div className="max-w-[1000px] mx-auto px-5 py-12 sm:py-16 text-center">
-          <p className="hb-eyebrow mb-3">Q&amp;A &amp; Buyback Board</p>
-          <h1 className="text-[28px] sm:text-[36px] font-bold text-[#0E1A2B] mb-4 tracking-[-0.02em]">
-            고객 문의 · 매입 신청 게시판
-          </h1>
-          <p className="text-[15px] text-[#4B5260] leading-relaxed max-w-xl mx-auto break-keep">
-            남겨주신 구매 상담과 매입 신청은 개인정보 보호를 위해 설정하신 비밀번호로 안전하게 열람할 수 있습니다.
-          </p>
+        <div className="hb-container py-9 sm:py-13">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+            <div>
+              <div className="inline-flex items-center gap-2 mb-2">
+                <span className="hb-eyebrow">Q&amp;A &amp; Buyback Board</span>
+                <span className="text-[11px] text-[#CFCAC0]">|</span>
+                <span className="text-[12px] font-semibold text-[#6B7280]">
+                  비밀번호 보호 안전 열람
+                </span>
+              </div>
+              <h1 className="text-[26px] sm:text-[34px] font-extrabold text-[#0E1A2B] tracking-[-0.025em] leading-[1.2]">
+                고객 문의 · 매입 신청 게시판
+              </h1>
+              <p className="mt-2 text-[14px] sm:text-[15px] text-[#4B5260] leading-relaxed max-w-2xl break-keep">
+                남겨주신 구매 상담과 매입 신청은 개인정보 보호를 위해 설정하신 비밀번호로 안전하게 열람할 수 있습니다. 빠른 상담은 대표전화로 연락해 주세요.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleOpenWrite}
+                className="hb-btn-accent h-11 px-5 text-[13.5px]"
+              >
+                <Icon d={ICON.plus} className="w-4 h-4" />
+                <span>문의 · 매입 신청 작성</span>
+              </button>
+              <a
+                href={telHref(STORE.tel)}
+                className="hb-btn-outline h-11 px-4 text-[13px] tabular-nums"
+              >
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <span>전화 {STORE.tel}</span>
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 
-      <main className="max-w-[1100px] mx-auto px-4 sm:px-6 py-10 sm:py-14 flex-1 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <main className="hb-container py-7 sm:py-12 flex-1 w-full">
+        {/* 필터 탭 및 제목 검색 바 */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-5">
           <div
-            className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
+            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0"
             role="tablist"
+            aria-label="문의 구분 필터"
           >
             {TABS.map((tab) => {
               const active = activeTab === tab;
@@ -610,16 +641,16 @@ export default function InquiryBoardPage() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`px-3.5 py-2 rounded-md text-[13px] font-semibold whitespace-nowrap border transition-colors ${
+                  className={`px-3 sm:px-3.5 py-2 rounded text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap border transition-colors shrink-0 ${
                     active
-                      ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                      : "bg-white text-[#4B5260] border-[#DDD9D1] hover:bg-[#F6F5F2]"
+                      ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
+                      : "bg-white text-[#4B5260] border-[#DDD9D1] hover:border-[#0E1A2B]/40 hover:bg-[#F6F5F2]"
                   }`}
                 >
                   {tab}
                   <span
-                    className={`ml-1.5 text-[11.5px] ${
-                      active ? "text-white/70" : "text-[#8A8478]"
+                    className={`ml-1.5 text-[11px] sm:text-[11.5px] tabular-nums ${
+                      active ? "text-[#FF8A50]" : "text-[#8A8478]"
                     }`}
                   >
                     {tabCounts[tab] || 0}
@@ -629,8 +660,8 @@ export default function InquiryBoardPage() {
             })}
           </div>
 
-          <div className="flex items-center gap-2.5 shrink-0">
-            <div className="relative">
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="relative flex-1 md:flex-none">
               <input
                 type="search"
                 value={keyword}
@@ -638,37 +669,50 @@ export default function InquiryBoardPage() {
                   setKeyword(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder="제목 검색"
+                placeholder="제목·품목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-[190px] sm:w-[230px] rounded-md border border-[#DDD9D1] bg-white px-3 pl-9 text-[13.5px] focus:border-[#0E1A2B] focus:outline-none"
+                className="h-10 w-full md:w-[230px] rounded border border-[#DDD9D1] bg-white px-3 pl-9 pr-8 text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8478]">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8478] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
               </span>
+              {keyword.trim() !== "" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeyword("");
+                    setCurrentPage(1);
+                  }}
+                  aria-label="검색어 지우기"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B]"
+                >
+                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                </button>
+              )}
             </div>
 
             <button
               type="button"
               onClick={handleOpenWrite}
-              className="hb-btn-primary h-10 px-4 text-[13.5px] whitespace-nowrap"
+              className="hb-btn-primary h-10 px-4 text-[13px] whitespace-nowrap"
             >
               <Icon d={ICON.plus} className="w-4 h-4" />
-              <span>문의·매입 접수</span>
+              <span>글쓰기</span>
             </button>
           </div>
         </div>
 
         {/* 데스크톱 테이블 */}
-        <div className="hidden md:block overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-2xs">
-          <table className="w-full text-[14px] text-center text-[#1F2530]">
-            <thead className="bg-[#FAF9F7] text-[#8A8478] text-[13px] font-semibold border-b border-[#E4E0D8]">
+        <div className="hidden md:block overflow-hidden rounded-md border border-[#E4E0D8] bg-white shadow-card">
+          <table className="w-full text-[13.5px] text-center text-[#1F2530]">
+            <thead className="bg-[#FAF9F7] text-[#6B7280] text-[12.5px] font-bold border-b border-[#E4E0D8]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
                 <th className="w-32">구분</th>
                 <th className="text-left px-5">제목</th>
                 <th className="w-28">진행상태</th>
-                <th className="w-24">작성자</th>
-                <th className="w-24">등록일</th>
+                <th className="w-28">작성자</th>
+                <th className="w-28">등록일</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#EEEBE5]">
@@ -695,7 +739,7 @@ export default function InquiryBoardPage() {
                           </span>
                         </td>
                         <td>
-                          <span className="inline-block px-2.5 py-1 rounded text-[12px] font-semibold text-[#B5431A]">
+                          <span className="inline-block px-2.5 py-1 rounded text-[12px] font-bold text-[#B5431A]">
                             공지사항
                           </span>
                         </td>
@@ -717,10 +761,10 @@ export default function InquiryBoardPage() {
                         <td>
                           <StatusBadge status={null} notice />
                         </td>
-                        <td className="font-semibold text-[#D9531E]">
+                        <td className="font-bold text-[#D9531E]">
                           {notice.name}
                         </td>
-                        <td className="text-[#8A8478]">
+                        <td className="text-[#8A8478] tabular-nums">
                           {formatDate(notice.created_at)}
                         </td>
                       </tr>
@@ -731,13 +775,13 @@ export default function InquiryBoardPage() {
                       onClick={() => handleItemClick(item)}
                       className="hover:bg-[#FAF9F7] transition-colors h-14 cursor-pointer"
                     >
-                      <td className="text-[#8A8478]">
+                      <td className="text-[#8A8478] tabular-nums">
                         {filteredList.length -
                           ((safePage - 1) * ITEMS_PER_PAGE + index)}
                       </td>
                       <td>
                         <span
-                          className={`inline-block px-2.5 py-1 rounded text-[12px] font-semibold whitespace-nowrap ${typeStyle(
+                          className={`inline-block px-2.5 py-1 rounded text-[11.5px] font-bold whitespace-nowrap ${typeStyle(
                             item.inquiry_type
                           )}`}
                         >
@@ -745,7 +789,7 @@ export default function InquiryBoardPage() {
                         </span>
                       </td>
                       <td className="px-5 text-left">
-                        <div className="flex items-center gap-2 font-medium text-[#1F2530]">
+                        <div className="flex items-center gap-2 font-semibold text-[#0E1A2B]">
                           {!isAdmin && (
                             <Icon
                               d={ICON.lock}
@@ -756,7 +800,7 @@ export default function InquiryBoardPage() {
                           {hasImages(item) && (
                             <Icon
                               d={ICON.image}
-                              className="w-4 h-4 text-neutral-400 shrink-0"
+                              className="w-4 h-4 text-[#8A8478] shrink-0"
                             />
                           )}
                         </div>
@@ -764,10 +808,10 @@ export default function InquiryBoardPage() {
                       <td>
                         <StatusBadge status={item.status} />
                       </td>
-                      <td className="text-[#4B5260]">
+                      <td className="text-[#4B5260] font-medium">
                         {item.masked_name || maskName(item.name)}
                       </td>
-                      <td className="text-[#8A8478] text-[13px]">
+                      <td className="text-[#8A8478] text-[12.5px] tabular-nums">
                         {formatDate(item.created_at)}
                       </td>
                     </tr>
@@ -779,7 +823,7 @@ export default function InquiryBoardPage() {
         </div>
 
         {/* 모바일 리스트 (누락되었던 공지사항 noticeList 복구 완료) */}
-        <ul className="md:hidden space-y-3">
+        <ul className="md:hidden space-y-2.5">
           {isLoading ? (
             Array.from({ length: 4 }).map((_, i) => (
               <li
@@ -795,13 +839,13 @@ export default function InquiryBoardPage() {
                     <button
                       type="button"
                       onClick={() => handleItemClick(notice)}
-                      className="w-full text-left bg-[#FEF5F2] border border-[#FDECE4] rounded-md p-4 hover:bg-[#FDECE4] transition-colors"
+                      className="w-full text-left bg-[#FEF5F2] border border-[#FADCD0] rounded-md p-4 hover:bg-[#FDECE4] transition-colors"
                     >
-                      <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center justify-between mb-1.5">
                         <span className="bg-[#D9531E] text-white text-[11px] font-bold px-2 py-0.5 rounded-sm">
                           공지사항
                         </span>
-                        <span className="text-[12px] text-[#8A8478]">
+                        <span className="text-[11.5px] text-[#8A8478] tabular-nums">
                           {formatDate(notice.created_at)}
                         </span>
                       </div>
@@ -820,11 +864,11 @@ export default function InquiryBoardPage() {
                   <button
                     type="button"
                     onClick={() => handleItemClick(item)}
-                    className="w-full text-left bg-white border border-[#E4E0D8] rounded-md p-4 hover:border-[#0E1A2B] transition-colors"
+                    className="w-full text-left bg-white border border-[#E4E0D8] rounded-md p-4 hover:border-[#0E1A2B] transition-colors shadow-2xs"
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-1.5">
                       <span
-                        className={`px-2 py-0.5 rounded text-[11px] font-semibold ${typeStyle(
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold ${typeStyle(
                           item.inquiry_type
                         )}`}
                       >
@@ -832,24 +876,28 @@ export default function InquiryBoardPage() {
                       </span>
                       <StatusBadge status={item.status} />
                     </div>
-                    <p className="font-semibold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
+                    <p className="font-bold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
                       {!isAdmin && (
                         <Icon
                           d={ICON.lock}
-                          className="w-3.5 h-3.5 text-neutral-400 shrink-0"
+                          className="w-3.5 h-3.5 text-[#8A8478] shrink-0"
                         />
                       )}
                       <span>{rowTitle(item)}</span>
                       {hasImages(item) && (
                         <Icon
                           d={ICON.image}
-                          className="w-4 h-4 text-neutral-400 shrink-0"
+                          className="w-4 h-4 text-[#8A8478] shrink-0"
                         />
                       )}
                     </p>
-                    <div className="mt-2.5 flex items-center justify-between text-[12px] text-[#8A8478]">
-                      <span>{item.masked_name || maskName(item.name)}</span>
-                      <span>{formatDate(item.created_at)}</span>
+                    <div className="mt-2.5 pt-2 border-t border-[#F2EFE9] flex items-center justify-between text-[12px] text-[#8A8478]">
+                      <span className="font-medium text-[#4B5260]">
+                        {item.masked_name || maskName(item.name)}
+                      </span>
+                      <span className="tabular-nums">
+                        {formatDate(item.created_at)}
+                      </span>
                     </div>
                   </button>
                 </li>
@@ -879,14 +927,21 @@ export default function InquiryBoardPage() {
           currentItems.length === 0 &&
           (!showNotices || noticeList.length === 0) && (
             <div className="mt-6 py-16 text-center bg-white rounded-md border border-[#E4E0D8] text-[14px]">
-              <p className="text-[#4B5260] font-bold mb-1">
+              <p className="text-[#0E1A2B] font-bold mb-1 text-[16px]">
                 {keyword.trim()
                   ? "검색 조건에 맞는 문의글이 없습니다."
                   : "아직 등록된 문의 내역이 없습니다."}
               </p>
-              <p className="text-[#8A8478]">
+              <p className="text-[#6B7280]">
                 궁금하신 점이나 매입 견적 문의를 남겨주시면 빠르게 안내해 드립니다.
               </p>
+              <button
+                type="button"
+                onClick={handleOpenWrite}
+                className="hb-btn-primary mt-5 h-10 px-5 text-[13.5px]"
+              >
+                첫 문의 · 매입 신청 남기기
+              </button>
             </div>
           )}
 

@@ -1,8 +1,8 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import {
   STORE,
@@ -45,6 +45,7 @@ export const ICON = {
   menu: "M4 7h16M4 12h16M4 17h16",
   bag: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0",
   copy: "M9 9h11v11H9zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
+  shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
 } as const;
 
 export function Icon({
@@ -83,7 +84,10 @@ export function SafeImg({
   className = "",
   eager = false,
   ...props
-}: Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "alt" | "className"> & {
+}: Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  "src" | "alt" | "className"
+> & {
   src?: string | null;
   alt?: string;
   className?: string;
@@ -99,9 +103,10 @@ export function SafeImg({
       <div
         role="img"
         aria-label={alt || "상품 이미지 준비 중"}
-        className={`flex items-center justify-center bg-[#EFECE6] text-[#6B7280] text-[13px] font-medium select-none ${className}`}
+        className={`flex flex-col items-center justify-center gap-1 bg-[#EFECE6] text-[#6B7280] text-[12.5px] font-medium select-none ${className}`}
       >
-        이미지 준비 중
+        <Icon d={ICON.image} className="w-5 h-5 text-[#8A8478]/70" />
+        <span>이미지 준비 중</span>
       </div>
     );
   }
@@ -139,15 +144,23 @@ export function SectionHeading({
 }) {
   return (
     <div className={className}>
-      <p
-        className={`text-[11.5px] font-bold uppercase tracking-[0.18em] ${
-          dark ? "text-[#FF8A50]" : "text-[#D9531E]"
-        }`}
-      >
-        {eyebrow}
-      </p>
+      <div className="inline-flex items-center gap-2">
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${
+            dark ? "bg-[#FF8A50]" : "bg-[#D9531E]"
+          }`}
+          aria-hidden="true"
+        />
+        <p
+          className={`text-[11px] sm:text-[11.5px] font-bold uppercase tracking-[0.18em] ${
+            dark ? "text-[#FF8A50]" : "text-[#D9531E]"
+          }`}
+        >
+          {eyebrow}
+        </p>
+      </div>
       <h2
-        className={`mt-2 text-[23px] font-bold leading-[1.28] tracking-[-0.025em] break-keep sm:text-[29px] lg:text-[33px] ${
+        className={`mt-2 text-[22px] font-bold leading-[1.26] tracking-[-0.024em] break-keep sm:text-[28px] lg:text-[32px] ${
           dark ? "text-white" : "text-[#0E1A2B]"
         }`}
       >
@@ -155,7 +168,7 @@ export function SectionHeading({
       </h2>
       {desc && (
         <p
-          className={`mt-3 max-w-2xl text-[14.5px] leading-[1.7] break-keep sm:text-[15.5px] ${
+          className={`mt-2.5 max-w-2xl text-[14px] leading-[1.68] break-keep sm:text-[15px] ${
             dark ? "text-white/75" : "text-[#4B5260]"
           }`}
         >
@@ -280,18 +293,28 @@ export function Modal({
 }
 
 /* ════════════════════════════════════════════════════════════
-   5. 상단 공통 헤더 (SiteHeader - 견적함 배지 연동)
+   5. 상단 공통 헤더 (SiteHeader - 견적함 배지 · 현재 경로 하이라이트 연동)
    ════════════════════════════════════════════════════════════ */
 const HEADER_NAV = [
-  { label: "판매 제품 갤러리", href: "/gallery" },
-  { label: "가정용·업소용 품목", href: "/#category-section" },
-  { label: "매입 안내", href: "/#sell-section" },
-  { label: "배송·설치 사례", href: "/#reviews-section" },
-  { label: "오시는 길", href: "/#location-section" },
-  { label: "문의게시판", href: "/inquiry" },
+  { label: "판매 제품 갤러리", href: "/gallery", matchPrefix: "/gallery" },
+  { label: "가정용·업소용 품목", href: "/#category-section", matchPrefix: "" },
+  { label: "매입 안내·신청", href: "/purchase", matchPrefix: "/purchase" },
+  { label: "배송·설치 사례", href: "/#reviews-section", matchPrefix: "" },
+  { label: "오시는 길", href: "/#location-section", matchPrefix: "" },
+  { label: "문의게시판", href: "/inquiry", matchPrefix: "/inquiry" },
+] as const;
+
+const DRAWER_QUICK_CATEGORIES = [
+  { label: "에어컨·냉난방기", href: "/gallery?category=에어컨/냉난방기" },
+  { label: "냉장고·김치냉장고", href: "/gallery?category=냉장고" },
+  { label: "세탁기·건조기", href: "/gallery?category=세탁기/건조기" },
+  { label: "업소용 냉장·주방", href: "/gallery?category=업소용기기" },
+  { label: "주방·소형가전", href: "/gallery?category=주방/소형가전" },
+  { label: "실시간 전체 매물", href: "/gallery" },
 ] as const;
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [basketCount, setBasketCount] = useState(0);
 
@@ -329,8 +352,38 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         본문 바로가기
       </a>
 
+      {/* 데스크톱 상단 쇼룸 신뢰 바 (스크롤 시 자연스럽게 올라가도록 비고정 처리) */}
+      <div className="hidden lg:block bg-[#0E1A2B] text-white/80 border-b border-white/10 text-[12px]">
+        <div className="mx-auto flex h-8 max-w-[1280px] items-center justify-between px-8">
+          <div className="flex items-center gap-4">
+            <span className="inline-flex items-center gap-1.5 font-semibold text-white">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF8A50]" />
+              SINCE {STORE.since} {STORE.name} 직영 쇼룸
+            </span>
+            <span className="text-white/25" aria-hidden="true">
+              |
+            </span>
+            <span>전 품목 분해·고압세척 및 작동 검수 완료</span>
+            <span className="text-white/25" aria-hidden="true">
+              |
+            </span>
+            <span>에어컨 8개월 · 일반가전 4개월 무상 A/S 보증</span>
+          </div>
+          <div className="flex items-center gap-4 tabular-nums">
+            <span>
+              매장위치: <strong className="text-white">{STORE.address}</strong>{" "}
+              ({STORE.addressNote})
+            </span>
+            <span className="text-white/25" aria-hidden="true">
+              |
+            </span>
+            <span>영업시간: {STORE.hours}</span>
+          </div>
+        </div>
+      </div>
+
       <header className="sticky top-0 z-50 w-full border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-[68px] sm:h-[78px] w-full max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8 gap-3">
+        <div className="mx-auto flex h-[64px] sm:h-[74px] w-full max-w-[1280px] items-center justify-between px-3.5 sm:px-6 lg:px-8 gap-2 sm:gap-4">
           <div className="flex items-center shrink-0">
             <Link
               href="/"
@@ -341,39 +394,48 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <img
                 src="/logo.png"
                 alt="한밭중고전자"
-                width={188}
-                height={54}
+                width={184}
+                height={52}
                 fetchPriority="high"
-                className="h-[44px] sm:h-[52px] w-auto object-contain transition-opacity hover:opacity-90"
+                className="h-[40px] xs:h-[44px] sm:h-[50px] w-auto object-contain transition-opacity hover:opacity-90"
               />
             </Link>
           </div>
 
           <nav
-            className="hidden lg:flex items-center justify-center gap-5 xl:gap-7"
+            className="hidden lg:flex items-center justify-center gap-1 xl:gap-2"
             aria-label="주요 메뉴"
           >
-            {HEADER_NAV.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="py-1.5 text-[14.5px] font-bold text-[#1F2530] hover:text-[#D9531E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] rounded transition-colors whitespace-nowrap"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {HEADER_NAV.map((item) => {
+              const isActive =
+                item.matchPrefix && pathname?.startsWith(item.matchPrefix);
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`relative px-2.5 xl:px-3 py-2 text-[14px] xl:text-[14.5px] font-bold rounded-md transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] ${
+                    isActive
+                      ? "text-[#D9531E] bg-[#FFF5F0]"
+                      : "text-[#1F2530] hover:text-[#D9531E] hover:bg-[#FAF9F7]"
+                  }`}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          <div className="flex items-center justify-end gap-2 shrink-0">
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0">
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2.5 sm:px-3 h-10 text-[12.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2.5 sm:px-3 h-9 sm:h-10 text-[12px] sm:text-[12.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
                 title="담아둔 관심 매물 일괄 견적 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-[11px] font-bold text-white">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-[11px] font-bold text-white tabular-nums">
                   {basketCount}
                 </span>
               </Link>
@@ -384,7 +446,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap tabular-nums"
               aria-label={`대표 전화 ${STORE.tel} 연결`}
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
@@ -398,7 +460,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_kakao_consult", { location: "site_header" })
               }
-              className="hidden sm:inline-flex hb-btn-kakao h-10 px-3.5 text-[13px] whitespace-nowrap"
+              className="hidden sm:inline-flex hb-btn-kakao h-9 sm:h-10 px-3 sm:px-3.5 text-[12.5px] sm:text-[13px] whitespace-nowrap"
               aria-label="카카오톡 채널 상담 열기"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
@@ -410,11 +472,11 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-md border border-[#E4E0D8] text-[#0E1A2B] lg:hidden hover:bg-[#F6F5F2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
+              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-md border border-[#E4E0D8] bg-[#FAF9F7] text-[#0E1A2B] lg:hidden hover:bg-[#F2F0EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >
-              <Icon d={ICON.menu} className="w-5 h-5" strokeWidth={2.2} />
+              <Icon d={ICON.menu} className="w-5 h-5" strokeWidth={2.1} />
             </button>
           </div>
         </div>
@@ -425,7 +487,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         className="sr-only focus:outline-none"
       />
 
-      {/* 모바일 내비게이션 드로어 */}
+      {/* 모바일·태블릿 내비게이션 드로어 */}
       {menuOpen && (
         <div
           className="fixed inset-0 z-[80] flex flex-col bg-white lg:hidden"
@@ -433,19 +495,25 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           aria-modal="true"
           aria-label="모바일 전체 메뉴"
         >
-          <div className="flex h-[68px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logo.png"
-              alt="한밭중고전자"
-              width={152}
-              height={44}
-              className="h-[44px] w-auto object-contain"
-            />
+          <div className="flex h-[64px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6 bg-white">
+            <Link
+              href="/"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.png"
+                alt="한밭중고전자"
+                width={152}
+                height={44}
+                className="h-[40px] w-auto object-contain"
+              />
+            </Link>
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
-              className="grid h-10 w-10 place-items-center rounded-md border border-[#E4E0D8] text-[#0E1A2B]"
+              className="grid h-9 w-9 place-items-center rounded-md border border-[#E4E0D8] bg-[#FAF9F7] text-[#0E1A2B]"
               aria-label="메뉴 닫기"
             >
               <Icon d={ICON.close} className="w-5 h-5" />
@@ -453,35 +521,85 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </div>
 
           <nav
-            className="flex-1 overflow-y-auto px-5 py-4"
+            className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-6"
             aria-label="모바일 메뉴 목록"
           >
-            <ul className="divide-y divide-[#EEEBE5]">
-              {HEADER_NAV.map((item) => (
-                <li key={item.label}>
-                  <a
-                    href={item.href}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-between py-4 text-[16px] font-bold text-[#0E1A2B] hover:text-[#D9531E]"
-                  >
-                    <span>{item.label}</span>
-                    <Icon d={ICON.right} className="w-4 h-4 text-[#8A8478]" />
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-6 rounded-md border border-[#E4E0D8] bg-[#F6F5F2] p-4 text-[13px] text-[#4B5260] space-y-1.5">
-              <p className="font-bold text-[#0E1A2B]">
-                {STORE.name} 오프라인 매장
+            {/* 주요 메뉴 리스트 */}
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8A8478] mb-2">
+                주요 서비스 메뉴
               </p>
+              <ul className="divide-y divide-[#EEEBE5] border-y border-[#EEEBE5]">
+                {HEADER_NAV.map((item) => {
+                  const isActive =
+                    item.matchPrefix && pathname?.startsWith(item.matchPrefix);
+                  return (
+                    <li key={item.label}>
+                      <Link
+                        href={item.href}
+                        onClick={() => setMenuOpen(false)}
+                        className={`flex items-center justify-between py-3.5 text-[15.5px] font-bold transition-colors ${
+                          isActive
+                            ? "text-[#D9531E]"
+                            : "text-[#0E1A2B] hover:text-[#D9531E]"
+                        }`}
+                      >
+                        <span>{item.label}</span>
+                        <Icon
+                          d={ICON.right}
+                          className="w-4 h-4 text-[#8A8478]"
+                        />
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* 품목별 빠른 쇼룸 바로가기 */}
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#8A8478] mb-2.5">
+                품목별 매물 바로가기
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {DRAWER_QUICK_CATEGORIES.map((cat) => (
+                  <Link
+                    key={cat.label}
+                    href={cat.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center justify-between rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-3 py-2.5 text-[13px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                  >
+                    <span className="truncate">{cat.label}</span>
+                    <Icon
+                      d={ICON.right}
+                      className="w-3.5 h-3.5 text-[#D9531E] shrink-0"
+                    />
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* 매장 핵심 정보 요약 */}
+            <div className="rounded-md border border-[#E4E0D8] bg-[#F6F5F2] p-4 text-[13px] text-[#4B5260] space-y-1.5">
+              <div className="flex items-center justify-between">
+                <p className="font-bold text-[#0E1A2B]">
+                  {STORE.name} 오프라인 쇼룸
+                </p>
+                <span className="rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[10.5px] font-bold text-white">
+                  SINCE {STORE.since}
+                </span>
+              </div>
               <p>
                 주소: {STORE.address} ({STORE.addressNote})
               </p>
               <p>
                 영업시간: {STORE.hours} ({STORE.closed})
               </p>
-              <p>대표전화: {STORE.tel}</p>
+              <p className="tabular-nums">
+                대표전화: <strong className="text-[#0E1A2B]">{STORE.tel}</strong>{" "}
+                · 직통:{" "}
+                <strong className="text-[#0E1A2B]">{STORE.mobile}</strong>
+              </p>
             </div>
           </nav>
 
@@ -493,7 +611,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               }
               className="hb-btn-primary h-12 text-[14px]"
             >
-              <Icon d={ICON.phone} className="w-4 h-4" /> 전화 상담
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" /> 전화
+              상담
             </a>
             <a
               href={STORE.kakaoChat}
@@ -536,19 +655,21 @@ export function QuoteBasketFloatingBar() {
   return (
     <aside
       aria-label="관심 매물 견적함"
-      className="fixed bottom-[64px] lg:bottom-5 right-3 sm:right-6 z-40 w-[calc(100vw-24px)] max-w-[420px] rounded-md border border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xl"
+      className="fixed bottom-[66px] lg:bottom-6 right-2.5 sm:right-6 z-40 w-[calc(100vw-20px)] max-w-[400px] rounded-md border border-white/15 bg-[#0E1A2B] text-white shadow-floating"
     >
       {expanded && (
-        <div className="border-b border-white/15 p-3.5 max-h-[240px] overflow-y-auto space-y-2 bg-[#132238]">
-          <div className="flex items-center justify-between text-[12px] text-white/70 pb-1">
-            <span>담아둔 관심 매물 ({items.length}건)</span>
+        <div className="border-b border-white/15 p-3.5 max-h-[240px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-md">
+          <div className="flex items-center justify-between text-[12px] text-white/75 pb-1">
+            <span className="font-semibold">
+              담아둔 관심 매물 ({items.length}건)
+            </span>
             <button
               type="button"
               onClick={() => {
                 clearQuoteBasket();
                 toast.success("견적함을 비웠습니다.");
               }}
-              className="text-[11.5px] text-[#FF8A50] hover:underline"
+              className="text-[11.5px] font-semibold text-[#FF8A50] hover:underline"
             >
               전체 비우기
             </button>
@@ -564,7 +685,7 @@ export function QuoteBasketFloatingBar() {
               >
                 {item.title}
               </Link>
-              <span className="shrink-0 text-[11.5px] text-white/75">
+              <span className="shrink-0 text-[11.5px] text-white/75 tabular-nums">
                 {formatProductPrice(item.price, item.category)}
               </span>
               <button
@@ -580,26 +701,26 @@ export function QuoteBasketFloatingBar() {
         </div>
       )}
 
-      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+      <div className="flex items-center justify-between gap-2 px-3 sm:px-3.5 py-2.5">
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="flex items-center gap-2 text-left text-[13px] font-bold text-white hover:text-[#FF8A50]"
+          className="flex min-w-0 items-center gap-2 text-left text-[12.5px] sm:text-[13px] font-bold text-white hover:text-[#FF8A50]"
         >
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
+          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white tabular-nums">
             {items.length}
           </span>
           <span className="truncate">
             관심 매물 견적함{" "}
-            <span className="text-[11.5px] font-normal text-white/70">
-              ({expanded ? "목록 접기" : "목록 보기"})
+            <span className="text-[11px] font-normal text-white/70">
+              ({expanded ? "접기" : "열기"})
             </span>
           </span>
         </button>
 
         <Link
           href="/inquiry?write=1&bundle=1"
-          className="hb-btn-accent h-9 px-3.5 text-[12.5px] shrink-0 whitespace-nowrap"
+          className="hb-btn-accent h-8 sm:h-9 px-3 text-[12px] sm:text-[12.5px] shrink-0 whitespace-nowrap"
         >
           <span>일괄 견적 문의</span>
           <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
@@ -622,60 +743,98 @@ export function SiteFooter({
   return (
     <>
       <QuoteBasketFloatingBar />
-      <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#0E1A2B]">
-        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+      <footer className="bg-[#0B1522] text-white/75 mt-auto border-t border-[#1C2D47]">
+        <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
-            <div className="lg:col-span-5">
+            {/* 브랜드 및 직통 고객센터 영역 */}
+            <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center gap-2.5">
-                <span className="text-[19px] font-bold text-white tracking-tight">
+                <span className="text-[20px] font-bold text-white tracking-tight">
                   {STORE.name}
                 </span>
-                <span className="rounded-sm bg-white/10 px-2 py-0.5 text-[11px] font-semibold text-white/85">
+                <span className="rounded-sm bg-[#D9531E]/20 border border-[#D9531E]/40 px-2 py-0.5 text-[11px] font-bold text-[#FF8A50]">
                   SINCE {STORE.since}
                 </span>
               </div>
-              <p className="mt-3 max-w-md text-[13.5px] leading-[1.7] text-white/70 break-keep">
-                가정용 중고가전(냉장고·세탁기·에어컨·냉난방기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 검수·세척하여 판매하고 합리적인 기준으로 매입합니다.
+              <p className="max-w-md text-[13.5px] leading-[1.7] text-white/70 break-keep">
+                가정용 중고가전(에어컨·냉난방기·냉장고·세탁기·건조기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 분해·고압세척 및 작동 검수를 마친 정직한 상품만 출고합니다.
               </p>
-              <div className="mt-5 flex flex-wrap items-center gap-2.5">
+
+              <div className="rounded-md border border-white/10 bg-white/[0.03] p-4 max-w-md">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#FF8A50]">
+                  Customer &amp; Buyback Desk
+                </p>
+                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1 tabular-nums">
+                  <a
+                    href={telHref(STORE.tel)}
+                    onClick={() =>
+                      trackEvent("click_tel_consult", {
+                        location: "site_footer",
+                      })
+                    }
+                    className="text-[20px] font-bold text-white hover:text-[#FF8A50] transition-colors"
+                  >
+                    {STORE.tel}
+                  </a>
+                  <a
+                    href={telHref(STORE.mobile)}
+                    onClick={() =>
+                      trackEvent("click_tel_consult", {
+                        location: "site_footer_mobile",
+                      })
+                    }
+                    className="text-[14px] font-semibold text-white/80 hover:text-white transition-colors"
+                  >
+                    직통 {STORE.mobile}
+                  </a>
+                </div>
+                <p className="mt-1 text-[12px] text-white/60">
+                  영업시간 {STORE.hours} · {STORE.closed} · 세금계산서 즉시 발행
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
                 <a
                   href={telHref(STORE.tel)}
                   onClick={() =>
                     trackEvent("click_tel_consult", { location: "site_footer" })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/15 px-3.5 py-2 text-[13px] font-bold text-white transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-white/10 hover:bg-white/15 px-3.5 py-2 text-[13px] font-bold text-white transition-colors tabular-nums"
                 >
                   <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                  {STORE.tel}
+                  전화 상담 연결
                 </a>
                 <a
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
-                    trackEvent("click_kakao_consult", { location: "site_footer" })
+                    trackEvent("click_kakao_consult", {
+                      location: "site_footer",
+                    })
                   }
                   className="inline-flex items-center gap-1.5 rounded-md bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[13px] font-bold text-[#191600] transition-colors"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                  카카오톡 상담
+                  카카오톡 실시간 상담
                 </a>
               </div>
             </div>
 
+            {/* 내비게이션 링크 */}
             <nav
               className="grid grid-cols-2 gap-8 text-[13.5px] sm:grid-cols-3 lg:col-span-7"
               aria-label="푸터 메뉴"
             >
               <div>
                 <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
-                  취급 품목
+                  취급 품목 쇼룸
                 </p>
-                <ul className="mt-3.5 space-y-2 text-white/70">
+                <ul className="mt-3.5 space-y-2.5 text-white/70">
                   <li>
                     <Link
                       href="/gallery?category=에어컨/냉난방기"
-                      className="hover:text-white"
+                      className="hover:text-white transition-colors"
                     >
                       에어컨 · 냉난방기
                     </Link>
@@ -683,7 +842,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=냉장고"
-                      className="hover:text-white"
+                      className="hover:text-white transition-colors"
                     >
                       냉장고 · 김치냉장고
                     </Link>
@@ -691,7 +850,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=세탁기/건조기"
-                      className="hover:text-white"
+                      className="hover:text-white transition-colors"
                     >
                       세탁기 · 건조기
                     </Link>
@@ -699,9 +858,17 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=업소용기기"
-                      className="hover:text-white"
+                      className="hover:text-white transition-colors"
                     >
                       업소용 냉장 · 주방기기
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/gallery?category=주방/소형가전"
+                      className="hover:text-white transition-colors"
+                    >
+                      주방 · 생활 소형가전
                     </Link>
                   </li>
                 </ul>
@@ -709,26 +876,46 @@ export function SiteFooter({
 
               <div>
                 <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
-                  고객 지원
+                  고객 지원 · 매입
                 </p>
-                <ul className="mt-3.5 space-y-2 text-white/70">
+                <ul className="mt-3.5 space-y-2.5 text-white/70">
                   <li>
-                    <Link href="/purchase" className="hover:text-white">
-                      중고가전 매입 신청
+                    <Link
+                      href="/gallery"
+                      className="hover:text-white transition-colors"
+                    >
+                      실시간 판매 제품 갤러리
                     </Link>
                   </li>
                   <li>
-                    <Link href="/#reviews-section" className="hover:text-white">
-                      배송 · 설치 사례
+                    <Link
+                      href="/purchase"
+                      className="hover:text-white transition-colors"
+                    >
+                      중고가전 방문 매입 신청
                     </Link>
                   </li>
                   <li>
-                    <Link href="/inquiry" className="hover:text-white">
-                      문의게시판
+                    <Link
+                      href="/#reviews-section"
+                      className="hover:text-white transition-colors"
+                    >
+                      배송 · 설치 현장 사례
                     </Link>
                   </li>
                   <li>
-                    <Link href="/privacy" className="hover:text-white">
+                    <Link
+                      href="/inquiry"
+                      className="hover:text-white transition-colors"
+                    >
+                      고객 문의 · 매입 게시판
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/privacy"
+                      className="hover:text-white transition-colors"
+                    >
                       개인정보처리방침
                     </Link>
                   </li>
@@ -737,13 +924,16 @@ export function SiteFooter({
 
               <div className="col-span-2 sm:col-span-1">
                 <p className="font-bold text-white text-[12.5px] uppercase tracking-wider">
-                  오프라인 매장
+                  오프라인 매장 안내
                 </p>
-                <ul className="mt-3.5 space-y-2 text-white/70 text-[13px]">
-                  <li>{STORE.address}</li>
+                <ul className="mt-3.5 space-y-2 text-white/70 text-[13px] leading-relaxed">
+                  <li className="text-white font-semibold">{STORE.address}</li>
                   <li>({STORE.addressNote})</li>
                   <li>영업시간: {STORE.hours}</li>
                   <li>휴무안내: {STORE.closed}</li>
+                  <li className="pt-1 text-[#FF8A50] font-semibold">
+                    매장 앞 전용 주차 · 실물 확인 가능
+                  </li>
                 </ul>
               </div>
             </nav>
@@ -757,7 +947,8 @@ export function SiteFooter({
               </p>
               <p className="mt-0.5">
                 개인정보보호책임자: {STORE.privacyOfficer} · 주소:{" "}
-                {STORE.address} ({STORE.addressNote}) · 대표전화: {STORE.tel} · 휴대전화: {STORE.mobile}
+                {STORE.address} ({STORE.addressNote}) · 대표전화: {STORE.tel} ·
+                휴대전화: {STORE.mobile}
               </p>
               <p className="mt-1">
                 © {new Date().getFullYear()} {STORE.name}. All rights reserved.
@@ -768,7 +959,7 @@ export function SiteFooter({
               <button
                 type="button"
                 onClick={onAdminClick}
-                className="text-[12px] text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end"
+                className="text-[12px] text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end shrink-0"
               >
                 {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
               </button>
@@ -818,7 +1009,7 @@ export function MobileCtaBar({
     };
   }, [productContext]);
 
-  // 상품 상세 페이지(app/[id]/page.tsx) 전용 당근마켓·오늘의집 스타일 하단 고정 액션 바
+  // 상품 상세 페이지(app/[id]/page.tsx) 전용 하단 고정 액션 바
   if (productContext) {
     const sold = isProductSold(productContext.status);
     const priceLabel = sold
@@ -873,7 +1064,7 @@ export function MobileCtaBar({
                 {productContext.category}
               </span>
               <strong
-                className={`block truncate text-[14.5px] font-bold leading-tight ${
+                className={`block truncate text-[14px] xs:text-[14.5px] font-bold leading-tight tabular-nums ${
                   sold ? "text-[#8A8478]" : "text-[#0E1A2B]"
                 }`}
               >
@@ -912,7 +1103,7 @@ export function MobileCtaBar({
             </a>
             <Link
               href={productContext.inquiryHref}
-              className="hb-btn-accent h-10 px-3.5 text-[13px] whitespace-nowrap"
+              className="hb-btn-accent h-10 px-3 xs:px-3.5 text-[12.5px] xs:text-[13px] whitespace-nowrap"
             >
               <span>이 상품 문의</span>
             </Link>
@@ -926,7 +1117,7 @@ export function MobileCtaBar({
     <div
       role="region"
       aria-label="모바일 빠른 상담 바"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/98 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
     >
       <div className="grid h-[56px] grid-cols-3 divide-x divide-[#EEEBE5]">
         <a
@@ -934,7 +1125,7 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_tel_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1.5 bg-[#0E1A2B] text-[13px] font-bold text-white active:bg-[#1C2D47]"
+          className="flex items-center justify-center gap-1.5 bg-[#0E1A2B] text-[12.5px] xs:text-[13px] font-bold text-white active:bg-[#1C2D47]"
         >
           <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
           <span>전화 상담</span>
@@ -946,7 +1137,7 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_kakao_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1.5 bg-[#FEE500] text-[13px] font-bold text-[#191600] active:bg-[#F2D900]"
+          className="flex items-center justify-center gap-1.5 bg-[#FEE500] text-[12.5px] xs:text-[13px] font-bold text-[#191600] active:bg-[#F2D900]"
         >
           <Icon d={ICON.chat} className="w-4 h-4" />
           <span>카톡 상담</span>
@@ -960,15 +1151,15 @@ export function MobileCtaBar({
               });
               onInquiryClick();
             }}
-            className="flex items-center justify-center gap-1.5 bg-white text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
+            className="flex items-center justify-center gap-1.5 bg-white text-[12.5px] xs:text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
           >
             <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
-            <span>문의 남기기</span>
+            <span>문의·매입</span>
           </button>
         ) : (
           <Link
             href="/inquiry"
-            className="flex items-center justify-center gap-1.5 bg-white text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
+            className="flex items-center justify-center gap-1.5 bg-white text-[12.5px] xs:text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
           >
             <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
             <span>문의게시판</span>
@@ -982,3 +1173,4 @@ export function MobileCtaBar({
 export function AdminLoginModal() {
   return null;
 }
+

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
   formatProductPrice,
@@ -8,6 +8,7 @@ import {
   isProductSold,
   normalizeProductCategory,
   normalizeProductStatus,
+  PRODUCT_CATEGORIES,
   splitImages,
   STORE,
   telHref,
@@ -19,6 +20,8 @@ import {
   ProductTrustMicroStrip,
   type ProductItem,
 } from "../products/product-card";
+
+const QUICK_FILTER_TABS = ["전체", ...PRODUCT_CATEGORIES] as const;
 
 export function FeaturedProductsSection({
   products,
@@ -35,7 +38,28 @@ export function FeaturedProductsSection({
 }) {
   const [selected, setSelected] = useState<ProductItem | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
-  const [viewOverrides, setViewOverrides] = useState<Record<string, number>>({});
+  const [activeCategory, setActiveCategory] = useState<string>("전체");
+  const [viewOverrides, setViewOverrides] = useState<Record<string, number>>(
+    {}
+  );
+
+  const filteredProducts = useMemo(() => {
+    if (activeCategory === "전체") return products.slice(0, 8);
+    return products
+      .filter(
+        (p) => normalizeProductCategory(p.category) === activeCategory
+      )
+      .slice(0, 8);
+  }, [products, activeCategory]);
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { 전체: products.length };
+    for (const p of products) {
+      const cat = normalizeProductCategory(p.category);
+      counts[cat] = (counts[cat] || 0) + 1;
+    }
+    return counts;
+  }, [products]);
 
   const openModal = async (item: ProductItem) => {
     const currentViews =
@@ -80,7 +104,9 @@ export function FeaturedProductsSection({
 
       setViewOverrides((prev) => ({ ...prev, [item.id]: confirmedViews }));
       setSelected((prev) =>
-        prev && prev.id === item.id ? { ...prev, views: confirmedViews } : prev
+        prev && prev.id === item.id
+          ? { ...prev, views: confirmedViews }
+          : prev
       );
 
       const nextStr = sessionStorage.getItem("viewed_products") || "[]";
@@ -104,29 +130,75 @@ export function FeaturedProductsSection({
     <section
       id="featured-products-section"
       aria-labelledby="featured-heading"
-      className="border-b border-[#E4E0D8] bg-white py-16 sm:py-20 lg:py-24"
+      className="border-b border-[#E4E0D8] bg-white py-14 sm:py-20 lg:py-24"
     >
       <div className="hb-container">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
             eyebrow="Showroom Inventory"
-            title={<span id="featured-heading">현재 판매 중인 추천 매물</span>}
-            desc="매장에서 검수와 세척을 마치고 실제 판매 중인 제품입니다. 카드를 누르면 상세 규격을 바로 확인할 수 있습니다."
+            title={<span id="featured-heading">실시간 입고 · 추천 판매 매물</span>}
+            desc="대전 중촌동 매장에서 직접 분해·세척과 작동 점검을 마친 실물 매물입니다. 상품을 선택하면 상세 규격과 보증 조건을 바로 확인하실 수 있습니다."
           />
 
           <Link
             href="/gallery"
-            className="hb-btn-outline h-11 px-5 text-[14px] shrink-0 self-start sm:self-end"
+            className="hb-btn-outline h-10 sm:h-11 px-4 sm:px-5 text-[13.5px] sm:text-[14px] shrink-0 self-start sm:self-end"
           >
-            <span>전체 판매 제품 보기</span>
-            <Icon d={ICON.arrow} className="w-4 h-4" />
+            <span>전체 판매 제품 갤러리</span>
+            <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E]" />
           </Link>
         </div>
+
+        {/* 품목별 빠른 필터 바 */}
+        {!loading && !error && products.length > 0 && (
+          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-b border-[#EEEBE5] pb-3.5">
+            <div
+              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
+              role="tablist"
+              aria-label="추천 매물 품목 필터"
+            >
+              {QUICK_FILTER_TABS.map((cat) => {
+                const active = activeCategory === cat;
+                const count = categoryCounts[cat] || 0;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => setActiveCategory(cat)}
+                    className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap border transition-colors ${
+                      active
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
+                        : "bg-[#FAF9F7] text-[#4B5260] border-[#E4E0D8] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                    }`}
+                  >
+                    <span>{cat}</span>
+                    {count > 0 && (
+                      <span
+                        className={`text-[11px] tabular-nums ${
+                          active ? "text-[#FF8A50]" : "text-[#8A8478]"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#6B7280] shrink-0">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+              실시간 재고 연동중
+            </span>
+          </div>
+        )}
 
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4"
+            className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4"
             aria-hidden="true"
           >
             {Array.from({ length: 4 }).map((_, idx) => (
@@ -145,7 +217,7 @@ export function FeaturedProductsSection({
           </div>
         ) : error ? (
           /* 오류 상태 */
-          <div className="mt-10 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-10 text-center">
+          <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 sm:p-10 text-center">
             <p className="text-[16px] font-bold text-[#0E1A2B]">
               실시간 상품 목록을 불러오지 못했습니다.
             </p>
@@ -161,8 +233,8 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : products.length === 0 ? (
-          /* 빈 상태 (가짜 샘플 상품을 노출하지 않음) */
-          <div className="mt-10 flex flex-col items-start justify-between gap-6 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 sm:flex-row sm:items-center">
+          /* 빈 상태 */
+          <div className="mt-8 flex flex-col items-start justify-between gap-6 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
               <p className="text-[17px] font-bold text-[#0E1A2B]">
                 신규 입고 상품을 검수 및 사진 등록 중입니다.
@@ -188,23 +260,77 @@ export function FeaturedProductsSection({
               </a>
             </div>
           </div>
+        ) : filteredProducts.length === 0 ? (
+          /* 선택 카테고리에 추천 매물이 없을 때 */
+          <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 text-center">
+            <p className="text-[15.5px] font-bold text-[#0E1A2B]">
+              최근 등록된 8개 추천 매물 중 &lsquo;{activeCategory}&rsquo; 품목이 없습니다.
+            </p>
+            <p className="mt-1 text-[13.5px] text-[#6B7280]">
+              전체 판매 제품 갤러리에서 해당 카테고리의 전체 재고를 확인하시거나 전체 탭으로 돌아가실 수 있습니다.
+            </p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setActiveCategory("전체")}
+                className="hb-btn-outline h-10 px-4 text-[13px]"
+              >
+                추천 매물 전체 보기
+              </button>
+              <Link
+                href={`/gallery?category=${encodeURIComponent(activeCategory)}`}
+                className="hb-btn-primary h-10 px-4 text-[13px]"
+              >
+                {activeCategory} 전체 매물 보러가기 →
+              </Link>
+            </div>
+          </div>
         ) : (
           /* 정상 상품 그리드 */
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-            {products.slice(0, 8).map((product) => {
-              const effectiveProduct =
-                typeof viewOverrides[product.id] === "number"
-                  ? { ...product, views: viewOverrides[product.id] }
-                  : product;
-              return (
-                <ProductCard
-                  key={product.id}
-                  product={effectiveProduct}
-                  onSelect={openModal}
-                />
-              );
-            })}
-          </div>
+          <>
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+              {filteredProducts.map((product) => {
+                const effectiveProduct =
+                  typeof viewOverrides[product.id] === "number"
+                    ? { ...product, views: viewOverrides[product.id] }
+                    : product;
+                return (
+                  <ProductCard
+                    key={product.id}
+                    product={effectiveProduct}
+                    onSelect={openModal}
+                  />
+                );
+              })}
+            </div>
+
+            {/* 하단 쇼룸 안내 바 */}
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260]">
+              <p className="break-keep">
+                <strong className="text-[#0E1A2B]">
+                  💡 찾으시는 모델이나 규격이 목록에 없나요?
+                </strong>{" "}
+                오프라인 매장 창고에 미등록 입고분이 상시 대기 중입니다.
+              </p>
+              <div className="flex items-center gap-3 shrink-0">
+                <Link
+                  href="/gallery"
+                  className="font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4"
+                >
+                  전체 매물 더보기
+                </Link>
+                <span className="text-[#DDD9D1]" aria-hidden="true">
+                  |
+                </span>
+                <a
+                  href="#inquiry-form"
+                  className="font-bold text-[#D9531E] hover:underline underline-offset-4"
+                >
+                  원하는 조건 재고 문의 →
+                </a>
+              </div>
+            </div>
+          </>
         )}
       </div>
 
@@ -217,13 +343,13 @@ export function FeaturedProductsSection({
           panelClassName="max-w-xl"
         >
           <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg border border-[#E4E0D8] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E4E0D8] px-5 py-3.5">
+            <div className="flex items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-5 py-3.5 bg-white">
               <div className="flex items-center gap-2">
-                <span className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 text-[12px] font-bold text-[#4B5260]">
+                <span className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 text-[11.5px] font-bold text-[#4B5260]">
                   {selectedCategory}
                 </span>
                 <span
-                  className={`rounded-sm px-2.5 py-1 text-[12px] font-bold text-white ${
+                  className={`rounded-sm px-2.5 py-1 text-[11.5px] font-bold text-white ${
                     selectedSold ? "bg-[#6B7280]" : "bg-[#0E1A2B]"
                   }`}
                 >
@@ -234,14 +360,14 @@ export function FeaturedProductsSection({
                 type="button"
                 onClick={() => setSelected(null)}
                 aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded text-[#6B7280] hover:text-[#0E1A2B]"
+                className="grid h-8 w-8 place-items-center rounded text-[#6B7280] hover:bg-[#FAF9F7] hover:text-[#0E1A2B]"
               >
                 <Icon d={ICON.close} className="w-5 h-5" />
               </button>
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              <div className="relative flex h-[300px] sm:h-[360px] w-full items-center justify-center bg-[#F6F5F2] p-4 border-b border-[#E4E0D8]">
+              <div className="relative flex h-[260px] sm:h-[340px] w-full items-center justify-center bg-[#F6F5F2] p-4 border-b border-[#E4E0D8]">
                 <SafeImg
                   src={selectedImages[imgIdx]}
                   alt={selected.title}
@@ -278,24 +404,47 @@ export function FeaturedProductsSection({
                 )}
               </div>
 
-              <div className="p-5 sm:p-6 space-y-4">
-                <h3 className="text-[20px] font-bold text-[#0E1A2B] leading-snug">
+              {selectedImages.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto border-b border-[#E4E0D8] bg-[#FAF9F7] px-4 sm:px-5 py-2.5">
+                  {selectedImages.map((src, i) => (
+                    <button
+                      key={src + i}
+                      type="button"
+                      onClick={() => setImgIdx(i)}
+                      className={`h-12 w-12 shrink-0 overflow-hidden rounded border-2 ${
+                        imgIdx === i
+                          ? "border-[#D9531E]"
+                          : "border-transparent opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <SafeImg
+                        src={src}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="p-4 sm:p-6 space-y-4">
+                <h3 className="text-[18px] sm:text-[20px] font-bold text-[#0E1A2B] leading-snug">
                   {selected.title}
                 </h3>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
                   <div>
-                    <span className="block text-[12px] font-semibold text-[#6B7280]">
+                    <span className="block text-[11.5px] font-semibold text-[#6B7280]">
                       판매 가격
                     </span>
-                    <strong className="mt-0.5 block text-[22px] font-bold text-[#D9531E]">
+                    <strong className="mt-0.5 block text-[20px] sm:text-[22px] font-bold text-[#D9531E] tabular-nums">
                       {selectedSold
                         ? "판매완료"
                         : formatProductPrice(selected.price, selectedCategory)}
                     </strong>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[12.5px] font-semibold text-[#6B7280]">
+                    <span className="text-[12.5px] font-semibold text-[#6B7280] tabular-nums">
                       조회{" "}
                       <strong className="text-[#0E1A2B]">
                         {selected.views || 0}
@@ -318,7 +467,7 @@ export function FeaturedProductsSection({
                     <span className="block text-[12px] font-bold text-[#6B7280] mb-1.5">
                       제품 규격 및 상세 설명
                     </span>
-                    <p className="whitespace-pre-line text-[14px] leading-relaxed text-[#1F2530]">
+                    <p className="whitespace-pre-line text-[13.5px] sm:text-[14px] leading-relaxed text-[#1F2530]">
                       {selected.description}
                     </p>
                   </div>
@@ -326,7 +475,7 @@ export function FeaturedProductsSection({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-[#E4E0D8] bg-white p-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
               <a
                 href={telHref(STORE.tel)}
                 className="hb-btn-primary h-11 text-[13.5px]"
@@ -359,3 +508,4 @@ export function FeaturedProductsSection({
     </section>
   );
 }
+
