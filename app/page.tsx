@@ -159,29 +159,29 @@ const CATEGORIES = [
 
 const USP = [
   {
-    t: "세척·정비 후 판매",
+    t: "세척 · 정비 후 판매",
     tag: "INSPECTION & CLEANING",
-    d: "입고된 모든 제품은 전문 엔지니어가 분해 세척과 정비, 시운전 검수를 마친 뒤 쇼룸에 진열합니다.",
+    d: "입고된 모든 제품은 전문 엔지니어가 분해 고압 세척과 냉매·콤프레샤·누수 테스트 및 시운전 검수를 완벽히 마친 뒤 쇼룸과 홈페이지에 등록합니다.",
   },
   {
     t: "명확한 무상 A/S 보증",
     tag: "WARRANTY SERVICE",
-    d: "에어컨·냉난방기 8개월, 그 외 제품 4개월 무상 A/S를 보증합니다. (계약 내용에 따라 보증 기간은 달라질 수 있습니다.)",
+    d: "에어컨·냉난방기 8개월, 냉장고·세탁기 및 일반 가전 4개월 무상 A/S를 책임 보증합니다. (계약 내용 및 제품군에 따라 명확히 약정)",
   },
   {
     t: "판매와 매입을 한 곳에서",
     tag: "BUY & SELL ONE-STOP",
-    d: "필요한 가전 구매와 쓰지 않는 가전·주방설비 처분을 한 번의 일정으로 동시에 진행하실 수 있습니다.",
+    d: "필요한 가전 구매와 쓰지 않는 가전·주방설비 처분을 한 번의 방문 일정으로 동시 진행하여 시간과 운반 비용을 대폭 절약해 드립니다.",
   },
   {
-    t: "전국 단위 배송·설치",
+    t: "전국 단위 직배송 · 설치",
     tag: "NATIONWIDE DELIVERY",
-    d: "대전·충청권은 물론 구미·포항·창원·부산·거제 등 전국 다수 지역 배송 및 설치 거래 실적을 보유하고 있습니다.",
+    d: "대전·세종·충청권 당일·익일 배송은 물론 구미·포항·창원·부산 등 전국 다수 지역 직배송 및 전문 기사 설치 실적을 보유하고 있습니다.",
   },
   {
-    t: "대량 거래 · 세금계산서 발행",
+    t: "대량 거래 · 세금계산서 100% 발행",
     tag: "B2B TAX INVOICE",
-    d: "식당·카페 오픈 패키지 도입이나 폐업·매장 정리 같은 사업자 거래 시 세금계산서를 투명하게 발행합니다.",
+    d: "식당·카페 창업 패키지 도입이나 폐업·매장 정리 등 기업·사업자 거래 시 전자세금계산서를 투명하게 100% 정식 발행합니다.",
   },
 ] as const;
 
@@ -1190,39 +1190,50 @@ export default function Home() {
                 desc="판매부터 매입, 배송과 설치까지 한밭중고전자가 1995년부터 직접 책임지는 5대 운영 원칙입니다."
               />
 
-              <div className="mt-6 rounded-md border border-[#E4E0D8] bg-white p-5">
-                <p className="text-[12px] font-bold uppercase tracking-wider text-[#D9531E]">
-                  Direct Inspection Guarantee
-                </p>
-                <p className="mt-1.5 text-[14.5px] font-bold text-[#0E1A2B]">
-                  전 품목 입고 즉시 3단계 작동·위생 검수 진행
-                </p>
-                <p className="mt-1 text-[13px] leading-relaxed text-[#4B5260]">
-                  냉매 압력·콤프레샤 작동·온도 편차·누수 테스트를 통과하고 고압 세척을 마친 제품만 매장 쇼룸과 홈페이지에 등록합니다.
-                </p>
+              <div className="mt-6 flex flex-wrap gap-2 text-[12px] font-semibold text-[#4B5260]">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D1] bg-white px-3 py-1.5 shadow-2xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+                  1995년 개업 30여 년 신뢰
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D1] bg-white px-3 py-1.5 shadow-2xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+                  전문 엔지니어 직접 검수
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D1] bg-white px-3 py-1.5 shadow-2xs">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+                  정식 무상 A/S 보증서 발급
+                </span>
               </div>
             </div>
 
-            <ol className="lg:col-span-7 border-t border-[#DDD9D1] bg-white rounded-md border border-[#E4E0D8] divide-y divide-[#EEEBE5] overflow-hidden">
+            <ol className="lg:col-span-7 rounded-xl border border-[#DDD9D1] bg-white shadow-xs divide-y divide-[#EAE6DF] overflow-hidden">
               {USP.map((u, i) => (
                 <li
                   key={u.t}
-                  className="grid grid-cols-[42px_1fr] gap-x-3 p-5 sm:grid-cols-[56px_190px_1fr] sm:gap-x-5 sm:p-6 hover:bg-[#FAF9F7] transition-colors"
+                  className="group flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5 p-5 sm:p-6 transition-colors hover:bg-[#FAF9F7]"
                 >
-                  <span className="text-[15px] font-bold tabular-nums text-[#D9531E] sm:text-[16px]">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3 className="text-[15.5px] font-bold text-[#0E1A2B] sm:text-[16.5px]">
-                      {u.t}
-                    </h3>
-                    <span className="mt-0.5 block text-[10.5px] font-bold tracking-wider text-[#8A8478]">
+                  <div className="flex items-center sm:flex-col sm:items-center gap-3 shrink-0">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0E1A2B] text-[14px] sm:text-[15px] font-black text-[#FF8A50] shadow-2xs group-hover:bg-[#D9531E] group-hover:text-white transition-colors">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="sm:hidden text-[11px] font-bold tracking-wider text-[#D9531E]">
                       {u.tag}
                     </span>
                   </div>
-                  <p className="col-start-2 mt-2 text-[13.5px] sm:text-[14px] leading-relaxed text-[#4B5260] sm:col-start-3 sm:mt-0">
-                    {u.d}
-                  </p>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
+                      <h3 className="text-[16.5px] sm:text-[18px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
+                        {u.t}
+                      </h3>
+                      <span className="hidden sm:inline-block text-[11px] font-bold tracking-wider text-[#8A8478] uppercase">
+                        {u.tag}
+                      </span>
+                    </div>
+                    <p className="text-[13.5px] sm:text-[14.5px] leading-relaxed text-[#4B5260]">
+                      {u.d}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ol>
