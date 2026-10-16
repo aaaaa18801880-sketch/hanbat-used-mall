@@ -50,18 +50,18 @@ export interface LinkedProductContext {
 const SELL_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
-    title: "정면 전체 샷",
-    desc: "제품 외관과 도어 형태가 한눈에 보이게 촬영",
+    title: "안전관리법 표시사항 (라벨)",
+    desc: "모델명·정격전압·KC인증마크가 보이도록 선명하게 촬영",
   },
   {
     step: "02",
-    title: "모델명·연식 스티커",
-    desc: "에너지효율등급 또는 명판 라벨 근접 촬영",
+    title: "제조년월 스티커 (연식)",
+    desc: "제조년월 숫자가 확인 가능하도록 근접 촬영",
   },
   {
     step: "03",
-    title: "특이사항·반출 경로",
-    desc: "흠집 부위나 계단·출입문 등 참고 사진",
+    title: "제품 전체 사진 (외관)",
+    desc: "제품 전체 모습과 도어/외관 상태가 잘 보이도록 촬영",
   },
 ] as const;
 
@@ -69,17 +69,17 @@ const BUY_PHOTO_GUIDE_STEPS = [
   {
     step: "01",
     title: "설치할 공간 전경",
-    desc: "제품이 들어갈 자리와 여유 공간 촬영",
+    desc: "제품이 들어갈 자리와 가로·세로 여유 공간 촬영",
   },
   {
     step: "02",
-    title: "전원 · 배관 위치",
-    desc: "콘센트(단상/삼상) 또는 배관 타공 위치",
+    title: "전원 · 배관 · 급배수구",
+    desc: "콘센트(단상/삼상) 및 에어컨 배관, 수도 연결부",
   },
   {
     step: "03",
-    title: "희망 모델 참고 사진",
-    desc: "원하시는 형태나 기존 사용 제품 사진",
+    title: "진입로 · 반입 경로",
+    desc: "현관문 폭, 엘리베이터 유무, 계단 통로 촬영 (사다리차 필요 여부 확인)",
   },
 ] as const;
 
@@ -315,7 +315,7 @@ export function UnifiedInquiryForm({
 
     if (!isNotice) {
       if (!name.trim()) {
-        errors.name = "성함 또는 상호명을 입력해 주세요.";
+        errors.name = "상호명(성함) 및 지역(동까지)을 입력해 주세요.";
       }
       if (!phone.trim() || !isValidPhone(phone)) {
         errors.phone = "연락 가능한 전화번호를 정확히 입력해 주세요.";
@@ -323,8 +323,15 @@ export function UnifiedInquiryForm({
       if (password.trim().length < 4) {
         errors.password = "답변 확인용 비밀번호를 4자리 이상 입력해 주세요.";
       }
-      if (isSell && !region.trim()) {
-        errors.region = "방문 수거 지역(구/동까지)을 입력해 주세요.";
+      const hasRegion =
+        region.trim().length > 0 ||
+        name.includes("(") ||
+        name.includes("동") ||
+        name.includes("구") ||
+        name.includes("시");
+      if (isSell && !hasRegion) {
+        errors.name =
+          "방문 수거를 위해 지역(동까지)을 함께 입력해 주세요. 예: 한밭식당(중촌동)";
       }
       if (!agreed) {
         errors.agreed = "개인정보 수집·이용에 동의해 주세요.";
@@ -421,6 +428,18 @@ export function UnifiedInquiryForm({
           ? `[${applianceCategory}] ${title.trim()}`
           : title.trim();
 
+      // 지역 정보 추출: 별도 입력한 region 우선, 없으면 name의 "한밭식당(중촌동)" 등에서 자동 추출
+      let parsedRegion = region.trim();
+      if (!parsedRegion) {
+        const regionMatch = name.match(/\((.*?)\)/);
+        if (regionMatch && regionMatch[1]) {
+          parsedRegion = regionMatch[1].trim();
+        }
+      }
+      if (!parsedRegion) {
+        parsedRegion = "대전/기타";
+      }
+
       const authHeaders = isNotice ? await getAdminAuthHeaders() : {};
       const res = await fetch("/api/inquiries", {
         method: "POST",
@@ -433,7 +452,7 @@ export function UnifiedInquiryForm({
           category: finalTitle,
           model: model.trim() || null,
           condition_grade: isSell ? conditionGrade : null,
-          region: region.trim() || "대전/기타",
+          region: parsedRegion,
           description: structuredDescription,
           images: uploadedUrls,
           is_notice: isNotice,
@@ -677,7 +696,7 @@ export function UnifiedInquiryForm({
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
             <div>
               <label htmlFor="uf-name" className="hb-label text-[12px]">
-                성함 / 상호명 <span className="text-[#D9531E]">*</span>
+                상호명(성함) / 지역(동까지) <span className="text-[#D9531E]">*</span>
               </label>
               <input
                 id="uf-name"
@@ -689,7 +708,7 @@ export function UnifiedInquiryForm({
                   if (fieldErrors.name)
                     setFieldErrors((p) => ({ ...p, name: "" }));
                 }}
-                placeholder="홍길동 / 한밭식당"
+                placeholder="예: 한밭식당(중촌동) / 홍길동(둔산동)"
                 className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
                   fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
                 }`}
@@ -796,9 +815,9 @@ export function UnifiedInquiryForm({
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[11.5px] font-semibold text-[#D9531E] underline underline-offset-2"
+                className="inline-flex items-center gap-1 rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-[11.5px] font-bold text-[#D9531E] hover:bg-[#FFEBE0] transition-colors"
               >
-                {showPhotoGuide ? "촬영 팁 닫기 ▲" : "권장 촬영 팁 ▾"}
+                <span>{showPhotoGuide ? "촬영 예시 닫기 ▲" : "📷 권장 촬영 예시 사진 보기 ▾"}</span>
               </button>
             )}
           </div>
@@ -875,21 +894,92 @@ export function UnifiedInquiryForm({
 
         {/* 접이식 3컷 촬영 가이드 (클릭 시에만 열려 평소 세로 길이 절약) */}
         {!isNotice && showPhotoGuide && (
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 rounded bg-[#FAF9F7] p-2.5 border border-[#E4E0D8] text-[11.5px]">
-            {photoGuideSteps.map((g) => (
-              <li key={g.step} className="flex items-start gap-1.5">
-                <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  컷 {g.step}
-                </span>
-                <div>
-                  <strong className="font-bold text-[#0E1A2B] block">
-                    {g.title}
-                  </strong>
-                  <span className="text-[#4B5260]">{g.desc}</span>
+          <div className="space-y-3 rounded-md bg-[#FAF9F7] p-3 sm:p-4 border border-[#E4E0D8]">
+            {isSell || isBulk ? (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-[#EAE6DF]">
+                  <span className="text-[12.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
+                    <Icon d={ICON.camera} className="w-4 h-4 text-[#D9531E]" />
+                    빠르고 정확한 매입 견적을 위한 필수 촬영 3컷 예시
+                  </span>
+                  <span className="text-[11px] font-bold text-[#D9531E]">
+                    ※ 안전인증(KC) 및 제조년월 확인 필수
+                  </span>
                 </div>
-              </li>
-            ))}
-          </ol>
+
+                {/* 실제 촬영 예시 그래픽 안내 이미지 (사례 사진 포함) */}
+                <div className="overflow-hidden rounded border border-[#DDD9D1] bg-white shadow-2xs">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/images/photo-guide.jpg"
+                    alt="한밭중고전자 매입 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진"
+                    className="w-full h-auto object-contain max-h-[360px] mx-auto"
+                    loading="lazy"
+                  />
+                </div>
+
+                {/* 3컷 요약 뱃지 그리드 */}
+                <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11.5px]">
+                  {photoGuideSteps.map((g) => (
+                    <li
+                      key={g.step}
+                      className="flex items-start gap-1.5 rounded bg-white p-2 border border-[#EAE6DF]"
+                    >
+                      <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {g.step}
+                      </span>
+                      <div>
+                        <strong className="font-bold text-[#0E1A2B] block">
+                          {g.title}
+                        </strong>
+                        <span className="text-[#4B5260]">{g.desc}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                <div className="rounded border border-[#FADCD0] bg-[#FFF5F0] p-2.5 text-[11px] text-[#B5431A] leading-relaxed">
+                  <strong>⚠️ 전기용품 및 생활용품 안전관리법 안내</strong>:
+                  제조년월과 안전인증(KC) 표기가 확인되지 않을 경우 매입 및 상담이 제한될 수 있습니다. 라벨을 가까이서 선명하게 촬영해 주세요.
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-[#EAE6DF]">
+                  <span className="text-[12.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
+                    <Icon d={ICON.camera} className="w-4 h-4 text-[#D9531E]" />
+                    배송 및 설치 확인을 위한 권장 촬영 3컷
+                  </span>
+                  <span className="text-[11px] text-[#6B7280]">
+                    반입 통로 및 설치 환경 사전 점검
+                  </span>
+                </div>
+
+                <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11.5px]">
+                  {photoGuideSteps.map((g) => (
+                    <li
+                      key={g.step}
+                      className="flex items-start gap-1.5 rounded bg-white p-2.5 border border-[#EAE6DF]"
+                    >
+                      <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                        {g.step}
+                      </span>
+                      <div>
+                        <strong className="font-bold text-[#0E1A2B] block">
+                          {g.title}
+                        </strong>
+                        <span className="text-[#4B5260]">{g.desc}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+
+                <p className="text-[11px] text-[#4B5260] bg-white p-2 rounded border border-[#EAE6DF]">
+                  💡 대형 냉장고나 업소용 설비는 현관문 폭이나 엘리베이터 크기가 맞지 않으면 반입이 어려울 수 있습니다. 통로 사진을 함께 올려주시면 사다리차 필요 여부를 사전에 안내해 드립니다.
+                </p>
+              </>
+            )}
+          </div>
         )}
 
         {/* AI 분석 완료 안내 배지 */}

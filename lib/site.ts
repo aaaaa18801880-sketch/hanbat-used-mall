@@ -773,6 +773,17 @@ export const isValidPhone = (value: string): boolean => {
 export function maskName(rawName?: string | null): string {
   const t = (rawName ?? "").trim();
   if (!t) return "고*객";
+
+  // "한밭식당(중촌동)" 또는 "홍길동 (둔산동)" 형태의 지역 괄호 분리 마스킹
+  const match = t.match(/^(.*?)\s*(\(.*\))$/);
+  if (match) {
+    const main = match[1].trim();
+    const region = match[2].trim();
+    if (main.length <= 1) return `${main}* ${region}`;
+    if (main.length === 2) return `${main.charAt(0)}* ${region}`;
+    return `${main.charAt(0)}${"*".repeat(Math.min(main.length - 2, 3))}${main.slice(-1)} ${region}`;
+  }
+
   if (t.length === 1) return `${t}*`;
   if (t.length === 2) return `${t.charAt(0)}*`;
   return `${t.charAt(0)}${"*".repeat(Math.min(t.length - 2, 3))}${t.slice(-1)}`;
