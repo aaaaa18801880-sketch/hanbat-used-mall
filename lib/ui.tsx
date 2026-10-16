@@ -387,7 +387,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       </div>
 
       <header className="sticky top-0 z-50 w-full border-b border-[#E4E0D8] bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-[64px] sm:h-[74px] w-full max-w-[1280px] items-center justify-between px-3.5 sm:px-6 lg:px-8 gap-2 sm:gap-4">
+        <div className="mx-auto flex h-[68px] sm:h-[82px] w-full max-w-[1280px] items-center justify-between px-3.5 sm:px-6 lg:px-8 gap-2 sm:gap-4">
           <div className="flex items-center shrink-0">
             <Link
               href="/"
@@ -398,10 +398,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <img
                 src="/logo.png"
                 alt="한밭중고전자"
-                width={184}
-                height={52}
+                width={220}
+                height={62}
                 fetchPriority="high"
-                className="h-[40px] xs:h-[44px] sm:h-[50px] w-auto object-contain transition-opacity hover:opacity-90"
+                className="h-[46px] xs:h-[52px] sm:h-[62px] w-auto object-contain transition-opacity hover:opacity-90"
               />
             </Link>
           </div>
@@ -418,7 +418,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative px-2.5 xl:px-3 py-2 text-[14px] xl:text-[14.5px] font-bold rounded-md transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] ${
+                  className={`relative px-2.5 xl:px-3.5 py-2.5 text-[15px] xl:text-[15.5px] font-bold rounded-md transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] ${
                     isActive
                       ? "text-[#D9531E] bg-[#FFF5F0]"
                       : "text-[#1F2530] hover:text-[#D9531E] hover:bg-[#FAF9F7]"
@@ -434,7 +434,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2.5 sm:px-3 h-9 sm:h-10 text-[12px] sm:text-[12.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-md border border-[#D9531E] bg-[#FFF5F0] px-3 sm:px-3.5 h-10 sm:h-11 text-[13px] sm:text-[13.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
                 title="담아둔 관심 매물 일괄 견적 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
@@ -450,7 +450,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap tabular-nums"
+              className="hidden xl:inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3.5 h-10 sm:h-11 text-[13.5px] sm:text-[14px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors whitespace-nowrap tabular-nums"
               aria-label={`대표 전화 ${STORE.tel} 연결`}
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
@@ -464,7 +464,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_kakao_consult", { location: "site_header" })
               }
-              className="hidden sm:inline-flex hb-btn-kakao h-9 sm:h-10 px-3 sm:px-3.5 text-[12.5px] sm:text-[13px] whitespace-nowrap"
+              className="hidden sm:inline-flex hb-btn-kakao h-10 sm:h-11 px-3.5 sm:px-4 text-[13px] sm:text-[13.5px] whitespace-nowrap"
               aria-label="카카오톡 채널 상담 열기"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
@@ -476,7 +476,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-md border border-[#E4E0D8] bg-[#FAF9F7] text-[#0E1A2B] lg:hidden hover:bg-[#F2F0EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
+              className="grid h-10 w-10 sm:h-11 sm:w-11 place-items-center rounded-md border border-[#E4E0D8] bg-[#FAF9F7] text-[#0E1A2B] lg:hidden hover:bg-[#F2F0EC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] transition-colors"
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >
@@ -499,7 +499,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           aria-modal="true"
           aria-label="모바일 전체 메뉴"
         >
-          <div className="flex h-[64px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6 bg-white">
+          <div className="flex h-[68px] items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-6 bg-white">
             <Link
               href="/"
               onClick={() => setMenuOpen(false)}
@@ -509,9 +509,9 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <img
                 src="/logo.png"
                 alt="한밭중고전자"
-                width={152}
-                height={44}
-                className="h-[40px] w-auto object-contain"
+                width={175}
+                height={50}
+                className="h-[46px] w-auto object-contain"
               />
             </Link>
             <button

@@ -1596,14 +1596,14 @@ export default function GalleryPage() {
             <button
               type="button"
               onClick={() => setIsUploadModalOpen(true)}
-              className="hb-btn-primary h-10 px-3.5 text-[13px] whitespace-nowrap"
+              className="hb-btn-primary h-10 sm:h-11 px-3.5 sm:px-4 text-[13px] sm:text-[13.5px] whitespace-nowrap"
             >
               <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
             </button>
             <button
               type="button"
               onClick={handleAdminLogout}
-              className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 h-10 text-[12px] font-semibold text-[#4B5260] hover:text-[#0E1A2B]"
+              className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 sm:h-11 text-[12.5px] font-semibold text-[#4B5260] hover:text-[#0E1A2B]"
             >
               관리자 OFF
             </button>

@@ -567,7 +567,7 @@ export default function InquiryBoardPage() {
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+            className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3.5 h-10 sm:h-11 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
           >
             통합 관리자 대시보드
           </Link>
@@ -575,7 +575,7 @@ export default function InquiryBoardPage() {
         <button
           type="button"
           onClick={handleOpenWrite}
-          className="hb-btn-primary h-10 px-4 text-[13px]"
+          className="hb-btn-primary h-10 sm:h-11 px-4 text-[13px] sm:text-[13.5px] whitespace-nowrap"
         >
           문의 글쓰기
         </button>

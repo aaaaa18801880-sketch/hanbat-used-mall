@@ -620,7 +620,7 @@ export default function Home() {
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden md:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-9 sm:h-10 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] whitespace-nowrap"
+            className="hidden md:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3.5 h-10 sm:h-11 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] whitespace-nowrap"
           >
             관리자 대시보드
           </Link>
@@ -628,7 +628,7 @@ export default function Home() {
         <button
           type="button"
           onClick={() => openInquiry("구매 문의")}
-          className="hb-btn-primary h-9 sm:h-10 px-3 sm:px-4 text-[12.5px] sm:text-[13px] whitespace-nowrap"
+          className="hb-btn-primary h-10 sm:h-11 px-3.5 sm:px-4 text-[13px] sm:text-[13.5px] whitespace-nowrap"
         >
           문의하기
         </button>
