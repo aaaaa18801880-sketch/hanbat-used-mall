@@ -644,9 +644,9 @@ export default function Home() {
           />
 
           <div className="hb-container relative py-7 sm:py-12 lg:py-16">
-            <div className="grid items-center gap-7 sm:gap-9 lg:grid-cols-12 lg:gap-10 xl:gap-12">
+            <div className="grid items-center gap-7 sm:gap-9 lg:grid-cols-12 lg:gap-8 xl:gap-10">
               {/* 좌측: 핵심 브랜드 정체성, 취급 품목 칩, 주요 행동 유도 */}
-              <div className="lg:col-span-6 xl:col-span-5">
+              <div className="lg:col-span-7 xl:col-span-6">
                 <div className="inline-flex items-center gap-2 rounded-sm border border-white/15 bg-white/[0.06] px-3 py-1 text-[11px] sm:text-[12px] font-semibold text-white/90">
                   <span
                     className="h-1.5 w-1.5 rounded-full bg-[#D9531E]"
@@ -664,10 +664,9 @@ export default function Home() {
                   <span className="block text-[13px] sm:text-[14.5px] font-bold tracking-normal text-[#FF8A50]">
                     가정용 중고가전 · 업소용 냉장·주방설비 전문 {STORE.name}
                   </span>
-                  <span className="mt-2 block text-[22px] xs:text-[26px] sm:text-[34px] lg:text-[32px] xl:text-[40px] 2xl:text-[44px] leading-[1.24] lg:leading-[1.18]">
-                    <span className="inline-block whitespace-nowrap">검수 마친 새것 같은 가전,</span>
-                    <br />
-                    <span className="inline-block whitespace-nowrap text-[#FF8A50] sm:text-white">정직하고 합리적인 가격으로.</span>
+                  <span className="mt-2 block text-[24px] xs:text-[27px] sm:text-[34px] lg:text-[32px] xl:text-[38px] 2xl:text-[42px] leading-[1.22] lg:leading-[1.18]">
+                    <span className="block break-keep">검수 마친 새것 같은 가전,</span>
+                    <span className="block break-keep text-[#FF8A50] sm:text-white">정직하고 합리적인 가격으로.</span>
                   </span>
                 </h1>
 
@@ -763,7 +762,7 @@ export default function Home() {
               </div>
 
               {/* 우측: 쇼룸 비주얼 아카이브 프레임 (이미지 내장 텍스트 충돌 원천 제거) */}
-              <div className="lg:col-span-6 xl:col-span-7">
+              <div className="lg:col-span-5 xl:col-span-6">
                 <div className="overflow-hidden rounded-md border border-white/15 bg-[#09121E] shadow-2xl">
                   {/* 상단 슬라이드 메타 바 */}
                   <div className="flex items-center justify-between border-b border-white/10 bg-[#0B1524] px-3.5 sm:px-4 py-2 text-[11px] sm:text-[11.5px]">
