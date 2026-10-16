@@ -212,64 +212,36 @@ const SELL_STEPS = [
   },
 ] as const;
 
-const FAQ_CATEGORIES = [
-  "전체",
-  "구매·배송",
-  "매입·처분",
-  "A/S·보증",
-  "매장·결제",
-] as const;
-
 const FAQS = [
   {
-    cat: "구매·배송",
-    q: "먼 지역(수도권·타 광역시)도 배송이나 설치가 가능한가요?",
-    a: "가능합니다. 제품과 지역에 따라 전국 어디든 배송·설치 상담이 가능합니다. 실제로 구미, 포항, 경산, 안동, 경주는 물론 창원, 부산, 거제 등 전국 각지의 거래 실적을 다수 보유하고 있습니다. 전문 기사가 안전하게 직배송 및 설치를 진행해 드립니다.",
-  },
-  {
-    cat: "A/S·보증",
-    q: "구매 후 고장이 나면 무상 A/S는 어떻게 진행되나요?",
+    tag: "무상 A/S 보증",
+    icon: "🛡️",
+    q: "구매 후 고장이 나면 무상 A/S 보증은 어떻게 진행되나요?",
     a: "에어컨 및 냉난방기는 8개월, 냉장고·세탁기 및 일반 가전은 4개월 무상 A/S를 책임 보증합니다. 제품 출고 시 정식 보증 규정이 적용되며, 사용 중 이상 발생 시 매장 전담 엔지니어가 신속하게 방문 및 점검 처리를 도와드립니다. (단, 계약 내용 및 제품군에 따라 명확히 약정)",
   },
   {
-    cat: "매입·처분",
-    q: "매입이 결정되면 대금 지급과 수거는 어떻게 이루어지나요?",
-    a: "전문 기사님이 고객님 댁이나 매장 현장에 방문하여 제품 상태를 최종 확인하고 수거가 완료되는 즉시, 지정해주신 계좌로 100% 전액 현금 입금 처리해 드립니다. 사전 견적과 상태가 동일하다면 현장에서 일체의 부당 감가 없이 안전하게 입금됩니다.",
+    tag: "폐가전 수거·철거",
+    icon: "♻️",
+    q: "새 제품을 구매하면서 기존에 쓰던 노후 폐가전 철거 및 수거도 가능한가요?",
+    a: "네, 가능합니다. 한밭중고전자에서 가전이나 업소용 집기를 구매·설치하실 때, 기존에 사용하시던 폐가전이나 교체 대상 설비의 철거 및 수거를 한 번의 방문 일정으로 동시 진행하여 고객님의 시간과 폐기 비용을 크게 아껴드립니다.",
   },
   {
-    cat: "구매·배송",
-    q: "사다리차나 엘리베이터가 없는 고층 건물도 배송이 가능한가요?",
-    a: "가능합니다. 엘리베이터 유무, 계단 폭, 현관문 크기에 따라 전문 배송팀 2인 1조 방문 또는 사다리차 연계 일정을 사전에 맞춤 조율해 드립니다. 문의 작성 시 설치 환경이나 진입 통로 사진을 함께 올려주시면 반입 가능 여부와 최적 동선을 사전에 정확히 안내해 드립니다.",
+    tag: "매장 안내 · 쇼룸",
+    icon: "📍",
+    q: "영업시간과 매장 위치(실물 쇼룸 방문)가 어떻게 되나요?",
+    a: `연중무휴 영업시간은 매일 ${STORE.hours} (${STORE.closed})이며, 오프라인 쇼룸은 ${STORE.roadAddress} (지번: ${STORE.jibunAddress}, ${STORE.addressNote})에 위치해 있습니다. 매장 앞 전용 주차장이 완비되어 있어 실물을 직접 전원 켜보고 검수한 뒤 구매하실 수 있습니다.`,
   },
   {
-    cat: "매장·결제",
-    q: "식당·카페 창업 시 대량 구매 및 전자세금계산서 발행이 가능한가요?",
-    a: "네, 100% 가능합니다. 식당, 카페, 제과점, 마트 등 업소용 집기나 기숙사·원룸 풀옵션 대량 도입 시 패키지 추가 할인 견적을 제공해 드립니다. 또한 개인사업자 및 법인 거래 시 정식 전자세금계산서와 현금영수증을 투명하게 즉시 발행해 드립니다.",
+    tag: "사다리차 · 계단 반입",
+    icon: "🏢",
+    q: "사다리차나 엘리베이터가 없는 고층 건물도 배송 및 설치가 가능한가요?",
+    a: "가능합니다. 엘리베이터 유무, 계단 폭, 현관문 크기에 따라 전문 배송팀 2인 1조 방문 또는 사다리차 연계 일정을 사전에 맞춤 조율해 드립니다. 문의 작성 시 계단 통로나 진입로 사진을 함께 올려주시면 반입 가능 여부와 최적 동선을 사전에 정확히 안내해 드립니다.",
   },
   {
-    cat: "매입·처분",
-    q: "매입 견적을 신청할 때 어떤 사진을 보내야 가장 빠른가요?",
-    a: "제품 정면 전체 사진과 함께 전기용품 안전관리법 스티커에 적힌 [모델명]과 [제조년월(연식)]이 선명하게 보이도록 촬영해 주시면 가장 빠릅니다. 홈페이지의 AI 자동분석 폼이나 전화/문자로 사진을 남겨주시면 평균 10분~30분 이내에 최고가 방문 매입 견적을 산출해 드립니다.",
-  },
-  {
-    cat: "매입·처분",
-    q: "새 제품을 구매하면서 기존에 쓰던 노후 가전 수거도 가능한가요?",
-    a: "네, 가능합니다. 한밭중고전자에서 가전이나 업소용 집기를 구매·설치하실 때, 기존에 사용하시던 폐가전이나 교체 대상 설비의 철거 및 수거를 한 번의 방문 일정으로 동시 진행하여 시간과 비용을 크게 아끼실 수 있습니다.",
-  },
-  {
-    cat: "구매·배송",
-    q: "구매하려는 제품의 세부 사진이나 작동 영상을 미리 볼 수 있나요?",
-    a: "언제든 확인 가능합니다. 홈페이지 사진 외에도 외관 세부 흠집, 내부 선반 상태, 콤프레샤 작동 소음 등을 카카오톡이나 문자로 요청하시면 실시간 영상 및 사진을 전송해 드립니다. 또한 중촌동 실물 쇼룸에 오시면 직접 전원을 켜보고 검수한 뒤 구매하실 수 있습니다.",
-  },
-  {
-    cat: "구매·배송",
-    q: "당일 급한 배송이나 주말·공휴일 배송 및 설치도 가능한가요?",
-    a: "대전 및 인근 충청권 지역은 매장 출고 준비가 완료된 품목에 한해 당일 퀵/직배송이 가능합니다. 또한 평일에 시간이 안 나시는 고객님을 위해 주말(토/일) 및 공휴일 배송·설치 사전 예약 서비스도 상시 운영하고 있습니다.",
-  },
-  {
-    cat: "매장·결제",
-    q: "영업시간과 매장 위치(쇼룸 방문)는 어떻게 되나요?",
-    a: `연중무휴 영업시간은 매일 ${STORE.hours} (${STORE.closed})이며, 오프라인 쇼룸은 ${STORE.roadAddress} (지번: ${STORE.jibunAddress}, ${STORE.addressNote})에 위치해 있습니다. 매장 앞 전용 주차장이 완비되어 있어 언제든 편하게 방문하시어 실물을 직접 확인하실 수 있습니다.`,
+    tag: "최고가 매입 견적",
+    icon: "📸",
+    q: "매입 견적을 신청할 때 어떤 사진을 보내야 가장 빠르게 견적을 받나요?",
+    a: "제품 정면 전체 사진과 함께 전기용품 안전관리법 스티커에 적힌 [모델명]과 [제조년월(연식)]이 선명하게 보이도록 근접 촬영해 주시면 가장 빠릅니다. 홈페이지의 AI 자동분석 폼이나 전화/문자로 사진을 남겨주시면 평균 10분~30분 이내에 최고가 방문 매입 견적을 산출해 드립니다.",
   },
 ] as const;
 
@@ -298,14 +270,8 @@ export default function Home() {
   /* UI 인터랙션 상태 */
   const [catFilter, setCatFilter] = useState<"all" | "home" | "biz">("all");
   const [openFaq, setOpenFaq] = useState<string | null>(
-    "먼 지역(수도권·타 광역시)도 배송이나 설치가 가능한가요?"
+    "구매 후 고장이 나면 무상 A/S 보증은 어떻게 진행되나요?"
   );
-  const [faqCategory, setFaqCategory] = useState<string>("전체");
-
-  const filteredFaqs = useMemo(() => {
-    if (faqCategory === "전체") return FAQS;
-    return FAQS.filter((f) => f.cat === faqCategory);
-  }, [faqCategory]);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [lightbox, setLightbox] = useState<{
     review: Review;
@@ -1616,117 +1582,81 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 우측: 카테고리 필터 + 아코디언 카드 리스트 */}
-            <div className="lg:col-span-8 space-y-3.5">
-              {/* 카테고리 필터 탭 (모바일 터치 스크롤 지원) */}
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar sm:flex-wrap">
-                {FAQ_CATEGORIES.map((cat) => {
-                  const active = faqCategory === cat;
-                  const count =
-                    cat === "전체"
-                      ? FAQS.length
-                      : FAQS.filter((f) => f.cat === cat).length;
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => setFaqCategory(cat)}
-                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12.5px] font-bold transition-all ${
-                        active
-                          ? "bg-[#0E1A2B] text-white shadow-xs ring-1 ring-[#0E1A2B]"
-                          : "bg-white text-[#4B5260] border border-[#DDD9D1] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
-                      }`}
-                    >
-                      <span>{cat}</span>
-                      <span
-                        className={`rounded-full px-1.5 py-0.2 text-[10.5px] font-extrabold ${
-                          active
-                            ? "bg-[#D9531E] text-white"
-                            : "bg-[#F0EDE6] text-[#8A8478]"
-                        }`}
+            {/* 우측: 핵심 5대 질문 아코디언 카드 리스트 */}
+            <div className="lg:col-span-8 space-y-3">
+              {FAQS.map((f, i) => {
+                const open = openFaq === f.q;
+                return (
+                  <div
+                    key={f.q}
+                    className={`overflow-hidden rounded-xl border transition-all duration-200 ${
+                      open
+                        ? "border-[#0E1A2B] bg-white shadow-sm ring-1 ring-[#0E1A2B]/10 border-l-4 border-l-[#D9531E]"
+                        : "border-[#DDD9D1] bg-white hover:border-[#0E1A2B]/40 hover:shadow-2xs"
+                    }`}
+                  >
+                    <h3>
+                      <button
+                        type="button"
+                        id={`faq-q-${i}`}
+                        aria-expanded={open}
+                        aria-controls={`faq-a-${i}`}
+                        onClick={() => setOpenFaq(open ? null : f.q)}
+                        className="flex w-full items-start justify-between gap-3 sm:gap-4 p-4.5 sm:p-5.5 text-left focus:outline-hidden"
                       >
-                        {count}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* FAQ 아코디언 카드 목록 */}
-              <div className="space-y-2.5">
-                {filteredFaqs.map((f, i) => {
-                  const open = openFaq === f.q;
-                  return (
-                    <div
-                      key={f.q}
-                      className={`overflow-hidden rounded-xl border transition-all duration-200 ${
-                        open
-                          ? "border-[#0E1A2B] bg-white shadow-sm ring-1 ring-[#0E1A2B]/10 border-l-4 border-l-[#D9531E]"
-                          : "border-[#DDD9D1] bg-white hover:border-[#0E1A2B]/40 hover:shadow-2xs"
-                      }`}
-                    >
-                      <h3>
-                        <button
-                          type="button"
-                          id={`faq-q-${i}`}
-                          aria-expanded={open}
-                          aria-controls={`faq-a-${i}`}
-                          onClick={() => setOpenFaq(open ? null : f.q)}
-                          className="flex w-full items-start justify-between gap-3 sm:gap-4 p-4 sm:p-5 text-left focus:outline-hidden"
-                        >
-                          <div className="flex items-start gap-2.5 sm:gap-3 flex-1 min-w-0">
-                            <span
-                              className={`flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md text-[13px] sm:text-[14px] font-black transition-colors ${
-                                open
-                                  ? "bg-[#D9531E] text-white"
-                                  : "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]"
-                              }`}
-                            >
-                              Q
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <span className="mb-1 inline-block rounded bg-[#F4F2EE] px-2 py-0.5 text-[10.5px] font-semibold text-[#6B7280]">
-                                {f.cat}
-                              </span>
-                              <p className="text-[14.5px] sm:text-[16px] font-bold leading-snug text-[#0E1A2B]">
-                                {f.q}
-                              </p>
-                            </div>
-                          </div>
-
+                        <div className="flex items-start gap-2.5 sm:gap-3.5 flex-1 min-w-0">
                           <span
-                            className={`mt-0.5 grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full border transition-all duration-200 ${
+                            className={`flex h-6.5 w-6.5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md text-[13px] sm:text-[14px] font-black transition-colors ${
                               open
-                                ? "rotate-45 bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                                : "bg-[#F8F6F2] text-[#6B7280] border-[#DDD9D1] hover:text-[#0E1A2B] hover:border-[#0E1A2B]"
+                                ? "bg-[#D9531E] text-white"
+                                : "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]"
                             }`}
                           >
-                            <Icon d={ICON.plus} className="h-4 w-4" />
+                            Q
                           </span>
-                        </button>
-                      </h3>
-
-                      {open && (
-                        <div
-                          id={`faq-a-${i}`}
-                          role="region"
-                          aria-labelledby={`faq-q-${i}`}
-                          className="border-t border-[#F0EDE6] bg-[#FAF9F7]/85 p-4 sm:p-5 rounded-b-xl animate-in fade-in duration-150"
-                        >
-                          <div className="flex items-start gap-2.5 sm:gap-3">
-                            <span className="flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md bg-[#0E1A2B] text-[13px] sm:text-[14px] font-bold text-[#FF8A50] mt-0.5 shadow-2xs">
-                              A
+                          <div className="flex-1 min-w-0">
+                            <span className="mb-1 inline-flex items-center gap-1 rounded bg-[#F4F2EE] px-2 py-0.5 text-[11px] font-semibold text-[#4B5260]">
+                              <span>{f.icon}</span>
+                              <span>{f.tag}</span>
                             </span>
-                            <p className="flex-1 text-[13.5px] sm:text-[14.5px] leading-[1.8] text-[#374151]">
-                              {f.a}
+                            <p className="text-[15px] sm:text-[16.5px] font-bold leading-snug text-[#0E1A2B]">
+                              {f.q}
                             </p>
                           </div>
                         </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+
+                        <span
+                          className={`mt-0.5 grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full border transition-all duration-200 ${
+                            open
+                              ? "rotate-45 bg-[#0E1A2B] text-white border-[#0E1A2B]"
+                              : "bg-[#F8F6F2] text-[#6B7280] border-[#DDD9D1] hover:text-[#0E1A2B] hover:border-[#0E1A2B]"
+                          }`}
+                        >
+                          <Icon d={ICON.plus} className="h-4 w-4" />
+                        </span>
+                      </button>
+                    </h3>
+
+                    {open && (
+                      <div
+                        id={`faq-a-${i}`}
+                        role="region"
+                        aria-labelledby={`faq-q-${i}`}
+                        className="border-t border-[#F0EDE6] bg-[#FAF9F7]/90 p-4.5 sm:p-5.5 rounded-b-xl animate-in fade-in duration-150"
+                      >
+                        <div className="flex items-start gap-2.5 sm:gap-3.5">
+                          <span className="flex h-6.5 w-6.5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md bg-[#0E1A2B] text-[13px] sm:text-[14px] font-bold text-[#FF8A50] mt-0.5 shadow-2xs">
+                            A
+                          </span>
+                          <p className="flex-1 text-[13.5px] sm:text-[14.5px] leading-[1.8] text-[#374151]">
+                            {f.a}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
