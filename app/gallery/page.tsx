@@ -38,7 +38,11 @@ import {
   SiteFooter,
   MobileCtaBar,
 } from "../../lib/ui";
-import { ProductCard, type ProductItem } from "../../components/products/product-card";
+import {
+  ProductCard,
+  ProductTrustMicroStrip,
+  type ProductItem,
+} from "../../components/products/product-card";
 import { ProductStatusBadge } from "../../components/products/product-status-badge";
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
@@ -712,6 +716,9 @@ function ProductDetailModal({
                     </div>
                   </div>
 
+                  {/* 핵심 가치 아이콘 바 (Trust Micro-strip) */}
+                  <ProductTrustMicroStrip category={categoryLabel} />
+
                   {product.description && (
                     <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
                       <span className="text-[12px] font-bold text-[#6B7280] block mb-1.5">
@@ -1119,8 +1126,6 @@ export default function GalleryPage() {
       status: normalizeProductStatus(product.status),
     });
 
-    if (isAdmin) return;
-
     const prevViews = product.views || 0;
     try {
       const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
@@ -1150,8 +1155,29 @@ export default function GalleryPage() {
         return;
       }
 
-      viewedList.push(product.id);
-      sessionStorage.setItem("viewed_products", JSON.stringify(viewedList));
+      const data = (await res.json().catch(() => null)) as {
+        views?: number;
+      } | null;
+      const confirmedViews =
+        data && typeof data.views === "number" ? data.views : newViews;
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, views: confirmedViews } : p
+        )
+      );
+      setSelectedProduct((prev) =>
+        prev && prev.id === product.id
+          ? { ...prev, views: confirmedViews }
+          : prev
+      );
+
+      const nextStr = sessionStorage.getItem("viewed_products") || "[]";
+      const nextList = JSON.parse(nextStr) as string[];
+      if (!nextList.includes(product.id)) {
+        nextList.push(product.id);
+        sessionStorage.setItem("viewed_products", JSON.stringify(nextList));
+      }
     } catch {
       setProducts((prev) =>
         prev.map((p) => (p.id === product.id ? { ...p, views: prevViews } : p))
@@ -1618,10 +1644,10 @@ export default function GalleryPage() {
 
       {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이에 맞춘 top-[76px] sm:top-[84px]) */}
       <div className="sticky top-[76px] sm:top-[84px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E4E0D8] shadow-2xs">
-        <div className="hb-container py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+        <div className="hb-container py-2 sm:py-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
           {/* 카테고리 탭 */}
           <div
-            className="flex items-center gap-1.5 overflow-x-auto pb-1 lg:pb-0"
+            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
             role="tablist"
             aria-label="상품 카테고리 필터"
           >
@@ -1637,7 +1663,7 @@ export default function GalleryPage() {
                     setActiveCategory(cat);
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  className={`px-3.5 py-2 rounded text-[13.5px] font-semibold whitespace-nowrap transition-colors border shrink-0 ${
+                  className={`px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded text-[12.5px] sm:text-[13.5px] font-semibold whitespace-nowrap transition-colors border shrink-0 ${
                     active
                       ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
                       : "bg-white text-[#4B5260] border-[#DDD9D1] hover:bg-[#F6F5F2]"
@@ -1645,7 +1671,7 @@ export default function GalleryPage() {
                 >
                   {cat}
                   <span
-                    className={`ml-1.5 text-[12px] ${
+                    className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] ${
                       active ? "text-white/70" : "text-[#8A8478]"
                     }`}
                   >
@@ -1656,11 +1682,11 @@ export default function GalleryPage() {
             })}
           </div>
 
-          {/* 검색창 + 판매 상태 필터 + 정렬 */}
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto">
-            <div className="relative flex-1 sm:w-64">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A8478]">
-                <Icon d={ICON.search} className="w-4 h-4" />
+          {/* 검색창 + 판매 상태 필터 + 정렬 (모바일 1줄 인라인 슬림 압축 / 데스크톱 sm 이상 기존 동일) */}
+          <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
+            <div className="relative flex-1 min-w-0 sm:w-64">
+              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#8A8478]">
+                <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </span>
               <input
                 type="search"
@@ -1669,9 +1695,9 @@ export default function GalleryPage() {
                   setSearch(e.target.value);
                   setVisibleLimit(PAGE_STEP);
                 }}
-                placeholder="제품명 또는 모델명 검색"
+                placeholder="제품명·모델명 검색"
                 aria-label="제품명 또는 모델명 검색"
-                className="w-full h-10 pl-9 pr-3 rounded border border-[#DDD9D1] bg-white text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+                className="w-full h-8 sm:h-10 pl-8 sm:pl-9 pr-2.5 sm:pr-3 rounded border border-[#DDD9D1] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
               />
             </div>
 
@@ -1682,7 +1708,7 @@ export default function GalleryPage() {
                 setVisibleLimit(PAGE_STEP);
               }}
               aria-label="판매 상태 필터"
-              className="h-10 px-3 rounded border border-[#DDD9D1] bg-white text-[13.5px] font-semibold text-[#4B5260] focus:border-[#0E1A2B] focus:outline-none"
+              className="h-8 sm:h-10 px-2 sm:px-3 rounded border border-[#DDD9D1] bg-white text-[12px] sm:text-[13.5px] font-semibold text-[#4B5260] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
             >
               <option value="all">전체 상태</option>
               <option value="selling">판매중만</option>
@@ -1694,7 +1720,7 @@ export default function GalleryPage() {
               value={sort}
               onChange={(e) => setSort(e.target.value as SortOption)}
               aria-label="정렬 기준"
-              className="h-10 px-3 rounded border border-[#DDD9D1] bg-white text-[13.5px] font-semibold text-[#4B5260] focus:border-[#0E1A2B] focus:outline-none"
+              className="h-8 sm:h-10 px-2 sm:px-3 rounded border border-[#DDD9D1] bg-white text-[12px] sm:text-[13.5px] font-semibold text-[#4B5260] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
             >
               <option value="latest">최신 등록순</option>
               <option value="views">조회 많은순</option>

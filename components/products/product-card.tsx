@@ -32,6 +32,73 @@ export interface ProductItem {
   views?: number | null;
 }
 
+export function ProductTrustMicroStrip({
+  category,
+  className = "",
+}: {
+  category?: string | null;
+  className?: string;
+}) {
+  const normalizedCategory = normalizeProductCategory(category);
+  const isHvac = normalizedCategory === "에어컨/냉난방기";
+
+  const items = [
+    {
+      title: "세척·작동 점검",
+      desc: "입고 후 작동 테스트 및 고압 세척 완료",
+      highlight: null,
+    },
+    {
+      title: "무상 A/S 보증",
+      desc: "에어컨·냉난방기 8개월 / 그 외 가전 4개월",
+      highlight: isHvac
+        ? "해당 품목 8개월 보증 (계약조건 기준)"
+        : "해당 품목 4개월 보증 (계약조건 기준)",
+    },
+    {
+      title: "세금계산서 발행",
+      desc: "사업자 고객을 위한 합법 부가세 증빙 지원",
+      highlight: null,
+    },
+  ] as const;
+
+  return (
+    <section
+      aria-label="한밭중고전자 핵심 거래 보증 안내"
+      className={`rounded-md border border-[#E4E0D8] bg-[#FAF9F7] ${className}`}
+    >
+      <div className="grid grid-cols-3 divide-x divide-[#E4E0D8]">
+        {items.map((item) => (
+          <div
+            key={item.title}
+            className="flex flex-col justify-between px-2.5 py-2.5 sm:px-3.5 sm:py-3"
+          >
+            <div>
+              <div className="flex items-center gap-1 text-[11.5px] sm:text-[12.5px] font-bold tracking-[-0.01em] text-[#0E1A2B]">
+                <span
+                  aria-hidden="true"
+                  className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#D9531E]/12 text-[10px] font-extrabold text-[#D9531E]"
+                >
+                  ✓
+                </span>
+                <span className="truncate">{item.title}</span>
+              </div>
+              <p className="mt-1 text-[10.5px] sm:text-[11.5px] leading-[1.4] text-[#4B5260] break-keep">
+                {item.desc}
+              </p>
+            </div>
+            {item.highlight && (
+              <span className="mt-1.5 inline-block text-[10px] font-semibold text-[#D9531E] break-keep">
+                · {item.highlight}
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function ProductCard({
   product,
   onSelect,
@@ -50,6 +117,7 @@ export function ProductCard({
   const images = splitImages(product.image_url);
   const sold = isProductSold(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
+  const isHvac = categoryLabel === "에어컨/냉난방기";
   const priced = hasProductPrice(product.price);
   const priceText = formatProductPrice(product.price, categoryLabel);
   const modelName = extractModelName(product.description, product.title);
@@ -211,31 +279,43 @@ export function ProductCard({
           </p>
         )}
 
-        <div className="mt-auto pt-3 border-t border-[#EEEBE5] flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            {sold ? (
-              <span className="text-[15.5px] font-bold text-[#8A8478] sm:text-[16.5px]">
-                판매완료
-              </span>
-            ) : priced ? (
-              <span className="text-[16.5px] font-bold tracking-tight text-[#0E1A2B] sm:text-[18px]">
-                {priceText}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-[#D9531E]">
-                <Icon d={ICON.phone} className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{priceText}</span>
-              </span>
-            )}
+        {/* 컴팩트 핵심 가치 인증 배지 (세척검수 · 무상A/S보증) */}
+        <div className="mt-auto pt-2.5">
+          <div className="mb-2 flex items-center gap-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] px-2 py-1 text-[10.5px] font-semibold text-[#4B5260]">
+            <span className="font-extrabold text-[#D9531E]" aria-hidden="true">
+              ✓
+            </span>
+            <span className="truncate">
+              세척검수 · A/S {isHvac ? "8개월" : "4개월"} 보증
+            </span>
           </div>
 
-          <span className="inline-flex shrink-0 items-center gap-0.5 text-[11.5px] font-semibold text-[#6B7280] group-hover:text-[#0E1A2B]">
-            <span className="hidden sm:inline">상세</span>
-            <Icon
-              d={ICON.right}
-              className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-            />
-          </span>
+          <div className="pt-2.5 border-t border-[#EEEBE5] flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              {sold ? (
+                <span className="text-[15.5px] font-bold text-[#8A8478] sm:text-[16.5px]">
+                  판매완료
+                </span>
+              ) : priced ? (
+                <span className="text-[16.5px] font-bold tracking-tight text-[#0E1A2B] sm:text-[18px]">
+                  {priceText}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-[#D9531E]">
+                  <Icon d={ICON.phone} className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{priceText}</span>
+                </span>
+              )}
+            </div>
+
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-[11.5px] font-semibold text-[#6B7280] group-hover:text-[#0E1A2B]">
+              <span className="hidden sm:inline">상세</span>
+              <Icon
+                d={ICON.right}
+                className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+              />
+            </span>
+          </div>
         </div>
       </div>
     </article>

@@ -7,12 +7,18 @@ import {
   getProductStatusLabel,
   isProductSold,
   normalizeProductCategory,
+  normalizeProductStatus,
   splitImages,
   STORE,
   telHref,
+  trackEvent,
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
-import { ProductCard, type ProductItem } from "../products/product-card";
+import {
+  ProductCard,
+  ProductTrustMicroStrip,
+  type ProductItem,
+} from "../products/product-card";
 
 export function FeaturedProductsSection({
   products,
@@ -29,10 +35,63 @@ export function FeaturedProductsSection({
 }) {
   const [selected, setSelected] = useState<ProductItem | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
+  const [viewOverrides, setViewOverrides] = useState<Record<string, number>>({});
 
-  const openModal = (item: ProductItem) => {
-    setSelected(item);
+  const openModal = async (item: ProductItem) => {
+    const currentViews =
+      typeof viewOverrides[item.id] === "number"
+        ? viewOverrides[item.id]
+        : item.views || 0;
+
+    setSelected({ ...item, views: currentViews });
     setImgIdx(0);
+    trackEvent("view_item", {
+      category: normalizeProductCategory(item.category),
+      status: normalizeProductStatus(item.status),
+    });
+
+    try {
+      const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
+      const viewedList = JSON.parse(viewedStr) as string[];
+      if (viewedList.includes(item.id)) return;
+
+      const optimisticViews = currentViews + 1;
+      setViewOverrides((prev) => ({ ...prev, [item.id]: optimisticViews }));
+      setSelected((prev) =>
+        prev && prev.id === item.id ? { ...prev, views: optimisticViews } : prev
+      );
+
+      const res = await fetch(`/api/products/${item.id}/view`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        setViewOverrides((prev) => ({ ...prev, [item.id]: currentViews }));
+        setSelected((prev) =>
+          prev && prev.id === item.id ? { ...prev, views: currentViews } : prev
+        );
+        return;
+      }
+
+      const data = (await res.json().catch(() => null)) as {
+        views?: number;
+      } | null;
+      const confirmedViews =
+        data && typeof data.views === "number" ? data.views : optimisticViews;
+
+      setViewOverrides((prev) => ({ ...prev, [item.id]: confirmedViews }));
+      setSelected((prev) =>
+        prev && prev.id === item.id ? { ...prev, views: confirmedViews } : prev
+      );
+
+      const nextStr = sessionStorage.getItem("viewed_products") || "[]";
+      const nextList = JSON.parse(nextStr) as string[];
+      if (!nextList.includes(item.id)) {
+        nextList.push(item.id);
+        sessionStorage.setItem("viewed_products", JSON.stringify(nextList));
+      }
+    } catch {
+      setViewOverrides((prev) => ({ ...prev, [item.id]: currentViews }));
+    }
   };
 
   const selectedImages = selected ? splitImages(selected.image_url) : [];
@@ -132,13 +191,19 @@ export function FeaturedProductsSection({
         ) : (
           /* 정상 상품 그리드 */
           <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-            {products.slice(0, 8).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onSelect={openModal}
-              />
-            ))}
+            {products.slice(0, 8).map((product) => {
+              const effectiveProduct =
+                typeof viewOverrides[product.id] === "number"
+                  ? { ...product, views: viewOverrides[product.id] }
+                  : product;
+              return (
+                <ProductCard
+                  key={product.id}
+                  product={effectiveProduct}
+                  onSelect={openModal}
+                />
+              );
+            })}
           </div>
         )}
       </div>
@@ -218,7 +283,7 @@ export function FeaturedProductsSection({
                   {selected.title}
                 </h3>
 
-                <div className="flex items-center justify-between rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
                   <div>
                     <span className="block text-[12px] font-semibold text-[#6B7280]">
                       판매 가격
@@ -229,13 +294,24 @@ export function FeaturedProductsSection({
                         : formatProductPrice(selected.price, selectedCategory)}
                     </strong>
                   </div>
-                  <Link
-                    href={`/${selected.id}`}
-                    className="text-[13px] font-bold text-[#0E1A2B] underline underline-offset-4 hover:text-[#D9531E]"
-                  >
-                    개별 상세페이지 이동 →
-                  </Link>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[12.5px] font-semibold text-[#6B7280]">
+                      조회{" "}
+                      <strong className="text-[#0E1A2B]">
+                        {selected.views || 0}
+                      </strong>
+                      회
+                    </span>
+                    <Link
+                      href={`/${selected.id}`}
+                      className="text-[13px] font-bold text-[#0E1A2B] underline underline-offset-4 hover:text-[#D9531E]"
+                    >
+                      개별 상세페이지 이동 →
+                    </Link>
+                  </div>
                 </div>
+
+                <ProductTrustMicroStrip category={selectedCategory} />
 
                 {selected.description && (
                   <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">

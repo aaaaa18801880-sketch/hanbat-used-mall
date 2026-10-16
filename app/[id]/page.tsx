@@ -31,8 +31,11 @@ import {
 } from "../../components/products/product-detail-gallery";
 import {
   ProductCard,
+  ProductTrustMicroStrip,
   type ProductItem,
 } from "../../components/products/product-card";
+
+export const dynamic = "force-dynamic";
 
 /**
  * 카테고리별(업소용 B2B / 에어컨·냉난방기 / 가정용 B2C) 맞춤 설치 환경 체크리스트 정의
@@ -435,6 +438,12 @@ export default async function ProductDetailPage({
                   </span>
                 </div>
               </div>
+
+              {/* 2.5순위: 핵심 가치 아이콘 바 (Trust Micro-strip) */}
+              <ProductTrustMicroStrip
+                category={categoryLabel}
+                className="mt-4"
+              />
 
               {/* 3순위: 주요 사양 및 특징 */}
               <div className="mt-5 space-y-5">

@@ -34,16 +34,29 @@ export function ProductDetailGallery({
 
   useEffect(() => {
     if (!id) return;
-    try {
-      const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
-      const viewedList = JSON.parse(viewedStr) as string[];
-      if (viewedList.includes(id)) return;
-      viewedList.push(id);
-      sessionStorage.setItem("viewed_products", JSON.stringify(viewedList));
-      fetch(`/api/products/${id}/view`, { method: "POST" }).catch(() => {});
-    } catch {
-      // ignore
-    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
+        const viewedList = JSON.parse(viewedStr) as string[];
+        if (viewedList.includes(id)) return;
+
+        const res = await fetch(`/api/products/${id}/view`, { method: "POST" });
+        if (!res.ok || cancelled) return;
+
+        const nextStr = sessionStorage.getItem("viewed_products") || "[]";
+        const nextList = JSON.parse(nextStr) as string[];
+        if (!nextList.includes(id)) {
+          nextList.push(id);
+          sessionStorage.setItem("viewed_products", JSON.stringify(nextList));
+        }
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   const moveSlide = useCallback(

@@ -102,6 +102,15 @@ body {
   .hb-btn-kakao {
     @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#191600];
   }
+
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
