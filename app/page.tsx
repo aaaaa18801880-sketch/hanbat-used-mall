@@ -159,29 +159,39 @@ const CATEGORIES = [
 
 const USP = [
   {
-    t: "세척 · 정비 후 판매",
-    tag: "INSPECTION & CLEANING",
-    d: "입고된 모든 제품은 전문 엔지니어가 분해 고압 세척과 냉매·콤프레샤·누수 테스트 및 시운전 검수를 완벽히 마친 뒤 쇼룸과 홈페이지에 등록합니다.",
+    no: "01",
+    en: "INSPECTION & CLEANING",
+    t: "분해 세척 · 정밀 검수 후 출고",
+    d: "입고된 모든 가전과 주방설비는 엔지니어가 분해 고압 세척과 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 매장과 홈페이지에 등록합니다.",
+    highlight: "전 제품 시운전 완료",
   },
   {
-    t: "명확한 무상 A/S 보증",
-    tag: "WARRANTY SERVICE",
-    d: "에어컨·냉난방기 8개월, 냉장고·세탁기 및 일반 가전 4개월 무상 A/S를 책임 보증합니다. (계약 내용 및 제품군에 따라 명확히 약정)",
+    no: "02",
+    en: "WARRANTY SERVICE",
+    t: "명확한 무상 A/S 책임 보증",
+    d: "중고 구매 후 고장 걱정을 덜어드리도록 에어컨·냉난방기 8개월, 냉장고·세탁기 및 일반 가전 4개월 무상 A/S를 보증합니다. (계약 조건별 약정)",
+    highlight: "냉난방기 8개월 / 일반 4개월",
   },
   {
-    t: "판매와 매입을 한 곳에서",
-    tag: "BUY & SELL ONE-STOP",
-    d: "필요한 가전 구매와 쓰지 않는 가전·주방설비 처분을 한 번의 방문 일정으로 동시 진행하여 시간과 운반 비용을 대폭 절약해 드립니다.",
+    no: "03",
+    en: "BUY & SELL ONE-STOP",
+    t: "구매와 매입·철거를 한 번에",
+    d: "이사나 매장 오픈·정리 시 필요한 제품 구매와 쓰던 가전 처분을 한 번의 방문 일정으로 동시 진행하여 시간과 운반 비용을 아껴드립니다.",
+    highlight: "보상판매 · 동시 수거 가능",
   },
   {
-    t: "전국 단위 직배송 · 설치",
-    tag: "NATIONWIDE DELIVERY",
-    d: "대전·세종·충청권 당일·익일 배송은 물론 구미·포항·창원·부산 등 전국 다수 지역 직배송 및 전문 기사 설치 실적을 보유하고 있습니다.",
+    no: "04",
+    en: "NATIONWIDE DELIVERY",
+    t: "대전·충청 당일/익일 및 전국 직배송",
+    d: "대전·세종·충청권 빠른 직배송은 물론 구미·포항·창원·부산 등 전국 다수 지역에 품목과 수량에 맞춘 안전 직배송·설치를 지원합니다.",
+    highlight: "전문 기사 직접 방문 설치",
   },
   {
-    t: "대량 거래 · 세금계산서 100% 발행",
-    tag: "B2B TAX INVOICE",
-    d: "식당·카페 창업 패키지 도입이나 폐업·매장 정리 등 기업·사업자 거래 시 전자세금계산서를 투명하게 100% 정식 발행합니다.",
+    no: "05",
+    en: "B2B TAX INVOICE",
+    t: "창업·폐업 대량 거래 및 세금계산서",
+    d: "식당·카페·사무실 창업 패키지 도입이나 폐업 일괄 정리 시 합리적인 세트 견적과 함께 전자세금계산서를 100% 정식 발행합니다.",
+    highlight: "전자세금계산서 · 카드결제",
   },
 ] as const;
 
@@ -214,34 +224,29 @@ const SELL_STEPS = [
 
 const FAQS = [
   {
-    tag: "무상 A/S 보증",
-    icon: "🛡️",
-    q: "구매 후 고장이 나면 무상 A/S 보증은 어떻게 진행되나요?",
-    a: "에어컨 및 냉난방기는 8개월, 냉장고·세탁기 및 일반 가전은 4개월 무상 A/S를 책임 보증합니다. 제품 출고 시 정식 보증 규정이 적용되며, 사용 중 이상 발생 시 매장 전담 엔지니어가 신속하게 방문 및 점검 처리를 도와드립니다. (단, 계약 내용 및 제품군에 따라 명확히 약정)",
+    tag: "🛡️ A/S 접수 · 보증 범위",
+    q: "사용 중 문제가 생기면 무상 A/S는 어떻게 신청하며, 보증 기준은 무엇인가요?",
+    a: "대표전화(042-523-8179)나 카카오톡 채널로 증상을 알려주시면 담당 기사가 증상을 확인한 뒤 방문 수리 또는 동일 급 제품 교환으로 신속히 처리해 드립니다. 정상적인 사용 중 발생한 기기 기능 불량(냉매 누설, 콤프레샤·모터 불량 등)은 보증 기간 내 무상 처리되며, 고객 과실로 인한 파손이나 단순 소모품은 실비로 안내됩니다.",
   },
   {
-    tag: "폐가전 수거·철거",
-    icon: "♻️",
-    q: "새 제품을 구매하면서 기존에 쓰던 노후 폐가전 철거 및 수거도 가능한가요?",
-    a: "네, 가능합니다. 한밭중고전자에서 가전이나 업소용 집기를 구매·설치하실 때, 기존에 사용하시던 폐가전이나 교체 대상 설비의 철거 및 수거를 한 번의 방문 일정으로 동시 진행하여 고객님의 시간과 폐기 비용을 크게 아껴드립니다.",
+    tag: "♻️ 보상판매 · 기존 가전 철거",
+    q: "중고가전을 구매하면서 기존에 쓰던 가전을 반납(보상매입)하거나 폐가전 수거도 되나요?",
+    a: "네, 가능합니다. 구매하신 제품을 배송·설치해 드리는 날 기존 가전을 함께 수거해 드립니다. 연식과 상태가 양호한 제품은 매입가를 산정해 구매 금액에서 차감(보상판매)해 드리며, 노후된 고장 가전도 반출 여건에 따라 함께 철거·수거 상담이 가능합니다.",
   },
   {
-    tag: "매장 안내 · 쇼룸",
-    icon: "📍",
-    q: "영업시간과 매장 위치(실물 쇼룸 방문)가 어떻게 되나요?",
-    a: `연중무휴 영업시간은 매일 ${STORE.hours} (${STORE.closed})이며, 오프라인 쇼룸은 ${STORE.roadAddress} (지번: ${STORE.jibunAddress}, ${STORE.addressNote})에 위치해 있습니다. 매장 앞 전용 주차장이 완비되어 있어 실물을 직접 전원 켜보고 검수한 뒤 구매하실 수 있습니다.`,
+    tag: "🔧 기본 배송비 · 추가 설치비 기준",
+    q: "엘리베이터가 없는 건물이나 에어컨 설치 시 추가 비용 기준은 어떻게 되나요?",
+    a: "일반 가전(냉장고·세탁기)은 기본 배송·수평 설치가 지원되며, 엘리베이터 없는 2층 이상 계단 운반이나 사다리차가 필요한 현장만 사전에 투명하게 협의합니다. 에어컨·냉난방기는 설치 장소의 배관 길이, 타공 여부, 외벽 앵글 유무, 전기 규격(단상/삼상)을 사진으로 먼저 보여주시면 현장 추가금 걱정 없이 정확한 예상 견적을 안내해 드립니다.",
   },
   {
-    tag: "사다리차 · 계단 반입",
-    icon: "🏢",
-    q: "사다리차나 엘리베이터가 없는 고층 건물도 배송 및 설치가 가능한가요?",
-    a: "가능합니다. 엘리베이터 유무, 계단 폭, 현관문 크기에 따라 전문 배송팀 2인 1조 방문 또는 사다리차 연계 일정을 사전에 맞춤 조율해 드립니다. 문의 작성 시 계단 통로나 진입로 사진을 함께 올려주시면 반입 가능 여부와 최적 동선을 사전에 정확히 안내해 드립니다.",
+    tag: "💳 결제 수단 · 세금계산서",
+    q: "오프라인 매장 방문 없이 비대면 구매도 가능한가요? 결제 방법과 증빙 서류가 궁금합니다.",
+    a: "매장 직접 방문(대전 중구 중촌동 144)은 물론, 바쁘신 분들을 위해 실물 상세 사진·작동 영상을 카톡으로 먼저 확인하신 뒤 비대면 주문도 가능합니다. 계좌이체, 신용카드 결제, 현금영수증 및 사업자 전자세금계산서 발행을 모두 지원합니다.",
   },
   {
-    tag: "최고가 매입 견적",
-    icon: "📸",
-    q: "매입 견적을 신청할 때 어떤 사진을 보내야 가장 빠르게 견적을 받나요?",
-    a: "제품 정면 전체 사진과 함께 전기용품 안전관리법 스티커에 적힌 [모델명]과 [제조년월(연식)]이 선명하게 보이도록 근접 촬영해 주시면 가장 빠릅니다. 홈페이지의 AI 자동분석 폼이나 전화/문자로 사진을 남겨주시면 평균 10분~30분 이내에 최고가 방문 매입 견적을 산출해 드립니다.",
+    tag: "📸 감가 없는 빠른 매입 팁",
+    q: "내 물건 팔기(매입) 신청 시 현장 감가 없이 가장 빠르게 견적을 받으려면 어떤 사진이 필요한가요?",
+    a: "① 제품 정면 전체 사진, ② 측면이나 내부에 붙어 있는 '정격 명판 스티커(모델명·제조년월 표기)' 근접 사진, ③ 외관 흠집이나 설치 층수(계단/출입문) 정보를 함께 남겨주시면, AI 자동 분석과 담당자 검토를 거쳐 현장 흥정 없는 정확한 매입 견적을 안내받으실 수 있습니다.",
   },
 ] as const;
 
@@ -269,9 +274,7 @@ export default function Home() {
 
   /* UI 인터랙션 상태 */
   const [catFilter, setCatFilter] = useState<"all" | "home" | "biz">("all");
-  const [openFaq, setOpenFaq] = useState<string | null>(
-    "구매 후 고장이 나면 무상 A/S 보증은 어떻게 진행되나요?"
-  );
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [lightbox, setLightbox] = useState<{
     review: Review;
@@ -1186,71 +1189,84 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ⑦ 왜 한밭중고전자인가 (아키텍처 스펙 매트릭스 레이아웃) */}
+        {/* ⑦ 왜 한밭중고전자인가 (USP — Bento 그리드 레이아웃으로 FAQ와 시각적 분리) */}
         <section
-          className="border-b border-[#E4E0D8] bg-[#F6F5F2] py-14 sm:py-20"
+          className="border-b border-[#E4E0D8] bg-white py-16 sm:py-20 lg:py-24"
           aria-labelledby="usp-title"
         >
-          <div className="hb-container grid gap-10 lg:grid-cols-12 lg:gap-14 items-start">
-            <div className="lg:col-span-5 lg:sticky lg:top-28">
-              <SectionHeading
-                eyebrow="Quality & Service Standard"
-                title={
-                  <span id="usp-title">
-                    중고라서 불안한 부분,
-                    <br />
-                    먼저 확인하고 보냅니다.
-                  </span>
-                }
-                desc="판매부터 매입, 배송과 설치까지 한밭중고전자가 1995년부터 직접 책임지는 5대 운영 원칙입니다."
-              />
+          <div className="hb-container">
+            {/* 상단 헤더 영역 */}
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between pb-10 border-b border-[#EEEBE5]">
+              <div>
+                <p className="inline-flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#D9531E]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+                  QUALITY &amp; SERVICE STANDARD
+                </p>
+                <h2
+                  id="usp-title"
+                  className="mt-2.5 text-[26px] font-extrabold leading-[1.26] tracking-[-0.025em] text-[#0E1A2B] sm:text-[34px]"
+                >
+                  중고라서 불안한 부분,{" "}
+                  <span className="text-[#D9531E]">먼저 확인하고 보냅니다.</span>
+                </h2>
+                <p className="mt-3 max-w-2xl text-[15px] leading-[1.7] text-[#4B5260]">
+                  판매부터 매입, 배송과 설치까지 한밭중고전자가 {STORE.since}년부터 직접 책임지는 5대 운영 원칙입니다.
+                </p>
+              </div>
 
-              <div className="mt-6 flex flex-wrap gap-2 text-[12px] font-semibold text-[#4B5260]">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D1] bg-white px-3 py-1.5 shadow-2xs">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
-                  1995년 개업 30여 년 신뢰
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D1] bg-white px-3 py-1.5 shadow-2xs">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
-                  전문 엔지니어 직접 검수
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-[#DDD9D1] bg-white px-3 py-1.5 shadow-2xs">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
-                  정식 무상 A/S 보증서 발급
-                </span>
+              {/* 우측 핵심 신뢰 배지 */}
+              <div className="flex flex-wrap gap-2 shrink-0">
+                {[
+                  `${STORE.since}년 개업 (${OPERATING_YEARS}년차 운영)`,
+                  "전문 엔지니어 직접 검수",
+                  "무상 A/S 보증 약정",
+                ].map((badge) => (
+                  <span
+                    key={badge}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-[#E4E0D8] bg-[#FAF9F7] px-3.5 py-1.5 text-[12.5px] font-bold text-[#0E1A2B]"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+                    {badge}
+                  </span>
+                ))}
               </div>
             </div>
 
-            <ol className="lg:col-span-7 rounded-xl border border-[#DDD9D1] bg-white shadow-xs divide-y divide-[#EAE6DF] overflow-hidden">
-              {USP.map((u, i) => (
-                <li
-                  key={u.t}
-                  className="group flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-5 p-5 sm:p-6 transition-colors hover:bg-[#FAF9F7]"
-                >
-                  <div className="flex items-center sm:flex-col sm:items-center gap-3 shrink-0">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#0E1A2B] text-[14px] sm:text-[15px] font-black text-[#FF8A50] shadow-2xs group-hover:bg-[#D9531E] group-hover:text-white transition-colors">
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <span className="sm:hidden text-[11px] font-bold tracking-wider text-[#D9531E]">
-                      {u.tag}
-                    </span>
-                  </div>
+            {/* 하단 5칸 Bento 카드 그리드 (상단 3개 + 하단 2개 와이드) */}
+            <ol className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-6">
+              {USP.map((u, idx) => {
+                const isWide = idx >= 3; // 04, 05번 카드는 하단 3컬럼씩 와이드 배치
+                return (
+                  <li
+                    key={u.no}
+                    className={`group relative flex flex-col justify-between rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-6 transition-all duration-200 hover:border-[#0E1A2B] hover:bg-white hover:shadow-md ${
+                      isWide ? "md:col-span-3" : "md:col-span-2"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[#0E1A2B] text-[13px] font-extrabold tabular-nums text-[#FF8A50]">
+                          {u.no}
+                        </span>
+                        <span className="text-[10.5px] font-bold tracking-[0.14em] text-[#8A8478] uppercase">
+                          {u.en}
+                        </span>
+                      </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
-                      <h3 className="text-[16.5px] sm:text-[18px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
+                      <h3 className="mt-5 text-[18px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
                         {u.t}
                       </h3>
-                      <span className="hidden sm:inline-block text-[11px] font-bold tracking-wider text-[#8A8478] uppercase">
-                        {u.tag}
-                      </span>
+                      <p className="mt-2.5 text-[14px] leading-[1.7] text-[#4B5260] break-keep">
+                        {u.d}
+                      </p>
                     </div>
-                    <p className="text-[13.5px] sm:text-[14.5px] leading-relaxed text-[#4B5260]">
-                      {u.d}
-                    </p>
-                  </div>
-                </li>
-              ))}
+
+                    <div className="mt-5 pt-3.5 border-t border-[#E4E0D8]/80 flex items-center justify-between text-[12px] font-bold text-[#0E1A2B]">
+                      <span className="text-[#D9531E]">✓ {u.highlight}</span>
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           </div>
         </section>
@@ -1521,33 +1537,40 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ⑩ FAQ (Section 7과 완벽히 크기·그리드·컨테이너를 일치시킨 5선 아코디언) */}
+        {/* ⑩ FAQ (좌측 상담 유도 + 우측 실무 디테일 아코디언) */}
         <section
           id="faq-section"
-          className="border-b border-[#E4E0D8] bg-[#F6F5F2] py-14 sm:py-20"
+          className="border-b border-[#E4E0D8] bg-[#F6F5F2] py-16 sm:py-20 lg:py-24"
           aria-labelledby="faq-title"
         >
           <div className="hb-container grid gap-10 lg:grid-cols-12 lg:gap-14 items-start">
-            {/* 좌측: Section 7과 동일한 5컬럼 그리드 & 여백 */}
-            <div className="lg:col-span-5 lg:sticky lg:top-28">
-              <SectionHeading
-                eyebrow="FAQ"
-                title={<span id="faq-title">자주 묻는 질문</span>}
-                desc="배송·설치, 무상 A/S 보증, 매입 절차 등 고객님들이 가장 자주 문의하시는 5가지 핵심 사항을 투명하게 안내해 드립니다."
-              />
-
+            {/* 좌측 4컬럼: 타이틀 및 1:1 직통 버튼 */}
+            <div className="lg:col-span-4 lg:sticky lg:top-28">
+              <p className="inline-flex items-center gap-2 text-[12px] font-extrabold uppercase tracking-[0.18em] text-[#D9531E]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+                FAQ
+              </p>
+              <h2
+                id="faq-title"
+                className="mt-2.5 text-[26px] font-extrabold leading-[1.28] tracking-[-0.025em] text-[#0E1A2B] sm:text-[32px]"
+              >
+                자주 묻는 질문
+              </h2>
+              <p className="mt-3 text-[14.5px] leading-[1.7] text-[#4B5260] break-keep">
+                A/S 접수 방법, 보상판매 차액 정산, 설치 환경별 비용 기준 등 고객님들이 실제 상담 전 가장 궁금해하시는 5가지 사항입니다.
+              </p>
               <p className="mt-4 text-[14px] leading-relaxed text-[#4B5260]">
                 추가 문의는 대표전화{" "}
                 <a
                   href={telHref(STORE.tel)}
-                  className="font-bold text-[#0E1A2B] underline tabular-nums"
+                  className="font-extrabold text-[#0E1A2B] underline underline-offset-4"
                 >
                   {STORE.tel}
                 </a>{" "}
                 또는 직통{" "}
                 <a
                   href={telHref(STORE.mobile)}
-                  className="font-bold text-[#0E1A2B] underline tabular-nums"
+                  className="font-extrabold text-[#0E1A2B] underline underline-offset-4"
                 >
                   {STORE.mobile}
                 </a>
@@ -1558,14 +1581,14 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => openInquiry("구매 문의")}
-                  className="hb-btn-primary h-10 px-4 text-[13px]"
+                  className="hb-btn-primary h-11 px-4 text-[13.5px]"
                 >
                   <Icon d={ICON.chat} className="h-4 w-4 text-[#FF8A50]" />
                   <span>1:1 온라인 문의하기</span>
                 </button>
                 <a
                   href={telHref(STORE.tel)}
-                  className="hb-btn-outline h-10 px-4 text-[13px]"
+                  className="hb-btn-outline h-11 px-4 text-[13.5px] bg-white"
                 >
                   <Icon d={ICON.phone} className="h-4 w-4 text-[#D9531E]" />
                   <span>전화 바로 연결</span>
@@ -1573,71 +1596,53 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 우측: Section 7과 규격이 완전히 일치하는 단일 화이트 패널 (7컬럼, rounded-xl border divide-y) */}
-            <div className="lg:col-span-7 rounded-xl border border-[#DDD9D1] bg-white shadow-xs divide-y divide-[#EAE6DF] overflow-hidden">
+            {/* 우측 8컬럼: 아코디언 카드 */}
+            <div className="divide-y divide-[#E4E0D8] rounded-2xl border border-[#E4E0D8] bg-white shadow-2xs lg:col-span-8 overflow-hidden">
               {FAQS.map((f, i) => {
-                const open = openFaq === f.q;
+                const open = openFaq === i;
                 return (
-                  <div key={f.q} className="transition-colors">
+                  <div key={f.q} className="transition-colors hover:bg-[#FAF9F7]/60">
                     <h3>
                       <button
                         type="button"
                         id={`faq-q-${i}`}
                         aria-expanded={open}
                         aria-controls={`faq-a-${i}`}
-                        onClick={() => setOpenFaq(open ? null : f.q)}
-                        className={`flex w-full items-center justify-between gap-3 sm:gap-4 p-5 sm:p-6 text-left transition-colors focus:outline-hidden ${
-                          open ? "bg-[#FAF9F7]" : "hover:bg-[#FAF9F7]"
-                        }`}
+                        onClick={() => setOpenFaq(open ? null : i)}
+                        className="flex w-full items-center justify-between gap-4 p-5 sm:p-6 text-left"
                       >
-                        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                          <span
-                            className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-lg text-[13px] sm:text-[14px] font-black transition-colors ${
-                              open
-                                ? "bg-[#D9531E] text-white"
-                                : "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]"
-                            }`}
-                          >
+                        <div className="flex items-start gap-3.5 min-w-0">
+                          <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[#FADCD0] bg-[#FFF5F0] text-[13px] font-extrabold text-[#D9531E]">
                             Q
                           </span>
-                          <div className="flex-1 min-w-0">
-                            <span className="mb-0.5 inline-flex items-center gap-1 rounded bg-[#F4F2EE] px-2 py-0.5 text-[10.5px] font-semibold text-[#4B5260]">
-                              <span>{f.icon}</span>
-                              <span>{f.tag}</span>
+                          <div className="min-w-0">
+                            <span className="inline-block rounded bg-[#F2F0EC] px-2 py-0.5 text-[11px] font-bold text-[#4B5260] mb-1.5">
+                              {f.tag}
                             </span>
-                            <p className="text-[15.5px] sm:text-[16.5px] font-extrabold leading-snug text-[#0E1A2B]">
+                            <span className="block text-[15.5px] font-bold leading-snug text-[#0E1A2B] sm:text-[16.5px] break-keep">
                               {f.q}
-                            </p>
+                            </span>
                           </div>
                         </div>
-
                         <span
-                          className={`grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full border transition-all duration-200 ${
+                          className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border border-[#DDD9D1] text-[#4B5260] transition-transform duration-200 ${
                             open
                               ? "rotate-45 bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                              : "bg-[#F8F6F2] text-[#6B7280] border-[#DDD9D1] hover:text-[#0E1A2B] hover:border-[#0E1A2B]"
+                              : "bg-white"
                           }`}
                         >
                           <Icon d={ICON.plus} className="h-4 w-4" />
                         </span>
                       </button>
                     </h3>
-
                     {open && (
                       <div
                         id={`faq-a-${i}`}
                         role="region"
                         aria-labelledby={`faq-q-${i}`}
-                        className="bg-[#FAF9F7] px-5 pb-6 sm:px-6 sm:pb-6 border-t border-[#F0EDE6] animate-in fade-in duration-150"
+                        className="border-t border-[#F2F0EC] bg-[#FAF9F7] px-5 py-4 sm:px-6 sm:pl-[68px] text-[14.5px] leading-[1.75] text-[#4B5260] break-keep"
                       >
-                        <div className="flex items-start gap-3 sm:gap-4 pt-4 border-t border-[#EAE6DF]/60">
-                          <span className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-lg bg-[#0E1A2B] text-[12px] sm:text-[13px] font-bold text-[#FF8A50] mt-0.5 shadow-2xs">
-                            A
-                          </span>
-                          <p className="flex-1 text-[13.5px] sm:text-[14.5px] leading-[1.8] text-[#374151]">
-                            {f.a}
-                          </p>
-                        </div>
+                        {f.a}
                       </div>
                     )}
                   </div>
