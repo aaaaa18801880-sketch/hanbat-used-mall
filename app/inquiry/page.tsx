@@ -228,7 +228,7 @@ export default function InquiryBoardPage() {
         ) {
           setWriteDefaultType(qType);
         } else {
-          setWriteDefaultType(isBundle ? "대량·업소용 상담" : "구매 문의");
+          setWriteDefaultType(isBundle ? "대량·업소용 상담" : "내 물건 팔기");
         }
 
         if (isBundle || qTitle || qModel || qProductId) {

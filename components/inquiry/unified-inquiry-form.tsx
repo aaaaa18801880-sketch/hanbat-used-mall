@@ -895,89 +895,60 @@ export function UnifiedInquiryForm({
         {/* 접이식 3컷 촬영 가이드 (클릭 시에만 열려 평소 세로 길이 절약) */}
         {!isNotice && showPhotoGuide && (
           <div className="space-y-3 rounded-md bg-[#FAF9F7] p-3 sm:p-4 border border-[#E4E0D8]">
+            <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-[#EAE6DF]">
+              <span className="text-[12.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
+                <Icon d={ICON.camera} className="w-4 h-4 text-[#D9531E]" />
+                {isSell || isBulk
+                  ? "빠르고 정확한 매입 견적을 위한 필수 촬영 3컷 예시"
+                  : "정확한 상담 및 배송 확인을 위한 권장 촬영 3컷 예시"}
+              </span>
+              <span className="text-[11px] font-bold text-[#D9531E]">
+                {isSell || isBulk
+                  ? "※ 안전인증(KC) 및 제조년월 확인 필수"
+                  : "※ 모델명 라벨 및 설치 환경 확인"}
+              </span>
+            </div>
+
+            {/* 실제 촬영 예시 그래픽 안내 이미지 (사례 사진 포함, 항상 노출) */}
+            <div className="overflow-hidden rounded border border-[#DDD9D1] bg-white shadow-2xs">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/photo-guide.jpg"
+                alt="한밭중고전자 상품 사진 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진"
+                className="w-full h-auto object-contain max-h-[380px] sm:max-h-[420px] mx-auto"
+                loading="eager"
+              />
+            </div>
+
+            {/* 3컷 요약 뱃지 그리드 */}
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11.5px]">
+              {photoGuideSteps.map((g) => (
+                <li
+                  key={g.step}
+                  className="flex items-start gap-1.5 rounded bg-white p-2.5 border border-[#EAE6DF]"
+                >
+                  <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    {g.step}
+                  </span>
+                  <div>
+                    <strong className="font-bold text-[#0E1A2B] block">
+                      {g.title}
+                    </strong>
+                    <span className="text-[#4B5260]">{g.desc}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+
             {isSell || isBulk ? (
-              <>
-                <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-[#EAE6DF]">
-                  <span className="text-[12.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
-                    <Icon d={ICON.camera} className="w-4 h-4 text-[#D9531E]" />
-                    빠르고 정확한 매입 견적을 위한 필수 촬영 3컷 예시
-                  </span>
-                  <span className="text-[11px] font-bold text-[#D9531E]">
-                    ※ 안전인증(KC) 및 제조년월 확인 필수
-                  </span>
-                </div>
-
-                {/* 실제 촬영 예시 그래픽 안내 이미지 (사례 사진 포함) */}
-                <div className="overflow-hidden rounded border border-[#DDD9D1] bg-white shadow-2xs">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/images/photo-guide.jpg"
-                    alt="한밭중고전자 매입 필수 촬영 항목: 1. 안전관리법 표시사항 라벨, 2. 제조년월, 3. 제품 전체 사진"
-                    className="w-full h-auto object-contain max-h-[360px] mx-auto"
-                    loading="lazy"
-                  />
-                </div>
-
-                {/* 3컷 요약 뱃지 그리드 */}
-                <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11.5px]">
-                  {photoGuideSteps.map((g) => (
-                    <li
-                      key={g.step}
-                      className="flex items-start gap-1.5 rounded bg-white p-2 border border-[#EAE6DF]"
-                    >
-                      <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        {g.step}
-                      </span>
-                      <div>
-                        <strong className="font-bold text-[#0E1A2B] block">
-                          {g.title}
-                        </strong>
-                        <span className="text-[#4B5260]">{g.desc}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-
-                <div className="rounded border border-[#FADCD0] bg-[#FFF5F0] p-2.5 text-[11px] text-[#B5431A] leading-relaxed">
-                  <strong>⚠️ 전기용품 및 생활용품 안전관리법 안내</strong>:
-                  제조년월과 안전인증(KC) 표기가 확인되지 않을 경우 매입 및 상담이 제한될 수 있습니다. 라벨을 가까이서 선명하게 촬영해 주세요.
-                </div>
-              </>
+              <div className="rounded border border-[#FADCD0] bg-[#FFF5F0] p-2.5 text-[11.5px] text-[#B5431A] leading-relaxed">
+                <strong>⚠️ 전기용품 및 생활용품 안전관리법 안내</strong>:
+                제조년월과 안전인증(KC) 표기가 확인되지 않을 경우 매입 및 상담이 제한될 수 있습니다. 위 예시 사진처럼 명판 스티커를 가까이서 선명하게 촬영해 주세요.
+              </div>
             ) : (
-              <>
-                <div className="flex flex-wrap items-center justify-between gap-1.5 pb-2 border-b border-[#EAE6DF]">
-                  <span className="text-[12.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
-                    <Icon d={ICON.camera} className="w-4 h-4 text-[#D9531E]" />
-                    배송 및 설치 확인을 위한 권장 촬영 3컷
-                  </span>
-                  <span className="text-[11px] text-[#6B7280]">
-                    반입 통로 및 설치 환경 사전 점검
-                  </span>
-                </div>
-
-                <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11.5px]">
-                  {photoGuideSteps.map((g) => (
-                    <li
-                      key={g.step}
-                      className="flex items-start gap-1.5 rounded bg-white p-2.5 border border-[#EAE6DF]"
-                    >
-                      <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                        {g.step}
-                      </span>
-                      <div>
-                        <strong className="font-bold text-[#0E1A2B] block">
-                          {g.title}
-                        </strong>
-                        <span className="text-[#4B5260]">{g.desc}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-
-                <p className="text-[11px] text-[#4B5260] bg-white p-2 rounded border border-[#EAE6DF]">
-                  💡 대형 냉장고나 업소용 설비는 현관문 폭이나 엘리베이터 크기가 맞지 않으면 반입이 어려울 수 있습니다. 통로 사진을 함께 올려주시면 사다리차 필요 여부를 사전에 안내해 드립니다.
-                </p>
-              </>
+              <p className="text-[11.5px] text-[#4B5260] bg-white p-2.5 rounded border border-[#EAE6DF] leading-relaxed">
+                💡 대형 냉장고나 업소용 설비는 현관문 폭이나 엘리베이터 크기가 맞지 않으면 반입이 어려울 수 있습니다. 통로 사진이나 기존에 쓰시던 가전 사진을 함께 올려주시면 사다리차 필요 여부 및 교체 견적을 사전에 안내해 드립니다.
+              </p>
             )}
           </div>
         )}
