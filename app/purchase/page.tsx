@@ -12,20 +12,24 @@ import {
   ICON,
 } from "../../lib/ui";
 import { UnifiedInquiryForm } from "../../components/inquiry/unified-inquiry-form";
+import { BuybackStepIllustration } from "../../components/home/kakaobank-illustrations";
 
 const BUYBACK_STEPS = [
   {
     step: "01 단계",
+    illusStep: 1 as const,
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
   },
   {
     step: "02 단계",
+    illusStep: 2 as const,
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
   },
   {
     step: "03 단계",
+    illusStep: 4 as const,
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
   },
@@ -70,24 +74,27 @@ export default function PurchasePage() {
       </section>
 
       <main className="hb-container py-7 sm:py-11 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 */}
+        {/* 3단계 매입 진행 프로세스 요약 바 (카카오뱅크 스타일 팝 일러스트 결합) */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 rounded-xl border border-[#E6E3DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E6E3DC] shadow-card"
+          className="grid grid-cols-1 md:grid-cols-3 rounded-2xl border border-[#E6E3DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E6E3DC] shadow-card"
         >
           {BUYBACK_STEPS.map((item) => (
-            <div key={item.step} className="p-5 sm:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[11.5px] font-extrabold text-[#D9531E]">
-                  {item.step}
-                </span>
-                <h2 className="text-[15.5px] sm:text-[16.5px] font-extrabold text-[#0E1A2B]">
-                  {item.title}
-                </h2>
+            <div key={item.step} className="flex items-start gap-4 p-5 sm:p-6">
+              <BuybackStepIllustration step={item.illusStep} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-[11px] font-extrabold text-[#D9531E]">
+                    {item.step}
+                  </span>
+                  <h2 className="text-[16px] sm:text-[17px] font-extrabold text-[#0E1A2B]">
+                    {item.title}
+                  </h2>
+                </div>
+                <p className="mt-1.5 text-[13.5px] text-[#3E4856] leading-relaxed break-keep">
+                  {item.desc}
+                </p>
               </div>
-              <p className="mt-2 text-[13px] sm:text-[13.5px] text-[#3E4856] leading-relaxed break-keep">
-                {item.desc}
-              </p>
             </div>
           ))}
         </section>

@@ -38,6 +38,10 @@ import { type ProductItem } from "../components/products/product-card";
 import { FeaturedProductsSection } from "../components/home/featured-products-section";
 import { CategoryPictogramBar } from "../components/home/category-pictogram-bar";
 import {
+  BuybackStepIllustration,
+  UspPopIllustration,
+} from "../components/home/kakaobank-illustrations";
+import {
   UnifiedInquiryForm,
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
@@ -747,22 +751,33 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
-              {/* 서비스 1: 판매 상품 구매 */}
-              <div className="flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+            <div className="grid gap-5 sm:gap-6 lg:grid-cols-3">
+              {/* 서비스 1: 판매 상품 구매 (파스텔 스카이블루 일러스트) */}
+              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
                 <div>
+                  <Link
+                    href="/gallery"
+                    className="relative mb-4 block aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#DBEAFE] bg-[#E0F2FE]"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-buy.jpg"
+                      alt="분해 살균 세척을 마친 냉장고·세탁기·에어컨 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </Link>
+
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12.5px] font-bold text-white">
+                    <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
                       01 · 가전·설비 구매
                     </span>
-                    <span className="text-[13px] font-extrabold text-[#D9531E]">
+                    <span className="rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#1D4ED8]">
                       실매물 정찰가
                     </span>
                   </div>
-                  <h3 className="mt-3.5 text-[21px] sm:text-[23px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                  <h3 className="mt-3 text-[21px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
                     세척·점검 마친 판매 제품 보기
                   </h3>
-                  <ul className="mt-4 space-y-2 text-[14.5px] sm:text-[15px] font-bold text-[#0E1A2B]">
+                  <ul className="mt-3 space-y-1.5 text-[14.5px] font-bold text-[#334155]">
                     <li className="flex items-center gap-2">
                       <span className="text-[#D9531E]">✓</span> 에어컨 8개월 · 일반가전 4개월 무상 A/S
                     </li>
@@ -789,21 +804,33 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 서비스 2: 사용하던 가전 매입 신청 */}
-              <div className="flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              {/* 서비스 2: 사용하던 가전 매입 신청 (파스텔 피치/살구 일러스트) */}
+              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
                 <div>
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("내 물건 팔기")}
+                    className="relative mb-4 block aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#FED7AA] bg-[#FFEDD5] cursor-pointer"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-sell.jpg"
+                      alt="스마트폰 사진 전송으로 간편하게 신청하는 가전 방문 매입 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </button>
+
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-[#D9531E] px-2.5 py-1 text-[12.5px] font-bold text-white">
+                    <span className="inline-flex items-center rounded-md bg-[#D9531E] px-2.5 py-1 text-[12px] font-bold text-white">
                       02 · 가전 방문 매입
                     </span>
-                    <span className="text-[13px] font-extrabold text-[#0E1A2B]">
+                    <span className="rounded-full bg-[#FFF5F0] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#D9531E]">
                       당일 현금 정산
                     </span>
                   </div>
-                  <h3 className="mt-3.5 text-[21px] sm:text-[23px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                  <h3 className="mt-3 text-[21px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
                     쓰던 가전 · 폐업 설비 팔기
                   </h3>
-                  <ul className="mt-4 space-y-2 text-[14.5px] sm:text-[15px] font-bold text-[#0E1A2B]">
+                  <ul className="mt-3 space-y-1.5 text-[14.5px] font-bold text-[#334155]">
                     <li className="flex items-center gap-2">
                       <span className="text-[#D9531E]">✓</span> 사진·명판 전송 시 빠른 방문 가견적
                     </li>
@@ -830,41 +857,53 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 서비스 3: 업소용 · 대량 구매 상담 */}
-              <div className="flex flex-col justify-between rounded-2xl border border-[#0E1A2B] bg-[#0E1A2B] p-6 sm:p-7 text-white">
+              {/* 서비스 3: 업소용 · 대량 구매 상담 (파스텔 민트/옐로우 일러스트) */}
+              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
                 <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-white/15 px-2.5 py-1 text-[12.5px] font-bold text-white">
-                      03 · 업소용 · 창업 상담
-                    </span>
-                    <span className="text-[13px] font-extrabold text-[#FF8A50]">
-                      세금계산서 발행
-                    </span>
-                  </div>
-                  <h3 className="mt-3.5 text-[21px] sm:text-[23px] font-extrabold text-white tracking-[-0.02em]">
-                    식당·카페 창업 및 대량 납품
-                  </h3>
-                  <ul className="mt-4 space-y-2 text-[14.5px] sm:text-[15px] font-bold text-white/95">
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#FF8A50]">✓</span> 45박스 냉장고·쇼케이스·제빙기 세트 구성
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#FF8A50]">✓</span> 원룸·기숙사·사무실 다량 납품 및 증빙
-                    </li>
-                  </ul>
-                </div>
-                <div className="mt-5 pt-4 border-t border-white/15 flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
-                    className="hb-btn-accent h-12 px-5 text-[15px] flex-1"
+                    className="relative mb-4 block aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#A7F3D0] bg-[#ECFDF5] cursor-pointer"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-biz.jpg"
+                      alt="식당·카페 창업용 업소용 냉장고·제빙기·주방설비 패키지 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </button>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
+                      03 · 업소용 · 창업 상담
+                    </span>
+                    <span className="rounded-full bg-[#ECFDF5] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#047857]">
+                      세금계산서 발행
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-[21px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                    식당·카페 창업 및 대량 납품
+                  </h3>
+                  <ul className="mt-3 space-y-1.5 text-[14.5px] font-bold text-[#334155]">
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#D9531E]">✓</span> 45박스 냉장고·쇼케이스·제빙기 세트 구성
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#D9531E]">✓</span> 원룸·기숙사·사무실 다량 납품 및 증빙
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-5 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("대량·업소용 상담")}
+                    className="hb-btn-primary h-12 px-5 text-[15px] flex-1"
                   >
                     <span>업소용 상담 신청</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
                   </button>
                   <Link
                     href={galleryHref(G.biz)}
-                    className="hb-btn border border-white/25 bg-white/10 text-white hover:bg-white hover:text-[#0E1A2B] h-12 px-4 text-[15px]"
+                    className="hb-btn-outline h-12 px-4 text-[15px]"
                   >
                     설비 보기
                   </Link>
@@ -924,28 +963,31 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 5대 원칙 그리드 (한글 중심 명확한 위계) */}
+            {/* 5대 원칙 그리드 (카카오뱅크 스타일 팝 일러스트 배지 결합) */}
             <ol className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-6">
               {USP.map((u, idx) => {
                 const isWide = idx >= 3;
                 return (
                   <li
                     key={u.no}
-                    className={`flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 transition-colors hover:border-[#0E1A2B] hover:bg-white ${
+                    className={`flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 transition-colors hover:border-[#0E1A2B] hover:bg-white ${
                       isWide ? "md:col-span-3" : "md:col-span-2"
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#0E1A2B] text-[13px] font-extrabold tabular-nums text-white">
-                          {u.no}
-                        </span>
-                        <span className="text-[12.5px] font-bold text-[#D9531E]">
-                          {u.tag}
-                        </span>
+                      <div className="flex items-start justify-between gap-3">
+                        <UspPopIllustration index={idx} />
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-white">
+                            원칙 {u.no}
+                          </span>
+                          <span className="text-[12.5px] font-extrabold text-[#D9531E]">
+                            {u.tag}
+                          </span>
+                        </div>
                       </div>
 
-                      <h3 className="mt-4 text-[18px] sm:text-[19px] font-extrabold text-[#0E1A2B]">
+                      <h3 className="mt-4 text-[18.5px] sm:text-[20px] font-extrabold text-[#0E1A2B]">
                         {u.t}
                       </h3>
                       <p className="mt-2 text-[14.5px] leading-[1.68] text-[#434B59] break-keep">
@@ -953,7 +995,7 @@ export default function Home() {
                       </p>
                     </div>
 
-                    <div className="mt-5 pt-3.5 border-t border-[#E6E3DC] text-[13px] font-bold text-[#0E1A2B]">
+                    <div className="mt-5 pt-3.5 border-t border-[#E6E3DC] text-[13.5px] font-bold text-[#0E1A2B]">
                       <span className="text-[#D9531E]">✓</span> {u.highlight}
                     </div>
                   </li>
@@ -1129,24 +1171,29 @@ export default function Home() {
                   ))}
                 </ul>
 
-                {/* 매입 진행 4단계 */}
+                {/* 매입 진행 4단계 (카카오뱅크 스타일 팝아트 일러스트 결합) */}
                 <ol className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {SELL_STEPS.map((s, i) => (
                     <li
                       key={s.t}
-                      className="rounded-xl border border-[#E6E3DC] bg-white p-4 sm:p-5"
+                      className="flex items-start gap-3.5 rounded-2xl border border-[#E6E3DC] bg-white p-4 sm:p-5 shadow-2xs"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-[#D9531E] text-[12px] font-extrabold text-white tabular-nums">
-                          {i + 1}
-                        </span>
-                        <p className="text-[15.5px] font-extrabold text-[#0E1A2B]">
-                          {s.t}
+                      <BuybackStepIllustration
+                        step={((i % 4) + 1) as 1 | 2 | 3 | 4}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#0E1A2B] text-[11px] font-extrabold text-white tabular-nums">
+                            {i + 1}
+                          </span>
+                          <p className="text-[16px] font-extrabold text-[#0E1A2B]">
+                            {s.t}
+                          </p>
+                        </div>
+                        <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#434B59] break-keep">
+                          {s.d}
                         </p>
                       </div>
-                      <p className="mt-2 text-[13.5px] leading-relaxed text-[#434B59] break-keep">
-                        {s.d}
-                      </p>
                     </li>
                   ))}
                 </ol>
