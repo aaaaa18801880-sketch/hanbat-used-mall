@@ -262,11 +262,7 @@ export function ProductCard({
       <div className="flex flex-1 flex-col p-3.5 sm:p-4">
         <div className="flex items-center justify-between gap-2 text-[12px] font-semibold text-[#667085]">
           <span className="truncate">{categoryLabel}</span>
-          {product.condition_grade && !sold ? (
-            <span className="shrink-0 text-[11.5px] font-bold text-[#0E1A2B]">
-              {product.condition_grade}
-            </span>
-          ) : typeof product.views === "number" ? (
+          {typeof product.views === "number" && product.views > 0 ? (
             <span className="shrink-0 text-[11.5px] text-[#858076] tabular-nums">
               조회 {product.views}
             </span>

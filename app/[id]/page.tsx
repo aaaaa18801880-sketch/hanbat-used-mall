@@ -374,11 +374,6 @@ export default async function ProductDetailPage({
                 >
                   {categoryLabel}
                 </Link>
-                {product.condition_grade && (
-                  <span className="rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-2.5 py-1 text-[12px] font-bold text-[#D9531E]">
-                    상태 등급: {product.condition_grade}
-                  </span>
-                )}
                 {createdDate && (
                   <span className="ml-auto text-[12px] text-[#667085] tabular-nums">
                     등록일 {createdDate}
