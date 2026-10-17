@@ -766,7 +766,7 @@ export default function Home() {
                 <div>
                   <Link
                     href="/gallery"
-                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#DBEAFE] bg-[#E0F2FE]"
+                    className="relative mb-4 block h-40 sm:h-44 w-full overflow-hidden rounded-xl border border-[#38BDF8]/40 bg-[#50D6F0]"
                   >
                     <SafeImg
                       src="/illustrations/service-buy.jpg"
@@ -822,7 +822,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
-                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#FED7AA] bg-[#FFEDD5] cursor-pointer"
+                    className="relative mb-4 block h-40 sm:h-44 w-full overflow-hidden rounded-xl border border-[#FDBA74]/50 bg-[#FED2A6] cursor-pointer"
                   >
                     <SafeImg
                       src="/illustrations/service-sell.jpg"
@@ -878,7 +878,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
-                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#A7F3D0] bg-[#ECFDF5] cursor-pointer"
+                    className="relative mb-4 block h-40 sm:h-44 w-full overflow-hidden rounded-xl border border-[#5EEAD4]/60 bg-[#7AEAD3] cursor-pointer"
                   >
                     <SafeImg
                       src="/illustrations/service-biz.jpg"
