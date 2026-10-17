@@ -649,19 +649,23 @@ export default function Home() {
         </section>
 
         {/* ════════════════════════════════════════════════════════════
+            [2-1] 취급 품목 · 주요 서비스 3D 픽토그램 퀵메뉴 바 (기존 위치 유지)
+            ════════════════════════════════════════════════════════════ */}
+        <CategoryPictogramBar onSelectInquiry={(type) => openInquiry(type)} />
+
+        {/* ════════════════════════════════════════════════════════════
             [3] 핵심 서비스 선택 섹션 (중고가전 구매 · 가전 매입 신청 · 업소용·창업 상담)
-            — 각 카드는 제목, 짧은 설명, 주요 대상, 행동 유도 하나만 포함
             ════════════════════════════════════════════════════════════ */}
         <section
           aria-labelledby="core-services-title"
-          className="border-b border-[#E5E2DC] bg-white py-14 sm:py-18"
+          className="border-b border-[#E5E2DC] bg-white py-12 sm:py-16"
         >
           <div className="hb-container">
             <SectionHeading
               eyebrow="주요 서비스 안내"
               title={
                 <span id="core-services-title">
-                  필요하신 서비스를 선택해 주세요
+                  중고가전 구매 · 방문매입 · 업소용 상담
                 </span>
               }
               desc="가정용 단품 구매부터 사용하던 가전 처분, 식당·카페 창업 설비 납품까지 목적에 맞는 경로로 바로 이동하실 수 있습니다."
@@ -669,25 +673,36 @@ export default function Home() {
 
             <div className="mt-8 grid gap-5 lg:grid-cols-3">
               {/* 서비스 1: 중고가전 구매 */}
-              <article className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              <article className="group flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] transition-colors shadow-2xs">
                 <div>
+                  <Link
+                    href="/gallery"
+                    className="relative mb-4 block h-40 sm:h-44 w-full overflow-hidden rounded-xl border border-[#38BDF8]/30 bg-[#50D6F0]"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-buy.jpg"
+                      alt="분해 살균 세척을 마친 냉장고·세탁기·에어컨 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                  </Link>
+
                   <div className="flex items-center justify-between gap-2">
                     <span className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[11.5px] font-bold text-white">
                       01 · 중고가전 구매
                     </span>
-                    <span className="text-[12.5px] font-semibold text-[#646E7E]">
-                      대상: 가정 · 원룸 · 자취 · 사무실
+                    <span className="text-[12px] font-semibold text-[#646E7E]">
+                      가정 · 원룸 · 자취 · 사무실
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[21px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
+                  <h3 className="mt-3 text-[20px] sm:text-[21px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
                     검수·세척 완료 판매 제품 구매
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#3E4756] break-keep">
+                  <p className="mt-2 text-[14px] leading-[1.6] text-[#3E4756] break-keep">
                     직영 엔지니어가 분해 고압 세척과 시운전을 마친 에어컨, 냉장고, 세탁기, 소형가전을 합리적인 정찰가로 구매하실 수 있습니다.
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#E5E2DC]">
+                <div className="mt-5 pt-4 border-t border-[#E5E2DC]">
                   <Link
                     href="/gallery"
                     className="hb-btn-primary w-full h-11 text-[14.5px]"
@@ -699,25 +714,37 @@ export default function Home() {
               </article>
 
               {/* 서비스 2: 가전 매입 신청 */}
-              <article className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              <article className="group flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] transition-colors shadow-2xs">
                 <div>
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("내 물건 팔기")}
+                    className="relative mb-4 block h-40 sm:h-44 w-full overflow-hidden rounded-xl border border-[#FB923C]/30 bg-[#FED2A6] cursor-pointer"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-sell.jpg"
+                      alt="사진 전송 후 방문 수거 및 당일 현금 입금 매입 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                  </button>
+
                   <div className="flex items-center justify-between gap-2">
                     <span className="rounded bg-[#D9531E] px-2.5 py-1 text-[11.5px] font-bold text-white">
                       02 · 가전 매입 신청
                     </span>
-                    <span className="text-[12.5px] font-semibold text-[#646E7E]">
-                      대상: 이사 · 가전교체 · 폐업정리
+                    <span className="text-[12px] font-semibold text-[#646E7E]">
+                      이사 · 가전교체 · 폐업정리
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[21px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
+                  <h3 className="mt-3 text-[20px] sm:text-[21px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
                     사용하던 가전 · 주방설비 방문 매입
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#3E4756] break-keep">
+                  <p className="mt-2 text-[14px] leading-[1.6] text-[#3E4756] break-keep">
                     전면 사진과 모델명(명판)을 보내주시면 빠르게 매입 견적을 안내해 드리며, 희망 일자에 방문 수거 후 현장에서 즉시 송금합니다.
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#E5E2DC]">
+                <div className="mt-5 pt-4 border-t border-[#E5E2DC]">
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
@@ -730,25 +757,37 @@ export default function Home() {
               </article>
 
               {/* 서비스 3: 업소용·창업 상담 */}
-              <article className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              <article className="group flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] transition-colors shadow-2xs">
                 <div>
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("대량·업소용 상담")}
+                    className="relative mb-4 block h-40 sm:h-44 w-full overflow-hidden rounded-xl border border-[#34D399]/30 bg-[#7AEAD3] cursor-pointer"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-biz.jpg"
+                      alt="업소용 스텐 냉장고·쇼케이스·제빙기 식당 카페 주방설비 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                  </button>
+
                   <div className="flex items-center justify-between gap-2">
                     <span className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[11.5px] font-bold text-white">
                       03 · 업소용 · 창업 상담
                     </span>
-                    <span className="text-[12.5px] font-semibold text-[#646E7E]">
-                      대상: 식당 · 카페 · 기숙사 · 관공서
+                    <span className="text-[12px] font-semibold text-[#646E7E]">
+                      식당 · 카페 · 기숙사 · 관공서
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[21px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
+                  <h3 className="mt-3 text-[20px] sm:text-[21px] font-bold text-[#0E1A2B] tracking-[-0.02em]">
                     업소용 주방설비 · 대량 패키지 상담
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#3E4756] break-keep">
+                  <p className="mt-2 text-[14px] leading-[1.6] text-[#3E4756] break-keep">
                     45박스 스텐 냉장고, 테이블 냉장고, 음료·제과 쇼케이스, 제빙기 등 매장 오픈 설비 구성과 전자세금계산서 발행을 일괄 지원합니다.
                   </p>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#E5E2DC]">
+                <div className="mt-5 pt-4 border-t border-[#E5E2DC]">
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
@@ -775,11 +814,6 @@ export default function Home() {
             openInquiry("구매 문의", `[상품문의] ${productTitle}`)
           }
         />
-
-        {/* ════════════════════════════════════════════════════════════
-            [5] 취급 품목 탐색 — CategoryPictogramBar (#category-section)
-            ════════════════════════════════════════════════════════════ */}
-        <CategoryPictogramBar onSelectInquiry={(type) => openInquiry(type)} />
 
         {/* ════════════════════════════════════════════════════════════
             [6] 출고·설치 사례 및 신뢰 근거 (#reviews-section + 5대 운영 원칙)
