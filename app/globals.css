@@ -4,27 +4,27 @@
 @tailwind utilities;
 
 :root {
-  /* Brand Color System — Hanbat Used Electronics Showroom */
+  /* Brand Color System — Hanbat Used Electronics Bright Showroom */
   --hb-navy: #0e1a2b;
   --hb-navy-hover: #1c2d47;
-  --hb-navy-subtle: #e8ecf2;
+  --hb-navy-subtle: #eef1f6;
 
   --hb-orange: #d9531e;
   --hb-orange-hover: #bf4715;
-  --hb-orange-subtle: #fbe9e1;
+  --hb-orange-subtle: #fcede6;
 
-  --hb-bg-warm: #f6f5f2;
-  --hb-bg-Subtle: #faf9f7;
-  --hb-bg-muted: #efece6;
+  --hb-bg-warm: #f7f6f3;
+  --hb-bg-subtle: #faf9f7;
+  --hb-bg-muted: #f0ede7;
   --hb-surface: #ffffff;
 
-  --hb-text-primary: #1f2530;
-  --hb-text-secondary: #4b5260;
-  --hb-text-muted: #6b7280;
-  --hb-text-subtle: #8a8478;
+  --hb-text-primary: #0e1a2b;
+  --hb-text-secondary: #434b59;
+  --hb-text-muted: #667085;
+  --hb-text-subtle: #858076;
 
-  --hb-border: #e4e0d8;
-  --hb-border-strong: #ddd9d1;
+  --hb-border: #e6e3dc;
+  --hb-border-strong: #d7d2c8;
 
   --hb-kakao: #fee500;
   --hb-kakao-hover: #f2d900;
@@ -38,7 +38,7 @@ html {
 }
 
 body {
-  background-color: var(--hb-bg-warm);
+  background-color: var(--hb-surface);
   color: var(--hb-text-primary);
   font-family:
     "Pretendard Variable",
@@ -77,39 +77,39 @@ body {
   }
 
   .hb-h1 {
-    @apply text-[26px] font-bold leading-[1.24] tracking-[-0.028em] text-[#0E1A2B] xs:text-[29px] sm:text-[38px] lg:text-[44px];
+    @apply text-[28px] font-extrabold leading-[1.22] tracking-[-0.03em] text-[#0E1A2B] xs:text-[32px] sm:text-[40px] lg:text-[46px];
   }
 
   .hb-h2 {
-    @apply text-[22px] font-bold leading-[1.28] tracking-[-0.022em] text-[#0E1A2B] sm:text-[28px] lg:text-[32px];
+    @apply text-[24px] font-extrabold leading-[1.26] tracking-[-0.025em] text-[#0E1A2B] sm:text-[30px] lg:text-[34px];
   }
 
   .hb-h3 {
-    @apply text-[16px] font-bold leading-[1.38] tracking-[-0.012em] text-[#0E1A2B] sm:text-[18px];
+    @apply text-[17px] font-bold leading-[1.36] tracking-[-0.015em] text-[#0E1A2B] sm:text-[19px];
   }
 
   .hb-body {
-    @apply text-[14.5px] leading-[1.7] text-[#4B5260] sm:text-[15.5px];
+    @apply text-[15px] leading-[1.68] text-[#434B59] sm:text-[16px];
   }
 
   .hb-label {
-    @apply block text-[13px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[13.5px];
+    @apply block text-[13.5px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[14px];
   }
 
   .hb-caption {
-    @apply text-[12.5px] leading-[1.5] text-[#6B7280];
+    @apply text-[13px] leading-[1.55] text-[#667085];
   }
 
   .hb-eyebrow {
-    @apply inline-flex items-center gap-1.5 text-[11px] sm:text-[11.5px] font-bold uppercase tracking-[0.16em] text-[#D9531E];
+    @apply inline-flex items-center gap-2 text-[13px] sm:text-[13.5px] font-bold tracking-[-0.01em] text-[#D9531E];
   }
 
   .hb-input {
-    @apply w-full rounded-md border border-[#DDD9D1] bg-white px-3.5 py-2.5 text-[14px] sm:text-[14.5px] text-[#0E1A2B] placeholder:text-[#8A8478] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F6F5F2] disabled:text-[#8A8478];
+    @apply w-full rounded-lg border border-[#D7D2C8] bg-white px-3.5 py-2.5 text-[14.5px] sm:text-[15px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
   .hb-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md font-bold tracking-[-0.01em] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold tracking-[-0.01em] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .hb-btn-primary {
@@ -121,7 +121,7 @@ body {
   }
 
   .hb-btn-outline {
-    @apply hb-btn border border-[#DDD9D1] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] active:bg-[#F2F0EC];
+    @apply hb-btn border border-[#D7D2C8] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] active:bg-[#F2F0EC];
   }
 
   .hb-btn-kakao {

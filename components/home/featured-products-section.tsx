@@ -130,28 +130,28 @@ export function FeaturedProductsSection({
     <section
       id="featured-products-section"
       aria-labelledby="featured-heading"
-      className="border-b border-[#E4E0D8] bg-white py-14 sm:py-20 lg:py-24"
+      className="border-b border-[#E6E3DC] bg-white py-14 sm:py-20 lg:py-24"
     >
       <div className="hb-container">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
-            eyebrow="Showroom Inventory"
+            eyebrow="실시간 판매 상품"
             title={<span id="featured-heading">실시간 입고 · 추천 판매 매물</span>}
             desc="대전 중촌동 매장에서 직접 분해·세척과 작동 점검을 마친 실물 매물입니다. 상품을 선택하면 상세 규격과 보증 조건을 바로 확인하실 수 있습니다."
           />
 
           <Link
             href="/gallery"
-            className="hb-btn-outline h-10 sm:h-11 px-4 sm:px-5 text-[13.5px] sm:text-[14px] shrink-0 self-start sm:self-end"
+            className="hb-btn-outline h-11 px-5 text-[14px] shrink-0 self-start sm:self-end"
           >
-            <span>전체 판매 제품 갤러리</span>
+            <span>전체 판매 제품 보기</span>
             <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E]" />
           </Link>
         </div>
 
         {/* 품목별 빠른 필터 바 */}
         {!loading && !error && products.length > 0 && (
-          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-b border-[#EEEBE5] pb-3.5">
+          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-b border-[#E6E3DC] pb-3.5">
             <div
               className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
               role="tablist"
@@ -167,17 +167,17 @@ export function FeaturedProductsSection({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setActiveCategory(cat)}
-                    className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap border transition-colors ${
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] sm:text-[13.5px] font-bold whitespace-nowrap border transition-colors ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                        : "bg-[#FAF9F7] text-[#4B5260] border-[#E4E0D8] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                        : "bg-[#FAF9F7] text-[#434B59] border-[#E6E3DC] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
                     }`}
                   >
                     <span>{cat}</span>
                     {count > 0 && (
                       <span
-                        className={`text-[11px] tabular-nums ${
-                          active ? "text-[#FF8A50]" : "text-[#8A8478]"
+                        className={`text-[11.5px] tabular-nums ${
+                          active ? "text-[#FF8A50]" : "text-[#858076]"
                         }`}
                       >
                         {count}
@@ -188,8 +188,8 @@ export function FeaturedProductsSection({
               })}
             </div>
 
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[12px] font-semibold text-[#6B7280] shrink-0">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#667085] shrink-0">
+              <span className="h-2 w-2 rounded-full bg-emerald-600" />
               실시간 재고 연동중
             </span>
           </div>
@@ -198,19 +198,19 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4"
+            className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4"
             aria-hidden="true"
           >
             {Array.from({ length: 4 }).map((_, idx) => (
               <div
                 key={idx}
-                className="overflow-hidden rounded-md border border-[#E4E0D8] bg-white animate-pulse"
+                className="overflow-hidden rounded-lg border border-[#E6E3DC] bg-white animate-pulse"
               >
-                <div className="aspect-[4/5] bg-[#EFECE6]" />
+                <div className="aspect-[4/3] bg-[#F0EDE7]" />
                 <div className="p-4 space-y-3">
-                  <div className="h-3 w-1/3 rounded bg-[#EFECE6]" />
-                  <div className="h-5 w-4/5 rounded bg-[#EFECE6]" />
-                  <div className="h-6 w-1/2 rounded bg-[#EFECE6] pt-2" />
+                  <div className="h-3 w-1/3 rounded bg-[#F0EDE7]" />
+                  <div className="h-5 w-4/5 rounded bg-[#F0EDE7]" />
+                  <div className="h-6 w-1/2 rounded bg-[#F0EDE7] pt-2" />
                 </div>
               </div>
             ))}
