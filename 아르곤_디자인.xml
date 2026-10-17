@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-17T14:04:39.690Z">
+<project name="hanbat-mall" generated_at="2026-10-17T14:11:46.224Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -8068,57 +8068,6 @@ body {
 }
 ]]>
     </file>
-    <file path="app/icon.tsx" lines="47">
-      <![CDATA[
-import { ImageResponse } from "next/og";
-
-export const size = {
-  width: 64,
-  height: 64,
-};
-export const contentType = "image/png";
-
-export default function Icon() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#0E1A2B",
-          borderRadius: "14px",
-        }}
-      >
-        <svg
-          width="64"
-          height="64"
-          viewBox="0 0 40 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <rect x="8" y="9" width="5.5" height="22" rx="1.2" fill="#FFFFFF" />
-          <rect x="26.5" y="9" width="5.5" height="22" rx="1.2" fill="#FFFFFF" />
-          <path
-            d="M20 9.5L8 17.5V21.8L20 13.8L32 21.8V17.5L20 9.5Z"
-            fill="#D9531E"
-          />
-          <rect x="15.5" y="19.5" width="3.8" height="3.8" rx="0.8" fill="#D9531E" />
-          <rect x="20.7" y="19.5" width="3.8" height="3.8" rx="0.8" fill="#D9531E" />
-          <rect x="15.5" y="24.7" width="3.8" height="3.8" rx="0.8" fill="#FFFFFF" />
-          <rect x="20.7" y="24.7" width="3.8" height="3.8" rx="0.8" fill="#FFFFFF" />
-        </svg>
-      </div>
-    ),
-    {
-      ...size,
-    }
-  );
-}
-]]>
-    </file>
     <file path="app/inquiry/layout.tsx" lines="29">
       <![CDATA[
 import type { Metadata } from "next";
@@ -9628,7 +9577,7 @@ export default function InquiryBoardPage() {
 
 ]]>
     </file>
-    <file path="app/layout.tsx" lines="159">
+    <file path="app/layout.tsx" lines="184">
       <![CDATA[
 // 파일 경로: app/layout.tsx
 import type { Metadata } from "next";
@@ -9641,6 +9590,23 @@ const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
 
 export const metadata: Metadata = {
   metadataBase: new URL(STORE.url),
+  applicationName: STORE.name,
+  appleWebApp: {
+    title: STORE.name,
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   title: {
     default: `${STORE.name} | 대전 중고가전·업소용 주방기기 매입·판매 전문`,
     template: `%s | ${STORE.name}`,
@@ -9694,57 +9660,61 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const jsonLd = {
+  // 구글 공식 'Site Name(사이트 이름)' 표준 구조화 데이터
+  const websiteJsonLd = {
     "@context": "https://schema.org",
-    "@graph": [
+    "@type": "WebSite",
+    name: STORE.name,
+    alternateName: ["한밭몰", "hanbatmall.com", "hanbatmall", "대전한밭중고전자"],
+    url: STORE.url,
+    inLanguage: "ko-KR",
+  };
+
+  // 구글 로컬 비즈니스 & 지도 매핑용 구조화 데이터
+  const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${STORE.url}/#localbusiness`,
+    name: STORE.name,
+    image: `${STORE.url}/og-image.jpg`,
+    telephone: STORE.tel,
+    url: STORE.url,
+    foundingDate: String(STORE.since),
+    priceRange: "₩₩",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: STORE.address,
+      addressLocality: "대전광역시",
+      addressRegion: "중구",
+      postalCode: "34800",
+      addressCountry: "KR",
+    },
+    openingHoursSpecification: [
       {
-        "@type": "WebSite",
-        "@id": `${STORE.url}/#website`,
-        url: STORE.url,
-        name: STORE.name,
-        alternateName: ["hanbatmall", "한밭몰", "대전한밭중고전자"],
-        inLanguage: "ko-KR",
-      },
-      {
-        "@type": "LocalBusiness",
-        "@id": `${STORE.url}/#localbusiness`,
-        name: STORE.name,
-        image: `${STORE.url}/og-image.jpg`,
-        telephone: STORE.tel,
-        url: STORE.url,
-        foundingDate: String(STORE.since),
-        priceRange: "₩₩",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: STORE.address,
-          addressLocality: "대전광역시",
-          addressRegion: "중구",
-          postalCode: "34800",
-          addressCountry: "KR",
-        },
-        openingHoursSpecification: [
-          {
-            "@type": "OpeningHoursSpecification",
-            dayOfWeek: [
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-            ],
-            opens: "09:00",
-            closes: "19:00",
-          },
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
         ],
-        sameAs: [STORE.cafe, STORE.kakaoChannel],
+        opens: "09:00",
+        closes: "19:00",
       },
     ],
+    sameAs: [STORE.cafe, STORE.kakaoChannel],
   };
 
   return (
     <html lang="ko">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48" />
+        <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+        <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
         <link
           rel="preconnect"
           href="https://cdn.jsdelivr.net"
@@ -9758,7 +9728,11 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
         />
         <Script
           strategy="afterInteractive"
@@ -10387,9 +10361,9 @@ export default function Home() {
               {/* 좌측: 핵심 메시지 + 보조 설명 + 핵심 CTA 2개 */}
               <div className="lg:col-span-6">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#E5E2DC] bg-white px-3.5 py-1 text-[13px] font-semibold text-[#0E1A2B] shadow-2xs">
-                  <span className="font-bold text-[#D9531E]">SINCE {STORE.since}</span>
+                  <span className="font-bold text-[#D9531E]">{STORE.name}</span>
                   <span className="h-3 w-px bg-[#E5E2DC]" aria-hidden="true" />
-                  <span className="text-[#3E4756]">대전 중촌동 직영 가전·주방설비 ({OPERATING_YEARS}년 운영)</span>
+                  <span className="text-[#3E4756]">SINCE {STORE.since} · 대전 중촌동 직영 매장 ({OPERATING_YEARS}년 운영)</span>
                 </div>
 
                 <h1
@@ -21196,6 +21170,92 @@ runDiagnostics();
 
 ]]>
     </file>
+    <file path="scripts/generate-favicons.mjs" lines="82">
+      <![CDATA[
+import fs from "fs";
+import path from "path";
+import sharp from "sharp";
+
+const svg = `<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="115" fill="#0E1A2B" />
+  <rect x="102.4" y="115.2" width="70.4" height="281.6" rx="15.4" fill="#FFFFFF" />
+  <rect x="339.2" y="115.2" width="70.4" height="281.6" rx="15.4" fill="#FFFFFF" />
+  <path d="M256 121.6L102.4 224V279.04L256 176.64L409.6 279.04V224L256 121.6Z" fill="#D9531E" />
+  <rect x="198.4" y="249.6" width="48.6" height="48.6" rx="10.2" fill="#D9531E" />
+  <rect x="265" y="249.6" width="48.6" height="48.6" rx="10.2" fill="#D9531E" />
+  <rect x="198.4" y="316.2" width="48.6" height="48.6" rx="10.2" fill="#FFFFFF" />
+  <rect x="265" y="316.2" width="48.6" height="48.6" rx="10.2" fill="#FFFFFF" />
+</svg>`;
+
+async function createPng(size) {
+  return await sharp(Buffer.from(svg))
+    .resize(size, size)
+    .png()
+    .toBuffer();
+}
+
+function buildIco(pngBuffers, sizes) {
+  const count = pngBuffers.length;
+  const header = Buffer.alloc(6);
+  header.writeUInt16LE(0, 0); // reserved
+  header.writeUInt16LE(1, 2); // ICO type
+  header.writeUInt16LE(count, 4); // number of images
+
+  let offset = 6 + count * 16;
+  const dirEntries = [];
+  for (let i = 0; i < count; i++) {
+    const s = sizes[i];
+    const buf = pngBuffers[i];
+    const entry = Buffer.alloc(16);
+    entry[0] = s >= 256 ? 0 : s; // width (0 = 256)
+    entry[1] = s >= 256 ? 0 : s; // height
+    entry[2] = 0; // color palette
+    entry[3] = 0; // reserved
+    entry.writeUInt16LE(1, 4); // color planes
+    entry.writeUInt16LE(32, 6); // bits per pixel
+    entry.writeUInt32LE(buf.length, 8); // image size
+    entry.writeUInt32LE(offset, 12); // image offset
+    dirEntries.push(entry);
+    offset += buf.length;
+  }
+
+  return Buffer.concat([header, ...dirEntries, ...pngBuffers]);
+}
+
+async function main() {
+  console.log("Generating Hanbat official brand icons for Google Search & browsers...");
+
+  // Generate PNGs at required resolutions
+  const p16 = await createPng(16);
+  const p32 = await createPng(32);
+  const p48 = await createPng(48);
+  const p96 = await createPng(96);
+  const p180 = await createPng(180);
+  const p192 = await createPng(192);
+  const p256 = await createPng(256);
+  const p512 = await createPng(512);
+
+  // Write standalone PNG files in public & app
+  fs.writeFileSync("public/icon-48.png", p48);
+  fs.writeFileSync("public/icon-96.png", p96);
+  fs.writeFileSync("public/icon-192.png", p192);
+  fs.writeFileSync("public/icon-512.png", p512);
+  fs.writeFileSync("public/apple-icon.png", p180);
+  fs.writeFileSync("app/apple-icon.png", p180);
+  fs.writeFileSync("app/icon.png", p192);
+
+  // Build ICO with 16, 32, 48, 256
+  const ico = buildIco([p16, p32, p48, p256], [16, 32, 48, 256]);
+  fs.writeFileSync("public/favicon.ico", ico);
+  fs.writeFileSync("app/favicon.ico", ico);
+
+  console.log("✅ Successfully created: public/favicon.ico, app/favicon.ico, icon-48.png, icon-96.png, icon-192.png, icon-512.png, apple-icon.png");
+}
+
+main().catch(console.error);
+
+]]>
+    </file>
     <file path="scripts/test-analyze-inquiry.mjs" lines="99">
       <![CDATA[
 // 파일 경로: scripts/test-analyze-inquiry.mjs
@@ -21458,7 +21518,7 @@ runPhase4RegressionTests();
 
 ]]>
     </file>
-    <file path="scripts/verify-predeploy.mjs" lines="105">
+    <file path="scripts/verify-predeploy.mjs" lines="118">
       <![CDATA[
 // 파일 경로: scripts/verify-predeploy.mjs
 // 실행 방법: node scripts/verify-predeploy.mjs
@@ -21553,6 +21613,19 @@ function runPredeployChecks() {
       prodDetailPage.includes("export async function generateMetadata") &&
       prodCardComp.includes("export function ProductCard"),
     "상품 상세 페이지 또는 ProductCard 컴포넌트가 다른 코드로 덮어써지지 않았는지 확인하세요."
+  );
+
+  const rootLayout = readFileSafe("app/layout.tsx");
+  check(
+    "8. Google Site Name(WebSite 스키마) 및 다중 해상도 브랜드 파비콘 존재 확인",
+    rootLayout.includes('"@type": "WebSite"') &&
+      rootLayout.includes("STORE.name") &&
+      fileExists("public/favicon.ico") &&
+      fileExists("app/favicon.ico") &&
+      fileExists("public/icon-192.png") &&
+      fileExists("public/icon-512.png") &&
+      fileExists("app/apple-icon.png"),
+    "구글 검색용 파비콘 및 WebSite 스키마가 정상 구성되었는지 확인하세요."
   );
 
   console.log("\n=========================================================");

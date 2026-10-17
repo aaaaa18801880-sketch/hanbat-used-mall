@@ -539,9 +539,9 @@ export default function Home() {
               {/* 좌측: 핵심 메시지 + 보조 설명 + 핵심 CTA 2개 */}
               <div className="lg:col-span-6">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#E5E2DC] bg-white px-3.5 py-1 text-[13px] font-semibold text-[#0E1A2B] shadow-2xs">
-                  <span className="font-bold text-[#D9531E]">SINCE {STORE.since}</span>
+                  <span className="font-bold text-[#D9531E]">{STORE.name}</span>
                   <span className="h-3 w-px bg-[#E5E2DC]" aria-hidden="true" />
-                  <span className="text-[#3E4756]">대전 중촌동 직영 가전·주방설비 ({OPERATING_YEARS}년 운영)</span>
+                  <span className="text-[#3E4756]">SINCE {STORE.since} · 대전 중촌동 직영 매장 ({OPERATING_YEARS}년 운영)</span>
                 </div>
 
                 <h1

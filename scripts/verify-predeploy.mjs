@@ -93,6 +93,19 @@ function runPredeployChecks() {
     "상품 상세 페이지 또는 ProductCard 컴포넌트가 다른 코드로 덮어써지지 않았는지 확인하세요."
   );
 
+  const rootLayout = readFileSafe("app/layout.tsx");
+  check(
+    "8. Google Site Name(WebSite 스키마) 및 다중 해상도 브랜드 파비콘 존재 확인",
+    rootLayout.includes('"@type": "WebSite"') &&
+      rootLayout.includes("STORE.name") &&
+      fileExists("public/favicon.ico") &&
+      fileExists("app/favicon.ico") &&
+      fileExists("public/icon-192.png") &&
+      fileExists("public/icon-512.png") &&
+      fileExists("app/apple-icon.png"),
+    "구글 검색용 파비콘 및 WebSite 스키마가 정상 구성되었는지 확인하세요."
+  );
+
   console.log("\n=========================================================");
   console.log(`검증 완료: ${passed} / ${total} 항목 통과`);
   console.log("=========================================================");

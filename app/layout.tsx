@@ -9,6 +9,23 @@ const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
 
 export const metadata: Metadata = {
   metadataBase: new URL(STORE.url),
+  applicationName: STORE.name,
+  appleWebApp: {
+    title: STORE.name,
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
+      { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   title: {
     default: `${STORE.name} | 대전 중고가전·업소용 주방기기 매입·판매 전문`,
     template: `%s | ${STORE.name}`,
@@ -62,57 +79,61 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const jsonLd = {
+  // 구글 공식 'Site Name(사이트 이름)' 표준 구조화 데이터
+  const websiteJsonLd = {
     "@context": "https://schema.org",
-    "@graph": [
+    "@type": "WebSite",
+    name: STORE.name,
+    alternateName: ["한밭몰", "hanbatmall.com", "hanbatmall", "대전한밭중고전자"],
+    url: STORE.url,
+    inLanguage: "ko-KR",
+  };
+
+  // 구글 로컬 비즈니스 & 지도 매핑용 구조화 데이터
+  const localBusinessJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${STORE.url}/#localbusiness`,
+    name: STORE.name,
+    image: `${STORE.url}/og-image.jpg`,
+    telephone: STORE.tel,
+    url: STORE.url,
+    foundingDate: String(STORE.since),
+    priceRange: "₩₩",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: STORE.address,
+      addressLocality: "대전광역시",
+      addressRegion: "중구",
+      postalCode: "34800",
+      addressCountry: "KR",
+    },
+    openingHoursSpecification: [
       {
-        "@type": "WebSite",
-        "@id": `${STORE.url}/#website`,
-        url: STORE.url,
-        name: STORE.name,
-        alternateName: ["hanbatmall", "한밭몰", "대전한밭중고전자"],
-        inLanguage: "ko-KR",
-      },
-      {
-        "@type": "LocalBusiness",
-        "@id": `${STORE.url}/#localbusiness`,
-        name: STORE.name,
-        image: `${STORE.url}/og-image.jpg`,
-        telephone: STORE.tel,
-        url: STORE.url,
-        foundingDate: String(STORE.since),
-        priceRange: "₩₩",
-        address: {
-          "@type": "PostalAddress",
-          streetAddress: STORE.address,
-          addressLocality: "대전광역시",
-          addressRegion: "중구",
-          postalCode: "34800",
-          addressCountry: "KR",
-        },
-        openingHoursSpecification: [
-          {
-            "@type": "OpeningHoursSpecification",
-            dayOfWeek: [
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-            ],
-            opens: "09:00",
-            closes: "19:00",
-          },
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: [
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
         ],
-        sameAs: [STORE.cafe, STORE.kakaoChannel],
+        opens: "09:00",
+        closes: "19:00",
       },
     ],
+    sameAs: [STORE.cafe, STORE.kakaoChannel],
   };
 
   return (
     <html lang="ko">
       <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48" />
+        <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
+        <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
         <link
           rel="preconnect"
           href="https://cdn.jsdelivr.net"
@@ -126,7 +147,11 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
         />
         <Script
           strategy="afterInteractive"
