@@ -590,23 +590,24 @@ export default function Home() {
 
                 <h1
                   id="hero-title"
-                  className="mt-3.5 sm:mt-4 text-[27px] xs:text-[31px] sm:text-[38px] lg:text-[40px] xl:text-[44px] font-extrabold leading-[1.2] tracking-[-0.032em] text-[#0E1A2B] break-keep"
+                  className="mt-3.5 sm:mt-4 text-[28px] xs:text-[32px] sm:text-[38px] lg:text-[42px] xl:text-[46px] font-extrabold leading-[1.2] tracking-[-0.032em] text-[#0E1A2B] break-keep"
                 >
-                  분해 세척과 점검을 마친 가전,{" "}
+                  가정용 가전부터 업소용 주방설비까지,
+                  <br />
                   <span className="text-[#D9531E]">
-                    합리적인 가격으로 만나보세요.
+                    직접 분해 세척·점검한 실매물만 판매합니다
                   </span>
                 </h1>
 
-                <p className="mt-3.5 max-w-[520px] text-[15px] sm:text-[16.5px] leading-[1.65] text-[#434B59] break-keep">
-                  {STORE.since}년부터 대전 중촌동 직영 매장에서 가정용 에어컨·냉장고·세탁기부터 식당·카페 업소용 냉장·주방설비까지 직접 검수해 판매하고, 쓰시던 가전을 방문 매입합니다.
+                <p className="mt-3.5 max-w-[540px] text-[15.5px] sm:text-[17px] font-medium leading-[1.6] text-[#434B59] break-keep">
+                  {STORE.since}년 개업 대전 중촌동 직영 매장 · 에어컨·냉장고·세탁기·업소용 설비 판매 및 당일 현금 방문매입
                 </p>
 
                 {/* 주 행동 버튼(판매 제품 보기) & 보조 행동 버튼(가전 매입 신청) */}
-                <div className="mt-6 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[440px]">
+                <div className="mt-6 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[460px]">
                   <Link
                     href="/gallery"
-                    className="hb-btn-accent flex-1 h-12 sm:h-13 px-6 text-[15px] sm:text-[16px] shadow-card whitespace-nowrap"
+                    className="hb-btn-accent flex-1 h-13 sm:h-14 px-6 text-[16px] sm:text-[17px] shadow-card whitespace-nowrap"
                   >
                     <span>판매 제품 보기</span>
                     <Icon d={ICON.arrow} className="h-4 w-4 shrink-0" />
@@ -619,7 +620,7 @@ export default function Home() {
                       });
                       openInquiry("내 물건 팔기");
                     }}
-                    className="hb-btn-outline flex-1 h-12 sm:h-13 px-6 text-[15px] sm:text-[16px] whitespace-nowrap"
+                    className="hb-btn-outline flex-1 h-13 sm:h-14 px-6 text-[16px] sm:text-[17px] whitespace-nowrap"
                   >
                     <span>가전 매입 신청</span>
                   </button>
@@ -724,47 +725,44 @@ export default function Home() {
 
         {/* ════════════════════════════════════════════════════════════
             [흐름 2] 주요 서비스 3가지 — 구매 · 매입 · 업소용/대량 상담
-            (처음 방문한 고객이 4가지 핵심 질문을 즉시 해결하는 진입점)
+            (불필요한 설명 문단을 제거하고 굵은 제목 + 핵심 체크 2줄 + 버튼만 직관적으로 배치)
             ════════════════════════════════════════════════════════════ */}
         <section
           aria-labelledby="core-services-title"
-          className="border-b border-[#E6E3DC] bg-white py-12 sm:py-16"
+          className="border-b border-[#E6E3DC] bg-white py-10 sm:py-14"
         >
           <div className="hb-container">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-7 sm:mb-9">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6 sm:mb-7">
               <div>
-                <p className="hb-eyebrow">핵심 서비스 안내</p>
+                <p className="hb-eyebrow">주요 업무 바로가기</p>
                 <h2
                   id="core-services-title"
-                  className="mt-1.5 text-[22px] sm:text-[26px] font-extrabold tracking-[-0.025em] text-[#0E1A2B]"
+                  className="mt-1 text-[23px] sm:text-[28px] font-extrabold tracking-[-0.025em] text-[#0E1A2B]"
                 >
-                  원하시는 서비스를 선택해 바로 시작하세요
+                  중고가전 구매 · 방문매입 · 업소용 상담
                 </h2>
               </div>
-              <p className="text-[14px] text-[#667085]">
-                가정용 단품 거래부터 식당·카페 창업 및 폐업 일괄 정리까지 지원합니다.
+              <p className="text-[14.5px] font-semibold text-[#667085]">
+                가정용 단품부터 식당·카페 창업 설비, 폐업 일괄 철거까지 한 번에 진행합니다.
               </p>
             </div>
 
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-5 lg:grid-cols-3">
               {/* 서비스 1: 판매 상품 구매 */}
-              <div className="flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              <div className="flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
+                    <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12.5px] font-bold text-white">
                       01 · 가전·설비 구매
                     </span>
-                    <span className="text-[12.5px] font-bold text-[#D9531E]">
-                      실매물 가격 공개
+                    <span className="text-[13px] font-extrabold text-[#D9531E]">
+                      실매물 정찰가
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
-                    검수 완료 판매 제품 확인
+                  <h3 className="mt-3.5 text-[21px] sm:text-[23px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                    세척·점검 마친 판매 제품 보기
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#434B59] break-keep">
-                    에어컨·냉장고·세탁기부터 업소용 냉장고·제빙기까지, 세척과 작동 테스트를 마친 매장 실매물을 사진과 가격으로 확인하세요.
-                  </p>
-                  <ul className="mt-4 space-y-1.5 text-[13.5px] font-semibold text-[#0E1A2B]">
+                  <ul className="mt-4 space-y-2 text-[14.5px] sm:text-[15px] font-bold text-[#0E1A2B]">
                     <li className="flex items-center gap-2">
                       <span className="text-[#D9531E]">✓</span> 에어컨 8개월 · 일반가전 4개월 무상 A/S
                     </li>
@@ -773,10 +771,10 @@ export default function Home() {
                     </li>
                   </ul>
                 </div>
-                <div className="mt-6 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
+                <div className="mt-5 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
                   <Link
                     href="/gallery"
-                    className="hb-btn-primary h-11 px-4 text-[14px] flex-1"
+                    className="hb-btn-primary h-12 px-5 text-[15px] flex-1"
                   >
                     <span>판매 제품 갤러리</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
@@ -784,7 +782,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => openInquiry("구매 문의")}
-                    className="hb-btn-outline h-11 px-4 text-[14px]"
+                    className="hb-btn-outline h-12 px-4 text-[15px]"
                   >
                     재고 문의
                   </button>
@@ -792,43 +790,40 @@ export default function Home() {
               </div>
 
               {/* 서비스 2: 사용하던 가전 매입 신청 */}
-              <div className="flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              <div className="flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-[#D9531E] px-2.5 py-1 text-[12px] font-bold text-white">
+                    <span className="inline-flex items-center rounded-md bg-[#D9531E] px-2.5 py-1 text-[12.5px] font-bold text-white">
                       02 · 가전 방문 매입
                     </span>
-                    <span className="text-[12.5px] font-bold text-[#0E1A2B]">
+                    <span className="text-[13px] font-extrabold text-[#0E1A2B]">
                       당일 현금 정산
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
-                    사용하던 가전 매입 신청
+                  <h3 className="mt-3.5 text-[21px] sm:text-[23px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                    쓰던 가전 · 폐업 설비 팔기
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#434B59] break-keep">
-                    이사·가전 교체로 처분할 가정용 가전이나 매장 정리 설비의 사진을 보내주시면 빠르게 견적을 산출하고 원하는 날짜에 방문 수거합니다.
-                  </p>
-                  <ul className="mt-4 space-y-1.5 text-[13.5px] font-semibold text-[#0E1A2B]">
+                  <ul className="mt-4 space-y-2 text-[14.5px] sm:text-[15px] font-bold text-[#0E1A2B]">
                     <li className="flex items-center gap-2">
-                      <span className="text-[#D9531E]">✓</span> 사진·명판 접수 시 신속 가견적 안내
+                      <span className="text-[#D9531E]">✓</span> 사진·명판 전송 시 빠른 방문 가견적
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-[#D9531E]">✓</span> 전문 기사 방문 분리·수거 후 즉시 입금
+                      <span className="text-[#D9531E]">✓</span> 직접 분리·수거 후 현장에서 즉시 입금
                     </li>
                   </ul>
                 </div>
-                <div className="mt-6 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
+                <div className="mt-5 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
-                    className="hb-btn-accent h-11 px-4 text-[14px] flex-1"
+                    className="hb-btn-accent h-12 px-5 text-[15px] flex-1"
                   >
                     <span>매입 견적 신청</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
                   </button>
                   <Link
                     href="/purchase"
-                    className="hb-btn-outline h-11 px-4 text-[14px]"
+                    className="hb-btn-outline h-12 px-4 text-[15px]"
                   >
                     매입 안내
                   </Link>
@@ -836,43 +831,40 @@ export default function Home() {
               </div>
 
               {/* 서비스 3: 업소용 · 대량 구매 상담 */}
-              <div className="flex flex-col justify-between rounded-xl border border-[#0E1A2B] bg-[#0E1A2B] p-6 sm:p-7 text-white">
+              <div className="flex flex-col justify-between rounded-2xl border border-[#0E1A2B] bg-[#0E1A2B] p-6 sm:p-7 text-white">
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-white/15 px-2.5 py-1 text-[12px] font-bold text-white">
-                      03 · 업소용 · 대량 상담
+                    <span className="inline-flex items-center rounded-md bg-white/15 px-2.5 py-1 text-[12.5px] font-bold text-white">
+                      03 · 업소용 · 창업 상담
                     </span>
-                    <span className="text-[12.5px] font-bold text-[#FF8A50]">
-                      세금계산서 100% 발행
+                    <span className="text-[13px] font-extrabold text-[#FF8A50]">
+                      세금계산서 발행
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[22px] font-extrabold text-white tracking-[-0.02em]">
-                    식당·카페 창업 및 폐업 일괄 상담
+                  <h3 className="mt-3.5 text-[21px] sm:text-[23px] font-extrabold text-white tracking-[-0.02em]">
+                    식당·카페 창업 및 대량 납품
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-white/80 break-keep">
-                    45박스 냉장고·테이블냉장고·쇼케이스·제빙기·식기세척기 등 업소용 주방설비 맞춤 세트 구성과 폐업 일괄 철거·매입을 지원합니다.
-                  </p>
-                  <ul className="mt-4 space-y-1.5 text-[13.5px] font-semibold text-white/90">
+                  <ul className="mt-4 space-y-2 text-[14.5px] sm:text-[15px] font-bold text-white/95">
                     <li className="flex items-center gap-2">
-                      <span className="text-[#FF8A50]">✓</span> 창업 예산·도면 맞춤 주방설비 일괄 세팅
+                      <span className="text-[#FF8A50]">✓</span> 45박스 냉장고·쇼케이스·제빙기 세트 구성
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-[#FF8A50]">✓</span> 원룸·기숙사·사무실 다량 납품 및 정식 증빙
+                      <span className="text-[#FF8A50]">✓</span> 원룸·기숙사·사무실 다량 납품 및 증빙
                     </li>
                   </ul>
                 </div>
-                <div className="mt-6 pt-4 border-t border-white/15 flex items-center gap-2.5">
+                <div className="mt-5 pt-4 border-t border-white/15 flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
-                    className="hb-btn-accent h-11 px-4 text-[14px] flex-1"
+                    className="hb-btn-accent h-12 px-5 text-[15px] flex-1"
                   >
-                    <span>업소용 · 대량 상담 신청</span>
+                    <span>업소용 상담 신청</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
                   </button>
                   <Link
                     href={galleryHref(G.biz)}
-                    className="hb-btn border border-white/25 bg-white/10 text-white hover:bg-white hover:text-[#0E1A2B] h-11 px-4 text-[14px]"
+                    className="hb-btn border border-white/25 bg-white/10 text-white hover:bg-white hover:text-[#0E1A2B] h-12 px-4 text-[15px]"
                   >
                     설비 보기
                   </Link>
@@ -1235,15 +1227,15 @@ export default function Home() {
               className="mt-16 sm:mt-20 pt-12 sm:pt-16 border-t border-[#E6E3DC]"
             >
               <SectionHeading
-                eyebrow="온라인 통합 상담 데스크"
+                eyebrow="직통 온라인 접수"
                 title={<span id="cta-title">판매 · 매입 · 업소용 통합 상담 신청</span>}
-                desc="찾으시는 가전·설비 재고 문의부터 방문 매입 견적 신청, 창업·폐업 대량 상담까지 남겨주시면 담당자가 빠르게 확인 후 연락드립니다."
+                desc="아래에서 상담 유형을 선택하거나 단골 패키지를 누르면 품목 양식이 한 번에 입력됩니다."
               />
 
-              <div className="mt-8 grid gap-8 lg:grid-cols-12 items-start">
+              <div className="mt-8 grid gap-7 lg:grid-cols-12 items-start">
                 <div
                   id="inquiry-form"
-                  className="rounded-xl border border-[#E6E3DC] bg-white p-4 xs:p-5 sm:p-8 lg:col-span-7 shadow-card"
+                  className="rounded-2xl border-2 border-[#0E1A2B]/15 bg-white p-5 sm:p-8 lg:p-9 lg:col-span-8 shadow-card"
                 >
                   <UnifiedInquiryForm
                     defaultType={inquiryType}
@@ -1252,7 +1244,7 @@ export default function Home() {
                   />
                 </div>
 
-                <aside className="flex flex-col gap-5 lg:col-span-5">
+                <aside className="flex flex-col gap-5 lg:col-span-4">
                   <div className="rounded-xl bg-[#0E1A2B] p-6 text-white sm:p-7">
                     <span className="inline-block rounded bg-[#D9531E] px-2.5 py-1 text-[11.5px] font-bold text-white">
                       직통 전화 · 카톡 상담

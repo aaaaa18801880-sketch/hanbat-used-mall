@@ -25,7 +25,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 1. 에어컨 · 냉난방기 (시원한 블루 3D 바람 + 스탠드/벽걸이 에어컨) */
     case "aircon":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="ac-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
@@ -83,7 +83,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 2. 냉장고 · 김치냉장고 (프리미엄 4도어 3D 글로시 냉장고) */
     case "fridge":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="fr-left" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F8FAFC" />
@@ -122,7 +122,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 3. 세탁기 · 건조기 (아쿠아 드럼 윈도우 3D 세탁기) */
     case "washer":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="ws-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
@@ -161,7 +161,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 4. 생활 · 소형가전 (따뜻한 오렌지 코랄 3D 오븐/전자레인지) */
     case "small":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="sm-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFF7ED" />
@@ -195,7 +195,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 5. 업소용 냉장고 (45박스 스텐 4도어 + 디지털 온도창) */
     case "bizFridge":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="bf-steel" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F1F5F9" />
@@ -227,7 +227,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 6. 쇼케이스 · 제빙기 (유리문 음료 쇼케이스 & 얼음 큐브) */
     case "showcase":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="sc-glass" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#E0F2FE" />
@@ -262,7 +262,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 7. 식기세척 · 주방기기 (업소용 스텐 세척기/작업대 & 클린 식기) */
     case "kitchen":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="kt-plate" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
@@ -292,7 +292,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 8. 내 가전 팔기 (당일 현금 정산 3D 골드 코인 & 매입 보드) */
     case "sell":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="sl-card" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#334155" />
@@ -342,7 +342,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 9. 폐업 일괄정리 (방문 철거·수거 3D 박스 & 픽업 카트) */
     case "clearance":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="cl-box" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FDBA74" />
@@ -366,7 +366,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 10. 창업 · 매장패키지 (아정당 '매장패키지' 스타일 3D 어닝 스토어) */
     case "storePkg":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="st-wall" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FFFBEB" />
@@ -399,7 +399,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 11. 배송 · 설치인증 (아정당 '보험/인증' 스타일 3D 블루 쉴드) */
     case "certified":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="ct-shield" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#60A5FA" />
@@ -512,22 +512,22 @@ const QUICK_GROUPS: QuickMenuGroup[] = [
     items: [
       {
         key: "sell",
-        label: "가전 팔기",
+        label: "가전팔기",
         inquiryType: "내 물건 팔기",
       },
       {
         key: "clearance",
-        label: "폐업 정리",
+        label: "폐업정리",
         href: "/purchase",
       },
       {
         key: "storePkg",
-        label: "창업 상담",
+        label: "창업상담",
         inquiryType: "대량·업소용 상담",
       },
       {
         key: "certified",
-        label: "배송 후기",
+        label: "배송후기",
         href: "#reviews",
       },
     ],
@@ -543,11 +543,11 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="bg-white border-b border-[#E6E3DC] pt-7 pb-6 sm:pt-8 sm:pb-7"
+      className="bg-white border-b border-[#E6E3DC] pt-8 pb-7 sm:pt-9 sm:pb-8"
     >
       <div className="hb-container">
         {/* 데스크톱(lg 이상): 4 : 3 : 4 비례 분할로 11개 아이템의 가로폭 균일화 / 모바일·태블릿: 스택 카드 */}
-        <div className="flex flex-col lg:flex-row gap-5 lg:gap-3.5 items-stretch">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch">
           {QUICK_GROUPS.map((group) => {
             const flexBasisClass =
               group.id === "home-appliances"
@@ -562,23 +562,21 @@ export function CategoryPictogramBar({
             return (
               <div
                 key={group.id}
-                className={`relative rounded-[22px] bg-[#F4F6FA] border border-[#E5E9F2] px-2 sm:px-3.5 pt-6 pb-3.5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
+                className={`relative rounded-[24px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-7 pb-4 sm:pb-5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
               >
                 {/* 상단 좌측 플로팅 캡슐 배지 (아정당 스타일) */}
                 <span
-                  className={`absolute -top-3 left-3 sm:left-4 inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-[11.5px] font-extrabold tracking-[-0.01em] whitespace-nowrap ${group.badgeBgClass}`}
+                  className={`absolute -top-3.5 left-4 sm:left-5 inline-flex items-center rounded-full px-3 sm:px-3.5 py-1 text-[11.5px] sm:text-[12.5px] font-extrabold tracking-[-0.01em] whitespace-nowrap ${group.badgeBgClass}`}
                 >
                   {group.badgeText}
                 </span>
 
-                <ul className={`grid ${gridColsClass} gap-1 items-center`}>
+                <ul className={`grid ${gridColsClass} gap-1.5 sm:gap-2 items-center`}>
                   {group.items.map((item) => {
                     const content = (
                       <>
-                        <div className="flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]">
-                          <Soft3DPictogram type={item.key} />
-                        </div>
-                        <span className="mt-1 text-center text-[12px] sm:text-[13px] font-bold tracking-[-0.02em] text-[#1E293B] group-hover:text-[#D9531E] transition-colors truncate max-w-full px-0.5">
+                        <Soft3DPictogram type={item.key} />
+                        <span className="mt-1.5 text-center text-[13.5px] sm:text-[15px] font-extrabold tracking-[-0.02em] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
                           {item.label}
                         </span>
                       </>
@@ -596,7 +594,7 @@ export function CategoryPictogramBar({
                               });
                               onSelectInquiry(item.inquiryType!);
                             }}
-                            className="group flex w-full flex-col items-center justify-center py-1.5 rounded-xl hover:bg-white/80 transition-colors cursor-pointer"
+                            className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors cursor-pointer"
                           >
                             {content}
                           </button>
@@ -614,7 +612,7 @@ export function CategoryPictogramBar({
                               location: "top_pictogram_bar",
                             })
                           }
-                          className="group flex w-full flex-col items-center justify-center py-1.5 rounded-xl hover:bg-white/80 transition-colors"
+                          className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors"
                         >
                           {content}
                         </Link>

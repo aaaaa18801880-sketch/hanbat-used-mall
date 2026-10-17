@@ -972,15 +972,15 @@ export function UnifiedInquiryForm({
         executeSubmit(false);
       }}
       noValidate
-      className="space-y-4"
+      className="space-y-6"
     >
       {isAdmin && allowNoticeToggle && (
-        <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3">
+        <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3.5">
           <div>
-            <span className="block text-[13.5px] font-bold text-[#B5431A]">
+            <span className="block text-[14.5px] font-bold text-[#B5431A]">
               최상단 고정 공지사항으로 등록
             </span>
-            <span className="mt-0.5 block text-[11.5px] text-[#D9531E]">
+            <span className="mt-0.5 block text-[12.5px] text-[#D9531E]">
               체크 시 모든 방문자가 비밀번호 없이 열람할 수 있는 공지로 게시됩니다.
             </span>
           </div>
@@ -993,16 +993,78 @@ export function UnifiedInquiryForm({
         </label>
       )}
 
+      {/* 1. 최상단 4대 상담 유형 대형 탭 (높이 56px~60px, 글자 크기 16px~18px) */}
+      {!isNotice && (
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <span className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+              1. 원하시는 상담 유형을 선택해 주세요
+            </span>
+            <a
+              href={smsHref(STORE.mobile, smsBodyDraft)}
+              onClick={() =>
+                trackEvent("click_sms_consult", {
+                  location: "inquiry_form_top",
+                  inquiry_type: inquiryType,
+                })
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 py-1.5 text-[13px] font-extrabold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+              title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
+            >
+              <Icon d={ICON.chat} className="h-4 w-4" />
+              <span>문자({STORE.mobile}) 바로 전송</span>
+            </a>
+          </div>
+
+          <div
+            role="tablist"
+            aria-label="상담 유형 선택"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
+          >
+            {INQUIRY_TYPES.map((t) => {
+              const active = inquiryType === t;
+              const tabLabel =
+                t === "내 물건 팔기"
+                  ? "내 물건 팔기(매입)"
+                  : t === "대량·업소용 상담"
+                  ? "업소용·창업 상담"
+                  : t;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => {
+                    setInquiryType(t);
+                    setPendingConflicts(null);
+                  }}
+                  className={`h-14 sm:h-[60px] rounded-xl px-3 text-[16px] sm:text-[18px] font-extrabold tracking-[-0.02em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
+                    active
+                      ? t === "내 물건 팔기"
+                        ? "bg-[#D9531E] text-white shadow-card ring-2 ring-[#D9531E]/30"
+                        : "bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#0E1A2B]/25"
+                      : "border-2 border-[#E4E0D8] bg-[#FAF9F7] text-[#434B59] hover:border-[#0E1A2B] hover:bg-white hover:text-[#0E1A2B]"
+                  }`}
+                >
+                  {tabLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 관심 매물 견적함(묶음 문의) 자동 불러오기 배너 */}
       {!isNotice && basketItems.length > 0 && (
-        <div className="rounded-md border border-[#0E1A2B] bg-[#F8FAFC] p-3.5">
+        <div className="rounded-xl border-2 border-[#0E1A2B] bg-[#F8FAFC] p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#D9531E] text-[11px] font-bold text-white">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
                 {basketItems.length}
               </span>
-              <strong className="text-[13px] font-bold text-[#0E1A2B]">
-                견적함에 담아둔 관심 매물 {basketItems.length}건
+              <strong className="text-[15px] font-extrabold text-[#0E1A2B]">
+                견적함에 담아둔 관심 상품 {basketItems.length}건
               </strong>
             </div>
             <button
@@ -1013,22 +1075,22 @@ export function UnifiedInquiryForm({
                   `견적함 상품 ${basketItems.length}건이 문의 내용에 자동 입력되었습니다.`
                 );
               }}
-              className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[11.5px] font-bold text-white hover:bg-[#1C2D47]"
+              className="rounded-lg bg-[#0E1A2B] px-3.5 py-1.5 text-[13px] font-bold text-white hover:bg-[#1C2D47]"
             >
               {bundleApplied ? "목록 다시 반영" : "묶음 견적으로 자동 입력"}
             </button>
           </div>
 
-          <ul className="mt-2 flex flex-wrap gap-1.5">
+          <ul className="mt-2.5 flex flex-wrap gap-2">
             {basketItems.map((item) => (
               <li
                 key={item.id}
-                className="inline-flex items-center gap-1.5 rounded border border-[#DDD9D1] bg-white px-2 py-0.5 text-[11.5px]"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-[13px]"
               >
-                <span className="font-semibold text-[#0E1A2B] truncate max-w-[160px]">
+                <span className="font-bold text-[#0E1A2B]">
                   {item.title}
                 </span>
-                <span className="text-[#D9531E] font-bold">
+                <span className="text-[#D9531E] font-extrabold">
                   ({formatProductPrice(item.price, item.category)})
                 </span>
                 <button
@@ -1040,7 +1102,7 @@ export function UnifiedInquiryForm({
                     }
                   }}
                   aria-label={`${item.title} 제외`}
-                  className="text-[#8A8478] hover:text-red-600"
+                  className="text-[#8A8478] hover:text-red-600 font-bold px-1"
                 >
                   ×
                 </button>
@@ -1050,38 +1112,22 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* [신규 기능 ③ + ①] 단골 패키지 1초 자동채움 버튼 4종 + 직통 문자(SMS) 바로 보내기 */}
+      {/* 2. 단골 패키지 1초 자동채움 버튼 4종 (2열 와이드 배치 — 품목명 잘림 없음) */}
       {!isNotice && (
-        <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-2.5">
+        <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-[#D9531E]" />
-              <strong className="text-[12.5px] sm:text-[13px] font-extrabold text-[#0E1A2B]">
-                ⚡ 자주 찾는 단골 패키지 1초 자동채움
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#D9531E]" />
+              <strong className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+                자주 찾는 단골 패키지 1초 자동채움
               </strong>
-              <span className="hidden sm:inline text-[11.5px] text-[#6B7280]">
-                (누르면 제목과 품목 양식이 한 번에 입력됩니다)
+              <span className="text-[13px] text-[#667085]">
+                (누르면 품목 양식이 바로 입력됩니다)
               </span>
             </div>
-
-            {/* [신규 기능 ①] 폼 작성이 번거로운 분들을 위한 직통 문자(SMS) 사진 전송 버튼 */}
-            <a
-              href={smsHref(STORE.mobile, smsBodyDraft)}
-              onClick={() =>
-                trackEvent("click_sms_consult", {
-                  location: "inquiry_form_top",
-                  inquiry_type: inquiryType,
-                })
-              }
-              className="inline-flex items-center gap-1.5 rounded border border-[#D9531E] bg-[#FFF5F0] px-2.5 py-1 text-[11.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
-              title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
-            >
-              <Icon d={ICON.chat} className="h-3.5 w-3.5" />
-              <span>✉️ 문자({STORE.mobile})로 사진 바로 보내기</span>
-            </a>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             {QUICK_PACKAGE_PRESETS.map((preset) => {
               const isSelected = selectedPresetId === preset.id;
               return (
@@ -1090,24 +1136,24 @@ export function UnifiedInquiryForm({
                   type="button"
                   onClick={() => handleApplyQuickPackage(preset)}
                   aria-pressed={isSelected}
-                  className={`flex flex-col items-start justify-between rounded-md border p-2.5 text-left transition-all ${
+                  className={`flex flex-col items-start justify-between rounded-xl border p-3.5 sm:p-4 text-left transition-all cursor-pointer ${
                     isSelected
-                      ? "border-[#D9531E] bg-[#FFF5F0] ring-1 ring-[#D9531E]"
-                      : "border-[#E4E0D8] bg-[#FAF9F7] hover:border-[#0E1A2B] hover:bg-white"
+                      ? "border-2 border-[#D9531E] bg-[#FFF5F0] shadow-2xs"
+                      : "border-[#D7D2C8] bg-white hover:border-[#0E1A2B]"
                   }`}
                 >
-                  <div className="flex w-full items-center justify-between gap-1">
-                    <span className="rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-[#FF8A50]">
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <span className="rounded-md bg-[#0E1A2B] px-2 py-0.5 text-[11.5px] font-bold text-[#FF8A50]">
                       {preset.badge}
                     </span>
-                    <span className="text-[10.5px] font-bold text-[#D9531E]">
-                      {isSelected ? "✓ 적용됨" : "1초 입력 →"}
+                    <span className="text-[12.5px] font-extrabold text-[#D9531E]">
+                      {isSelected ? "✓ 양식 적용됨" : "누르면 자동 입력 →"}
                     </span>
                   </div>
-                  <strong className="mt-1.5 block text-[12.5px] font-extrabold text-[#0E1A2B]">
+                  <strong className="mt-2 block text-[15.5px] sm:text-[16.5px] font-extrabold text-[#0E1A2B]">
                     {preset.label}
                   </strong>
-                  <span className="mt-0.5 block text-[11px] text-[#4B5260] truncate w-full">
+                  <span className="mt-1 block text-[13.5px] sm:text-[14px] font-medium text-[#434B59] leading-snug break-keep">
                     {preset.sub}
                   </span>
                 </button>
@@ -1117,116 +1163,88 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* 1. 상단 컴팩트 블록: 상담 유형 4탭 + 성함/연락처/비밀번호 */}
+      {/* 3. 성함 / 연락처 / 비밀번호 입력 (높이 52px~56px, 글자 크기 16px) */}
       {!isNotice ? (
-        <fieldset className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
-          <legend className="sr-only">상담 유형 및 기본 정보</legend>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-md bg-[#EAE6DF] p-1">
-            {INQUIRY_TYPES.map((t) => {
-              const active = inquiryType === t;
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => {
-                    setInquiryType(t);
-                    setPendingConflicts(null);
-                  }}
-                  aria-pressed={active}
-                  className={`h-9 rounded px-2 text-[12px] sm:text-[12.5px] font-bold transition-all ${
-                    active
-                      ? "bg-[#0E1A2B] text-white shadow-2xs"
-                      : "bg-white/60 text-[#4B5260] hover:bg-white hover:text-[#0E1A2B]"
-                  }`}
-                >
-                  {t === "내 물건 팔기" ? "내 물건 팔기(매입)" : t}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-            <div>
-              <label htmlFor="uf-name" className="hb-label text-[12px]">
-                성함 / 상호명 <span className="text-[#D9531E]">*</span>
-              </label>
-              <input
-                id="uf-name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (fieldErrors.name)
-                    setFieldErrors((p) => ({ ...p, name: "" }));
-                }}
-                placeholder="홍길동 / 한밭식당"
-                className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
-                  fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
-                }`}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="uf-phone" className="hb-label text-[12px]">
-                연락처 <span className="text-[#D9531E]">*</span>
-              </label>
-              <input
-                id="uf-phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(formatPhone(e.target.value));
-                  if (fieldErrors.phone)
-                    setFieldErrors((p) => ({ ...p, phone: "" }));
-                }}
-                placeholder="010-0000-0000"
-                className={`hb-input mt-1 py-2 text-[13.5px] bg-white tabular-nums ${
-                  fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
-                }`}
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="uf-pw" className="hb-label text-[12px]">
-                  비밀번호 <span className="text-[#D9531E]">*</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="text-[11px] font-semibold text-[#6B7280] hover:text-[#0E1A2B]"
-                >
-                  {showPassword ? "숨기기" : "표시"}
-                </button>
-              </div>
-              <input
-                id="uf-pw"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (fieldErrors.password)
-                    setFieldErrors((p) => ({ ...p, password: "" }));
-                }}
-                placeholder="내 글 확인용 (4자 이상)"
-                className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
-                  fieldErrors.password
-                    ? "border-red-500 ring-1 ring-red-500"
-                    : ""
-                }`}
-              />
-            </div>
-          </div>
-        </fieldset>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           <div>
-            <label htmlFor="uf-name" className="hb-label text-[12.5px]">
+            <label htmlFor="uf-name" className="hb-label">
+              성함 / 상호명 <span className="text-[#D9531E]">*</span>
+            </label>
+            <input
+              id="uf-name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (fieldErrors.name)
+                  setFieldErrors((p) => ({ ...p, name: "" }));
+              }}
+              placeholder="홍길동 / 한밭식당"
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-medium ${
+                fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="uf-phone" className="hb-label">
+              연락처 <span className="text-[#D9531E]">*</span>
+            </label>
+            <input
+              id="uf-phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => {
+                setPhone(formatPhone(e.target.value));
+                if (fieldErrors.phone)
+                  setFieldErrors((p) => ({ ...p, phone: "" }));
+              }}
+              placeholder="010-0000-0000"
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold tabular-nums ${
+                fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="uf-pw" className="hb-label">
+                비밀번호 <span className="text-[#D9531E]">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="text-[12.5px] font-bold text-[#667085] hover:text-[#0E1A2B]"
+              >
+                {showPassword ? "숨기기" : "표시"}
+              </button>
+            </div>
+            <input
+              id="uf-pw"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password)
+                  setFieldErrors((p) => ({ ...p, password: "" }));
+              }}
+              placeholder="답변 확인용 (4자 이상)"
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] ${
+                fieldErrors.password
+                  ? "border-red-500 ring-1 ring-red-500"
+                  : ""
+              }`}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="uf-name" className="hb-label">
               작성자명
             </label>
             <input
@@ -1235,11 +1253,11 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1 py-2"
+              className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
             />
           </div>
           <div>
-            <label htmlFor="uf-phone" className="hb-label text-[12.5px]">
+            <label htmlFor="uf-phone" className="hb-label">
               연락처 표시
             </label>
             <input
@@ -1248,27 +1266,24 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1 py-2"
+              className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
             />
           </div>
         </div>
       )}
 
-      {/* 2. 중단 핵심 블록: 사진 첨부(최대 3장) + 상담 유형별 AI 일괄 분석 + 맞춤형 입력란 */}
-      <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-3.5">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#F0EDE7]">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-[#FF8A50]">
-              ✨ {inquiryType} AI 맞춤 분석
-            </span>
-            <span className="text-[13px] font-bold text-[#0E1A2B]">
-              사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
+      {/* 4. 사진 첨부(최대 3장) 및 사진 판독 자동입력 */}
+      <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-[#FF8A50]">
+              📷 사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
             </span>
             {!isNotice && !isOther && (
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[11.5px] font-semibold text-[#D9531E] underline underline-offset-2"
+                className="text-[13px] font-bold text-[#D9531E] underline underline-offset-2"
               >
                 {showPhotoGuide ? "촬영 팁 닫기 ▲" : "권장 촬영 팁 ▾"}
               </button>
@@ -1280,29 +1295,29 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={handleRunGeminiAnalysis}
               disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-[12.5px] font-bold transition-all shadow-2xs ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-[13.5px] font-extrabold transition-all ${
                 selectedFiles.length > 0
-                  ? "bg-[#D9531E] text-white hover:bg-[#BF4715] ring-2 ring-[#D9531E]/25"
-                  : "bg-[#F2F0EC] text-[#8A8478] cursor-not-allowed"
+                  ? "bg-[#D9531E] text-white hover:bg-[#BF4715] shadow-2xs"
+                  : "bg-[#EAE6DF] text-[#858076] cursor-not-allowed"
               }`}
             >
               <span>
                 {isAnalyzingPhotos
-                  ? "제미나이 AI 분석 중..."
+                  ? "사진 판독 중..."
                   : selectedFiles.length > 0
-                  ? `✨ 사진 ${selectedFiles.length}장 AI 자동입력 확인`
-                  : "사진 첨부 후 AI 자동입력"}
+                  ? `사진 ${selectedFiles.length}장으로 품목·모델명 자동입력`
+                  : "사진 첨부 시 품목 자동입력"}
               </span>
             </button>
           )}
         </div>
 
         {/* 사진 썸네일 + 추가 버튼 */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-3">
           {filePreviews.map((preview, idx) => (
             <div
               key={preview}
-              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0"
+              className="relative h-16 w-16 overflow-hidden rounded-lg border border-[#DDD9D1] bg-white shrink-0"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -1310,23 +1325,23 @@ export function UnifiedInquiryForm({
                 alt={`첨부 사진 ${idx + 1}`}
                 className="h-full w-full object-cover"
               />
-              <span className="absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
+              <span className="absolute left-1 bottom-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-white">
                 #{idx + 1}
               </span>
               <button
                 type="button"
                 onClick={() => handleRemoveFile(idx)}
                 aria-label="첨부 사진 삭제"
-                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
+                className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
               >
-                <Icon d={ICON.close} className="h-2.5 w-2.5" />
+                <Icon d={ICON.close} className="h-3 w-3" />
               </button>
             </div>
           ))}
 
           {selectedFiles.length < MAX_PHOTOS && (
-            <label className="flex h-14 w-20 cursor-pointer flex-col items-center justify-center gap-0.5 rounded border border-dashed border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-bold text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors shrink-0">
-              <Icon d={ICON.camera} className="h-4 w-4 text-[#D9531E]" />
+            <label className="flex h-16 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-[#CFCAC0] bg-white text-[13px] font-extrabold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors shrink-0">
+              <Icon d={ICON.camera} className="h-5 w-5 text-[#D9531E]" />
               <span>+ 사진 추가</span>
               <input
                 type="file"
@@ -1338,19 +1353,19 @@ export function UnifiedInquiryForm({
             </label>
           )}
 
-          <p className="text-[11.5px] text-[#6B7280] leading-snug flex-1 min-w-[180px]">
+          <p className="text-[13.5px] font-medium text-[#434B59] leading-snug flex-1 min-w-[200px]">
             {selectedFiles.length === 0
-              ? "사진(1~3장)을 올리고 우측 [AI 자동입력 확인]을 누르면 상담 유형에 맞춰 초안을 작성합니다. (사진 없이 직접 입력도 가능)"
-              : "추가할 사진을 모두 넣으셨다면 우측 [✨ AI 자동입력 확인] 버튼을 눌러주세요."}
+              ? "제품 전면·모델명 스티커 사진을 올리시면 더 정확한 견적을 안내해 드립니다. (사진 없이 접수 가능)"
+              : "우측 [품목·모델명 자동입력] 버튼을 누르면 사진 속 모델명과 품목을 자동으로 읽어옵니다."}
           </p>
         </div>
 
         {/* 접이식 3컷 촬영 가이드 */}
         {!isNotice && !isOther && showPhotoGuide && (
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 rounded bg-[#FAF9F7] p-2.5 border border-[#E4E0D8] text-[11.5px]">
+          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-xl bg-white p-3.5 border border-[#E4E0D8] text-[13px]">
             {photoGuideSteps.map((g) => (
-              <li key={g.step} className="flex items-start gap-1.5">
-                <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <li key={g.step} className="flex items-start gap-2">
+                <span className="shrink-0 rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white">
                   컷 {g.step}
                 </span>
                 <div>
@@ -1364,37 +1379,37 @@ export function UnifiedInquiryForm({
           </ol>
         )}
 
-        {/* AI 분석 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
+        {/* 사진 판독 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
         {aiResult && (
-          <div className="rounded border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3 space-y-2.5 text-[12px]">
+          <div className="rounded-xl border border-[#0E1A2B]/20 bg-white p-4 space-y-3 text-[13.5px]">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-[#0E1A2B]">
                 ✅ {aiResult.summaryNote}
               </span>
-              <span className="text-[11px] text-[#6B7280]">
-                제출 전 아래 입력란에서 자유롭게 수정 가능
+              <span className="text-[12px] text-[#667085]">
+                아래 입력칸에서 바로 수정하실 수 있습니다
               </span>
             </div>
 
             {pendingConflicts && (
-              <div className="rounded border border-amber-300 bg-amber-50 p-2.5 space-y-2 text-amber-950">
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2.5 text-amber-950">
                 <div className="flex items-center justify-between">
-                  <strong className="text-[11.5px]">
-                    ⚠️ 먼저 입력해 두신 내용을 보호하기 위해 자동 덮어쓰기를 건너뛰었습니다.
+                  <strong className="text-[13px]">
+                    ⚠️ 먼저 입력해 두신 내용을 보호하기 위해 덮어쓰지 않았습니다.
                   </strong>
                   <button
                     type="button"
                     onClick={() => setPendingConflicts(null)}
-                    className="text-[11px] underline"
+                    className="text-[12px] font-bold underline"
                   >
                     닫기
                   </button>
                 </div>
 
                 {pendingConflicts.title && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
                     <span className="truncate">
-                      AI 제안 제목: <strong>{pendingConflicts.title}</strong>
+                      판독된 제목: <strong>{pendingConflicts.title}</strong>
                     </span>
                     <button
                       type="button"
@@ -1404,7 +1419,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, title: undefined } : null
                         );
                       }}
-                      className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                      className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
                     >
                       이 제목 적용
                     </button>
@@ -1412,9 +1427,9 @@ export function UnifiedInquiryForm({
                 )}
 
                 {pendingConflicts.model && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
                     <span>
-                      AI 판독 모델명:{" "}
+                      판독된 모델명:{" "}
                       <strong className="font-mono">
                         {pendingConflicts.model}
                       </strong>
@@ -1427,7 +1442,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, model: undefined } : null
                         );
                       }}
-                      className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                      className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
                     >
                       이 모델명 적용
                     </button>
@@ -1435,9 +1450,9 @@ export function UnifiedInquiryForm({
                 )}
 
                 {pendingConflicts.description && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
-                    <span>AI가 작성한 상세 문의 초안이 준비되었습니다.</span>
-                    <div className="flex gap-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
+                    <span>사진에서 확인된 품목 요약 내용이 있습니다.</span>
+                    <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => {
@@ -1449,7 +1464,7 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded border border-[#0E1A2B] bg-white px-2 py-0.5 text-[11px] font-bold text-[#0E1A2B]"
+                        className="rounded-md border border-[#0E1A2B] bg-white px-3 py-1 text-[12px] font-bold text-[#0E1A2B]"
                       >
                         내 글 아래에 추가
                       </button>
@@ -1461,9 +1476,9 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                        className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
                       >
-                        AI 초안으로 교체
+                        이 내용으로 교체
                       </button>
                     </div>
                   </div>
@@ -1472,34 +1487,31 @@ export function UnifiedInquiryForm({
             )}
 
             {aiResult.extractedFacts.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {aiResult.extractedFacts.map((fact, idx) => (
                   <span
                     key={fact.label + idx}
-                    className="inline-flex items-center gap-1 rounded border border-[#E4E0D8] bg-white px-2 py-0.5 text-[11px]"
+                    className="inline-flex items-center gap-1 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-2.5 py-1 text-[12.5px]"
                   >
                     <strong className="text-[#0E1A2B]">{fact.label}:</strong>
                     <span className="text-[#4B5260]">{fact.value}</span>
-                    <span className="text-[10px] text-[#8A8478]">
-                      ({fact.source} · {fact.status})
-                    </span>
                   </span>
                 ))}
               </div>
             )}
 
             {aiResult.followUpQuestions.length > 0 && (
-              <div className="space-y-1 pt-0.5">
-                <span className="block text-[11px] font-bold text-[#B5431A]">
-                  💬 사진만으로 알 수 없는 정보입니다 (클릭 시 본문에 답변 줄 추가):
+              <div className="space-y-1.5 pt-1">
+                <span className="block text-[12.5px] font-bold text-[#B5431A]">
+                  💬 추가 확인 항목 (누르면 아래 본문에 입력 줄이 추가됩니다):
                 </span>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {aiResult.followUpQuestions.map((q, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => appendFollowUpQuestionLine(q)}
-                      className="rounded border border-[#FADCD0] bg-[#FFF5F0] px-2 py-1 text-left text-[11px] font-semibold text-[#B5431A] hover:bg-[#FADCD0]/60"
+                      className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-3 py-1.5 text-left text-[12.5px] font-bold text-[#B5431A] hover:bg-[#FADCD0]/60"
                     >
                       + {q}
                     </button>
@@ -1509,40 +1521,40 @@ export function UnifiedInquiryForm({
             )}
           </div>
         )}
+      </div>
 
+      {/* 5. 상담 유형별 맞춤 입력란 (높이 52px~56px, 글자 16px) */}
+      <div className="space-y-4">
         {/* [대량·업소용 상담] 전용 구조화 입력 블록 */}
         {!isNotice && isBulk && (
-          <div className="rounded-md border border-[#0E1A2B]/15 bg-[#FAF9F7] p-3 space-y-3">
+          <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
-              <strong className="text-[12.5px] font-bold text-[#0E1A2B]">
-                🏢 업소용·대량 상담 맞춤 정보 (모르시는 항목은 비워두셔도 됩니다)
+              <strong className="text-[15px] font-extrabold text-[#0E1A2B]">
+                🏢 업소용·창업 설비 체크 사항 (아는 항목만 적어주세요)
               </strong>
-              <span className="text-[11px] text-[#6B7280]">
-                사진 속 대수와 실제 희망 수량을 구분하여 적어주세요
-              </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
-                <label className="hb-label text-[11.5px]">
-                  업종 / 사용 목적 (선택)
+                <label className="hb-label">
+                  업종 / 용도 (선택)
                 </label>
                 <input
                   type="text"
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
-                  placeholder="예: 식당 창업, 카페, 폐업정리"
-                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                  placeholder="예: 식당 오픈, 카페, 폐업정리"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
                 />
               </div>
               <div>
-                <label className="hb-label text-[11.5px]">
+                <label className="hb-label">
                   매장 전기 규격 (선택)
                 </label>
                 <select
                   value={electricalPhase}
                   onChange={(e) => setElectricalPhase(e.target.value)}
-                  className="hb-input mt-1 py-1.5 text-[12.5px] font-semibold bg-white"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
                 >
                   <option value="모름/미확인">모름 (상담/현장 확인)</option>
                   <option value="단상 220V">단상 220V (일반 상가)</option>
@@ -1550,16 +1562,16 @@ export function UnifiedInquiryForm({
                 </select>
               </div>
               <div>
-                <label className="hb-label text-[11.5px]">
+                <label className="hb-label">
                   승압 필요 여부 (선택)
                 </label>
                 <select
                   value={voltageUpgrade}
                   onChange={(e) => setVoltageUpgrade(e.target.value)}
-                  className="hb-input mt-1 py-1.5 text-[12.5px] font-semibold bg-white"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
                 >
                   <option value="모름·현장 확인 필요">
-                    모름 (장비 사양·현장 확인 필요)
+                    모름 (현장 확인 필요)
                   </option>
                   <option value="불필요">불필요 (기존 전력 충분)</option>
                   <option value="필요">필요 (승압 예정/상담 희망)</option>
@@ -1567,21 +1579,21 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="hb-label text-[11.5px]">
-                  필요 장비 종류 및 구매/처분 희망 수량
+                <span className="hb-label">
+                  필요 장비 종류 및 희망 수량
                 </span>
                 <button
                   type="button"
                   onClick={() => addBulkEquipmentRow("")}
-                  className="text-[11.5px] font-bold text-[#D9531E] underline"
+                  className="text-[13.5px] font-extrabold text-[#D9531E] underline"
                 >
                   + 장비 줄 추가
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 {QUICK_BULK_EQUIPMENT_PRESETS.map((preset) => (
                   <button
                     key={preset}
@@ -1600,18 +1612,18 @@ export function UnifiedInquiryForm({
                         addBulkEquipmentRow(preset);
                       }
                     }}
-                    className="rounded border border-[#DDD9D1] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                    className="rounded-lg border border-[#D7D2C8] bg-white px-3 py-1.5 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                   >
                     + {preset}
                   </button>
                 ))}
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {bulkItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-1.5 items-center bg-white p-1.5 rounded border border-[#E4E0D8]"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E4E0D8]"
                   >
                     <div className="sm:col-span-5">
                       <input
@@ -1621,7 +1633,7 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "category", e.target.value)
                         }
                         placeholder={`품목 ${idx + 1} (예: 45박스 냉장고, 제빙기)`}
-                        className="hb-input py-1 text-[12.5px]"
+                        className="hb-input h-[48px] text-[15px]"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -1635,8 +1647,8 @@ export function UnifiedInquiryForm({
                             e.target.value
                           )
                         }
-                        placeholder="희망 수량 (예: 1대 / 미확인)"
-                        className="hb-input py-1 text-[12.5px]"
+                        placeholder="희망 수량 (예: 1대)"
+                        className="hb-input h-[48px] text-[15px]"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -1647,14 +1659,14 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "modelNumber", e.target.value)
                         }
                         placeholder="모델·규격 (선택)"
-                        className="hb-input py-1 text-[12px] font-mono"
+                        className="hb-input h-[48px] text-[14.5px] font-mono"
                       />
                     </div>
                     <div className="sm:col-span-1 text-right">
                       <button
                         type="button"
                         onClick={() => removeBulkItem(item.id)}
-                        className="text-[11.5px] font-bold text-red-600 px-1.5 py-0.5"
+                        className="text-[13px] font-bold text-red-600 px-2 py-1"
                       >
                         삭제
                       </button>
@@ -1664,29 +1676,29 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="hb-label text-[11.5px]">
-                  설치 공간 · 급배수 · 가스 · 환기 메모 (선택)
+                <label className="hb-label">
+                  설치 공간 · 급배수 · 가스 메모 (선택)
                 </label>
                 <input
                   type="text"
                   value={spaceAndUtilities}
                   onChange={(e) => setSpaceAndUtilities(e.target.value)}
                   placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
-                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
                 />
               </div>
               <div>
-                <label className="hb-label text-[11.5px]">
-                  반입 동선(문폭·층수) 및 기존 기기 철거 여부 (선택)
+                <label className="hb-label">
+                  반입 동선(층수) 및 기존 기기 철거 여부 (선택)
                 </label>
                 <input
                   type="text"
                   value={accessAndRemoval}
                   onChange={(e) => setAccessAndRemoval(e.target.value)}
-                  placeholder="예: 1층 양개문 진입 가능, 기존 냉장고 1대 철거 희망"
-                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                  placeholder="예: 1층 진입 가능, 기존 냉장고 1대 철거 희망"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
                 />
               </div>
             </div>
@@ -1695,11 +1707,11 @@ export function UnifiedInquiryForm({
 
         {/* [내 물건 팔기(매입)] 전용 확인 블록 */}
         {!isNotice && isSell && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4">
             <div>
-              <label htmlFor="uf-mfg" className="hb-label text-[12px]">
+              <label htmlFor="uf-mfg" className="hb-label">
                 제조년월 / 연식{" "}
-                <span className="font-normal text-[#6B7280]">(확인 시)</span>
+                <span className="font-normal text-[#667085]">(선택)</span>
               </label>
               <input
                 id="uf-mfg"
@@ -1707,19 +1719,19 @@ export function UnifiedInquiryForm({
                 value={manufacturingDate}
                 onChange={(e) => setManufacturingDate(e.target.value)}
                 placeholder="예: 2022년식 / 미확인"
-                className="hb-input mt-1 py-1.5 text-[13px] bg-white"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
               />
             </div>
 
             <div>
-              <label htmlFor="uf-op" className="hb-label text-[12px]">
-                실제 작동 상태 확인
+              <label htmlFor="uf-op" className="hb-label">
+                작동 상태
               </label>
               <select
                 id="uf-op"
                 value={operatingStatus}
                 onChange={(e) => setOperatingStatus(e.target.value)}
-                className="hb-input mt-1 py-1.5 text-[13px] font-semibold bg-white"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
               >
                 <option value="작동 상태 미확인 (상담 시 안내)">
                   작동 상태 미확인 (상담 시 안내)
@@ -1734,17 +1746,17 @@ export function UnifiedInquiryForm({
             </div>
 
             <div>
-              <label htmlFor="uf-grade" className="hb-label text-[12px]">
-                외관 상태 선택{" "}
-                <span className="font-normal text-[#6B7280]">(선택)</span>
+              <label htmlFor="uf-grade" className="hb-label">
+                외관 상태{" "}
+                <span className="font-normal text-[#667085]">(선택)</span>
               </label>
               <select
                 id="uf-grade"
                 value={conditionGrade}
                 onChange={(e) => setConditionGrade(e.target.value)}
-                className="hb-input mt-1 py-1.5 text-[13px] font-semibold bg-white"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
               >
-                <option value="">미선택 (사진/현장 확인 후 결정)</option>
+                <option value="">미선택 (사진/현장 확인)</option>
                 {PRODUCT_CONDITION_GRADES.map((g) => (
                   <option key={g} value={g}>
                     {g}
@@ -1755,18 +1767,18 @@ export function UnifiedInquiryForm({
           </div>
         )}
 
-        {/* 공통 품목/지역/일정 입력 */}
+        {/* 공통 품목/지역/일정 입력 (높이 52px~56px, 글자 16px) */}
         {!isNotice && !isOther && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
             <div>
-              <label htmlFor="uf-cat" className="hb-label text-[12px]">
+              <label htmlFor="uf-cat" className="hb-label">
                 제품 종류
               </label>
               <select
                 id="uf-cat"
                 value={applianceCategory}
                 onChange={(e) => setApplianceCategory(e.target.value)}
-                className="hb-input mt-1 py-2 text-[13px] font-semibold"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
               >
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -1777,7 +1789,7 @@ export function UnifiedInquiryForm({
             </div>
 
             <div>
-              <label htmlFor="uf-region" className="hb-label text-[12px]">
+              <label htmlFor="uf-region" className="hb-label">
                 {isSell ? "방문 수거 지역 (동/구까지) *" : "설치/현장 지역 (선택)"}
               </label>
               <input
@@ -1790,14 +1802,14 @@ export function UnifiedInquiryForm({
                     setFieldErrors((p) => ({ ...p, region: "" }));
                 }}
                 placeholder="예: 대전 중구 중촌동"
-                className={`hb-input mt-1 py-2 text-[13px] ${
-                  fieldErrors.region ? "border-red-500" : ""
+                className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] ${
+                  fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
                 }`}
               />
             </div>
 
             <div>
-              <label htmlFor="uf-schedule" className="hb-label text-[12px]">
+              <label htmlFor="uf-schedule" className="hb-label">
                 희망 일정 · 층수(엘리베이터)
               </label>
               <input
@@ -1806,26 +1818,26 @@ export function UnifiedInquiryForm({
                 value={schedule}
                 onChange={(e) => setSchedule(e.target.value)}
                 placeholder="예: 금요일 오후 / 1층 상가"
-                className="hb-input mt-1 py-2 text-[13px]"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
               />
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           <div
             className={
               isNotice || isOther ? "sm:col-span-3" : "sm:col-span-2"
             }
           >
-            <label htmlFor="uf-title" className="hb-label text-[12px]">
+            <label htmlFor="uf-title" className="hb-label">
               {isNotice
                 ? "공지 제목 *"
                 : isSell
                 ? "매입 신청 품목 / 제목 *"
                 : isBulk
-                ? "대량·업소용 상담 제목 *"
-                : "문의 제목 *"}
+                ? "업소용·창업 상담 제목 *"
+                : "문의 품목 / 제목 *"}
             </label>
             <input
               id="uf-title"
@@ -1840,12 +1852,12 @@ export function UnifiedInquiryForm({
                 isSell
                   ? "예: 삼성 양문형 냉장고 방문 매입 견적 문의"
                   : isBulk
-                  ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 도입 상담"
+                  ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 견적 문의"
                   : isOther
                   ? "문의하실 제목을 입력해 주세요"
                   : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
               }
-              className={`hb-input mt-1 py-2 text-[13.5px] ${
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold ${
                 fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1853,27 +1865,25 @@ export function UnifiedInquiryForm({
 
           {!isNotice && !isOther && (
             <div>
-              <label htmlFor="uf-model" className="hb-label text-[12px]">
+              <label htmlFor="uf-model" className="hb-label">
                 모델명{" "}
-                <span className="font-normal text-[#6B7280]">(선택/AI판독)</span>
+                <span className="font-normal text-[#667085]">(선택)</span>
               </label>
               <input
                 id="uf-model"
                 type="text"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="명판 확인 시 입력"
-                className="hb-input mt-1 py-2 font-mono text-[13px]"
+                placeholder="스티커 모델명 확인 시 입력"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] font-mono text-[15.5px]"
               />
             </div>
           )}
         </div>
 
         <div>
-          <label htmlFor="uf-desc" className="hb-label text-[12px]">
-            {isNotice
-              ? "공지 본문 내용 *"
-              : "상세 문의 내용 (AI 초안 또는 패키지 양식을 자유롭게 수정하실 수 있습니다) *"}
+          <label htmlFor="uf-desc" className="hb-label">
+            {isNotice ? "공지 본문 내용 *" : "상세 문의 내용 *"}
           </label>
           <textarea
             id="uf-desc"
@@ -1891,7 +1901,7 @@ export function UnifiedInquiryForm({
                 ? "예: 대전 서구 둔산동 1층 식당 오픈 준비 중입니다. 중고 업소용 냉장고와 제빙기 세트 견적 부탁드립니다."
                 : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
             }
-            className={`hb-input mt-1 py-2 text-[13.5px] resize-y leading-relaxed ${
+            className={`hb-input mt-1.5 py-3.5 text-[16px] resize-y leading-relaxed ${
               fieldErrors.description
                 ? "border-red-500 ring-1 ring-red-500"
                 : ""
@@ -1900,10 +1910,10 @@ export function UnifiedInquiryForm({
         </div>
       </div>
 
-      {/* 3. 하단 개인정보 동의 및 제출 버튼 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#E4E0D8]">
-        {!isNotice ? (
-          <label className="flex cursor-pointer items-center gap-2 text-[12.5px] text-[#4B5260]">
+      {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}
+      <div className="pt-4 border-t border-[#E4E0D8] space-y-4">
+        {!isNotice && (
+          <label className="flex cursor-pointer items-center gap-2.5 text-[14.5px] sm:text-[15px] text-[#434B59]">
             <input
               type="checkbox"
               checked={agreed}
@@ -1912,25 +1922,23 @@ export function UnifiedInquiryForm({
                 if (fieldErrors.agreed)
                   setFieldErrors((p) => ({ ...p, agreed: "" }));
               }}
-              className="h-4 w-4 shrink-0 accent-[#0E1A2B]"
+              className="h-5 w-5 shrink-0 accent-[#0E1A2B]"
             />
             <span>
               상담·견적 안내를 위한{" "}
               <Link
                 href="/privacy"
                 target="_blank"
-                className="font-bold text-[#0E1A2B] underline underline-offset-2"
+                className="font-extrabold text-[#0E1A2B] underline underline-offset-2"
               >
                 개인정보 수집·이용
               </Link>
               에 동의합니다. <span className="text-[#D9531E]">*</span>
             </span>
           </label>
-        ) : (
-          <div />
         )}
 
-        <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {!isNotice && (
             <a
               href={smsHref(STORE.mobile, smsBodyDraft)}
@@ -1940,10 +1948,10 @@ export function UnifiedInquiryForm({
                   inquiry_type: inquiryType,
                 })
               }
-              className="hb-btn-outline h-11 px-4 text-[13px] w-full sm:w-auto"
+              className="hb-btn-outline h-14 sm:h-[60px] px-5 text-[17px] sm:text-[18px] font-extrabold sm:col-span-5 whitespace-nowrap"
             >
-              <Icon d={ICON.chat} className="h-4 w-4 text-[#D9531E]" />
-              <span>✉️ 문자로 사진 보내기</span>
+              <Icon d={ICON.chat} className="h-5 w-5 text-[#D9531E]" />
+              <span>문자로 사진 보내기</span>
             </a>
           )}
           {onCancel && (
@@ -1951,7 +1959,7 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={onCancel}
               disabled={isBusy}
-              className="hb-btn-outline h-11 px-5 text-[13.5px]"
+              className="hb-btn-outline h-14 sm:h-[60px] px-6 text-[17px] font-extrabold sm:col-span-3"
             >
               취소
             </button>
@@ -1961,21 +1969,31 @@ export function UnifiedInquiryForm({
             disabled={isBusy}
             className={`${
               isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
-            } h-11 px-7 text-[14px] w-full sm:w-auto whitespace-nowrap`}
+            } h-14 sm:h-[60px] px-7 text-[17px] sm:text-[18px] font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
+              isNotice
+                ? onCancel
+                  ? "sm:col-span-9"
+                  : "sm:col-span-12"
+                : onCancel
+                ? "sm:col-span-4"
+                : "sm:col-span-7"
+            }`}
           >
             {phase === "validating"
-              ? "확인 중..."
+              ? "입력 확인 중..."
               : phase === "submitting"
-              ? "안전하게 접수 중..."
+              ? "접수 중..."
               : phase === "retrying"
               ? "재시도 중..."
               : isNotice
               ? "공지사항 등록하기"
               : isSell
               ? "무료 매입 견적 신청하기"
+              : isBulk
+              ? "업소용·창업 상담 신청하기"
               : bundleApplied
-              ? "묶음 견적 문의 접수하기"
-              : `${inquiryType} 접수하기`}
+              ? "묶음 견적 신청하기"
+              : "구매 상담 신청하기"}
           </button>
         </div>
       </div>
@@ -1983,20 +2001,20 @@ export function UnifiedInquiryForm({
       {phase === "error" && submitErrorMsg && (
         <div
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 p-3.5 text-[12.5px] text-red-800 flex flex-wrap items-center justify-between gap-2"
+          className="rounded-xl border border-red-200 bg-red-50 p-4 text-[14px] text-red-800 flex flex-wrap items-center justify-between gap-2"
         >
           <span className="font-bold">{submitErrorMsg}</span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => executeSubmit(true)}
-              className="rounded bg-red-600 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-red-700"
+              className="rounded-lg bg-red-600 px-3.5 py-2 text-[13px] font-bold text-white hover:bg-red-700"
             >
               그대로 재시도
             </button>
             <a
               href={smsHref(STORE.mobile, smsBodyDraft)}
-              className="rounded border border-red-300 bg-white px-3 py-1.5 text-[12px] font-bold text-red-700"
+              className="rounded-lg border border-red-300 bg-white px-3.5 py-2 text-[13px] font-bold text-red-700"
             >
               문자({STORE.mobile}) 문의
             </a>

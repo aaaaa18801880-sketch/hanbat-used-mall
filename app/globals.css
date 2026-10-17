@@ -69,7 +69,7 @@ body {
 /* Typography & Shared Component Tokens */
 @layer components {
   .hb-container {
-    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1380px] xl:max-w-[1440px] px-4 sm:px-6 lg:px-8;
   }
 
   .hb-section {
@@ -93,7 +93,7 @@ body {
   }
 
   .hb-label {
-    @apply block text-[13.5px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[14px];
+    @apply block text-[14.5px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[15px];
   }
 
   .hb-caption {
@@ -105,7 +105,7 @@ body {
   }
 
   .hb-input {
-    @apply w-full rounded-lg border border-[#D7D2C8] bg-white px-3.5 py-2.5 text-[14.5px] sm:text-[15px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
+    @apply w-full rounded-xl border border-[#CFCAC0] bg-white px-4 py-3 text-[16px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
   .hb-btn {
