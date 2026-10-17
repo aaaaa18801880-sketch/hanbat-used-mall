@@ -757,7 +757,7 @@ export default function Home() {
                 <div>
                   <Link
                     href="/gallery"
-                    className="relative mb-4 block aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#DBEAFE] bg-[#E0F2FE]"
+                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#DBEAFE] bg-[#E0F2FE]"
                   >
                     <SafeImg
                       src="/illustrations/service-buy.jpg"
@@ -810,7 +810,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
-                    className="relative mb-4 block aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#FED7AA] bg-[#FFEDD5] cursor-pointer"
+                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#FED7AA] bg-[#FFEDD5] cursor-pointer"
                   >
                     <SafeImg
                       src="/illustrations/service-sell.jpg"
@@ -863,7 +863,7 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
-                    className="relative mb-4 block aspect-[16/10] w-full overflow-hidden rounded-xl border border-[#A7F3D0] bg-[#ECFDF5] cursor-pointer"
+                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#A7F3D0] bg-[#ECFDF5] cursor-pointer"
                   >
                     <SafeImg
                       src="/illustrations/service-biz.jpg"
@@ -1171,26 +1171,26 @@ export default function Home() {
                   ))}
                 </ul>
 
-                {/* 매입 진행 4단계 (카카오뱅크 스타일 팝아트 일러스트 결합) */}
-                <ol className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {/* 매입 진행 4단계 */}
+                <ol className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {SELL_STEPS.map((s, i) => (
                     <li
                       key={s.t}
-                      className="flex items-start gap-3.5 rounded-2xl border border-[#E6E3DC] bg-white p-4 sm:p-5 shadow-2xs"
+                      className="flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-white p-4 sm:p-4.5 shadow-2xs hover:border-[#0E1A2B]/40 transition-all"
                     >
-                      <BuybackStepIllustration
-                        step={((i % 4) + 1) as 1 | 2 | 3 | 4}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#0E1A2B] text-[11px] font-extrabold text-white tabular-nums">
-                            {i + 1}
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1 text-[11.5px] font-extrabold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded">
+                            STEP 0{i + 1}
                           </span>
-                          <p className="text-[16px] font-extrabold text-[#0E1A2B]">
-                            {s.t}
-                          </p>
+                          <BuybackStepIllustration
+                            step={((i % 4) + 1) as 1 | 2 | 3 | 4}
+                          />
                         </div>
-                        <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#434B59] break-keep">
+                        <h4 className="mt-2.5 text-[15.5px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+                          {s.t}
+                        </h4>
+                        <p className="mt-1 text-[13px] leading-relaxed text-[#434B59] break-keep">
                           {s.d}
                         </p>
                       </div>
@@ -1261,7 +1261,7 @@ export default function Home() {
                     <SafeImg
                       src="/매입 안내문.png"
                       alt="제품 매입 시 고객 안내문: 1. 전면 사진, 2. 모델명 및 제조년월 확인, 3. 특이사항 안내, 4. 매입 시 유의할 점"
-                      className="w-full h-auto max-h-[340px] object-contain mx-auto"
+                      className="w-full h-auto object-contain mx-auto"
                     />
                   </button>
                 </div>
