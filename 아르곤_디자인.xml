@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-17T05:14:08.549Z">
+<project name="hanbat-mall" generated_at="2026-10-17T05:18:49.411Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -12267,7 +12267,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="634">
+    <file path="components/home/category-pictogram-bar.tsx" lines="633">
       <![CDATA[
 "use client";
 
@@ -12734,71 +12734,71 @@ const QUICK_GROUPS: QuickMenuGroup[] = [
     items: [
       {
         key: "aircon",
-        label: "에어컨·냉난방",
+        label: "에어컨",
         href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
       },
       {
         key: "fridge",
-        label: "냉장고·김치냉장",
+        label: "냉장고",
         href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
       },
       {
         key: "washer",
-        label: "세탁기·건조기",
+        label: "세탁기",
         href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
       },
       {
         key: "small",
-        label: "생활·소형가전",
+        label: "소형가전",
         href: "/gallery?category=%EC%A3%BC%EB%B0%A9%2F%EC%86%8C%ED%98%95%EA%B0%80%EC%A0%84",
       },
     ],
   },
   {
     id: "commercial-equip",
-    badgeText: "식당·카페 특가설비",
+    badgeText: "식당·카페 설비",
     badgeBgClass: "bg-[#0E1A2B] text-white shadow-2xs",
     items: [
       {
         key: "bizFridge",
-        label: "업소용 냉장고",
+        label: "업소용냉장",
         href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
       },
       {
         key: "showcase",
-        label: "쇼케이스·제빙기",
+        label: "쇼케이스",
         href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
       },
       {
         key: "kitchen",
-        label: "세척기·주방설비",
+        label: "주방설비",
         href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
       },
     ],
   },
   {
     id: "all-services",
-    badgeText: "방문매입 · 맞춤서비스",
+    badgeText: "방문매입 · 원스톱",
     badgeBgClass: "bg-[#64748B] text-white shadow-2xs",
     items: [
       {
         key: "sell",
-        label: "내 가전 팔기",
+        label: "가전 팔기",
         inquiryType: "내 물건 팔기",
       },
       {
         key: "clearance",
-        label: "폐업 일괄정리",
+        label: "폐업 정리",
         href: "/purchase",
       },
       {
         key: "storePkg",
-        label: "창업·매장패키지",
+        label: "창업 상담",
         inquiryType: "대량·업소용 상담",
       },
       {
         key: "certified",
-        label: "배송·설치인증",
+        label: "배송 후기",
         href: "#reviews",
       },
     ],
@@ -12814,43 +12814,42 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="bg-white border-b border-[#E6E3DC] pt-7 pb-6 sm:pt-9 sm:pb-8"
+      className="bg-white border-b border-[#E6E3DC] pt-7 pb-6 sm:pt-8 sm:pb-7"
     >
       <div className="hb-container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-4 items-stretch">
+        {/* 데스크톱(lg 이상): 4 : 3 : 4 비례 분할로 11개 아이템의 가로폭 균일화 / 모바일·태블릿: 스택 카드 */}
+        <div className="flex flex-col lg:flex-row gap-5 lg:gap-3.5 items-stretch">
           {QUICK_GROUPS.map((group) => {
-            const colSpanClass =
+            const flexBasisClass =
               group.id === "home-appliances"
-                ? "lg:col-span-5"
+                ? "lg:flex-[4]"
                 : group.id === "commercial-equip"
-                ? "lg:col-span-3"
-                : "lg:col-span-4";
+                ? "lg:flex-[3]"
+                : "lg:flex-[4]";
 
             const gridColsClass =
-              group.items.length === 3
-                ? "grid-cols-3"
-                : "grid-cols-4";
+              group.items.length === 3 ? "grid-cols-3" : "grid-cols-4";
 
             return (
               <div
                 key={group.id}
-                className={`relative rounded-[22px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-6 pb-4 ${colSpanClass}`}
+                className={`relative rounded-[22px] bg-[#F4F6FA] border border-[#E5E9F2] px-2 sm:px-3.5 pt-6 pb-3.5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
               >
                 {/* 상단 좌측 플로팅 캡슐 배지 (아정당 스타일) */}
                 <span
-                  className={`absolute -top-3 left-4 inline-flex items-center rounded-full px-3 py-1 text-[11.5px] sm:text-[12px] font-extrabold tracking-[-0.01em] ${group.badgeBgClass}`}
+                  className={`absolute -top-3 left-3 sm:left-4 inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-[11.5px] font-extrabold tracking-[-0.01em] whitespace-nowrap ${group.badgeBgClass}`}
                 >
                   {group.badgeText}
                 </span>
 
-                <ul className={`grid ${gridColsClass} gap-1 sm:gap-2`}>
+                <ul className={`grid ${gridColsClass} gap-1 items-center`}>
                   {group.items.map((item) => {
                     const content = (
                       <>
-                        <div className="flex h-14 w-14 sm:h-15 sm:w-15 items-center justify-center rounded-2xl transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.05]">
+                        <div className="flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]">
                           <Soft3DPictogram type={item.key} />
                         </div>
-                        <span className="mt-1.5 text-center text-[12.5px] sm:text-[13.5px] font-bold tracking-[-0.02em] text-[#1E293B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
+                        <span className="mt-1 text-center text-[12px] sm:text-[13px] font-bold tracking-[-0.02em] text-[#1E293B] group-hover:text-[#D9531E] transition-colors truncate max-w-full px-0.5">
                           {item.label}
                         </span>
                       </>
@@ -12858,7 +12857,7 @@ export function CategoryPictogramBar({
 
                     if (item.inquiryType) {
                       return (
-                        <li key={item.key}>
+                        <li key={item.key} className="min-w-0">
                           <button
                             type="button"
                             onClick={() => {
@@ -12877,7 +12876,7 @@ export function CategoryPictogramBar({
                     }
 
                     return (
-                      <li key={item.key}>
+                      <li key={item.key} className="min-w-0">
                         <Link
                           href={item.href || "/gallery"}
                           onClick={() =>
