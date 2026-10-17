@@ -6,13 +6,13 @@
 @tailwind utilities;
 
 :root {
-  /* Brand Color System — Hanbat Used Electronics Bright Showroom */
+  /* Brand Color System — Hanbat Used Electronics Clean Showroom */
   --hb-navy: #0e1a2b;
-  --hb-navy-hover: #1c2d47;
-  --hb-navy-subtle: #eef1f6;
+  --hb-navy-hover: #182942;
+  --hb-navy-subtle: #f1f4f9;
 
   --hb-orange: #d9531e;
-  --hb-orange-hover: #bf4715;
+  --hb-orange-hover: #c04615;
   --hb-orange-subtle: #fcede6;
 
   --hb-bg-warm: #f7f6f3;
@@ -21,12 +21,12 @@
   --hb-surface: #ffffff;
 
   --hb-text-primary: #0e1a2b;
-  --hb-text-secondary: #434b59;
-  --hb-text-muted: #667085;
+  --hb-text-secondary: #3e4756;
+  --hb-text-muted: #646e7e;
   --hb-text-subtle: #858076;
 
-  --hb-border: #e6e3dc;
-  --hb-border-strong: #d7d2c8;
+  --hb-border: #e5e2dc;
+  --hb-border-strong: #cfcac0;
 
   --hb-kakao: #fee500;
   --hb-kakao-hover: #f2d900;
@@ -35,7 +35,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 88px;
+  scroll-padding-top: 84px;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -53,11 +53,11 @@ body {
     "Segoe UI",
     "Apple SD Gothic Neo",
     sans-serif;
-  letter-spacing: -0.024em;
+  letter-spacing: -0.02em;
   word-break: keep-all;
   overflow-wrap: break-word;
   overflow-x: hidden;
-  font-feature-settings: "tnum" on, "lnum" on, "cv05" on, "cv06" on;
+  font-feature-settings: "tnum" on, "lnum" on;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -71,7 +71,7 @@ body {
 /* Typography & Shared Component Tokens */
 @layer components {
   .hb-container {
-    @apply mx-auto w-full max-w-[1380px] xl:max-w-[1440px] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
   }
 
   .hb-section {
@@ -79,110 +79,73 @@ body {
   }
 
   .hb-h1 {
-    @apply text-[28px] font-extrabold leading-[1.22] tracking-[-0.03em] text-[#0E1A2B] xs:text-[32px] sm:text-[40px] lg:text-[46px];
+    @apply text-[28px] font-bold leading-[1.24] tracking-[-0.028em] text-[#0E1A2B] xs:text-[32px] sm:text-[38px] lg:text-[44px];
   }
 
   .hb-h2 {
-    @apply text-[24px] font-extrabold leading-[1.26] tracking-[-0.025em] text-[#0E1A2B] sm:text-[30px] lg:text-[34px];
+    @apply text-[23px] font-bold leading-[1.28] tracking-[-0.024em] text-[#0E1A2B] sm:text-[28px] lg:text-[32px];
   }
 
   .hb-h3 {
-    @apply text-[17px] font-bold leading-[1.36] tracking-[-0.015em] text-[#0E1A2B] sm:text-[19px];
+    @apply text-[17px] font-bold leading-[1.38] tracking-[-0.016em] text-[#0E1A2B] sm:text-[19px];
   }
 
   .hb-body {
-    @apply text-[15px] leading-[1.68] text-[#434B59] sm:text-[16px];
+    @apply text-[15px] leading-[1.65] text-[#3E4756] sm:text-[16px];
   }
 
   .hb-label {
-    @apply block text-[14.5px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[15px];
+    @apply block text-[14px] font-semibold tracking-[-0.01em] text-[#0E1A2B] sm:text-[14.5px];
   }
 
   .hb-caption {
-    @apply text-[13px] leading-[1.55] text-[#667085];
+    @apply text-[13px] leading-[1.55] text-[#646E7E];
   }
 
   .hb-eyebrow {
-    @apply inline-flex items-center gap-2 text-[13px] sm:text-[13.5px] font-bold tracking-[-0.01em] text-[#D9531E];
+    @apply inline-flex items-center gap-2 text-[12.5px] sm:text-[13px] font-bold tracking-[-0.01em] text-[#D9531E];
   }
 
   .hb-input {
-    @apply w-full rounded-xl border border-[#CFCAC0] bg-white px-4 py-3 text-[16px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
+    @apply w-full rounded-lg border border-[#CFCAC0] bg-white px-3.5 py-2.5 text-[15px] sm:text-[15.5px] text-[#0E1A2B] placeholder:text-[#858076] transition-colors duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
-  /* [ogBlocks: Button 차용] 프레스 피직스(active:scale-[0.97]), 광택 시머, 우측 아이콘 슬라이드 마이크로 인터랙션 */
+  /* Clean Retail Button Tokens — Restrained & Trustworthy */
   .hb-btn {
-    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-bold tracking-[-0.01em] transition-all duration-200 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-lg font-semibold tracking-[-0.01em] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .hb-btn > svg:last-child {
-    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 0.18s ease-out;
   }
 
   .hb-btn:hover > svg:last-child {
-    transform: translateX(3px);
+    transform: translateX(2px);
   }
 
   .hb-btn-primary {
-    @apply hb-btn bg-[#0E1A2B] text-white shadow-2xs hover:bg-[#182942] hover:shadow-md active:bg-[#09121E];
+    @apply hb-btn bg-[#0E1A2B] text-white hover:bg-[#182942] active:bg-[#0A1320];
   }
 
   .hb-btn-accent {
-    @apply hb-btn bg-[#D9531E] text-white shadow-2xs hover:bg-[#C24514] hover:shadow-md active:bg-[#A63C10] focus-visible:ring-[#D9531E];
-  }
-
-  .hb-btn-primary::after,
-  .hb-btn-accent::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      115deg,
-      transparent 20%,
-      rgba(255, 255, 255, 0.16) 50%,
-      transparent 80%
-    );
-    transform: translateX(-120%);
-    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-    pointer-events: none;
-  }
-
-  .hb-btn-primary:hover::after,
-  .hb-btn-accent:hover::after {
-    transform: translateX(120%);
+    @apply hb-btn bg-[#D9531E] text-white hover:bg-[#C04615] active:bg-[#A63C10] focus-visible:ring-[#D9531E];
   }
 
   .hb-btn-outline {
-    @apply hb-btn border border-[#D7D2C8] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] hover:shadow-2xs active:bg-[#F2F0EC];
+    @apply hb-btn border border-[#CFCAC0] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] active:bg-[#F2F0EC];
   }
 
   .hb-btn-kakao {
-    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F4DC00] hover:shadow-2xs active:bg-[#E5CD00] focus-visible:ring-[#191600];
+    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#191600];
   }
 
-  /* [daisyUI: List 차용] 표준 행(Row) 단위 목록 레이아웃 */
+  /* Clean Row List Layout */
   .hb-list {
-    @apply divide-y divide-[#E6E3DC] rounded-xl border border-[#E6E3DC] bg-white overflow-hidden;
+    @apply divide-y divide-[#E5E2DC] rounded-xl border border-[#E5E2DC] bg-white overflow-hidden;
   }
 
   .hb-list-row {
     @apply relative flex items-center justify-between gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-[#FAF9F7];
-  }
-
-  .hb-list-row::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background-color: var(--hb-orange);
-    opacity: 0;
-    transition: opacity 0.18s ease;
-  }
-
-  .hb-list-row:hover::before {
-    opacity: 1;
   }
 
   .scrollbar-none {
@@ -193,39 +156,6 @@ body {
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
-}
-
-/* [Aceternity UI: Cards Blocks 차용] 마우스 커서 추적 스포트라이트 오버레이 */
-.hb-spotlight-card:hover .hb-spotlight-overlay {
-  opacity: 1;
-  background: radial-gradient(
-    440px circle at var(--spot-x, 50%) var(--spot-y, 50%),
-    var(--spot-color, rgba(217, 83, 30, 0.085)),
-    transparent 70%
-  );
-}
-
-/* [Bundui: Animated Beam 차용] SVG 경로 데이터 흐름 빛줄기 애니메이션 */
-@keyframes hbBeamFlow {
-  0% {
-    stroke-dashoffset: 320;
-  }
-  100% {
-    stroke-dashoffset: 0;
-  }
-}
-
-.hb-beam-path {
-  stroke-dasharray: 85 235;
-  animation: hbBeamFlow 2.6s linear infinite;
-}
-
-.hb-beam-delay-1 {
-  animation-delay: -0.85s;
-}
-
-.hb-beam-delay-2 {
-  animation-delay: -1.7s;
 }
 
 @media (prefers-reduced-motion: reduce) {

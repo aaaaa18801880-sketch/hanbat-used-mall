@@ -12,24 +12,23 @@ import {
   ICON,
 } from "../../lib/ui";
 import { UnifiedInquiryForm } from "../../components/inquiry/unified-inquiry-form";
-import { BuybackStepIllustration } from "../../components/home/kakaobank-illustrations";
 
 const BUYBACK_STEPS = [
   {
-    step: "01 단계",
-    illusStep: 1 as const,
+    step: "STEP 01",
+    num: "01",
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
   },
   {
-    step: "02 단계",
-    illusStep: 2 as const,
+    step: "STEP 02",
+    num: "02",
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
   },
   {
-    step: "03 단계",
-    illusStep: 4 as const,
+    step: "STEP 03",
+    num: "03",
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
   },
@@ -42,56 +41,56 @@ export default function PurchasePage() {
     <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
       <SiteHeader />
 
-      {/* 상단 매입 전용 히어로 (Bright Premium Showroom 톤앤매너) */}
-      <section className="bg-white border-b border-[#E6E3DC]">
-        <div className="hb-container py-9 sm:py-12">
+      {/* 상단 매입 전용 헤더 */}
+      <section className="bg-white border-b border-[#E5E2DC]">
+        <div className="hb-container py-8 sm:py-11">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF5F0] border border-[#FADCD0] px-3 py-1 text-[12px] font-bold text-[#D9531E]">
-                가전 · 업소용 주방설비 방문 매입
-              </div>
-              <h1 className="mt-3 text-[26px] sm:text-[36px] font-extrabold tracking-[-0.03em] leading-[1.2] text-[#0E1A2B]">
+              <span className="hb-eyebrow">가전 · 업소용 주방설비 방문 매입</span>
+              <h1 className="mt-2 text-[26px] sm:text-[34px] font-extrabold tracking-[-0.03em] leading-[1.2] text-[#0E1A2B]">
                 중고 가전 · 업소용 주방기기 매입 신청
               </h1>
-              <p className="mt-2.5 max-w-2xl text-[14.5px] sm:text-[16px] text-[#3E4856] leading-relaxed break-keep">
+              <p className="mt-2.5 max-w-2xl text-[14.5px] sm:text-[15.5px] text-[#3F4856] leading-relaxed break-keep">
                 가정 이사·가전 교체부터 식당·카페·사무실 폐업 및 이전 대량 정리까지, 사진과 품목 정보를 남겨주시면 확인 후 방문 수거 및 현장 즉시 정산을 도와드립니다.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <span className="rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] px-3.5 py-2 text-[12.5px] font-bold text-[#0E1A2B]">
-                ✓ 가정용 · 업소용 전 품목
+              <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-[12.5px] font-bold text-[#0E1A2B]">
+                가정용 · 업소용 전 품목
               </span>
-              <span className="rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] px-3.5 py-2 text-[12.5px] font-bold text-[#0E1A2B]">
-                ✓ 전문 기사 직접 철거·수거
+              <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-[12.5px] font-bold text-[#0E1A2B]">
+                전문 기사 직접 철거·수거
               </span>
-              <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-3.5 py-2 text-[12.5px] font-bold text-[#D9531E]">
-                ✓ 현장 즉시 현금/계좌 정산
+              <span className="rounded-lg border border-[#FADCD0] bg-[#FFF6F2] px-3.5 py-2 text-[12.5px] font-bold text-[#D9531E]">
+                현장 즉시 정산
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      <main className="hb-container py-7 sm:py-11 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 (카카오뱅크 스타일 팝 일러스트 결합) */}
+      <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
+        {/* 3단계 매입 진행 프로세스 요약 바 */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 rounded-2xl border border-[#E6E3DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E6E3DC] shadow-card"
+          className="grid grid-cols-1 md:grid-cols-3 rounded-xl border border-[#E5E2DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E5E2DC] shadow-card"
         >
           {BUYBACK_STEPS.map((item) => (
             <div key={item.step} className="flex items-start gap-4 p-5 sm:p-6">
-              <BuybackStepIllustration step={item.illusStep} />
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0E1A2B] text-[13px] font-extrabold text-white tabular-nums">
+                {item.num}
+              </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-[11px] font-extrabold text-[#D9531E]">
+                  <span className="text-[11px] font-extrabold tracking-[0.06em] text-[#D9531E]">
                     {item.step}
                   </span>
-                  <h2 className="text-[16px] sm:text-[17px] font-extrabold text-[#0E1A2B]">
-                    {item.title}
-                  </h2>
                 </div>
-                <p className="mt-1.5 text-[13.5px] text-[#3E4856] leading-relaxed break-keep">
+                <h2 className="mt-0.5 text-[16px] sm:text-[17px] font-bold text-[#0E1A2B]">
+                  {item.title}
+                </h2>
+                <p className="mt-1.5 text-[13.5px] text-[#3F4856] leading-relaxed break-keep">
                   {item.desc}
                 </p>
               </div>

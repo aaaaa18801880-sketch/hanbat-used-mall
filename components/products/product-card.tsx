@@ -163,18 +163,18 @@ export function ProductCard({
 
   const cardInner = (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-lg border bg-white transition-all duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-xl border bg-white transition-colors duration-150 ${
         isSelected
-          ? "border-[#D9531E] ring-2 ring-[#D9531E] shadow-md"
-          : "border-[#E6E3DC] hover:border-[#0E1A2B]/40 hover:shadow-card-hover hover:-translate-y-0.5"
+          ? "border-[#D9531E] ring-2 ring-[#D9531E]"
+          : "border-[#E5E2DC] hover:border-[#0E1A2B]"
       }`}
     >
-      {/* 1. 상품 사진 영역 — [Ui-Layouts: Hover Cards 차용] 호버 시 줌인 & 하단 슬라이드업 상세 미리보기 바 */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4F2ED] border-b border-[#E6E3DC]">
+      {/* 1. 상품 사진 영역 */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4F2ED] border-b border-[#E5E2DC]">
         <SafeImg
           src={images[0]}
           alt={product.title}
-          className={`h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.045] ${
+          className={`h-full w-full object-cover object-center ${
             sold ? "grayscale opacity-70" : ""
           }`}
         />
@@ -187,26 +187,17 @@ export function ProductCard({
           </div>
         )}
 
-        {/* 호버 시 하단에서 부드럽게 올라오는 인터랙티브 오버레이 바 */}
-        {!sold && !isSelectMode && (
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-gradient-to-t from-[#0E1A2B]/80 via-[#0E1A2B]/40 to-transparent px-3 pb-2.5 pt-7 opacity-0 translate-y-1.5 transition-all duration-250 ease-out group-hover:opacity-100 group-hover:translate-y-0"
-          >
-            <span className="inline-flex items-center gap-1 rounded bg-white/95 px-2 py-0.5 text-[11px] font-extrabold text-[#0E1A2B] shadow-2xs">
-              {images.length > 1 ? `📷 실사진 ${images.length}장` : "✓ 분해세척·점검완료"}
-            </span>
-            <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2.5 py-0.5 text-[11px] font-extrabold text-white shadow-2xs">
-              상세 스펙 보기 →
-            </span>
-          </div>
+        {!sold && images.length > 1 && (
+          <span className="pointer-events-none absolute bottom-2.5 right-2.5 z-10 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-[11px] font-semibold text-white tabular-nums">
+            사진 {images.length}장
+          </span>
         )}
 
         {isSelectMode ? (
           <div
-            className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded border transition-all ${
+            className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded border transition-colors ${
               isSelected
-                ? "border-[#D9531E] bg-[#D9531E] text-white shadow-xs scale-105"
+                ? "border-[#D9531E] bg-[#D9531E] text-white"
                 : "border-[#858076] bg-white/95 text-transparent"
             }`}
           >
@@ -245,10 +236,10 @@ export function ProductCard({
               aria-pressed={inBasket}
               title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
               aria-label={`${product.title} ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded border px-2 py-1 text-[11px] font-bold shadow-2xs transition-all active:scale-95 ${
+              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded border px-2 py-1 text-[11px] font-bold transition-colors ${
                 inBasket
                   ? "border-[#D9531E] bg-[#D9531E] text-white"
-                  : "border-[#D7D2C8] bg-white/95 text-[#0E1A2B] hover:border-[#0E1A2B]"
+                  : "border-[#CFCAC0] bg-white/95 text-[#0E1A2B] hover:border-[#0E1A2B]"
               }`}
             >
               <Icon d={inBasket ? ICON.check : ICON.plus} className="h-3 w-3" />

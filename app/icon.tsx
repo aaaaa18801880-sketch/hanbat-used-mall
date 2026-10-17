@@ -16,31 +16,27 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#FFFFFF",
+          background: "#0E1A2B",
           borderRadius: "14px",
-          border: "2px solid #E4E0D8",
         }}
       >
         <svg
-          width="48"
-          height="48"
-          viewBox="0 0 64 64"
+          width="64"
+          height="64"
+          viewBox="0 0 40 40"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Left Navy Pillar (Top & Bottom) */}
-          <path d="M8 14L21 7V24L8 32V14Z" fill="#0E1A2B" />
-          <path d="M8 39L21 31V56H8V39Z" fill="#0E1A2B" />
-          {/* Right Navy Pillar (Top & Bottom) */}
-          <path d="M56 14L43 7V24L56 32V14Z" fill="#0E1A2B" />
-          <path d="M56 39L43 31V56H56V39Z" fill="#0E1A2B" />
-          {/* Orange Roof Chevron */}
-          <path d="M32 16L8 31V38L32 23L56 38V31L32 16Z" fill="#D9531E" />
-          {/* 4 Orange Window Squares */}
-          <rect x="25" y="31" width="6" height="6" rx="1.2" fill="#D9531E" />
-          <rect x="33" y="31" width="6" height="6" rx="1.2" fill="#D9531E" />
-          <rect x="25" y="39" width="6" height="6" rx="1.2" fill="#D9531E" />
-          <rect x="33" y="39" width="6" height="6" rx="1.2" fill="#D9531E" />
+          <rect x="8" y="9" width="5.5" height="22" rx="1.2" fill="#FFFFFF" />
+          <rect x="26.5" y="9" width="5.5" height="22" rx="1.2" fill="#FFFFFF" />
+          <path
+            d="M20 9.5L8 17.5V21.8L20 13.8L32 21.8V17.5L20 9.5Z"
+            fill="#D9531E"
+          />
+          <rect x="15.5" y="19.5" width="3.8" height="3.8" rx="0.8" fill="#D9531E" />
+          <rect x="20.7" y="19.5" width="3.8" height="3.8" rx="0.8" fill="#D9531E" />
+          <rect x="15.5" y="24.7" width="3.8" height="3.8" rx="0.8" fill="#FFFFFF" />
+          <rect x="20.7" y="24.7" width="3.8" height="3.8" rx="0.8" fill="#FFFFFF" />
         </svg>
       </div>
     ),

@@ -130,14 +130,14 @@ export function FeaturedProductsSection({
     <section
       id="featured-products-section"
       aria-labelledby="featured-heading"
-      className="border-b border-[#E6E3DC] bg-white py-14 sm:py-20 lg:py-24"
+      className="border-b border-[#E5E2DC] bg-white py-14 sm:py-20 lg:py-24"
     >
       <div className="hb-container">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
-            eyebrow="실시간 판매 상품"
-            title={<span id="featured-heading">실시간 입고 · 추천 판매 매물</span>}
-            desc="대전 중촌동 매장에서 직접 분해·세척과 작동 점검을 마친 실물 매물입니다. 상품을 선택하면 상세 규격과 보증 조건을 바로 확인하실 수 있습니다."
+            eyebrow="판매 제품 쇼룸"
+            title={<span id="featured-heading">매장 검수 완료 · 추천 판매 제품</span>}
+            desc="대전 중촌동 직영 매장에서 분해 세척과 작동 점검을 마친 실매물입니다. 제품을 클릭하면 상세 사진과 규격·보증 조건을 확인하실 수 있습니다."
           />
 
           <Link
@@ -151,7 +151,7 @@ export function FeaturedProductsSection({
 
         {/* 품목별 빠른 필터 바 */}
         {!loading && !error && products.length > 0 && (
-          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-b border-[#E6E3DC] pb-3.5">
+          <div className="mt-6 sm:mt-8 flex items-center justify-between gap-3 border-b border-[#E5E2DC] pb-3.5">
             <div
               className="flex items-center gap-1.5 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0"
               role="tablist"
@@ -167,10 +167,10 @@ export function FeaturedProductsSection({
                     role="tab"
                     aria-selected={active}
                     onClick={() => setActiveCategory(cat)}
-                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] sm:text-[13.5px] font-bold whitespace-nowrap border transition-colors ${
+                    className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] sm:text-[13.5px] font-semibold whitespace-nowrap border transition-colors ${
                       active
-                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                        : "bg-[#FAF9F7] text-[#434B59] border-[#E6E3DC] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] font-bold"
+                        : "bg-[#FAF9F7] text-[#3E4756] border-[#E5E2DC] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
                     }`}
                   >
                     <span>{cat}</span>
@@ -188,9 +188,8 @@ export function FeaturedProductsSection({
               })}
             </div>
 
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[#667085] shrink-0">
-              <span className="h-2 w-2 rounded-full bg-emerald-600" />
-              실시간 재고 연동중
+            <span className="hidden md:inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#646E7E] shrink-0">
+              분해 세척 · 작동 점검 완료 매물
             </span>
           </div>
         )}

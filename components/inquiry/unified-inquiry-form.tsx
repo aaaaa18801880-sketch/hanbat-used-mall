@@ -28,7 +28,6 @@ import {
   smsHref,
   STORAGE_BUCKETS,
   STORE,
-  telHref,
   trackEvent,
   validateImageFiles,
 } from "../../lib/site";
@@ -140,8 +139,8 @@ interface QuickPackagePreset {
 const QUICK_PACKAGE_PRESETS: readonly QuickPackagePreset[] = [
   {
     id: "oneroom",
-    badge: "가정·자취 인기",
-    label: "🏡 원룸·자취 3종 세트",
+    badge: "가정·자취",
+    label: "원룸·자취 3종 세트",
     sub: "냉장고 + 세탁기 + 벽걸이 에어컨",
     inquiryType: "구매 문의",
     applianceCategory: "냉장고",
@@ -156,8 +155,8 @@ const QUICK_PACKAGE_PRESETS: readonly QuickPackagePreset[] = [
   },
   {
     id: "cafe",
-    badge: "창업 인기",
-    label: "☕ 카페 창업 필수 세트",
+    badge: "창업 세트",
+    label: "카페 창업 필수 세트",
     sub: "제빙기 + 테이블냉장고 + 쇼케이스",
     inquiryType: "대량·업소용 상담",
     applianceCategory: "업소용기기",
@@ -195,8 +194,8 @@ const QUICK_PACKAGE_PRESETS: readonly QuickPackagePreset[] = [
   },
   {
     id: "restaurant",
-    badge: "식당 표준",
-    label: "🍽️ 식당 주방 기본 세트",
+    badge: "주방 표준",
+    label: "식당 주방 기본 세트",
     sub: "45박스 냉장고 + 식기세척기 + 작업대",
     inquiryType: "대량·업소용 상담",
     applianceCategory: "업소용기기",
@@ -234,8 +233,8 @@ const QUICK_PACKAGE_PRESETS: readonly QuickPackagePreset[] = [
   },
   {
     id: "closure",
-    badge: "빠른 방문수거",
-    label: "🚛 식당·매장 폐업 일괄 정리",
+    badge: "일괄 매입",
+    label: "식당·매장 폐업 일괄 정리",
     sub: "주방설비 · 냉난방기 일괄 매입·철거",
     inquiryType: "내 물건 팔기",
     applianceCategory: "업소용기기",
@@ -1112,22 +1111,20 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* 2. 단골 패키지 1초 자동채움 버튼 4종 (2열 와이드 배치 — 품목명 잘림 없음) */}
+      {/* 2. 자주 찾는 세트 양식 불러오기 (컴팩트 선택 바) */}
       {!isNotice && (
-        <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#D9531E]" />
-              <strong className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
-                자주 찾는 단골 패키지 1초 자동채움
-              </strong>
-              <span className="text-[13px] text-[#667085]">
-                (누르면 품목 양식이 바로 입력됩니다)
-              </span>
-            </div>
+        <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
+            <span className="text-[13px] font-bold text-[#0E1A2B]">
+              세트 양식 자동채움
+            </span>
+            <span className="text-[12px] text-[#667085] hidden md:inline">
+              (선택 시 품목 양식 자동 입력)
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+          <div className="flex flex-wrap items-center gap-1.5">
             {QUICK_PACKAGE_PRESETS.map((preset) => {
               const isSelected = selectedPresetId === preset.id;
               return (
@@ -1136,26 +1133,17 @@ export function UnifiedInquiryForm({
                   type="button"
                   onClick={() => handleApplyQuickPackage(preset)}
                   aria-pressed={isSelected}
-                  className={`flex flex-col items-start justify-between rounded-xl border p-3.5 sm:p-4 text-left transition-all cursor-pointer ${
+                  title={preset.sub}
+                  className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors cursor-pointer ${
                     isSelected
-                      ? "border-2 border-[#D9531E] bg-[#FFF5F0] shadow-2xs"
-                      : "border-[#D7D2C8] bg-white hover:border-[#0E1A2B]"
+                      ? "border-[#D9531E] bg-[#FFF6F2] text-[#D9531E]"
+                      : "border-[#CFCAC0] bg-white text-[#0E1A2B] hover:border-[#0E1A2B]"
                   }`}
                 >
-                  <div className="flex w-full items-center justify-between gap-2">
-                    <span className="rounded-md bg-[#0E1A2B] px-2 py-0.5 text-[11.5px] font-bold text-[#FF8A50]">
-                      {preset.badge}
-                    </span>
-                    <span className="text-[12.5px] font-extrabold text-[#D9531E]">
-                      {isSelected ? "✓ 양식 적용됨" : "누르면 자동 입력 →"}
-                    </span>
-                  </div>
-                  <strong className="mt-2 block text-[15.5px] sm:text-[16.5px] font-extrabold text-[#0E1A2B]">
-                    {preset.label}
-                  </strong>
-                  <span className="mt-1 block text-[13.5px] sm:text-[14px] font-medium text-[#434B59] leading-snug break-keep">
-                    {preset.sub}
-                  </span>
+                  <span>{preset.label}</span>
+                  {isSelected && (
+                    <span className="text-[11px] font-extrabold">✓</span>
+                  )}
                 </button>
               );
             })}
@@ -1163,7 +1151,7 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* 3. 성함 / 연락처 / 비밀번호 입력 (높이 52px~56px, 글자 크기 16px) */}
+      {/* 3. 성함 / 연락처 / 비밀번호 입력 (필수 입력) */}
       {!isNotice ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           <div>
@@ -1181,7 +1169,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, name: "" }));
               }}
               placeholder="홍길동 / 한밭식당"
-              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-medium ${
+              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-medium ${
                 fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1203,7 +1191,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, phone: "" }));
               }}
               placeholder="010-0000-0000"
-              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold tabular-nums ${
+              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold tabular-nums ${
                 fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1217,7 +1205,7 @@ export function UnifiedInquiryForm({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="text-[12.5px] font-bold text-[#667085] hover:text-[#0E1A2B]"
+                className="text-[12px] font-bold text-[#667085] hover:text-[#0E1A2B]"
               >
                 {showPassword ? "숨기기" : "표시"}
               </button>
@@ -1233,7 +1221,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, password: "" }));
               }}
               placeholder="답변 확인용 (4자 이상)"
-              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] ${
+              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
                 fieldErrors.password
                   ? "border-red-500 ring-1 ring-red-500"
                   : ""
@@ -1253,7 +1241,7 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
+              className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
             />
           </div>
           <div>
@@ -1266,26 +1254,26 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
+              className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
             />
           </div>
         </div>
       )}
 
-      {/* 4. 사진 첨부(최대 3장) 및 사진 판독 자동입력 */}
-      <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-3.5">
+      {/* 4. 사진 첨부(최대 3장, 선택) 및 사진 판독 자동입력 */}
+      <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-[#FF8A50]">
-              📷 사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
+            <span className="inline-flex items-center gap-1.5 rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
+              사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장 · 선택)
             </span>
             {!isNotice && !isOther && (
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[13px] font-bold text-[#D9531E] underline underline-offset-2"
+                className="text-[12.5px] font-bold text-[#667085] hover:text-[#0E1A2B] underline underline-offset-2"
               >
-                {showPhotoGuide ? "촬영 팁 닫기 ▲" : "권장 촬영 팁 ▾"}
+                {showPhotoGuide ? "촬영 가이드 닫기" : "권장 촬영 가이드 보기"}
               </button>
             )}
           </div>
@@ -1295,9 +1283,9 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={handleRunGeminiAnalysis}
               disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-[13.5px] font-extrabold transition-all ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold transition-colors ${
                 selectedFiles.length > 0
-                  ? "bg-[#D9531E] text-white hover:bg-[#BF4715] shadow-2xs"
+                  ? "bg-[#D9531E] text-white hover:bg-[#BE4415]"
                   : "bg-[#EAE6DF] text-[#858076] cursor-not-allowed"
               }`}
             >
@@ -1305,8 +1293,8 @@ export function UnifiedInquiryForm({
                 {isAnalyzingPhotos
                   ? "사진 판독 중..."
                   : selectedFiles.length > 0
-                  ? `사진 ${selectedFiles.length}장으로 품목·모델명 자동입력`
-                  : "사진 첨부 시 품목 자동입력"}
+                  ? `사진 ${selectedFiles.length}장 AI 자동입력`
+                  : "사진 첨부 시 AI 자동입력"}
               </span>
             </button>
           )}
@@ -1340,8 +1328,8 @@ export function UnifiedInquiryForm({
           ))}
 
           {selectedFiles.length < MAX_PHOTOS && (
-            <label className="flex h-16 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-[#CFCAC0] bg-white text-[13px] font-extrabold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors shrink-0">
-              <Icon d={ICON.camera} className="h-5 w-5 text-[#D9531E]" />
+            <label className="flex h-16 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-[#CFCAC0] bg-white text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors shrink-0">
+              <Icon d={ICON.camera} className="h-4 w-4 text-[#D9531E]" />
               <span>+ 사진 추가</span>
               <input
                 type="file"
@@ -1353,20 +1341,20 @@ export function UnifiedInquiryForm({
             </label>
           )}
 
-          <p className="text-[13.5px] font-medium text-[#434B59] leading-snug flex-1 min-w-[200px]">
+          <p className="text-[13px] text-[#3F4856] leading-snug flex-1 min-w-[200px]">
             {selectedFiles.length === 0
-              ? "제품 전면·모델명 스티커 사진을 올리시면 더 정확한 견적을 안내해 드립니다. (사진 없이 접수 가능)"
-              : "우측 [품목·모델명 자동입력] 버튼을 누르면 사진 속 모델명과 품목을 자동으로 읽어옵니다."}
+              ? "제품 전면 또는 모델명 스티커 사진을 첨부하시면 더 정확한 견적을 안내해 드립니다. (생략 가능)"
+              : "우측 [AI 자동입력] 버튼을 누르면 사진에서 품목과 모델명을 읽어옵니다."}
           </p>
         </div>
 
         {/* 접이식 3컷 촬영 가이드 */}
         {!isNotice && !isOther && showPhotoGuide && (
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-xl bg-white p-3.5 border border-[#E4E0D8] text-[13px]">
+          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-lg bg-white p-3.5 border border-[#E5E2DC] text-[12.5px]">
             {photoGuideSteps.map((g) => (
               <li key={g.step} className="flex items-start gap-2">
-                <span className="shrink-0 rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white">
-                  컷 {g.step}
+                <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10.5px] font-bold text-white">
+                  {g.step}
                 </span>
                 <div>
                   <strong className="font-bold text-[#0E1A2B] block">
@@ -1381,21 +1369,21 @@ export function UnifiedInquiryForm({
 
         {/* 사진 판독 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
         {aiResult && (
-          <div className="rounded-xl border border-[#0E1A2B]/20 bg-white p-4 space-y-3 text-[13.5px]">
+          <div className="rounded-lg border border-[#0E1A2B]/20 bg-white p-3.5 space-y-3 text-[13px]">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-[#0E1A2B]">
-                ✅ {aiResult.summaryNote}
+                판독 요약: {aiResult.summaryNote}
               </span>
               <span className="text-[12px] text-[#667085]">
-                아래 입력칸에서 바로 수정하실 수 있습니다
+                아래 입력칸에서 수정 가능합니다
               </span>
             </div>
 
             {pendingConflicts && (
-              <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2.5 text-amber-950">
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2 text-amber-950">
                 <div className="flex items-center justify-between">
-                  <strong className="text-[13px]">
-                    ⚠️ 먼저 입력해 두신 내용을 보호하기 위해 덮어쓰지 않았습니다.
+                  <strong className="text-[12.5px]">
+                    기존 입력 내용을 유지했습니다. 필요한 항목만 선택해 반영하세요.
                   </strong>
                   <button
                     type="button"
@@ -1407,7 +1395,7 @@ export function UnifiedInquiryForm({
                 </div>
 
                 {pendingConflicts.title && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-3 py-2 border border-amber-200">
                     <span className="truncate">
                       판독된 제목: <strong>{pendingConflicts.title}</strong>
                     </span>
@@ -1419,7 +1407,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, title: undefined } : null
                         );
                       }}
-                      className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
+                      className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white"
                     >
                       이 제목 적용
                     </button>
@@ -1427,7 +1415,7 @@ export function UnifiedInquiryForm({
                 )}
 
                 {pendingConflicts.model && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-3 py-2 border border-amber-200">
                     <span>
                       판독된 모델명:{" "}
                       <strong className="font-mono">
@@ -1442,7 +1430,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, model: undefined } : null
                         );
                       }}
-                      className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
+                      className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white"
                     >
                       이 모델명 적용
                     </button>
@@ -1450,7 +1438,7 @@ export function UnifiedInquiryForm({
                 )}
 
                 {pendingConflicts.description && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-3 py-2 border border-amber-200">
                     <span>사진에서 확인된 품목 요약 내용이 있습니다.</span>
                     <div className="flex gap-2">
                       <button
@@ -1464,7 +1452,7 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded-md border border-[#0E1A2B] bg-white px-3 py-1 text-[12px] font-bold text-[#0E1A2B]"
+                        className="rounded border border-[#0E1A2B] bg-white px-2.5 py-1 text-[12px] font-bold text-[#0E1A2B]"
                       >
                         내 글 아래에 추가
                       </button>
@@ -1476,7 +1464,7 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
+                        className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white"
                       >
                         이 내용으로 교체
                       </button>
@@ -1491,7 +1479,7 @@ export function UnifiedInquiryForm({
                 {aiResult.extractedFacts.map((fact, idx) => (
                   <span
                     key={fact.label + idx}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-2.5 py-1 text-[12.5px]"
+                    className="inline-flex items-center gap-1 rounded border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[12px]"
                   >
                     <strong className="text-[#0E1A2B]">{fact.label}:</strong>
                     <span className="text-[#4B5260]">{fact.value}</span>
@@ -1502,16 +1490,16 @@ export function UnifiedInquiryForm({
 
             {aiResult.followUpQuestions.length > 0 && (
               <div className="space-y-1.5 pt-1">
-                <span className="block text-[12.5px] font-bold text-[#B5431A]">
-                  💬 추가 확인 항목 (누르면 아래 본문에 입력 줄이 추가됩니다):
+                <span className="block text-[12px] font-bold text-[#B5431A]">
+                  추가 확인 항목 (클릭 시 본문에 입력 줄 추가):
                 </span>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {aiResult.followUpQuestions.map((q, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => appendFollowUpQuestionLine(q)}
-                      className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-3 py-1.5 text-left text-[12.5px] font-bold text-[#B5431A] hover:bg-[#FADCD0]/60"
+                      className="rounded border border-[#FADCD0] bg-[#FFF6F2] px-2.5 py-1 text-left text-[12px] font-bold text-[#B5431A] hover:bg-[#FADCD0]/60"
                     >
                       + {q}
                     </button>
@@ -1523,14 +1511,14 @@ export function UnifiedInquiryForm({
         )}
       </div>
 
-      {/* 5. 상담 유형별 맞춤 입력란 (높이 52px~56px, 글자 16px) */}
+      {/* 5. 상담 유형별 맞춤 입력란 */}
       <div className="space-y-4">
         {/* [대량·업소용 상담] 전용 구조화 입력 블록 */}
         {!isNotice && isBulk && (
-          <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
+          <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
-              <strong className="text-[15px] font-extrabold text-[#0E1A2B]">
-                🏢 업소용·창업 설비 체크 사항 (아는 항목만 적어주세요)
+              <strong className="text-[14.5px] font-bold text-[#0E1A2B]">
+                업소용 · 창업 설비 체크 사항 (선택 입력)
               </strong>
             </div>
 
