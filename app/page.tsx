@@ -538,19 +538,15 @@ export default function Home() {
             <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
               {/* 좌측: 핵심 메시지 + 보조 설명 + 핵심 CTA 2개 */}
               <div className="lg:col-span-6">
-                <p className="hb-eyebrow">
-                  <span
-                    className="h-1.5 w-1.5 rounded-full bg-[#D9531E]"
-                    aria-hidden="true"
-                  />
-                  <span>
-                    {STORE.since}년 개업 대전 직영 중고가전 · 업소용 주방설비 전문점
-                  </span>
-                </p>
+                <div className="inline-flex items-center gap-2 rounded-full border border-[#E5E2DC] bg-white px-3.5 py-1 text-[13px] font-semibold text-[#0E1A2B] shadow-2xs">
+                  <span className="font-bold text-[#D9531E]">SINCE {STORE.since}</span>
+                  <span className="h-3 w-px bg-[#E5E2DC]" aria-hidden="true" />
+                  <span className="text-[#3E4756]">대전 중촌동 직영 가전·주방설비 ({OPERATING_YEARS}년 운영)</span>
+                </div>
 
                 <h1
                   id="hero-title"
-                  className="mt-3 text-[28px] xs:text-[32px] sm:text-[38px] lg:text-[42px] font-bold leading-[1.24] tracking-[-0.028em] text-[#0E1A2B] break-keep"
+                  className="mt-4 text-[28px] xs:text-[32px] sm:text-[38px] lg:text-[42px] font-bold leading-[1.24] tracking-[-0.028em] text-[#0E1A2B] break-keep"
                 >
                   가정용 가전부터 업소용 주방설비까지,
                   <br />
@@ -609,42 +605,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            {/* 히어로 하단 간결한 신뢰 요약 바 */}
-            <dl className="mt-8 sm:mt-10 grid grid-cols-2 gap-4 rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-5 lg:grid-cols-4">
-              <div className="border-l-2 border-[#0E1A2B] pl-3.5">
-                <dt className="text-[12px] font-medium text-[#646E7E]">
-                  직영 매장 업력
-                </dt>
-                <dd className="mt-0.5 text-[15px] sm:text-[16px] font-bold text-[#0E1A2B] tabular-nums">
-                  {STORE.since}년 개업 ({OPERATING_YEARS}년 운영)
-                </dd>
-              </div>
-              <div className="border-l-2 border-[#D9531E] pl-3.5">
-                <dt className="text-[12px] font-medium text-[#646E7E]">
-                  무상 A/S 책임 보증
-                </dt>
-                <dd className="mt-0.5 text-[15px] sm:text-[16px] font-bold text-[#0E1A2B]">
-                  냉난방기 8개월 · 일반 4개월
-                </dd>
-              </div>
-              <div className="border-l-2 border-[#0E1A2B] pl-3.5">
-                <dt className="text-[12px] font-medium text-[#646E7E]">
-                  방문 매입 · 수거 정산
-                </dt>
-                <dd className="mt-0.5 text-[15px] sm:text-[16px] font-bold text-[#0E1A2B]">
-                  수거 당일 100% 현금 입금
-                </dd>
-              </div>
-              <div className="border-l-2 border-[#0E1A2B] pl-3.5">
-                <dt className="text-[12px] font-medium text-[#646E7E]">
-                  사업자 · 기관 거래 증빙
-                </dt>
-                <dd className="mt-0.5 text-[15px] sm:text-[16px] font-bold text-[#0E1A2B]">
-                  전자세금계산서 · 카드 결제
-                </dd>
-              </div>
-            </dl>
           </div>
         </section>
 
@@ -662,7 +622,6 @@ export default function Home() {
         >
           <div className="hb-container">
             <SectionHeading
-              eyebrow="주요 서비스 안내"
               title={
                 <span id="core-services-title">
                   중고가전 구매 · 방문매입 · 업소용 상담
@@ -827,7 +786,6 @@ export default function Home() {
             <div id="reviews-section">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <SectionHeading
-                  eyebrow="출고 · 설치 사례"
                   title={<span id="review-title">배송 · 설치 현장 기록</span>}
                   desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송하고 설치한 실제 현장 사진입니다."
                 />
@@ -955,7 +913,6 @@ export default function Home() {
               <div className="grid gap-8 lg:grid-cols-12 items-start">
                 <div className="lg:col-span-4">
                   <SectionHeading
-                    eyebrow="품질 · 보증 원칙"
                     title={
                       <span id="usp-title">
                         중고가전 구매 시 불안한 점,
@@ -1018,7 +975,6 @@ export default function Home() {
               {/* 좌측: 매입 안내 핵심 요약 및 4단계 절차 */}
               <div className="lg:col-span-6">
                 <SectionHeading
-                  eyebrow="가전 · 주방설비 방문 매입"
                   title={
                     <span id="sell-title">
                       쓰지 않는 가전과 매장 설비,
@@ -1143,7 +1099,6 @@ export default function Home() {
               className="mt-16 sm:mt-20 pt-12 sm:pt-16 border-t border-[#E5E2DC]"
             >
               <SectionHeading
-                eyebrow="온라인 상담 접수"
                 title={<span id="cta-title">구매 · 매입 · 업소용 통합 상담 신청</span>}
                 desc="상담 유형을 선택하시고 품목과 연락처를 남겨주시면 담당자가 확인 후 신속히 연락드립니다."
               />
@@ -1289,9 +1244,8 @@ export default function Home() {
           <div className="hb-container grid gap-10 lg:grid-cols-12 lg:gap-14 items-start">
             <div className="lg:col-span-4 lg:sticky lg:top-28">
               <SectionHeading
-                eyebrow="자주 묻는 질문"
-                title={<span id="faq-title">궁금하신 점을 확인하세요</span>}
-                desc="A/S 접수 방법, 보상판매 차액 정산, 설치 환경별 비용 기준 등 고객님들이 상담 전 가장 많이 물어보시는 5가지 질문입니다."
+                title={<span id="faq-title">자주 묻는 질문 (FAQ)</span>}
+                desc="A/S 책임 보증 기간, 보상판매 차액 정산, 설치 환경별 비용 기준 등 고객님들이 상담 전 가장 많이 물어보시는 핵심 질문입니다."
               />
               <p className="mt-4 text-[14.5px] leading-relaxed text-[#434B59]">
                 추가 문의는 대표전화{" "}
@@ -1397,7 +1351,6 @@ export default function Home() {
           <div className="hb-container">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <SectionHeading
-                eyebrow="직영 매장 오시는 길"
                 title={<span id="location-title">오프라인 매장 위치 및 영업 안내</span>}
                 desc={`${STORE.roadAddress} (${STORE.jibunAddress} · 중촌고가도로 밑) · 매장 앞 전용 주차 가능`}
               />

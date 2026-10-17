@@ -135,7 +135,6 @@ export function FeaturedProductsSection({
       <div className="hb-container">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <SectionHeading
-            eyebrow="판매 제품 쇼룸"
             title={<span id="featured-heading">매장 검수 완료 · 추천 판매 제품</span>}
             desc="대전 중촌동 직영 매장에서 분해 세척과 작동 점검을 마친 실매물입니다. 제품을 클릭하면 상세 사진과 규격·보증 조건을 확인하실 수 있습니다."
           />
@@ -187,10 +186,6 @@ export function FeaturedProductsSection({
                 );
               })}
             </div>
-
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[#646E7E] shrink-0">
-              분해 세척 · 작동 점검 완료 매물
-            </span>
           </div>
         )}
 

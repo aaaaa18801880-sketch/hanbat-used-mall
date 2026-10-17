@@ -195,7 +195,7 @@ export function SectionHeading({
   dark = false,
   className = "",
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: React.ReactNode;
   desc?: React.ReactNode;
   dark?: boolean;
@@ -204,21 +204,13 @@ export function SectionHeading({
   return (
     <div className={className}>
       {eyebrow && (
-        <div className="inline-flex items-center gap-2">
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              dark ? "bg-[#FF8A50]" : "bg-[#D9531E]"
-            }`}
-            aria-hidden="true"
-          />
-          <p
-            className={`text-[12.5px] sm:text-[13px] font-bold tracking-[-0.01em] ${
-              dark ? "text-[#FF8A50]" : "text-[#D9531E]"
-            }`}
-          >
-            {eyebrow}
-          </p>
-        </div>
+        <p
+          className={`mb-2 text-[13px] font-semibold tracking-[-0.01em] ${
+            dark ? "text-[#FF8A50]" : "text-[#D9531E]"
+          }`}
+        >
+          {eyebrow}
+        </p>
       )}
       <h2
         className={`mt-2 text-[23px] font-bold leading-[1.28] tracking-[-0.024em] break-keep sm:text-[28px] lg:text-[32px] ${
