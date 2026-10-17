@@ -1251,14 +1251,14 @@ export default function Home() {
                 추가 문의는 대표전화{" "}
                 <a
                   href={telHref(STORE.tel)}
-                  className="font-extrabold text-[#0E1A2B] underline underline-offset-4"
+                  className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
                 >
                   {STORE.tel}
                 </a>{" "}
                 또는 직통{" "}
                 <a
                   href={telHref(STORE.mobile)}
-                  className="font-extrabold text-[#0E1A2B] underline underline-offset-4"
+                  className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
                 >
                   {STORE.mobile}
                 </a>
@@ -1332,7 +1332,25 @@ export default function Home() {
                         aria-labelledby={`faq-q-${i}`}
                         className="border-t border-[#F0EDE7] bg-[#FAF9F7] px-5 py-4 sm:px-6 sm:pl-[68px] text-[14.5px] leading-[1.75] text-[#434B59] break-keep"
                       >
-                        {f.a}
+                        {f.a.includes(STORE.tel) ? (
+                          <>
+                            {f.a.split(STORE.tel).map((part, pIdx, arr) => (
+                              <React.Fragment key={pIdx}>
+                                {part}
+                                {pIdx < arr.length - 1 && (
+                                  <a
+                                    href={telHref(STORE.tel)}
+                                    className="font-bold text-[#D9531E] hover:underline underline-offset-2 tabular-nums"
+                                  >
+                                    {STORE.tel}
+                                  </a>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </>
+                        ) : (
+                          f.a
+                        )}
                       </div>
                     )}
                   </div>
@@ -1411,7 +1429,7 @@ export default function Home() {
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 tabular-nums">
                         <a
                           href={telHref(STORE.tel)}
-                          className="text-[20px] sm:text-[22px] font-extrabold text-[#0E1A2B] hover:text-[#D9531E]"
+                          className="text-[20px] sm:text-[22px] font-extrabold text-[#D9531E] hover:text-[#B84010]"
                         >
                           {STORE.tel}
                         </a>
