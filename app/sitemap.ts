@@ -3,6 +3,8 @@ import { MetadataRoute } from "next";
 import { supabase } from "../lib/supabase";
 import { STORE, isProductSold } from "../lib/site";
 
+export const revalidate = 3600; // 1시간마다 sitemap.xml 자동 갱신
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = STORE.url;
 

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-17T05:18:49.411Z">
+<project name="hanbat-mall" generated_at="2026-10-17T11:28:31.740Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>59</file_count>
+    <file_count>61</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -7976,7 +7976,7 @@ body {
 /* Typography & Shared Component Tokens */
 @layer components {
   .hb-container {
-    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1380px] xl:max-w-[1440px] px-4 sm:px-6 lg:px-8;
   }
 
   .hb-section {
@@ -8000,7 +8000,7 @@ body {
   }
 
   .hb-label {
-    @apply block text-[13.5px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[14px];
+    @apply block text-[14.5px] font-bold tracking-[-0.01em] text-[#0E1A2B] sm:text-[15px];
   }
 
   .hb-caption {
@@ -8012,7 +8012,7 @@ body {
   }
 
   .hb-input {
-    @apply w-full rounded-lg border border-[#D7D2C8] bg-white px-3.5 py-2.5 text-[14.5px] sm:text-[15px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
+    @apply w-full rounded-xl border border-[#CFCAC0] bg-white px-4 py-3 text-[16px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
   .hb-btn {
@@ -9828,7 +9828,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1915">
+    <file path="app/page.tsx" lines="1954">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -9869,6 +9869,10 @@ import {
 import { type ProductItem } from "../components/products/product-card";
 import { FeaturedProductsSection } from "../components/home/featured-products-section";
 import { CategoryPictogramBar } from "../components/home/category-pictogram-bar";
+import {
+  BuybackStepIllustration,
+  UspPopIllustration,
+} from "../components/home/kakaobank-illustrations";
 import {
   UnifiedInquiryForm,
   type LinkedProductContext,
@@ -10422,23 +10426,24 @@ export default function Home() {
 
                 <h1
                   id="hero-title"
-                  className="mt-3.5 sm:mt-4 text-[27px] xs:text-[31px] sm:text-[38px] lg:text-[40px] xl:text-[44px] font-extrabold leading-[1.2] tracking-[-0.032em] text-[#0E1A2B] break-keep"
+                  className="mt-3.5 sm:mt-4 text-[28px] xs:text-[32px] sm:text-[38px] lg:text-[42px] xl:text-[46px] font-extrabold leading-[1.2] tracking-[-0.032em] text-[#0E1A2B] break-keep"
                 >
-                  분해 세척과 점검을 마친 가전,{" "}
+                  가정용 가전부터 업소용 주방설비까지,
+                  <br />
                   <span className="text-[#D9531E]">
-                    합리적인 가격으로 만나보세요.
+                    직접 분해 세척·점검한 실매물만 판매합니다
                   </span>
                 </h1>
 
-                <p className="mt-3.5 max-w-[520px] text-[15px] sm:text-[16.5px] leading-[1.65] text-[#434B59] break-keep">
-                  {STORE.since}년부터 대전 중촌동 직영 매장에서 가정용 에어컨·냉장고·세탁기부터 식당·카페 업소용 냉장·주방설비까지 직접 검수해 판매하고, 쓰시던 가전을 방문 매입합니다.
+                <p className="mt-3.5 max-w-[540px] text-[15.5px] sm:text-[17px] font-medium leading-[1.6] text-[#434B59] break-keep">
+                  {STORE.since}년 개업 대전 중촌동 직영 매장 · 에어컨·냉장고·세탁기·업소용 설비 판매 및 당일 현금 방문매입
                 </p>
 
                 {/* 주 행동 버튼(판매 제품 보기) & 보조 행동 버튼(가전 매입 신청) */}
-                <div className="mt-6 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[440px]">
+                <div className="mt-6 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[460px]">
                   <Link
                     href="/gallery"
-                    className="hb-btn-accent flex-1 h-12 sm:h-13 px-6 text-[15px] sm:text-[16px] shadow-card whitespace-nowrap"
+                    className="hb-btn-accent flex-1 h-13 sm:h-14 px-6 text-[16px] sm:text-[17px] shadow-card whitespace-nowrap"
                   >
                     <span>판매 제품 보기</span>
                     <Icon d={ICON.arrow} className="h-4 w-4 shrink-0" />
@@ -10451,7 +10456,7 @@ export default function Home() {
                       });
                       openInquiry("내 물건 팔기");
                     }}
-                    className="hb-btn-outline flex-1 h-12 sm:h-13 px-6 text-[15px] sm:text-[16px] whitespace-nowrap"
+                    className="hb-btn-outline flex-1 h-13 sm:h-14 px-6 text-[16px] sm:text-[17px] whitespace-nowrap"
                   >
                     <span>가전 매입 신청</span>
                   </button>
@@ -10556,47 +10561,55 @@ export default function Home() {
 
         {/* ════════════════════════════════════════════════════════════
             [흐름 2] 주요 서비스 3가지 — 구매 · 매입 · 업소용/대량 상담
-            (처음 방문한 고객이 4가지 핵심 질문을 즉시 해결하는 진입점)
+            (불필요한 설명 문단을 제거하고 굵은 제목 + 핵심 체크 2줄 + 버튼만 직관적으로 배치)
             ════════════════════════════════════════════════════════════ */}
         <section
           aria-labelledby="core-services-title"
-          className="border-b border-[#E6E3DC] bg-white py-12 sm:py-16"
+          className="border-b border-[#E6E3DC] bg-white py-10 sm:py-14"
         >
           <div className="hb-container">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-7 sm:mb-9">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6 sm:mb-7">
               <div>
-                <p className="hb-eyebrow">핵심 서비스 안내</p>
+                <p className="hb-eyebrow">주요 업무 바로가기</p>
                 <h2
                   id="core-services-title"
-                  className="mt-1.5 text-[22px] sm:text-[26px] font-extrabold tracking-[-0.025em] text-[#0E1A2B]"
+                  className="mt-1 text-[23px] sm:text-[28px] font-extrabold tracking-[-0.025em] text-[#0E1A2B]"
                 >
-                  원하시는 서비스를 선택해 바로 시작하세요
+                  중고가전 구매 · 방문매입 · 업소용 상담
                 </h2>
               </div>
-              <p className="text-[14px] text-[#667085]">
-                가정용 단품 거래부터 식당·카페 창업 및 폐업 일괄 정리까지 지원합니다.
+              <p className="text-[14.5px] font-semibold text-[#667085]">
+                가정용 단품부터 식당·카페 창업 설비, 폐업 일괄 철거까지 한 번에 진행합니다.
               </p>
             </div>
 
-            <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
-              {/* 서비스 1: 판매 상품 구매 */}
-              <div className="flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+            <div className="grid gap-5 sm:gap-6 lg:grid-cols-3">
+              {/* 서비스 1: 판매 상품 구매 (파스텔 스카이블루 일러스트) */}
+              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
                 <div>
+                  <Link
+                    href="/gallery"
+                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#DBEAFE] bg-[#E0F2FE]"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-buy.jpg"
+                      alt="분해 살균 세척을 마친 냉장고·세탁기·에어컨 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </Link>
+
                   <div className="flex items-center justify-between gap-2">
                     <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
                       01 · 가전·설비 구매
                     </span>
-                    <span className="text-[12.5px] font-bold text-[#D9531E]">
-                      실매물 가격 공개
+                    <span className="rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#1D4ED8]">
+                      실매물 정찰가
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
-                    검수 완료 판매 제품 확인
+                  <h3 className="mt-3 text-[21px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                    세척·점검 마친 판매 제품 보기
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#434B59] break-keep">
-                    에어컨·냉장고·세탁기부터 업소용 냉장고·제빙기까지, 세척과 작동 테스트를 마친 매장 실매물을 사진과 가격으로 확인하세요.
-                  </p>
-                  <ul className="mt-4 space-y-1.5 text-[13.5px] font-semibold text-[#0E1A2B]">
+                  <ul className="mt-3 space-y-1.5 text-[14.5px] font-bold text-[#334155]">
                     <li className="flex items-center gap-2">
                       <span className="text-[#D9531E]">✓</span> 에어컨 8개월 · 일반가전 4개월 무상 A/S
                     </li>
@@ -10605,10 +10618,10 @@ export default function Home() {
                     </li>
                   </ul>
                 </div>
-                <div className="mt-6 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
+                <div className="mt-5 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
                   <Link
                     href="/gallery"
-                    className="hb-btn-primary h-11 px-4 text-[14px] flex-1"
+                    className="hb-btn-primary h-12 px-5 text-[15px] flex-1"
                   >
                     <span>판매 제품 갤러리</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
@@ -10616,95 +10629,113 @@ export default function Home() {
                   <button
                     type="button"
                     onClick={() => openInquiry("구매 문의")}
-                    className="hb-btn-outline h-11 px-4 text-[14px]"
+                    className="hb-btn-outline h-12 px-4 text-[15px]"
                   >
                     재고 문의
                   </button>
                 </div>
               </div>
 
-              {/* 서비스 2: 사용하던 가전 매입 신청 */}
-              <div className="flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 sm:p-7 hover:border-[#0E1A2B] transition-colors">
+              {/* 서비스 2: 사용하던 가전 매입 신청 (파스텔 피치/살구 일러스트) */}
+              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
                 <div>
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("내 물건 팔기")}
+                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#FED7AA] bg-[#FFEDD5] cursor-pointer"
+                  >
+                    <SafeImg
+                      src="/illustrations/service-sell.jpg"
+                      alt="스마트폰 사진 전송으로 간편하게 신청하는 가전 방문 매입 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </button>
+
                   <div className="flex items-center justify-between gap-2">
                     <span className="inline-flex items-center rounded-md bg-[#D9531E] px-2.5 py-1 text-[12px] font-bold text-white">
                       02 · 가전 방문 매입
                     </span>
-                    <span className="text-[12.5px] font-bold text-[#0E1A2B]">
+                    <span className="rounded-full bg-[#FFF5F0] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#D9531E]">
                       당일 현금 정산
                     </span>
                   </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
-                    사용하던 가전 매입 신청
+                  <h3 className="mt-3 text-[21px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                    쓰던 가전 · 폐업 설비 팔기
                   </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-[#434B59] break-keep">
-                    이사·가전 교체로 처분할 가정용 가전이나 매장 정리 설비의 사진을 보내주시면 빠르게 견적을 산출하고 원하는 날짜에 방문 수거합니다.
-                  </p>
-                  <ul className="mt-4 space-y-1.5 text-[13.5px] font-semibold text-[#0E1A2B]">
+                  <ul className="mt-3 space-y-1.5 text-[14.5px] font-bold text-[#334155]">
                     <li className="flex items-center gap-2">
-                      <span className="text-[#D9531E]">✓</span> 사진·명판 접수 시 신속 가견적 안내
+                      <span className="text-[#D9531E]">✓</span> 사진·명판 전송 시 빠른 방문 가견적
                     </li>
                     <li className="flex items-center gap-2">
-                      <span className="text-[#D9531E]">✓</span> 전문 기사 방문 분리·수거 후 즉시 입금
+                      <span className="text-[#D9531E]">✓</span> 직접 분리·수거 후 현장에서 즉시 입금
                     </li>
                   </ul>
                 </div>
-                <div className="mt-6 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
+                <div className="mt-5 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
-                    className="hb-btn-accent h-11 px-4 text-[14px] flex-1"
+                    className="hb-btn-accent h-12 px-5 text-[15px] flex-1"
                   >
                     <span>매입 견적 신청</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
                   </button>
                   <Link
                     href="/purchase"
-                    className="hb-btn-outline h-11 px-4 text-[14px]"
+                    className="hb-btn-outline h-12 px-4 text-[15px]"
                   >
                     매입 안내
                   </Link>
                 </div>
               </div>
 
-              {/* 서비스 3: 업소용 · 대량 구매 상담 */}
-              <div className="flex flex-col justify-between rounded-xl border border-[#0E1A2B] bg-[#0E1A2B] p-6 sm:p-7 text-white">
+              {/* 서비스 3: 업소용 · 대량 구매 상담 (파스텔 민트/옐로우 일러스트) */}
+              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
                 <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center rounded-md bg-white/15 px-2.5 py-1 text-[12px] font-bold text-white">
-                      03 · 업소용 · 대량 상담
-                    </span>
-                    <span className="text-[12.5px] font-bold text-[#FF8A50]">
-                      세금계산서 100% 발행
-                    </span>
-                  </div>
-                  <h3 className="mt-4 text-[20px] sm:text-[22px] font-extrabold text-white tracking-[-0.02em]">
-                    식당·카페 창업 및 폐업 일괄 상담
-                  </h3>
-                  <p className="mt-2 text-[14.5px] leading-[1.65] text-white/80 break-keep">
-                    45박스 냉장고·테이블냉장고·쇼케이스·제빙기·식기세척기 등 업소용 주방설비 맞춤 세트 구성과 폐업 일괄 철거·매입을 지원합니다.
-                  </p>
-                  <ul className="mt-4 space-y-1.5 text-[13.5px] font-semibold text-white/90">
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#FF8A50]">✓</span> 창업 예산·도면 맞춤 주방설비 일괄 세팅
-                    </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#FF8A50]">✓</span> 원룸·기숙사·사무실 다량 납품 및 정식 증빙
-                    </li>
-                  </ul>
-                </div>
-                <div className="mt-6 pt-4 border-t border-white/15 flex items-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
-                    className="hb-btn-accent h-11 px-4 text-[14px] flex-1"
+                    className="relative mb-4 block h-36 sm:h-40 w-full overflow-hidden rounded-xl border border-[#A7F3D0] bg-[#ECFDF5] cursor-pointer"
                   >
-                    <span>업소용 · 대량 상담 신청</span>
+                    <SafeImg
+                      src="/illustrations/service-biz.jpg"
+                      alt="식당·카페 창업용 업소용 냉장고·제빙기·주방설비 패키지 일러스트"
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                    />
+                  </button>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="inline-flex items-center rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
+                      03 · 업소용 · 창업 상담
+                    </span>
+                    <span className="rounded-full bg-[#ECFDF5] px-2.5 py-0.5 text-[12.5px] font-extrabold text-[#047857]">
+                      세금계산서 발행
+                    </span>
+                  </div>
+                  <h3 className="mt-3 text-[21px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                    식당·카페 창업 및 대량 납품
+                  </h3>
+                  <ul className="mt-3 space-y-1.5 text-[14.5px] font-bold text-[#334155]">
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#D9531E]">✓</span> 45박스 냉장고·쇼케이스·제빙기 세트 구성
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="text-[#D9531E]">✓</span> 원룸·기숙사·사무실 다량 납품 및 증빙
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-5 pt-4 border-t border-[#E6E3DC] flex items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("대량·업소용 상담")}
+                    className="hb-btn-primary h-12 px-5 text-[15px] flex-1"
+                  >
+                    <span>업소용 상담 신청</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
                   </button>
                   <Link
                     href={galleryHref(G.biz)}
-                    className="hb-btn border border-white/25 bg-white/10 text-white hover:bg-white hover:text-[#0E1A2B] h-11 px-4 text-[14px]"
+                    className="hb-btn-outline h-12 px-4 text-[15px]"
                   >
                     설비 보기
                   </Link>
@@ -10764,28 +10795,31 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 5대 원칙 그리드 (한글 중심 명확한 위계) */}
+            {/* 5대 원칙 그리드 (카카오뱅크 스타일 팝 일러스트 배지 결합) */}
             <ol className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-6">
               {USP.map((u, idx) => {
                 const isWide = idx >= 3;
                 return (
                   <li
                     key={u.no}
-                    className={`flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 transition-colors hover:border-[#0E1A2B] hover:bg-white ${
+                    className={`flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 transition-colors hover:border-[#0E1A2B] hover:bg-white ${
                       isWide ? "md:col-span-3" : "md:col-span-2"
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#0E1A2B] text-[13px] font-extrabold tabular-nums text-white">
-                          {u.no}
-                        </span>
-                        <span className="text-[12.5px] font-bold text-[#D9531E]">
-                          {u.tag}
-                        </span>
+                      <div className="flex items-start justify-between gap-3">
+                        <UspPopIllustration index={idx} />
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="inline-flex items-center justify-center rounded-md bg-[#0E1A2B] px-2 py-0.5 text-[11.5px] font-extrabold tabular-nums text-white">
+                            원칙 {u.no}
+                          </span>
+                          <span className="text-[12.5px] font-extrabold text-[#D9531E]">
+                            {u.tag}
+                          </span>
+                        </div>
                       </div>
 
-                      <h3 className="mt-4 text-[18px] sm:text-[19px] font-extrabold text-[#0E1A2B]">
+                      <h3 className="mt-4 text-[18.5px] sm:text-[20px] font-extrabold text-[#0E1A2B]">
                         {u.t}
                       </h3>
                       <p className="mt-2 text-[14.5px] leading-[1.68] text-[#434B59] break-keep">
@@ -10793,7 +10827,7 @@ export default function Home() {
                       </p>
                     </div>
 
-                    <div className="mt-5 pt-3.5 border-t border-[#E6E3DC] text-[13px] font-bold text-[#0E1A2B]">
+                    <div className="mt-5 pt-3.5 border-t border-[#E6E3DC] text-[13.5px] font-bold text-[#0E1A2B]">
                       <span className="text-[#D9531E]">✓</span> {u.highlight}
                     </div>
                   </li>
@@ -10970,23 +11004,28 @@ export default function Home() {
                 </ul>
 
                 {/* 매입 진행 4단계 */}
-                <ol className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <ol className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {SELL_STEPS.map((s, i) => (
                     <li
                       key={s.t}
-                      className="rounded-xl border border-[#E6E3DC] bg-white p-4 sm:p-5"
+                      className="flex flex-col justify-between rounded-xl border border-[#E6E3DC] bg-white p-4 sm:p-4.5 shadow-2xs hover:border-[#0E1A2B]/40 transition-all"
                     >
-                      <div className="flex items-center gap-2">
-                        <span className="inline-flex h-6 w-6 items-center justify-center rounded-md bg-[#D9531E] text-[12px] font-extrabold text-white tabular-nums">
-                          {i + 1}
-                        </span>
-                        <p className="text-[15.5px] font-extrabold text-[#0E1A2B]">
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1 text-[11.5px] font-extrabold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 rounded">
+                            STEP 0{i + 1}
+                          </span>
+                          <BuybackStepIllustration
+                            step={((i % 4) + 1) as 1 | 2 | 3 | 4}
+                          />
+                        </div>
+                        <h4 className="mt-2.5 text-[15.5px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
                           {s.t}
+                        </h4>
+                        <p className="mt-1 text-[13px] leading-relaxed text-[#434B59] break-keep">
+                          {s.d}
                         </p>
                       </div>
-                      <p className="mt-2 text-[13.5px] leading-relaxed text-[#434B59] break-keep">
-                        {s.d}
-                      </p>
                     </li>
                   ))}
                 </ol>
@@ -11054,7 +11093,7 @@ export default function Home() {
                     <SafeImg
                       src="/매입 안내문.png"
                       alt="제품 매입 시 고객 안내문: 1. 전면 사진, 2. 모델명 및 제조년월 확인, 3. 특이사항 안내, 4. 매입 시 유의할 점"
-                      className="w-full h-auto max-h-[340px] object-contain mx-auto"
+                      className="w-full h-auto object-contain mx-auto"
                     />
                   </button>
                 </div>
@@ -11067,15 +11106,15 @@ export default function Home() {
               className="mt-16 sm:mt-20 pt-12 sm:pt-16 border-t border-[#E6E3DC]"
             >
               <SectionHeading
-                eyebrow="온라인 통합 상담 데스크"
+                eyebrow="직통 온라인 접수"
                 title={<span id="cta-title">판매 · 매입 · 업소용 통합 상담 신청</span>}
-                desc="찾으시는 가전·설비 재고 문의부터 방문 매입 견적 신청, 창업·폐업 대량 상담까지 남겨주시면 담당자가 빠르게 확인 후 연락드립니다."
+                desc="아래에서 상담 유형을 선택하거나 단골 패키지를 누르면 품목 양식이 한 번에 입력됩니다."
               />
 
-              <div className="mt-8 grid gap-8 lg:grid-cols-12 items-start">
+              <div className="mt-8 grid gap-7 lg:grid-cols-12 items-start">
                 <div
                   id="inquiry-form"
-                  className="rounded-xl border border-[#E6E3DC] bg-white p-4 xs:p-5 sm:p-8 lg:col-span-7 shadow-card"
+                  className="rounded-2xl border-2 border-[#0E1A2B]/15 bg-white p-5 sm:p-8 lg:p-9 lg:col-span-8 shadow-card"
                 >
                   <UnifiedInquiryForm
                     defaultType={inquiryType}
@@ -11084,7 +11123,7 @@ export default function Home() {
                   />
                 </div>
 
-                <aside className="flex flex-col gap-5 lg:col-span-5">
+                <aside className="flex flex-col gap-5 lg:col-span-4">
                   <div className="rounded-xl bg-[#0E1A2B] p-6 text-white sm:p-7">
                     <span className="inline-block rounded bg-[#D9531E] px-2.5 py-1 text-[11.5px] font-bold text-white">
                       직통 전화 · 카톡 상담
@@ -11930,7 +11969,7 @@ export default function PurchaseLayout({
 }
 ]]>
     </file>
-    <file path="app/purchase/page.tsx" lines="244">
+    <file path="app/purchase/page.tsx" lines="251">
       <![CDATA[
 "use client";
 
@@ -11946,20 +11985,24 @@ import {
   ICON,
 } from "../../lib/ui";
 import { UnifiedInquiryForm } from "../../components/inquiry/unified-inquiry-form";
+import { BuybackStepIllustration } from "../../components/home/kakaobank-illustrations";
 
 const BUYBACK_STEPS = [
   {
     step: "01 단계",
+    illusStep: 1 as const,
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
   },
   {
     step: "02 단계",
+    illusStep: 2 as const,
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
   },
   {
     step: "03 단계",
+    illusStep: 4 as const,
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
   },
@@ -12004,24 +12047,27 @@ export default function PurchasePage() {
       </section>
 
       <main className="hb-container py-7 sm:py-11 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 */}
+        {/* 3단계 매입 진행 프로세스 요약 바 (카카오뱅크 스타일 팝 일러스트 결합) */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 rounded-xl border border-[#E6E3DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E6E3DC] shadow-card"
+          className="grid grid-cols-1 md:grid-cols-3 rounded-2xl border border-[#E6E3DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E6E3DC] shadow-card"
         >
           {BUYBACK_STEPS.map((item) => (
-            <div key={item.step} className="p-5 sm:p-6">
-              <div className="flex items-center gap-2.5">
-                <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[11.5px] font-extrabold text-[#D9531E]">
-                  {item.step}
-                </span>
-                <h2 className="text-[15.5px] sm:text-[16.5px] font-extrabold text-[#0E1A2B]">
-                  {item.title}
-                </h2>
+            <div key={item.step} className="flex items-start gap-4 p-5 sm:p-6">
+              <BuybackStepIllustration step={item.illusStep} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-[11px] font-extrabold text-[#D9531E]">
+                    {item.step}
+                  </span>
+                  <h2 className="text-[16px] sm:text-[17px] font-extrabold text-[#0E1A2B]">
+                    {item.title}
+                  </h2>
+                </div>
+                <p className="mt-1.5 text-[13.5px] text-[#3E4856] leading-relaxed break-keep">
+                  {item.desc}
+                </p>
               </div>
-              <p className="mt-2 text-[13px] sm:text-[13.5px] text-[#3E4856] leading-relaxed break-keep">
-                {item.desc}
-              </p>
             </div>
           ))}
         </section>
@@ -12196,12 +12242,14 @@ export default function robots(): MetadataRoute.Robots {
 
 ]]>
     </file>
-    <file path="app/sitemap.ts" lines="61">
+    <file path="app/sitemap.ts" lines="63">
       <![CDATA[
 // 파일 경로: app/sitemap.ts
 import { MetadataRoute } from "next";
 import { supabase } from "../lib/supabase";
 import { STORE, isProductSold } from "../lib/site";
+
+export const revalidate = 3600; // 1시간마다 sitemap.xml 자동 갱신
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = STORE.url;
@@ -12267,7 +12315,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="633">
+    <file path="components/home/category-pictogram-bar.tsx" lines="631">
       <![CDATA[
 "use client";
 
@@ -12296,7 +12344,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 1. 에어컨 · 냉난방기 (시원한 블루 3D 바람 + 스탠드/벽걸이 에어컨) */
     case "aircon":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="ac-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
@@ -12354,7 +12402,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 2. 냉장고 · 김치냉장고 (프리미엄 4도어 3D 글로시 냉장고) */
     case "fridge":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="fr-left" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F8FAFC" />
@@ -12393,7 +12441,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 3. 세탁기 · 건조기 (아쿠아 드럼 윈도우 3D 세탁기) */
     case "washer":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="ws-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
@@ -12432,7 +12480,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 4. 생활 · 소형가전 (따뜻한 오렌지 코랄 3D 오븐/전자레인지) */
     case "small":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="sm-body" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFF7ED" />
@@ -12466,7 +12514,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 5. 업소용 냉장고 (45박스 스텐 4도어 + 디지털 온도창) */
     case "bizFridge":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="bf-steel" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#F1F5F9" />
@@ -12498,7 +12546,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 6. 쇼케이스 · 제빙기 (유리문 음료 쇼케이스 & 얼음 큐브) */
     case "showcase":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="sc-glass" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#E0F2FE" />
@@ -12533,7 +12581,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 7. 식기세척 · 주방기기 (업소용 스텐 세척기/작업대 & 클린 식기) */
     case "kitchen":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="kt-plate" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FFFFFF" />
@@ -12563,7 +12611,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 8. 내 가전 팔기 (당일 현금 정산 3D 골드 코인 & 매입 보드) */
     case "sell":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="sl-card" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#334155" />
@@ -12613,7 +12661,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 9. 폐업 일괄정리 (방문 철거·수거 3D 박스 & 픽업 카트) */
     case "clearance":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="cl-box" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#FDBA74" />
@@ -12637,7 +12685,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 10. 창업 · 매장패키지 (아정당 '매장패키지' 스타일 3D 어닝 스토어) */
     case "storePkg":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="st-wall" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#FFFBEB" />
@@ -12670,7 +12718,7 @@ function Soft3DPictogram({ type }: { type: PictogramKey }) {
     /* 11. 배송 · 설치인증 (아정당 '보험/인증' 스타일 3D 블루 쉴드) */
     case "certified":
       return (
-        <svg viewBox="0 0 64 64" className="h-12 w-12 sm:h-13 sm:w-13 overflow-visible" aria-hidden="true">
+        <svg viewBox="0 0 64 64" className="h-14 w-14 sm:h-16 sm:w-16 overflow-visible transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]" aria-hidden="true">
           <defs>
             <linearGradient id="ct-shield" x1="0" y1="0" x2="1" y2="1">
               <stop offset="0%" stopColor="#60A5FA" />
@@ -12783,22 +12831,22 @@ const QUICK_GROUPS: QuickMenuGroup[] = [
     items: [
       {
         key: "sell",
-        label: "가전 팔기",
+        label: "가전팔기",
         inquiryType: "내 물건 팔기",
       },
       {
         key: "clearance",
-        label: "폐업 정리",
+        label: "폐업정리",
         href: "/purchase",
       },
       {
         key: "storePkg",
-        label: "창업 상담",
+        label: "창업상담",
         inquiryType: "대량·업소용 상담",
       },
       {
         key: "certified",
-        label: "배송 후기",
+        label: "배송후기",
         href: "#reviews",
       },
     ],
@@ -12814,11 +12862,11 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="bg-white border-b border-[#E6E3DC] pt-7 pb-6 sm:pt-8 sm:pb-7"
+      className="bg-white border-b border-[#E6E3DC] pt-8 pb-7 sm:pt-9 sm:pb-8"
     >
       <div className="hb-container">
         {/* 데스크톱(lg 이상): 4 : 3 : 4 비례 분할로 11개 아이템의 가로폭 균일화 / 모바일·태블릿: 스택 카드 */}
-        <div className="flex flex-col lg:flex-row gap-5 lg:gap-3.5 items-stretch">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch">
           {QUICK_GROUPS.map((group) => {
             const flexBasisClass =
               group.id === "home-appliances"
@@ -12833,23 +12881,21 @@ export function CategoryPictogramBar({
             return (
               <div
                 key={group.id}
-                className={`relative rounded-[22px] bg-[#F4F6FA] border border-[#E5E9F2] px-2 sm:px-3.5 pt-6 pb-3.5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
+                className={`relative rounded-[24px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-7 pb-4 sm:pb-5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
               >
                 {/* 상단 좌측 플로팅 캡슐 배지 (아정당 스타일) */}
                 <span
-                  className={`absolute -top-3 left-3 sm:left-4 inline-flex items-center rounded-full px-2.5 sm:px-3 py-1 text-[11px] sm:text-[11.5px] font-extrabold tracking-[-0.01em] whitespace-nowrap ${group.badgeBgClass}`}
+                  className={`absolute -top-3.5 left-4 sm:left-5 inline-flex items-center rounded-full px-3 sm:px-3.5 py-1 text-[11.5px] sm:text-[12.5px] font-extrabold tracking-[-0.01em] whitespace-nowrap ${group.badgeBgClass}`}
                 >
                   {group.badgeText}
                 </span>
 
-                <ul className={`grid ${gridColsClass} gap-1 items-center`}>
+                <ul className={`grid ${gridColsClass} gap-1.5 sm:gap-2 items-center`}>
                   {group.items.map((item) => {
                     const content = (
                       <>
-                        <div className="flex h-12 w-12 sm:h-13 sm:w-13 items-center justify-center transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-[1.06]">
-                          <Soft3DPictogram type={item.key} />
-                        </div>
-                        <span className="mt-1 text-center text-[12px] sm:text-[13px] font-bold tracking-[-0.02em] text-[#1E293B] group-hover:text-[#D9531E] transition-colors truncate max-w-full px-0.5">
+                        <Soft3DPictogram type={item.key} />
+                        <span className="mt-1.5 text-center text-[13.5px] sm:text-[15px] font-extrabold tracking-[-0.02em] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
                           {item.label}
                         </span>
                       </>
@@ -12867,7 +12913,7 @@ export function CategoryPictogramBar({
                               });
                               onSelectInquiry(item.inquiryType!);
                             }}
-                            className="group flex w-full flex-col items-center justify-center py-1.5 rounded-xl hover:bg-white/80 transition-colors cursor-pointer"
+                            className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors cursor-pointer"
                           >
                             {content}
                           </button>
@@ -12885,7 +12931,7 @@ export function CategoryPictogramBar({
                               location: "top_pictogram_bar",
                             })
                           }
-                          className="group flex w-full flex-col items-center justify-center py-1.5 rounded-xl hover:bg-white/80 transition-colors"
+                          className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors"
                         >
                           {content}
                         </Link>
@@ -14430,6 +14476,12 @@ export function FeaturedProductsSection({
 
 ]]>
     </file>
+    <file path="components/home/floating-quick-wing.tsx" lines="2">
+      <![CDATA[
+export { FloatingQuickWing } from "../../lib/ui";
+
+]]>
+    </file>
     <file path="components/home/hero-section.tsx" lines="147">
       <![CDATA[
 "use client";
@@ -14577,6 +14629,370 @@ export function HeroSection({
       </div>
     </section>
   );
+}
+
+]]>
+    </file>
+    <file path="components/home/kakaobank-illustrations.tsx" lines="360">
+      <![CDATA[
+"use client";
+
+import React from "react";
+
+/**
+ * 카카오뱅크 Answer 스타일 팝아트 아이소메트릭 2.5D/3D 일러스트 컴포넌트
+ * - 특징: 또렷한 블랙 아웃라인(#111827, strokeWidth 2.2) + 파스텔 컬러 블록(#7DD3FC, #F9A8D4, #FDE047, #86EFAC, #C4B5FD)
+ */
+
+export function BuybackStepIllustration({ step }: { step: 1 | 2 | 3 | 4 }) {
+  switch (step) {
+    /* 1단계: 스마트폰으로 사진·품목 접수 (스카이블루) */
+    case 1:
+      return (
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F2FE] border border-[#BAE6FD] shadow-2xs overflow-hidden">
+          <svg viewBox="0 0 64 64" className="h-7 w-7" aria-hidden="true">
+            <path
+              d="M12 16L14 11L16 16L21 18L16 20L14 25L12 20L7 18L12 16Z"
+              fill="#FDE047"
+              stroke="#0E1A2B"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+            <rect
+              x="22"
+              y="13"
+              width="24"
+              height="38"
+              rx="5"
+              transform="rotate(-8 34 32)"
+              fill="#F472B6"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <rect
+              x="19"
+              y="11"
+              width="24"
+              height="38"
+              rx="5"
+              transform="rotate(-8 31 30)"
+              fill="#FFFFFF"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <rect
+              x="22"
+              y="16"
+              width="18"
+              height="26"
+              rx="2.5"
+              transform="rotate(-8 31 29)"
+              fill="#A7F3D0"
+              stroke="#0E1A2B"
+              strokeWidth="1.8"
+            />
+            <rect
+              x="27"
+              y="20"
+              width="8"
+              height="16"
+              rx="1.5"
+              transform="rotate(-8 31 28)"
+              fill="#FDE047"
+              stroke="#0E1A2B"
+              strokeWidth="1.8"
+            />
+            <circle
+              cx="33"
+              cy="45"
+              r="2.2"
+              fill="#F43F5E"
+              stroke="#0E1A2B"
+              strokeWidth="1.6"
+            />
+          </svg>
+        </div>
+      );
+
+    /* 2단계: 매입 가능 여부 및 가견적 안내 (핑크) */
+    case 2:
+      return (
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FCE7F3] border border-[#FBCFE8] shadow-2xs overflow-hidden">
+          <svg viewBox="0 0 64 64" className="h-7 w-7" aria-hidden="true">
+            <rect
+              x="15"
+              y="17"
+              width="28"
+              height="34"
+              rx="4"
+              fill="#93C5FD"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <rect
+              x="12"
+              y="14"
+              width="28"
+              height="34"
+              rx="4"
+              fill="#FEF08A"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <path
+              d="M18 24H34M18 31H30M18 38H26"
+              stroke="#0E1A2B"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
+            <rect
+              x="32"
+              y="10"
+              width="22"
+              height="16"
+              rx="8"
+              fill="#4ADE80"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <path
+              d="M39 18L42 21L48 15"
+              fill="none"
+              stroke="#0E1A2B"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      );
+
+    /* 3단계: 방문 수거 일정 조율 (민트) */
+    case 3:
+      return (
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#DCFCE7] border border-[#BBF7D0] shadow-2xs overflow-hidden">
+          <svg viewBox="0 0 64 64" className="h-7 w-7" aria-hidden="true">
+            <rect
+              x="10"
+              y="20"
+              width="26"
+              height="22"
+              rx="4"
+              fill="#60A5FA"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <path
+              d="M36 26H47L53 34V42H36V26Z"
+              fill="#FDE047"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <circle
+              cx="21"
+              cy="44"
+              r="5.5"
+              fill="#F472B6"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <circle
+              cx="44"
+              cy="44"
+              r="5.5"
+              fill="#F472B6"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+          </svg>
+        </div>
+      );
+
+    /* 4단계: 현장 확인 및 당일 현금 정산 (옐로우) */
+    case 4:
+      return (
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FEF9C3] border border-[#FEF08A] shadow-2xs overflow-hidden">
+          <svg viewBox="0 0 64 64" className="h-7 w-7" aria-hidden="true">
+            <rect
+              x="14"
+              y="28"
+              width="36"
+              height="22"
+              rx="6"
+              fill="#DDD6FE"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <circle
+              cx="38"
+              cy="20"
+              r="11"
+              fill="#FACC15"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+            />
+            <path
+              d="M34 16L36 24L38 18L40 24L42 16M33 20H43"
+              fill="none"
+              stroke="#0E1A2B"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      );
+  }
+}
+
+export function UspPopIllustration({ index }: { index: number }) {
+  switch (index) {
+    /* 01. 분해 고압 살균 세척 */
+    case 0:
+      return (
+        <div className="flex h-10 w-12 items-center justify-center rounded-lg bg-[#E0F2FE] border border-[#BAE6FD]">
+          <svg viewBox="0 0 80 56" className="h-8 w-10" aria-hidden="true">
+            <path
+              d="M16 42 A24 24 0 0 1 64 42"
+              fill="none"
+              stroke="#0E1A2B"
+              strokeWidth="9"
+              strokeLinecap="round"
+            />
+            <path
+              d="M16 42 A24 24 0 0 1 32 20"
+              fill="none"
+              stroke="#F472B6"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <path
+              d="M32 20 A24 24 0 0 1 64 42"
+              fill="none"
+              stroke="#4ADE80"
+              strokeWidth="6"
+              strokeLinecap="round"
+            />
+            <line
+              x1="40"
+              y1="42"
+              x2="56"
+              y2="24"
+              stroke="#0E1A2B"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+            />
+            <circle cx="40" cy="42" r="4.5" fill="#FDE047" stroke="#0E1A2B" strokeWidth="2" />
+          </svg>
+        </div>
+      );
+
+    /* 02. 최대 8개월 무상 A/S 보증 */
+    case 1:
+      return (
+        <div className="flex h-10 w-12 items-center justify-center rounded-lg bg-[#FCE7F3] border border-[#FBCFE8]">
+          <svg viewBox="0 0 80 56" className="h-8 w-10" aria-hidden="true">
+            <path
+              d="M40 8L60 15V28C60 39 51 46 40 50C29 46 20 39 20 28V15L40 8Z"
+              fill="#60A5FA"
+              stroke="#0E1A2B"
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M33 28L38 33L48 22"
+              fill="none"
+              stroke="#FDE047"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+      );
+
+    /* 03. 대전 직영 매장 상시 전시 */
+    case 2:
+      return (
+        <div className="flex h-10 w-12 items-center justify-center rounded-lg bg-[#FEF9C3] border border-[#FEF08A]">
+          <svg viewBox="0 0 80 56" className="h-8 w-10" aria-hidden="true">
+            <rect
+              x="20"
+              y="20"
+              width="40"
+              height="28"
+              rx="3"
+              fill="#FFFFFF"
+              stroke="#0E1A2B"
+              strokeWidth="2"
+            />
+            <path
+              d="M16 22L22 11H58L64 22H16Z"
+              fill="#FB923C"
+              stroke="#0E1A2B"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <rect x="26" y="28" width="12" height="20" fill="#7DD3FC" stroke="#0E1A2B" strokeWidth="1.8" />
+          </svg>
+        </div>
+      );
+
+    /* 04. 전문 기사 직접 배송·설치 */
+    case 3:
+      return (
+        <div className="flex h-10 w-12 items-center justify-center rounded-lg bg-[#DCFCE7] border border-[#BBF7D0]">
+          <svg viewBox="0 0 80 56" className="h-8 w-10" aria-hidden="true">
+            <rect
+              x="16"
+              y="16"
+              width="28"
+              height="22"
+              rx="4"
+              fill="#FDE047"
+              stroke="#0E1A2B"
+              strokeWidth="2"
+            />
+            <path
+              d="M44 22H56L62 30V38H44V22Z"
+              fill="#60A5FA"
+              stroke="#0E1A2B"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <circle cx="27" cy="40" r="4.5" fill="#F472B6" stroke="#0E1A2B" strokeWidth="2" />
+            <circle cx="52" cy="40" r="4.5" fill="#F472B6" stroke="#0E1A2B" strokeWidth="2" />
+          </svg>
+        </div>
+      );
+
+    /* 05. 가정용·업소용 원스톱 매입 */
+    default:
+      return (
+        <div className="flex h-10 w-12 items-center justify-center rounded-lg bg-[#EDE9FE] border border-[#DDD6FE]">
+          <svg viewBox="0 0 80 56" className="h-8 w-10" aria-hidden="true">
+            <path
+              d="M32 46H48L43 30H37L32 46Z"
+              fill="#F472B6"
+              stroke="#0E1A2B"
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <line
+              x1="18"
+              y1="28"
+              x2="62"
+              y2="24"
+              stroke="#0E1A2B"
+              strokeWidth="2.8"
+              strokeLinecap="round"
+            />
+            <circle cx="58" cy="15" r="7" fill="#FDE047" stroke="#0E1A2B" strokeWidth="1.8" />
+          </svg>
+        </div>
+      );
+  }
 }
 
 ]]>
@@ -15107,7 +15523,7 @@ export function TrustSection() {
 }
 ]]>
     </file>
-    <file path="components/inquiry/unified-inquiry-form.tsx" lines="2008">
+    <file path="components/inquiry/unified-inquiry-form.tsx" lines="2026">
       <![CDATA[
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
@@ -16083,15 +16499,15 @@ export function UnifiedInquiryForm({
         executeSubmit(false);
       }}
       noValidate
-      className="space-y-4"
+      className="space-y-6"
     >
       {isAdmin && allowNoticeToggle && (
-        <label className="flex cursor-pointer items-center justify-between rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3">
+        <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3.5">
           <div>
-            <span className="block text-[13.5px] font-bold text-[#B5431A]">
+            <span className="block text-[14.5px] font-bold text-[#B5431A]">
               최상단 고정 공지사항으로 등록
             </span>
-            <span className="mt-0.5 block text-[11.5px] text-[#D9531E]">
+            <span className="mt-0.5 block text-[12.5px] text-[#D9531E]">
               체크 시 모든 방문자가 비밀번호 없이 열람할 수 있는 공지로 게시됩니다.
             </span>
           </div>
@@ -16104,16 +16520,78 @@ export function UnifiedInquiryForm({
         </label>
       )}
 
+      {/* 1. 최상단 4대 상담 유형 대형 탭 (높이 56px~60px, 글자 크기 16px~18px) */}
+      {!isNotice && (
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            <span className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+              1. 원하시는 상담 유형을 선택해 주세요
+            </span>
+            <a
+              href={smsHref(STORE.mobile, smsBodyDraft)}
+              onClick={() =>
+                trackEvent("click_sms_consult", {
+                  location: "inquiry_form_top",
+                  inquiry_type: inquiryType,
+                })
+              }
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 py-1.5 text-[13px] font-extrabold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+              title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
+            >
+              <Icon d={ICON.chat} className="h-4 w-4" />
+              <span>문자({STORE.mobile}) 바로 전송</span>
+            </a>
+          </div>
+
+          <div
+            role="tablist"
+            aria-label="상담 유형 선택"
+            className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5"
+          >
+            {INQUIRY_TYPES.map((t) => {
+              const active = inquiryType === t;
+              const tabLabel =
+                t === "내 물건 팔기"
+                  ? "내 물건 팔기(매입)"
+                  : t === "대량·업소용 상담"
+                  ? "업소용·창업 상담"
+                  : t;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => {
+                    setInquiryType(t);
+                    setPendingConflicts(null);
+                  }}
+                  className={`h-14 sm:h-[60px] rounded-xl px-3 text-[16px] sm:text-[18px] font-extrabold tracking-[-0.02em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
+                    active
+                      ? t === "내 물건 팔기"
+                        ? "bg-[#D9531E] text-white shadow-card ring-2 ring-[#D9531E]/30"
+                        : "bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#0E1A2B]/25"
+                      : "border-2 border-[#E4E0D8] bg-[#FAF9F7] text-[#434B59] hover:border-[#0E1A2B] hover:bg-white hover:text-[#0E1A2B]"
+                  }`}
+                >
+                  {tabLabel}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 관심 매물 견적함(묶음 문의) 자동 불러오기 배너 */}
       {!isNotice && basketItems.length > 0 && (
-        <div className="rounded-md border border-[#0E1A2B] bg-[#F8FAFC] p-3.5">
+        <div className="rounded-xl border-2 border-[#0E1A2B] bg-[#F8FAFC] p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#D9531E] text-[11px] font-bold text-white">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
                 {basketItems.length}
               </span>
-              <strong className="text-[13px] font-bold text-[#0E1A2B]">
-                견적함에 담아둔 관심 매물 {basketItems.length}건
+              <strong className="text-[15px] font-extrabold text-[#0E1A2B]">
+                견적함에 담아둔 관심 상품 {basketItems.length}건
               </strong>
             </div>
             <button
@@ -16124,22 +16602,22 @@ export function UnifiedInquiryForm({
                   `견적함 상품 ${basketItems.length}건이 문의 내용에 자동 입력되었습니다.`
                 );
               }}
-              className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[11.5px] font-bold text-white hover:bg-[#1C2D47]"
+              className="rounded-lg bg-[#0E1A2B] px-3.5 py-1.5 text-[13px] font-bold text-white hover:bg-[#1C2D47]"
             >
               {bundleApplied ? "목록 다시 반영" : "묶음 견적으로 자동 입력"}
             </button>
           </div>
 
-          <ul className="mt-2 flex flex-wrap gap-1.5">
+          <ul className="mt-2.5 flex flex-wrap gap-2">
             {basketItems.map((item) => (
               <li
                 key={item.id}
-                className="inline-flex items-center gap-1.5 rounded border border-[#DDD9D1] bg-white px-2 py-0.5 text-[11.5px]"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-[13px]"
               >
-                <span className="font-semibold text-[#0E1A2B] truncate max-w-[160px]">
+                <span className="font-bold text-[#0E1A2B]">
                   {item.title}
                 </span>
-                <span className="text-[#D9531E] font-bold">
+                <span className="text-[#D9531E] font-extrabold">
                   ({formatProductPrice(item.price, item.category)})
                 </span>
                 <button
@@ -16151,7 +16629,7 @@ export function UnifiedInquiryForm({
                     }
                   }}
                   aria-label={`${item.title} 제외`}
-                  className="text-[#8A8478] hover:text-red-600"
+                  className="text-[#8A8478] hover:text-red-600 font-bold px-1"
                 >
                   ×
                 </button>
@@ -16161,38 +16639,22 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* [신규 기능 ③ + ①] 단골 패키지 1초 자동채움 버튼 4종 + 직통 문자(SMS) 바로 보내기 */}
+      {/* 2. 단골 패키지 1초 자동채움 버튼 4종 (2열 와이드 배치 — 품목명 잘림 없음) */}
       {!isNotice && (
-        <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-2.5">
+        <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="inline-block h-2 w-2 rounded-full bg-[#D9531E]" />
-              <strong className="text-[12.5px] sm:text-[13px] font-extrabold text-[#0E1A2B]">
-                ⚡ 자주 찾는 단골 패키지 1초 자동채움
+            <div className="flex items-center gap-2">
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#D9531E]" />
+              <strong className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+                자주 찾는 단골 패키지 1초 자동채움
               </strong>
-              <span className="hidden sm:inline text-[11.5px] text-[#6B7280]">
-                (누르면 제목과 품목 양식이 한 번에 입력됩니다)
+              <span className="text-[13px] text-[#667085]">
+                (누르면 품목 양식이 바로 입력됩니다)
               </span>
             </div>
-
-            {/* [신규 기능 ①] 폼 작성이 번거로운 분들을 위한 직통 문자(SMS) 사진 전송 버튼 */}
-            <a
-              href={smsHref(STORE.mobile, smsBodyDraft)}
-              onClick={() =>
-                trackEvent("click_sms_consult", {
-                  location: "inquiry_form_top",
-                  inquiry_type: inquiryType,
-                })
-              }
-              className="inline-flex items-center gap-1.5 rounded border border-[#D9531E] bg-[#FFF5F0] px-2.5 py-1 text-[11.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
-              title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
-            >
-              <Icon d={ICON.chat} className="h-3.5 w-3.5" />
-              <span>✉️ 문자({STORE.mobile})로 사진 바로 보내기</span>
-            </a>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
             {QUICK_PACKAGE_PRESETS.map((preset) => {
               const isSelected = selectedPresetId === preset.id;
               return (
@@ -16201,24 +16663,24 @@ export function UnifiedInquiryForm({
                   type="button"
                   onClick={() => handleApplyQuickPackage(preset)}
                   aria-pressed={isSelected}
-                  className={`flex flex-col items-start justify-between rounded-md border p-2.5 text-left transition-all ${
+                  className={`flex flex-col items-start justify-between rounded-xl border p-3.5 sm:p-4 text-left transition-all cursor-pointer ${
                     isSelected
-                      ? "border-[#D9531E] bg-[#FFF5F0] ring-1 ring-[#D9531E]"
-                      : "border-[#E4E0D8] bg-[#FAF9F7] hover:border-[#0E1A2B] hover:bg-white"
+                      ? "border-2 border-[#D9531E] bg-[#FFF5F0] shadow-2xs"
+                      : "border-[#D7D2C8] bg-white hover:border-[#0E1A2B]"
                   }`}
                 >
-                  <div className="flex w-full items-center justify-between gap-1">
-                    <span className="rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-[#FF8A50]">
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <span className="rounded-md bg-[#0E1A2B] px-2 py-0.5 text-[11.5px] font-bold text-[#FF8A50]">
                       {preset.badge}
                     </span>
-                    <span className="text-[10.5px] font-bold text-[#D9531E]">
-                      {isSelected ? "✓ 적용됨" : "1초 입력 →"}
+                    <span className="text-[12.5px] font-extrabold text-[#D9531E]">
+                      {isSelected ? "✓ 양식 적용됨" : "누르면 자동 입력 →"}
                     </span>
                   </div>
-                  <strong className="mt-1.5 block text-[12.5px] font-extrabold text-[#0E1A2B]">
+                  <strong className="mt-2 block text-[15.5px] sm:text-[16.5px] font-extrabold text-[#0E1A2B]">
                     {preset.label}
                   </strong>
-                  <span className="mt-0.5 block text-[11px] text-[#4B5260] truncate w-full">
+                  <span className="mt-1 block text-[13.5px] sm:text-[14px] font-medium text-[#434B59] leading-snug break-keep">
                     {preset.sub}
                   </span>
                 </button>
@@ -16228,116 +16690,88 @@ export function UnifiedInquiryForm({
         </div>
       )}
 
-      {/* 1. 상단 컴팩트 블록: 상담 유형 4탭 + 성함/연락처/비밀번호 */}
+      {/* 3. 성함 / 연락처 / 비밀번호 입력 (높이 52px~56px, 글자 크기 16px) */}
       {!isNotice ? (
-        <fieldset className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
-          <legend className="sr-only">상담 유형 및 기본 정보</legend>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-md bg-[#EAE6DF] p-1">
-            {INQUIRY_TYPES.map((t) => {
-              const active = inquiryType === t;
-              return (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => {
-                    setInquiryType(t);
-                    setPendingConflicts(null);
-                  }}
-                  aria-pressed={active}
-                  className={`h-9 rounded px-2 text-[12px] sm:text-[12.5px] font-bold transition-all ${
-                    active
-                      ? "bg-[#0E1A2B] text-white shadow-2xs"
-                      : "bg-white/60 text-[#4B5260] hover:bg-white hover:text-[#0E1A2B]"
-                  }`}
-                >
-                  {t === "내 물건 팔기" ? "내 물건 팔기(매입)" : t}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
-            <div>
-              <label htmlFor="uf-name" className="hb-label text-[12px]">
-                성함 / 상호명 <span className="text-[#D9531E]">*</span>
-              </label>
-              <input
-                id="uf-name"
-                type="text"
-                autoComplete="name"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (fieldErrors.name)
-                    setFieldErrors((p) => ({ ...p, name: "" }));
-                }}
-                placeholder="홍길동 / 한밭식당"
-                className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
-                  fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
-                }`}
-              />
-            </div>
-
-            <div>
-              <label htmlFor="uf-phone" className="hb-label text-[12px]">
-                연락처 <span className="text-[#D9531E]">*</span>
-              </label>
-              <input
-                id="uf-phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel"
-                value={phone}
-                onChange={(e) => {
-                  setPhone(formatPhone(e.target.value));
-                  if (fieldErrors.phone)
-                    setFieldErrors((p) => ({ ...p, phone: "" }));
-                }}
-                placeholder="010-0000-0000"
-                className={`hb-input mt-1 py-2 text-[13.5px] bg-white tabular-nums ${
-                  fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
-                }`}
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="uf-pw" className="hb-label text-[12px]">
-                  비밀번호 <span className="text-[#D9531E]">*</span>
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((v) => !v)}
-                  className="text-[11px] font-semibold text-[#6B7280] hover:text-[#0E1A2B]"
-                >
-                  {showPassword ? "숨기기" : "표시"}
-                </button>
-              </div>
-              <input
-                id="uf-pw"
-                type={showPassword ? "text" : "password"}
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (fieldErrors.password)
-                    setFieldErrors((p) => ({ ...p, password: "" }));
-                }}
-                placeholder="내 글 확인용 (4자 이상)"
-                className={`hb-input mt-1 py-2 text-[13.5px] bg-white ${
-                  fieldErrors.password
-                    ? "border-red-500 ring-1 ring-red-500"
-                    : ""
-                }`}
-              />
-            </div>
-          </div>
-        </fieldset>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           <div>
-            <label htmlFor="uf-name" className="hb-label text-[12.5px]">
+            <label htmlFor="uf-name" className="hb-label">
+              성함 / 상호명 <span className="text-[#D9531E]">*</span>
+            </label>
+            <input
+              id="uf-name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                if (fieldErrors.name)
+                  setFieldErrors((p) => ({ ...p, name: "" }));
+              }}
+              placeholder="홍길동 / 한밭식당"
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-medium ${
+                fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="uf-phone" className="hb-label">
+              연락처 <span className="text-[#D9531E]">*</span>
+            </label>
+            <input
+              id="uf-phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              value={phone}
+              onChange={(e) => {
+                setPhone(formatPhone(e.target.value));
+                if (fieldErrors.phone)
+                  setFieldErrors((p) => ({ ...p, phone: "" }));
+              }}
+              placeholder="010-0000-0000"
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold tabular-nums ${
+                fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
+              }`}
+            />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="uf-pw" className="hb-label">
+                비밀번호 <span className="text-[#D9531E]">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="text-[12.5px] font-bold text-[#667085] hover:text-[#0E1A2B]"
+              >
+                {showPassword ? "숨기기" : "표시"}
+              </button>
+            </div>
+            <input
+              id="uf-pw"
+              type={showPassword ? "text" : "password"}
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                if (fieldErrors.password)
+                  setFieldErrors((p) => ({ ...p, password: "" }));
+              }}
+              placeholder="답변 확인용 (4자 이상)"
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] ${
+                fieldErrors.password
+                  ? "border-red-500 ring-1 ring-red-500"
+                  : ""
+              }`}
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="uf-name" className="hb-label">
               작성자명
             </label>
             <input
@@ -16346,11 +16780,11 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1 py-2"
+              className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
             />
           </div>
           <div>
-            <label htmlFor="uf-phone" className="hb-label text-[12.5px]">
+            <label htmlFor="uf-phone" className="hb-label">
               연락처 표시
             </label>
             <input
@@ -16359,27 +16793,24 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1 py-2"
+              className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
             />
           </div>
         </div>
       )}
 
-      {/* 2. 중단 핵심 블록: 사진 첨부(최대 3장) + 상담 유형별 AI 일괄 분석 + 맞춤형 입력란 */}
-      <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-3.5">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#F0EDE7]">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-sm bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-[#FF8A50]">
-              ✨ {inquiryType} AI 맞춤 분석
-            </span>
-            <span className="text-[13px] font-bold text-[#0E1A2B]">
-              사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
+      {/* 4. 사진 첨부(최대 3장) 및 사진 판독 자동입력 */}
+      <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-3.5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-[#FF8A50]">
+              📷 사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장)
             </span>
             {!isNotice && !isOther && (
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[11.5px] font-semibold text-[#D9531E] underline underline-offset-2"
+                className="text-[13px] font-bold text-[#D9531E] underline underline-offset-2"
               >
                 {showPhotoGuide ? "촬영 팁 닫기 ▲" : "권장 촬영 팁 ▾"}
               </button>
@@ -16391,29 +16822,29 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={handleRunGeminiAnalysis}
               disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3.5 py-2 text-[12.5px] font-bold transition-all shadow-2xs ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-[13.5px] font-extrabold transition-all ${
                 selectedFiles.length > 0
-                  ? "bg-[#D9531E] text-white hover:bg-[#BF4715] ring-2 ring-[#D9531E]/25"
-                  : "bg-[#F2F0EC] text-[#8A8478] cursor-not-allowed"
+                  ? "bg-[#D9531E] text-white hover:bg-[#BF4715] shadow-2xs"
+                  : "bg-[#EAE6DF] text-[#858076] cursor-not-allowed"
               }`}
             >
               <span>
                 {isAnalyzingPhotos
-                  ? "제미나이 AI 분석 중..."
+                  ? "사진 판독 중..."
                   : selectedFiles.length > 0
-                  ? `✨ 사진 ${selectedFiles.length}장 AI 자동입력 확인`
-                  : "사진 첨부 후 AI 자동입력"}
+                  ? `사진 ${selectedFiles.length}장으로 품목·모델명 자동입력`
+                  : "사진 첨부 시 품목 자동입력"}
               </span>
             </button>
           )}
         </div>
 
         {/* 사진 썸네일 + 추가 버튼 */}
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-3">
           {filePreviews.map((preview, idx) => (
             <div
               key={preview}
-              className="relative h-14 w-14 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6] shrink-0"
+              className="relative h-16 w-16 overflow-hidden rounded-lg border border-[#DDD9D1] bg-white shrink-0"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -16421,23 +16852,23 @@ export function UnifiedInquiryForm({
                 alt={`첨부 사진 ${idx + 1}`}
                 className="h-full w-full object-cover"
               />
-              <span className="absolute left-0.5 bottom-0.5 rounded bg-black/65 px-1 text-[9px] font-bold text-white">
+              <span className="absolute left-1 bottom-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-white">
                 #{idx + 1}
               </span>
               <button
                 type="button"
                 onClick={() => handleRemoveFile(idx)}
                 aria-label="첨부 사진 삭제"
-                className="absolute right-0.5 top-0.5 grid h-4.5 w-4.5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
+                className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600"
               >
-                <Icon d={ICON.close} className="h-2.5 w-2.5" />
+                <Icon d={ICON.close} className="h-3 w-3" />
               </button>
             </div>
           ))}
 
           {selectedFiles.length < MAX_PHOTOS && (
-            <label className="flex h-14 w-20 cursor-pointer flex-col items-center justify-center gap-0.5 rounded border border-dashed border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-bold text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors shrink-0">
-              <Icon d={ICON.camera} className="h-4 w-4 text-[#D9531E]" />
+            <label className="flex h-16 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-[#CFCAC0] bg-white text-[13px] font-extrabold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors shrink-0">
+              <Icon d={ICON.camera} className="h-5 w-5 text-[#D9531E]" />
               <span>+ 사진 추가</span>
               <input
                 type="file"
@@ -16449,19 +16880,19 @@ export function UnifiedInquiryForm({
             </label>
           )}
 
-          <p className="text-[11.5px] text-[#6B7280] leading-snug flex-1 min-w-[180px]">
+          <p className="text-[13.5px] font-medium text-[#434B59] leading-snug flex-1 min-w-[200px]">
             {selectedFiles.length === 0
-              ? "사진(1~3장)을 올리고 우측 [AI 자동입력 확인]을 누르면 상담 유형에 맞춰 초안을 작성합니다. (사진 없이 직접 입력도 가능)"
-              : "추가할 사진을 모두 넣으셨다면 우측 [✨ AI 자동입력 확인] 버튼을 눌러주세요."}
+              ? "제품 전면·모델명 스티커 사진을 올리시면 더 정확한 견적을 안내해 드립니다. (사진 없이 접수 가능)"
+              : "우측 [품목·모델명 자동입력] 버튼을 누르면 사진 속 모델명과 품목을 자동으로 읽어옵니다."}
           </p>
         </div>
 
         {/* 접이식 3컷 촬영 가이드 */}
         {!isNotice && !isOther && showPhotoGuide && (
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 rounded bg-[#FAF9F7] p-2.5 border border-[#E4E0D8] text-[11.5px]">
+          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-xl bg-white p-3.5 border border-[#E4E0D8] text-[13px]">
             {photoGuideSteps.map((g) => (
-              <li key={g.step} className="flex items-start gap-1.5">
-                <span className="shrink-0 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+              <li key={g.step} className="flex items-start gap-2">
+                <span className="shrink-0 rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white">
                   컷 {g.step}
                 </span>
                 <div>
@@ -16475,37 +16906,37 @@ export function UnifiedInquiryForm({
           </ol>
         )}
 
-        {/* AI 분석 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
+        {/* 사진 판독 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
         {aiResult && (
-          <div className="rounded border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3 space-y-2.5 text-[12px]">
+          <div className="rounded-xl border border-[#0E1A2B]/20 bg-white p-4 space-y-3 text-[13.5px]">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-[#0E1A2B]">
                 ✅ {aiResult.summaryNote}
               </span>
-              <span className="text-[11px] text-[#6B7280]">
-                제출 전 아래 입력란에서 자유롭게 수정 가능
+              <span className="text-[12px] text-[#667085]">
+                아래 입력칸에서 바로 수정하실 수 있습니다
               </span>
             </div>
 
             {pendingConflicts && (
-              <div className="rounded border border-amber-300 bg-amber-50 p-2.5 space-y-2 text-amber-950">
+              <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2.5 text-amber-950">
                 <div className="flex items-center justify-between">
-                  <strong className="text-[11.5px]">
-                    ⚠️ 먼저 입력해 두신 내용을 보호하기 위해 자동 덮어쓰기를 건너뛰었습니다.
+                  <strong className="text-[13px]">
+                    ⚠️ 먼저 입력해 두신 내용을 보호하기 위해 덮어쓰지 않았습니다.
                   </strong>
                   <button
                     type="button"
                     onClick={() => setPendingConflicts(null)}
-                    className="text-[11px] underline"
+                    className="text-[12px] font-bold underline"
                   >
                     닫기
                   </button>
                 </div>
 
                 {pendingConflicts.title && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
                     <span className="truncate">
-                      AI 제안 제목: <strong>{pendingConflicts.title}</strong>
+                      판독된 제목: <strong>{pendingConflicts.title}</strong>
                     </span>
                     <button
                       type="button"
@@ -16515,7 +16946,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, title: undefined } : null
                         );
                       }}
-                      className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                      className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
                     >
                       이 제목 적용
                     </button>
@@ -16523,9 +16954,9 @@ export function UnifiedInquiryForm({
                 )}
 
                 {pendingConflicts.model && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
                     <span>
-                      AI 판독 모델명:{" "}
+                      판독된 모델명:{" "}
                       <strong className="font-mono">
                         {pendingConflicts.model}
                       </strong>
@@ -16538,7 +16969,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, model: undefined } : null
                         );
                       }}
-                      className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                      className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
                     >
                       이 모델명 적용
                     </button>
@@ -16546,9 +16977,9 @@ export function UnifiedInquiryForm({
                 )}
 
                 {pendingConflicts.description && (
-                  <div className="flex flex-wrap items-center justify-between gap-2 rounded bg-white px-2.5 py-1.5 border border-amber-200">
-                    <span>AI가 작성한 상세 문의 초안이 준비되었습니다.</span>
-                    <div className="flex gap-1.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 border border-amber-200">
+                    <span>사진에서 확인된 품목 요약 내용이 있습니다.</span>
+                    <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => {
@@ -16560,7 +16991,7 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded border border-[#0E1A2B] bg-white px-2 py-0.5 text-[11px] font-bold text-[#0E1A2B]"
+                        className="rounded-md border border-[#0E1A2B] bg-white px-3 py-1 text-[12px] font-bold text-[#0E1A2B]"
                       >
                         내 글 아래에 추가
                       </button>
@@ -16572,9 +17003,9 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white"
+                        className="rounded-md bg-[#0E1A2B] px-3 py-1 text-[12px] font-bold text-white"
                       >
-                        AI 초안으로 교체
+                        이 내용으로 교체
                       </button>
                     </div>
                   </div>
@@ -16583,34 +17014,31 @@ export function UnifiedInquiryForm({
             )}
 
             {aiResult.extractedFacts.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {aiResult.extractedFacts.map((fact, idx) => (
                   <span
                     key={fact.label + idx}
-                    className="inline-flex items-center gap-1 rounded border border-[#E4E0D8] bg-white px-2 py-0.5 text-[11px]"
+                    className="inline-flex items-center gap-1 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-2.5 py-1 text-[12.5px]"
                   >
                     <strong className="text-[#0E1A2B]">{fact.label}:</strong>
                     <span className="text-[#4B5260]">{fact.value}</span>
-                    <span className="text-[10px] text-[#8A8478]">
-                      ({fact.source} · {fact.status})
-                    </span>
                   </span>
                 ))}
               </div>
             )}
 
             {aiResult.followUpQuestions.length > 0 && (
-              <div className="space-y-1 pt-0.5">
-                <span className="block text-[11px] font-bold text-[#B5431A]">
-                  💬 사진만으로 알 수 없는 정보입니다 (클릭 시 본문에 답변 줄 추가):
+              <div className="space-y-1.5 pt-1">
+                <span className="block text-[12.5px] font-bold text-[#B5431A]">
+                  💬 추가 확인 항목 (누르면 아래 본문에 입력 줄이 추가됩니다):
                 </span>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {aiResult.followUpQuestions.map((q, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => appendFollowUpQuestionLine(q)}
-                      className="rounded border border-[#FADCD0] bg-[#FFF5F0] px-2 py-1 text-left text-[11px] font-semibold text-[#B5431A] hover:bg-[#FADCD0]/60"
+                      className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-3 py-1.5 text-left text-[12.5px] font-bold text-[#B5431A] hover:bg-[#FADCD0]/60"
                     >
                       + {q}
                     </button>
@@ -16620,40 +17048,40 @@ export function UnifiedInquiryForm({
             )}
           </div>
         )}
+      </div>
 
+      {/* 5. 상담 유형별 맞춤 입력란 (높이 52px~56px, 글자 16px) */}
+      <div className="space-y-4">
         {/* [대량·업소용 상담] 전용 구조화 입력 블록 */}
         {!isNotice && isBulk && (
-          <div className="rounded-md border border-[#0E1A2B]/15 bg-[#FAF9F7] p-3 space-y-3">
+          <div className="rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
-              <strong className="text-[12.5px] font-bold text-[#0E1A2B]">
-                🏢 업소용·대량 상담 맞춤 정보 (모르시는 항목은 비워두셔도 됩니다)
+              <strong className="text-[15px] font-extrabold text-[#0E1A2B]">
+                🏢 업소용·창업 설비 체크 사항 (아는 항목만 적어주세요)
               </strong>
-              <span className="text-[11px] text-[#6B7280]">
-                사진 속 대수와 실제 희망 수량을 구분하여 적어주세요
-              </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               <div>
-                <label className="hb-label text-[11.5px]">
-                  업종 / 사용 목적 (선택)
+                <label className="hb-label">
+                  업종 / 용도 (선택)
                 </label>
                 <input
                   type="text"
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
-                  placeholder="예: 식당 창업, 카페, 폐업정리"
-                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                  placeholder="예: 식당 오픈, 카페, 폐업정리"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
                 />
               </div>
               <div>
-                <label className="hb-label text-[11.5px]">
+                <label className="hb-label">
                   매장 전기 규격 (선택)
                 </label>
                 <select
                   value={electricalPhase}
                   onChange={(e) => setElectricalPhase(e.target.value)}
-                  className="hb-input mt-1 py-1.5 text-[12.5px] font-semibold bg-white"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
                 >
                   <option value="모름/미확인">모름 (상담/현장 확인)</option>
                   <option value="단상 220V">단상 220V (일반 상가)</option>
@@ -16661,16 +17089,16 @@ export function UnifiedInquiryForm({
                 </select>
               </div>
               <div>
-                <label className="hb-label text-[11.5px]">
+                <label className="hb-label">
                   승압 필요 여부 (선택)
                 </label>
                 <select
                   value={voltageUpgrade}
                   onChange={(e) => setVoltageUpgrade(e.target.value)}
-                  className="hb-input mt-1 py-1.5 text-[12.5px] font-semibold bg-white"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
                 >
                   <option value="모름·현장 확인 필요">
-                    모름 (장비 사양·현장 확인 필요)
+                    모름 (현장 확인 필요)
                   </option>
                   <option value="불필요">불필요 (기존 전력 충분)</option>
                   <option value="필요">필요 (승압 예정/상담 희망)</option>
@@ -16678,21 +17106,21 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            <div className="space-y-1.5">
+            <div className="space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="hb-label text-[11.5px]">
-                  필요 장비 종류 및 구매/처분 희망 수량
+                <span className="hb-label">
+                  필요 장비 종류 및 희망 수량
                 </span>
                 <button
                   type="button"
                   onClick={() => addBulkEquipmentRow("")}
-                  className="text-[11.5px] font-bold text-[#D9531E] underline"
+                  className="text-[13.5px] font-extrabold text-[#D9531E] underline"
                 >
                   + 장비 줄 추가
                 </button>
               </div>
 
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1.5">
                 {QUICK_BULK_EQUIPMENT_PRESETS.map((preset) => (
                   <button
                     key={preset}
@@ -16711,18 +17139,18 @@ export function UnifiedInquiryForm({
                         addBulkEquipmentRow(preset);
                       }
                     }}
-                    className="rounded border border-[#DDD9D1] bg-white px-2 py-0.5 text-[11px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                    className="rounded-lg border border-[#D7D2C8] bg-white px-3 py-1.5 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                   >
                     + {preset}
                   </button>
                 ))}
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 {bulkItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-1.5 items-center bg-white p-1.5 rounded border border-[#E4E0D8]"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E4E0D8]"
                   >
                     <div className="sm:col-span-5">
                       <input
@@ -16732,7 +17160,7 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "category", e.target.value)
                         }
                         placeholder={`품목 ${idx + 1} (예: 45박스 냉장고, 제빙기)`}
-                        className="hb-input py-1 text-[12.5px]"
+                        className="hb-input h-[48px] text-[15px]"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -16746,8 +17174,8 @@ export function UnifiedInquiryForm({
                             e.target.value
                           )
                         }
-                        placeholder="희망 수량 (예: 1대 / 미확인)"
-                        className="hb-input py-1 text-[12.5px]"
+                        placeholder="희망 수량 (예: 1대)"
+                        className="hb-input h-[48px] text-[15px]"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -16758,14 +17186,14 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "modelNumber", e.target.value)
                         }
                         placeholder="모델·규격 (선택)"
-                        className="hb-input py-1 text-[12px] font-mono"
+                        className="hb-input h-[48px] text-[14.5px] font-mono"
                       />
                     </div>
                     <div className="sm:col-span-1 text-right">
                       <button
                         type="button"
                         onClick={() => removeBulkItem(item.id)}
-                        className="text-[11.5px] font-bold text-red-600 px-1.5 py-0.5"
+                        className="text-[13px] font-bold text-red-600 px-2 py-1"
                       >
                         삭제
                       </button>
@@ -16775,29 +17203,29 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="hb-label text-[11.5px]">
-                  설치 공간 · 급배수 · 가스 · 환기 메모 (선택)
+                <label className="hb-label">
+                  설치 공간 · 급배수 · 가스 메모 (선택)
                 </label>
                 <input
                   type="text"
                   value={spaceAndUtilities}
                   onChange={(e) => setSpaceAndUtilities(e.target.value)}
                   placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
-                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
                 />
               </div>
               <div>
-                <label className="hb-label text-[11.5px]">
-                  반입 동선(문폭·층수) 및 기존 기기 철거 여부 (선택)
+                <label className="hb-label">
+                  반입 동선(층수) 및 기존 기기 철거 여부 (선택)
                 </label>
                 <input
                   type="text"
                   value={accessAndRemoval}
                   onChange={(e) => setAccessAndRemoval(e.target.value)}
-                  placeholder="예: 1층 양개문 진입 가능, 기존 냉장고 1대 철거 희망"
-                  className="hb-input mt-1 py-1.5 text-[12.5px] bg-white"
+                  placeholder="예: 1층 진입 가능, 기존 냉장고 1대 철거 희망"
+                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
                 />
               </div>
             </div>
@@ -16806,11 +17234,11 @@ export function UnifiedInquiryForm({
 
         {/* [내 물건 팔기(매입)] 전용 확인 블록 */}
         {!isNotice && isSell && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4">
             <div>
-              <label htmlFor="uf-mfg" className="hb-label text-[12px]">
+              <label htmlFor="uf-mfg" className="hb-label">
                 제조년월 / 연식{" "}
-                <span className="font-normal text-[#6B7280]">(확인 시)</span>
+                <span className="font-normal text-[#667085]">(선택)</span>
               </label>
               <input
                 id="uf-mfg"
@@ -16818,19 +17246,19 @@ export function UnifiedInquiryForm({
                 value={manufacturingDate}
                 onChange={(e) => setManufacturingDate(e.target.value)}
                 placeholder="예: 2022년식 / 미확인"
-                className="hb-input mt-1 py-1.5 text-[13px] bg-white"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
               />
             </div>
 
             <div>
-              <label htmlFor="uf-op" className="hb-label text-[12px]">
-                실제 작동 상태 확인
+              <label htmlFor="uf-op" className="hb-label">
+                작동 상태
               </label>
               <select
                 id="uf-op"
                 value={operatingStatus}
                 onChange={(e) => setOperatingStatus(e.target.value)}
-                className="hb-input mt-1 py-1.5 text-[13px] font-semibold bg-white"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
               >
                 <option value="작동 상태 미확인 (상담 시 안내)">
                   작동 상태 미확인 (상담 시 안내)
@@ -16845,17 +17273,17 @@ export function UnifiedInquiryForm({
             </div>
 
             <div>
-              <label htmlFor="uf-grade" className="hb-label text-[12px]">
-                외관 상태 선택{" "}
-                <span className="font-normal text-[#6B7280]">(선택)</span>
+              <label htmlFor="uf-grade" className="hb-label">
+                외관 상태{" "}
+                <span className="font-normal text-[#667085]">(선택)</span>
               </label>
               <select
                 id="uf-grade"
                 value={conditionGrade}
                 onChange={(e) => setConditionGrade(e.target.value)}
-                className="hb-input mt-1 py-1.5 text-[13px] font-semibold bg-white"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
               >
-                <option value="">미선택 (사진/현장 확인 후 결정)</option>
+                <option value="">미선택 (사진/현장 확인)</option>
                 {PRODUCT_CONDITION_GRADES.map((g) => (
                   <option key={g} value={g}>
                     {g}
@@ -16866,18 +17294,18 @@ export function UnifiedInquiryForm({
           </div>
         )}
 
-        {/* 공통 품목/지역/일정 입력 */}
+        {/* 공통 품목/지역/일정 입력 (높이 52px~56px, 글자 16px) */}
         {!isNotice && !isOther && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
             <div>
-              <label htmlFor="uf-cat" className="hb-label text-[12px]">
+              <label htmlFor="uf-cat" className="hb-label">
                 제품 종류
               </label>
               <select
                 id="uf-cat"
                 value={applianceCategory}
                 onChange={(e) => setApplianceCategory(e.target.value)}
-                className="hb-input mt-1 py-2 text-[13px] font-semibold"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
               >
                 {PRODUCT_CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -16888,7 +17316,7 @@ export function UnifiedInquiryForm({
             </div>
 
             <div>
-              <label htmlFor="uf-region" className="hb-label text-[12px]">
+              <label htmlFor="uf-region" className="hb-label">
                 {isSell ? "방문 수거 지역 (동/구까지) *" : "설치/현장 지역 (선택)"}
               </label>
               <input
@@ -16901,14 +17329,14 @@ export function UnifiedInquiryForm({
                     setFieldErrors((p) => ({ ...p, region: "" }));
                 }}
                 placeholder="예: 대전 중구 중촌동"
-                className={`hb-input mt-1 py-2 text-[13px] ${
-                  fieldErrors.region ? "border-red-500" : ""
+                className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] ${
+                  fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
                 }`}
               />
             </div>
 
             <div>
-              <label htmlFor="uf-schedule" className="hb-label text-[12px]">
+              <label htmlFor="uf-schedule" className="hb-label">
                 희망 일정 · 층수(엘리베이터)
               </label>
               <input
@@ -16917,26 +17345,26 @@ export function UnifiedInquiryForm({
                 value={schedule}
                 onChange={(e) => setSchedule(e.target.value)}
                 placeholder="예: 금요일 오후 / 1층 상가"
-                className="hb-input mt-1 py-2 text-[13px]"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
               />
             </div>
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
           <div
             className={
               isNotice || isOther ? "sm:col-span-3" : "sm:col-span-2"
             }
           >
-            <label htmlFor="uf-title" className="hb-label text-[12px]">
+            <label htmlFor="uf-title" className="hb-label">
               {isNotice
                 ? "공지 제목 *"
                 : isSell
                 ? "매입 신청 품목 / 제목 *"
                 : isBulk
-                ? "대량·업소용 상담 제목 *"
-                : "문의 제목 *"}
+                ? "업소용·창업 상담 제목 *"
+                : "문의 품목 / 제목 *"}
             </label>
             <input
               id="uf-title"
@@ -16951,12 +17379,12 @@ export function UnifiedInquiryForm({
                 isSell
                   ? "예: 삼성 양문형 냉장고 방문 매입 견적 문의"
                   : isBulk
-                  ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 도입 상담"
+                  ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 견적 문의"
                   : isOther
                   ? "문의하실 제목을 입력해 주세요"
                   : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
               }
-              className={`hb-input mt-1 py-2 text-[13.5px] ${
+              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold ${
                 fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -16964,27 +17392,25 @@ export function UnifiedInquiryForm({
 
           {!isNotice && !isOther && (
             <div>
-              <label htmlFor="uf-model" className="hb-label text-[12px]">
+              <label htmlFor="uf-model" className="hb-label">
                 모델명{" "}
-                <span className="font-normal text-[#6B7280]">(선택/AI판독)</span>
+                <span className="font-normal text-[#667085]">(선택)</span>
               </label>
               <input
                 id="uf-model"
                 type="text"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                placeholder="명판 확인 시 입력"
-                className="hb-input mt-1 py-2 font-mono text-[13px]"
+                placeholder="스티커 모델명 확인 시 입력"
+                className="hb-input mt-1.5 h-[52px] sm:h-[56px] font-mono text-[15.5px]"
               />
             </div>
           )}
         </div>
 
         <div>
-          <label htmlFor="uf-desc" className="hb-label text-[12px]">
-            {isNotice
-              ? "공지 본문 내용 *"
-              : "상세 문의 내용 (AI 초안 또는 패키지 양식을 자유롭게 수정하실 수 있습니다) *"}
+          <label htmlFor="uf-desc" className="hb-label">
+            {isNotice ? "공지 본문 내용 *" : "상세 문의 내용 *"}
           </label>
           <textarea
             id="uf-desc"
@@ -17002,7 +17428,7 @@ export function UnifiedInquiryForm({
                 ? "예: 대전 서구 둔산동 1층 식당 오픈 준비 중입니다. 중고 업소용 냉장고와 제빙기 세트 견적 부탁드립니다."
                 : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
             }
-            className={`hb-input mt-1 py-2 text-[13.5px] resize-y leading-relaxed ${
+            className={`hb-input mt-1.5 py-3.5 text-[16px] resize-y leading-relaxed ${
               fieldErrors.description
                 ? "border-red-500 ring-1 ring-red-500"
                 : ""
@@ -17011,10 +17437,10 @@ export function UnifiedInquiryForm({
         </div>
       </div>
 
-      {/* 3. 하단 개인정보 동의 및 제출 버튼 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-[#E4E0D8]">
-        {!isNotice ? (
-          <label className="flex cursor-pointer items-center gap-2 text-[12.5px] text-[#4B5260]">
+      {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}
+      <div className="pt-4 border-t border-[#E4E0D8] space-y-4">
+        {!isNotice && (
+          <label className="flex cursor-pointer items-center gap-2.5 text-[14.5px] sm:text-[15px] text-[#434B59]">
             <input
               type="checkbox"
               checked={agreed}
@@ -17023,25 +17449,23 @@ export function UnifiedInquiryForm({
                 if (fieldErrors.agreed)
                   setFieldErrors((p) => ({ ...p, agreed: "" }));
               }}
-              className="h-4 w-4 shrink-0 accent-[#0E1A2B]"
+              className="h-5 w-5 shrink-0 accent-[#0E1A2B]"
             />
             <span>
               상담·견적 안내를 위한{" "}
               <Link
                 href="/privacy"
                 target="_blank"
-                className="font-bold text-[#0E1A2B] underline underline-offset-2"
+                className="font-extrabold text-[#0E1A2B] underline underline-offset-2"
               >
                 개인정보 수집·이용
               </Link>
               에 동의합니다. <span className="text-[#D9531E]">*</span>
             </span>
           </label>
-        ) : (
-          <div />
         )}
 
-        <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
+        <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
           {!isNotice && (
             <a
               href={smsHref(STORE.mobile, smsBodyDraft)}
@@ -17051,10 +17475,10 @@ export function UnifiedInquiryForm({
                   inquiry_type: inquiryType,
                 })
               }
-              className="hb-btn-outline h-11 px-4 text-[13px] w-full sm:w-auto"
+              className="hb-btn-outline h-14 sm:h-[60px] px-5 text-[17px] sm:text-[18px] font-extrabold sm:col-span-5 whitespace-nowrap"
             >
-              <Icon d={ICON.chat} className="h-4 w-4 text-[#D9531E]" />
-              <span>✉️ 문자로 사진 보내기</span>
+              <Icon d={ICON.chat} className="h-5 w-5 text-[#D9531E]" />
+              <span>문자로 사진 보내기</span>
             </a>
           )}
           {onCancel && (
@@ -17062,7 +17486,7 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={onCancel}
               disabled={isBusy}
-              className="hb-btn-outline h-11 px-5 text-[13.5px]"
+              className="hb-btn-outline h-14 sm:h-[60px] px-6 text-[17px] font-extrabold sm:col-span-3"
             >
               취소
             </button>
@@ -17072,21 +17496,31 @@ export function UnifiedInquiryForm({
             disabled={isBusy}
             className={`${
               isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
-            } h-11 px-7 text-[14px] w-full sm:w-auto whitespace-nowrap`}
+            } h-14 sm:h-[60px] px-7 text-[17px] sm:text-[18px] font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
+              isNotice
+                ? onCancel
+                  ? "sm:col-span-9"
+                  : "sm:col-span-12"
+                : onCancel
+                ? "sm:col-span-4"
+                : "sm:col-span-7"
+            }`}
           >
             {phase === "validating"
-              ? "확인 중..."
+              ? "입력 확인 중..."
               : phase === "submitting"
-              ? "안전하게 접수 중..."
+              ? "접수 중..."
               : phase === "retrying"
               ? "재시도 중..."
               : isNotice
               ? "공지사항 등록하기"
               : isSell
               ? "무료 매입 견적 신청하기"
+              : isBulk
+              ? "업소용·창업 상담 신청하기"
               : bundleApplied
-              ? "묶음 견적 문의 접수하기"
-              : `${inquiryType} 접수하기`}
+              ? "묶음 견적 신청하기"
+              : "구매 상담 신청하기"}
           </button>
         </div>
       </div>
@@ -17094,20 +17528,20 @@ export function UnifiedInquiryForm({
       {phase === "error" && submitErrorMsg && (
         <div
           role="alert"
-          className="rounded-md border border-red-200 bg-red-50 p-3.5 text-[12.5px] text-red-800 flex flex-wrap items-center justify-between gap-2"
+          className="rounded-xl border border-red-200 bg-red-50 p-4 text-[14px] text-red-800 flex flex-wrap items-center justify-between gap-2"
         >
           <span className="font-bold">{submitErrorMsg}</span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => executeSubmit(true)}
-              className="rounded bg-red-600 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-red-700"
+              className="rounded-lg bg-red-600 px-3.5 py-2 text-[13px] font-bold text-white hover:bg-red-700"
             >
               그대로 재시도
             </button>
             <a
               href={smsHref(STORE.mobile, smsBodyDraft)}
-              className="rounded border border-red-300 bg-white px-3 py-1.5 text-[12px] font-bold text-red-700"
+              className="rounded-lg border border-red-300 bg-white px-3.5 py-2 text-[13px] font-bold text-red-700"
             >
               문자({STORE.mobile}) 문의
             </a>
@@ -19575,7 +20009,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1218">
+    <file path="lib/ui.tsx" lines="1385">
       <![CDATA[
 "use client";
 
@@ -20328,6 +20762,172 @@ export function QuoteBasketFloatingBar() {
 }
 
 /* ════════════════════════════════════════════════════════════
+   6-2. 아정당 스타일 우측 플로팅 퀵 상담 윙 (FloatingQuickWing)
+   ════════════════════════════════════════════════════════════ */
+export function FloatingQuickWing() {
+  const [isOpen, setIsOpen] = useState(true);
+
+  const handleInquiryClick = (type: string) => {
+    trackEvent("begin_buyback_inquiry", {
+      category: type,
+      location: "floating_quick_wing",
+    });
+
+    if (typeof window !== "undefined") {
+      const el = document.getElementById("inquiry-section");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+        return;
+      }
+      window.location.href = `/inquiry?write=1&type=${encodeURIComponent(type)}`;
+    }
+  };
+
+  return (
+    <aside
+      aria-label="빠른 상담 바로가기"
+      className={`fixed right-0 top-1/2 -translate-y-1/2 z-40 hidden lg:flex flex-col items-end transition-transform duration-300 ease-out select-none ${
+        isOpen ? "translate-x-0" : "translate-x-full"
+      }`}
+    >
+      {/* 접기 / 펼치기 토글 탭 버튼 (패널 좌측 바깥에 항상 부착) */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-label={isOpen ? "상담 퀵메뉴 접기" : "상담 퀵메뉴 열기"}
+        title={isOpen ? "상담창 접기" : "상담창 열기"}
+        className="absolute -left-9 top-1/2 -translate-y-1/2 flex flex-col items-center justify-center py-3 px-1.5 rounded-l-xl border-y border-l border-[#CBD5E1] bg-white text-[#0E1A2B] shadow-[-4px_2px_12px_rgba(14,26,43,0.1)] hover:bg-[#FAF9F7] transition-colors cursor-pointer"
+      >
+        <span className="text-[13px] font-extrabold text-[#D9531E] leading-none mb-1">
+          {isOpen ? "›" : "‹"}
+        </span>
+        <span className="text-[11px] font-extrabold text-[#0E1A2B] [writing-mode:vertical-lr] tracking-widest">
+          상담하기
+        </span>
+      </button>
+
+      {/* 본체 카드 (아정당 스타일 플로팅 윙) */}
+      <div className="w-[184px] rounded-l-2xl border-y border-l border-[#CBD5E1] bg-white p-3.5 shadow-[-8px_6px_28px_rgba(14,26,43,0.12)] space-y-2.5">
+        {/* 상단 헤더 */}
+        <div className="flex items-center justify-between px-1 pt-0.5">
+          <div className="flex items-center gap-1.5">
+            <span
+              className="inline-block h-2 w-2 rounded-full bg-[#10B981] animate-pulse"
+              aria-hidden="true"
+            />
+            <strong className="text-[15px] font-extrabold text-[#0E1A2B] tracking-tight">
+              상담하기
+            </strong>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            className="text-[12px] font-bold text-[#8A8478] hover:text-[#0E1A2B] cursor-pointer"
+            aria-label="닫기"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* 1. 비밀 혜택 1초 견적 (연하늘색 버튼) */}
+        <button
+          type="button"
+          onClick={() => handleInquiryClick("내 물건 팔기")}
+          className="group flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#EEF4FF] hover:bg-[#DBEAFE] py-2.5 px-3 text-[13px] font-extrabold text-[#1D4ED8] transition-colors border border-[#BFDBFE] cursor-pointer"
+        >
+          <span className="inline-flex h-4.5 w-4.5 items-center justify-center rounded-full bg-[#1D4ED8] text-[10px] font-black text-white">
+            ₩
+          </span>
+          <span className="tracking-tight">1초 맞춤 견적</span>
+        </button>
+
+        {/* 2. 실시간 카톡상담 (카카오 옐로우 버튼) */}
+        <a
+          href={STORE.kakaoChat}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() =>
+            trackEvent("click_kakao_consult", { location: "floating_quick_wing" })
+          }
+          className="group flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#FEE500] hover:bg-[#FADA0A] py-2.5 px-3 text-[13px] font-extrabold text-[#191600] transition-colors shadow-2xs cursor-pointer"
+        >
+          <svg
+            className="w-4 h-4 shrink-0 fill-current"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path d="M12 3c-5.5 0-10 3.6-10 8 0 2.8 1.8 5.2 4.6 6.6l-.9 3.4c-.1.3.2.6.5.4l4.2-2.8c.5.1 1.1.1 1.6.1 5.5 0 10-3.6 10-8s-4.5-7.7-10-7.7z" />
+          </svg>
+          <span className="tracking-tight">실시간 카톡상담</span>
+        </a>
+
+        {/* 3. 맞춤 상담 신청 (밝은 그레이 버튼) */}
+        <button
+          type="button"
+          onClick={() => handleInquiryClick("구매 문의")}
+          className="group flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#F8FAFC] hover:bg-[#EDF2F7] py-2.5 px-3 text-[13px] font-extrabold text-[#0E1A2B] transition-colors border border-[#CBD5E1] cursor-pointer"
+        >
+          <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+          <span className="tracking-tight">맞춤 상담 신청</span>
+        </button>
+
+        {/* 4. 나에게 맞는 상품 찾기 (로얄 블루 / 네이비 버튼) */}
+        <Link
+          href="/gallery"
+          onClick={() =>
+            trackEvent("filter_gallery", { location: "floating_quick_wing" })
+          }
+          className="group flex w-full items-center justify-center gap-1.5 rounded-xl bg-[#0E1A2B] hover:bg-[#1C2D47] py-2.5 px-3 text-[13px] font-extrabold text-white transition-colors shadow-2xs"
+        >
+          <span className="tracking-tight">나에게 맞는 상품 찾기</span>
+        </Link>
+
+        {/* 5. 직통 전화 카드 (아정당 하단 박스 스타일) */}
+        <div className="rounded-xl bg-[#F0F5FF] border border-[#DBEAFE] p-2.5 text-center space-y-1">
+          <p className="text-[11px] font-bold text-[#4B5260] leading-tight">
+            한밭중고전자 365일
+            <br />
+            <span className="text-[#1D4ED8] font-extrabold">전화상담 환영</span>
+          </p>
+
+          <a
+            href={telHref(STORE.tel)}
+            onClick={() =>
+              trackEvent("click_tel_consult", { location: "floating_quick_wing_tel" })
+            }
+            className="block text-[17.5px] font-extrabold text-[#0E1A2B] hover:text-[#D9531E] tracking-tight tabular-nums transition-colors"
+          >
+            {STORE.tel}
+          </a>
+
+          <a
+            href={telHref(STORE.mobile)}
+            onClick={() =>
+              trackEvent("click_tel_consult", {
+                location: "floating_quick_wing_mobile",
+              })
+            }
+            className="block text-[12px] font-bold text-[#64748B] hover:text-[#0E1A2B] tabular-nums transition-colors"
+          >
+            직통: {STORE.mobile}
+          </a>
+
+          <div className="pt-1">
+            <a
+              href={telHref(STORE.tel)}
+              className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[11px] font-extrabold text-[#D9531E] border border-[#FADCD0] shadow-2xs hover:bg-[#FFF5F0] transition-colors"
+            >
+              <Icon d={ICON.phone} className="w-3 h-3" />
+              <span>전화 바로걸기</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    7. 하단 공통 푸터 (SiteFooter)
    ════════════════════════════════════════════════════════════ */
 export function SiteFooter({
@@ -20340,6 +20940,7 @@ export function SiteFooter({
   return (
     <>
       <QuoteBasketFloatingBar />
+      <FloatingQuickWing />
       <footer className="bg-[#0E1A2B] text-white/80 mt-auto border-t border-[#1C2D47]">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
