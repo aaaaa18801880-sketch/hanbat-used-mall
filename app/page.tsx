@@ -1,7 +1,7 @@
 // 파일 경로: app/page.tsx
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -36,6 +36,7 @@ import {
 } from "../lib/site";
 import { type ProductItem } from "../components/products/product-card";
 import { FeaturedProductsSection } from "../components/home/featured-products-section";
+import { CategoryPictogramBar } from "../components/home/category-pictogram-bar";
 import {
   UnifiedInquiryForm,
   type LinkedProductContext,
@@ -100,54 +101,6 @@ type InquiryRow = {
   is_notice: boolean | null;
   created_at: string;
 };
-
-const CATEGORIES = [
-  {
-    key: "ac",
-    name: "에어컨 · 냉난방기",
-    desc: "벽걸이 · 스탠드 · 천장형 · 중대형 냉난방기",
-    badge: "무상 A/S 8개월",
-    group: "home" as const,
-    gallery: G.aircon,
-    image: "/images/cat-ac.png",
-  },
-  {
-    key: "fridge",
-    name: "냉장고 · 김치냉장고",
-    desc: "양문형 · 4도어 · 일반형 · 스탠드/뚜껑형 김치냉장고",
-    badge: "고압 살균세척",
-    group: "home" as const,
-    gallery: G.fridge,
-    image: "/images/cat-fridge.png",
-  },
-  {
-    key: "washer",
-    name: "세탁기 · 건조기",
-    desc: "통돌이 · 드럼 · 워시타워 · 의류건조기",
-    badge: "작동·누수 검수",
-    group: "home" as const,
-    gallery: G.washer,
-    image: "/images/cat-washer.png",
-  },
-  {
-    key: "bizfridge",
-    name: "업소용 냉장고 · 쇼케이스",
-    desc: "25·30·45박스 · 테이블냉장고 · 음료·주류 쇼케이스",
-    badge: "식당·매장 설비",
-    group: "biz" as const,
-    gallery: G.biz,
-    image: "/images/cat-commercial.png",
-  },
-  {
-    key: "kitchen",
-    name: "제빙기 · 식기세척기 · 주방기기",
-    desc: "카페 제빙기 · 업소용 세척기 · 스텐 작업대 · 싱크대",
-    badge: "창업 필수 장비",
-    group: "biz" as const,
-    gallery: G.biz,
-    image: "/images/cat-kitchen.png",
-  },
-] as const;
 
 const USP = [
   {
@@ -265,7 +218,6 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   /* UI 인터랙션 상태 */
-  const [catFilter, setCatFilter] = useState<"all" | "home" | "biz">("all");
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [showAllReviews, setShowAllReviews] = useState(false);
   const [lightbox, setLightbox] = useState<{
@@ -374,11 +326,6 @@ export default function Home() {
     return () => sub.subscription.unsubscribe();
   }, [loadFeaturedProducts, loadReviews, loadRecent]);
 
-  const visibleCats = useMemo(
-    () =>
-      CATEGORIES.filter((c) => catFilter === "all" || c.group === catFilter),
-    [catFilter]
-  );
   const shownReviews = showAllReviews ? reviews : reviews.slice(0, 6);
 
   const openInquiry = useCallback(
@@ -627,8 +574,8 @@ export default function Home() {
           aria-labelledby="hero-title"
           className="relative w-full border-b border-[#E6E3DC] bg-[#FAF9F7]"
         >
-          <div className="hb-container py-10 sm:py-14 lg:py-20">
-            <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10 xl:gap-12">
+          <div className="hb-container py-7 sm:py-10 lg:py-12">
+            <div className="grid items-center gap-7 lg:grid-cols-12 lg:gap-9 xl:gap-11">
               {/* 좌측: 핵심 헤드라인 + 부연 설명 + 주/보조 행동 버튼 */}
               <div className="lg:col-span-6">
                 <span className="inline-flex items-center gap-2 rounded-full border border-[#E6E3DC] bg-white px-3.5 py-1.5 text-[13px] font-bold text-[#0E1A2B] shadow-2xs">
@@ -643,7 +590,7 @@ export default function Home() {
 
                 <h1
                   id="hero-title"
-                  className="mt-4 sm:mt-5 text-[28px] xs:text-[32px] sm:text-[40px] lg:text-[42px] xl:text-[46px] font-extrabold leading-[1.2] tracking-[-0.032em] text-[#0E1A2B] break-keep"
+                  className="mt-3.5 sm:mt-4 text-[27px] xs:text-[31px] sm:text-[38px] lg:text-[40px] xl:text-[44px] font-extrabold leading-[1.2] tracking-[-0.032em] text-[#0E1A2B] break-keep"
                 >
                   분해 세척과 점검을 마친 가전,{" "}
                   <span className="text-[#D9531E]">
@@ -651,12 +598,12 @@ export default function Home() {
                   </span>
                 </h1>
 
-                <p className="mt-4 max-w-[520px] text-[15.5px] sm:text-[17px] leading-[1.68] text-[#434B59] break-keep">
+                <p className="mt-3.5 max-w-[520px] text-[15px] sm:text-[16.5px] leading-[1.65] text-[#434B59] break-keep">
                   {STORE.since}년부터 대전 중촌동 직영 매장에서 가정용 에어컨·냉장고·세탁기부터 식당·카페 업소용 냉장·주방설비까지 직접 검수해 판매하고, 쓰시던 가전을 방문 매입합니다.
                 </p>
 
                 {/* 주 행동 버튼(판매 제품 보기) & 보조 행동 버튼(가전 매입 신청) */}
-                <div className="mt-7 sm:mt-8 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[440px]">
+                <div className="mt-6 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[440px]">
                   <Link
                     href="/gallery"
                     className="hb-btn-accent flex-1 h-12 sm:h-13 px-6 text-[15px] sm:text-[16px] shadow-card whitespace-nowrap"
@@ -679,7 +626,7 @@ export default function Home() {
                 </div>
 
                 {/* 간결한 핵심 보증 3요소 */}
-                <dl className="mt-8 pt-6 border-t border-[#E6E3DC] grid grid-cols-3 gap-3 sm:gap-5">
+                <dl className="mt-6 pt-5 border-t border-[#E6E3DC] grid grid-cols-3 gap-3 sm:gap-5">
                   <div>
                     <dt className="text-[12px] font-semibold text-[#667085]">
                       직영 운영
@@ -768,6 +715,12 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* ════════════════════════════════════════════════════════════
+            [흐름 1-2] 아정당 스타일 3D 픽토그램 취급 품목 · 주요 서비스 퀵메뉴 바
+            (메인 페이지 진입 즉시 첫 화면에서 모든 품목·서비스를 한눈에 확인)
+            ════════════════════════════════════════════════════════════ */}
+        <CategoryPictogramBar onSelectInquiry={(type) => openInquiry(type)} />
 
         {/* ════════════════════════════════════════════════════════════
             [흐름 2] 주요 서비스 3가지 — 구매 · 매입 · 업소용/대량 상담
@@ -943,132 +896,7 @@ export default function Home() {
         />
 
         {/* ════════════════════════════════════════════════════════════
-            [흐름 4] 제품 카테고리 — 사진 우선 노출 · 배지 중첩 제거
-            ════════════════════════════════════════════════════════════ */}
-        <section
-          id="category-section"
-          className="border-b border-[#E6E3DC] bg-[#F7F6F3] py-14 sm:py-20 lg:py-24"
-          aria-labelledby="cat-title"
-        >
-          <div className="hb-container">
-            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-              <SectionHeading
-                eyebrow="취급 품목 안내"
-                title={<span id="cat-title">품목별 판매 제품 찾아보기</span>}
-                desc="가정용 필수가전부터 식당·카페 업소용 설비까지, 세척과 정비를 마친 실물 매물을 품목별로 확인하세요."
-              />
-              <div className="flex flex-wrap items-center justify-between sm:justify-end gap-3">
-                <div
-                  className="inline-flex rounded-lg border border-[#D7D2C8] bg-white p-1"
-                  role="tablist"
-                  aria-label="카테고리 구분"
-                >
-                  {(
-                    [
-                      { k: "all", l: "전체 (5)" },
-                      { k: "home", l: "가정용 (3)" },
-                      { k: "biz", l: "업소용 (2)" },
-                    ] as const
-                  ).map((f) => (
-                    <button
-                      key={f.k}
-                      type="button"
-                      role="tab"
-                      aria-selected={catFilter === f.k}
-                      onClick={() => setCatFilter(f.k)}
-                      className={`h-9 rounded-md px-3.5 text-[13px] font-bold transition-colors ${
-                        catFilter === f.k
-                          ? "bg-[#0E1A2B] text-white"
-                          : "text-[#434B59] hover:text-[#0E1A2B]"
-                      }`}
-                    >
-                      {f.l}
-                    </button>
-                  ))}
-                </div>
-                <Link
-                  href="/gallery"
-                  className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-[#0E1A2B] underline-offset-4 hover:underline"
-                >
-                  전체 제품 보기 <Icon d={ICON.arrow} className="h-4 w-4" />
-                </Link>
-              </div>
-            </div>
-
-            <ul className="mt-8 sm:mt-10 grid grid-cols-2 gap-3.5 sm:gap-5 md:grid-cols-3 lg:grid-cols-5">
-              {visibleCats.map((c, idx) => {
-                const isLastOddOnMobile =
-                  visibleCats.length % 2 === 1 &&
-                  idx === visibleCats.length - 1;
-                return (
-                  <li
-                    key={c.key}
-                    className={
-                      isLastOddOnMobile
-                        ? "col-span-2 md:col-span-1"
-                        : "col-span-1"
-                    }
-                  >
-                    <Link
-                      href={galleryHref(c.gallery)}
-                      className="group flex flex-col h-full rounded-xl border border-[#E6E3DC] bg-white overflow-hidden shadow-2xs hover:border-[#0E1A2B] hover:shadow-card transition-all duration-200"
-                      aria-label={`${c.name} 제품 보기`}
-                    >
-                      {/* 제품 사진이 가려지지 않도록 상단 배지 중첩 제거 */}
-                      <div
-                        className={`relative overflow-hidden bg-[#F0EDE7] border-b border-[#E6E3DC] ${
-                          isLastOddOnMobile
-                            ? "aspect-[16/9] md:aspect-[4/4]"
-                            : "aspect-[4/4]"
-                        }`}
-                      >
-                        <SafeImg
-                          src={c.image}
-                          alt={`중고 ${c.name} 대표 이미지`}
-                          className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                        />
-                      </div>
-
-                      <div className="flex flex-1 flex-col justify-between p-4">
-                        <div>
-                          <div className="flex items-center justify-between gap-1.5 text-[11.5px] font-bold">
-                            <span
-                              className={
-                                c.group === "home"
-                                  ? "text-[#667085]"
-                                  : "text-[#D9531E]"
-                              }
-                            >
-                              {c.group === "home" ? "가정용 가전" : "업소용 설비"}
-                            </span>
-                            <span className="text-[#0E1A2B]">{c.badge}</span>
-                          </div>
-                          <h3 className="mt-1.5 text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors leading-snug break-keep">
-                            {c.name}
-                          </h3>
-                          <p className="mt-1 line-clamp-2 text-[12.5px] leading-relaxed text-[#667085] break-keep">
-                            {c.desc}
-                          </p>
-                        </div>
-
-                        <div className="mt-3.5 pt-2.5 border-t border-[#F0EDE7] flex items-center justify-between text-[12.5px] font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
-                          <span>매물 확인하기</span>
-                          <Icon
-                            d={ICON.arrow}
-                            className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
-                          />
-                        </div>
-                      </div>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════════
-            [흐름 5] 매장 · 검수 · 배송 · 설치 신뢰 정보 (5대 품질 원칙 + 현장 기록)
+            [흐름 4] 매장 · 검수 · 배송 · 설치 신뢰 정보 (5대 품질 원칙 + 현장 기록)
             ════════════════════════════════════════════════════════════ */}
         <section
           className="border-b border-[#E6E3DC] bg-white py-14 sm:py-20 lg:py-24"
