@@ -5,6 +5,7 @@ import { supabase } from "../../lib/supabase";
 import {
   STORE,
   telHref,
+  smsHref,
   splitImages,
   isProductSold,
   getProductStatusLabel,
@@ -599,7 +600,7 @@ export default async function ProductDetailPage({
                 <div className="grid grid-cols-2 gap-2.5">
                   <a
                     href={telHref(STORE.tel)}
-                    className="hb-btn-primary h-12 text-[13.5px] sm:text-[14px]"
+                    className="hb-btn-primary h-12 text-[14px]"
                   >
                     <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
                     <span>전화 상담</span>
@@ -608,19 +609,33 @@ export default async function ProductDetailPage({
                     href={STORE.kakaoChat}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hb-btn-kakao h-12 text-[13.5px] sm:text-[14px]"
+                    className="hb-btn-kakao h-12 text-[14px]"
                   >
                     <Icon d={ICON.chat} className="h-4 w-4" />
                     <span>카카오톡 문의</span>
                   </a>
                 </div>
-                <Link
-                  href={inquiryHref}
-                  className="hb-btn-outline h-11 w-full text-[13.5px]"
-                >
-                  <Icon d={ICON.pen} className="h-4 w-4 text-[#D9531E]" />
-                  <span>이 상품 온라인 문의글 남기기</span>
-                </Link>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <a
+                    href={smsHref(
+                      STORE.mobile,
+                      `[한밭중고전자 상품문의] ${product.title}${
+                        modelName ? ` (${modelName})` : ""
+                      } 재고 및 배송·설치 견적 문의드립니다.`
+                    )}
+                    className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md border border-[#D9531E] bg-[#FFF5F0] px-3 text-[13px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+                  >
+                    <Icon d={ICON.chat} className="h-4 w-4" />
+                    <span>✉️ 문자({STORE.mobile})로 바로 문의</span>
+                  </a>
+                  <Link
+                    href={inquiryHref}
+                    className="hb-btn-outline h-11 text-[13px]"
+                  >
+                    <Icon d={ICON.pen} className="h-4 w-4 text-[#D9531E]" />
+                    <span>이 상품 온라인 문의글 남기기</span>
+                  </Link>
+                </div>
                 <p className="pt-1 text-center text-[11.5px] font-semibold text-[#6B7280] tabular-nums">
                   매장 직통 <strong className="text-[#0E1A2B]">{STORE.tel}</strong> · 급매/사진전송{" "}
                   <strong className="text-[#0E1A2B]">{STORE.mobile}</strong>

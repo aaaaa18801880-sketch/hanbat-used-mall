@@ -25,6 +25,7 @@ import {
   QUOTE_BASKET_EVENT,
   type QuoteBasketItem,
   removeQuoteBasketItem,
+  smsHref,
   STORAGE_BUCKETS,
   STORE,
   telHref,
@@ -113,6 +114,142 @@ const QUICK_BULK_EQUIPMENT_PRESETS = [
   "스텐 작업대/세정대",
 ] as const;
 
+/**
+ * [신규 기능 ③] 문의 폼 상단 '단골 패키지 1초 자동채움 버튼 4종' 정의
+ */
+interface QuickPackagePreset {
+  id: "oneroom" | "cafe" | "restaurant" | "closure";
+  badge: string;
+  label: string;
+  sub: string;
+  inquiryType: InquiryTypeValue;
+  applianceCategory: string;
+  title: string;
+  businessType?: string;
+  operatingStatus?: string;
+  bulkItems?: Array<{
+    id: string;
+    category: string;
+    requestedQuantity: string;
+    modelNumber: string;
+    specs: string;
+  }>;
+  description: string;
+}
+
+const QUICK_PACKAGE_PRESETS: readonly QuickPackagePreset[] = [
+  {
+    id: "oneroom",
+    badge: "가정·자취 인기",
+    label: "🏡 원룸·자취 3종 세트",
+    sub: "냉장고 + 세탁기 + 벽걸이 에어컨",
+    inquiryType: "구매 문의",
+    applianceCategory: "냉장고",
+    title: "[원룸·자취 알뜰 세트] 냉장고 + 세탁기 + 벽걸이 에어컨 묶음 견적 문의",
+    description: [
+      "• 희망 패키지: 원룸·자취 3종 알뜰 세트 (소형/중형 냉장고 + 세탁기 + 벽걸이 에어컨)",
+      "• 배송·설치 희망 지역 (동 단위): ",
+      "• 설치 층수 및 엘리베이터 유무: ",
+      "• 희망 예산대 또는 선호 용량: ",
+      "• 희망 배송일: ",
+    ].join("\n"),
+  },
+  {
+    id: "cafe",
+    badge: "창업 인기",
+    label: "☕ 카페 창업 필수 세트",
+    sub: "제빙기 + 테이블냉장고 + 쇼케이스",
+    inquiryType: "대량·업소용 상담",
+    applianceCategory: "업소용기기",
+    businessType: "카페 / 베이커리 창업",
+    title: "[카페 창업 세트] 업소용 제빙기 + 테이블냉장고 + 쇼케이스 도입 문의",
+    bulkItems: [
+      {
+        id: "preset-cafe-1",
+        category: "업소용 제빙기 (50~100kg급)",
+        requestedQuantity: "1대",
+        modelNumber: "",
+        specs: "공랭식/수랭식 상담",
+      },
+      {
+        id: "preset-cafe-2",
+        category: "테이블 냉장·냉동고 (1200~1800mm)",
+        requestedQuantity: "1대",
+        modelNumber: "",
+        specs: "",
+      },
+      {
+        id: "preset-cafe-3",
+        category: "음료·디저트 쇼케이스",
+        requestedQuantity: "1대",
+        modelNumber: "",
+        specs: "",
+      },
+    ],
+    description: [
+      "• 희망 패키지: 카페 창업 필수 설비 3종 세트",
+      "• 매장 지역 및 층수 (출입문 진입 여건): ",
+      "• 급·배수 배관 및 단상 220V 전원 준비 여부: ",
+      "• 오픈(납품 희망) 예정일 및 세금계산서 발행 여부: ",
+    ].join("\n"),
+  },
+  {
+    id: "restaurant",
+    badge: "식당 표준",
+    label: "🍽️ 식당 주방 기본 세트",
+    sub: "45박스 냉장고 + 식기세척기 + 작업대",
+    inquiryType: "대량·업소용 상담",
+    applianceCategory: "업소용기기",
+    businessType: "식당 / 음식점 주방",
+    title: "[식당 주방 세트] 업소용 45박스 냉장고 + 식기세척기 + 스텐 작업대 문의",
+    bulkItems: [
+      {
+        id: "preset-rest-1",
+        category: "업소용 45박스 수직 냉장/냉동고",
+        requestedQuantity: "1대",
+        modelNumber: "",
+        specs: "냉장2·냉동2 표준",
+      },
+      {
+        id: "preset-rest-2",
+        category: "업소용 식기세척기 (도어형)",
+        requestedQuantity: "1대",
+        modelNumber: "",
+        specs: "",
+      },
+      {
+        id: "preset-rest-3",
+        category: "스텐 작업대 / 세정대(싱크대)",
+        requestedQuantity: "1식",
+        modelNumber: "",
+        specs: "",
+      },
+    ],
+    description: [
+      "• 희망 패키지: 식당 주방 기본 설비 세트 (45박스 냉장고 + 세척기 + 작업대)",
+      "• 매장 위치 및 층수 (주방 출입구 폭): ",
+      "• 매장 전기 규격 (단상 220V / 삼상 380V): ",
+      "• 희망 납품 일정 및 추가 필요 집기: ",
+    ].join("\n"),
+  },
+  {
+    id: "closure",
+    badge: "빠른 방문수거",
+    label: "🚛 식당·매장 폐업 일괄 정리",
+    sub: "주방설비 · 냉난방기 일괄 매입·철거",
+    inquiryType: "내 물건 팔기",
+    applianceCategory: "업소용기기",
+    operatingStatus: "정상 작동 확인됨",
+    title: "[폐업·매장정리 일괄매입] 업소용 냉장고·주방설비·냉난방기 일괄 처분 신청",
+    description: [
+      "• 신청 구분: 식당·카페·매장 폐업(또는 이전) 일괄 방문 매입 및 철거 요청",
+      "• 처분할 주요 품목 및 대략적인 수량: (예: 45박스 냉장고, 제빙기, 천장형/스탠드 냉난방기 등)",
+      "• 매장 위치 (구/동까지) 및 층수: ",
+      "• 점포를 비워야 하는 희망 수거 마감일: ",
+    ].join("\n"),
+  },
+] as const;
+
 export function UnifiedInquiryForm({
   defaultType = "구매 문의",
   linkedProduct,
@@ -130,6 +267,7 @@ export function UnifiedInquiryForm({
 }) {
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(defaultType);
   const [isNotice, setIsNotice] = useState(false);
+  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
 
   const [name, setName] = useState(isAdmin && isNotice ? STORE.name : "");
   const [phone, setPhone] = useState(isAdmin && isNotice ? STORE.tel : "");
@@ -145,14 +283,14 @@ export function UnifiedInquiryForm({
   const [schedule, setSchedule] = useState("");
   const [description, setDescription] = useState("");
 
-  /* 매입(내 물건 팔기) 전용 상태 — 외관 상태와 실제 작동 상태를 엄격히 분리 */
+  /* 매입(내 물건 팔기) 전용 상태 */
   const [manufacturingDate, setManufacturingDate] = useState("");
   const [operatingStatus, setOperatingStatus] = useState<string>(
     "작동 상태 미확인 (상담 시 안내)"
   );
   const [conditionGrade, setConditionGrade] = useState<string>("");
 
-  /* 대량·업소용 전용 구조화 상태 — 몰라도 제출 가능하도록 기본값 구성 */
+  /* 대량·업소용 전용 구조화 상태 */
   const [businessType, setBusinessType] = useState("");
   const [bulkItems, setBulkItems] = useState<
     Array<{
@@ -225,7 +363,36 @@ export function UnifiedInquiryForm({
       );
     }
     setBundleApplied(true);
+    setSelectedPresetId(null);
   }, []);
+
+  /**
+   * [신규 기능 ③] 단골 패키지 1초 자동채움 핸들러
+   */
+  const handleApplyQuickPackage = (preset: QuickPackagePreset) => {
+    setInquiryType(preset.inquiryType);
+    setApplianceCategory(preset.applianceCategory);
+    setTitle(preset.title);
+    setDescription(preset.description);
+    setSelectedPresetId(preset.id);
+    setBundleApplied(false);
+    setPendingConflicts(null);
+
+    if (preset.businessType) {
+      setBusinessType(preset.businessType);
+    }
+    if (preset.operatingStatus) {
+      setOperatingStatus(preset.operatingStatus);
+    }
+    if (preset.bulkItems && preset.bulkItems.length > 0) {
+      setBulkItems(preset.bulkItems.map((it) => ({ ...it })));
+    }
+
+    setFieldErrors((prev) => ({ ...prev, title: "", description: "" }));
+    toast.success(
+      `'${preset.label}' 양식이 자동 입력되었습니다! 지역과 희망 일정만 적어주세요.`
+    );
+  };
 
   useEffect(() => {
     const syncBasket = () => {
@@ -283,6 +450,11 @@ export function UnifiedInquiryForm({
     ? SELL_PHOTO_GUIDE_STEPS
     : BUY_PHOTO_GUIDE_STEPS;
 
+  /* 현재 선택된 상담 유형 및 입력 제목에 맞춘 직통 문자(SMS) 본문 프리필 */
+  const smsBodyDraft = `[한밭중고전자 ${inquiryType}] ${
+    title.trim() ? `${title.trim()} / ` : ""
+  }지역·품목·사진을 함께 보내주시면 빠르게 견적을 안내해 드립니다.`;
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
     e.target.value = "";
@@ -313,7 +485,7 @@ export function UnifiedInquiryForm({
     setCachedUploadedUrls(null);
   };
 
-  /* 첨부된 사진(1~3장)을 확인 버튼 클릭 시 상담 유형별로 제미나이 일괄 분석 (기존 고객 입력 보호) */
+  /* 첨부된 사진(1~3장)을 확인 버튼 클릭 시 상담 유형별로 제미나이 일괄 분석 */
   const handleRunGeminiAnalysis = async () => {
     if (selectedFiles.length === 0 || isAnalyzingPhotos) {
       toast.error("먼저 분석할 사진을 1장 이상 첨부해 주세요.");
@@ -361,7 +533,6 @@ export function UnifiedInquiryForm({
 
       setAiResult(data);
 
-      // 1) 카테고리 반영 (기타 문의 제외)
       if (
         !isOther &&
         data.applianceCategory &&
@@ -372,7 +543,6 @@ export function UnifiedInquiryForm({
         setApplianceCategory(data.applianceCategory);
       }
 
-      // 2) 고객이 이미 직접 작성한 값과 충돌 여부 검사 (조용히 덮어쓰지 않음)
       const conflicts: {
         title?: string;
         model?: string;
@@ -405,7 +575,6 @@ export function UnifiedInquiryForm({
         }
       }
 
-      // 3) 매입(내 물건 팔기) 전용 보조 필드 반영 (등급과 작동 상태는 AI가 확정하지 않음)
       if (isSell && data.sellAnalysis) {
         if (
           !manufacturingDate.trim() &&
@@ -416,7 +585,6 @@ export function UnifiedInquiryForm({
         }
       }
 
-      // 4) 대량·업소용 전용 구조화 필드 반영
       if (isBulk && data.bulkAnalysis) {
         if (
           !businessType.trim() &&
@@ -725,6 +893,7 @@ export function UnifiedInquiryForm({
     setCachedUploadedUrls(null);
     setAiResult(null);
     setPendingConflicts(null);
+    setSelectedPresetId(null);
     setTitle("");
     setModel("");
     setRegion("");
@@ -878,6 +1047,73 @@ export function UnifiedInquiryForm({
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {/* [신규 기능 ③ + ①] 단골 패키지 1초 자동채움 버튼 4종 + 직통 문자(SMS) 바로 보내기 */}
+      {!isNotice && (
+        <div className="rounded-md border border-[#E4E0D8] bg-white p-3.5 sm:p-4 space-y-2.5">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="inline-block h-2 w-2 rounded-full bg-[#D9531E]" />
+              <strong className="text-[12.5px] sm:text-[13px] font-extrabold text-[#0E1A2B]">
+                ⚡ 자주 찾는 단골 패키지 1초 자동채움
+              </strong>
+              <span className="hidden sm:inline text-[11.5px] text-[#6B7280]">
+                (누르면 제목과 품목 양식이 한 번에 입력됩니다)
+              </span>
+            </div>
+
+            {/* [신규 기능 ①] 폼 작성이 번거로운 분들을 위한 직통 문자(SMS) 사진 전송 버튼 */}
+            <a
+              href={smsHref(STORE.mobile, smsBodyDraft)}
+              onClick={() =>
+                trackEvent("click_sms_consult", {
+                  location: "inquiry_form_top",
+                  inquiry_type: inquiryType,
+                })
+              }
+              className="inline-flex items-center gap-1.5 rounded border border-[#D9531E] bg-[#FFF5F0] px-2.5 py-1 text-[11.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+              title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
+            >
+              <Icon d={ICON.chat} className="h-3.5 w-3.5" />
+              <span>✉️ 문자({STORE.mobile})로 사진 바로 보내기</span>
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {QUICK_PACKAGE_PRESETS.map((preset) => {
+              const isSelected = selectedPresetId === preset.id;
+              return (
+                <button
+                  key={preset.id}
+                  type="button"
+                  onClick={() => handleApplyQuickPackage(preset)}
+                  aria-pressed={isSelected}
+                  className={`flex flex-col items-start justify-between rounded-md border p-2.5 text-left transition-all ${
+                    isSelected
+                      ? "border-[#D9531E] bg-[#FFF5F0] ring-1 ring-[#D9531E]"
+                      : "border-[#E4E0D8] bg-[#FAF9F7] hover:border-[#0E1A2B] hover:bg-white"
+                  }`}
+                >
+                  <div className="flex w-full items-center justify-between gap-1">
+                    <span className="rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-[#FF8A50]">
+                      {preset.badge}
+                    </span>
+                    <span className="text-[10.5px] font-bold text-[#D9531E]">
+                      {isSelected ? "✓ 적용됨" : "1초 입력 →"}
+                    </span>
+                  </div>
+                  <strong className="mt-1.5 block text-[12.5px] font-extrabold text-[#0E1A2B]">
+                    {preset.label}
+                  </strong>
+                  <span className="mt-0.5 block text-[11px] text-[#4B5260] truncate w-full">
+                    {preset.sub}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -1140,7 +1376,6 @@ export function UnifiedInquiryForm({
               </span>
             </div>
 
-            {/* 고객이 이미 입력한 값과 AI 제안값이 다를 때 덮어쓰지 않고 선택권 부여 */}
             {pendingConflicts && (
               <div className="rounded border border-amber-300 bg-amber-50 p-2.5 space-y-2 text-amber-950">
                 <div className="flex items-center justify-between">
@@ -1236,7 +1471,6 @@ export function UnifiedInquiryForm({
               </div>
             )}
 
-            {/* 판독된 사실 배지 */}
             {aiResult.extractedFacts.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {aiResult.extractedFacts.map((fact, idx) => (
@@ -1254,7 +1488,6 @@ export function UnifiedInquiryForm({
               </div>
             )}
 
-            {/* 사진만으로 알 수 없는 후속 확인 질문 칩 */}
             {aiResult.followUpQuestions.length > 0 && (
               <div className="space-y-1 pt-0.5">
                 <span className="block text-[11px] font-bold text-[#B5431A]">
@@ -1334,7 +1567,6 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            {/* 필요 장비 및 희망 수량 리스트 */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="hb-label text-[11.5px]">
@@ -1461,7 +1693,7 @@ export function UnifiedInquiryForm({
           </div>
         )}
 
-        {/* [내 물건 팔기(매입)] 전용 확인 블록: 작동 상태와 외관 상태를 분리 */}
+        {/* [내 물건 팔기(매입)] 전용 확인 블록 */}
         {!isNotice && isSell && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3">
             <div>
@@ -1523,7 +1755,7 @@ export function UnifiedInquiryForm({
           </div>
         )}
 
-        {/* 공통 품목/지역/일정 입력 (기타 문의에서는 불필요한 가전 분류/모델명 숨김) */}
+        {/* 공통 품목/지역/일정 입력 */}
         {!isNotice && !isOther && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-0.5">
             <div>
@@ -1641,7 +1873,7 @@ export function UnifiedInquiryForm({
           <label htmlFor="uf-desc" className="hb-label text-[12px]">
             {isNotice
               ? "공지 본문 내용 *"
-              : "상세 문의 내용 (AI 초안을 자유롭게 수정하실 수 있습니다) *"}
+              : "상세 문의 내용 (AI 초안 또는 패키지 양식을 자유롭게 수정하실 수 있습니다) *"}
           </label>
           <textarea
             id="uf-desc"
@@ -1698,7 +1930,22 @@ export function UnifiedInquiryForm({
           <div />
         )}
 
-        <div className="flex items-center justify-end gap-2 shrink-0">
+        <div className="flex flex-wrap items-center justify-end gap-2 shrink-0">
+          {!isNotice && (
+            <a
+              href={smsHref(STORE.mobile, smsBodyDraft)}
+              onClick={() =>
+                trackEvent("click_sms_consult", {
+                  location: "inquiry_form_bottom",
+                  inquiry_type: inquiryType,
+                })
+              }
+              className="hb-btn-outline h-11 px-4 text-[13px] w-full sm:w-auto"
+            >
+              <Icon d={ICON.chat} className="h-4 w-4 text-[#D9531E]" />
+              <span>✉️ 문자로 사진 보내기</span>
+            </a>
+          )}
           {onCancel && (
             <button
               type="button"
@@ -1748,10 +1995,10 @@ export function UnifiedInquiryForm({
               그대로 재시도
             </button>
             <a
-              href={telHref(STORE.tel)}
+              href={smsHref(STORE.mobile, smsBodyDraft)}
               className="rounded border border-red-300 bg-white px-3 py-1.5 text-[12px] font-bold text-red-700"
             >
-              전화({STORE.tel}) 문의
+              문자({STORE.mobile}) 문의
             </a>
           </div>
         </div>

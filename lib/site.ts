@@ -689,6 +689,7 @@ export interface NotificationDispatchResult {
 export type AnalyticsEventName =
   | "view_item"
   | "click_tel_consult"
+  | "click_sms_consult"
   | "click_kakao_consult"
   | "begin_buyback_inquiry"
   | "submit_inquiry_success"
@@ -751,9 +752,24 @@ export function isRecentlyCreated(
 }
 
 /* ════════════════════════════════════════════════════════════
-   7. 전화번호, 마스킹, 이미지 유틸리티
+   7. 전화번호, 문자(SMS) 직통 연결, 마스킹, 이미지 유틸리티
    ════════════════════════════════════════════════════════════ */
 export const telHref = (num: string) => `tel:${num.replace(/[^0-9+]/g, "")}`;
+
+/**
+ * [신규 기능 ①] 직통 휴대폰(010-6631-8179) 문자 메시지(SMS/MMS) 바로 보내기 링크 생성기
+ * - 스마트폰에서 클릭 시 기본 메시지 앱이 열리며 안내 문구가 자동 입력됩니다.
+ */
+export function smsHref(
+  num: string = STORE.mobile,
+  bodyText?: string
+): string {
+  const cleaned = num.replace(/[^0-9+]/g, "");
+  if (!bodyText || !bodyText.trim()) {
+    return `sms:${cleaned}`;
+  }
+  return `sms:${cleaned}?body=${encodeURIComponent(bodyText.trim())}`;
+}
 
 export function formatPhone(value: string): string {
   const d = value.replace(/\D/g, "").slice(0, 11);

@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import {
   STORE,
   telHref,
+  smsHref,
   trackEvent,
   getQuoteBasket,
   removeQuoteBasketItem,
@@ -1014,12 +1015,14 @@ export function MobileCtaBar({
     };
   }, [productContext]);
 
-  // 상품 상세 페이지(app/[id]/page.tsx) 전용 하단 고정 액션 바
   if (productContext) {
     const sold = isProductSold(productContext.status);
     const priceLabel = sold
       ? "판매완료"
       : formatProductPrice(productContext.price, productContext.category);
+    const productSmsBody = `[한밭중고전자 상품문의] ${productContext.title}${
+      productContext.modelName ? ` (${productContext.modelName})` : ""
+    } 재고 및 가격 문의드립니다.`;
 
     return (
       <div
@@ -1028,7 +1031,6 @@ export function MobileCtaBar({
         className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/98 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_18px_rgba(14,26,43,0.1)] lg:hidden"
       >
         <div className="flex h-[60px] items-center justify-between gap-2 px-3">
-          {/* 좌측: 현재 상품 가격 및 견적함 담기 토글 */}
           <div className="min-w-0 flex items-center gap-2">
             {!sold && (
               <button
@@ -1069,7 +1071,7 @@ export function MobileCtaBar({
                 {productContext.category}
               </span>
               <strong
-                className={`block truncate text-[14px] xs:text-[14.5px] font-bold leading-tight tabular-nums ${
+                className={`block truncate text-[14px] font-bold leading-tight ${
                   sold ? "text-[#8A8478]" : "text-[#0E1A2B]"
                 }`}
               >
@@ -1078,7 +1080,6 @@ export function MobileCtaBar({
             </div>
           </div>
 
-          {/* 우측: 전화 · 카톡 · 이 상품 온라인 문의 버튼 */}
           <div className="flex items-center gap-1.5 shrink-0">
             <a
               href={telHref(STORE.tel)}
@@ -1091,6 +1092,18 @@ export function MobileCtaBar({
               className="grid h-10 w-10 place-items-center rounded bg-[#0E1A2B] text-white"
             >
               <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
+            </a>
+            <a
+              href={smsHref(STORE.mobile, productSmsBody)}
+              onClick={() =>
+                trackEvent("click_sms_consult", {
+                  location: "product_mobile_bar",
+                })
+              }
+              aria-label="문자 문의"
+              className="flex h-10 flex-col items-center justify-center rounded border border-[#D9531E] bg-[#FFF5F0] px-2 text-[10px] font-bold text-[#D9531E]"
+            >
+              <span>문자</span>
             </a>
             <a
               href={STORE.kakaoChat}
@@ -1108,9 +1121,9 @@ export function MobileCtaBar({
             </a>
             <Link
               href={productContext.inquiryHref}
-              className="hb-btn-accent h-10 px-3 xs:px-3.5 text-[12.5px] xs:text-[13px] whitespace-nowrap"
+              className="hb-btn-accent h-10 px-3 text-[12.5px] whitespace-nowrap"
             >
-              <span>이 상품 문의</span>
+              <span>문의</span>
             </Link>
           </div>
         </div>
@@ -1122,18 +1135,31 @@ export function MobileCtaBar({
     <div
       role="region"
       aria-label="모바일 빠른 상담 바"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/98 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#DDD9D1] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
     >
-      <div className="grid h-[56px] grid-cols-3 divide-x divide-[#EEEBE5]">
+      <div className="grid h-[56px] grid-cols-4 divide-x divide-[#EEEBE5]">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
             trackEvent("click_tel_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1.5 bg-[#0E1A2B] text-[12.5px] xs:text-[13px] font-bold text-white active:bg-[#1C2D47]"
+          className="flex items-center justify-center gap-1 bg-[#0E1A2B] text-[12px] font-bold text-white active:bg-[#1C2D47]"
         >
-          <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
-          <span>전화 상담</span>
+          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
+          <span>전화상담</span>
+        </a>
+        <a
+          href={smsHref(
+            STORE.mobile,
+            "[한밭중고전자 문의] 품목/지역/사진을 보내주시면 빠르게 견적을 안내해 드립니다."
+          )}
+          onClick={() =>
+            trackEvent("click_sms_consult", { location: "mobile_cta_bar" })
+          }
+          className="flex items-center justify-center gap-1 bg-[#FFF5F0] text-[12px] font-bold text-[#D9531E] active:bg-[#FADCD0]"
+        >
+          <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+          <span>문자·사진</span>
         </a>
         <a
           href={STORE.kakaoChat}
@@ -1142,10 +1168,10 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_kakao_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1.5 bg-[#FEE500] text-[12.5px] xs:text-[13px] font-bold text-[#191600] active:bg-[#F2D900]"
+          className="flex items-center justify-center gap-1 bg-[#FEE500] text-[12px] font-bold text-[#191600] active:bg-[#F2D900]"
         >
-          <Icon d={ICON.chat} className="w-4 h-4" />
-          <span>카톡 상담</span>
+          <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+          <span>카톡상담</span>
         </a>
         {onInquiryClick ? (
           <button
@@ -1156,18 +1182,18 @@ export function MobileCtaBar({
               });
               onInquiryClick();
             }}
-            className="flex items-center justify-center gap-1.5 bg-white text-[12.5px] xs:text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
+            className="flex items-center justify-center gap-1 bg-white text-[12px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
           >
-            <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
-            <span>문의·매입</span>
+            <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+            <span>문의글</span>
           </button>
         ) : (
           <Link
             href="/inquiry"
-            className="flex items-center justify-center gap-1.5 bg-white text-[12.5px] xs:text-[13px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
+            className="flex items-center justify-center gap-1 bg-white text-[12px] font-bold text-[#0E1A2B] active:bg-[#F6F5F2]"
           >
-            <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
-            <span>문의게시판</span>
+            <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+            <span>문의글</span>
           </Link>
         )}
       </div>
