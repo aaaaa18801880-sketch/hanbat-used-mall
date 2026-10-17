@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-17T11:28:31.740Z">
+<project name="hanbat-mall" generated_at="2026-10-17T11:58:12.370Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>61</file_count>
+    <file_count>62</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -7903,7 +7903,7 @@ export default function GalleryPage() {
 }
 ]]>
     </file>
-    <file path="app/globals.css" lines="152">
+    <file path="app/globals.css" lines="240">
       <![CDATA[
 /* 파일 경로: app/globals.css */
 @tailwind base;
@@ -8015,24 +8015,79 @@ body {
     @apply w-full rounded-xl border border-[#CFCAC0] bg-white px-4 py-3 text-[16px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
+  /* [ogBlocks: Button 차용] 프레스 피직스(active:scale-[0.97]), 광택 시머, 우측 아이콘 슬라이드 마이크로 인터랙션 */
   .hb-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold tracking-[-0.01em] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-bold tracking-[-0.01em] transition-all duration-200 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+  }
+
+  .hb-btn > svg:last-child {
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hb-btn:hover > svg:last-child {
+    transform: translateX(3px);
   }
 
   .hb-btn-primary {
-    @apply hb-btn bg-[#0E1A2B] text-white shadow-2xs hover:bg-[#1C2D47] active:bg-[#09121E];
+    @apply hb-btn bg-[#0E1A2B] text-white shadow-2xs hover:bg-[#182942] hover:shadow-md active:bg-[#09121E];
   }
 
   .hb-btn-accent {
-    @apply hb-btn bg-[#D9531E] text-white shadow-2xs hover:bg-[#BF4715] active:bg-[#A63C10] focus-visible:ring-[#D9531E];
+    @apply hb-btn bg-[#D9531E] text-white shadow-2xs hover:bg-[#C24514] hover:shadow-md active:bg-[#A63C10] focus-visible:ring-[#D9531E];
+  }
+
+  .hb-btn-primary::after,
+  .hb-btn-accent::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.16) 50%,
+      transparent 80%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .hb-btn-primary:hover::after,
+  .hb-btn-accent:hover::after {
+    transform: translateX(120%);
   }
 
   .hb-btn-outline {
-    @apply hb-btn border border-[#D7D2C8] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] active:bg-[#F2F0EC];
+    @apply hb-btn border border-[#D7D2C8] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] hover:shadow-2xs active:bg-[#F2F0EC];
   }
 
   .hb-btn-kakao {
-    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#191600];
+    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F4DC00] hover:shadow-2xs active:bg-[#E5CD00] focus-visible:ring-[#191600];
+  }
+
+  /* [daisyUI: List 차용] 표준 행(Row) 단위 목록 레이아웃 */
+  .hb-list {
+    @apply divide-y divide-[#E6E3DC] rounded-xl border border-[#E6E3DC] bg-white overflow-hidden;
+  }
+
+  .hb-list-row {
+    @apply relative flex items-center justify-between gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-[#FAF9F7];
+  }
+
+  .hb-list-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--hb-orange);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+
+  .hb-list-row:hover::before {
+    opacity: 1;
   }
 
   .scrollbar-none {
@@ -8043,6 +8098,39 @@ body {
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* [Aceternity UI: Cards Blocks 차용] 마우스 커서 추적 스포트라이트 오버레이 */
+.hb-spotlight-card:hover .hb-spotlight-overlay {
+  opacity: 1;
+  background: radial-gradient(
+    440px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    var(--spot-color, rgba(217, 83, 30, 0.085)),
+    transparent 70%
+  );
+}
+
+/* [Bundui: Animated Beam 차용] SVG 경로 데이터 흐름 빛줄기 애니메이션 */
+@keyframes hbBeamFlow {
+  0% {
+    stroke-dashoffset: 320;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hb-beam-path {
+  stroke-dasharray: 85 235;
+  animation: hbBeamFlow 2.6s linear infinite;
+}
+
+.hb-beam-delay-1 {
+  animation-delay: -0.85s;
+}
+
+.hb-beam-delay-2 {
+  animation-delay: -1.7s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -9828,7 +9916,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1954">
+    <file path="app/page.tsx" lines="2005">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -9873,6 +9961,11 @@ import {
   BuybackStepIllustration,
   UspPopIllustration,
 } from "../components/home/kakaobank-illustrations";
+import {
+  SpotlightCard,
+  InteractiveHeroHeadline,
+  AnimatedBeamFlow,
+} from "../components/ui/interactive-effects";
 import {
   UnifiedInquiryForm,
   type LinkedProductContext,
@@ -10430,9 +10523,10 @@ export default function Home() {
                 >
                   가정용 가전부터 업소용 주방설비까지,
                   <br />
-                  <span className="text-[#D9531E]">
-                    직접 분해 세척·점검한 실매물만 판매합니다
-                  </span>
+                  <InteractiveHeroHeadline
+                    text="직접 분해 세척·점검한 실매물만 판매합니다"
+                    className="text-[#D9531E]"
+                  />
                 </h1>
 
                 <p className="mt-3.5 max-w-[540px] text-[15.5px] sm:text-[17px] font-medium leading-[1.6] text-[#434B59] break-keep">
@@ -10561,7 +10655,7 @@ export default function Home() {
 
         {/* ════════════════════════════════════════════════════════════
             [흐름 2] 주요 서비스 3가지 — 구매 · 매입 · 업소용/대량 상담
-            (불필요한 설명 문단을 제거하고 굵은 제목 + 핵심 체크 2줄 + 버튼만 직관적으로 배치)
+            ([Aceternity UI: Cards Blocks] SpotlightCard 적용)
             ════════════════════════════════════════════════════════════ */}
         <section
           aria-labelledby="core-services-title"
@@ -10584,8 +10678,11 @@ export default function Home() {
             </div>
 
             <div className="grid gap-5 sm:gap-6 lg:grid-cols-3">
-              {/* 서비스 1: 판매 상품 구매 (파스텔 스카이블루 일러스트) */}
-              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
+              {/* 서비스 1: 판매 상품 구매 (파스텔 스카이블루 일러스트 + SpotlightCard) */}
+              <SpotlightCard
+                spotlightColor="rgba(29, 78, 216, 0.08)"
+                className="group rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs"
+              >
                 <div>
                   <Link
                     href="/gallery"
@@ -10634,10 +10731,13 @@ export default function Home() {
                     재고 문의
                   </button>
                 </div>
-              </div>
+              </SpotlightCard>
 
-              {/* 서비스 2: 사용하던 가전 매입 신청 (파스텔 피치/살구 일러스트) */}
-              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
+              {/* 서비스 2: 사용하던 가전 매입 신청 (파스텔 피치/살구 일러스트 + SpotlightCard) */}
+              <SpotlightCard
+                spotlightColor="rgba(217, 83, 30, 0.095)"
+                className="group rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs"
+              >
                 <div>
                   <button
                     type="button"
@@ -10687,10 +10787,13 @@ export default function Home() {
                     매입 안내
                   </Link>
                 </div>
-              </div>
+              </SpotlightCard>
 
-              {/* 서비스 3: 업소용 · 대량 구매 상담 (파스텔 민트/옐로우 일러스트) */}
-              <div className="group flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs transition-all">
+              {/* 서비스 3: 업소용 · 대량 구매 상담 (파스텔 민트/옐로우 일러스트 + SpotlightCard) */}
+              <SpotlightCard
+                spotlightColor="rgba(4, 120, 87, 0.085)"
+                className="group rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 hover:border-[#0E1A2B] shadow-2xs"
+              >
                 <div>
                   <button
                     type="button"
@@ -10740,7 +10843,7 @@ export default function Home() {
                     설비 보기
                   </Link>
                 </div>
-              </div>
+              </SpotlightCard>
             </div>
           </div>
         </section>
@@ -10795,14 +10898,16 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 5대 원칙 그리드 (카카오뱅크 스타일 팝 일러스트 배지 결합) */}
+            {/* 5대 원칙 그리드 ([Aceternity UI: Cards Blocks] SpotlightCard + 팝 일러스트 배지 결합) */}
             <ol className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-6">
               {USP.map((u, idx) => {
                 const isWide = idx >= 3;
                 return (
-                  <li
+                  <SpotlightCard
+                    as="li"
                     key={u.no}
-                    className={`flex flex-col justify-between rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 transition-colors hover:border-[#0E1A2B] hover:bg-white ${
+                    spotlightColor="rgba(217, 83, 30, 0.085)"
+                    className={`rounded-2xl border border-[#E6E3DC] bg-[#FAF9F7] p-6 hover:border-[#0E1A2B] hover:bg-white ${
                       isWide ? "md:col-span-3" : "md:col-span-2"
                     }`}
                   >
@@ -10830,12 +10935,12 @@ export default function Home() {
                     <div className="mt-5 pt-3.5 border-t border-[#E6E3DC] text-[13.5px] font-bold text-[#0E1A2B]">
                       <span className="text-[#D9531E]">✓</span> {u.highlight}
                     </div>
-                  </li>
+                  </SpotlightCard>
                 );
               })}
             </ol>
 
-            {/* 실제 출고·배송·설치 현장 기록 (#reviews-section) */}
+            {/* 실제 출고·배송·설치 현장 기록 (#reviews-section — [Ui-Layouts: Hover Cards] 적용) */}
             <div
               id="reviews-section"
               className="mt-16 sm:mt-20 pt-12 sm:pt-16 border-t border-[#E6E3DC]"
@@ -10902,21 +11007,33 @@ export default function Home() {
                       return (
                         <li
                           key={r.id}
-                          className="group relative overflow-hidden rounded-xl border border-[#E6E3DC] bg-white hover:border-[#0E1A2B] transition-colors"
+                          className="group relative overflow-hidden rounded-xl border border-[#E6E3DC] bg-white hover:border-[#0E1A2B] hover:-translate-y-0.5 hover:shadow-card transition-all duration-200"
                         >
                           <button
                             type="button"
                             onClick={() => setLightbox({ review: r, index: 0 })}
-                            className="relative block aspect-[4/3] w-full overflow-hidden bg-[#F0EDE7]"
+                            className="relative block aspect-[4/3] w-full overflow-hidden bg-[#F0EDE7] cursor-pointer"
                             aria-label={`${r.title ?? "배송·설치"} 사진 크게 보기`}
                           >
                             <SafeImg
                               src={imgs[0]}
                               alt={`${r.title ?? "배송·설치"} 현장 사진`}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.045]"
                             />
+                            {/* [Ui-Layouts: Hover Cards] 마우스 호버 시 부드럽게 슬라이드업되는 상세 오버레이 */}
+                            <div
+                              aria-hidden="true"
+                              className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-gradient-to-t from-[#0E1A2B]/85 via-[#0E1A2B]/40 to-transparent px-3.5 pb-3 pt-8 opacity-0 translate-y-2 transition-all duration-250 ease-out group-hover:opacity-100 group-hover:translate-y-0"
+                            >
+                              <span className="inline-flex items-center gap-1 rounded bg-white/95 px-2 py-0.5 text-[11px] font-extrabold text-[#0E1A2B] shadow-2xs">
+                                ✓ 직영 기사 직접 설치
+                              </span>
+                              <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2.5 py-0.5 text-[11px] font-extrabold text-white shadow-2xs">
+                                🔍 사진 크게 보기
+                              </span>
+                            </div>
                             {imgs.length > 1 && (
-                              <span className="absolute right-3 bottom-3 rounded bg-black/70 px-2 py-0.5 text-[11.5px] font-semibold text-white tabular-nums">
+                              <span className="absolute right-3 top-3 z-10 rounded bg-black/70 px-2 py-0.5 text-[11.5px] font-semibold text-white tabular-nums">
                                 +{imgs.length - 1}장
                               </span>
                             )}
@@ -10933,7 +11050,7 @@ export default function Home() {
                             <button
                               type="button"
                               onClick={() => handleDeleteReview(r.id)}
-                              className="absolute left-3 top-3 rounded bg-white/95 px-2.5 py-1 text-[11.5px] font-bold text-red-600 shadow"
+                              className="absolute left-3 top-3 z-20 rounded bg-white/95 px-2.5 py-1 text-[11.5px] font-bold text-red-600 shadow"
                             >
                               삭제
                             </button>
@@ -10969,7 +11086,7 @@ export default function Home() {
 
         {/* ════════════════════════════════════════════════════════════
             [흐름 6] 매입 안내와 상담 CTA (#sell-section + #inquiry-section)
-            — 밝은 웜그레이 배경 + 원본 비율 매입 안내문 + 통합 상담 신청 폼
+            — [Bundui: Animated Beam] 원스톱 접수 흐름 시각화 + 원본 비율 매입 안내문 + 통합 상담 신청 폼
             ════════════════════════════════════════════════════════════ */}
         <section
           id="sell-section"
@@ -10977,6 +11094,13 @@ export default function Home() {
           aria-labelledby="sell-title"
         >
           <div className="hb-container">
+            {/* [Bundui: Animated Beam 차용] 멀티채널 실시간 연동 & 당일 처리 파이프라인 */}
+            <AnimatedBeamFlow
+              onSelectInquiry={(type) =>
+                openInquiry(type as InquiryTypeValue)
+              }
+            />
+
             <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 items-start">
               {/* 좌측: 매입 안내 핵심 요약 및 4단계 절차 */}
               <div className="lg:col-span-6">
@@ -11179,11 +11303,15 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-7">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#E6E3DC]">
-                      <h3 className="text-[16px] font-bold text-[#0E1A2B]">
-                        최근 접수된 문의 현황
-                      </h3>
+                  {/* [daisyUI: List 차용] 깔끔한 행(Row) 단위 실시간 접수 현황 리스트 */}
+                  <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 shadow-2xs">
+                    <div className="flex items-center justify-between pb-3.5 border-b border-[#E6E3DC]">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                        <h3 className="text-[16px] font-extrabold text-[#0E1A2B]">
+                          최근 접수된 문의 현황
+                        </h3>
+                      </div>
                       <Link
                         href="/inquiry"
                         className="inline-flex items-center gap-1 text-[13px] font-bold text-[#D9531E] hover:underline"
@@ -11197,29 +11325,40 @@ export default function Home() {
                         최근 접수된 문의 내역이 없습니다.
                       </p>
                     ) : (
-                      <ul className="mt-2 divide-y divide-[#E6E3DC]">
-                        {recent.map((r) => (
-                          <li
-                            key={r.id}
-                            className="flex items-center gap-2.5 py-3 text-[13.5px]"
-                          >
-                            <span className="shrink-0 rounded bg-[#F7F6F3] border border-[#E6E3DC] px-2 py-0.5 text-[11.5px] font-bold text-[#0E1A2B]">
-                              {getInquiryTypeLabel(r.inquiry_type)}
-                            </span>
-                            <Link
-                              href="/inquiry"
-                              className="min-w-0 flex-1 truncate font-medium text-[#0E1A2B] hover:text-[#D9531E]"
-                            >
-                              {r.category || "상담 문의"}
-                            </Link>
-                            <span className="shrink-0 text-[12px] text-[#667085]">
-                              {r.masked_name || maskName(r.name)} ·{" "}
-                              <strong className="text-[#0E1A2B]">
-                                {r.status ?? "접수"}
-                              </strong>
-                            </span>
-                          </li>
-                        ))}
+                      <ul className="mt-3 hb-list">
+                        {recent.map((r) => {
+                          const isDone =
+                            r.status === "답변완료" || r.status === "처리완료";
+                          return (
+                            <li key={r.id} className="hb-list-row text-[13.5px]">
+                              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                                <span className="shrink-0 rounded-md bg-[#F7F6F3] border border-[#E6E3DC] px-2 py-0.5 text-[11.5px] font-extrabold text-[#0E1A2B]">
+                                  {getInquiryTypeLabel(r.inquiry_type)}
+                                </span>
+                                <Link
+                                  href="/inquiry"
+                                  className="min-w-0 flex-1 truncate font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors"
+                                >
+                                  {r.category || "상담 문의"}
+                                </Link>
+                              </div>
+                              <div className="flex shrink-0 items-center gap-2 text-[12px]">
+                                <span className="text-[#667085]">
+                                  {r.masked_name || maskName(r.name)}
+                                </span>
+                                <span
+                                  className={`rounded px-1.5 py-0.5 text-[11px] font-extrabold ${
+                                    isDone
+                                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                      : "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]"
+                                  }`}
+                                >
+                                  {r.status ?? "접수중"}
+                                </span>
+                              </div>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
@@ -12315,7 +12454,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="631">
+    <file path="components/home/category-pictogram-bar.tsx" lines="663">
       <![CDATA[
 "use client";
 
@@ -12858,6 +12997,8 @@ export function CategoryPictogramBar({
 }: {
   onSelectInquiry: (type: InquiryTypeValue) => void;
 }) {
+  const [hoveredKey, setHoveredKey] = React.useState<PictogramKey | null>(null);
+
   return (
     <section
       id="category-section"
@@ -12866,7 +13007,10 @@ export function CategoryPictogramBar({
     >
       <div className="hb-container">
         {/* 데스크톱(lg 이상): 4 : 3 : 4 비례 분할로 11개 아이템의 가로폭 균일화 / 모바일·태블릿: 스택 카드 */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch">
+        <div
+          className="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch"
+          onMouseLeave={() => setHoveredKey(null)}
+        >
           {QUICK_GROUPS.map((group) => {
             const flexBasisClass =
               group.id === "home-appliances"
@@ -12881,7 +13025,7 @@ export function CategoryPictogramBar({
             return (
               <div
                 key={group.id}
-                className={`relative rounded-[24px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-7 pb-4 sm:pb-5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
+                className={`relative rounded-[24px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-7 pb-4 sm:pb-5 flex flex-col justify-center min-w-0 transition-colors hover:border-[#D7D2C8] ${flexBasisClass}`}
               >
                 {/* 상단 좌측 플로팅 캡슐 배지 (아정당 스타일) */}
                 <span
@@ -12892,18 +13036,41 @@ export function CategoryPictogramBar({
 
                 <ul className={`grid ${gridColsClass} gap-1.5 sm:gap-2 items-center`}>
                   {group.items.map((item) => {
+                    const isHovered = hoveredKey === item.key;
                     const content = (
                       <>
-                        <Soft3DPictogram type={item.key} />
-                        <span className="mt-1.5 text-center text-[13.5px] sm:text-[15px] font-extrabold tracking-[-0.02em] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
-                          {item.label}
-                        </span>
+                        {/* [React Bits: Flowing Menu 차용] 유체형 하이라이트 밴드 배경 */}
+                        <span
+                          aria-hidden="true"
+                          className={`pointer-events-none absolute inset-0 rounded-2xl border transition-all duration-250 ease-out ${
+                            isHovered
+                              ? "scale-100 border-[#E6E3DC] bg-white opacity-100 shadow-card"
+                              : "scale-95 border-transparent bg-white/0 opacity-0"
+                          }`}
+                        />
+                        <div className="relative z-10 flex flex-col items-center">
+                          <Soft3DPictogram type={item.key} />
+                          <span className="mt-1.5 text-center text-[13.5px] sm:text-[15px] font-extrabold tracking-[-0.02em] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
+                            {item.label}
+                          </span>
+                          {/* 하단 유체형 액티브 인디케이터 바 */}
+                          <span
+                            aria-hidden="true"
+                            className={`mt-1 h-1 rounded-full bg-[#D9531E] transition-all duration-250 ease-out ${
+                              isHovered ? "w-6 opacity-100" : "w-0 opacity-0"
+                            }`}
+                          />
+                        </div>
                       </>
                     );
 
                     if (item.inquiryType) {
                       return (
-                        <li key={item.key} className="min-w-0">
+                        <li
+                          key={item.key}
+                          className="min-w-0"
+                          onMouseEnter={() => setHoveredKey(item.key)}
+                        >
                           <button
                             type="button"
                             onClick={() => {
@@ -12913,7 +13080,7 @@ export function CategoryPictogramBar({
                               });
                               onSelectInquiry(item.inquiryType!);
                             }}
-                            className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors cursor-pointer"
+                            className="group relative flex w-full flex-col items-center justify-center py-2.5 rounded-2xl transition-all active:scale-95 cursor-pointer"
                           >
                             {content}
                           </button>
@@ -12922,7 +13089,11 @@ export function CategoryPictogramBar({
                     }
 
                     return (
-                      <li key={item.key} className="min-w-0">
+                      <li
+                        key={item.key}
+                        className="min-w-0"
+                        onMouseEnter={() => setHoveredKey(item.key)}
+                      >
                         <Link
                           href={item.href || "/gallery"}
                           onClick={() =>
@@ -12931,7 +13102,7 @@ export function CategoryPictogramBar({
                               location: "top_pictogram_bar",
                             })
                           }
-                          className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors"
+                          className="group relative flex w-full flex-col items-center justify-center py-2.5 rounded-2xl transition-all active:scale-95"
                         >
                           {content}
                         </Link>
@@ -17553,7 +17724,7 @@ export function UnifiedInquiryForm({
 }
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="343">
+    <file path="components/products/product-card.tsx" lines="358">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -17726,12 +17897,12 @@ export function ProductCard({
           : "border-[#E6E3DC] hover:border-[#0E1A2B]/40 hover:shadow-card-hover hover:-translate-y-0.5"
       }`}
     >
-      {/* 1. 상품 사진 영역 — 배지 중첩을 최소화하여 제품 사진이 가장 먼저 보이도록 구성 */}
+      {/* 1. 상품 사진 영역 — [Ui-Layouts: Hover Cards 차용] 호버 시 줌인 & 하단 슬라이드업 상세 미리보기 바 */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F4F2ED] border-b border-[#E6E3DC]">
         <SafeImg
           src={images[0]}
           alt={product.title}
-          className={`h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03] ${
+          className={`h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.045] ${
             sold ? "grayscale opacity-70" : ""
           }`}
         />
@@ -17740,6 +17911,21 @@ export function ProductCard({
           <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/45">
             <span className="rounded bg-[#0E1A2B]/90 px-4 py-1.5 text-[12.5px] font-bold tracking-wider text-white">
               판매완료
+            </span>
+          </div>
+        )}
+
+        {/* 호버 시 하단에서 부드럽게 올라오는 인터랙티브 오버레이 바 */}
+        {!sold && !isSelectMode && (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-center justify-between bg-gradient-to-t from-[#0E1A2B]/80 via-[#0E1A2B]/40 to-transparent px-3 pb-2.5 pt-7 opacity-0 translate-y-1.5 transition-all duration-250 ease-out group-hover:opacity-100 group-hover:translate-y-0"
+          >
+            <span className="inline-flex items-center gap-1 rounded bg-white/95 px-2 py-0.5 text-[11px] font-extrabold text-[#0E1A2B] shadow-2xs">
+              {images.length > 1 ? `📷 실사진 ${images.length}장` : "✓ 분해세척·점검완료"}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2.5 py-0.5 text-[11px] font-extrabold text-white shadow-2xs">
+              상세 스펙 보기 →
             </span>
           </div>
         )}
@@ -17787,7 +17973,7 @@ export function ProductCard({
               aria-pressed={inBasket}
               title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
               aria-label={`${product.title} ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded border px-2 py-1 text-[11px] font-bold shadow-2xs transition-colors ${
+              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded border px-2 py-1 text-[11px] font-bold shadow-2xs transition-all active:scale-95 ${
                 inBasket
                   ? "border-[#D9531E] bg-[#D9531E] text-white"
                   : "border-[#D7D2C8] bg-white/95 text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -18357,6 +18543,406 @@ export function ProductStatusBadge({
     </div>
   );
 }
+]]>
+    </file>
+    <file path="components/ui/interactive-effects.tsx" lines="396">
+      <![CDATA[
+// 파일 경로: components/ui/interactive-effects.tsx
+"use client";
+
+import React, { useRef, useId } from "react";
+import { STORE, telHref, smsHref } from "../../lib/site";
+
+/**
+ * 1. [Aceternity UI: Cards Blocks 차용] SpotlightCard
+ * - 마우스 커서 위치를 추적하여 은은한 광원(Radial Spotlight)과 입체 테두리 하이라이트를 부여합니다.
+ * - React state 리렌더링 없이 CSS 변수(--spot-x, --spot-y)를 직접 갱신해 60fps 성능을 유지합니다.
+ */
+export function SpotlightCard({
+  children,
+  className = "",
+  spotlightColor = "rgba(217, 83, 30, 0.085)",
+  as: Component = "div",
+}: {
+  children: React.ReactNode;
+  className?: string;
+  spotlightColor?: string;
+  as?: "div" | "li" | "article";
+}) {
+  const ref = useRef<HTMLElement | null>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    el.style.setProperty("--spot-x", `${x}px`);
+    el.style.setProperty("--spot-y", `${y}px`);
+  };
+
+  return (
+    <Component
+      ref={ref as React.RefObject<never>}
+      onMouseMove={handleMouseMove}
+      style={
+        {
+          "--spot-color": spotlightColor,
+        } as React.CSSProperties
+      }
+      className={`hb-spotlight-card relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-card ${className}`}
+    >
+      <div
+        aria-hidden="true"
+        className="hb-spotlight-overlay pointer-events-none absolute -inset-px z-0 rounded-[inherit] opacity-0 transition-opacity duration-300"
+      />
+      <div className="relative z-10 flex h-full w-full flex-col justify-between">
+        {children}
+      </div>
+    </Component>
+  );
+}
+
+/**
+ * 2. [Eldora UI: Font Weight Text 차용] InteractiveHeroHeadline
+ * - 마우스 커서 근접도에 따라 글자의 두께(font-weight)와 입체감이 부드럽게 반응하는 인터랙티브 헤드라인
+ * - 줄바꿈이나 레이아웃 흔들림(CLS)이 발생하지 않도록 고정 폭/트래킹 내에서 동작합니다.
+ */
+export function InteractiveHeroHeadline({
+  text,
+  className = "",
+}: {
+  text: string;
+  className?: string;
+}) {
+  const containerRef = useRef<HTMLSpanElement | null>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLSpanElement>) => {
+    const container = containerRef.current;
+    if (!container) return;
+    const chars = container.querySelectorAll<HTMLSpanElement>("[data-char]");
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    const maxDist = 130;
+
+    chars.forEach((charEl) => {
+      const rect = charEl.getBoundingClientRect();
+      const charX = rect.left + rect.width / 2;
+      const charY = rect.top + rect.height / 2;
+      const dist = Math.hypot(mouseX - charX, mouseY - charY);
+
+      if (dist < maxDist) {
+        const ratio = 1 - dist / maxDist;
+        const translateY = -(ratio * 2.5);
+        charEl.style.transform = `translateY(${translateY.toFixed(2)}px)`;
+        charEl.style.color = ratio > 0.45 ? "#B83E0E" : "#D9531E";
+        charEl.style.textShadow = `0 ${Math.round(ratio * 6)}px ${Math.round(ratio * 14)}px rgba(217, 83, 30, ${(ratio * 0.22).toFixed(2)})`;
+      } else {
+        charEl.style.transform = "translateY(0px)";
+        charEl.style.color = "";
+        charEl.style.textShadow = "none";
+      }
+    });
+  };
+
+  const handleMouseLeave = () => {
+    const container = containerRef.current;
+    if (!container) return;
+    const chars = container.querySelectorAll<HTMLSpanElement>("[data-char]");
+    chars.forEach((charEl) => {
+      charEl.style.transform = "translateY(0px)";
+      charEl.style.color = "";
+      charEl.style.textShadow = "none";
+    });
+  };
+
+  return (
+    <span
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`inline-block cursor-default ${className}`}
+    >
+      {Array.from(text).map((ch, idx) =>
+        ch === " " ? (
+          <span key={idx}> </span>
+        ) : (
+          <span
+            key={idx}
+            data-char
+            className="inline-block transition-[transform,color,text-shadow] duration-150 ease-out"
+          >
+            {ch}
+          </span>
+        )
+      )}
+    </span>
+  );
+}
+
+/**
+ * 3. [Bundui: Animated Beam 차용] AnimatedBeamFlow
+ * - 고객의 멀티채널 접수(카톡·문자·온라인폼)가 한밭 직영 검수 데스크를 거쳐
+ *   당일 방문 수거·현금 입금 및 직배송으로 이어지는 실시간 데이터/업무 파이프라인 시각화 컴포넌트
+ */
+export function AnimatedBeamFlow({
+  onSelectInquiry,
+}: {
+  onSelectInquiry?: (type: string) => void;
+}) {
+  const uid = useId().replace(/:/g, "");
+
+  return (
+    <div className="mb-10 overflow-hidden rounded-2xl border border-[#E6E3DC] bg-white p-5 sm:p-6 lg:p-7 shadow-2xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-5 border-b border-[#E6E3DC]">
+        <div className="flex items-center gap-2.5">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF5F0] border border-[#FADCD0] px-3 py-1 text-[12px] font-extrabold text-[#D9531E]">
+            <span className="h-2 w-2 rounded-full bg-[#D9531E] animate-ping" />
+            실시간 직영 연동 시스템
+          </span>
+          <h3 className="text-[16px] sm:text-[17.5px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+            사진 한 장으로 끝나는 원스톱 접수 · 당일 처리 흐름
+          </h3>
+        </div>
+        <p className="text-[12.5px] sm:text-[13px] font-semibold text-[#667085]">
+          원하시는 채널을 클릭하면 바로 연결됩니다
+        </p>
+      </div>
+
+      {/* 데스크톱: 좌(접수 채널 3종) ──⚡Animated SVG Beam──> 중(직영 데스크) ──⚡Animated SVG Beam──> 우(당일 실행 2종) */}
+      <div className="relative mt-6">
+        {/* 배경 SVG Animated Beams (lg 이상 데스크톱에서 노드 간 곡선 광선 연결) */}
+        <svg
+          viewBox="0 0 1000 220"
+          fill="none"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 hidden h-full w-full lg:block"
+          preserveAspectRatio="none"
+        >
+          <defs>
+            <linearGradient id={`beam-grad-1-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#D9531E" stopOpacity="0.1" />
+              <stop offset="50%" stopColor="#D9531E" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#0E1A2B" stopOpacity="0.2" />
+            </linearGradient>
+            <linearGradient id={`beam-grad-2-${uid}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#0E1A2B" stopOpacity="0.2" />
+              <stop offset="50%" stopColor="#2563EB" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#10B981" stopOpacity="0.2" />
+            </linearGradient>
+          </defs>
+
+          {/* 기본 가이드 트랙 선 */}
+          <path
+            d="M 270 38 C 350 38, 360 110, 430 110"
+            stroke="#E6E3DC"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+          />
+          <path
+            d="M 270 110 L 430 110"
+            stroke="#E6E3DC"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+          />
+          <path
+            d="M 270 182 C 350 182, 360 110, 430 110"
+            stroke="#E6E3DC"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+          />
+          <path
+            d="M 570 110 C 640 110, 650 62, 730 62"
+            stroke="#E6E3DC"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+          />
+          <path
+            d="M 570 110 C 640 110, 650 158, 730 158"
+            stroke="#E6E3DC"
+            strokeWidth="2"
+            strokeDasharray="4 4"
+          />
+
+          {/* 흐르는 빛줄기(Animated Beams) */}
+          <path
+            d="M 270 38 C 350 38, 360 110, 430 110"
+            stroke={`url(#beam-grad-1-${uid})`}
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="hb-beam-path"
+          />
+          <path
+            d="M 270 110 L 430 110"
+            stroke={`url(#beam-grad-1-${uid})`}
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="hb-beam-path hb-beam-delay-1"
+          />
+          <path
+            d="M 270 182 C 350 182, 360 110, 430 110"
+            stroke={`url(#beam-grad-1-${uid})`}
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="hb-beam-path hb-beam-delay-2"
+          />
+          <path
+            d="M 570 110 C 640 110, 650 62, 730 62"
+            stroke={`url(#beam-grad-2-${uid})`}
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="hb-beam-path hb-beam-delay-1"
+          />
+          <path
+            d="M 570 110 C 640 110, 650 158, 730 158"
+            stroke={`url(#beam-grad-2-${uid})`}
+            strokeWidth="3"
+            strokeLinecap="round"
+            className="hb-beam-path hb-beam-delay-2"
+          />
+        </svg>
+
+        <div className="relative z-10 grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-center lg:gap-6">
+          {/* 좌측: 3대 접수 채널 노드 */}
+          <div className="flex flex-col gap-2.5 lg:col-span-4">
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] px-4 py-3 hover:border-[#0E1A2B] hover:bg-white transition-all shadow-2xs"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FEE500] text-[14px] font-black text-[#191600]">
+                  톡
+                </span>
+                <div>
+                  <p className="text-[14px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
+                    카카오톡 사진 전송
+                  </p>
+                  <p className="text-[12px] text-[#667085]">
+                    모델명·외관 사진 1초 접수
+                  </p>
+                </div>
+              </div>
+              <span className="text-[12px] font-bold text-[#D9531E] group-hover:translate-x-0.5 transition-transform">
+                연결 →
+              </span>
+            </a>
+
+            <a
+              href={smsHref(
+                STORE.mobile,
+                "[한밭중고전자 문자상담] 제품 사진을 첨부하여 문의합니다."
+              )}
+              className="group flex items-center justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] px-4 py-3 hover:border-[#0E1A2B] hover:bg-white transition-all shadow-2xs"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#E0F2FE] text-[15px] font-extrabold text-[#0369A1]">
+                  ✉️
+                </span>
+                <div>
+                  <p className="text-[14px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
+                    직통 문자 ({STORE.mobile})
+                  </p>
+                  <p className="text-[12px] text-[#667085]">
+                    카톡 없이 기본 문자앱 즉시 실행
+                  </p>
+                </div>
+              </div>
+              <span className="text-[12px] font-bold text-[#0369A1] group-hover:translate-x-0.5 transition-transform">
+                문자 →
+              </span>
+            </a>
+
+            <button
+              type="button"
+              onClick={() => onSelectInquiry?.("내 물건 팔기")}
+              className="group flex w-full items-center justify-between rounded-xl border border-[#E6E3DC] bg-[#FAF9F7] px-4 py-3 text-left hover:border-[#0E1A2B] hover:bg-white transition-all shadow-2xs cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FFF5F0] text-[15px] font-extrabold text-[#D9531E]">
+                  📋
+                </span>
+                <div>
+                  <p className="text-[14px] font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
+                    온라인 통합 견적 폼
+                  </p>
+                  <p className="text-[12px] text-[#667085]">
+                    단골 패키지 1초 자동 양식 채움
+                  </p>
+                </div>
+              </div>
+              <span className="text-[12px] font-bold text-[#D9531E] group-hover:translate-x-0.5 transition-transform">
+                작성 ↓
+              </span>
+            </button>
+          </div>
+
+          {/* 중앙 허브: 한밭 직영 검수 & 견적 데스크 */}
+          <div className="flex flex-col items-center justify-center lg:col-span-4 py-2 lg:py-0">
+            <div className="relative flex flex-col items-center rounded-2xl border-2 border-[#0E1A2B] bg-[#0E1A2B] px-5 py-5 text-center text-white shadow-card w-full max-w-[260px]">
+              <span className="rounded-full bg-[#D9531E] px-2.5 py-0.5 text-[11px] font-extrabold text-white">
+                중간 유통 수수료 0원
+              </span>
+              <p className="mt-2 text-[17px] font-extrabold tracking-tight">
+                한밭중고전자 직영 데스크
+              </p>
+              <p className="mt-1 text-[12px] text-white/80 leading-relaxed">
+                전문 기사 연식·상태 즉시 판독
+                <br />
+                투명한 정찰 시세 산출
+              </p>
+              <a
+                href={telHref(STORE.tel)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 text-[12.5px] font-extrabold text-[#FF8A50] hover:bg-white/25 transition-colors tabular-nums"
+              >
+                📞 {STORE.tel}
+              </a>
+            </div>
+          </div>
+
+          {/* 우측: 즉시 실행 결과 노드 2종 */}
+          <div className="flex flex-col gap-3 lg:col-span-4">
+            <div className="rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] p-4 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="rounded bg-[#166534] px-2 py-0.5 text-[11px] font-extrabold text-white">
+                  방문 매입 · 폐업 정리
+                </span>
+                <span className="text-[12px] font-extrabold text-[#15803D]">
+                  100% 당일 정산
+                </span>
+              </div>
+              <p className="mt-2 text-[15px] font-extrabold text-[#0E1A2B]">
+                원하는 날짜 방문 수거 · 즉시 입금
+              </p>
+              <p className="mt-0.5 text-[12.5px] text-[#434B59]">
+                직접 분리·운반 후 현장에서 계좌로 즉시 송금합니다.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-[#BAE6FD] bg-[#F0F9FF] p-4 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="rounded bg-[#0369A1] px-2 py-0.5 text-[11px] font-extrabold text-white">
+                  가전 구매 · 창업 납품
+                </span>
+                <span className="text-[12px] font-extrabold text-[#0369A1]">
+                  최대 8개월 A/S
+                </span>
+              </div>
+              <p className="mt-2 text-[15px] font-extrabold text-[#0E1A2B]">
+                대전·충청 직배송 설치 및 무상 보증
+              </p>
+              <p className="mt-0.5 text-[12.5px] text-[#434B59]">
+                분해 살균 세척 완료 제품만 출고하며 세금계산서를 발행합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 ]]>
     </file>
     <file path="eslint.config.mjs" lines="19">

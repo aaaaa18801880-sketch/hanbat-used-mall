@@ -539,6 +539,8 @@ export function CategoryPictogramBar({
 }: {
   onSelectInquiry: (type: InquiryTypeValue) => void;
 }) {
+  const [hoveredKey, setHoveredKey] = React.useState<PictogramKey | null>(null);
+
   return (
     <section
       id="category-section"
@@ -547,7 +549,10 @@ export function CategoryPictogramBar({
     >
       <div className="hb-container">
         {/* 데스크톱(lg 이상): 4 : 3 : 4 비례 분할로 11개 아이템의 가로폭 균일화 / 모바일·태블릿: 스택 카드 */}
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch">
+        <div
+          className="flex flex-col lg:flex-row gap-6 lg:gap-4 items-stretch"
+          onMouseLeave={() => setHoveredKey(null)}
+        >
           {QUICK_GROUPS.map((group) => {
             const flexBasisClass =
               group.id === "home-appliances"
@@ -562,7 +567,7 @@ export function CategoryPictogramBar({
             return (
               <div
                 key={group.id}
-                className={`relative rounded-[24px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-7 pb-4 sm:pb-5 flex flex-col justify-center min-w-0 ${flexBasisClass}`}
+                className={`relative rounded-[24px] bg-[#F4F6FA] border border-[#E5E9F2] px-3 sm:px-5 pt-7 pb-4 sm:pb-5 flex flex-col justify-center min-w-0 transition-colors hover:border-[#D7D2C8] ${flexBasisClass}`}
               >
                 {/* 상단 좌측 플로팅 캡슐 배지 (아정당 스타일) */}
                 <span
@@ -573,18 +578,41 @@ export function CategoryPictogramBar({
 
                 <ul className={`grid ${gridColsClass} gap-1.5 sm:gap-2 items-center`}>
                   {group.items.map((item) => {
+                    const isHovered = hoveredKey === item.key;
                     const content = (
                       <>
-                        <Soft3DPictogram type={item.key} />
-                        <span className="mt-1.5 text-center text-[13.5px] sm:text-[15px] font-extrabold tracking-[-0.02em] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
-                          {item.label}
-                        </span>
+                        {/* [React Bits: Flowing Menu 차용] 유체형 하이라이트 밴드 배경 */}
+                        <span
+                          aria-hidden="true"
+                          className={`pointer-events-none absolute inset-0 rounded-2xl border transition-all duration-250 ease-out ${
+                            isHovered
+                              ? "scale-100 border-[#E6E3DC] bg-white opacity-100 shadow-card"
+                              : "scale-95 border-transparent bg-white/0 opacity-0"
+                          }`}
+                        />
+                        <div className="relative z-10 flex flex-col items-center">
+                          <Soft3DPictogram type={item.key} />
+                          <span className="mt-1.5 text-center text-[13.5px] sm:text-[15px] font-extrabold tracking-[-0.02em] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors whitespace-nowrap">
+                            {item.label}
+                          </span>
+                          {/* 하단 유체형 액티브 인디케이터 바 */}
+                          <span
+                            aria-hidden="true"
+                            className={`mt-1 h-1 rounded-full bg-[#D9531E] transition-all duration-250 ease-out ${
+                              isHovered ? "w-6 opacity-100" : "w-0 opacity-0"
+                            }`}
+                          />
+                        </div>
                       </>
                     );
 
                     if (item.inquiryType) {
                       return (
-                        <li key={item.key} className="min-w-0">
+                        <li
+                          key={item.key}
+                          className="min-w-0"
+                          onMouseEnter={() => setHoveredKey(item.key)}
+                        >
                           <button
                             type="button"
                             onClick={() => {
@@ -594,7 +622,7 @@ export function CategoryPictogramBar({
                               });
                               onSelectInquiry(item.inquiryType!);
                             }}
-                            className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors cursor-pointer"
+                            className="group relative flex w-full flex-col items-center justify-center py-2.5 rounded-2xl transition-all active:scale-95 cursor-pointer"
                           >
                             {content}
                           </button>
@@ -603,7 +631,11 @@ export function CategoryPictogramBar({
                     }
 
                     return (
-                      <li key={item.key} className="min-w-0">
+                      <li
+                        key={item.key}
+                        className="min-w-0"
+                        onMouseEnter={() => setHoveredKey(item.key)}
+                      >
                         <Link
                           href={item.href || "/gallery"}
                           onClick={() =>
@@ -612,7 +644,7 @@ export function CategoryPictogramBar({
                               location: "top_pictogram_bar",
                             })
                           }
-                          className="group flex w-full flex-col items-center justify-center py-2 rounded-2xl hover:bg-white/85 transition-colors"
+                          className="group relative flex w-full flex-col items-center justify-center py-2.5 rounded-2xl transition-all active:scale-95"
                         >
                           {content}
                         </Link>

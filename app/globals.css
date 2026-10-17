@@ -108,24 +108,79 @@ body {
     @apply w-full rounded-xl border border-[#CFCAC0] bg-white px-4 py-3 text-[16px] text-[#0E1A2B] placeholder:text-[#858076] transition-all duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
+  /* [ogBlocks: Button 차용] 프레스 피직스(active:scale-[0.97]), 광택 시머, 우측 아이콘 슬라이드 마이크로 인터랙션 */
   .hb-btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg font-bold tracking-[-0.01em] transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg font-bold tracking-[-0.01em] transition-all duration-200 ease-out active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+  }
+
+  .hb-btn > svg:last-child {
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .hb-btn:hover > svg:last-child {
+    transform: translateX(3px);
   }
 
   .hb-btn-primary {
-    @apply hb-btn bg-[#0E1A2B] text-white shadow-2xs hover:bg-[#1C2D47] active:bg-[#09121E];
+    @apply hb-btn bg-[#0E1A2B] text-white shadow-2xs hover:bg-[#182942] hover:shadow-md active:bg-[#09121E];
   }
 
   .hb-btn-accent {
-    @apply hb-btn bg-[#D9531E] text-white shadow-2xs hover:bg-[#BF4715] active:bg-[#A63C10] focus-visible:ring-[#D9531E];
+    @apply hb-btn bg-[#D9531E] text-white shadow-2xs hover:bg-[#C24514] hover:shadow-md active:bg-[#A63C10] focus-visible:ring-[#D9531E];
+  }
+
+  .hb-btn-primary::after,
+  .hb-btn-accent::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.16) 50%,
+      transparent 80%
+    );
+    transform: translateX(-120%);
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .hb-btn-primary:hover::after,
+  .hb-btn-accent:hover::after {
+    transform: translateX(120%);
   }
 
   .hb-btn-outline {
-    @apply hb-btn border border-[#D7D2C8] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] active:bg-[#F2F0EC];
+    @apply hb-btn border border-[#D7D2C8] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] hover:shadow-2xs active:bg-[#F2F0EC];
   }
 
   .hb-btn-kakao {
-    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#191600];
+    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F4DC00] hover:shadow-2xs active:bg-[#E5CD00] focus-visible:ring-[#191600];
+  }
+
+  /* [daisyUI: List 차용] 표준 행(Row) 단위 목록 레이아웃 */
+  .hb-list {
+    @apply divide-y divide-[#E6E3DC] rounded-xl border border-[#E6E3DC] bg-white overflow-hidden;
+  }
+
+  .hb-list-row {
+    @apply relative flex items-center justify-between gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-[#FAF9F7];
+  }
+
+  .hb-list-row::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background-color: var(--hb-orange);
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+
+  .hb-list-row:hover::before {
+    opacity: 1;
   }
 
   .scrollbar-none {
@@ -136,6 +191,39 @@ body {
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* [Aceternity UI: Cards Blocks 차용] 마우스 커서 추적 스포트라이트 오버레이 */
+.hb-spotlight-card:hover .hb-spotlight-overlay {
+  opacity: 1;
+  background: radial-gradient(
+    440px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    var(--spot-color, rgba(217, 83, 30, 0.085)),
+    transparent 70%
+  );
+}
+
+/* [Bundui: Animated Beam 차용] SVG 경로 데이터 흐름 빛줄기 애니메이션 */
+@keyframes hbBeamFlow {
+  0% {
+    stroke-dashoffset: 320;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hb-beam-path {
+  stroke-dasharray: 85 235;
+  animation: hbBeamFlow 2.6s linear infinite;
+}
+
+.hb-beam-delay-1 {
+  animation-delay: -0.85s;
+}
+
+.hb-beam-delay-2 {
+  animation-delay: -1.7s;
 }
 
 @media (prefers-reduced-motion: reduce) {
