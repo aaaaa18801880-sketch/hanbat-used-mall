@@ -1589,7 +1589,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6F5F2] text-[#1F2530] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F7] text-[#0E1A2B] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
           <div className="flex items-center gap-2">
@@ -1603,7 +1603,7 @@ export default function GalleryPage() {
             <button
               type="button"
               onClick={handleAdminLogout}
-              className="hidden sm:inline-flex items-center rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-10 sm:h-11 text-[12.5px] font-semibold text-[#4B5260] hover:text-[#0E1A2B]"
+              className="hidden sm:inline-flex items-center rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 h-10 sm:h-11 text-[12.5px] font-semibold text-[#3E4856] hover:text-[#0E1A2B]"
             >
               관리자 OFF
             </button>
@@ -1612,36 +1612,36 @@ export default function GalleryPage() {
       </SiteHeader>
 
       {/* 상단 쇼룸 헤더 */}
-      <section className="bg-white border-b border-[#E4E0D8]">
-        <div className="hb-container py-8 sm:py-12">
+      <section className="bg-white border-b border-[#E6E3DC]">
+        <div className="hb-container py-8 sm:py-11">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
-                <span className="hb-eyebrow">Showroom Inventory</span>
-                <span className="text-[11px] text-[#CFCAC0]">|</span>
-                <span className="text-[12px] font-semibold text-[#6B7280]">
+                <span className="hb-eyebrow">실시간 판매 매물</span>
+                <span className="text-[11px] text-[#D8D3C8]">|</span>
+                <span className="text-[12.5px] font-semibold text-[#667085]">
                   대전 중촌동 직영 매장 실매물
                 </span>
               </div>
-              <h1 className="text-[26px] sm:text-[34px] font-extrabold text-[#0E1A2B] tracking-[-0.025em] leading-[1.2]">
+              <h1 className="text-[26px] sm:text-[36px] font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
                 판매 제품 갤러리
               </h1>
-              <p className="mt-2 text-[14px] sm:text-[15px] text-[#4B5260] leading-relaxed max-w-2xl break-keep">
+              <p className="mt-2.5 text-[14.5px] sm:text-[15.5px] text-[#3E4856] leading-relaxed max-w-2xl break-keep">
                 매장에서 직접 세척과 작동 검수를 마친 실매물입니다. 제품명이나 모델명으로 검색하실 수 있으며, 온라인에 아직 등록되지 않은 재고는 전화나 카톡으로 문의해 주세요.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               {!isLoading && (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-sm bg-[#0E1A2B] text-white text-[12px] sm:text-[12.5px] font-bold tabular-nums">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#FF8A50]" />
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0E1A2B] text-white text-[12.5px] font-bold tabular-nums">
+                  <span className="h-2 w-2 rounded-full bg-[#FF8A50]" />
                   현재 구매 가능 {sellingCount}건
                 </span>
               )}
-              <span className="px-2.5 sm:px-3 py-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] text-[#4B5260] text-[12px] sm:text-[12.5px] font-semibold">
+              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-[12.5px] font-bold">
                 ✓ 분해·고압세척 검수
               </span>
-              <span className="px-2.5 sm:px-3 py-1.5 rounded-sm border border-[#E4E0D8] bg-[#FAF9F7] text-[#4B5260] text-[12px] sm:text-[12.5px] font-semibold">
+              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-[12.5px] font-bold">
                 ✓ 세금계산서 발행
               </span>
             </div>
@@ -1649,9 +1649,9 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[64px] sm:h-[74px]에 정확히 밀착) */}
-      <div className="sticky top-[64px] sm:top-[74px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E4E0D8] shadow-2xs">
-        <div className="hb-container py-2 sm:py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
+      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[68px] sm:h-[76px]에 정확히 밀착) */}
+      <div className="sticky top-[68px] sm:top-[76px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E6E3DC] shadow-2xs">
+        <div className="hb-container py-2.5 sm:py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
           {/* 카테고리 탭 */}
           <div
             className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
@@ -1670,16 +1670,16 @@ export default function GalleryPage() {
                     setActiveCategory(cat);
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  className={`px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded text-[12px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                  className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-[12.5px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
                     active
                       ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
-                      : "bg-white text-[#4B5260] border-[#DDD9D1] hover:border-[#0E1A2B]/40 hover:bg-[#F6F5F2]"
+                      : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
                   }`}
                 >
                   {cat}
                   <span
                     className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] tabular-nums ${
-                      active ? "text-[#FF8A50]" : "text-[#8A8478]"
+                      active ? "text-[#FF8A50]" : "text-[#667085]"
                     }`}
                   >
                     {categoryCounts[cat] || 0}
@@ -1689,10 +1689,10 @@ export default function GalleryPage() {
             })}
           </div>
 
-          {/* 검색창 + 판매 상태 필터 + 정렬 (모바일 1줄 인라인 슬림 압축 / 데스크톱 sm 이상 기존 동일) */}
+          {/* 검색창 + 판매 상태 필터 + 정렬 */}
           <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
             <div className="relative flex-1 min-w-0 sm:w-64">
-              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#8A8478] pointer-events-none">
+              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
                 <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </span>
               <input
@@ -1704,7 +1704,7 @@ export default function GalleryPage() {
                 }}
                 placeholder="제품명·모델명 검색"
                 aria-label="제품명 또는 모델명 검색"
-                className="w-full h-8 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded border border-[#DDD9D1] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+                className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
               />
               {search.trim() !== "" && (
                 <button
@@ -1728,7 +1728,7 @@ export default function GalleryPage() {
                 setVisibleLimit(PAGE_STEP);
               }}
               aria-label="판매 상태 필터"
-              className="h-8 sm:h-10 px-2 sm:px-3 rounded border border-[#DDD9D1] bg-white text-[12px] sm:text-[13.5px] font-semibold text-[#4B5260] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
             >
               <option value="all">전체 상태</option>
               <option value="selling">판매중만</option>
@@ -1740,7 +1740,7 @@ export default function GalleryPage() {
               value={sort}
               onChange={(e) => setSort(e.target.value as SortOption)}
               aria-label="정렬 기준"
-              className="h-8 sm:h-10 px-2 sm:px-3 rounded border border-[#DDD9D1] bg-white text-[12px] sm:text-[13.5px] font-semibold text-[#4B5260] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
             >
               <option value="latest">최신 등록순</option>
               <option value="views">조회 많은순</option>
@@ -1755,7 +1755,7 @@ export default function GalleryPage() {
       <main className="hb-container py-6 sm:py-10 flex-1">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <p className="text-[13.5px] text-[#4B5260]">
+            <p className="text-[14px] text-[#3E4856]">
               {isLoading ? (
                 "상품 목록을 불러오는 중..."
               ) : (
@@ -1769,12 +1769,12 @@ export default function GalleryPage() {
               )}
             </p>
             {activeCategory !== "전체" && (
-              <span className="inline-flex items-center gap-1 rounded-sm bg-[#0E1A2B]/8 px-2 py-0.5 text-[11.5px] font-bold text-[#0E1A2B]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B]/8 px-2.5 py-0.5 text-[12px] font-bold text-[#0E1A2B]">
                 {activeCategory}
               </span>
             )}
             {search.trim() !== "" && (
-              <span className="inline-flex items-center gap-1 rounded-sm bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[12px] font-bold text-[#D9531E]">
                 검색: &ldquo;{search.trim()}&rdquo;
               </span>
             )}
@@ -1793,7 +1793,7 @@ export default function GalleryPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-[13px] font-bold text-[#4B5260] cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-[13.5px] font-bold text-[#3E4856] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={statusFilter === "selling"}
@@ -1812,10 +1812,10 @@ export default function GalleryPage() {
                   setIsSelectMode(!isSelectMode);
                   setSelectedIds(new Set());
                 }}
-                className={`px-3 py-1.5 rounded text-[12.5px] font-bold border transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-[12.5px] font-bold border transition-colors flex items-center gap-1.5 ${
                   isSelectMode
                     ? "bg-[#D9531E] text-white border-[#D9531E]"
-                    : "bg-white text-[#0E1A2B] border-[#DDD9D1] hover:bg-[#F6F5F2]"
+                    : "bg-white text-[#0E1A2B] border-[#D8D3C8] hover:bg-[#FAF9F7]"
                 }`}
               >
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
@@ -1826,13 +1826,13 @@ export default function GalleryPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={`sk-${idx}`}
-                className="bg-white rounded-md overflow-hidden border border-[#E4E0D8] animate-pulse"
+                className="bg-white rounded-xl overflow-hidden border border-[#E6E3DC] animate-pulse"
               >
-                <div className="aspect-[4/5] bg-[#EFECE6]" />
+                <div className="aspect-[4/3] bg-[#EFECE6]" />
                 <div className="p-4 space-y-3">
                   <div className="h-3 bg-[#EFECE6] rounded w-1/3" />
                   <div className="h-5 bg-[#EFECE6] rounded w-4/5" />
@@ -1842,11 +1842,11 @@ export default function GalleryPage() {
             ))}
           </div>
         ) : loadError ? (
-          <div className="py-16 px-6 text-center bg-white rounded-md border border-[#E4E0D8]">
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
             <p className="text-[#0E1A2B] text-[17px] font-bold">
               상품 목록을 불러오지 못했습니다.
             </p>
-            <p className="mt-1 text-[14px] text-[#6B7280]">
+            <p className="mt-1 text-[14px] text-[#667085]">
               네트워크 연결을 확인하신 후 다시 시도해 주세요.
             </p>
             <button
@@ -1858,11 +1858,11 @@ export default function GalleryPage() {
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="py-20 px-6 text-center bg-white rounded-md border border-[#E4E0D8]">
+          <div className="py-20 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
             <p className="text-[#0E1A2B] text-[18px] font-bold">
               조건에 맞는 상품이 없습니다.
             </p>
-            <p className="mt-1.5 text-[#6B7280] text-[14px]">
+            <p className="mt-1.5 text-[#667085] text-[14px]">
               검색어나 필터를 초기화하시거나, 찾으시는 모델명을 전화·카톡으로 문의해 주세요.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2.5">
@@ -1885,7 +1885,7 @@ export default function GalleryPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
               {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -1917,29 +1917,29 @@ export default function GalleryPage() {
         )}
 
         {/* 미등록 매장 재고 및 맞춤 사양 문의 배너 */}
-        <div className="mt-12 rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-2xs">
+        <div className="mt-12 rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div>
-            <span className="hb-eyebrow">Unlisted Stock Inquiry</span>
-            <h2 className="mt-1 text-[16px] sm:text-[18px] font-bold text-[#0E1A2B]">
+            <span className="hb-eyebrow">미등록 매장 재고 문의</span>
+            <h2 className="mt-1.5 text-[17px] sm:text-[19px] font-extrabold text-[#0E1A2B]">
               찾으시는 모델이나 용량·수량이 목록에 없으신가요?
             </h2>
-            <p className="mt-1 text-[13px] sm:text-[13.5px] text-[#4B5260] leading-relaxed break-keep">
+            <p className="mt-1 text-[13.5px] sm:text-[14px] text-[#3E4856] leading-relaxed break-keep">
               중촌동 매장에는 세척·점검을 마치고 아직 홈페이지에 업로드되지 않은 가전과 업소용 주방설비가 상시 대기 중입니다.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <a
               href={telHref(STORE.tel)}
-              className="hb-btn-primary h-10 px-4 text-[13px]"
+              className="hb-btn-accent h-11 px-4 text-[13.5px]"
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
+              <Icon d={ICON.phone} className="w-3.5 h-3.5" />
               <span>전화 재고 문의 ({STORE.tel})</span>
             </a>
             <a
               href={STORE.kakaoChat}
               target="_blank"
               rel="noopener noreferrer"
-              className="hb-btn-kakao h-10 px-4 text-[13px]"
+              className="hb-btn-kakao h-11 px-4 text-[13.5px]"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
               <span>카톡 실물사진 요청</span>
