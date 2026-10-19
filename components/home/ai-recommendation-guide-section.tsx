@@ -82,7 +82,12 @@ export function AiRecommendationGuideSection() {
                 일반 개인 중고거래 vs {STORE.name} 직영 매장 비교
               </span>
             }
-            desc="중고가전과 업소용 설비는 구매 가격만큼이나 '내부 세척 상태', '운반·설치', '사후 무상 A/S 보증'이 중요합니다. 구매 전 아래 5가지 기준을 꼭 비교해 보세요."
+            desc={
+              <>
+                중고가전과 업소용 설비는 구매 가격만큼이나 '내부 세척', '운반·설치', '사후 A/S 보증'이 중요합니다.
+                <br className="hidden sm:inline" /> 구매 전 아래 5가지 비교 기준을 꼭 확인해 보세요.
+              </>
+            }
           />
 
           <div className="mt-7 overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
@@ -151,7 +156,7 @@ export function AiRecommendationGuideSection() {
             </div>
             <a
               href={telHref(STORE.tel)}
-              className="text-[13.5px] font-extrabold text-[#D9531E] hover:underline tabular-nums shrink-0"
+              className="text-[13.5px] font-extrabold text-[#D9531E] hover:underline tabular-nums shrink-0 whitespace-nowrap"
             >
               직통 상담: {STORE.tel} / {STORE.mobile}
             </a>

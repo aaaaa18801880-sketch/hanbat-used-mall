@@ -222,7 +222,7 @@ export function SectionHeading({
       </h2>
       {desc && (
         <p
-          className={`mt-2.5 max-w-2xl text-[15px] leading-[1.65] break-keep sm:text-[16px] ${
+          className={`mt-2.5 max-w-2xl text-[15px] leading-[1.65] break-keep [text-wrap:pretty] sm:text-[16px] ${
             dark ? "text-white/75" : "text-[#3E4756]"
           }`}
         >

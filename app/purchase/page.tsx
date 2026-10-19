@@ -50,8 +50,9 @@ export default function PurchasePage() {
               <h1 className="mt-2 text-[26px] sm:text-[34px] font-extrabold tracking-[-0.03em] leading-[1.2] text-[#0E1A2B]">
                 중고 가전 · 업소용 주방기기 매입 신청
               </h1>
-              <p className="mt-2.5 max-w-2xl text-[14.5px] sm:text-[15.5px] text-[#3F4856] leading-relaxed break-keep">
-                가정 이사·가전 교체부터 식당·카페·사무실 폐업 및 이전 대량 정리까지, 사진과 품목 정보를 남겨주시면 확인 후 방문 수거 및 현장 즉시 정산을 도와드립니다.
+              <p className="mt-2.5 max-w-2xl text-[14.5px] sm:text-[15.5px] text-[#3F4856] leading-relaxed break-keep [text-wrap:pretty]">
+                가정 이사·가전 교체부터 식당·카페·사무실 폐업 및 이전 대량 정리까지,
+                <br className="hidden sm:inline" /> 사진과 품목 정보를 남겨주시면 확인 후 방문 수거 및 현장 즉시 정산을 도와드립니다.
               </p>
             </div>
 

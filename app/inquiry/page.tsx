@@ -596,8 +596,9 @@ export default function InquiryBoardPage() {
               <h1 className="text-[26px] sm:text-[36px] font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
                 고객 문의 · 매입 신청 게시판
               </h1>
-              <p className="mt-2.5 text-[14.5px] sm:text-[15.5px] text-[#3E4856] leading-relaxed max-w-2xl break-keep">
-                남겨주신 구매 상담과 매입 신청은 개인정보 보호를 위해 설정하신 비밀번호로 안전하게 열람할 수 있습니다. 빠른 상담은 대표전화로 연락해 주세요.
+              <p className="mt-2.5 text-[14.5px] sm:text-[15.5px] text-[#3E4856] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
+                남겨주신 구매 상담과 매입 신청은 비밀번호로 안전하게 열람하실 수 있습니다.
+                <br className="hidden sm:inline" /> 빠른 상담이 필요하신 경우 직통 대표전화로 연락해 주세요.
               </p>
             </div>
 

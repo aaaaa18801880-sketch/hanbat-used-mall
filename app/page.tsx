@@ -602,13 +602,17 @@ export default function Home() {
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-[#E5E2DC] bg-white px-4 py-3 text-[13px] text-[#3E4756]">
-                    <span className="font-semibold text-[#0E1A2B]">
-                      {STORE.roadAddress} ({STORE.addressNote})
-                    </span>
-                    <span className="text-[#646E7E] tabular-nums">
-                      영업시간 {STORE.hours} · 매장 앞 주차 가능
-                    </span>
+                  <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-1.5 xl:gap-3 border-t border-[#E5E2DC] bg-white px-4 py-3 text-[13px] text-[#3E4756]">
+                    <div className="flex items-center gap-1.5 font-semibold text-[#0E1A2B] min-w-0">
+                      <span className="break-keep">
+                        {STORE.roadAddress} <span className="font-normal text-[#646E7E]">({STORE.addressNote})</span>
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[#646E7E] tabular-nums shrink-0 whitespace-nowrap text-[12.5px] sm:text-[13px]">
+                      <span>영업시간 {STORE.hours}</span>
+                      <span>·</span>
+                      <span className="font-semibold text-[#0E1A2B]">매장 앞 주차 가능</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -635,7 +639,12 @@ export default function Home() {
                   중고가전 구매 · 방문매입 · 업소용 상담
                 </span>
               }
-              desc="가정용 단품 구매부터 사용하던 가전 처분, 식당·카페 창업 설비 납품까지 목적에 맞는 경로로 바로 이동하실 수 있습니다."
+              desc={
+                <>
+                  가정용 단품 구매부터 사용하던 가전 처분, 식당·카페 창업 설비 납품까지
+                  <br className="hidden sm:inline" /> 목적에 맞는 경로로 바로 이동하실 수 있습니다.
+                </>
+              }
             />
 
             <div className="mt-8 grid gap-5 lg:grid-cols-3">
@@ -795,7 +804,12 @@ export default function Home() {
               <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <SectionHeading
                   title={<span id="review-title">배송 · 설치 현장 기록</span>}
-                  desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송하고 설치한 실제 현장 사진입니다."
+                  desc={
+                    <>
+                      가정집부터 식당·카페·사무실까지
+                      <br className="hidden sm:inline" /> 한밭중고전자가 직접 배송하고 설치한 실제 현장 사진입니다.
+                    </>
+                  }
                 />
                 <div className="flex items-center gap-3">
                   {reviews.length > 0 && (
@@ -930,7 +944,12 @@ export default function Home() {
                         </span>
                       </span>
                     }
-                    desc={`입고 검수부터 분해 세척, 직배송 설치와 사후 A/S까지 ${STORE.name}가 ${STORE.since}년부터 지켜온 운영 기준입니다.`}
+                    desc={
+                      <>
+                        입고 검수부터 분해 세척, 직배송 설치와 사후 A/S까지
+                        <br className="hidden sm:inline" /> {STORE.name}가 {STORE.since}년부터 지켜온 운영 기준입니다.
+                      </>
+                    }
                   />
                 </div>
 
@@ -1258,24 +1277,36 @@ export default function Home() {
             <div className="lg:col-span-4 lg:sticky lg:top-28">
               <SectionHeading
                 title={<span id="faq-title">자주 묻는 질문 (FAQ)</span>}
-                desc="A/S 책임 보증 기간, 보상판매 차액 정산, 설치 환경별 비용 기준 등 고객님들이 상담 전 가장 많이 물어보시는 핵심 질문입니다."
+                desc={
+                  <>
+                    A/S 보증 기간, 보상판매 차액 정산, 설치 비용 등
+                    <br className="hidden sm:inline" /> 고객님들이 상담 전 가장 많이 물어보시는 핵심 질문입니다.
+                  </>
+                }
               />
-              <p className="mt-4 text-[14.5px] leading-relaxed text-[#434B59]">
-                추가 문의는 대표전화{" "}
-                <a
-                  href={telHref(STORE.tel)}
-                  className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
-                >
-                  {STORE.tel}
-                </a>{" "}
-                또는 직통{" "}
-                <a
-                  href={telHref(STORE.mobile)}
-                  className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
-                >
-                  {STORE.mobile}
-                </a>
-                로 연락해 주세요.
+              <p className="mt-4 text-[14.5px] leading-relaxed text-[#434B59] break-keep">
+                추가 문의는{" "}
+                <span className="whitespace-nowrap">
+                  대표전화{" "}
+                  <a
+                    href={telHref(STORE.tel)}
+                    className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
+                  >
+                    {STORE.tel}
+                  </a>
+                </span>{" "}
+                또는{" "}
+                <span className="whitespace-nowrap">
+                  직통{" "}
+                  <a
+                    href={telHref(STORE.mobile)}
+                    className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
+                  >
+                    {STORE.mobile}
+                  </a>
+                  로
+                </span>{" "}
+                연락해 주세요.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-2.5">
@@ -1402,7 +1433,13 @@ export default function Home() {
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
               <SectionHeading
                 title={<span id="location-title">오프라인 매장 위치 및 영업 안내</span>}
-                desc={`${STORE.roadAddress} (${STORE.jibunAddress} · 중촌고가도로 밑) · 매장 앞 전용 주차 가능`}
+                desc={
+                  <>
+                    <span>{STORE.roadAddress} ({STORE.addressNote})</span>
+                    <span className="hidden sm:inline"> · </span>
+                    <span className="block sm:inline whitespace-nowrap">매장 앞 전용 주차 가능</span>
+                  </>
+                }
               />
               <button
                 type="button"
