@@ -2214,11 +2214,19 @@ export default function GalleryPage() {
           label="판매 상품 등록"
           panelClassName="max-w-lg"
         >
-          <div className="bg-white w-full max-h-[92vh] overflow-y-auto rounded-lg shadow-2xl border border-[#E4E0D8]">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
-              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
-                판매 상품 등록
-              </h2>
+          <div className="bg-white w-full max-h-[92vh] flex flex-col rounded-lg shadow-2xl border border-[#E4E0D8] overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] bg-white shrink-0 z-10">
+              <div className="flex items-center gap-2.5">
+                <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+                  판매 상품 등록
+                </h2>
+                {isAnalyzing && (
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-bold bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0] animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#D9531E] animate-ping" />
+                    AI 작성 중
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={handleCloseUploadModal}
@@ -2231,8 +2239,10 @@ export default function GalleryPage() {
 
             <form
               onSubmit={handleProductSubmit}
-              className="p-6 space-y-5 text-[14px]"
+              className="flex flex-col flex-1 min-h-0 overflow-hidden"
             >
+              {/* 스크롤 가능한 본문 영역 */}
+              <div className="overflow-y-auto flex-1 p-6 space-y-5 text-[14px]">
               {/* 1. 사진 업로드 및 순서 변경 */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
@@ -2523,22 +2533,42 @@ export default function GalleryPage() {
                   placeholder="[한눈에 보는 제품 정보], [제품 특징], [주요 사양] 핵심 3개 항목 위주로 초안이 자동 입력됩니다."
                 />
               </div>
+            </div>
+            {/* 스크롤 본문 끝 */}
 
-              <div className="flex gap-2.5 pt-4 border-t border-[#E4E0D8]">
-                <button
-                  type="button"
-                  onClick={handleCloseUploadModal}
-                  className="hb-btn-outline w-1/2 h-12 text-[14px]"
-                >
-                  취소
-                </button>
-                <button
-                  type="submit"
-                  disabled={uploadingProduct || isAnalyzing}
-                  className="hb-btn-primary w-1/2 h-12 text-[14px]"
-                >
-                  {uploadingProduct ? "등록 중..." : "상품 등록 완료"}
-                </button>
+              {/* 하단 고정 액션 바: 스크롤 없이 즉시 클릭 가능 */}
+              <div className="p-4 sm:px-6 border-t border-[#E4E0D8] bg-[#FAF9F7] shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-10">
+                <div className="flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={handleCloseUploadModal}
+                    className="hb-btn-outline w-1/3 sm:w-1/4 h-12 text-[14px]"
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={uploadingProduct || isAnalyzing}
+                    className="hb-btn-primary flex-1 h-12 text-[14px] font-bold flex items-center justify-center gap-2"
+                  >
+                    {uploadingProduct ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>등록 중...</span>
+                      </>
+                    ) : isAnalyzing ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>AI 분석 중...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Icon d={ICON.check} className="w-4 h-4 text-white" />
+                        <span>상품 등록 완료</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </form>
           </div>
