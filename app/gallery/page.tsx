@@ -939,8 +939,8 @@ export default function GalleryPage() {
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  /* AI 판독 결과 구분 상태 */
-  const [searchSpecs, setSearchSpecs] = useState(true);
+  /* AI 판독 결과 구분 상태 (기본값 false: 초고속 즉시 사진 분석) */
+  const [searchSpecs, setSearchSpecs] = useState(false);
   const [photoObserved, setPhotoObserved] = useState<string[]>([]);
   const [searchDerivedSpecs, setSearchDerivedSpecs] = useState<string[]>([]);
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
@@ -1398,7 +1398,7 @@ export default function GalleryPage() {
     setSearchDerivedSpecs([]);
     setReviewWarnings([]);
     setFoundSources([]);
-    setSearchSpecs(true);
+    setSearchSpecs(false);
     setIsAnalyzing(false);
   };
 
@@ -1440,8 +1440,8 @@ export default function GalleryPage() {
     setIsAnalyzing(true);
     const toastId = toast.loading(
       searchSpecs
-        ? "AI가 사진을 판독하고 공식 제원을 검색 중입니다..."
-        : "AI가 사진 속 모델명과 외관을 판독 중입니다..."
+        ? "AI가 사진을 판독하고 인터넷 제원을 정밀 검색 중입니다..."
+        : "AI가 사진 속 모델명과 외관을 초고속 분석 중입니다..."
     );
 
     try {
@@ -1450,12 +1450,13 @@ export default function GalleryPage() {
       formData.append("searchSpecs", searchSpecs ? "true" : "false");
 
       for (const file of filesToAnalyze.slice(0, MAX_PHOTOS)) {
-        const compressedBlob = await compressImage(file);
+        const compressedBlob = await compressImage(file, 1080, 0.72);
         const optimizedFile = new File([compressedBlob], file.name, {
           type: "image/jpeg",
         });
         formData.append("files", optimizedFile);
       }
+
 
       const authHeaders = await getAdminAuthHeaders();
       const res = await fetch("/api/analyze-product", {
@@ -2140,7 +2141,7 @@ export default function GalleryPage() {
                       onChange={(e) => setSearchSpecs(e.target.checked)}
                       className="w-4 h-4 accent-[#0E1A2B]"
                     />
-                    <span>모델명 기반 인터넷 공식 사양 검색 활용</span>
+                    <span>인터넷 공식 제원 정밀 검색 (선택 시 5~10초 추가 소요)</span>
                   </label>
                   {productFiles.length > 0 && (
                     <button
@@ -2387,7 +2388,7 @@ export default function GalleryPage() {
                   value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
                   className="hb-input mt-1 font-mono text-[13px] leading-relaxed resize-y"
-                  placeholder="[한눈에 보는 제품 정보], [제품 특징], [주요 사양], [점검 및 A/S 안내], [구매 및 설치 전 확인사항], [상담 안내] 내용이 표시됩니다."
+                  placeholder="[한눈에 보는 제품 정보], [제품 특징], [주요 사양] 핵심 3개 항목 위주로 초안이 자동 입력됩니다."
                 />
               </div>
 
