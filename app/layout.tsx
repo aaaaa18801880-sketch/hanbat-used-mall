@@ -17,11 +17,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
       { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico"],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   title: {
@@ -66,9 +68,24 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: `${STORE.name} 직영 매장 대표 이미지`,
+        alt: `${STORE.name} 대전 중촌동 1·2층 직영 쇼룸 및 에어컨 매장 전경`,
+        type: "image/jpeg",
+      },
+      {
+        url: "/main-bg2.png",
+        width: 1920,
+        height: 1080,
+        alt: `${STORE.name} 대전 직영 매장 오프라인 전경`,
+        type: "image/png",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
+    description:
+      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 8개월, 일반·업소용 가전 4개월 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+    images: ["/og-image.jpg"],
   },
   verification: {
     google: "5Q8KVRdeLBQYI9x7EUnX4dQ1N6rmRqD3D4IydPLDbKU",
@@ -98,6 +115,8 @@ export default function RootLayout({
     ],
     url: STORE.url,
     inLanguage: "ko-KR",
+    image: `${STORE.url}/og-image.jpg`,
+    thumbnailUrl: `${STORE.url}/icon-512.png`,
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -108,7 +127,31 @@ export default function RootLayout({
     },
   };
 
-  // 2) AI 검색엔진(ChatGPT, Perplexity, Gemini) 및 로컬 비즈니스 지식 그래프용 상세 스키마
+  // 2) 공식 Organization & Brand 로고 구조화 데이터 (구글 검색 로고 및 지식패널용)
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${STORE.url}/#organization`,
+    name: STORE.name,
+    legalName: STORE.legalName,
+    url: STORE.url,
+    logo: {
+      "@type": "ImageObject",
+      url: `${STORE.url}/icon-512.png`,
+      width: 512,
+      height: 512,
+      caption: `${STORE.name} 공식 로고`,
+    },
+    image: `${STORE.url}/og-image.jpg`,
+    telephone: STORE.tel,
+    sameAs: [
+      "https://cafe.naver.com/hanbatmall",
+      "https://pf.kakao.com/_XmyrX",
+      "https://naver.me/F5DkWQ4z",
+    ],
+  };
+
+  // 3) AI 검색엔진(ChatGPT, Perplexity, Gemini) 및 로컬 비즈니스 지식 그래프용 상세 스키마
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
     "@type": ["ElectronicsStore", "LocalBusiness"],
@@ -118,6 +161,7 @@ export default function RootLayout({
     description:
       "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 에어컨·냉난방기 8개월, 일반 및 업소용 가전 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
     image: [`${STORE.url}/og-image.jpg`, `${STORE.url}/main-bg2.png`],
+    logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
     url: STORE.url,
     foundingDate: String(STORE.since),
@@ -239,6 +283,12 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
         />
         <script
           type="application/ld+json"

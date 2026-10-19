@@ -114,6 +114,16 @@ function runPredeployChecks() {
     "AI 검색 추천용 피드 라우트 및 비교 컴포넌트가 존재하는지 확인하세요."
   );
 
+  check(
+    "10. 구글 검색 대표 썸네일(public/og-image.jpg) 및 SVG 파비콘(public/favicon.svg) 무결성 확인",
+    fileExists("public/og-image.jpg") &&
+      fileExists("public/og-image.png") &&
+      fileExists("public/favicon.svg") &&
+      rootLayout.includes("og-image.jpg") &&
+      rootLayout.includes('"@type": "Organization"'),
+    "public/og-image.jpg 생성 및 Organization 스키마를 확인하세요."
+  );
+
   console.log("\n=========================================================");
   console.log(`검증 완료: ${passed} / ${total} 항목 통과`);
   console.log("=========================================================");

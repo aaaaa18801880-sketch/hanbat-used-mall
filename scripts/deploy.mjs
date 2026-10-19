@@ -1,27 +1,18 @@
 import { execFileSync } from 'child_process';
+import fs from 'fs';
 
-const gitExe = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
-const cwd = 'c:\\Users\\ABC\\Desktop\\한밭중고전자\\hanbat-mall';
-const env = {
-  ...process.env,
-  PATH: `C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Windows\\System32;${process.env.PATH}`,
-};
+const bashExe = 'C:\\Program Files\\Git\\bin\\bash.exe';
+const cwd = 'c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall';
 
 try {
-  console.log('1. Git status:');
-  const status = execFileSync(gitExe, ['status', '-s'], { cwd, env, encoding: 'utf8' });
-  console.log(status || '(Clean)');
+  ['scripts/test-cmd-git.mjs', 'scripts/test-bash-git.mjs', 'scripts/git-push.bat', 'scripts/check-git.mjs', 'scripts/clean-temp.mjs'].forEach(f => {
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  });
 
-  console.log('2. Git add:');
-  execFileSync(gitExe, ['add', '-A'], { cwd, env, encoding: 'utf8' });
-
-  console.log('3. Git commit:');
-  const commit = execFileSync(gitExe, ['commit', '-m', 'feat(gallery): add auto-rotation detection and manual 90-degree image rotation'], { cwd, env, encoding: 'utf8' });
-  console.log(commit);
-
-  console.log('4. Git push origin main:');
-  const push = execFileSync(gitExe, ['push', 'origin', 'main'], { cwd, env, encoding: 'utf8' });
-  console.log(push || '(Push OK)');
+  console.log('Deploying via single bash invocation...');
+  const cmd = 'git add -A && git commit -m "feat(seo): update search snippet favicon to brand logo and og:image to store exterior banner" && git push origin main';
+  const out = execFileSync(bashExe, ['-c', cmd], { cwd, encoding: 'utf8' });
+  console.log(out);
   console.log('✅ Deployment push succeeded!');
 } catch (e) {
   console.error('Git error:', e.message);

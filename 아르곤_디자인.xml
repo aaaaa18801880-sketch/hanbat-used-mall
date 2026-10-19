@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-19T14:39:53.073Z">
+<project name="hanbat-mall" generated_at="2026-10-19T15:09:48.862Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>67</file_count>
+    <file_count>71</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -10180,7 +10180,7 @@ export default function InquiryBoardPage() {
 
 ]]>
     </file>
-    <file path="app/layout.tsx" lines="277">
+    <file path="app/layout.tsx" lines="327">
       <![CDATA[
 // 파일 경로: app/layout.tsx
 import type { Metadata } from "next";
@@ -10201,11 +10201,13 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icon-48.png", sizes: "48x48", type: "image/png" },
       { url: "/icon-96.png", sizes: "96x96", type: "image/png" },
       { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
       { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico"],
     apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
   },
   title: {
@@ -10250,9 +10252,24 @@ export const metadata: Metadata = {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: `${STORE.name} 직영 매장 대표 이미지`,
+        alt: `${STORE.name} 대전 중촌동 1·2층 직영 쇼룸 및 에어컨 매장 전경`,
+        type: "image/jpeg",
+      },
+      {
+        url: "/main-bg2.png",
+        width: 1920,
+        height: 1080,
+        alt: `${STORE.name} 대전 직영 매장 오프라인 전경`,
+        type: "image/png",
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
+    description:
+      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 8개월, 일반·업소용 가전 4개월 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+    images: ["/og-image.jpg"],
   },
   verification: {
     google: "5Q8KVRdeLBQYI9x7EUnX4dQ1N6rmRqD3D4IydPLDbKU",
@@ -10282,6 +10299,8 @@ export default function RootLayout({
     ],
     url: STORE.url,
     inLanguage: "ko-KR",
+    image: `${STORE.url}/og-image.jpg`,
+    thumbnailUrl: `${STORE.url}/icon-512.png`,
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -10292,7 +10311,31 @@ export default function RootLayout({
     },
   };
 
-  // 2) AI 검색엔진(ChatGPT, Perplexity, Gemini) 및 로컬 비즈니스 지식 그래프용 상세 스키마
+  // 2) 공식 Organization & Brand 로고 구조화 데이터 (구글 검색 로고 및 지식패널용)
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `${STORE.url}/#organization`,
+    name: STORE.name,
+    legalName: STORE.legalName,
+    url: STORE.url,
+    logo: {
+      "@type": "ImageObject",
+      url: `${STORE.url}/icon-512.png`,
+      width: 512,
+      height: 512,
+      caption: `${STORE.name} 공식 로고`,
+    },
+    image: `${STORE.url}/og-image.jpg`,
+    telephone: STORE.tel,
+    sameAs: [
+      "https://cafe.naver.com/hanbatmall",
+      "https://pf.kakao.com/_XmyrX",
+      "https://naver.me/F5DkWQ4z",
+    ],
+  };
+
+  // 3) AI 검색엔진(ChatGPT, Perplexity, Gemini) 및 로컬 비즈니스 지식 그래프용 상세 스키마
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
     "@type": ["ElectronicsStore", "LocalBusiness"],
@@ -10302,6 +10345,7 @@ export default function RootLayout({
     description:
       "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 에어컨·냉난방기 8개월, 일반 및 업소용 가전 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
     image: [`${STORE.url}/og-image.jpg`, `${STORE.url}/main-bg2.png`],
+    logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
     url: STORE.url,
     foundingDate: String(STORE.since),
@@ -10423,6 +10467,12 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(organizationJsonLd),
+          }}
         />
         <script
           type="application/ld+json"
@@ -22853,6 +22903,25 @@ runDiagnostics();
 
 ]]>
     </file>
+    <file path="scripts/clean.mjs" lines="2">
+      <![CDATA[
+// clean.mjs removed
+
+]]>
+    </file>
+    <file path="scripts/cleanup-temp.mjs" lines="9">
+      <![CDATA[
+import fs from "fs";
+
+["public/google-cached-favicon.png", "public/google-favicon-v2.png", "scripts/check-live-favicon.mjs"].forEach(f => {
+  if (fs.existsSync(f)) {
+    fs.unlinkSync(f);
+    console.log("Deleted:", f);
+  }
+});
+
+]]>
+    </file>
     <file path="scripts/deploy.mjs" lines="31">
       <![CDATA[
 import { execFileSync } from 'child_process';
@@ -22971,6 +23040,46 @@ async function main() {
 }
 
 main().catch(console.error);
+
+]]>
+    </file>
+    <file path="scripts/generate-og-image.mjs" lines="29">
+      <![CDATA[
+import sharp from "sharp";
+import fs from "fs";
+
+async function generateOgImages() {
+  console.log("Generating og-image.jpg and og-image.png from main-bg2.png...");
+  
+  // 1200x630 JPEG (standard OG)
+  await sharp("public/main-bg2.png")
+    .resize(1200, 630, {
+      fit: "cover",
+      position: sharp.strategy.entropy,
+    })
+    .jpeg({ quality: 92, progressive: true })
+    .toFile("public/og-image.jpg");
+
+  // 1200x630 PNG
+  await sharp("public/main-bg2.png")
+    .resize(1200, 630, {
+      fit: "cover",
+      position: sharp.strategy.entropy,
+    })
+    .png({ quality: 90, compressionLevel: 8 })
+    .toFile("public/og-image.png");
+
+  console.log("✅ Successfully created public/og-image.jpg and public/og-image.png");
+}
+
+generateOgImages().catch(console.error);
+
+]]>
+    </file>
+    <file path="scripts/list-scripts.mjs" lines="3">
+      <![CDATA[
+import fs from "fs";
+console.log("scripts:", fs.readdirSync("scripts"));
 
 ]]>
     </file>
@@ -23236,7 +23345,7 @@ runPhase4RegressionTests();
 
 ]]>
     </file>
-    <file path="scripts/verify-predeploy.mjs" lines="126">
+    <file path="scripts/verify-predeploy.mjs" lines="136">
       <![CDATA[
 // 파일 경로: scripts/verify-predeploy.mjs
 // 실행 방법: node scripts/verify-predeploy.mjs
@@ -23352,6 +23461,16 @@ function runPredeployChecks() {
       fileExists("app/llms-full.txt/route.ts") &&
       fileExists("components/home/ai-recommendation-guide-section.tsx"),
     "AI 검색 추천용 피드 라우트 및 비교 컴포넌트가 존재하는지 확인하세요."
+  );
+
+  check(
+    "10. 구글 검색 대표 썸네일(public/og-image.jpg) 및 SVG 파비콘(public/favicon.svg) 무결성 확인",
+    fileExists("public/og-image.jpg") &&
+      fileExists("public/og-image.png") &&
+      fileExists("public/favicon.svg") &&
+      rootLayout.includes("og-image.jpg") &&
+      rootLayout.includes('"@type": "Organization"'),
+    "public/og-image.jpg 생성 및 Organization 스키마를 확인하세요."
   );
 
   console.log("\n=========================================================");
