@@ -116,6 +116,30 @@ function cleanAndParseAIJson(responseText: string): Record<string, unknown> {
   const nr = extractArray("needsReview");
   if (nr.length > 0) fallback.needsReview = nr;
 
+  // imageRotations 객체 배열 추출
+  const extractObjects = (key: string): Array<Record<string, unknown>> => {
+    const regex = new RegExp(`"${key}"\\s*:\\s*\\[([\\s\\S]*?)\\]`);
+    const match = cleaned.match(regex);
+    if (match && match[1]) {
+      try {
+        const arr = JSON.parse(`[${match[1]}]`);
+        if (Array.isArray(arr)) return arr;
+      } catch {
+        const itemRegex = /\{\s*"index"\s*:\s*(\d+)\s*,\s*"rotate"\s*:\s*(\d+)\s*\}/g;
+        const list: Array<Record<string, unknown>> = [];
+        let m: RegExpExecArray | null;
+        while ((m = itemRegex.exec(match[1])) !== null) {
+          list.push({ index: Number(m[1]), rotate: Number(m[2]) });
+        }
+        return list;
+      }
+    }
+    return [];
+  };
+
+  const ir = extractObjects("imageRotations");
+  if (ir.length > 0) fallback.imageRotations = ir;
+
   return fallback;
 }
 
@@ -222,6 +246,13 @@ export async function POST(req: NextRequest) {
 - [제품 특징]: 제품의 핵심 기능 및 차별점 (2~3개 불릿)
 - [주요 사양]: 모델명, 크기, 용량, 도어/구획 구성, 전원, 특이사항(단상/삼상, 전용선 필요 시 등)
 
+5. [필수] 사진 방향 자동 감지 (imageRotations)
+- 첨부된 각 사진(전달된 이미지 순서대로 1번부터)의 기기 외관이나 에너지라벨/명판 텍스트가 옆으로 누워있는지 판독하여, 사람이 고개를 기울이지 않고 정방향으로 편안하게 읽을 수 있도록 세우기 위해 '시계방향'으로 몇 도 회전해야 하는지(rotate: 0, 90, 180, 270)를 반드시 판정하세요:
+  * 0: 이미 정상 정방향으로 서 있음
+  * 90: 사진 속 기기나 라벨 글자가 왼쪽으로 90도 누워있음 (시계방향 90도 회전 필요)
+  * 180: 거꾸로 뒤집혀 있음 (180도 회전 필요)
+  * 270: 오른쪽으로 90도 누워있음 (반시계 90도 / 시계방향 270도 회전 필요)
+
 ## 카테고리 자동 판별
 관리자 선택값("${categoryHint || "미지정"}")과 무관하게, 첨부 사진 속 실제 제품을 보고 아래 5개 중 하나로 분류:
 - "에어컨/냉난방기"
@@ -235,6 +266,10 @@ export async function POST(req: NextRequest) {
   "category": "업소용기기",
   "title": "우성 45박스 업소용 4도어 직냉식 냉장냉동고 (냉동 1칸 / 냉장 3칸, CWS-1243RF)",
   "modelNumber": "CWS-1243RF",
+  "imageRotations": [
+    { "index": 1, "rotate": 0 },
+    { "index": 2, "rotate": 90 }
+  ],
   "photoObserved": [
     "제품 유형: 업소용 45박스 4도어 수직형 냉장냉동고 외관 확인",
     "명판 모델명: CWS-1243RF 판독됨"
@@ -452,6 +487,25 @@ export async function POST(req: NextRequest) {
         ? "검색으로 확인된 사양은 참고용 초안입니다. 실제 사진 속 제품과 동일한 모델인지 확인한 뒤 저장해 주세요."
         : "사진에서 판독된 초안입니다. 미확인 사양은 직접 확인 후 보충해 주세요.";
 
+    const imageRotations = Array.isArray(rawParsed.imageRotations)
+      ? rawParsed.imageRotations
+          .map((item) => {
+            if (item && typeof item === "object") {
+              const obj = item as Record<string, unknown>;
+              const index = typeof obj.index === "number" ? obj.index : 0;
+              const rotate = typeof obj.rotate === "number" ? obj.rotate : 0;
+              return { index, rotate };
+            }
+            return null;
+          })
+          .filter(
+            (it): it is { index: number; rotate: number } =>
+              it !== null &&
+              it.index > 0 &&
+              [0, 90, 180, 270].includes(it.rotate)
+          )
+      : [];
+
     return NextResponse.json({
       isDraft: true,
       modelUsed, // <-- 실제 사용된 모델(폴백 포함) 반환
@@ -465,6 +519,7 @@ export async function POST(req: NextRequest) {
       sourceVerificationNote,
       needsReview,
       sourceUrls,
+      imageRotations,
     });
 
   } catch (error: unknown) {

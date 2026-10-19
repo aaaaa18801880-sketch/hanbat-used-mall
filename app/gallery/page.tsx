@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -13,6 +13,7 @@ import {
   telHref,
   splitImages,
   compressImage,
+  rotateImageFile,
   validateImageFiles,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
@@ -209,6 +210,28 @@ function ProductDetailModal({
     URL.revokeObjectURL(editNewPreviews[targetIdx]);
     setEditNewFiles((prev) => prev.filter((_, i) => i !== targetIdx));
     setEditNewPreviews((prev) => prev.filter((_, i) => i !== targetIdx));
+  };
+
+  const rotateNewEditFile = async (i: number, degrees = 90) => {
+    const file = editNewFiles[i];
+    if (!file) return;
+    try {
+      const rotated = await rotateImageFile(file, degrees);
+      setEditNewFiles((prev) => {
+        const next = [...prev];
+        next[i] = rotated;
+        return next;
+      });
+      setEditNewPreviews((prev) => {
+        const next = [...prev];
+        if (next[i]) URL.revokeObjectURL(next[i]);
+        next[i] = URL.createObjectURL(rotated);
+        return next;
+      });
+      toast.success("사진이 90° 회전되었습니다.");
+    } catch {
+      toast.error("사진 회전에 실패했습니다.");
+    }
   };
 
   const handleSaveEdit = async () => {
@@ -599,6 +622,15 @@ function ProductDetailModal({
                             className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
                           >
                             <Icon d={ICON.close} className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => rotateNewEditFile(i, 90)}
+                            title="시계방향 90도 회전"
+                            aria-label="시계방향 90도 회전"
+                            className="absolute bottom-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E] shadow-sm transition-colors"
+                          >
+                            <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                           </button>
                         </div>
                       ))}
@@ -1385,8 +1417,11 @@ export default function GalleryPage() {
   };
 
   /* ───── 관리자 신규 상품 등록 및 사진 순서·AI 분석 ───── */
+  const userManuallyRotatedRef = useRef<Set<number>>(new Set());
+
   const resetUploadForm = () => {
     productPreviews.forEach((u) => URL.revokeObjectURL(u));
+    userManuallyRotatedRef.current.clear();
     setProductTitle("");
     setProductModel("");
     setProductDescription("");
@@ -1491,6 +1526,41 @@ export default function GalleryPage() {
       );
       setFoundSources(Array.isArray(data.sourceUrls) ? data.sourceUrls : []);
 
+      // AI가 감지한 옆으로 누운 사진 자동 정방향 회전
+      if (Array.isArray(data.imageRotations) && data.imageRotations.length > 0) {
+        const rotationsToApply = data.imageRotations.filter(
+          (r: { index?: unknown; rotate?: unknown }) => {
+            const idx = typeof r.index === "number" ? r.index - 1 : -1;
+            const deg = typeof r.rotate === "number" ? r.rotate : 0;
+            return (
+              idx >= 0 &&
+              idx < filesToAnalyze.length &&
+              deg > 0 &&
+              deg < 360 &&
+              !userManuallyRotatedRef.current.has(idx)
+            );
+          }
+        );
+
+        if (rotationsToApply.length > 0) {
+          try {
+            for (const r of rotationsToApply) {
+              const idx = (r.index as number) - 1;
+              await rotateUploadFile(idx, r.rotate as number, true);
+            }
+            toast.success(
+              "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다.",
+              {
+                icon: "🔄",
+                duration: 4000,
+              }
+            );
+          } catch (rotateErr) {
+            console.warn("AI 자동 회전 적용 중 오류:", rotateErr);
+          }
+        }
+      }
+
       toast.success(
         "AI 초안이 작성되었습니다. 검토 필요 항목을 확인해 주세요.",
         { id: toastId }
@@ -1511,6 +1581,7 @@ export default function GalleryPage() {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
     e.target.value = "";
+    userManuallyRotatedRef.current.clear();
     const remaining = MAX_PHOTOS - productFiles.length;
     if (remaining <= 0) {
       toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 등록 가능합니다.`);
@@ -1537,6 +1608,46 @@ export default function GalleryPage() {
     URL.revokeObjectURL(productPreviews[index]);
     setProductFiles((prev) => prev.filter((_, i) => i !== index));
     setProductPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const rotateUploadFile = async (
+    index: number,
+    degrees = 90,
+    isAuto = false
+  ) => {
+    let targetFile: File | null = null;
+    setProductFiles((prev) => {
+      targetFile = prev[index] || null;
+      return prev;
+    });
+
+    if (!targetFile) return;
+
+    try {
+      const rotated = await rotateImageFile(targetFile, degrees);
+      setProductFiles((prev) => {
+        const next = [...prev];
+        if (index < next.length) next[index] = rotated;
+        return next;
+      });
+
+      setProductPreviews((prev) => {
+        const next = [...prev];
+        if (index < next.length) {
+          if (next[index]) URL.revokeObjectURL(next[index]);
+          next[index] = URL.createObjectURL(rotated);
+        }
+        return next;
+      });
+
+      if (!isAuto) {
+        userManuallyRotatedRef.current.add(index);
+        toast.success(`${index + 1}번 사진이 90° 회전되었습니다.`);
+      }
+    } catch (err) {
+      console.error("사진 회전 오류:", err);
+      if (!isAuto) toast.error("사진 회전에 실패했습니다.");
+    }
   };
 
   const moveUploadFile = (fromIdx: number, toIdx: number) => {
@@ -2206,24 +2317,45 @@ export default function GalleryPage() {
                           >
                             <Icon d={ICON.close} className="w-3 h-3" />
                           </button>
+                          {/* 이미지 우하단 퀵 90도 회전 버튼 */}
+                          <button
+                            type="button"
+                            onClick={() => rotateUploadFile(index, 90)}
+                            title="시계방향 90도 회전"
+                            aria-label="시계방향 90도 회전"
+                            className="absolute bottom-1.5 right-1.5 bg-black/75 hover:bg-[#D9531E] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
+                          >
+                            <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
+                          </button>
                         </div>
-                        <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-[11px] font-bold text-[#4B5260]">
+                        <div className="border-t border-[#E4E0D8] bg-white text-[11px] font-bold text-[#4B5260]">
                           <button
                             type="button"
-                            disabled={index === 0}
-                            onClick={() => moveUploadFile(index, index - 1)}
-                            className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            onClick={() => rotateUploadFile(index, 90)}
+                            className="w-full py-1.5 flex items-center justify-center gap-1.5 text-[#0E1A2B] hover:text-[#D9531E] hover:bg-[#FFF5F0] border-b border-[#E4E0D8] transition-colors"
+                            title="사진을 시계 방향으로 90도 회전합니다"
                           >
-                            ← 앞으로
+                            <Icon d={ICON.rotate} className="w-3.5 h-3.5 text-[#D9531E]" />
+                            <span>90° 회전</span>
                           </button>
-                          <button
-                            type="button"
-                            disabled={index === productPreviews.length - 1}
-                            onClick={() => moveUploadFile(index, index + 1)}
-                            className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
-                          >
-                            뒤로 →
-                          </button>
+                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8]">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveUploadFile(index, index - 1)}
+                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            >
+                              ← 앞으로
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === productPreviews.length - 1}
+                              onClick={() => moveUploadFile(index, index + 1)}
+                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            >
+                              뒤로 →
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

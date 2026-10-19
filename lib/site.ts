@@ -961,6 +961,65 @@ export function compressImage(
   });
 }
 
+/**
+ * 이미지 File을 캔버스를 통해 지정된 각도(기본 90도 시계방향)로 회전하여 새로운 File 객체를 반환
+ */
+export function rotateImageFile(
+  file: File,
+  degrees = 90,
+  quality = 0.92
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("파일을 읽지 못했습니다."));
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onerror = () => reject(new Error("이미지를 불러오지 못했습니다."));
+      img.onload = () => {
+        const normalizedDeg = ((degrees % 360) + 360) % 360;
+        if (normalizedDeg === 0) {
+          resolve(file);
+          return;
+        }
+
+        const isSwap = normalizedDeg === 90 || normalizedDeg === 270;
+        const canvas = document.createElement("canvas");
+        canvas.width = isSwap ? img.height : img.width;
+        canvas.height = isSwap ? img.width : img.height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate((normalizedDeg * Math.PI) / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+            const rotatedFile = new File([blob], cleanName, {
+              type: "image/jpeg",
+              lastModified: Date.now(),
+            });
+            resolve(rotatedFile);
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 /* ════════════════════════════════════════════════════════════
    8. 상담 유형별 AI 사진 분석 스키마 및 구조화 문의 포맷/파서
    ════════════════════════════════════════════════════════════ */
