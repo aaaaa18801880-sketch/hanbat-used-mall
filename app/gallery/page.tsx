@@ -14,6 +14,7 @@ import {
   splitImages,
   compressImage,
   rotateImageFile,
+  sanitizeOldManufactureYear,
   validateImageFiles,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
@@ -1505,26 +1506,31 @@ export default function GalleryPage() {
         throw new Error(data.error || "분석 요청에 실패했습니다.");
       }
 
+      // 5년 이상 지난 제품(2026년 기준 2020년 및 그 이전)의 제조년월/연식 표기 자동 제외
+      const cleanData = sanitizeOldManufactureYear(data);
+
       if (
-        data.category &&
-        (PRODUCT_CATEGORIES as readonly string[]).includes(data.category)
+        cleanData.category &&
+        (PRODUCT_CATEGORIES as readonly string[]).includes(cleanData.category)
       ) {
-        setProductCategory(data.category);
+        setProductCategory(cleanData.category);
       }
-      if (data.title) setProductTitle(data.title);
-      if (data.modelNumber) setProductModel(data.modelNumber);
-      if (data.specDetails) setProductDescription(data.specDetails);
+      if (cleanData.title) setProductTitle(cleanData.title);
+      if (cleanData.modelNumber) setProductModel(cleanData.modelNumber);
+      if (cleanData.specDetails) setProductDescription(cleanData.specDetails);
 
       setPhotoObserved(
-        Array.isArray(data.photoObserved) ? data.photoObserved : []
+        Array.isArray(cleanData.photoObserved) ? cleanData.photoObserved : []
       );
       setSearchDerivedSpecs(
-        Array.isArray(data.searchDerivedSpecs) ? data.searchDerivedSpecs : []
+        Array.isArray(cleanData.searchDerivedSpecs)
+          ? cleanData.searchDerivedSpecs
+          : []
       );
       setReviewWarnings(
-        Array.isArray(data.needsReview) ? data.needsReview : []
+        Array.isArray(cleanData.needsReview) ? cleanData.needsReview : []
       );
-      setFoundSources(Array.isArray(data.sourceUrls) ? data.sourceUrls : []);
+      setFoundSources(Array.isArray(cleanData.sourceUrls) ? cleanData.sourceUrls : []);
 
       // AI가 감지한 옆으로 누운 사진 자동 정방향 회전
       if (Array.isArray(data.imageRotations) && data.imageRotations.length > 0) {

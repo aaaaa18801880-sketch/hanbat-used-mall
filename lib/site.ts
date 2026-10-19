@@ -361,6 +361,123 @@ export function parseProductDescription(description?: string | null): {
   };
 }
 
+/**
+ * 연식이 5년 이상(2026년 기준 2020년 및 그 이전 연도)인 중고 제품의 제조년월/연식 표기를 자동 제외하는 정제 함수
+ * - 2026년 기준: 2020년 및 그 이전(2020, 2019, 2018...) -> 제조년월 일절 미표기
+ * - 최근 5년 이내 최신 제품(2021년 이후) -> 강점이 되므로 정상 표기 유지
+ */
+export function sanitizeOldManufactureYear<
+  T extends {
+    title?: string;
+    specDetails?: string;
+    aiDraftSummary?: string;
+    photoObserved?: string[];
+    searchDerivedSpecs?: string[];
+    needsReview?: string[];
+  }
+>(data: T, currentYear = new Date().getFullYear()): T {
+  const oldYearThreshold = currentYear - 6; // e.g. 2026 - 6 = 2020년
+
+  const isOldYear = (yearNum: number) =>
+    yearNum >= 1970 && yearNum <= oldYearThreshold;
+
+  const extractYearFromText = (str: string): number | null => {
+    // 4자리 연도 (1970 ~ 2099)
+    const m = str.match(/\b(19\d\d|20\d\d)\b/);
+    if (m) return Number(m[1]);
+    // 2자리 연식 (예: '18년식, 18년식, '20년형)
+    const m2 = str.match(/(?:'|\b)([89]\d|[0-2]\d)\s*년(?:식|형)/);
+    if (m2) {
+      const val = Number(m2[1]);
+      return val >= 70 ? 1900 + val : 2000 + val;
+    }
+    return null;
+  };
+
+  const isOldManufactureLine = (line: string): boolean => {
+    const trimmed = line.trim();
+    const hasMfgKeyword =
+      /(?:제조년월|제조년월일|제조일자|제조일|제조년도|제조연월|제조연도|생산년월|생산일자|연식|년형|년식)/.test(
+        trimmed
+      );
+    if (!hasMfgKeyword) return false;
+    const year = extractYearFromText(trimmed);
+    return year !== null && isOldYear(year);
+  };
+
+  // 1. title 정제: 2018년식 등 구형 연식 표기 제거
+  let cleanTitle = data.title || "";
+  if (cleanTitle) {
+    cleanTitle = cleanTitle
+      .replace(
+        /\b(?:19\d\d|20[0-1]\d|2020|'?[0-2][0-9])\s*년(?:식|형)\s*[,·/]?\s*/g,
+        ""
+      )
+      .replace(
+        /\s*[,·/]\s*(?:19\d\d|20[0-1]\d|2020|'?[0-2][0-9])\s*년(?:식|형)/g,
+        ""
+      )
+      .replace(
+        /\(\s*(?:19\d\d|20[0-1]\d|2020|'?[0-2][0-9])\s*년(?:식|형)\s*\)/g,
+        ""
+      )
+      .replace(/\s{2,}/g, " ")
+      .trim();
+  }
+
+  // 2. specDetails / aiDraftSummary 정제: 제조년월 라인 제거
+  let cleanSpecDetails = data.specDetails || "";
+  if (cleanSpecDetails) {
+    const lines = cleanSpecDetails.split(/\r?\n/);
+    const filteredLines = lines.filter((line) => !isOldManufactureLine(line));
+    cleanSpecDetails = filteredLines
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+  }
+
+  // 3. photoObserved 정제
+  // 예: "제조자: 오텍캐리어주식회사 / 제조년월일: 2018.06.05 확인" -> "제조자: 오텍캐리어주식회사 확인"
+  const cleanPhotoObserved = (data.photoObserved || [])
+    .map((item) => {
+      if (isOldManufactureLine(item)) {
+        if (item.includes("/") || item.includes("·") || item.includes(",")) {
+          const parts = item.split(/[/·,]/);
+          const preserved = parts
+            .map((p) => p.trim())
+            .filter((p) => !isOldManufactureLine(p));
+          return preserved.length > 0 ? preserved.join(" / ") : "";
+        }
+        return "";
+      }
+      return item;
+    })
+    .filter(Boolean);
+
+  // 4. searchDerivedSpecs 정제
+  const cleanSearchSpecs = (data.searchDerivedSpecs || []).filter(
+    (item) => !isOldManufactureLine(item)
+  );
+
+  // 5. needsReview 정제: 구형 제품의 경우 "제조년월 확인 필요" 검토 알림도 불필요하므로 제외
+  const cleanNeedsReview = (data.needsReview || []).filter((item) => {
+    if (item.includes("제조년월") || item.includes("연식")) {
+      return false;
+    }
+    return true;
+  });
+
+  return {
+    ...data,
+    title: cleanTitle,
+    specDetails: cleanSpecDetails,
+    aiDraftSummary: cleanSpecDetails,
+    photoObserved: cleanPhotoObserved,
+    searchDerivedSpecs: cleanSearchSpecs,
+    needsReview: cleanNeedsReview,
+  };
+}
+
 export function extractStorageFilesByBucket(imageUrls: string[]): {
   inquiries: string[];
   productImages: string[];

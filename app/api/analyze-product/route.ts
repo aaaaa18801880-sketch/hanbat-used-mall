@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
-import { PRODUCT_CATEGORIES, normalizeProductCategory } from "../../../lib/site";
+import {
+  PRODUCT_CATEGORIES,
+  normalizeProductCategory,
+  sanitizeOldManufactureYear,
+} from "../../../lib/site";
 import {
   checkRateLimit,
   getClientIp,
@@ -206,6 +210,9 @@ export async function POST(req: NextRequest) {
 
     const useSearch = formData.get("searchSpecs") === "true";
 
+    const currentYear = new Date().getFullYear();
+    const oldYearThreshold = currentYear - 6; // 2026년 기준 2020년 (5년 이상 지난 제품 기준점)
+
     const prompt = `
 ## 역할
 당신은 중고 가전 및 업소용 주방기기를 전문적으로 판매하는 '한밭중고전자'의 상품 상세페이지 전문 카피라이터입니다.
@@ -253,6 +260,14 @@ export async function POST(req: NextRequest) {
   * 180: 거꾸로 뒤집혀 있음 (180도 회전 필요)
   * 270: 오른쪽으로 90도 누워있음 (반시계 90도 / 시계방향 270도 회전 필요)
 
+6. [필수] 제조년월 / 연식 표기 절대 원칙 (5년 이상 지난 제품은 제조년월 일절 미표기)
+- 기준 연도: 현재는 ${currentYear}년입니다.
+- **연식이 5년 이상 지난 기기(${oldYearThreshold}년 및 그 이전 연도: ${oldYearThreshold}년, ${oldYearThreshold - 1}년, ...)인 경우**:
+  * 상품명("title"), [한눈에 보는 제품 정보], [제품 특징], [주요 사양], 사진 판독("photoObserved"), 검색 사양("searchDerivedSpecs"), 검토 필요("needsReview") 등 어떠한 항목에서도 제조년월, 제조년도, 연식(예: "2018년식", "제조년월: 2018.06", "2018년형", "2018년 제조" 등)을 절대 표기하거나 언급하지 마세요!
+  * 사진 명판에 2020년 이전(2020년 포함) 제조년월이 적혀 있더라도 아예 생략하고 쓰지 않습니다.
+  * 사양("specDetails")의 [주요 사양] 목록에서도 '제조년월' 항목 자체를 아예 빼고 작성하세요.
+- **반대로, 최근 5년 이내 최신 기기(${oldYearThreshold + 1}년~${currentYear}년: ${oldYearThreshold + 1}년 이후)**인 경우에만 제품의 가치를 높여주는 강점이 되므로 제조년월/연식을 정상 표기할 수 있습니다.
+
 ## 카테고리 자동 판별
 관리자 선택값("${categoryHint || "미지정"}")과 무관하게, 첨부 사진 속 실제 제품을 보고 아래 5개 중 하나로 분류:
 - "에어컨/냉난방기"
@@ -282,7 +297,7 @@ export async function POST(req: NextRequest) {
   "sourceVerificationNote": "사진 속 명판 및 도어 구조(냉동 1칸/냉장 3칸)와 일치하는지 확인해 주세요.",
   "specDetails": "[한눈에 보는 제품 정보]\\n식당 및 업소 주방에서 가장 대중적으로 사용되는 우성 45박스 4도어 직냉식 냉장냉동고입니다. 총 4개 도어 중 좌측 상단 1칸은 냉동실, 나머지 3칸(우측 2칸 + 좌측 하단 1칸)은 대용량 냉장실로 나뉘어 있어, 신선 식자재와 자주 쓰는 냉동 식자재를 효율적으로 분리 보관할 수 있습니다.\\n\\n[제품 특징]\\n• 도어별 냉장/냉동 분할 수납: 좌상단 1칸 냉동실 + 나머지 3칸 냉장실 구성으로 불필요한 냉기 유출 최소화\\n• 견고한 스테인리스 외관: 오염과 부식에 강해 바쁜 업소 주방에서도 위생적인 관리 가능\\n• 직냉식 강력 냉각: 벽면 직접 냉각 방식으로 식재료의 수분 증발을 억제하여 신선도 유지\\n\\n[주요 사양]\\n• 모델명: CWS-1243RF\\n• 도어 및 구획 구성: 4도어 (냉동 1칸 / 냉장 3칸)\\n• 냉동실 위치: 좌측 상단 1도어\\n• 냉장실 위치: 우측 상·하단 및 좌측 하단 3도어\\n• 크기(외경): 1,260 × 800 × 1,900 mm (가로×깊이×높이)\\n• 전원 규격: 단상 220V / 60Hz (정격전류 2.5A)\\n• 설치 참고: 제품 가로폭(1,260mm) 및 높이(1,900mm) 출입문 통과 공간 사전 확인 필요",
   "needsReview": [
-    "실제 명판 스티커의 정격전압 및 제조년월 확인 필요"
+    "실제 명판 스티커의 정격전압 및 외관 상태 확인 필요"
   ]
 }
 `;
@@ -506,18 +521,32 @@ export async function POST(req: NextRequest) {
           )
       : [];
 
+    const sanitized = sanitizeOldManufactureYear(
+      {
+        category: finalCategory,
+        title,
+        specDetails,
+        aiDraftSummary: specDetails,
+        modelNumber,
+        photoObserved,
+        searchDerivedSpecs,
+        needsReview,
+      },
+      currentYear
+    );
+
     return NextResponse.json({
       isDraft: true,
       modelUsed, // <-- 실제 사용된 모델(폴백 포함) 반환
-      category: finalCategory,
-      title,
-      specDetails,
-      aiDraftSummary: specDetails,
+      category: sanitized.category || finalCategory,
+      title: sanitized.title || title,
+      specDetails: sanitized.specDetails || specDetails,
+      aiDraftSummary: sanitized.aiDraftSummary || specDetails,
       modelNumber,
-      photoObserved,
-      searchDerivedSpecs,
+      photoObserved: sanitized.photoObserved || photoObserved,
+      searchDerivedSpecs: sanitized.searchDerivedSpecs || searchDerivedSpecs,
       sourceVerificationNote,
-      needsReview,
+      needsReview: sanitized.needsReview || needsReview,
       sourceUrls,
       imageRotations,
     });
