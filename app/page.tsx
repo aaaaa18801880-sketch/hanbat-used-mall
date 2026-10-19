@@ -37,6 +37,7 @@ import {
 import { type ProductItem } from "../components/products/product-card";
 import { FeaturedProductsSection } from "../components/home/featured-products-section";
 import { CategoryPictogramBar } from "../components/home/category-pictogram-bar";
+import { AiRecommendationGuideSection } from "../components/home/ai-recommendation-guide-section";
 import {
   UnifiedInquiryForm,
   type LinkedProductContext,
@@ -1232,6 +1233,11 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* ════════════════════════════════════════════════════════════
+            [흐름 6-3] AI 추천 비교 가이드 (개인 직거래 vs 직영 매장 비교표 & 상황별 큐레이션)
+            ════════════════════════════════════════════════════════════ */}
+        <AiRecommendationGuideSection />
 
         {/* ════════════════════════════════════════════════════════════
             [흐름 7] 자주 묻는 질문(FAQ) 및 직영 매장 위치 (#faq-section + #location-section)

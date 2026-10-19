@@ -106,6 +106,14 @@ function runPredeployChecks() {
     "구글 검색용 파비콘 및 WebSite 스키마가 정상 구성되었는지 확인하세요."
   );
 
+  check(
+    "9. AI 검색(GEO/AEO) 피드(/llms.txt, /llms-full.txt) 및 비교 가이드 컴포넌트 무결성 확인",
+    fileExists("app/llms.txt/route.ts") &&
+      fileExists("app/llms-full.txt/route.ts") &&
+      fileExists("components/home/ai-recommendation-guide-section.tsx"),
+    "AI 검색 추천용 피드 라우트 및 비교 컴포넌트가 존재하는지 확인하세요."
+  );
+
   console.log("\n=========================================================");
   console.log(`검증 완료: ${passed} / ${total} 항목 통과`);
   console.log("=========================================================");

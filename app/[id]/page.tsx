@@ -120,7 +120,9 @@ export async function generateMetadata({
 
   const { data: product } = await supabase
     .from("products")
-    .select("id, title, category, description, image_url, price, status")
+    .select(
+      "id, title, category, description, image_url, price, status, condition_grade"
+    )
     .eq("id", id)
     .single();
 
@@ -132,8 +134,14 @@ export async function generateMetadata({
   }
 
   const categoryLabel = normalizeProductCategory(product.category);
-  const statusLabel = getProductStatusLabel(product.status);
+  const sold = isProductSold(product.status);
+  const priceLabel = sold
+    ? "판매완료"
+    : formatProductPrice(product.price, categoryLabel);
+  const warrantyLabel =
+    categoryLabel === "에어컨/냉난방기" ? "무상A/S 8개월" : "무상A/S 4개월";
   const modelName = extractModelName(product.description, product.title);
+  const capsules = extractSpecCapsules(product.title, product.description, 3);
   const images = splitImages(product.image_url);
   const canonicalUrl = `${STORE.url}/${product.id}`;
 
@@ -142,16 +150,26 @@ export async function generateMetadata({
     .replace(/[•\-*]/g, "")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 140);
+    .slice(0, 110);
 
-  const metaDescription =
+  // CTR 유도형 타이틀: 상품명 + [판매가 · 무상A/S 보증]
+  const ctrHook = sold
+    ? `(판매완료 · 유사매물 문의)`
+    : `[${priceLabel} · ${warrantyLabel}]`;
+
+  const metaDescription = [
+    `[${STORE.name} 실매물 · ${warrantyLabel} 보증]`,
+    `${product.title}${modelName ? ` (모델명: ${modelName})` : ""}`,
+    capsules.length > 0 ? `핵심규격: ${capsules.join("/")}.` : "",
     cleanDesc ||
-    `${STORE.name} ${categoryLabel} - ${product.title}${
-      modelName ? ` (${modelName})` : ""
-    }. 대전 중촌동 오프라인 매장 실물 확인 및 배송·설치 상담 가능.`;
+      `분해 고압 세척 및 작동 검수 완료. 대전 중촌동 직영 매장 실물 확인 및 직배송·설치·세금계산서 발행 가능.`,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .slice(0, 160);
 
   return {
-    title: `${product.title} (${statusLabel}) | ${STORE.name}`,
+    title: `${product.title} ${ctrHook}`,
     description: metaDescription,
     alternates: {
       canonical: canonicalUrl,
@@ -161,7 +179,7 @@ export async function generateMetadata({
       locale: "ko_KR",
       url: canonicalUrl,
       siteName: STORE.name,
-      title: `${product.title} | ${STORE.name}`,
+      title: `${product.title} ${ctrHook} | ${STORE.name}`,
       description: metaDescription,
       images:
         images.length > 0
@@ -262,39 +280,86 @@ export default async function ProductDetailPage({
 
   const relatedProducts = (relatedRows ?? []) as ProductItem[];
 
+  const warrantyMonths = categoryLabel === "에어컨/냉난방기" ? 8 : 4;
   const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.title,
-    category: categoryLabel,
-    description:
-      product.description || `${STORE.name} ${categoryLabel} ${product.title}`,
-    image: images.length > 0 ? images : [`${STORE.url}/og-image.jpg`],
-    itemCondition: "https://schema.org/UsedCondition",
-    brand: {
-      "@type": "Organization",
-      name: STORE.name,
-    },
-    offers: {
-      "@type": "Offer",
-      url: `${STORE.url}/${product.id}`,
-      priceCurrency: "KRW",
-      ...(priced ? { price: Number(product.price) } : {}),
-      availability: sold
-        ? "https://schema.org/OutOfStock"
-        : "https://schema.org/InStock",
-      itemCondition: "https://schema.org/UsedCondition",
-      seller: {
-        "@type": "Organization",
-        name: STORE.name,
-        telephone: STORE.tel,
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: STORE.name,
+            item: STORE.url,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "판매 제품 갤러리",
+            item: `${STORE.url}/gallery`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: categoryLabel,
+            item: `${STORE.url}/gallery?category=${encodeURIComponent(
+              categoryLabel
+            )}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 4,
+            name: product.title,
+            item: `${STORE.url}/${product.id}`,
+          },
+        ],
       },
-    },
+      {
+        "@type": "Product",
+        "@id": `${STORE.url}/${product.id}#product`,
+        name: product.title,
+        sku: String(product.id),
+        ...(modelName ? { model: modelName, mpn: modelName } : {}),
+        category: categoryLabel,
+        description:
+          product.description ||
+          `${STORE.name} ${categoryLabel} ${product.title} (분해 고압 세척 완료 · 무상 A/S ${warrantyMonths}개월 보증)`,
+        image: images.length > 0 ? images : [`${STORE.url}/og-image.jpg`],
+        itemCondition: "https://schema.org/UsedCondition",
+        brand: {
+          "@type": "Organization",
+          name: STORE.name,
+        },
+        ...(specCapsules.length > 0
+          ? {
+              additionalProperty: specCapsules.map((tag) => ({
+                "@type": "PropertyValue",
+                name: "핵심규격",
+                value: tag,
+              })),
+            }
+          : {}),
+        offers: {
+          "@type": "Offer",
+          url: `${STORE.url}/${product.id}`,
+          priceCurrency: "KRW",
+          ...(priced ? { price: Number(product.price) } : {}),
+          availability: sold
+            ? "https://schema.org/OutOfStock"
+            : "https://schema.org/InStock",
+          itemCondition: "https://schema.org/UsedCondition",
+          warranty: `무상 A/S ${warrantyMonths}개월 보증 (계약 조건 기준)`,
+          seller: {
+            "@type": "ElectronicsStore",
+            name: STORE.name,
+            telephone: STORE.tel,
+            address: STORE.roadAddress,
+          },
+        },
+      },
+    ],
   };
-
-  if (modelName) {
-    productJsonLd.model = modelName;
-  }
 
   return (
     <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">

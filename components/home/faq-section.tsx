@@ -43,14 +43,14 @@ export function FaqSection() {
             추가 문의사항은 대표전화{" "}
             <a
               href={telHref(STORE.tel)}
-              className="font-bold text-[#0E1A2B] underline underline-offset-4"
+              className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
             >
               {STORE.tel}
             </a>{" "}
             또는{" "}
             <a
               href={telHref(STORE.mobile)}
-              className="font-bold text-[#0E1A2B] underline underline-offset-4"
+              className="font-extrabold text-[#D9531E] hover:text-[#B84010] underline underline-offset-4 decoration-[#D9531E]/40 tabular-nums transition-colors"
             >
               {STORE.mobile}
             </a>
