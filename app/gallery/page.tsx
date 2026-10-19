@@ -46,6 +46,7 @@ import {
   type ProductItem,
 } from "../../components/products/product-card";
 import { ProductStatusBadge } from "../../components/products/product-status-badge";
+import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
 type StatusFilter = "all" | "selling" | "reserved" | "sold";
@@ -776,6 +777,10 @@ function ProductDetailModal({
 
                   {/* 핵심 가치 아이콘 바 (Trust Micro-strip) */}
                   <ProductTrustMicroStrip category={categoryLabel} />
+
+                  {categoryLabel === "에어컨/냉난방기" && (
+                    <AirconSetGuideBanner variant="card" className="mt-4" />
+                  )}
 
                   {product.description && (
                     <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
@@ -2000,6 +2005,10 @@ export default function GalleryPage() {
             )}
           </div>
         </div>
+
+        {activeCategory === "에어컨/냉난방기" && (
+          <AirconSetGuideBanner variant="banner" className="mb-6" />
+        )}
 
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">

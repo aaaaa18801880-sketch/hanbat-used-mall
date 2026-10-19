@@ -32,6 +32,7 @@ import {
   validateImageFiles,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
+import { AirconSetGuideBanner } from "../products/aircon-set-guide-banner";
 
 export type SubmissionPhase =
   | "idle"
@@ -1810,6 +1811,10 @@ export function UnifiedInquiryForm({
               />
             </div>
           </div>
+        )}
+
+        {!isNotice && !isOther && applianceCategory === "에어컨/냉난방기" && (
+          <AirconSetGuideBanner variant="inline" className="mt-2" />
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">

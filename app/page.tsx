@@ -42,6 +42,7 @@ import {
   UnifiedInquiryForm,
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
+import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -148,6 +149,11 @@ const FAQS = [
     a: "일반 가전(냉장고·세탁기)은 기본 배송·수평 설치가 지원되며, 엘리베이터 없는 2층 이상 계단 운반이나 사다리차가 필요한 현장만 사전에 투명하게 협의합니다. 에어컨·냉난방기는 설치 장소의 배관 길이, 타공 여부, 외벽 앵글 유무, 전기 규격(단상/삼상)을 사진으로 먼저 보여주시면 현장 추가금 걱정 없이 정확한 예상 견적을 안내해 드립니다.",
   },
   {
+    tag: "에어컨 · 냉난방기 구매 안내",
+    q: "에어컨이나 냉난방기 구매 시 실외기만 따로 단독 구매할 수 있나요?",
+    a: "한밭중고전자의 에어컨 및 냉난방기 제품은 원활한 냉난방 성능과 냉매 사이클 호환 보증을 위해 실내기와 실외기가 1:1 세트로 구성되어 판매됩니다. 실외기만 별도로 단독 구매하시는 것은 어려우며 반드시 세트 단위로 출고됩니다. 현장 평수와 배관 환경에 맞춘 최적 모델 상담은 대표전화(042-523-8179)나 카카오톡으로 편하게 문의해 주세요.",
+  },
+  {
     tag: "결제 수단 · 세금계산서",
     q: "오프라인 매장 방문 없이 비대면 구매도 가능한가요? 결제 방법과 증빙 서류가 궁금합니다.",
     a: "매장 직접 방문(대전 중구 중촌동 144)은 물론, 바쁘신 분들을 위해 실물 상세 사진·작동 영상을 카톡으로 먼저 확인하신 뒤 비대면 주문도 가능합니다. 계좌이체, 신용카드 결제, 현금영수증 및 사업자 전자세금계산서 발행을 모두 지원합니다.",
@@ -189,6 +195,7 @@ export default function Home() {
     index: number;
   } | null>(null);
   const [guideModalOpen, setGuideModalOpen] = useState(false);
+  const [airconModalOpen, setAirconModalOpen] = useState(false);
 
   /* 통합 문의 폼 연동 상태 */
   const [inquiryType, setInquiryType] =
@@ -1357,6 +1364,25 @@ export default function Home() {
                         ) : (
                           f.a
                         )}
+
+                        {f.tag === "에어컨 · 냉난방기 구매 안내" && (
+                          <div className="mt-3.5 pt-3 border-t border-[#E8E4DC] flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              onClick={() => setAirconModalOpen(true)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#0052CC] bg-white px-3.5 py-1.5 text-[12.5px] font-bold text-[#0052CC] hover:bg-[#F0F6FF] transition-colors shadow-2xs cursor-pointer"
+                            >
+                              <Icon d={ICON.search} className="w-3.5 h-3.5" />
+                              <span>에어컨 세트 구성 안내문 크게 보기</span>
+                            </button>
+                            <Link
+                              href="/gallery?category=에어컨/냉난방기"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#0E1A2B] px-3.5 py-1.5 text-[12.5px] font-bold text-white hover:bg-[#1C2D47] transition-colors shadow-2xs"
+                            >
+                              <span>에어컨 실매물 보러가기 →</span>
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1565,6 +1591,14 @@ export default function Home() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* ── 에어컨/냉난방기 세트 구성 안내문 모달 ── */}
+      {airconModalOpen && (
+        <AirconGuideModal
+          open={airconModalOpen}
+          onClose={() => setAirconModalOpen(false)}
+        />
       )}
 
       {/* ── 라이트박스 모달 ── */}

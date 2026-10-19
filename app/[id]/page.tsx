@@ -34,6 +34,7 @@ import {
   ProductCard,
   type ProductItem,
 } from "../../components/products/product-card";
+import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -672,6 +673,10 @@ export default async function ProductDetailPage({
                   ))}
                 </dl>
               </div>
+
+              {categoryLabel === "에어컨/냉난방기" && (
+                <AirconSetGuideBanner variant="card" className="mt-4" />
+              )}
 
               {/* 상담 버튼 그룹 */}
               <div className="space-y-2.5">
