@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-19T10:10:09.237Z">
+<project name="hanbat-mall" generated_at="2026-10-19T11:45:22.114Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -4195,7 +4195,7 @@ export async function POST(req: NextRequest) {
 
 ]]>
     </file>
-    <file path="app/api/analyze-product/route.ts" lines="346">
+    <file path="app/api/analyze-product/route.ts" lines="484">
       <![CDATA[
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
@@ -4213,6 +4213,110 @@ const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 // 요구사항 6 준수: 기존 사이트 내부의 Gemini API 모델 ID("gemini-3.8-flash") 유지
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+
+function cleanAndParseAIJson(responseText: string): Record<string, unknown> {
+  if (!responseText || typeof responseText !== "string") {
+    return {};
+  }
+
+  // 1. 마크다운 코드블록 제거
+  let cleaned = responseText.trim();
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+
+  // 최외곽 { ... } 추출
+  const firstBrace = cleaned.indexOf("{");
+  const lastBrace = cleaned.lastIndexOf("}");
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+  }
+
+  // 시도 1: 표준 JSON 파싱
+  try {
+    const parsed = JSON.parse(cleaned);
+    if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
+  } catch {
+    // 실패 시 보정 시도로 진행
+  }
+
+  // 시도 2: JSON 문자열 값 내부의 비이스케이프 줄바꿈/탭 보정 후 파싱
+  try {
+    const sanitized = cleaned.replace(
+      /"((?:[^"\\]|\\.)*)"/g,
+      (match) => {
+        return match
+          .replace(/(?<!\\)\r?\n/g, "\\n")
+          .replace(/(?<!\\)\t/g, "\\t");
+      }
+    );
+    const parsed = JSON.parse(sanitized);
+    if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
+  } catch {
+    // 실패 시 정규식 필드 추출 폴백으로 진행
+  }
+
+  // 시도 3: 정규식 필드별 복원 추출 (응답이 일부 잘리거나 구문 오류가 있어도 핵심 필드 살림)
+  const fallback: Record<string, unknown> = {};
+
+  const extractString = (key: string): string => {
+    const regex = new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`);
+    const match = cleaned.match(regex);
+    if (match && match[1]) {
+      return match[1]
+        .replace(/\\n/g, "\n")
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, "\\")
+        .trim();
+    }
+    return "";
+  };
+
+  const extractArray = (key: string): string[] => {
+    const regex = new RegExp(`"${key}"\\s*:\\s*\\[([\\s\\S]*?)\\]`);
+    const match = cleaned.match(regex);
+    if (match && match[1]) {
+      const items: string[] = [];
+      const itemRegex = /"((?:[^"\\]|\\.)*)"/g;
+      let m: RegExpExecArray | null;
+      while ((m = itemRegex.exec(match[1])) !== null) {
+        items.push(
+          m[1]
+            .replace(/\\n/g, "\n")
+            .replace(/\\"/g, '"')
+            .replace(/\\\\/g, "\\")
+            .trim()
+        );
+      }
+      return items;
+    }
+    return [];
+  };
+
+  const cat = extractString("category");
+  if (cat) fallback.category = cat;
+
+  const t = extractString("title");
+  if (t) fallback.title = t;
+
+  const mn = extractString("modelNumber");
+  if (mn) fallback.modelNumber = mn;
+
+  const sd = extractString("specDetails") || extractString("description");
+  if (sd) fallback.specDetails = sd;
+
+  const note = extractString("sourceVerificationNote");
+  if (note) fallback.sourceVerificationNote = note;
+
+  const po = extractArray("photoObserved");
+  if (po.length > 0) fallback.photoObserved = po;
+
+  const sds = extractArray("searchDerivedSpecs");
+  if (sds.length > 0) fallback.searchDerivedSpecs = sds;
+
+  const nr = extractArray("needsReview");
+  if (nr.length > 0) fallback.needsReview = nr;
+
+  return fallback;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -4301,6 +4405,9 @@ export async function POST(req: NextRequest) {
   * 모델명 'F': '4칸 전체 냉동실 (올냉동)'
   * 25박스/30박스 2도어: 통상 '상단 냉동 1칸 / 하단 냉장 1칸' 또는 '올냉장'
 - 가정용 냉장고: 4도어='상냉장 하냉동', 양문형='좌냉동 우냉장'
+- 가정용 냉장고(삼성 비스포크, LG 디오스/오브제컬렉션, 위니아 등):
+  * 에너지소비효율등급 라벨 또는 명판 스티커에서 모델명(예: RF85T9111AP 등), 전체 용량(예: 850L 등), 월간소비전력량(kWh/월) 등을 정밀 판독
+  * 상품명 예시: "삼성 비스포크 4도어 냉장고 850L (상냉장 하냉동, RF85T9111AP)"
 - 필수 반영 위치:
   * 상품명("title"): 구획 요약 포함 (예: "우성 45박스 업소용 4도어 직냉식 냉장냉동고 (냉동 1칸 / 냉장 3칸, CWS-1243RF)")
   * [한눈에 보는 제품 정보]: 도어별 위치와 칸수 구성을 1문장 이상 할애하여 구체적으로 설명
@@ -4322,7 +4429,7 @@ export async function POST(req: NextRequest) {
 - "업소용기기"
 - "기타"
 
-## 출력 형식 (반드시 다른 설명 없이 아래 JSON 규격으로만 응답)
+## 출력 형식 (반드시 다른 해설 문장 없이 아래 유효한 JSON 형식으로만 응답)
 {
   "category": "업소용기기",
   "title": "우성 45박스 업소용 4도어 직냉식 냉장냉동고 (냉동 1칸 / 냉장 3칸, CWS-1243RF)",
@@ -4353,17 +4460,17 @@ export async function POST(req: NextRequest) {
 
     const ai = new GoogleGenAI({ apiKey });
 
-    // 초고속 처리: 불필요한 사족 방지(maxOutputTokens) 및 정밀한 JSON 출력 모드 적용
+    // 초고속 처리: 불필요한 사족 방지 및 충분한 출력 버퍼(4096 토큰)로 응답 잘림 방지
     const config = useSearch
       ? {
           tools: [{ googleSearch: {} }],
           temperature: 0.1,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096,
         }
       : {
           responseMimeType: "application/json",
           temperature: 0.1,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 4096,
         };
 
     const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
@@ -4410,28 +4517,42 @@ export async function POST(req: NextRequest) {
 
 
     const responseText = response.text?.trim() || "";
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    let rawParsed: Record<string, unknown> = {};
-
-    if (jsonMatch) {
-      try {
-        rawParsed = JSON.parse(jsonMatch[0]);
-      } catch {
-        console.warn("AI 응답 JSON 파싱 보정 처리");
-      }
-    }
+    const rawParsed = cleanAndParseAIJson(responseText);
 
     const aiCategory =
       typeof rawParsed.category === "string" ? rawParsed.category.trim() : "";
-    const finalCategory = (
+    const normalizedAiCategory = (
       PRODUCT_CATEGORIES as readonly string[]
     ).includes(aiCategory)
       ? aiCategory
       : normalizeProductCategory(aiCategory);
 
+    // AI 카테고리가 비어있거나 "기타"이고, 관리자가 기존에 선택한 유효 카테고리가 있으면 보존
+    const finalCategory =
+      normalizedAiCategory && normalizedAiCategory !== "기타"
+        ? normalizedAiCategory
+        : categoryHint && (PRODUCT_CATEGORIES as readonly string[]).includes(categoryHint)
+        ? categoryHint
+        : normalizedAiCategory || "기타";
+
+    let modelNumber = rawParsed.modelNumber
+      ? String(rawParsed.modelNumber).trim()
+      : "";
+
+    // 모델명이 명시적 키에서 빠졌을 경우, 제목이나 관찰 텍스트에서 모델명 패턴 보조 탐지
+    if (!modelNumber || modelNumber === "미확인") {
+      const textToScan = `${rawParsed.title || ""} ${Array.isArray(rawParsed.photoObserved) ? rawParsed.photoObserved.join(" ") : ""}`;
+      const modelMatch = textToScan.match(/\b([A-Z0-9]{3,8}-[A-Z0-9]{3,8}|[A-Z]{1,3}\d{2,4}[A-Z0-9]{2,8})\b/i);
+      if (modelMatch && modelMatch[1]) {
+        modelNumber = modelMatch[1].toUpperCase();
+      }
+    }
+
     const title =
-      rawParsed.title && typeof rawParsed.title === "string"
+      rawParsed.title && typeof rawParsed.title === "string" && rawParsed.title.trim()
         ? rawParsed.title.trim()
+        : modelNumber
+        ? `${finalCategory} (${modelNumber})`
         : "중고 가전/기기";
 
     let specDetails =
@@ -4441,9 +4562,38 @@ export async function POST(req: NextRequest) {
         ? rawParsed.description
         : "";
 
-    const modelNumber = rawParsed.modelNumber
-      ? String(rawParsed.modelNumber).trim()
-      : "";
+    const photoObserved = Array.isArray(rawParsed.photoObserved)
+      ? rawParsed.photoObserved
+          .map((item) => String(item).trim())
+          .filter(Boolean)
+      : [];
+
+    const searchDerivedSpecs = Array.isArray(rawParsed.searchDerivedSpecs)
+      ? rawParsed.searchDerivedSpecs
+          .map((item) => String(item).trim())
+          .filter(Boolean)
+      : [];
+
+    // specDetails가 혹시라도 비어있을 경우, 수집된 관찰/검색 정보로 구조화된 초안 자동 합성
+    if (!specDetails) {
+      const parts: string[] = [];
+      parts.push("[한눈에 보는 제품 정보]");
+      parts.push(
+        modelNumber
+          ? `${modelNumber} 모델의 실물 사진 판독 기반 등록 초안입니다.`
+          : "실물 사진을 기반으로 작성된 등록 초안입니다."
+      );
+      if (photoObserved.length > 0) {
+        parts.push("\n[제품 특징]");
+        photoObserved.forEach((p) => parts.push(`• ${p}`));
+      }
+      if (searchDerivedSpecs.length > 0 || modelNumber) {
+        parts.push("\n[주요 사양]");
+        if (modelNumber) parts.push(`• 모델명: ${modelNumber}`);
+        searchDerivedSpecs.forEach((s) => parts.push(`• ${s}`));
+      }
+      specDetails = parts.join("\n");
+    }
 
     if (
       modelNumber &&
@@ -4459,18 +4609,6 @@ export async function POST(req: NextRequest) {
         specDetails = `[주요 사양]\n• 모델명: ${modelNumber}\n\n` + specDetails;
       }
     }
-
-    const photoObserved = Array.isArray(rawParsed.photoObserved)
-      ? rawParsed.photoObserved
-          .map((item) => String(item).trim())
-          .filter(Boolean)
-      : [];
-
-    const searchDerivedSpecs = Array.isArray(rawParsed.searchDerivedSpecs)
-      ? rawParsed.searchDerivedSpecs
-          .map((item) => String(item).trim())
-          .filter(Boolean)
-      : [];
 
     const needsReview = Array.isArray(rawParsed.needsReview)
       ? rawParsed.needsReview
