@@ -939,8 +939,8 @@ export default function GalleryPage() {
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  /* AI 판독 결과 구분 상태 (기본값 false: 초고속 즉시 사진 분석) */
-  const [searchSpecs, setSearchSpecs] = useState(false);
+  /* AI 판독 결과 구분 상태 (기본값 true: 모델명 기반 공식 사양 정밀 검색 자동 활성화) */
+  const [searchSpecs, setSearchSpecs] = useState(true);
   const [photoObserved, setPhotoObserved] = useState<string[]>([]);
   const [searchDerivedSpecs, setSearchDerivedSpecs] = useState<string[]>([]);
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
@@ -1398,7 +1398,7 @@ export default function GalleryPage() {
     setSearchDerivedSpecs([]);
     setReviewWarnings([]);
     setFoundSources([]);
-    setSearchSpecs(false);
+    setSearchSpecs(true);
     setIsAnalyzing(false);
   };
 
@@ -2141,7 +2141,7 @@ export default function GalleryPage() {
                       onChange={(e) => setSearchSpecs(e.target.checked)}
                       className="w-4 h-4 accent-[#0E1A2B]"
                     />
-                    <span>인터넷 공식 제원 정밀 검색 (선택 시 5~10초 추가 소요)</span>
+                    <span>인터넷 공식 제원 정밀 검색 (기본 활성화)</span>
                   </label>
                   {productFiles.length > 0 && (
                     <button
