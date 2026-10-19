@@ -1007,6 +1007,8 @@ export default function InquiryBoardPage() {
           label="문의 및 매입 신청 작성"
           onClose={() => setIsWriteOpen(false)}
           panelClassName="max-w-2xl"
+          closeOnOverlayClick={false}
+          closeOnEsc={false}
         >
           <div className="bg-white max-h-[92vh] overflow-y-auto rounded-lg shadow-2xl border border-[#E4E0D8] w-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
@@ -1365,6 +1367,8 @@ export default function InquiryBoardPage() {
           label="게시글 수정"
           onClose={() => setIsEditOpen(false)}
           panelClassName="max-w-lg"
+          closeOnOverlayClick={false}
+          closeOnEsc={false}
         >
           <form
             onSubmit={handleEditSubmit}

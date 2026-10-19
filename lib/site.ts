@@ -207,6 +207,12 @@ export function extractSpecCapsules(
   if (widthMmMatch) addTag(`폭 ${widthMmMatch[1]}mm`);
 
   const KEYWORD_RULES: ReadonlyArray<{ pattern: RegExp; label: string }> = [
+    { pattern: /냉동\s*1\s*칸|1\/4\s*냉동|냉장\s*3.*냉동\s*1/i, label: "냉동1칸/냉장3칸" },
+    { pattern: /냉동\s*2\s*칸|냉장\s*2.*냉동\s*2|반반|하프/i, label: "냉동2칸/냉장2칸" },
+    { pattern: /올냉장|전칸\s*냉장/, label: "올냉장" },
+    { pattern: /올냉동|전칸\s*냉동/, label: "올냉동" },
+    { pattern: /상냉장\s*하냉동|상냉장/, label: "상냉장 하냉동" },
+    { pattern: /좌냉동\s*우냉장/, label: "좌냉동 우냉장" },
     { pattern: /2\s*in\s*1|투인원/i, label: "2in1" },
     { pattern: /냉난방/, label: "냉난방겸용" },
     { pattern: /인버터/, label: "인버터" },
@@ -239,50 +245,80 @@ export function extractSpecCapsules(
 }
 
 export function parseProductDescription(description?: string | null): {
+  summary: string[];
   features: string[];
   specs: Array<{ label: string; value: string }>;
+  inspectionAndAs: string[];
   checkPoints: string[];
+  consultationGuide: string[];
   rawRest: string[];
   hasStructuredSections: boolean;
 } {
   const text = (description ?? "").trim();
   if (!text) {
     return {
+      summary: [],
       features: [],
       specs: [],
+      inspectionAndAs: [],
       checkPoints: [],
+      consultationGuide: [],
       rawRest: [],
       hasStructuredSections: false,
     };
   }
 
   const lines = text.split(/\r?\n/);
-  let currentSection: "features" | "specs" | "check" | "rest" = "rest";
+  let currentSection:
+    | "summary"
+    | "features"
+    | "specs"
+    | "as"
+    | "check"
+    | "consultation"
+    | "rest" = "rest";
+  const summary: string[] = [];
   const features: string[] = [];
   const specs: Array<{ label: string; value: string }> = [];
+  const inspectionAndAs: string[] = [];
   const checkPoints: string[] = [];
+  const consultationGuide: string[] = [];
   const rawRest: string[] = [];
 
   for (const rawLine of lines) {
     const line = rawLine.trim();
     if (!line) continue;
 
-    if (/^\[핵심\s*특징\]/i.test(line)) {
+    if (/^\[한눈에\s*보는\s*(제품\s*)?정보\]/i.test(line)) {
+      currentSection = "summary";
+      continue;
+    }
+    if (/^\[(핵심|제품)\s*특징\]/i.test(line)) {
       currentSection = "features";
       continue;
     }
-    if (/^\[주요\s*사양\]/i.test(line)) {
+    if (/^\[(제품\s*)?주요\s*사양\]/i.test(line)) {
       currentSection = "specs";
       continue;
     }
-    if (/^\[설치\s*전\s*체크\]/i.test(line)) {
+    if (/^\[점검\s*및\s*A\/S\s*안내\]/i.test(line)) {
+      currentSection = "as";
+      continue;
+    }
+    if (/^\[(구매\s*및\s*설치\s*전\s*확인사항|설치\s*전\s*체크)\]/i.test(line)) {
       currentSection = "check";
       continue;
     }
+    if (/^\[상담\s*안내\]/i.test(line)) {
+      currentSection = "consultation";
+      continue;
+    }
 
-    const cleanedBullet = line.replace(/^[•\-*]\s*/, "").trim();
+    const cleanedBullet = line.replace(/^[•\-*✔✅💬]\s*/, "").trim();
 
-    if (currentSection === "features") {
+    if (currentSection === "summary") {
+      summary.push(cleanedBullet);
+    } else if (currentSection === "features") {
       features.push(cleanedBullet);
     } else if (currentSection === "specs") {
       const colonIdx = cleanedBullet.indexOf(":");
@@ -294,20 +330,32 @@ export function parseProductDescription(description?: string | null): {
       } else {
         specs.push({ label: "사양", value: cleanedBullet });
       }
+    } else if (currentSection === "as") {
+      inspectionAndAs.push(cleanedBullet);
     } else if (currentSection === "check") {
       checkPoints.push(cleanedBullet);
+    } else if (currentSection === "consultation") {
+      consultationGuide.push(cleanedBullet);
     } else {
       rawRest.push(line);
     }
   }
 
   const hasStructuredSections =
-    features.length > 0 || specs.length > 0 || checkPoints.length > 0;
+    summary.length > 0 ||
+    features.length > 0 ||
+    specs.length > 0 ||
+    inspectionAndAs.length > 0 ||
+    checkPoints.length > 0 ||
+    consultationGuide.length > 0;
 
   return {
+    summary,
     features,
     specs,
+    inspectionAndAs,
     checkPoints,
+    consultationGuide,
     rawRest,
     hasStructuredSections,
   };

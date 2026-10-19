@@ -529,6 +529,20 @@ export default async function ProductDetailPage({
               <div className="mt-5 space-y-5">
                 {parsedDesc.hasStructuredSections ? (
                   <>
+                    {parsedDesc.summary.length > 0 && (
+                      <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-4 text-[13.5px] leading-relaxed text-[#2D333F]">
+                        <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2 flex items-center gap-1.5">
+                          <Icon d={ICON.check} className="h-4 w-4 text-[#D9531E]" />
+                          <span>한눈에 보는 제품 정보</span>
+                        </h2>
+                        {parsedDesc.summary.map((line, i) => (
+                          <p key={i} className="mt-1 first:mt-0 leading-relaxed text-[#3E4756]">
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+
                     {parsedDesc.specs.length > 0 && (
                       <div>
                         <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
@@ -555,7 +569,7 @@ export default async function ProductDetailPage({
                     {parsedDesc.features.length > 0 && (
                       <div>
                         <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                          상태 설명 및 검수 포인트
+                          제품 특징
                         </h2>
                         <ul className="space-y-1.5 text-[13.5px] leading-relaxed text-[#3E4756]">
                           {parsedDesc.features.map((f, i) => (
@@ -568,13 +582,40 @@ export default async function ProductDetailPage({
                       </div>
                     )}
 
+                    {parsedDesc.inspectionAndAs.length > 0 && (
+                      <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-3.5 text-[13px] text-[#3E4756]">
+                        <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
+                          점검 및 A/S 안내
+                        </h2>
+                        <ul className="space-y-1.5">
+                          {parsedDesc.inspectionAndAs.map((as, i) => (
+                            <li key={i} className="flex items-start gap-2">
+                              <span className="text-[#15803D] font-bold">✔</span>
+                              <span>{as}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     {parsedDesc.checkPoints.length > 0 && (
                       <div className="border-l-2 border-[#D9531E] bg-[#FAF9F7] pl-3.5 pr-3 py-2.5 text-[13px] text-[#3E4756]">
                         <strong className="block font-bold text-[#0E1A2B] mb-1">
-                          제품별 추가 확인사항
+                          구매 및 설치 전 확인사항
                         </strong>
                         {parsedDesc.checkPoints.map((c, i) => (
                           <p key={i}>• {c}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    {parsedDesc.consultationGuide.length > 0 && (
+                      <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-3.5 text-[13px] text-[#4B5260] leading-relaxed">
+                        <strong className="block font-bold text-[#0E1A2B] mb-1">
+                          상담 안내
+                        </strong>
+                        {parsedDesc.consultationGuide.map((cg, i) => (
+                          <p key={i}>💬 {cg}</p>
                         ))}
                       </div>
                     )}

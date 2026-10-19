@@ -322,7 +322,30 @@ function ProductDetailModal({
     setIsEditing(false);
   };
 
-    const inquiryParams = new URLSearchParams({
+  const handleCloseDetail = () => {
+    if (isEditing) {
+      const hasChanges =
+        editTitle.trim() !== product.title ||
+        editPrice.trim() !==
+          (product.price && product.price > 0 ? String(product.price) : "") ||
+        editDescription.trim() !== (product.description || "") ||
+        editNewFiles.length > 0;
+
+      if (hasChanges) {
+        if (
+          !confirm(
+            "수정 중인 상품 정보가 저장되지 않았습니다. 수정을 취소하고 창을 닫으시겠습니까?"
+          )
+        ) {
+          return;
+        }
+      }
+      handleCancelEdit();
+    }
+    onClose();
+  };
+
+  const inquiryParams = new URLSearchParams({
     write: "1",
     type: "구매 문의",
     productId: String(product.id),
@@ -338,9 +361,11 @@ function ProductDetailModal({
     <>
       <Modal
         open={true}
-        onClose={onClose}
+        onClose={handleCloseDetail}
         label={`${product.title} 상세 정보`}
         panelClassName="max-w-xl"
+        closeOnOverlayClick={!isEditing}
+        closeOnEsc={!isEditing}
       >
         <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] flex flex-col overflow-hidden max-h-[90vh] w-full">
           {/* 모달 상단 헤더 */}
@@ -384,7 +409,7 @@ function ProductDetailModal({
               )}
               <button
                 type="button"
-                onClick={onClose}
+                onClick={handleCloseDetail}
                 aria-label="닫기"
                 className="text-[#6B7280] hover:text-[#0E1A2B] transition-colors p-1"
               >
@@ -1377,6 +1402,39 @@ export default function GalleryPage() {
     setIsAnalyzing(false);
   };
 
+  const handleCloseUploadModal = () => {
+    if (uploadingProduct || isAnalyzing) {
+      if (
+        !confirm(
+          "상품 등록 또는 AI 분석이 진행 중입니다. 작업을 중단하고 창을 닫으시겠습니까?"
+        )
+      ) {
+        return;
+      }
+    } else {
+      const hasData =
+        productFiles.length > 0 ||
+        productPreviews.length > 0 ||
+        productTitle.trim().length > 0 ||
+        productPrice.trim().length > 0 ||
+        productDescription.trim().length > 0 ||
+        productModel.trim().length > 0;
+
+      if (hasData) {
+        if (
+          !confirm(
+            "작성 중인 상품 정보 및 사진이 있습니다. 등록을 취소하고 창을 닫으시겠습니까?\n(창을 닫으면 작성한 내용이 모두 사라집니다.)"
+          )
+        ) {
+          return;
+        }
+      }
+    }
+
+    setIsUploadModalOpen(false);
+    resetUploadForm();
+  };
+
   const analyzeImageWithAI = async (filesToAnalyze: File[]) => {
     if (filesToAnalyze.length === 0) return;
     setIsAnalyzing(true);
@@ -2038,10 +2096,9 @@ export default function GalleryPage() {
       {isUploadModalOpen && (
         <Modal
           open={isUploadModalOpen}
-          onClose={() => {
-            setIsUploadModalOpen(false);
-            resetUploadForm();
-          }}
+          onClose={handleCloseUploadModal}
+          closeOnOverlayClick={false}
+          closeOnEsc={false}
           label="판매 상품 등록"
           panelClassName="max-w-lg"
         >
@@ -2052,10 +2109,7 @@ export default function GalleryPage() {
               </h2>
               <button
                 type="button"
-                onClick={() => {
-                  setIsUploadModalOpen(false);
-                  resetUploadForm();
-                }}
+                onClick={handleCloseUploadModal}
                 className="grid h-8 w-8 place-items-center text-[#6B7280] hover:text-[#0E1A2B]"
                 aria-label="닫기"
               >
@@ -2333,17 +2387,14 @@ export default function GalleryPage() {
                   value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
                   className="hb-input mt-1 font-mono text-[13px] leading-relaxed resize-y"
-                  placeholder="[핵심 특징], [주요 사양], [설치 전 체크] 내용이 표시됩니다."
+                  placeholder="[한눈에 보는 제품 정보], [제품 특징], [주요 사양], [점검 및 A/S 안내], [구매 및 설치 전 확인사항], [상담 안내] 내용이 표시됩니다."
                 />
               </div>
 
               <div className="flex gap-2.5 pt-4 border-t border-[#E4E0D8]">
                 <button
                   type="button"
-                  onClick={() => {
-                    setIsUploadModalOpen(false);
-                    resetUploadForm();
-                  }}
+                  onClick={handleCloseUploadModal}
                   className="hb-btn-outline w-1/2 h-12 text-[14px]"
                 >
                   취소

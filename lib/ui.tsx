@@ -243,6 +243,8 @@ export function Modal({
   overlayClassName = "",
   sheet = false,
   open = true,
+  closeOnOverlayClick = true,
+  closeOnEsc = true,
 }: {
   children: React.ReactNode;
   onClose: () => void;
@@ -251,9 +253,12 @@ export function Modal({
   overlayClassName?: string;
   sheet?: boolean;
   open?: boolean;
+  closeOnOverlayClick?: boolean;
+  closeOnEsc?: boolean;
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
+  const isMouseDownOnOverlay = useRef(false);
 
   useEffect(() => {
     onCloseRef.current = onClose;
@@ -280,6 +285,7 @@ export function Modal({
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        if (!closeOnEsc) return;
         e.stopPropagation();
         onCloseRef.current();
         return;
@@ -317,7 +323,7 @@ export function Modal({
         previouslyFocused.focus();
       }
     };
-  }, [open]);
+  }, [open, closeOnEsc]);
 
   if (!open) return null;
 
@@ -331,7 +337,14 @@ export function Modal({
           ? "items-end sm:items-center p-0 sm:p-4"
           : "items-center p-3 sm:p-6"
       } bg-[#0E1A2B]/65 backdrop-blur-xs ${overlayClassName}`}
-      onClick={onClose}
+      onMouseDown={(e) => {
+        isMouseDownOnOverlay.current = e.target === e.currentTarget;
+      }}
+      onClick={(e) => {
+        if (!closeOnOverlayClick) return;
+        if (!isMouseDownOnOverlay.current || e.target !== e.currentTarget) return;
+        onClose();
+      }}
     >
       <div
         ref={panelRef}
