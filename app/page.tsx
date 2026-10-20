@@ -1181,7 +1181,11 @@ export default function Home() {
                 </div>
 
                 <aside className="flex flex-col gap-5 lg:col-span-4">
-                  <div className="rounded-xl bg-[#0E1A2B] p-6 text-white">
+                  <div className="rounded-xl bg-[#070E18] bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,#182B46_0%,#0E1A2B_50%,#070E18_100%)] border border-[#1E334F] p-6 text-white shadow-card relative overflow-hidden">
+                    <div
+                      className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#456A99]/50 to-transparent pointer-events-none"
+                      aria-hidden="true"
+                    />
                     <span className="inline-block rounded bg-[#D9531E] px-2.5 py-0.5 text-[11.5px] font-bold text-white">
                       직통 고객센터
                     </span>

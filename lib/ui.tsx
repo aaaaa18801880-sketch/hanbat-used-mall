@@ -905,8 +905,13 @@ export function SiteFooter({
     <>
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
-      <footer className="bg-[#0E1A2B] text-white/80 mt-auto border-t border-[#1C2D47]">
-        <div className="hb-container py-12 sm:py-16">
+      <footer className="relative bg-[#070E18] bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,#182B46_0%,#0E1A2B_50%,#070E18_100%)] text-white/80 mt-auto border-t border-[#1E334F] overflow-hidden">
+        {/* 상단 은은한 엠비언트 라이트 엣지 */}
+        <div
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#456A99]/50 to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+        <div className="hb-container py-12 sm:py-16 relative z-1">
           <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
             {/* 브랜드 및 직통 고객센터 영역 */}
             <div className="lg:col-span-5 space-y-4">
@@ -920,7 +925,7 @@ export function SiteFooter({
                 가정용 중고가전(에어컨·냉난방기·냉장고·세탁기·건조기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 분해·고압세척 및 작동 검수를 마친 정직한 상품만 출고합니다.
               </p>
 
-              <div className="rounded-lg border border-white/10 bg-white/[0.04] p-4 max-w-md">
+              <div className="rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xs p-4 sm:p-4.5 max-w-md shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
                 <p className="text-[12px] font-bold text-[#FF8A50]">
                   고객상담 및 방문 매입 직통 센터
                 </p>
