@@ -607,7 +607,7 @@ export default function Home() {
                   {/* 매장 정보 하단 바 — 주소 단일행 보장 및 영업·주차 정보 분리 정돈 */}
                   <div className="border-t border-[#E5E2DC] bg-white p-3.5 sm:px-4 sm:py-3 text-[13px] text-[#3E4756] space-y-1.5 sm:space-y-2">
                     <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B] min-w-0">
-                      <Icon d={ICON.location} className="w-4 h-4 text-[#D9531E] shrink-0" />
+                      <Icon d={ICON.pin} className="w-4 h-4 text-[#D9531E] shrink-0" />
                       <span className="truncate">
                         {STORE.roadAddress}{" "}
                         <span className="font-normal text-[#646E7E] whitespace-nowrap">
