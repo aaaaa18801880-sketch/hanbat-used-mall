@@ -108,27 +108,26 @@ const USP = [
 const SELL_CASES = [
   "가정 이사·가전교체",
   "식당·카페 폐업정리",
-  "업종 변경·리모델링",
-  "사무실·기숙사 철거",
+  "사무실·학원·기숙사",
   "업소용 설비 일괄처분",
 ] as const;
 
 const SELL_STEPS = [
   {
     t: "사진·정보 접수",
-    d: "온라인 문의 폼, 문자, 카카오톡으로 제품 전면 사진과 모델명(명판), 수거 지역을 보내주세요.",
+    d: "사진·문자·카톡으로 제품 전면과 모델명(명판), 수거 지역을 남겨주세요.",
   },
   {
     t: "빠른 견적 안내",
-    d: "담당자가 외관 상태와 연식·수요를 확인하여 합리적인 매입 가견적을 신속히 안내해 드립니다.",
+    d: "외관 상태와 연식·시세를 종합 검토하여 합리적인 매입가를 신속히 안내합니다.",
   },
   {
     t: "방문 확인·수거",
-    d: "고객님이 원하시는 날짜와 시간에 맞춰 전문 기사님이 직접 방문해 안전하게 분리·수거합니다.",
+    d: "원하시는 일정에 전문 기사가 방문하여 안전하게 제품을 분리·수거합니다.",
   },
   {
     t: "현장 즉시 입금",
-    d: "수거가 완료되는 즉시 지정하신 계좌로 매입 대금 전액을 100% 현금 송금해 드립니다.",
+    d: "수거가 완료되는 즉시 지정하신 계좌로 매입 대금 전액을 현금 송금합니다.",
   },
 ] as const;
 
@@ -554,18 +553,21 @@ export default function Home() {
 
                 <h1
                   id="hero-title"
-                  className="mt-4 text-[28px] xs:text-[32px] sm:text-[38px] lg:text-[42px] font-bold leading-[1.24] tracking-[-0.028em] text-[#0E1A2B] break-keep"
+                  className="mt-4 text-[26px] xs:text-[30px] sm:text-[34px] lg:text-[31px] xl:text-[37px] 2xl:text-[40px] font-bold leading-[1.28] tracking-[-0.028em] text-[#0E1A2B]"
                 >
-                  가정용 가전부터 업소용 주방설비까지,
-                  <br />
-                  <span className="text-[#D9531E]">
-                    분해 세척·검수를 마친 실매물
+                  <span className="lg:block lg:whitespace-nowrap">
+                    <span className="inline-block">가정용 가전부터</span>{" "}
+                    <span className="inline-block">업소용 주방설비까지,</span>
                   </span>
-                  만 출고합니다
+                  <span className="lg:block lg:whitespace-nowrap mt-1 sm:mt-1.5">
+                    <span className="inline-block text-[#D9531E]">분해 세척·검수를 마친</span>{" "}
+                    <span className="inline-block">실매물만 출고합니다</span>
+                  </span>
                 </h1>
 
-                <p className="mt-4 max-w-[540px] text-[15.5px] sm:text-[16.5px] leading-[1.65] text-[#3E4756] break-keep">
-                  대전 중촌동 1·2층 직영 매장에서 에어컨·냉장고·세탁기·업소용 설비를 직접 확인하실 수 있으며, 사용하던 가전과 폐업 설비는 방문 수거 당일 현금으로 정산해 드립니다.
+                <p className="mt-4 max-w-[540px] text-[15px] sm:text-[16px] leading-[1.65] text-[#3E4756] break-keep [text-wrap:pretty]">
+                  대전 중촌동 1·2층 직영 매장에서 에어컨·냉장고·세탁기·업소용 설비를 직접 확인하실 수 있으며,
+                  <br className="hidden sm:inline" /> 사용하던 가전과 폐업 설비는 방문 수거 당일 현금으로 정산해 드립니다.
                 </p>
 
                 <div className="mt-7 flex flex-col xs:flex-row items-stretch xs:items-center gap-3 max-w-[440px]">
@@ -593,7 +595,7 @@ export default function Home() {
 
               {/* 우측: 대표 비주얼 1개 (실제 오프라인 직영 매장 사진) */}
               <div className="lg:col-span-6">
-                <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white">
+                <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F0EDE7]">
                     <SafeImg
                       src="/main-bg2.png"
@@ -602,16 +604,24 @@ export default function Home() {
                       className="h-full w-full object-cover object-center"
                     />
                   </div>
-                  <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-1.5 xl:gap-3 border-t border-[#E5E2DC] bg-white px-4 py-3 text-[13px] text-[#3E4756]">
-                    <div className="flex items-center gap-1.5 font-semibold text-[#0E1A2B] min-w-0">
-                      <span className="break-keep">
-                        {STORE.roadAddress} <span className="font-normal text-[#646E7E]">({STORE.addressNote})</span>
+                  {/* 매장 정보 하단 바 — 주소 단일행 보장 및 영업·주차 정보 분리 정돈 */}
+                  <div className="border-t border-[#E5E2DC] bg-white p-3.5 sm:px-4 sm:py-3 text-[13px] text-[#3E4756] space-y-1.5 sm:space-y-2">
+                    <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B] min-w-0">
+                      <Icon d={ICON.location} className="w-4 h-4 text-[#D9531E] shrink-0" />
+                      <span className="truncate">
+                        {STORE.roadAddress}{" "}
+                        <span className="font-normal text-[#646E7E] whitespace-nowrap">
+                          ({STORE.addressNote})
+                        </span>
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#646E7E] tabular-nums shrink-0 whitespace-nowrap text-[12.5px] sm:text-[13px]">
-                      <span>영업시간 {STORE.hours}</span>
-                      <span>·</span>
-                      <span className="font-semibold text-[#0E1A2B]">매장 앞 주차 가능</span>
+                    <div className="flex items-center justify-between text-[#646E7E] tabular-nums text-[12px] sm:text-[12.5px] pt-1.5 border-t border-[#F0EDE7]">
+                      <span className="whitespace-nowrap">
+                        영업시간 <strong className="font-semibold text-[#0E1A2B]">{STORE.hours}</strong>
+                      </span>
+                      <span className="font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FED7AA] rounded px-2 py-0.5 whitespace-nowrap">
+                        매장 앞 전용 주차 가능
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -998,59 +1008,67 @@ export default function Home() {
           aria-labelledby="sell-title"
         >
           <div className="hb-container">
-            <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 items-start">
+            <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 items-stretch">
               {/* 좌측: 매입 안내 핵심 요약 및 4단계 절차 */}
-              <div className="lg:col-span-6">
-                <SectionHeading
-                  title={
-                    <span id="sell-title">
-                      쓰지 않는 가전과 매장 설비,
-                      <br />
-                      4단계 절차로 간편하게 매입합니다
-                    </span>
-                  }
-                  desc="가정용 대형가전부터 식당·카페 업소용 냉장·주방 설비까지 연식과 상태를 확인하여 합리적인 시세로 매입하며, 방문 수거 당일 현장에서 정산해 드립니다."
-                />
+              <div className="lg:col-span-6 flex flex-col justify-between">
+                <div>
+                  <SectionHeading
+                    title={
+                      <span id="sell-title">
+                        쓰지 않는 가전과 매장 설비,
+                        <br />
+                        4단계 절차로 간편하게 매입합니다
+                      </span>
+                    }
+                    desc={
+                      <>
+                        가정용 대형가전부터 식당·카페 업소용 냉장·주방 설비까지 연식과 상태를 확인하여 합리적인 시세로 매입하며,
+                        <br className="hidden sm:inline" /> 방문 수거 당일 현장에서 정산해 드립니다.
+                      </>
+                    }
+                  />
 
-                <ul className="mt-5 flex flex-wrap gap-2">
-                  {SELL_CASES.map((s) => (
-                    <li
-                      key={s}
-                      className="rounded-md border border-[#CFCAC0] bg-white px-3 py-1 text-[13px] font-semibold text-[#0E1A2B]"
-                    >
-                      #{s}
-                    </li>
-                  ))}
-                </ul>
+                  {/* 4대 주요 매입 유형 해시태그 — 데스크톱 1줄 배치 보장 및 모바일 2x2 균형 래핑 */}
+                  <ul className="mt-4 sm:mt-5 flex flex-wrap items-center gap-1.5 sm:gap-2">
+                    {SELL_CASES.map((s) => (
+                      <li
+                        key={s}
+                        className="rounded-md border border-[#CFCAC0] bg-white px-2.5 sm:px-3 py-1 text-[12px] sm:text-[12.5px] xl:text-[13px] font-semibold text-[#0E1A2B] whitespace-nowrap"
+                      >
+                        #{s}
+                      </li>
+                    ))}
+                  </ul>
 
-                {/* 명확한 4단계 매입 진행 안내 */}
-                <ol className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {SELL_STEPS.map((s, i) => (
-                    <li
-                      key={s.t}
-                      className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-5"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-[12px] font-bold text-[#D9531E] tabular-nums">
-                            STEP 0{i + 1}
-                          </span>
-                          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#FAF9F7] border border-[#E5E2DC] text-[12px] font-bold text-[#0E1A2B] tabular-nums">
-                            {i + 1}
-                          </span>
+                  {/* 명확한 4단계 매입 진행 안내 (각 카드 균등 높이 2줄 매칭) */}
+                  <ol className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {SELL_STEPS.map((s, i) => (
+                      <li
+                        key={s.t}
+                        className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-5"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-[12px] font-bold text-[#D9531E] tabular-nums">
+                              STEP 0{i + 1}
+                            </span>
+                            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#FAF9F7] border border-[#E5E2DC] text-[12px] font-bold text-[#0E1A2B] tabular-nums">
+                              {i + 1}
+                            </span>
+                          </div>
+                          <h4 className="mt-2 text-[16px] font-bold text-[#0E1A2B]">
+                            {s.t}
+                          </h4>
+                          <p className="mt-1.5 text-[13.5px] leading-[1.6] text-[#3E4756] break-keep [text-wrap:pretty]">
+                            {s.d}
+                          </p>
                         </div>
-                        <h4 className="mt-2 text-[16px] font-bold text-[#0E1A2B]">
-                          {s.t}
-                        </h4>
-                        <p className="mt-1.5 text-[13.5px] leading-[1.6] text-[#3E4756] break-keep">
-                          {s.d}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
 
-                <div className="mt-6 flex flex-wrap items-center gap-3">
+                <div className="mt-6 flex flex-wrap items-center gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
@@ -1078,44 +1096,64 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* 우측: 매입 안내문 원본 비율(잘림 없음) 카드 */}
-              <div className="lg:col-span-6">
-                <div className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E2DC]">
-                    <div>
-                      <span className="inline-block rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
-                        촬영 및 확인 가이드
-                      </span>
-                      <h3 className="mt-1.5 text-[17px] font-bold text-[#0E1A2B]">
-                        매입 신청 전 사진 촬영 및 확인 사항
-                      </h3>
-                      <p className="mt-0.5 text-[13px] text-[#646E7E]">
-                        전면 사진 · 모델명/제조년월 명판 · 특이사항 안내 (클릭 시 확대)
-                      </p>
+              {/* 우측: 매입 안내문 원본 비율 카드 (좌우 높이 및 시각적 균형 일치) */}
+              <div className="lg:col-span-6 flex flex-col">
+                <div className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 h-full flex flex-col justify-between shadow-card">
+                  <div>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E2DC]">
+                      <div>
+                        <span className="inline-block rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                          촬영 및 확인 가이드
+                        </span>
+                        <h3 className="mt-1.5 text-[17px] font-bold text-[#0E1A2B]">
+                          매입 신청 전 사진 촬영 및 확인 사항
+                        </h3>
+                        <p className="mt-0.5 text-[13px] text-[#646E7E]">
+                          전면 사진 · 모델명/제조년월 명판 · 특이사항 안내 (클릭 시 확대)
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setGuideModalOpen(true)}
+                        className="hb-btn-outline h-9 px-3.5 text-[12.5px] shrink-0 self-start sm:self-center"
+                      >
+                        <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#D9531E]" />
+                        <span>크게 보기</span>
+                      </button>
                     </div>
+
+                    {/* 텍스트 포함 안내문 이미지 원본 비율 유지 (object-contain, 잘림 없음) */}
                     <button
                       type="button"
                       onClick={() => setGuideModalOpen(true)}
-                      className="hb-btn-outline h-9 px-3.5 text-[12.5px] shrink-0 self-start sm:self-center"
+                      className="mt-4 block w-full overflow-hidden rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-2 hover:border-[#0E1A2B] transition-colors"
+                      aria-label="제품 매입 안내문 원본 비율로 크게 보기"
                     >
-                      <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#D9531E]" />
-                      <span>크게 보기</span>
+                      <SafeImg
+                        src="/매입 안내문.png"
+                        alt="제품 매입 시 고객 안내문: 1. 전면 사진, 2. 모델명 및 제조년월 확인, 3. 특이사항 안내, 4. 매입 시 유의할 점"
+                        className="w-full h-auto object-contain mx-auto"
+                      />
                     </button>
                   </div>
 
-                  {/* 텍스트 포함 안내문 이미지 원본 비율 유지 (object-contain, 잘림 없음) */}
-                  <button
-                    type="button"
-                    onClick={() => setGuideModalOpen(true)}
-                    className="mt-4 block w-full overflow-hidden rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-2 hover:border-[#0E1A2B] transition-colors"
-                    aria-label="제품 매입 안내문 원본 비율로 크게 보기"
-                  >
-                    <SafeImg
-                      src="/매입 안내문.png"
-                      alt="제품 매입 시 고객 안내문: 1. 전면 사진, 2. 모델명 및 제조년월 확인, 3. 특이사항 안내, 4. 매입 시 유의할 점"
-                      className="w-full h-auto object-contain mx-auto"
-                    />
-                  </button>
+                  {/* 하단 친절 상담 안내 바 — 좌우 시각적 균형 및 사용자 편의 제공 */}
+                  <div className="mt-4 rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[13px]">
+                    <div className="flex items-center gap-2 text-[#3E4756]">
+                      <span className="rounded bg-[#FFF0EB] border border-[#FED7AA] px-1.5 py-0.5 text-[11px] font-bold text-[#D9531E] shrink-0">
+                        TIP
+                      </span>
+                      <span className="break-keep text-[12.5px] sm:text-[13px]">
+                        사진 촬영이 번거로우신 경우 <strong>품목·연식</strong>만 알려주셔도 신속히 상담해 드립니다.
+                      </span>
+                    </div>
+                    <a
+                      href={telHref(STORE.tel)}
+                      className="font-bold text-[#0E1A2B] hover:text-[#D9531E] whitespace-nowrap shrink-0 text-[12px] sm:text-[12.5px] underline underline-offset-2 self-end sm:self-auto"
+                    >
+                      직통 전화 문의 →
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1435,9 +1473,10 @@ export default function Home() {
                 title={<span id="location-title">오프라인 매장 위치 및 영업 안내</span>}
                 desc={
                   <>
-                    <span>{STORE.roadAddress} ({STORE.addressNote})</span>
+                    <span>{STORE.roadAddress}</span>{" "}
+                    <span className="whitespace-nowrap font-normal text-[#646E7E]">({STORE.addressNote})</span>
                     <span className="hidden sm:inline"> · </span>
-                    <span className="block sm:inline whitespace-nowrap">매장 앞 전용 주차 가능</span>
+                    <span className="block sm:inline whitespace-nowrap font-semibold text-[#0E1A2B]">매장 앞 전용 주차 가능</span>
                   </>
                 }
               />
