@@ -553,7 +553,7 @@ export default function Home() {
 
                 <h1
                   id="hero-title"
-                  className="mt-4 text-[26px] xs:text-[30px] sm:text-[34px] lg:text-[31px] xl:text-[37px] 2xl:text-[40px] font-bold leading-[1.28] tracking-[-0.028em] text-[#0E1A2B]"
+                  className="mt-4 text-[24px] xs:text-[27px] sm:text-[30px] lg:text-[26px] xl:text-[31px] 2xl:text-[35px] font-bold leading-[1.3] tracking-[-0.03em] text-[#0E1A2B]"
                 >
                   <span className="lg:block lg:whitespace-nowrap">
                     <span className="inline-block">가정용 가전부터</span>{" "}
@@ -565,8 +565,8 @@ export default function Home() {
                   </span>
                 </h1>
 
-                <p className="mt-4 max-w-[540px] text-[15px] sm:text-[16px] leading-[1.65] text-[#3E4756] break-keep [text-wrap:pretty]">
-                  대전 중촌동 1·2층 직영 매장에서 에어컨·냉장고·세탁기·업소용 설비를 직접 확인하실 수 있으며,
+                <p className="mt-4 max-w-[540px] text-[14.5px] sm:text-[15.5px] leading-[1.68] text-[#3E4756] break-keep [text-wrap:pretty]">
+                  대전 중촌동 1·2층 직영 쇼룸에서 실매물을 직접 확인하실 수 있으며,
                   <br className="hidden sm:inline" /> 사용하던 가전과 폐업 설비는 방문 수거 당일 현금으로 정산해 드립니다.
                 </p>
 
