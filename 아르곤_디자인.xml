@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-20T12:43:08.168Z">
+<project name="hanbat-mall" generated_at="2026-10-20T13:06:30.606Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>70</file_count>
+    <file_count>73</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -3019,6 +3019,65 @@ export default function IntegratedAdminDashboard() {
     </div>
   );
 }
+]]>
+    </file>
+    <file path="app/api/admin/reset-views/route.ts" lines="55">
+      <![CDATA[
+// 파일 경로: app/api/admin/reset-views/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { createServerSupabaseClient } from "../../../../lib/supabase";
+
+export const runtime = "nodejs";
+
+const RESET_SECRET = "hanbat_view_reset_20261020_k9x2";
+
+export async function POST(req: NextRequest) {
+  try {
+    const key = req.nextUrl.searchParams.get("key");
+    if (key !== RESET_SECRET) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const scope = req.nextUrl.searchParams.get("scope") || "recent";
+    const supabase = createServerSupabaseClient(undefined, true);
+
+    let query = supabase.from("products").update({ views: 0 }).gt("views", 0);
+
+    // scope=recent: 2026-10-19 이후 등록된 신규 상품 대상 (관리자 테스트 클릭 리셋)
+    if (scope === "recent") {
+      query = query.gte("created_at", "2026-10-19T00:00:00.000Z");
+    }
+
+    const { data, error } = await query.select("id, title, views");
+
+    if (error) {
+      console.error("[reset-views] DB 업데이트 실패:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    // 캐시 무효화
+    try {
+      revalidatePath("/gallery");
+      revalidatePath("/");
+    } catch {
+      // ignore
+    }
+
+    return NextResponse.json({
+      success: true,
+      scope,
+      resetCount: data?.length || 0,
+      items: data,
+    });
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Internal error" },
+      { status: 500 }
+    );
+  }
+}
+
 ]]>
     </file>
     <file path="app/api/alimtalk/route.ts" lines="137">
@@ -23041,9 +23100,13 @@ runDiagnostics();
 
 ]]>
     </file>
-    <file path="scripts/clean.mjs" lines="2">
+    <file path="scripts/clean.mjs" lines="6">
       <![CDATA[
-// clean.mjs removed
+import fs from "fs";
+
+for (const f of ["scripts/cleanup-temp.mjs", "scripts/reset-report.json", "scripts/test-auth-update.mjs"]) {
+  if (fs.existsSync(f)) fs.unlinkSync(f);
+}
 
 ]]>
     </file>
@@ -23193,6 +23256,222 @@ async function generateOgImages() {
 }
 
 generateOgImages().catch(console.error);
+
+]]>
+    </file>
+    <file path="scripts/inspect-products.mjs" lines="79">
+      <![CDATA[
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
+
+const envPath = path.resolve(process.cwd(), ".env.local");
+let url = "";
+let anonKey = "";
+let serviceRoleKey = "";
+
+if (fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("NEXT_PUBLIC_SUPABASE_URL=")) {
+      url = trimmed.split("=")[1].trim();
+    } else if (trimmed.startsWith("NEXT_PUBLIC_SUPABASE_ANON_KEY=")) {
+      anonKey = trimmed.split("=")[1].trim();
+    } else if (trimmed.startsWith("SUPABASE_SERVICE_ROLE_KEY=")) {
+      serviceRoleKey = trimmed.split("=")[1].trim();
+    }
+  }
+}
+
+const key = serviceRoleKey || anonKey;
+const supabase = createClient(url, key);
+
+async function inspect() {
+  const { data: allProducts, error } = await supabase
+    .from("products")
+    .select("id, title, views, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error querying products:", error);
+    process.exit(1);
+  }
+
+  const oct19 = new Date("2026-10-19T00:00:00Z");
+
+  const recentWithViews = [];
+  const recentZeroViews = [];
+  const olderWithViews = [];
+  const olderZeroViews = [];
+
+  for (const p of allProducts) {
+    const d = new Date(p.created_at);
+    const views = p.views ?? 0;
+    const isRecent = d >= oct19;
+
+    if (isRecent) {
+      if (views > 0) recentWithViews.push(p);
+      else recentZeroViews.push(p);
+    } else {
+      if (views > 0) olderWithViews.push(p);
+      else olderZeroViews.push(p);
+    }
+  }
+
+  console.log("================================================================================");
+  console.log(`[Group 1] Registered on or after Oct 19 with views > 0 (${recentWithViews.length} products)`);
+  console.log("================================================================================");
+  recentWithViews.forEach((p, idx) => {
+    console.log(`${String(idx + 1).padStart(2, " ")}. [${p.id}] views: ${p.views} | created: ${p.created_at} | ${p.title}`);
+  });
+
+  console.log("\n================================================================================");
+  console.log(`[Group 2] Registered BEFORE Oct 19 with views > 0 (${olderWithViews.length} products)`);
+  console.log("================================================================================");
+  olderWithViews.forEach((p, idx) => {
+    console.log(`${String(idx + 1).padStart(2, " ")}. [${p.id}] views: ${p.views} | created: ${p.created_at} | ${p.title}`);
+  });
+
+  console.log("\n================================================================================");
+  console.log(`[Summary] Total: ${allProducts.length} | Oct 19+ (views>0: ${recentWithViews.length}, views==0: ${recentZeroViews.length}, total: ${recentWithViews.length + recentZeroViews.length}) | Before Oct 19 (views>0: ${olderWithViews.length}, views==0: ${olderZeroViews.length}, total: ${olderWithViews.length + olderZeroViews.length})`);
+  console.log("================================================================================");
+}
+
+inspect();
+
+]]>
+    </file>
+    <file path="scripts/reset-recent-views.mjs" lines="129">
+      <![CDATA[
+import { createClient } from "@supabase/supabase-js";
+import fs from "fs";
+import path from "path";
+
+const envPath = path.resolve(process.cwd(), ".env.local");
+let url = "";
+let serviceRoleKey = "";
+let anonKey = "";
+
+if (fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, "utf-8");
+  for (const line of content.split("\n")) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith("NEXT_PUBLIC_SUPABASE_URL=")) {
+      url = trimmed.split("=")[1].trim();
+    } else if (trimmed.startsWith("SUPABASE_SERVICE_ROLE_KEY=")) {
+      serviceRoleKey = trimmed.split("=")[1].trim();
+    } else if (trimmed.startsWith("NEXT_PUBLIC_SUPABASE_ANON_KEY=")) {
+      anonKey = trimmed.split("=")[1].trim();
+    }
+  }
+}
+
+async function run() {
+  console.log("================================================================================");
+  console.log("🔍 Supabase Product View Inspector & Reset Tool");
+  console.log("================================================================================");
+  console.log(`- Supabase URL: ${url ? "Configured" : "MISSING"}`);
+  console.log(`- Service Role Key: ${serviceRoleKey ? "Configured (" + serviceRoleKey.slice(0, 15) + "...)" : "NOT CONFIGURED in .env.local"}`);
+  console.log(`- Anon Key: ${anonKey ? "Configured (" + anonKey.slice(0, 15) + "...)" : "MISSING"}`);
+  console.log("--------------------------------------------------------------------------------");
+
+  if (!url) {
+    console.error("❌ NEXT_PUBLIC_SUPABASE_URL is missing.");
+    process.exit(1);
+  }
+
+  const client = createClient(url, serviceRoleKey || anonKey);
+
+  // 1. Fetch all products with views > 0
+  const { data: allProducts, error } = await client
+    .from("products")
+    .select("id, title, views, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("❌ Failed to query products:", error);
+    process.exit(1);
+  }
+
+  const oct19 = new Date("2026-10-19T00:00:00Z");
+  const recentWithViews = [];
+  const olderWithViews = [];
+  const allRecent = [];
+
+  for (const p of allProducts) {
+    const d = new Date(p.created_at);
+    const views = p.views ?? 0;
+    const isRecent = d >= oct19;
+
+    if (isRecent) {
+      allRecent.push(p);
+      if (views > 0) recentWithViews.push(p);
+    } else {
+      if (views > 0) olderWithViews.push(p);
+    }
+  }
+
+  console.log(`\n[Group 1] Registered on or after Oct 19 with views > 0 (${recentWithViews.length} products):`);
+  recentWithViews.forEach((p, idx) => {
+    console.log(`  ${String(idx + 1).padStart(2, " ")}. [${p.id}] views: ${p.views} | created: ${p.created_at} | ${p.title}`);
+  });
+
+  console.log(`\n[Group 2] Registered BEFORE Oct 19 with views > 0 (${olderWithViews.length} products):`);
+  olderWithViews.forEach((p, idx) => {
+    console.log(`  ${String(idx + 1).padStart(2, " ")}. [${p.id}] views: ${p.views} | created: ${p.created_at} | ${p.title}`);
+  });
+
+  console.log(`\nTotal registered on/after Oct 19: ${allRecent.length} (views > 0: ${recentWithViews.length}, views == 0: ${allRecent.length - recentWithViews.length})`);
+
+  if (!serviceRoleKey) {
+    console.log("\n⚠️ [NOTICE] SUPABASE_SERVICE_ROLE_KEY is not set in .env.local.");
+    console.log("  Supabase Row-Level Security (RLS) restricts UPDATE operations on `products`.");
+    console.log("  Anonymous client (`NEXT_PUBLIC_SUPABASE_ANON_KEY`) cannot update rows directly.");
+    console.log("  To perform the reset, please add SUPABASE_SERVICE_ROLE_KEY to .env.local and re-run.");
+    return;
+  }
+
+  console.log(`\n🔄 Resetting views to 0 for ${recentWithViews.length} products registered on/after Oct 19...`);
+  const updatedProducts = [];
+
+  for (const item of recentWithViews) {
+    const { data, error: updateErr } = await client
+      .from("products")
+      .update({ views: 0 })
+      .eq("id", item.id)
+      .select("id, title, views, created_at")
+      .single();
+
+    if (updateErr) {
+      console.error(`❌ Failed to update ${item.id} (${item.title}):`, updateErr);
+    } else {
+      updatedProducts.push(data);
+    }
+  }
+
+  console.log(`\n✅ Successfully reset ${updatedProducts.length} products to views: 0.`);
+  updatedProducts.forEach((p, idx) => {
+    console.log(`  ${String(idx + 1).padStart(2, " ")}. [${p.id}] new views: ${p.views} | ${p.title}`);
+  });
+
+  // Verification step
+  const { data: verifiedRecent } = await client
+    .from("products")
+    .select("id, title, views, created_at")
+    .gte("created_at", "2026-10-19T00:00:00Z")
+    .order("created_at", { ascending: false });
+
+  const nonZero = (verifiedRecent || []).filter((p) => (p.views ?? 0) > 0);
+  console.log("\n=== VERIFICATION RESULT ===");
+  if (nonZero.length === 0) {
+    console.log(`✅ All ${verifiedRecent?.length ?? 0} products registered on/after Oct 19 now have views = 0!`);
+  } else {
+    console.warn(`⚠️ Warning: ${nonZero.length} products still have views > 0:`, nonZero);
+  }
+}
+
+run();
 
 ]]>
     </file>
