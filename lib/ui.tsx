@@ -905,10 +905,10 @@ export function SiteFooter({
     <>
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
-      <footer className="relative bg-[#070E18] bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,#182B46_0%,#0E1A2B_50%,#070E18_100%)] text-white/80 mt-auto border-t border-[#1E334F] overflow-hidden">
-        {/* 상단 은은한 엠비언트 라이트 엣지 */}
+      <footer className="relative bg-[#080F18] bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(217,83,30,0.22)_0%,rgba(255,122,69,0.08)_35%,#0E1A2B_70%,#080F18_100%)] text-white/80 mt-auto border-t border-[#382622] overflow-hidden">
+        {/* 상단 은은한 앰버 엠비언트 라이트 엣지 */}
         <div
-          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#456A99]/50 to-transparent pointer-events-none"
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FF7A45]/45 to-transparent pointer-events-none"
           aria-hidden="true"
         />
         <div className="hb-container py-12 sm:py-16 relative z-1">
