@@ -5,10 +5,12 @@ import {
   getInquiryTypeLabel,
   isValidPhone,
   maskName,
+  maskPhone,
   STORE,
 } from "../../../lib/site";
 import { createServerSupabaseClient } from "../../../lib/supabase";
 import {
+  checkNotificationIdempotency,
   checkRateLimit,
   getClientIp,
   hashInquiryPassword,
@@ -16,6 +18,68 @@ import {
 } from "../../../lib/server-security";
 
 export const runtime = "nodejs";
+
+/**
+ * 신규 문의 DB 저장 직후 서버에서 직접 텔레그램 알림을 발송하는 내부 헬퍼
+ * - 클라이언트가 창을 즉시 닫아도 알림이 유실되지 않도록 보장합니다.
+ * - checkNotificationIdempotency를 공유하므로 클라이언트 측 후속 호출과 중복 발송되지 않습니다.
+ */
+async function dispatchTelegramOnInquiryCreate(params: {
+  inquiryId: string | number | null;
+  name: string;
+  phone: string;
+  type: string;
+  title: string;
+}): Promise<boolean> {
+  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+  if (!BOT_TOKEN || !CHAT_ID) return false;
+
+  const idStr = params.inquiryId ? String(params.inquiryId).trim() : "";
+  const dedupKey = idStr || `${params.type}:${params.name}:${params.title}`;
+  const { isDuplicate } = checkNotificationIdempotency(
+    dedupKey,
+    3 * 60 * 1000,
+    false
+  );
+  if (isDuplicate) return true;
+
+  const maskedPhone = params.phone ? maskPhone(params.phone) : "미입력";
+  const message = [
+    "🚨 [한밭중고전자 신규 접수 알림]",
+    "",
+    `• 구분: ${params.type}`,
+    `• 접수자: ${params.name} (${maskedPhone})`,
+    `• 제목: ${params.title}`,
+    idStr ? `• 접수번호: #${idStr.slice(0, 8)}` : null,
+    "",
+    "🔒 개인정보 보호를 위해 전체 연락처와 첨부 사진은 홈페이지 관리자 대시보드(/admin)에서 확인해 주세요.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  try {
+    const res = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+        }),
+        signal: AbortSignal.timeout(4000),
+      }
+    );
+    return res.ok;
+  } catch (err) {
+    console.warn(
+      "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
+      err
+    );
+    return false;
+  }
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,54 +126,55 @@ export async function GET(req: NextRequest) {
         admin_reply?: string | null;
         created_at?: string | null;
       }) => {
-      const normalizedImages = extractInquiryImages(row);
-      const isNotice = Boolean(row.is_notice);
-      const rawTitle =
-        row.category ||
-        (row.model ? `${row.model} 매입 문의` : "문의드립니다.");
+        const normalizedImages = extractInquiryImages(row);
+        const isNotice = Boolean(row.is_notice);
+        const rawTitle =
+          row.category ||
+          (row.model ? `${row.model} 매입 문의` : "문의드립니다.");
 
-      if (isAdmin) {
+        if (isAdmin) {
+          return {
+            id: row.id,
+            name: row.name || "고객",
+            masked_name: maskName(row.name),
+            phone: row.phone || "",
+            inquiry_type:
+              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의"),
+            category: rawTitle,
+            model: row.model || null,
+            condition_grade: row.condition_grade || null,
+            region: row.region || null,
+            description: row.description || "",
+            images: normalizedImages,
+            has_images: normalizedImages.length > 0,
+            is_notice: isNotice,
+            status: row.status || "접수",
+            admin_reply: row.admin_reply || null,
+            created_at: row.created_at,
+          };
+        }
+
         return {
           id: row.id,
-          name: row.name || "고객",
+          name: isNotice ? row.name || STORE.name : maskName(row.name),
           masked_name: maskName(row.name),
-          phone: row.phone || "",
-          inquiry_type:
-            row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의"),
+          phone: null,
+          inquiry_type: isNotice
+            ? "공지사항"
+            : getInquiryTypeLabel(
+                row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
+              ),
           category: rawTitle,
-          model: row.model || null,
-          condition_grade: row.condition_grade || null,
-          region: row.region || null,
-          description: row.description || "",
-          images: normalizedImages,
+          description: isNotice ? row.description || "" : null,
+          images: isNotice ? normalizedImages : [],
           has_images: normalizedImages.length > 0,
           is_notice: isNotice,
-          status: row.status || "접수",
-          admin_reply: row.admin_reply || null,
+          status: row.status || (isNotice ? "공지" : "접수"),
+          admin_reply: null,
           created_at: row.created_at,
         };
       }
-
-      return {
-        id: row.id,
-        name: isNotice ? row.name || STORE.name : maskName(row.name),
-        masked_name: maskName(row.name),
-        phone: null,
-        inquiry_type: isNotice
-          ? "공지사항"
-          : getInquiryTypeLabel(
-              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
-            ),
-        category: rawTitle,
-        description: isNotice ? row.description || "" : null,
-        images: isNotice ? normalizedImages : [],
-        has_images: normalizedImages.length > 0,
-        is_notice: isNotice,
-        status: row.status || (isNotice ? "공지" : "접수"),
-        admin_reply: null,
-        created_at: row.created_at,
-      };
-    });
+    );
 
     return NextResponse.json({ inquiries: sanitized, isAdmin });
   } catch {
@@ -279,9 +344,22 @@ export async function POST(req: NextRequest) {
 
     const createdId = insertedRows?.[0]?.id ?? null;
 
+    // 일반 고객 문의인 경우 서버에서 즉시 텔레그램 알림 발송 (창 닫힘으로 인한 알림 유실 방지)
+    let telegramNotified = false;
+    if (!isNotice) {
+      telegramNotified = await dispatchTelegramOnInquiryCreate({
+        inquiryId: createdId,
+        name,
+        phone,
+        type: getInquiryTypeLabel(inquiryType),
+        title,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       inquiryId: createdId,
+      telegramNotified,
       createdAt: insertedRows?.[0]?.created_at ?? new Date().toISOString(),
     });
   } catch {

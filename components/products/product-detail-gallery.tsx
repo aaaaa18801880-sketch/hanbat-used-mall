@@ -13,7 +13,11 @@ import {
   toggleQuoteBasketItem,
   type QuoteBasketItem,
 } from "../../lib/site";
-import { supabase, isAuthorizedAdminUser } from "../../lib/supabase";
+import {
+  supabase,
+  isAuthorizedAdminUser,
+  getAdminAuthHeaders,
+} from "../../lib/supabase";
 
 export function ProductDetailGallery({
   id,
@@ -47,7 +51,11 @@ export function ProductDetailGallery({
         const viewedList = JSON.parse(viewedStr) as string[];
         if (viewedList.includes(id)) return;
 
-        const res = await fetch(`/api/products/${id}/view`, { method: "POST" });
+        const authHeaders = await getAdminAuthHeaders();
+        const res = await fetch(`/api/products/${id}/view`, {
+          method: "POST",
+          headers: authHeaders,
+        });
         if (!res.ok || cancelled) return;
 
         const nextStr = sessionStorage.getItem("viewed_products") || "[]";
@@ -301,9 +309,6 @@ export function CopyProductLinkButton({
   );
 }
 
-/**
- * [신규 기능 ⑥] 당근마켓 · 네이버 카페 · 블로그 홍보글 원클릭 복사 버튼
- */
 export function CopyPromoPostButton({
   product,
   className = "",
@@ -347,9 +352,6 @@ export function CopyPromoPostButton({
   );
 }
 
-/**
- * [신규 기능 ①] 상세 페이지용 관심 매물 견적함 담기 토글 버튼
- */
 export function QuoteBasketButton({
   item,
   className = "",

@@ -1206,7 +1206,9 @@ export default function GalleryPage() {
         prev && prev.id === product.id ? { ...prev, views: newViews } : prev
       );
 
+      const authHeaders = await getAdminAuthHeaders();
       const res = await fetch(`/api/products/${product.id}/view`, {
+        headers: authHeaders,
         method: "POST",
       });
       if (!res.ok) {

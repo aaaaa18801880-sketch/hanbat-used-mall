@@ -322,7 +322,14 @@ export default function InquiryBoardPage() {
 
   const handleOpenWrite = () => {
     setLinkedProduct(null);
-    setWriteDefaultType("내 물건 팔기");
+    const nextDefaultType: InquiryTypeValue =
+      activeTab === "구매 문의" ||
+      activeTab === "내 물건 팔기" ||
+      activeTab === "대량·업소용 상담" ||
+      activeTab === "기타 문의"
+        ? activeTab
+        : "내 물건 팔기";
+    setWriteDefaultType(nextDefaultType);
     setIsWriteOpen(true);
   };
 

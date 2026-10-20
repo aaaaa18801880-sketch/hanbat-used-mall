@@ -2,20 +2,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
+import { verifyAdminRequest } from "../../../../lib/server-security";
 
 export const runtime = "nodejs";
 
-const RESET_SECRET = "hanbat_view_reset_20261020_k9x2";
-
 export async function POST(req: NextRequest) {
   try {
-    const key = req.nextUrl.searchParams.get("key");
-    if (key !== RESET_SECRET) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // [보안 패치] URL 평문 시크릿 대신 서버 측 정식 관리자 Bearer 토큰 검증 수행
+    const adminCheck = await verifyAdminRequest(req);
+    if (!adminCheck.ok) {
+      return NextResponse.json(
+        { error: adminCheck.error || "관리자 권한이 필요합니다." },
+        { status: adminCheck.status }
+      );
     }
 
     const scope = req.nextUrl.searchParams.get("scope") || "recent";
-    const supabase = createServerSupabaseClient(undefined, true);
+    const supabase = createServerSupabaseClient(adminCheck.accessToken, true);
 
     let query = supabase.from("products").update({ views: 0 }).gt("views", 0);
 
@@ -31,12 +34,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 캐시 무효화
     try {
       revalidatePath("/gallery");
       revalidatePath("/");
     } catch {
-      // ignore
+      // ignore revalidate error
     }
 
     return NextResponse.json({

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-20T13:06:30.606Z">
+<project name="hanbat-mall" generated_at="2026-10-20T17:01:53.886Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -3021,26 +3021,29 @@ export default function IntegratedAdminDashboard() {
 }
 ]]>
     </file>
-    <file path="app/api/admin/reset-views/route.ts" lines="55">
+    <file path="app/api/admin/reset-views/route.ts" lines="57">
       <![CDATA[
 // 파일 경로: app/api/admin/reset-views/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
+import { verifyAdminRequest } from "../../../../lib/server-security";
 
 export const runtime = "nodejs";
 
-const RESET_SECRET = "hanbat_view_reset_20261020_k9x2";
-
 export async function POST(req: NextRequest) {
   try {
-    const key = req.nextUrl.searchParams.get("key");
-    if (key !== RESET_SECRET) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    // [보안 패치] URL 평문 시크릿 대신 서버 측 정식 관리자 Bearer 토큰 검증 수행
+    const adminCheck = await verifyAdminRequest(req);
+    if (!adminCheck.ok) {
+      return NextResponse.json(
+        { error: adminCheck.error || "관리자 권한이 필요합니다." },
+        { status: adminCheck.status }
+      );
     }
 
     const scope = req.nextUrl.searchParams.get("scope") || "recent";
-    const supabase = createServerSupabaseClient(undefined, true);
+    const supabase = createServerSupabaseClient(adminCheck.accessToken, true);
 
     let query = supabase.from("products").update({ views: 0 }).gt("views", 0);
 
@@ -3056,12 +3059,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // 캐시 무효화
     try {
       revalidatePath("/gallery");
       revalidatePath("/");
     } catch {
-      // ignore
+      // ignore revalidate error
     }
 
     return NextResponse.json({
@@ -5143,7 +5145,7 @@ export async function DELETE(
 }
 ]]>
     </file>
-    <file path="app/api/inquiries/route.ts" lines="294">
+    <file path="app/api/inquiries/route.ts" lines="372">
       <![CDATA[
 // 파일 경로: app/api/inquiries/route.ts
 import { NextRequest, NextResponse } from "next/server";
@@ -5152,10 +5154,12 @@ import {
   getInquiryTypeLabel,
   isValidPhone,
   maskName,
+  maskPhone,
   STORE,
 } from "../../../lib/site";
 import { createServerSupabaseClient } from "../../../lib/supabase";
 import {
+  checkNotificationIdempotency,
   checkRateLimit,
   getClientIp,
   hashInquiryPassword,
@@ -5163,6 +5167,68 @@ import {
 } from "../../../lib/server-security";
 
 export const runtime = "nodejs";
+
+/**
+ * 신규 문의 DB 저장 직후 서버에서 직접 텔레그램 알림을 발송하는 내부 헬퍼
+ * - 클라이언트가 창을 즉시 닫아도 알림이 유실되지 않도록 보장합니다.
+ * - checkNotificationIdempotency를 공유하므로 클라이언트 측 후속 호출과 중복 발송되지 않습니다.
+ */
+async function dispatchTelegramOnInquiryCreate(params: {
+  inquiryId: string | number | null;
+  name: string;
+  phone: string;
+  type: string;
+  title: string;
+}): Promise<boolean> {
+  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+  if (!BOT_TOKEN || !CHAT_ID) return false;
+
+  const idStr = params.inquiryId ? String(params.inquiryId).trim() : "";
+  const dedupKey = idStr || `${params.type}:${params.name}:${params.title}`;
+  const { isDuplicate } = checkNotificationIdempotency(
+    dedupKey,
+    3 * 60 * 1000,
+    false
+  );
+  if (isDuplicate) return true;
+
+  const maskedPhone = params.phone ? maskPhone(params.phone) : "미입력";
+  const message = [
+    "🚨 [한밭중고전자 신규 접수 알림]",
+    "",
+    `• 구분: ${params.type}`,
+    `• 접수자: ${params.name} (${maskedPhone})`,
+    `• 제목: ${params.title}`,
+    idStr ? `• 접수번호: #${idStr.slice(0, 8)}` : null,
+    "",
+    "🔒 개인정보 보호를 위해 전체 연락처와 첨부 사진은 홈페이지 관리자 대시보드(/admin)에서 확인해 주세요.",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  try {
+    const res = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message,
+        }),
+        signal: AbortSignal.timeout(4000),
+      }
+    );
+    return res.ok;
+  } catch (err) {
+    console.warn(
+      "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
+      err
+    );
+    return false;
+  }
+}
 
 export async function GET(req: NextRequest) {
   try {
@@ -5209,54 +5275,55 @@ export async function GET(req: NextRequest) {
         admin_reply?: string | null;
         created_at?: string | null;
       }) => {
-      const normalizedImages = extractInquiryImages(row);
-      const isNotice = Boolean(row.is_notice);
-      const rawTitle =
-        row.category ||
-        (row.model ? `${row.model} 매입 문의` : "문의드립니다.");
+        const normalizedImages = extractInquiryImages(row);
+        const isNotice = Boolean(row.is_notice);
+        const rawTitle =
+          row.category ||
+          (row.model ? `${row.model} 매입 문의` : "문의드립니다.");
 
-      if (isAdmin) {
+        if (isAdmin) {
+          return {
+            id: row.id,
+            name: row.name || "고객",
+            masked_name: maskName(row.name),
+            phone: row.phone || "",
+            inquiry_type:
+              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의"),
+            category: rawTitle,
+            model: row.model || null,
+            condition_grade: row.condition_grade || null,
+            region: row.region || null,
+            description: row.description || "",
+            images: normalizedImages,
+            has_images: normalizedImages.length > 0,
+            is_notice: isNotice,
+            status: row.status || "접수",
+            admin_reply: row.admin_reply || null,
+            created_at: row.created_at,
+          };
+        }
+
         return {
           id: row.id,
-          name: row.name || "고객",
+          name: isNotice ? row.name || STORE.name : maskName(row.name),
           masked_name: maskName(row.name),
-          phone: row.phone || "",
-          inquiry_type:
-            row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의"),
+          phone: null,
+          inquiry_type: isNotice
+            ? "공지사항"
+            : getInquiryTypeLabel(
+                row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
+              ),
           category: rawTitle,
-          model: row.model || null,
-          condition_grade: row.condition_grade || null,
-          region: row.region || null,
-          description: row.description || "",
-          images: normalizedImages,
+          description: isNotice ? row.description || "" : null,
+          images: isNotice ? normalizedImages : [],
           has_images: normalizedImages.length > 0,
           is_notice: isNotice,
-          status: row.status || "접수",
-          admin_reply: row.admin_reply || null,
+          status: row.status || (isNotice ? "공지" : "접수"),
+          admin_reply: null,
           created_at: row.created_at,
         };
       }
-
-      return {
-        id: row.id,
-        name: isNotice ? row.name || STORE.name : maskName(row.name),
-        masked_name: maskName(row.name),
-        phone: null,
-        inquiry_type: isNotice
-          ? "공지사항"
-          : getInquiryTypeLabel(
-              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
-            ),
-        category: rawTitle,
-        description: isNotice ? row.description || "" : null,
-        images: isNotice ? normalizedImages : [],
-        has_images: normalizedImages.length > 0,
-        is_notice: isNotice,
-        status: row.status || (isNotice ? "공지" : "접수"),
-        admin_reply: null,
-        created_at: row.created_at,
-      };
-    });
+    );
 
     return NextResponse.json({ inquiries: sanitized, isAdmin });
   } catch {
@@ -5426,9 +5493,22 @@ export async function POST(req: NextRequest) {
 
     const createdId = insertedRows?.[0]?.id ?? null;
 
+    // 일반 고객 문의인 경우 서버에서 즉시 텔레그램 알림 발송 (창 닫힘으로 인한 알림 유실 방지)
+    let telegramNotified = false;
+    if (!isNotice) {
+      telegramNotified = await dispatchTelegramOnInquiryCreate({
+        inquiryId: createdId,
+        name,
+        phone,
+        type: getInquiryTypeLabel(inquiryType),
+        title,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       inquiryId: createdId,
+      telegramNotified,
       createdAt: insertedRows?.[0]?.created_at ?? new Date().toISOString(),
     });
   } catch {
@@ -5906,7 +5986,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2657">
+    <file path="app/gallery/page.tsx" lines="2659">
       <![CDATA[
 "use client";
 
@@ -7116,7 +7196,9 @@ export default function GalleryPage() {
         prev && prev.id === product.id ? { ...prev, views: newViews } : prev
       );
 
+      const authHeaders = await getAdminAuthHeaders();
       const res = await fetch(`/api/products/${product.id}/view`, {
+        headers: authHeaders,
         method: "POST",
       });
       if (!res.ok) {
@@ -8776,7 +8858,7 @@ export default function InquiryLayout({
 }
 ]]>
     </file>
-    <file path="app/inquiry/page.tsx" lines="1477">
+    <file path="app/inquiry/page.tsx" lines="1484">
       <![CDATA[
 "use client";
 
@@ -9102,7 +9184,14 @@ export default function InquiryBoardPage() {
 
   const handleOpenWrite = () => {
     setLinkedProduct(null);
-    setWriteDefaultType("내 물건 팔기");
+    const nextDefaultType: InquiryTypeValue =
+      activeTab === "구매 문의" ||
+      activeTab === "내 물건 팔기" ||
+      activeTab === "대량·업소용 상담" ||
+      activeTab === "기타 문의"
+        ? activeTab
+        : "내 물건 팔기";
+    setWriteDefaultType(nextDefaultType);
     setIsWriteOpen(true);
   };
 
@@ -14800,7 +14889,7 @@ export function FaqSection() {
 }
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="511">
+    <file path="components/home/featured-products-section.tsx" lines="520">
       <![CDATA[
 "use client";
 
@@ -14819,6 +14908,11 @@ import {
   trackEvent,
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
+import {
+  supabase,
+  isAuthorizedAdminUser,
+  getAdminAuthHeaders,
+} from "../../lib/supabase";
 import {
   ProductCard,
   ProductTrustMicroStrip,
@@ -14879,6 +14973,8 @@ export function FeaturedProductsSection({
     });
 
     try {
+      const { data: authData } = await supabase.auth.getSession();
+      if (isAuthorizedAdminUser(authData.session?.user)) return;
       const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
       const viewedList = JSON.parse(viewedStr) as string[];
       if (viewedList.includes(item.id)) return;
@@ -14889,7 +14985,9 @@ export function FeaturedProductsSection({
         prev && prev.id === item.id ? { ...prev, views: optimisticViews } : prev
       );
 
+      const authHeaders = await getAdminAuthHeaders();
       const res = await fetch(`/api/products/${item.id}/view`, {
+        headers: authHeaders,
         method: "POST",
       });
       if (!res.ok) {
@@ -19017,7 +19115,7 @@ export function ProductCard({
 }
 ]]>
     </file>
-    <file path="components/products/product-detail-gallery.tsx" lines="411">
+    <file path="components/products/product-detail-gallery.tsx" lines="414">
       <![CDATA[
 // 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
@@ -19034,7 +19132,11 @@ import {
   toggleQuoteBasketItem,
   type QuoteBasketItem,
 } from "../../lib/site";
-import { supabase, isAuthorizedAdminUser } from "../../lib/supabase";
+import {
+  supabase,
+  isAuthorizedAdminUser,
+  getAdminAuthHeaders,
+} from "../../lib/supabase";
 
 export function ProductDetailGallery({
   id,
@@ -19068,7 +19170,11 @@ export function ProductDetailGallery({
         const viewedList = JSON.parse(viewedStr) as string[];
         if (viewedList.includes(id)) return;
 
-        const res = await fetch(`/api/products/${id}/view`, { method: "POST" });
+        const authHeaders = await getAdminAuthHeaders();
+        const res = await fetch(`/api/products/${id}/view`, {
+          method: "POST",
+          headers: authHeaders,
+        });
         if (!res.ok || cancelled) return;
 
         const nextStr = sessionStorage.getItem("viewed_products") || "[]";
@@ -19322,9 +19428,6 @@ export function CopyProductLinkButton({
   );
 }
 
-/**
- * [신규 기능 ⑥] 당근마켓 · 네이버 카페 · 블로그 홍보글 원클릭 복사 버튼
- */
 export function CopyPromoPostButton({
   product,
   className = "",
@@ -19368,9 +19471,6 @@ export function CopyPromoPostButton({
   );
 }
 
-/**
- * [신규 기능 ①] 상세 페이지용 관심 매물 견적함 담기 토글 버튼
- */
 export function QuoteBasketButton({
   item,
   className = "",
@@ -19430,6 +19530,7 @@ export function QuoteBasketButton({
     </button>
   );
 }
+
 ]]>
     </file>
     <file path="components/products/product-status-badge.tsx" lines="46">

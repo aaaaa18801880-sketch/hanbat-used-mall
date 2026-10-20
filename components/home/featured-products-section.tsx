@@ -16,6 +16,11 @@ import {
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
 import {
+  supabase,
+  isAuthorizedAdminUser,
+  getAdminAuthHeaders,
+} from "../../lib/supabase";
+import {
   ProductCard,
   ProductTrustMicroStrip,
   type ProductItem,
@@ -75,6 +80,8 @@ export function FeaturedProductsSection({
     });
 
     try {
+      const { data: authData } = await supabase.auth.getSession();
+      if (isAuthorizedAdminUser(authData.session?.user)) return;
       const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
       const viewedList = JSON.parse(viewedStr) as string[];
       if (viewedList.includes(item.id)) return;
@@ -85,7 +92,9 @@ export function FeaturedProductsSection({
         prev && prev.id === item.id ? { ...prev, views: optimisticViews } : prev
       );
 
+      const authHeaders = await getAdminAuthHeaders();
       const res = await fetch(`/api/products/${item.id}/view`, {
+        headers: authHeaders,
         method: "POST",
       });
       if (!res.ok) {
