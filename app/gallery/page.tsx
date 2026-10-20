@@ -1189,6 +1189,9 @@ export default function GalleryPage() {
       status: normalizeProductStatus(product.status),
     });
 
+    // 관리자 로그인 상태에서는 본인 검수/수정 클릭이므로 조회수를 올리지 않음
+    if (isAdmin) return;
+
     const prevViews = product.views || 0;
     try {
       const viewedStr = sessionStorage.getItem("viewed_products") || "[]";

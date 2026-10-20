@@ -1,7 +1,7 @@
 // 파일 경로: app/api/products/[id]/view/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "../../../../../lib/supabase";
+import { createServerSupabaseClient, isAuthorizedAdminUser } from "../../../../../lib/supabase";
 import { checkRateLimit, getClientIp } from "../../../../../lib/server-security";
 
 export const runtime = "nodejs";
@@ -35,6 +35,20 @@ export async function POST(
     }
 
     const currentViews = Number(product.views) || 0;
+
+    // 관리자 토큰(Authorization: Bearer ...) 검증: 관리자 접속 시 조회수 증가 스킵
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "").trim();
+      const { data: userData } = await supabase.auth.getUser(token);
+      if (isAuthorizedAdminUser(userData?.user)) {
+        return NextResponse.json({
+          success: true,
+          skipped: "admin",
+          views: currentViews,
+        });
+      }
+    }
 
     const ip = getClientIp(req);
     const rate = checkRateLimit(`prod_view:${ip}:${id}`, 1, 10 * 60 * 1000);

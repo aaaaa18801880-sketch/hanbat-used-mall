@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-20T06:23:50.636Z">
+<project name="hanbat-mall" generated_at="2026-10-20T12:43:08.168Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -5382,12 +5382,12 @@ export async function POST(req: NextRequest) {
 
 ]]>
     </file>
-    <file path="app/api/products/[id]/view/route.ts" lines="81">
+    <file path="app/api/products/[id]/view/route.ts" lines="95">
       <![CDATA[
 // 파일 경로: app/api/products/[id]/view/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "../../../../../lib/supabase";
+import { createServerSupabaseClient, isAuthorizedAdminUser } from "../../../../../lib/supabase";
 import { checkRateLimit, getClientIp } from "../../../../../lib/server-security";
 
 export const runtime = "nodejs";
@@ -5421,6 +5421,20 @@ export async function POST(
     }
 
     const currentViews = Number(product.views) || 0;
+
+    // 관리자 토큰(Authorization: Bearer ...) 검증: 관리자 접속 시 조회수 증가 스킵
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "").trim();
+      const { data: userData } = await supabase.auth.getUser(token);
+      if (isAuthorizedAdminUser(userData?.user)) {
+        return NextResponse.json({
+          success: true,
+          skipped: "admin",
+          views: currentViews,
+        });
+      }
+    }
 
     const ip = getClientIp(req);
     const rate = checkRateLimit(`prod_view:${ip}:${id}`, 1, 10 * 60 * 1000);
@@ -5833,7 +5847,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2654">
+    <file path="app/gallery/page.tsx" lines="2657">
       <![CDATA[
 "use client";
 
@@ -7025,6 +7039,9 @@ export default function GalleryPage() {
       category: normalizeProductCategory(product.category),
       status: normalizeProductStatus(product.status),
     });
+
+    // 관리자 로그인 상태에서는 본인 검수/수정 클릭이므로 조회수를 올리지 않음
+    if (isAdmin) return;
 
     const prevViews = product.views || 0;
     try {
@@ -18941,7 +18958,7 @@ export function ProductCard({
 }
 ]]>
     </file>
-    <file path="components/products/product-detail-gallery.tsx" lines="405">
+    <file path="components/products/product-detail-gallery.tsx" lines="411">
       <![CDATA[
 // 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
@@ -18958,6 +18975,7 @@ import {
   toggleQuoteBasketItem,
   type QuoteBasketItem,
 } from "../../lib/site";
+import { supabase, isAuthorizedAdminUser } from "../../lib/supabase";
 
 export function ProductDetailGallery({
   id,
@@ -18982,6 +19000,11 @@ export function ProductDetailGallery({
     let cancelled = false;
     (async () => {
       try {
+        // 관리자 로그인 상태에서는 본인 검수/수정 접속이므로 조회수를 카운트하지 않음
+        const { data: authData } = await supabase.auth.getSession();
+        if (cancelled) return;
+        if (isAuthorizedAdminUser(authData.session?.user)) return;
+
         const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
         const viewedList = JSON.parse(viewedStr) as string[];
         if (viewedList.includes(id)) return;
