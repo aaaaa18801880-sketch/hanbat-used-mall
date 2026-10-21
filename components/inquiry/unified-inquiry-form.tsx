@@ -858,7 +858,7 @@ export function UnifiedInquiryForm({
               title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
             >
               <Icon d={ICON.chat} className="h-4 w-4" />
-              <span>문자(${STORE.mobile}) 바로 전송</span>
+              <span>문자({STORE.mobile}) 바로 전송</span>
             </a>
           </div>
 
@@ -926,7 +926,7 @@ export function UnifiedInquiryForm({
             title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5" />
-            <span>문자(${STORE.mobile}) 바로 전송</span>
+            <span>문자({STORE.mobile}) 바로 전송</span>
           </a>
         </div>
       ) : null}
