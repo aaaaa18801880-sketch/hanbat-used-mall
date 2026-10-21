@@ -1166,7 +1166,8 @@ export default function GalleryPage() {
         .from("products")
         .select("*")
         .neq("category", "배송인증")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(400);
       if (error) throw error;
       setProducts((data ?? []) as ProductItem[]);
     } catch (err) {

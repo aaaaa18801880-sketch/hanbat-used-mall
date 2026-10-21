@@ -167,7 +167,8 @@ export default function IntegratedAdminDashboard() {
       const { data: allProds, error: prodErr } = await supabase
         .from("products")
         .select("*")
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .limit(500);
 
       if (!prodErr && allProds) {
         setProducts(allProds.filter((p) => p.category !== "배송인증"));
@@ -2067,7 +2068,7 @@ export default function IntegratedAdminDashboard() {
                               toast.error("복사에 실패했습니다.");
                             }
                           }}
-                          className="h-8 rounded border border-[#FADCD0] bg-[#FFF5F0] px-2.5 text-[12px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+                          className="h-9 rounded border border-[#FADCD0] bg-[#FFF5F0] px-2.5 text-[12px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
                           title="당근마켓·네이버카페·블로그 업로드용 홍보 원고 복사"
                         >
                           📋 홍보글 복사
@@ -2082,7 +2083,7 @@ export default function IntegratedAdminDashboard() {
                               e.target.value
                             )
                           }
-                          className="h-8 rounded border border-[#DDD9D1] bg-white px-2 text-[12px] font-bold text-[#0E1A2B]"
+                          className="h-9 rounded border border-[#DDD9D1] bg-white px-2 text-[12px] font-bold text-[#0E1A2B]"
                         >
                           {PRODUCT_STATUS_LIST.map((s) => (
                             <option key={s} value={s}>
@@ -2093,7 +2094,7 @@ export default function IntegratedAdminDashboard() {
                         <button
                           type="button"
                           onClick={() => startEditProduct(product)}
-                          className="h-8 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 text-[12px] font-bold text-[#0E1A2B]"
+                          className="h-9 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-3 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                         >
                           편집
                         </button>
@@ -2101,7 +2102,7 @@ export default function IntegratedAdminDashboard() {
                           type="button"
                           disabled={busyActionId === `prod-del-${product.id}`}
                           onClick={() => handleDeleteProduct(product)}
-                          className="h-8 rounded border border-red-200 bg-red-50 px-2.5 text-[12px] font-bold text-red-600"
+                          className="h-9 rounded border border-red-200 bg-red-50 px-3 text-[12px] font-bold text-red-600 hover:bg-red-100"
                         >
                           삭제
                         </button>
@@ -2305,8 +2306,8 @@ export default function IntegratedAdminDashboard() {
                                 </p>
                               </div>
                             ) : (
-                              <span className="text-[12px] text-[#8A8478]">
-                                설정 미완료 (대행사 미연결)
+                              <span className="inline-block rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                                연동 준비중 (Telegram 활성)
                               </span>
                             )}
                           </td>

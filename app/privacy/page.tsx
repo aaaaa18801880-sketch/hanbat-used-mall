@@ -1,3 +1,4 @@
+// 파일 경로: app/privacy/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
 import { STORE, telHref } from "../../lib/site";
@@ -13,17 +14,17 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#F6F5F2] font-sans text-[#1F2530] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
       <SiteHeader />
 
       <main className="hb-container py-10 sm:py-14 flex-1">
-        <div className="mx-auto max-w-3xl rounded-md border border-[#E4E0D8] bg-white p-6 sm:p-10 shadow-xs">
+        <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E2DC] bg-white p-6 sm:p-10 shadow-card">
           <p className="hb-eyebrow">Privacy Policy</p>
-          <h1 className="mt-2 text-[24px] sm:text-[30px] font-bold text-[#0E1A2B] pb-5 border-b border-[#E4E0D8]">
+          <h1 className="mt-2 text-[24px] sm:text-[30px] font-bold text-[#0E1A2B] pb-5 border-b border-[#E5E2DC]">
             개인정보처리방침
           </h1>
 
-          <div className="mt-6 space-y-7 text-[14.5px] leading-[1.75] text-[#4B5260]">
+          <div className="mt-6 space-y-7 text-[14.5px] leading-[1.75] text-[#3E4756]">
             <p>
               <strong className="text-[#0E1A2B]">{STORE.name}</strong>(이하
               &ldquo;회사&rdquo;)는 개인정보보호법 등 관련 법령에 따라 이용자의
@@ -101,7 +102,7 @@ export default function PrivacyPage() {
               <h2 className="text-[16px] font-bold text-[#0E1A2B]">
                 5. 개인정보 보호책임자 안내
               </h2>
-              <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4 text-[13.5px] space-y-1">
+              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-[13.5px] space-y-1">
                 <p>
                   • <strong className="text-[#0E1A2B]">상호:</strong> {STORE.name}{" "}
                   (대표: {STORE.ceo})
@@ -117,19 +118,19 @@ export default function PrivacyPage() {
                   • <strong className="text-[#0E1A2B]">대표 전화:</strong>{" "}
                   <a
                     href={telHref(STORE.tel)}
-                    className="font-bold text-[#0E1A2B] underline"
+                    className="font-bold text-[#0E1A2B] underline underline-offset-4"
                   >
                     {STORE.tel}
                   </a>
                 </p>
                 <p>
                   • <strong className="text-[#0E1A2B]">사업장 주소:</strong>{" "}
-                  {STORE.address} ({STORE.addressNote})
+                  {STORE.roadAddress} (지번: {STORE.jibunAddress}, {STORE.addressNote})
                 </p>
               </div>
             </section>
 
-            <div className="pt-5 border-t border-[#E4E0D8] flex flex-wrap items-center justify-between gap-4 text-[13px] text-[#6B7280]">
+            <div className="pt-5 border-t border-[#E5E2DC] flex flex-wrap items-center justify-between gap-4 text-[13px] text-[#646E7E]">
               <span>시행일자: 2026년 1월 1일</span>
               <Link href="/" className="hb-btn-primary h-10 px-5 text-[13.5px]">
                 홈으로 돌아가기

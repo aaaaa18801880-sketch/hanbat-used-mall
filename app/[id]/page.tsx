@@ -209,14 +209,15 @@ export default async function ProductDetailPage({
 
   if (error || !product || product.category === "배송인증") {
     return (
-      <div className="min-h-screen bg-[#F6F5F2] flex flex-col font-sans text-[#1F2530]">
+      <div className="min-h-screen bg-[#FAF9F7] flex flex-col font-sans text-[#0E1A2B]">
         <SiteHeader />
         <main className="flex-1 flex items-center justify-center p-5">
-          <div className="bg-white p-8 sm:p-10 rounded-md shadow-xs border border-[#E4E0D8] text-center max-w-md w-full">
-            <h1 className="text-[20px] font-bold text-[#0E1A2B]">
+          <div className="bg-white p-8 sm:p-10 rounded-xl shadow-card border border-[#E5E2DC] text-center max-w-md w-full">
+            <p className="hb-eyebrow justify-center">Inventory Notice</p>
+            <h1 className="mt-2 text-[20px] sm:text-[22px] font-bold text-[#0E1A2B]">
               찾으시는 상품 정보가 없습니다.
             </h1>
-            <p className="mt-2 text-[14px] leading-relaxed text-[#4B5260]">
+            <p className="mt-2.5 text-[14px] leading-relaxed text-[#3E4756]">
               이미 판매가 완료되어 목록에서 내려갔거나 주소가 변경된 상품입니다. 판매 갤러리에서 현재 구매 가능한 다른 매물을 확인해 보세요.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-2.5 justify-center">
@@ -266,7 +267,9 @@ export default async function ProductDetailPage({
     write: "1",
     type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
     productId: String(product.id),
-    title: `[상품문의] ${product.title}`,
+    title: sold
+      ? `[유사매물 재고문의] ${product.title}`
+      : `[상품문의] ${product.title}`,
     category: categoryLabel,
   });
   if (modelName) {
@@ -695,12 +698,20 @@ export default async function ProductDetailPage({
 
               {/* 상담 버튼 그룹 */}
               <div className="space-y-2.5">
-                {sold && (
-                  <p className="text-[12.5px] font-semibold text-[#D9531E] text-center pb-0.5">
-                    본 상품은 판매가 완료되었습니다. 동일·유사 모델 재고는 문의해 주세요.
-                  </p>
-                )}
-                {!sold && (
+                {sold ? (
+                  <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] p-3.5 text-[13px] text-[#3E4756]">
+                    <strong className="block font-bold text-[#D9531E] mb-0.5">
+                      💡 본 상품은 판매가 완료되었습니다.
+                    </strong>
+                    <p className="leading-snug break-keep">
+                      중촌동 직영 매장에는 온라인에 미처 등록하지 못한{" "}
+                      <strong className="text-[#0E1A2B]">
+                        동일·유사 규격({categoryLabel}) 매물
+                      </strong>
+                      이 상시 준비되어 있습니다. 아래 버튼으로 편하게 재고를 문의해 주세요.
+                    </p>
+                  </div>
+                ) : (
                   <QuoteBasketButton
                     item={{
                       id: String(product.id),
@@ -718,7 +729,7 @@ export default async function ProductDetailPage({
                     className="hb-btn-primary h-11 text-[14px]"
                   >
                     <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
-                    <span>전화 상담</span>
+                    <span>{sold ? "유사매물 전화문의" : "전화 상담"}</span>
                   </a>
                   <a
                     href={STORE.kakaoChat}
@@ -734,9 +745,13 @@ export default async function ProductDetailPage({
                   <a
                     href={smsHref(
                       STORE.mobile,
-                      `[한밭중고전자 상품문의] ${product.title}${
-                        modelName ? ` (${modelName})` : ""
-                      } 재고 및 배송·설치 견적 문의드립니다.`
+                      sold
+                        ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
+                            modelName ? ` (${modelName})` : ""
+                          }와 비슷한 스펙의 현재 재고 문의드립니다.`
+                        : `[한밭중고전자 상품문의] ${product.title}${
+                            modelName ? ` (${modelName})` : ""
+                          } 재고 및 배송·설치 견적 문의드립니다.`
                     )}
                     className="hb-btn-outline h-10 text-[13px]"
                   >
@@ -748,7 +763,9 @@ export default async function ProductDetailPage({
                     className="hb-btn-outline h-10 text-[13px]"
                   >
                     <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#D9531E]" />
-                    <span>온라인 문의 남기기</span>
+                    <span>
+                      {sold ? "동일·유사 모델 재고 문의" : "온라인 문의 남기기"}
+                    </span>
                   </Link>
                 </div>
                 <p className="pt-1 text-center text-[12px] text-[#646E7E] tabular-nums">
