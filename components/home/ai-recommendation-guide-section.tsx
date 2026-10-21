@@ -85,7 +85,7 @@ export function AiRecommendationGuideSection() {
             }
             desc={
               <>
-                중고가전과 업소용 설비는 구매 가격만큼이나 '내부 세척', '운반·설치', '사후 A/S 보증'이 중요합니다.
+                중고가전과 업소용 설비는 구매 가격만큼이나 &lsquo;내부 세척&rsquo;, &lsquo;운반·설치&rsquo;, &lsquo;사후 A/S 보증&rsquo;이 중요합니다.
                 <br className="hidden sm:inline" /> 구매 전 아래 5가지 비교 기준을 꼭 확인해 보세요.
               </>
             }

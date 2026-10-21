@@ -56,10 +56,6 @@ export async function POST(req: NextRequest) {
     }
 
     const inquiryId = String(body.inquiryId || "").trim().slice(0, 64);
-    let name = String(body.name || "").trim().slice(0, 40);
-    let phone = String(body.phone || "").trim().slice(0, 20);
-    let type = String(body.type || "문의").trim().slice(0, 30);
-    let title = String(body.title || "").trim().slice(0, 100);
     const forceRetry = Boolean(body.forceRetry);
 
     let adminAccessToken: string | undefined;
@@ -81,18 +77,45 @@ export async function POST(req: NextRequest) {
         );
       }
       adminAccessToken = adminCheck.accessToken;
+    } else {
+      // forceRetry가 없는 일반 호출은 반드시 유효한 inquiryId가 있어야 함 (외부 스팸 알림 차단)
+      if (!inquiryId) {
+        return NextResponse.json(
+          {
+            success: false,
+            channel: "telegram",
+            status: "EXTERNAL_ERROR",
+            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+            sent: false,
+            retryable: false,
+            message: "유효한 접수 번호(inquiryId)가 필요합니다.",
+            timestamp: nowIso,
+          },
+          { status: 400 }
+        );
+      }
     }
 
-    // inquiryId가 전달된 경우 DB에 실제 저장된 문의 데이터와 대조하여 클라이언트 변조 방지
+    // inquiryId 기반으로 실제 DB 레코드 조회 (클라이언트 변조 및 허위 알림 방지)
+    const supabase = createServerSupabaseClient(adminAccessToken, true);
+    let dbInquiry: {
+      id: string;
+      name?: string | null;
+      phone?: string | null;
+      inquiry_type?: string | null;
+      category?: string | null;
+      is_notice?: boolean | null;
+      created_at?: string | null;
+    } | null = null;
+
     if (inquiryId) {
-      const supabase = createServerSupabaseClient(adminAccessToken, true);
-      const { data: dbInquiry, error: dbErr } = await supabase
+      const { data, error: dbErr } = await supabase
         .from("purchase_requests")
-        .select("id, name, phone, inquiry_type, category, is_notice")
+        .select("id, name, phone, inquiry_type, category, is_notice, created_at")
         .eq("id", inquiryId)
         .maybeSingle();
 
-      if (!dbErr && !dbInquiry) {
+      if (dbErr || !data) {
         return NextResponse.json(
           {
             success: false,
@@ -108,15 +131,52 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      if (dbInquiry) {
-        name = String(dbInquiry.name || name || "고객").trim().slice(0, 40);
-        phone = String(dbInquiry.phone || phone || "").trim().slice(0, 20);
-        type = getInquiryTypeLabel(dbInquiry.inquiry_type || type);
-        title = String(dbInquiry.category || title || "문의 접수")
-          .trim()
-          .slice(0, 100);
+      dbInquiry = data;
+
+      // 공지사항은 알림 대상 제외
+      if (dbInquiry.is_notice) {
+        return NextResponse.json(
+          {
+            success: false,
+            channel: "telegram",
+            status: "EXTERNAL_ERROR",
+            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+            sent: false,
+            retryable: false,
+            message: "공지사항은 알림 발송 대상이 아닙니다.",
+            timestamp: nowIso,
+          },
+          { status: 400 }
+        );
+      }
+
+      // 일반 호출(!forceRetry)인 경우 최근 10분 이내에 생성된 문의인지 검증
+      if (!forceRetry && dbInquiry.created_at) {
+        const createdAtMs = new Date(dbInquiry.created_at).getTime();
+        const tenMinutesAgoMs = Date.now() - 10 * 60 * 1000;
+        if (!isNaN(createdAtMs) && createdAtMs < tenMinutesAgoMs) {
+          return NextResponse.json(
+            {
+              success: false,
+              channel: "telegram",
+              status: "EXTERNAL_ERROR",
+              statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+              sent: false,
+              retryable: false,
+              message: "접수 후 10분이 지난 문의는 일반 알림을 재요청할 수 없습니다.",
+              timestamp: nowIso,
+            },
+            { status: 400 }
+          );
+        }
       }
     }
+
+    // 알림 메시지 본문은 클라이언트 전달값이 아닌 DB에 저장된 실제 레코드(dbInquiry)를 100% 우선 사용
+    const name = String(dbInquiry?.name || body.name || "").trim().slice(0, 40);
+    const phone = String(dbInquiry?.phone || body.phone || "").trim().slice(0, 20);
+    const type = getInquiryTypeLabel(dbInquiry?.inquiry_type || body.type || "문의");
+    const title = String(dbInquiry?.category || body.title || "").trim().slice(0, 100);
 
     if (!name || !title) {
       return NextResponse.json(

@@ -21,7 +21,6 @@ import {
   isValidPhone,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
   QUOTE_BASKET_EVENT,
   type QuoteBasketItem,
   removeQuoteBasketItem,
@@ -114,144 +113,11 @@ const QUICK_BULK_EQUIPMENT_PRESETS = [
   "스텐 작업대/세정대",
 ] as const;
 
-/**
- * [신규 기능 ③] 문의 폼 상단 '단골 패키지 1초 자동채움 버튼 4종' 정의
- */
-interface QuickPackagePreset {
-  id: "oneroom" | "cafe" | "restaurant" | "closure";
-  badge: string;
-  label: string;
-  sub: string;
-  inquiryType: InquiryTypeValue;
-  applianceCategory: string;
-  title: string;
-  businessType?: string;
-  operatingStatus?: string;
-  bulkItems?: Array<{
-    id: string;
-    category: string;
-    requestedQuantity: string;
-    modelNumber: string;
-    specs: string;
-  }>;
-  description: string;
-}
-
-const QUICK_PACKAGE_PRESETS: readonly QuickPackagePreset[] = [
-  {
-    id: "oneroom",
-    badge: "가정·자취",
-    label: "원룸·자취 3종 세트",
-    sub: "냉장고 + 세탁기 + 벽걸이 에어컨",
-    inquiryType: "구매 문의",
-    applianceCategory: "냉장고",
-    title: "[원룸·자취 알뜰 세트] 냉장고 + 세탁기 + 벽걸이 에어컨 묶음 견적 문의",
-    description: [
-      "• 희망 패키지: 원룸·자취 3종 알뜰 세트 (소형/중형 냉장고 + 세탁기 + 벽걸이 에어컨)",
-      "• 배송·설치 희망 지역 (동 단위): ",
-      "• 설치 층수 및 엘리베이터 유무: ",
-      "• 희망 예산대 또는 선호 용량: ",
-      "• 희망 배송일: ",
-    ].join("\n"),
-  },
-  {
-    id: "cafe",
-    badge: "창업 세트",
-    label: "카페 창업 필수 세트",
-    sub: "제빙기 + 테이블냉장고 + 쇼케이스",
-    inquiryType: "대량·업소용 상담",
-    applianceCategory: "업소용기기",
-    businessType: "카페 / 베이커리 창업",
-    title: "[카페 창업 세트] 업소용 제빙기 + 테이블냉장고 + 쇼케이스 도입 문의",
-    bulkItems: [
-      {
-        id: "preset-cafe-1",
-        category: "업소용 제빙기 (50~100kg급)",
-        requestedQuantity: "1대",
-        modelNumber: "",
-        specs: "공랭식/수랭식 상담",
-      },
-      {
-        id: "preset-cafe-2",
-        category: "테이블 냉장·냉동고 (1200~1800mm)",
-        requestedQuantity: "1대",
-        modelNumber: "",
-        specs: "",
-      },
-      {
-        id: "preset-cafe-3",
-        category: "음료·디저트 쇼케이스",
-        requestedQuantity: "1대",
-        modelNumber: "",
-        specs: "",
-      },
-    ],
-    description: [
-      "• 희망 패키지: 카페 창업 필수 설비 3종 세트",
-      "• 매장 지역 및 층수 (출입문 진입 여건): ",
-      "• 급·배수 배관 및 단상 220V 전원 준비 여부: ",
-      "• 오픈(납품 희망) 예정일 및 세금계산서 발행 여부: ",
-    ].join("\n"),
-  },
-  {
-    id: "restaurant",
-    badge: "주방 표준",
-    label: "식당 주방 기본 세트",
-    sub: "45박스 냉장고 + 식기세척기 + 작업대",
-    inquiryType: "대량·업소용 상담",
-    applianceCategory: "업소용기기",
-    businessType: "식당 / 음식점 주방",
-    title: "[식당 주방 세트] 업소용 45박스 냉장고 + 식기세척기 + 스텐 작업대 문의",
-    bulkItems: [
-      {
-        id: "preset-rest-1",
-        category: "업소용 45박스 수직 냉장/냉동고",
-        requestedQuantity: "1대",
-        modelNumber: "",
-        specs: "냉장2·냉동2 표준",
-      },
-      {
-        id: "preset-rest-2",
-        category: "업소용 식기세척기 (도어형)",
-        requestedQuantity: "1대",
-        modelNumber: "",
-        specs: "",
-      },
-      {
-        id: "preset-rest-3",
-        category: "스텐 작업대 / 세정대(싱크대)",
-        requestedQuantity: "1식",
-        modelNumber: "",
-        specs: "",
-      },
-    ],
-    description: [
-      "• 희망 패키지: 식당 주방 기본 설비 세트 (45박스 냉장고 + 세척기 + 작업대)",
-      "• 매장 위치 및 층수 (주방 출입구 폭): ",
-      "• 매장 전기 규격 (단상 220V / 삼상 380V): ",
-      "• 희망 납품 일정 및 추가 필요 집기: ",
-    ].join("\n"),
-  },
-  {
-    id: "closure",
-    badge: "일괄 매입",
-    label: "식당·매장 폐업 일괄 정리",
-    sub: "주방설비 · 냉난방기 일괄 매입·철거",
-    inquiryType: "내 물건 팔기",
-    applianceCategory: "업소용기기",
-    operatingStatus: "정상 작동 확인됨",
-    title: "[폐업·매장정리 일괄매입] 업소용 냉장고·주방설비·냉난방기 일괄 처분 신청",
-    description: [
-      "• 신청 구분: 식당·카페·매장 폐업(또는 이전) 일괄 방문 매입 및 철거 요청",
-      "• 처분할 주요 품목 및 대략적인 수량: (예: 45박스 냉장고, 제빙기, 천장형/스탠드 냉난방기 등)",
-      "• 매장 위치 (구/동까지) 및 층수: ",
-      "• 점포를 비워야 하는 희망 수거 마감일: ",
-    ].join("\n"),
-  },
-] as const;
 
 export function UnifiedInquiryForm({
   defaultType = "구매 문의",
+  fixedType,
+  hideTypeSelector = false,
   linkedProduct,
   isAdmin = false,
   allowNoticeToggle = false,
@@ -259,15 +125,17 @@ export function UnifiedInquiryForm({
   onCancel,
 }: {
   defaultType?: InquiryTypeValue;
+  fixedType?: InquiryTypeValue;
+  hideTypeSelector?: boolean;
   linkedProduct?: LinkedProductContext | null;
   isAdmin?: boolean;
   allowNoticeToggle?: boolean;
   onSuccess?: (inquiryId?: string | null) => void;
   onCancel?: () => void;
 }) {
-  const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(defaultType);
+  const initialType = fixedType || defaultType;
+  const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(initialType);
   const [isNotice, setIsNotice] = useState(false);
-  const [selectedPresetId, setSelectedPresetId] = useState<string | null>(null);
 
   const [name, setName] = useState(isAdmin && isNotice ? STORE.name : "");
   const [phone, setPhone] = useState(isAdmin && isNotice ? STORE.tel : "");
@@ -363,37 +231,9 @@ export function UnifiedInquiryForm({
       );
     }
     setBundleApplied(true);
-    setSelectedPresetId(null);
-  }, []);
+      }, []);
 
-  /**
-   * [신규 기능 ③] 단골 패키지 1초 자동채움 핸들러
-   */
-  const handleApplyQuickPackage = (preset: QuickPackagePreset) => {
-    setInquiryType(preset.inquiryType);
-    setApplianceCategory(preset.applianceCategory);
-    setTitle(preset.title);
-    setDescription(preset.description);
-    setSelectedPresetId(preset.id);
-    setBundleApplied(false);
-    setPendingConflicts(null);
-
-    if (preset.businessType) {
-      setBusinessType(preset.businessType);
-    }
-    if (preset.operatingStatus) {
-      setOperatingStatus(preset.operatingStatus);
-    }
-    if (preset.bulkItems && preset.bulkItems.length > 0) {
-      setBulkItems(preset.bulkItems.map((it) => ({ ...it })));
-    }
-
-    setFieldErrors((prev) => ({ ...prev, title: "", description: "" }));
-    toast.success(
-      `'${preset.label}' 양식이 자동 입력되었습니다! 지역과 희망 일정만 적어주세요.`
-    );
-  };
-
+  
   useEffect(() => {
     const syncBasket = () => {
       const current = getQuoteBasket();
@@ -410,9 +250,9 @@ export function UnifiedInquiryForm({
 
   useEffect(() => {
     queueMicrotask(() => {
-      setInquiryType(defaultType);
+      setInquiryType(fixedType || defaultType);
     });
-  }, [defaultType]);
+  }, [defaultType, fixedType]);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -721,13 +561,13 @@ export function UnifiedInquiryForm({
       errors.title = isNotice
         ? "공지 제목을 입력해 주세요."
         : isSell
-        ? "처분하실 가전 품목 또는 제목을 입력해 주세요."
+        ? "처분하실 가전 품목 또는 모델명을 입력해 주세요."
         : "문의하실 품목 또는 제목을 입력해 주세요.";
     }
 
-    if (!description.trim()) {
-      errors.description = isSell
-        ? "제품 상태나 희망 수거 일정 등 간단한 설명을 입력해 주세요."
+    if (!isSell && !description.trim()) {
+      errors.description = isNotice
+        ? "공지 본문 내용을 입력해 주세요."
         : "문의하실 내용을 입력해 주세요.";
     }
 
@@ -774,11 +614,17 @@ export function UnifiedInquiryForm({
         setCachedUploadedUrls(freshUrls);
       }
 
+      const finalCustomerContent = description.trim()
+        ? description.trim()
+        : isSell
+        ? `[방문 매입 견적 요청] ${applianceCategory} ${title.trim()} 최고가 방문 매입 견적 및 수거 일정 안내를 요청합니다.`
+        : "";
+
       const structuredDescription = isNotice
         ? description.trim()
         : formatStructuredInquiryDescription({
             inquiryType,
-            customerContent: description.trim(),
+            customerContent: finalCustomerContent,
             linkedProductUrl: linkedProduct?.productId
               ? `${STORE.url}/${linkedProduct.productId}`
               : undefined,
@@ -858,7 +704,8 @@ export function UnifiedInquiryForm({
           : "접수가 정상적으로 완료되었습니다!"
       );
 
-      if (!isNotice) {
+      // 서버에서 텔레그램 즉시 발송이 실패한 경우에만 클라이언트 폴백 호출
+      if (!isNotice && !resJson.telegramNotified && newId) {
         fetch("/api/telegram", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -893,8 +740,7 @@ export function UnifiedInquiryForm({
     setCachedUploadedUrls(null);
     setAiResult(null);
     setPendingConflicts(null);
-    setSelectedPresetId(null);
-    setTitle("");
+        setTitle("");
     setModel("");
     setRegion("");
     setSchedule("");
@@ -993,8 +839,8 @@ export function UnifiedInquiryForm({
         </label>
       )}
 
-      {/* 1. 최상단 4대 상담 유형 대형 탭 (높이 56px~60px, 글자 크기 16px~18px) */}
-      {!isNotice && (
+      {/* 1. 최상단 4대 상담 유형 대형 탭 (hideTypeSelector 또는 fixedType인 경우 4개 탭을 숨기고 간결한 안심 배너 표시) */}
+      {!isNotice && !hideTypeSelector && !fixedType ? (
         <div>
           <div className="flex items-center justify-between gap-2 mb-2.5">
             <span className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
@@ -1012,7 +858,7 @@ export function UnifiedInquiryForm({
               title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
             >
               <Icon d={ICON.chat} className="h-4 w-4" />
-              <span>문자({STORE.mobile}) 바로 전송</span>
+              <span>문자(${STORE.mobile}) 바로 전송</span>
             </a>
           </div>
 
@@ -1053,7 +899,37 @@ export function UnifiedInquiryForm({
             })}
           </div>
         </div>
-      )}
+      ) : !isNotice && (isSell || fixedType === "내 물건 팔기") ? (
+        <div className="rounded-xl border border-[#FADCD0] bg-[#FFF8F5] p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D9531E] text-white text-[14px]">
+              📸
+            </span>
+            <div className="text-[13.5px] leading-snug">
+              <strong className="text-[#0E1A2B] font-bold">
+                사진과 수거 지역만 남겨주시면
+              </strong>{" "}
+              <span className="text-[#434B59]">
+                확인 후 최고가 방문 매입 견적과 수거 일정을 빠르게 안내해 드립니다.
+              </span>
+            </div>
+          </div>
+          <a
+            href={smsHref(STORE.mobile, smsBodyDraft)}
+            onClick={() =>
+              trackEvent("click_sms_consult", {
+                location: "inquiry_form_top",
+                inquiry_type: inquiryType,
+              })
+            }
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#D9531E] bg-white px-3 py-1.5 text-[12.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors shrink-0"
+            title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
+          >
+            <Icon d={ICON.chat} className="h-3.5 w-3.5" />
+            <span>문자(${STORE.mobile}) 바로 전송</span>
+          </a>
+        </div>
+      ) : null}
 
       {/* 관심 매물 견적함(묶음 문의) 자동 불러오기 배너 */}
       {!isNotice && basketItems.length > 0 && (
@@ -1109,46 +985,6 @@ export function UnifiedInquiryForm({
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {/* 2. 자주 찾는 세트 양식 불러오기 (컴팩트 선택 바) */}
-      {!isNotice && (
-        <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#D9531E]" />
-            <span className="text-[13px] font-bold text-[#0E1A2B]">
-              세트 양식 자동채움
-            </span>
-            <span className="text-[12px] text-[#667085] hidden md:inline">
-              (선택 시 품목 양식 자동 입력)
-            </span>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-1.5">
-            {QUICK_PACKAGE_PRESETS.map((preset) => {
-              const isSelected = selectedPresetId === preset.id;
-              return (
-                <button
-                  key={preset.id}
-                  type="button"
-                  onClick={() => handleApplyQuickPackage(preset)}
-                  aria-pressed={isSelected}
-                  title={preset.sub}
-                  className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-[12.5px] font-bold transition-colors cursor-pointer ${
-                    isSelected
-                      ? "border-[#D9531E] bg-[#FFF6F2] text-[#D9531E]"
-                      : "border-[#CFCAC0] bg-white text-[#0E1A2B] hover:border-[#0E1A2B]"
-                  }`}
-                >
-                  <span>{preset.label}</span>
-                  {isSelected && (
-                    <span className="text-[11px] font-extrabold">✓</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
         </div>
       )}
 
@@ -1221,7 +1057,7 @@ export function UnifiedInquiryForm({
                 if (fieldErrors.password)
                   setFieldErrors((p) => ({ ...p, password: "" }));
               }}
-              placeholder="답변 확인용 (4자 이상)"
+              placeholder="숫자 4자리 (휴대폰 뒷자리 추천)"
               className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
                 fieldErrors.password
                   ? "border-red-500 ring-1 ring-red-500"
@@ -1533,7 +1369,7 @@ export function UnifiedInquiryForm({
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   placeholder="예: 식당 오픈, 카페, 폐업정리"
-                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
                 />
               </div>
               <div>
@@ -1543,7 +1379,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={electricalPhase}
                   onChange={(e) => setElectricalPhase(e.target.value)}
-                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
                 >
                   <option value="모름/미확인">모름 (상담/현장 확인)</option>
                   <option value="단상 220V">단상 220V (일반 상가)</option>
@@ -1557,7 +1393,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={voltageUpgrade}
                   onChange={(e) => setVoltageUpgrade(e.target.value)}
-                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
                 >
                   <option value="모름·현장 확인 필요">
                     모름 (현장 확인 필요)
@@ -1622,7 +1458,7 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "category", e.target.value)
                         }
                         placeholder={`품목 ${idx + 1} (예: 45박스 냉장고, 제빙기)`}
-                        className="hb-input h-[48px] text-[15px]"
+                        className="hb-input h-[46px] text-[14.5px]"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -1637,7 +1473,7 @@ export function UnifiedInquiryForm({
                           )
                         }
                         placeholder="희망 수량 (예: 1대)"
-                        className="hb-input h-[48px] text-[15px]"
+                        className="hb-input h-[46px] text-[14.5px]"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -1648,7 +1484,7 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "modelNumber", e.target.value)
                         }
                         placeholder="모델·규격 (선택)"
-                        className="hb-input h-[48px] text-[14.5px] font-mono"
+                        className="hb-input h-[46px] text-[14px] font-mono"
                       />
                     </div>
                     <div className="sm:col-span-1 text-right">
@@ -1675,7 +1511,7 @@ export function UnifiedInquiryForm({
                   value={spaceAndUtilities}
                   onChange={(e) => setSpaceAndUtilities(e.target.value)}
                   placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
-                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
                 />
               </div>
               <div>
@@ -1687,220 +1523,311 @@ export function UnifiedInquiryForm({
                   value={accessAndRemoval}
                   onChange={(e) => setAccessAndRemoval(e.target.value)}
                   placeholder="예: 1층 진입 가능, 기존 냉장고 1대 철거 희망"
-                  className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
                 />
               </div>
             </div>
           </div>
         )}
 
-        {/* [내 물건 팔기(매입)] 전용 확인 블록 */}
-        {!isNotice && isSell && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 rounded-xl border border-[#E4E0D8] bg-[#FAF9F7] p-4">
+        {/* [내 물건 팔기(매입)] 간소화 전용 레이아웃 (복잡한 중복 입력·세트 강제 제거) */}
+        {!isNotice && isSell ? (
+          <div className="space-y-3.5 sm:space-y-4">
+            {/* 1. 제품 종류 및 처분 품목명 (한눈에 이해되는 단일 행) */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
+              <div className="sm:col-span-4">
+                <label htmlFor="uf-cat" className="hb-label">
+                  제품 종류 <span className="text-[#D9531E]">*</span>
+                </label>
+                <select
+                  id="uf-cat"
+                  value={applianceCategory}
+                  onChange={(e) => setApplianceCategory(e.target.value)}
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                >
+                  {PRODUCT_CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="sm:col-span-8">
+                <label htmlFor="uf-title" className="hb-label">
+                  처분 품목 / 대략적인 모델명 <span className="text-[#D9531E]">*</span>
+                </label>
+                <input
+                  id="uf-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (fieldErrors.title)
+                      setFieldErrors((p) => ({ ...p, title: "" }));
+                  }}
+                  placeholder="예: 삼성 지펠 4도어 냉장고 / LG 트롬 드럼세탁기"
+                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15.5px] font-semibold ${
+                    fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* 에어컨 선택 시 가이드 배너 */}
+            {applianceCategory === "에어컨/냉난방기" && (
+              <AirconSetGuideBanner variant="inline" className="mt-1" />
+            )}
+
+            {/* 2. 방문 수거 지역 & 희망 일정/층수 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label htmlFor="uf-region" className="hb-label">
+                  방문 수거 지역 (구/동 단위) <span className="text-[#D9531E]">*</span>
+                </label>
+                <input
+                  id="uf-region"
+                  type="text"
+                  value={region}
+                  onChange={(e) => {
+                    setRegion(e.target.value);
+                    if (fieldErrors.region)
+                      setFieldErrors((p) => ({ ...p, region: "" }));
+                  }}
+                  placeholder="예: 대전 중구 중촌동 / 유성구 봉명동"
+                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
+                    fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="uf-schedule" className="hb-label">
+                  희망 수거 일정 · 층수 <span className="font-normal text-[#667085]">(선택)</span>
+                </label>
+                <input
+                  id="uf-schedule"
+                  type="text"
+                  value={schedule}
+                  onChange={(e) => setSchedule(e.target.value)}
+                  placeholder="예: 이번 주 금요일 오후 / 1층 또는 엘리베이터 있음"
+                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                />
+              </div>
+            </div>
+
+            {/* 3. 상태 및 연식 (선택 보조 옵션 콤팩트 박스) */}
+            <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 sm:p-4">
+              <span className="text-[13px] font-bold text-[#0E1A2B] block mb-2.5">
+                제품 상태 및 연식 <span className="font-normal text-[#667085]">(선택 사항 · 잘 모르시면 비워두셔도 됩니다)</span>
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label htmlFor="uf-op" className="text-[12px] font-bold text-[#646E7E] block mb-1">
+                    작동 상태
+                  </label>
+                  <select
+                    id="uf-op"
+                    value={operatingStatus}
+                    onChange={(e) => setOperatingStatus(e.target.value)}
+                    className="hb-input h-[44px] text-[13.5px] font-medium bg-white"
+                  >
+                    <option value="정상 작동 확인됨">정상 작동 (냉기/세탁 이상 없음)</option>
+                    <option value="작동 상태 미확인 (상담 시 안내)">미확인 (기사님 방문 시 점검)</option>
+                    <option value="일부 점검 필요">일부 점검 필요 (소음/약함 등)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label htmlFor="uf-mfg" className="text-[12px] font-bold text-[#646E7E] block mb-1">
+                    제조년월 / 연식
+                  </label>
+                  <input
+                    id="uf-mfg"
+                    type="text"
+                    value={manufacturingDate}
+                    onChange={(e) => setManufacturingDate(e.target.value)}
+                    placeholder="예: 2021년식 / 미확인"
+                    className="hb-input h-[44px] text-[13.5px] bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="uf-model" className="text-[12px] font-bold text-[#646E7E] block mb-1">
+                    상세 모델 코드
+                  </label>
+                  <input
+                    id="uf-model"
+                    type="text"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder="명판 스티커 코드 (선택)"
+                    className="hb-input h-[44px] font-mono text-[13.5px] bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. 추가 메모 (선택 입력) */}
             <div>
-              <label htmlFor="uf-mfg" className="hb-label">
-                제조년월 / 연식{" "}
-                <span className="font-normal text-[#667085]">(선택)</span>
+              <label htmlFor="uf-desc" className="hb-label">
+                추가 메모 및 요청사항 <span className="font-normal text-[#667085]">(선택)</span>
               </label>
-              <input
-                id="uf-mfg"
-                type="text"
-                value={manufacturingDate}
-                onChange={(e) => setManufacturingDate(e.target.value)}
-                placeholder="예: 2022년식 / 미확인"
-                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
+              <textarea
+                id="uf-desc"
+                rows={3}
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  if (fieldErrors.description)
+                    setFieldErrors((p) => ({ ...p, description: "" }));
+                }}
+                placeholder="흠집 여부, 이전 설치 여부, 사다리차 필요 여부 등 전하고 싶으신 말씀을 편하게 남겨주세요. (비워두셔도 정상 접수됩니다)"
+                className="hb-input mt-1.5 py-3 text-[14.5px] resize-y leading-relaxed"
               />
             </div>
-
-            <div>
-              <label htmlFor="uf-op" className="hb-label">
-                작동 상태
-              </label>
-              <select
-                id="uf-op"
-                value={operatingStatus}
-                onChange={(e) => setOperatingStatus(e.target.value)}
-                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
-              >
-                <option value="작동 상태 미확인 (상담 시 안내)">
-                  작동 상태 미확인 (상담 시 안내)
-                </option>
-                <option value="정상 작동 확인됨">
-                  정상 작동 (냉방·냉동·세탁 이상 없음)
-                </option>
-                <option value="일부 점검 필요">
-                  일부 점검 필요 (소음·냉기약함 등)
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="uf-grade" className="hb-label">
-                외관 상태{" "}
-                <span className="font-normal text-[#667085]">(선택)</span>
-              </label>
-              <select
-                id="uf-grade"
-                value={conditionGrade}
-                onChange={(e) => setConditionGrade(e.target.value)}
-                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
-              >
-                <option value="">미선택 (사진/현장 확인)</option>
-                {PRODUCT_CONDITION_GRADES.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </div>
           </div>
-        )}
+        ) : (
+          /* 구매 문의, 대량·업소용, 기타 문의일 때의 기본 레이아웃 */
+          <div className="space-y-4">
+            {!isNotice && !isOther && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+                <div>
+                  <label htmlFor="uf-cat" className="hb-label">
+                    제품 종류
+                  </label>
+                  <select
+                    id="uf-cat"
+                    value={applianceCategory}
+                    onChange={(e) => setApplianceCategory(e.target.value)}
+                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  >
+                    {PRODUCT_CATEGORIES.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-        {/* 공통 품목/지역/일정 입력 (높이 52px~56px, 글자 16px) */}
-        {!isNotice && !isOther && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-            <div>
-              <label htmlFor="uf-cat" className="hb-label">
-                제품 종류
-              </label>
-              <select
-                id="uf-cat"
-                value={applianceCategory}
-                onChange={(e) => setApplianceCategory(e.target.value)}
-                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold"
+                <div>
+                  <label htmlFor="uf-region" className="hb-label">
+                    설치/현장 지역 (선택)
+                  </label>
+                  <input
+                    id="uf-region"
+                    type="text"
+                    value={region}
+                    onChange={(e) => {
+                      setRegion(e.target.value);
+                      if (fieldErrors.region)
+                        setFieldErrors((p) => ({ ...p, region: "" }));
+                    }}
+                    placeholder="예: 대전 서구 둔산동"
+                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="uf-schedule" className="hb-label">
+                    희망 일정 · 층수(엘리베이터)
+                  </label>
+                  <input
+                    id="uf-schedule"
+                    type="text"
+                    value={schedule}
+                    onChange={(e) => setSchedule(e.target.value)}
+                    placeholder="예: 금요일 오후 / 1층 상가"
+                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  />
+                </div>
+              </div>
+            )}
+
+            {!isNotice && !isOther && applianceCategory === "에어컨/냉난방기" && (
+              <AirconSetGuideBanner variant="inline" className="mt-2" />
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
+              <div
+                className={
+                  isNotice || isOther ? "sm:col-span-3" : "sm:col-span-2"
+                }
               >
-                {PRODUCT_CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+                <label htmlFor="uf-title" className="hb-label">
+                  {isNotice
+                    ? "공지 제목 *"
+                    : isBulk
+                    ? "업소용·창업 상담 제목 *"
+                    : "문의 품목 / 제목 *"}
+                </label>
+                <input
+                  id="uf-title"
+                  type="text"
+                  value={title}
+                  onChange={(e) => {
+                    setTitle(e.target.value);
+                    if (fieldErrors.title)
+                      setFieldErrors((p) => ({ ...p, title: "" }));
+                  }}
+                  placeholder={
+                    isBulk
+                      ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 견적 문의"
+                      : isOther
+                      ? "문의하실 제목을 입력해 주세요"
+                      : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
+                  }
+                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15.5px] font-semibold ${
+                    fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
+                  }`}
+                />
+              </div>
+
+              {!isNotice && !isOther && (
+                <div>
+                  <label htmlFor="uf-model" className="hb-label">
+                    모델명{" "}
+                    <span className="font-normal text-[#667085]">(선택)</span>
+                  </label>
+                  <input
+                    id="uf-model"
+                    type="text"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                    placeholder="스티커 모델명 확인 시 입력"
+                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] font-mono text-[15px]"
+                  />
+                </div>
+              )}
             </div>
 
             <div>
-              <label htmlFor="uf-region" className="hb-label">
-                {isSell ? "방문 수거 지역 (동/구까지) *" : "설치/현장 지역 (선택)"}
+              <label htmlFor="uf-desc" className="hb-label">
+                {isNotice ? "공지 본문 내용 *" : "상세 문의 내용 *"}
               </label>
-              <input
-                id="uf-region"
-                type="text"
-                value={region}
+              <textarea
+                id="uf-desc"
+                rows={bundleApplied || isBulk ? 5 : 4}
+                value={description}
                 onChange={(e) => {
-                  setRegion(e.target.value);
-                  if (fieldErrors.region)
-                    setFieldErrors((p) => ({ ...p, region: "" }));
+                  setDescription(e.target.value);
+                  if (fieldErrors.description)
+                    setFieldErrors((p) => ({ ...p, description: "" }));
                 }}
-                placeholder="예: 대전 중구 중촌동"
-                className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] ${
-                  fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
+                placeholder={
+                  isBulk
+                    ? "예: 대전 서구 둔산동 1층 식당 오픈 준비 중입니다. 중고 업소용 냉장고와 제빙기 세트 견적 부탁드립니다."
+                    : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
+                }
+                className={`hb-input mt-1.5 py-3.5 text-[15.5px] resize-y leading-relaxed ${
+                  fieldErrors.description
+                    ? "border-red-500 ring-1 ring-red-500"
+                    : ""
                 }`}
               />
             </div>
-
-            <div>
-              <label htmlFor="uf-schedule" className="hb-label">
-                희망 일정 · 층수(엘리베이터)
-              </label>
-              <input
-                id="uf-schedule"
-                type="text"
-                value={schedule}
-                onChange={(e) => setSchedule(e.target.value)}
-                placeholder="예: 금요일 오후 / 1층 상가"
-                className="hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px]"
-              />
-            </div>
           </div>
         )}
-
-        {!isNotice && !isOther && applianceCategory === "에어컨/냉난방기" && (
-          <AirconSetGuideBanner variant="inline" className="mt-2" />
-        )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">
-          <div
-            className={
-              isNotice || isOther ? "sm:col-span-3" : "sm:col-span-2"
-            }
-          >
-            <label htmlFor="uf-title" className="hb-label">
-              {isNotice
-                ? "공지 제목 *"
-                : isSell
-                ? "매입 신청 품목 / 제목 *"
-                : isBulk
-                ? "업소용·창업 상담 제목 *"
-                : "문의 품목 / 제목 *"}
-            </label>
-            <input
-              id="uf-title"
-              type="text"
-              value={title}
-              onChange={(e) => {
-                setTitle(e.target.value);
-                if (fieldErrors.title)
-                  setFieldErrors((p) => ({ ...p, title: "" }));
-              }}
-              placeholder={
-                isSell
-                  ? "예: 삼성 양문형 냉장고 방문 매입 견적 문의"
-                  : isBulk
-                  ? "예: 식당 오픈용 45박스 냉장고·제빙기·세척기 견적 문의"
-                  : isOther
-                  ? "문의하실 제목을 입력해 주세요"
-                  : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
-              }
-              className={`hb-input mt-1.5 h-[52px] sm:h-[56px] text-[16px] font-semibold ${
-                fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
-              }`}
-            />
-          </div>
-
-          {!isNotice && !isOther && (
-            <div>
-              <label htmlFor="uf-model" className="hb-label">
-                모델명{" "}
-                <span className="font-normal text-[#667085]">(선택)</span>
-              </label>
-              <input
-                id="uf-model"
-                type="text"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                placeholder="스티커 모델명 확인 시 입력"
-                className="hb-input mt-1.5 h-[52px] sm:h-[56px] font-mono text-[15.5px]"
-              />
-            </div>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="uf-desc" className="hb-label">
-            {isNotice ? "공지 본문 내용 *" : "상세 문의 내용 *"}
-          </label>
-          <textarea
-            id="uf-desc"
-            rows={bundleApplied || isBulk ? 5 : 4}
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              if (fieldErrors.description)
-                setFieldErrors((p) => ({ ...p, description: "" }));
-            }}
-            placeholder={
-              isSell
-                ? "예: 정상 작동하며 1층 매장이라 반출 용이합니다. 이번 주 금요일 수거 희망합니다."
-                : isBulk
-                ? "예: 대전 서구 둔산동 1층 식당 오픈 준비 중입니다. 중고 업소용 냉장고와 제빙기 세트 견적 부탁드립니다."
-                : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
-            }
-            className={`hb-input mt-1.5 py-3.5 text-[16px] resize-y leading-relaxed ${
-              fieldErrors.description
-                ? "border-red-500 ring-1 ring-red-500"
-                : ""
-            }`}
-          />
-        </div>
       </div>
 
       {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}

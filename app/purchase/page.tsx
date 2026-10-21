@@ -108,7 +108,7 @@ export default function PurchasePage() {
                   온라인 매입 견적 신청서
                 </h2>
                 <p className="mt-1 text-[13.5px] text-[#667085]">
-                  접수된 내역은 문의게시판에서 설정하신 비밀번호로 안전하게 확인하실 수 있습니다.
+                  사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 최고가 견적과 수거 일정을 빠르게 안내해 드립니다.
                 </p>
               </div>
               <span className="rounded-md bg-[#FAF9F7] border border-[#E6E3DC] px-3 py-1 text-[12px] font-bold text-[#0E1A2B]">
@@ -116,7 +116,7 @@ export default function PurchasePage() {
               </span>
             </div>
 
-            <UnifiedInquiryForm defaultType="내 물건 팔기" />
+            <UnifiedInquiryForm defaultType="내 물건 팔기" fixedType="내 물건 팔기" hideTypeSelector={true} />
           </div>
 
           {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}

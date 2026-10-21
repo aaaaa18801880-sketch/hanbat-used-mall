@@ -14,7 +14,6 @@ import {
   hasProductPrice,
   extractModelName,
   extractSpecCapsules,
-  parseProductDescription,
   type ProductCategoryValue,
 } from "../../lib/site";
 import {
@@ -35,6 +34,7 @@ import {
   type ProductItem,
 } from "../../components/products/product-card";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
+import { ProductStructuredDescription } from "../../components/products/product-structured-description";
 
 export const dynamic = "force-dynamic";
 
@@ -258,7 +258,6 @@ export default async function ProductDetailPage({
     product.description,
     4
   );
-  const parsedDesc = parseProductDescription(product.description);
   const createdDate = product.created_at
     ? new Date(product.created_at).toLocaleDateString("ko-KR")
     : null;
@@ -544,118 +543,9 @@ export default async function ProductDetailPage({
                 </dl>
               </div>
 
-              {/* 3. 주요 사양 및 상태 설명 */}
-              <div className="mt-5 space-y-5">
-                {parsedDesc.hasStructuredSections ? (
-                  <>
-                    {parsedDesc.summary.length > 0 && (
-                      <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-4 text-[13.5px] leading-relaxed text-[#2D333F]">
-                        <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2 flex items-center gap-1.5">
-                          <Icon d={ICON.check} className="h-4 w-4 text-[#D9531E]" />
-                          <span>한눈에 보는 제품 정보</span>
-                        </h2>
-                        {parsedDesc.summary.map((line, i) => (
-                          <p key={i} className="mt-1 first:mt-0 leading-relaxed text-[#3E4756]">
-                            {line}
-                          </p>
-                        ))}
-                      </div>
-                    )}
-
-                    {parsedDesc.specs.length > 0 && (
-                      <div>
-                        <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                          주요 규격 및 사양
-                        </h2>
-                        <dl className="divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-[13.5px]">
-                          {parsedDesc.specs.map((s, i) => (
-                            <div
-                              key={s.label + i}
-                              className="py-2 flex justify-between gap-4"
-                            >
-                              <dt className="font-medium text-[#646E7E] shrink-0">
-                                {s.label}
-                              </dt>
-                              <dd className="font-semibold text-[#0E1A2B] text-right">
-                                {s.value}
-                              </dd>
-                            </div>
-                          ))}
-                        </dl>
-                      </div>
-                    )}
-
-                    {parsedDesc.features.length > 0 && (
-                      <div>
-                        <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                          제품 특징
-                        </h2>
-                        <ul className="space-y-1.5 text-[13.5px] leading-relaxed text-[#3E4756]">
-                          {parsedDesc.features.map((f, i) => (
-                            <li key={i} className="flex items-start gap-2">
-                              <span className="text-[#D9531E] font-bold">•</span>
-                              <span>{f}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {parsedDesc.inspectionAndAs.length > 0 && (
-                      <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-3.5 text-[13px] text-[#3E4756]">
-                        <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                          점검 및 A/S 안내
-                        </h2>
-                        <ul className="space-y-1.5">
-                          {parsedDesc.inspectionAndAs.map((as, i) => (
-                            <li key={i} className="flex items-start gap-2">
-                              <span className="text-[#15803D] font-bold">✔</span>
-                              <span>{as}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {parsedDesc.checkPoints.length > 0 && (
-                      <div className="border-l-2 border-[#D9531E] bg-[#FAF9F7] pl-3.5 pr-3 py-2.5 text-[13px] text-[#3E4756]">
-                        <strong className="block font-bold text-[#0E1A2B] mb-1">
-                          구매 및 설치 전 확인사항
-                        </strong>
-                        {parsedDesc.checkPoints.map((c, i) => (
-                          <p key={i}>• {c}</p>
-                        ))}
-                      </div>
-                    )}
-
-                    {parsedDesc.consultationGuide.length > 0 && (
-                      <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-3.5 text-[13px] text-[#4B5260] leading-relaxed">
-                        <strong className="block font-bold text-[#0E1A2B] mb-1">
-                          상담 안내
-                        </strong>
-                        {parsedDesc.consultationGuide.map((cg, i) => (
-                          <p key={i}>💬 {cg}</p>
-                        ))}
-                      </div>
-                    )}
-
-                    {parsedDesc.rawRest.length > 0 && (
-                      <div className="text-[13.5px] leading-relaxed text-[#0E1A2B] whitespace-pre-line">
-                        {parsedDesc.rawRest.join("\n")}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <div>
-                    <h2 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                      제품 사양 및 상태 설명
-                    </h2>
-                    <p className="text-[14px] leading-[1.7] text-[#3E4756] whitespace-pre-line break-words">
-                      {product.description ||
-                        "상세 사양은 전화 또는 카카오톡으로 문의해 주시면 실물 확인 후 정확히 안내해 드립니다."}
-                    </p>
-                  </div>
-                )}
+              {/* 3. 주요 사양 및 상태 설명 (통합 구조화 컴포넌트) */}
+              <div className="mt-5">
+                <ProductStructuredDescription description={product.description} />
               </div>
             </div>
 

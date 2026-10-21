@@ -324,6 +324,40 @@ export function CopyPromoPostButton({
   };
   className?: string;
 }) {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!cancelled && isAuthorizedAdminUser(data.session?.user)) {
+          setIsAdmin(true);
+        }
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleCopyLink = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    try {
+      const url =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/${product.id}`
+          : "";
+      await navigator.clipboard.writeText(url);
+      toast.success("상품 링크가 복사되었습니다.");
+    } catch {
+      toast.error("링크 복사에 실패했습니다.");
+    }
+  };
+
   const handleCopyPromo = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -336,6 +370,24 @@ export function CopyPromoPostButton({
     }
   };
 
+  if (!isAdmin) {
+    return (
+      <button
+        type="button"
+        onClick={handleCopyLink}
+        className={
+          className ||
+          "inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-9 text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
+        }
+        title="상품 링크 복사"
+        aria-label={`${product.title} 링크 복사`}
+      >
+        <Icon d={ICON.share} className="w-3.5 h-3.5 text-[#0E1A2B]" />
+        <span>🔗 상품 링크 복사</span>
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
@@ -344,10 +396,10 @@ export function CopyPromoPostButton({
         className ||
         "inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-9 text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
       }
-      title="당근마켓·네이버카페·블로그 업로드용 홍보 문구 복사"
+      title="당근마켓·네이버카페·블로그 업로드용 홍보 문구 복사 (관리자)"
     >
       <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
-      <span>당근·카페 홍보글 복사</span>
+      <span>📋 홍보글 복사</span>
     </button>
   );
 }

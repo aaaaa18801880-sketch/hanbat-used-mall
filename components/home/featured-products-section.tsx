@@ -11,7 +11,6 @@ import {
   isProductSold,
   normalizeProductCategory,
   normalizeProductStatus,
-  parseProductDescription,
   PRODUCT_CATEGORIES,
   smsHref,
   splitImages,
@@ -31,6 +30,7 @@ import {
   type ProductItem,
 } from "../products/product-card";
 import { QuoteBasketButton } from "../products/product-detail-gallery";
+import { ProductStructuredDescription } from "../products/product-structured-description";
 
 const QUICK_FILTER_TABS = ["전체", ...PRODUCT_CATEGORIES] as const;
 
@@ -147,10 +147,6 @@ export function FeaturedProductsSection({
   const selectedCapsules = selected
     ? extractSpecCapsules(selected.title, selected.description, 4)
     : [];
-  const selectedParsedDesc = useMemo(
-    () => parseProductDescription(selected?.description),
-    [selected?.description]
-  );
 
   return (
     <section
@@ -522,82 +518,12 @@ export function FeaturedProductsSection({
 
                 <ProductTrustMicroStrip category={selectedCategory} />
 
-                {/* 구조화된 제품 사양 및 설명 렌더링 ([한눈에 보는 제품 정보] 등 대괄호 파싱) */}
+                {/* 구조화된 제품 사양 및 설명 (통합 구조화 컴포넌트) */}
                 {selected.description && (
-                  <div className="space-y-3.5">
-                    {selectedParsedDesc.hasStructuredSections ? (
-                      <>
-                        {selectedParsedDesc.summary.length > 0 && (
-                          <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 text-[13.5px] leading-relaxed text-[#3E4756]">
-                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-1">
-                              ✔ 한눈에 보는 제품 정보
-                            </strong>
-                            {selectedParsedDesc.summary.map((line, i) => (
-                              <p key={i} className="mt-1 first:mt-0">
-                                {line}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-
-                        {selectedParsedDesc.specs.length > 0 && (
-                          <div className="rounded-md border border-[#E5E2DC] bg-white p-3.5">
-                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-2">
-                              주요 규격 및 사양
-                            </strong>
-                            <dl className="divide-y divide-[#F0EDE7] text-[13px]">
-                              {selectedParsedDesc.specs.map((s, i) => (
-                                <div
-                                  key={s.label + i}
-                                  className="py-1.5 flex justify-between gap-4"
-                                >
-                                  <dt className="font-medium text-[#646E7E] shrink-0">
-                                    {s.label}
-                                  </dt>
-                                  <dd className="font-semibold text-[#0E1A2B] text-right">
-                                    {s.value}
-                                  </dd>
-                                </div>
-                              ))}
-                            </dl>
-                          </div>
-                        )}
-
-                        {selectedParsedDesc.features.length > 0 && (
-                          <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-3.5">
-                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-1.5">
-                              제품 특징
-                            </strong>
-                            <ul className="space-y-1 text-[13px] leading-relaxed text-[#3E4756]">
-                              {selectedParsedDesc.features.map((f, i) => (
-                                <li key={i} className="flex items-start gap-2">
-                                  <span className="text-[#D9531E] font-bold">
-                                    •
-                                  </span>
-                                  <span>{f}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {selectedParsedDesc.rawRest.length > 0 && (
-                          <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 text-[13.5px] whitespace-pre-line leading-relaxed text-[#1F2530]">
-                            {selectedParsedDesc.rawRest.join("\n")}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
-                        <span className="block text-[12px] font-bold text-[#6B7280] mb-1.5">
-                          제품 규격 및 상세 설명
-                        </span>
-                        <p className="whitespace-pre-line text-[13.5px] sm:text-[14px] leading-relaxed text-[#1F2530]">
-                          {selected.description}
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                  <ProductStructuredDescription
+                    description={selected.description}
+                    variant="compact"
+                  />
                 )}
               </div>
             </div>

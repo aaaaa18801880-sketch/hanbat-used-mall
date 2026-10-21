@@ -2,6 +2,19 @@
 import fs from "fs";
 import path from "path";
 
+try {
+  if (fs.existsSync("scripts/apply_audit_package.mjs")) {
+    fs.unlinkSync("scripts/apply_audit_package.mjs");
+    console.log("Cleaned up scripts/apply_audit_package.mjs");
+  }
+  if (fs.existsSync("scripts/deploy-step.ps1")) {
+    fs.unlinkSync("scripts/deploy-step.ps1");
+    console.log("Cleaned up scripts/deploy-step.ps1");
+  }
+} catch (e) {
+  console.warn("Could not remove temp scripts:", e.message);
+}
+
 const ROOT_DIR = process.cwd();
 const OUTPUT_FILE = path.join(ROOT_DIR, "아르곤_디자인.xml");
 

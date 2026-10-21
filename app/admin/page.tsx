@@ -37,6 +37,10 @@ import {
 } from "../../lib/site";
 
 import { Icon, ICON, SafeImg } from "../../lib/ui";
+import {
+  removeStorageImagesSafe,
+  compressAndUploadProductImages,
+} from "../../lib/product-ops";
 
 type AdminTab = "overview" | "inquiries" | "products" | "delivery" | "notifications";
 
@@ -739,22 +743,7 @@ export default function IntegratedAdminDashboard() {
 
     setSavingProduct(true);
     try {
-      const uploadedUrls: string[] = [];
-      for (const file of prodFiles) {
-        const blob = await compressImage(file);
-        const fileName = `product_${Date.now()}_${Math.random()
-          .toString(36)
-          .slice(2, 8)}.jpg`;
-        const { error: upErr } = await supabase.storage
-          .from(STORAGE_BUCKETS.inquiries)
-          .upload(fileName, blob, { contentType: "image/jpeg" });
-        if (upErr) throw upErr;
-        uploadedUrls.push(
-          supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .getPublicUrl(fileName).data.publicUrl
-        );
-      }
+      const uploadedUrls = await compressAndUploadProductImages(prodFiles);
 
       const numericPrice = prodPrice
         ? Number(prodPrice.replace(/[^0-9]/g, ""))
@@ -942,22 +931,10 @@ export default function IntegratedAdminDashboard() {
     }
     setSavingDelivery(true);
     try {
-      const urls: string[] = [];
-      for (const f of delivFiles) {
-        const blob = await compressImage(f, 1600, 0.82);
-        const fileName = `delivery_${Date.now()}_${Math.random()
-          .toString(36)
-          .slice(2, 8)}.jpg`;
-        const { error: upErr } = await supabase.storage
-          .from(STORAGE_BUCKETS.inquiries)
-          .upload(fileName, blob, { contentType: "image/jpeg" });
-        if (upErr) throw upErr;
-        urls.push(
-          supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .getPublicUrl(fileName).data.publicUrl
-        );
-      }
+      const urls = await compressAndUploadProductImages(delivFiles, {
+        prefix: "delivery",
+        quality: 0.82,
+      });
 
       const { error } = await supabase.from("products").insert({
         title: delivTitle.trim(),
@@ -1415,6 +1392,24 @@ export default function IntegratedAdminDashboard() {
                                 className="h-9 rounded bg-[#0E1A2B] px-3 text-[12px] font-bold text-white hover:bg-[#1C2D47]"
                               >
                                 {req.admin_reply ? "답변 수정" : "답변 작성"}
+                              </button>
+
+                              <button
+                                type="button"
+                                disabled={busyActionId === `notify-telegram-${req.id}`}
+                                onClick={() => handleManualNotificationDispatch("telegram", req)}
+                                className="h-9 rounded border border-[#0E1A2B]/30 bg-white px-2.5 text-[12px] font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
+                                title="텔레그램 알림 수동 재전송"
+                              >
+                                ✈️ 텔레그램
+                              </button>
+                              <button
+                                type="button"
+                                disabled
+                                className="h-9 rounded border border-gray-200 bg-gray-100 px-2.5 text-[12px] font-semibold text-gray-400 cursor-not-allowed opacity-75"
+                                title="알림톡은 대행사 API 연동 준비 중입니다 (텔레그램 알림 활성)"
+                              >
+                                💬 알림톡 연동 준비중
                               </button>
                             </>
                           )}

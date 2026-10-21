@@ -1,3 +1,4 @@
+// 파일 경로: app/api/alimtalk/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
   NOTIFICATION_STATUS,
@@ -5,9 +6,9 @@ import {
   type NotificationDispatchResult,
 } from "../../../lib/site";
 import {
+  verifyAdminRequest,
   checkRateLimit,
   getClientIp,
-  verifyAdminRequest,
 } from "../../../lib/server-security";
 
 export const runtime = "nodejs";
@@ -16,6 +17,25 @@ export async function POST(req: NextRequest) {
   const nowIso = new Date().toISOString();
 
   try {
+    // 1. 관리자 전용 API이므로 핸들러 최상단에서 관리자 Bearer 토큰 검증 필수
+    const adminCheck = await verifyAdminRequest(req);
+    if (!adminCheck.ok) {
+      return NextResponse.json(
+        {
+          success: false,
+          channel: "alimtalk",
+          status: "EXTERNAL_ERROR",
+          statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
+          sent: false,
+          retryable: false,
+          message: adminCheck.error || "관리자 인증이 필요합니다.",
+          timestamp: nowIso,
+        },
+        { status: adminCheck.status }
+      );
+    }
+
+    // 2. IP 기반 요청 빈도 제어
     const ip = getClientIp(req);
     const rate = checkRateLimit(`alimtalk_notify:${ip}`, 12, 60 * 1000);
     if (!rate.allowed) {
@@ -49,25 +69,6 @@ export async function POST(req: NextRequest) {
         },
         { status: 400 }
       );
-    }
-
-    if (body.forceRetry) {
-      const adminCheck = await verifyAdminRequest(req);
-      if (!adminCheck.ok) {
-        return NextResponse.json(
-          {
-            success: false,
-            channel: "alimtalk",
-            status: "EXTERNAL_ERROR",
-            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-            sent: false,
-            retryable: false,
-            message: adminCheck.error || "관리자 인증이 필요합니다.",
-            timestamp: nowIso,
-          },
-          { status: adminCheck.status }
-        );
-      }
     }
 
     const ALIMTALK_API_KEY = process.env.ALIMTALK_API_KEY;

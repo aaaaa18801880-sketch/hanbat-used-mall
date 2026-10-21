@@ -21,7 +21,6 @@ import {
   PRODUCT_CATEGORIES,
   PRODUCT_CONDITION_GRADES,
   PRODUCT_STATUS,
-  STORAGE_BUCKETS,
   isProductSold,
   isProductReserved,
   normalizeProductStatus,
@@ -30,8 +29,6 @@ import {
   formatProductPrice,
   extractModelName,
   extractSpecCapsules,
-  parseProductDescription,
-  extractStorageFilesByBucket,
   trackEvent,
 } from "../../lib/site";
 
@@ -55,6 +52,11 @@ import {
   QuoteBasketButton,
 } from "../../components/products/product-detail-gallery";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
+import { ProductStructuredDescription } from "../../components/products/product-structured-description";
+import {
+  removeProductImagesFromStorage,
+  compressAndUploadProductImages,
+} from "../../lib/product-ops";
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
 type StatusFilter = "all" | "selling" | "reserved" | "sold";
@@ -78,31 +80,7 @@ const EditIcon = () => (
   </svg>
 );
 
-/** Storage에 저장된 상품 이미지 파일 정리 (오류 무시 금지) */
-async function removeProductImagesFromStorage(imageUrls: string[]) {
-  const { inquiries, productImages } = extractStorageFilesByBucket(imageUrls);
-
-  if (inquiries.length > 0) {
-    const { error } = await supabase.storage
-      .from(STORAGE_BUCKETS.inquiries)
-      .remove(inquiries);
-    if (error) {
-      console.warn("Storage(inquiries) 이미지 삭제 경고:", error.message);
-      toast.error(
-        "상품 레코드는 삭제되었으나 일부 이미지 파일 정리에 실패했습니다."
-      );
-    }
-  }
-
-  if (productImages.length > 0) {
-    const { error } = await supabase.storage
-      .from(STORAGE_BUCKETS.legacyProductImages)
-      .remove(productImages);
-    if (error) {
-      console.warn("Storage(product-images) 이미지 삭제 경고:", error.message);
-    }
-  }
-}
+// removeProductImagesFromStorage imported from lib/product-ops
 
 /* ════════════════════════════════════════════════════════════
    상세 보기 및 관리자 단건 수정 모달 (사진 순서 변경·추가·삭제 지원)
@@ -178,10 +156,6 @@ function ProductDetailModal({
     product.title,
     product.description,
     4
-  );
-  const parsedDesc = useMemo(
-    () => parseProductDescription(product.description),
-    [product.description]
   );
 
   const moveExistingImage = (fromIdx: number, toIdx: number) => {
@@ -276,22 +250,7 @@ function ProductDetailModal({
 
     setIsSaving(true);
     try {
-      const newlyUploadedUrls: string[] = [];
-      for (const file of editNewFiles) {
-        const blob = await compressImage(file);
-        const fileName = `product_${Date.now()}_${Math.random()
-          .toString(36)
-          .slice(2, 8)}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from(STORAGE_BUCKETS.inquiries)
-          .upload(fileName, blob, { contentType: "image/jpeg" });
-        if (uploadError) throw uploadError;
-        newlyUploadedUrls.push(
-          supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .getPublicUrl(fileName).data.publicUrl
-        );
-      }
+      const newlyUploadedUrls = await compressAndUploadProductImages(editNewFiles);
 
       const finalImages = [...editExistingImages, ...newlyUploadedUrls];
       const finalImageUrl = finalImages.join(",");
@@ -853,100 +812,9 @@ function ProductDetailModal({
                     <AirconSetGuideBanner variant="card" className="mt-4" />
                   )}
 
-                  {/* 구조화된 제품 사양 및 상태 설명 (parseProductDescription 적용) */}
+                  {/* 구조화된 제품 사양 및 상태 설명 (통합 구조화 컴포넌트) */}
                   {product.description && (
-                    <div className="space-y-4">
-                      {parsedDesc.hasStructuredSections ? (
-                        <>
-                          {parsedDesc.summary.length > 0 && (
-                            <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-4 text-[13.5px] leading-relaxed text-[#2D333F]">
-                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-1.5 flex items-center gap-1.5">
-                                <Icon
-                                  d={ICON.check}
-                                  className="h-4 w-4 text-[#D9531E]"
-                                />
-                                <span>한눈에 보는 제품 정보</span>
-                              </h3>
-                              {parsedDesc.summary.map((line, i) => (
-                                <p
-                                  key={i}
-                                  className="mt-1 first:mt-0 leading-relaxed text-[#3E4756]"
-                                >
-                                  {line}
-                                </p>
-                              ))}
-                            </div>
-                          )}
-
-                          {parsedDesc.specs.length > 0 && (
-                            <div className="rounded-md border border-[#E5E2DC] bg-white p-4">
-                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                                주요 규격 및 사양
-                              </h3>
-                              <dl className="divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-[13.5px]">
-                                {parsedDesc.specs.map((s, i) => (
-                                  <div
-                                    key={s.label + i}
-                                    className="py-2 flex justify-between gap-4"
-                                  >
-                                    <dt className="font-medium text-[#646E7E] shrink-0">
-                                      {s.label}
-                                    </dt>
-                                    <dd className="font-semibold text-[#0E1A2B] text-right">
-                                      {s.value}
-                                    </dd>
-                                  </div>
-                                ))}
-                              </dl>
-                            </div>
-                          )}
-
-                          {parsedDesc.features.length > 0 && (
-                            <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-4">
-                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
-                                제품 특징
-                              </h3>
-                              <ul className="space-y-1.5 text-[13.5px] leading-relaxed text-[#3E4756]">
-                                {parsedDesc.features.map((f, i) => (
-                                  <li key={i} className="flex items-start gap-2">
-                                    <span className="text-[#D9531E] font-bold">
-                                      •
-                                    </span>
-                                    <span>{f}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {parsedDesc.checkPoints.length > 0 && (
-                            <div className="border-l-2 border-[#D9531E] bg-[#FAF9F7] pl-3.5 pr-3 py-2.5 text-[13px] text-[#3E4756]">
-                              <strong className="block font-bold text-[#0E1A2B] mb-1">
-                                구매 및 설치 전 확인사항
-                              </strong>
-                              {parsedDesc.checkPoints.map((c, i) => (
-                                <p key={i}>• {c}</p>
-                              ))}
-                            </div>
-                          )}
-
-                          {parsedDesc.rawRest.length > 0 && (
-                            <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8] text-[13.5px] leading-relaxed text-[#0E1A2B] whitespace-pre-line">
-                              {parsedDesc.rawRest.join("\n")}
-                            </div>
-                          )}
-                        </>
-                      ) : (
-                        <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
-                          <span className="text-[12px] font-bold text-[#6B7280] block mb-1.5">
-                            제품 규격 및 상세 설명
-                          </span>
-                          <p className="text-[14px] text-[#1F2530] whitespace-pre-wrap leading-relaxed">
-                            {product.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    <ProductStructuredDescription description={product.description} />
                   )}
 
                   <ul className="text-[13px] text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8]">
@@ -1903,22 +1771,7 @@ export default function GalleryPage() {
 
     setUploadingProduct(true);
     try {
-      const uploadedUrls: string[] = [];
-      for (const file of productFiles) {
-        const blob = await compressImage(file);
-        const fileName = `product_${Date.now()}_${Math.random()
-          .toString(36)
-          .slice(2, 8)}.jpg`;
-        const { error: uploadError } = await supabase.storage
-          .from(STORAGE_BUCKETS.inquiries)
-          .upload(fileName, blob, { contentType: "image/jpeg" });
-        if (uploadError) throw uploadError;
-        uploadedUrls.push(
-          supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .getPublicUrl(fileName).data.publicUrl
-        );
-      }
+      const uploadedUrls = await compressAndUploadProductImages(productFiles);
 
       let finalDesc = productDescription.trim();
       if (productModel.trim() && !finalDesc.includes("모델명")) {
