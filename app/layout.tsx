@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     siteName: STORE.name,
     title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
     description:
-      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 8개월, 일반·업소용 가전 4개월 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
     images: [
       {
         url: "/og-image.jpg",
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
     description:
-      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 8개월, 일반·업소용 가전 4개월 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
     images: ["/og-image.jpg"],
   },
   verification: {
@@ -159,7 +159,7 @@ export default function RootLayout({
     name: STORE.name,
     legalName: STORE.legalName,
     description:
-      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 에어컨·냉난방기 8개월, 일반 및 업소용 가전 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
+      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
     image: [`${STORE.url}/og-image.jpg`, `${STORE.url}/main-bg2.png`],
     logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
@@ -211,12 +211,12 @@ export default function RootLayout({
       itemListElement: [
         {
           "@type": "OfferCatalog",
-          name: "에어컨 · 냉난방기 (무상 A/S 8개월 보증)",
+          name: "에어컨 · 냉난방기 (계약 조건별 최대 8개월 보증)",
           url: `${STORE.url}/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0`,
         },
         {
           "@type": "OfferCatalog",
-          name: "가정용 냉장고 · 김치냉장고 (무상 A/S 4개월 보증)",
+          name: "가정용 냉장고 · 김치냉장고 (계약 조건별 최대 4개월 보증)",
           url: `${STORE.url}/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0`,
         },
         {

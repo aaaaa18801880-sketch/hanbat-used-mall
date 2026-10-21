@@ -715,7 +715,7 @@ export function generatePromoPostText(product: {
     "────────────────────────────",
     `✅ ${STORE.name} 안심 거래 원칙 (SINCE ${STORE.since})`,
     "• 입고 후 분해 세척·정비 및 작동 검수를 마친 실매물입니다.",
-    "• 무상 A/S 보장: 에어컨·냉난방기 8개월 / 그 외 제품 4개월 (계약 조건에 따라 상이)",
+    "• 사후 A/S 보증: 품목 및 계약 조건에 따라 상이 (에어컨 최대 8개월 / 가전 최대 4개월, 사전 협의 기준)",
     "• 대전·세종·충청권 및 전국 배송·설치 상담 / 세금계산서 발행 가능",
     "",
     `📍 매장 위치: ${STORE.address} (${STORE.addressNote}, ${STORE.parking})`,

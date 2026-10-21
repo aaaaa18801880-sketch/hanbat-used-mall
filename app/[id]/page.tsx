@@ -140,7 +140,11 @@ export async function generateMetadata({
     ? "판매완료"
     : formatProductPrice(product.price, categoryLabel);
   const warrantyLabel =
-    categoryLabel === "에어컨/냉난방기" ? "무상A/S 8개월" : "무상A/S 4개월";
+    categoryLabel === "에어컨/냉난방기"
+      ? "최대 8개월 보증(계약별)"
+      : categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기"
+      ? "최대 4개월 보증(계약별)"
+      : "계약조건별 보증";
   const modelName = extractModelName(product.description, product.title);
   const capsules = extractSpecCapsules(product.title, product.description, 3);
   const images = splitImages(product.image_url);
@@ -281,7 +285,14 @@ export default async function ProductDetailPage({
 
   const relatedProducts = (relatedRows ?? []) as ProductItem[];
 
-  const warrantyMonths = categoryLabel === "에어컨/냉난방기" ? 8 : 4;
+  const isHvacDetail = categoryLabel === "에어컨/냉난방기";
+  const isMajorApplianceDetail =
+    categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기";
+  const warrantySummary = isHvacDetail
+    ? "에어컨류 계약조건별 최대 8개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
+    : isMajorApplianceDetail
+    ? "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
+    : "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)";
   const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@graph": [
@@ -325,7 +336,7 @@ export default async function ProductDetailPage({
         category: categoryLabel,
         description:
           product.description ||
-          `${STORE.name} ${categoryLabel} ${product.title} (분해 고압 세척 완료 · 무상 A/S ${warrantyMonths}개월 보증)`,
+          `${STORE.name} ${categoryLabel} ${product.title} (작동 검수 완료 · ${warrantySummary})`,
         image: images.length > 0 ? images : [`${STORE.url}/og-image.jpg`],
         itemCondition: "https://schema.org/UsedCondition",
         brand: {
@@ -350,7 +361,7 @@ export default async function ProductDetailPage({
             ? "https://schema.org/OutOfStock"
             : "https://schema.org/InStock",
           itemCondition: "https://schema.org/UsedCondition",
-          warranty: `무상 A/S ${warrantyMonths}개월 보증 (계약 조건 기준)`,
+          warranty: warrantySummary,
           seller: {
             "@type": "ElectronicsStore",
             name: STORE.name,
@@ -510,9 +521,13 @@ export default async function ProductDetailPage({
                       검수 · 보증 기준
                     </dt>
                     <dd className="font-semibold text-[#0E1A2B] text-right">
-                      {categoryLabel === "에어컨/냉난방기"
-                        ? "분해 세척 완료 · 무상 A/S 8개월"
-                        : "분해 세척 완료 · 무상 A/S 4개월"}
+                      {isHvacDetail
+                        ? "세척·점검 완료 (계약별 최대 8개월)"
+                        : isMajorApplianceDetail
+                        ? "세척·점검 완료 (계약별 최대 4개월)"
+                        : "작동 점검 완료 (품목·계약별 협의)"}
+
+
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-3 py-2.5">
@@ -771,7 +786,7 @@ export default async function ProductDetailPage({
               검수 및 증빙 안내
             </h2>
             <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#3E4856]">
-              입고 후 작동 점검과 세척을 거친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. A/S 조건은 품목 및 계약 조건에 따라 안내해 드립니다.
+              입고 후 정밀 작동 점검과 세척·클리닝을 마친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. 사후 A/S 보증 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 차등 적용됩니다.
             </p>
           </div>
         </section>

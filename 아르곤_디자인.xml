@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-20T17:01:53.886Z">
+<project name="hanbat-mall" generated_at="2026-10-21T05:52:22.353Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>73</file_count>
+    <file_count>74</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="820">
+    <file path="app/[id]/page.tsx" lines="835">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -164,7 +164,11 @@ export async function generateMetadata({
     ? "판매완료"
     : formatProductPrice(product.price, categoryLabel);
   const warrantyLabel =
-    categoryLabel === "에어컨/냉난방기" ? "무상A/S 8개월" : "무상A/S 4개월";
+    categoryLabel === "에어컨/냉난방기"
+      ? "최대 8개월 보증(계약별)"
+      : categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기"
+      ? "최대 4개월 보증(계약별)"
+      : "계약조건별 보증";
   const modelName = extractModelName(product.description, product.title);
   const capsules = extractSpecCapsules(product.title, product.description, 3);
   const images = splitImages(product.image_url);
@@ -305,7 +309,14 @@ export default async function ProductDetailPage({
 
   const relatedProducts = (relatedRows ?? []) as ProductItem[];
 
-  const warrantyMonths = categoryLabel === "에어컨/냉난방기" ? 8 : 4;
+  const isHvacDetail = categoryLabel === "에어컨/냉난방기";
+  const isMajorApplianceDetail =
+    categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기";
+  const warrantySummary = isHvacDetail
+    ? "에어컨류 계약조건별 최대 8개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
+    : isMajorApplianceDetail
+    ? "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
+    : "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)";
   const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@graph": [
@@ -349,7 +360,7 @@ export default async function ProductDetailPage({
         category: categoryLabel,
         description:
           product.description ||
-          `${STORE.name} ${categoryLabel} ${product.title} (분해 고압 세척 완료 · 무상 A/S ${warrantyMonths}개월 보증)`,
+          `${STORE.name} ${categoryLabel} ${product.title} (작동 검수 완료 · ${warrantySummary})`,
         image: images.length > 0 ? images : [`${STORE.url}/og-image.jpg`],
         itemCondition: "https://schema.org/UsedCondition",
         brand: {
@@ -374,7 +385,7 @@ export default async function ProductDetailPage({
             ? "https://schema.org/OutOfStock"
             : "https://schema.org/InStock",
           itemCondition: "https://schema.org/UsedCondition",
-          warranty: `무상 A/S ${warrantyMonths}개월 보증 (계약 조건 기준)`,
+          warranty: warrantySummary,
           seller: {
             "@type": "ElectronicsStore",
             name: STORE.name,
@@ -534,9 +545,13 @@ export default async function ProductDetailPage({
                       검수 · 보증 기준
                     </dt>
                     <dd className="font-semibold text-[#0E1A2B] text-right">
-                      {categoryLabel === "에어컨/냉난방기"
-                        ? "분해 세척 완료 · 무상 A/S 8개월"
-                        : "분해 세척 완료 · 무상 A/S 4개월"}
+                      {isHvacDetail
+                        ? "세척·점검 완료 (계약별 최대 8개월)"
+                        : isMajorApplianceDetail
+                        ? "세척·점검 완료 (계약별 최대 4개월)"
+                        : "작동 점검 완료 (품목·계약별 협의)"}
+
+
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-3 py-2.5">
@@ -795,7 +810,7 @@ export default async function ProductDetailPage({
               검수 및 증빙 안내
             </h2>
             <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#3E4856]">
-              입고 후 작동 점검과 세척을 거친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. A/S 조건은 품목 및 계약 조건에 따라 안내해 드립니다.
+              입고 후 정밀 작동 점검과 세척·클리닝을 마친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. 사후 A/S 보증 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 차등 적용됩니다.
             </p>
           </div>
         </section>
@@ -867,12 +882,12 @@ export default function AdminLayout({
 
 ]]>
     </file>
-    <file path="app/admin/page.tsx" lines="2150">
+    <file path="app/admin/page.tsx" lines="2346">
       <![CDATA[
 // 파일 경로: app/admin/page.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -895,6 +910,8 @@ import {
   formatProductPrice,
   splitImages,
   compressImage,
+  rotateImageFile,
+  sanitizeOldManufactureYear,
   validateImageFiles,
   extractModelName,
   extractInquiryImages,
@@ -1335,11 +1352,96 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
-  /* ───── Gemini AI 상품 사진 분석 (3계층 분리) ───── */
+  /* ───── Gemini AI 상품 사진 분석 (3계층 분리 + 5년 경과 연식 블라인드 + 자동 회전) ───── */
+  const adminUserRotatedRef = useRef<Set<number>>(new Set());
+
+  const rotateProdFile = async (
+    index: number,
+    degrees = 90,
+    isAuto = false
+  ) => {
+    let targetFile: File | null = null;
+    setProdFiles((prev) => {
+      targetFile = prev[index] || null;
+      return prev;
+    });
+    if (!targetFile) return;
+
+    try {
+      const rotated = await rotateImageFile(targetFile, degrees);
+      setProdFiles((prev) => {
+        const next = [...prev];
+        if (index < next.length) next[index] = rotated;
+        return next;
+      });
+      setProdPreviews((prev) => {
+        const next = [...prev];
+        if (index < next.length) {
+          if (next[index]) URL.revokeObjectURL(next[index]);
+          next[index] = URL.createObjectURL(rotated);
+        }
+        return next;
+      });
+      if (!isAuto) {
+        adminUserRotatedRef.current.add(index);
+        toast.success(`${index + 1}번 사진이 90° 회전되었습니다.`);
+      }
+    } catch {
+      if (!isAuto) toast.error("사진 회전에 실패했습니다.");
+    }
+  };
+
+  const removeProdFile = (index: number) => {
+    URL.revokeObjectURL(prodPreviews[index]);
+    setProdFiles((prev) => prev.filter((_, i) => i !== index));
+    setProdPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const moveProdFile = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= prodFiles.length) return;
+    setProdFiles((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+    setProdPreviews((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+  };
+
+  const makePrimaryProdFile = (targetIdx: number) => {
+    if (targetIdx <= 0 || targetIdx >= prodFiles.length) return;
+    setProdFiles((prev) => {
+      const next = [...prev];
+      const [picked] = next.splice(targetIdx, 1);
+      return [picked, ...next];
+    });
+    setProdPreviews((prev) => {
+      const next = [...prev];
+      const [picked] = next.splice(targetIdx, 1);
+      return [picked, ...next];
+    });
+  };
+
+  const appendSearchSpecsToAdminDesc = () => {
+    if (aiSearchSpecs.length === 0) return;
+    const block = aiSearchSpecs.map((s) => `• ${s}`).join("\n");
+    setProdDesc((prev) =>
+      prev.trim() ? `${prev.trim()}\n\n[검색 참조 사양]\n${block}` : block
+    );
+    toast.success("검색 참조 사양이 설명란에 추가되었습니다.");
+  };
+
   const runGeminiProductAnalysis = async (filesToAnalyze: File[]) => {
     if (filesToAnalyze.length === 0 || analyzingProduct) return;
     setAnalyzingProduct(true);
-    const toastId = toast.loading("Gemini AI가 사진을 판독하고 초안을 작성 중입니다...");
+    const toastId = toast.loading(
+      "Gemini AI가 사진을 판독하고 초안을 작성 중입니다..."
+    );
 
     try {
       const formData = new FormData();
@@ -1347,8 +1449,11 @@ export default function IntegratedAdminDashboard() {
       formData.append("searchSpecs", useSearchSpecs ? "true" : "false");
 
       for (const f of filesToAnalyze.slice(0, 3)) {
-        const blob = await compressImage(f);
-        formData.append("files", new File([blob], f.name, { type: "image/jpeg" }));
+        const blob = await compressImage(f, 1080, 0.72);
+        formData.append(
+          "files",
+          new File([blob], f.name, { type: "image/jpeg" })
+        );
       }
 
       const headers = await getAdminAuthHeaders();
@@ -1360,18 +1465,57 @@ export default function IntegratedAdminDashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "AI 분석 실패");
 
-      if (data.category) setProdCategory(normalizeProductCategory(data.category));
-      if (data.title) setProdTitle(data.title);
-      if (data.modelNumber) setProdModel(data.modelNumber);
-      if (data.specDetails) setProdDesc(data.specDetails);
+      const cleanData = sanitizeOldManufactureYear(data);
 
-      setAiPhotoObserved(Array.isArray(data.photoObserved) ? data.photoObserved : []);
-      setAiSearchSpecs(
-        Array.isArray(data.searchDerivedSpecs) ? data.searchDerivedSpecs : []
+      if (cleanData.category) {
+        setProdCategory(normalizeProductCategory(cleanData.category));
+      }
+      if (cleanData.title) setProdTitle(cleanData.title);
+      if (cleanData.modelNumber) setProdModel(cleanData.modelNumber);
+      if (cleanData.specDetails) setProdDesc(cleanData.specDetails);
+
+      setAiPhotoObserved(
+        Array.isArray(cleanData.photoObserved) ? cleanData.photoObserved : []
       );
-      setAiWarnings(Array.isArray(data.needsReview) ? data.needsReview : []);
+      setAiSearchSpecs(
+        Array.isArray(cleanData.searchDerivedSpecs)
+          ? cleanData.searchDerivedSpecs
+          : []
+      );
+      setAiWarnings(
+        Array.isArray(cleanData.needsReview) ? cleanData.needsReview : []
+      );
       setAiSourceNote(data.sourceVerificationNote || "");
       setAiSources(Array.isArray(data.sourceUrls) ? data.sourceUrls : []);
+
+      if (
+        Array.isArray(data.imageRotations) &&
+        data.imageRotations.length > 0
+      ) {
+        const rotationsToApply = data.imageRotations.filter(
+          (r: { index?: unknown; rotate?: unknown }) => {
+            const idx = typeof r.index === "number" ? r.index - 1 : -1;
+            const deg = typeof r.rotate === "number" ? r.rotate : 0;
+            return (
+              idx >= 0 &&
+              idx < filesToAnalyze.length &&
+              deg > 0 &&
+              deg < 360 &&
+              !adminUserRotatedRef.current.has(idx)
+            );
+          }
+        );
+
+        if (rotationsToApply.length > 0) {
+          for (const r of rotationsToApply) {
+            const idx = (r.index as number) - 1;
+            await rotateProdFile(idx, r.rotate as number, true);
+          }
+          toast.success(
+            "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다."
+          );
+        }
+      }
 
       toast.success("AI 초안이 작성되었습니다. 확인 후 저장해 주세요.", {
         id: toastId,
@@ -1390,6 +1534,7 @@ export default function IntegratedAdminDashboard() {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
     e.target.value = "";
+    adminUserRotatedRef.current.clear();
     const remaining = 3 - (editingExistingImages.length + prodFiles.length);
     if (remaining <= 0) {
       toast.error("상품 사진은 최대 3장까지 등록할 수 있습니다.");
@@ -1401,7 +1546,10 @@ export default function IntegratedAdminDashboard() {
 
     const merged = [...prodFiles, ...ok];
     setProdFiles(merged);
-    setProdPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
+    setProdPreviews((prev) => [
+      ...prev,
+      ...ok.map((f) => URL.createObjectURL(f)),
+    ]);
 
     if (prodFiles.length === 0 && ok.length > 0 && !editingProductId) {
       runGeminiProductAnalysis(ok);
@@ -1410,6 +1558,7 @@ export default function IntegratedAdminDashboard() {
 
   const resetProductForm = () => {
     prodPreviews.forEach((u) => URL.revokeObjectURL(u));
+    adminUserRotatedRef.current.clear();
     setEditingProductId(null);
     setEditingExistingImages([]);
     setProdTitle("");
@@ -1428,7 +1577,7 @@ export default function IntegratedAdminDashboard() {
     setAiSources([]);
   };
 
-  const startEditProduct = (product: AdminProductRow) => {
+    const startEditProduct = (product: AdminProductRow) => {
     resetProductForm();
     setEditingProductId(product.id);
     setEditingExistingImages(splitImages(product.image_url));
@@ -2469,17 +2618,70 @@ export default function IntegratedAdminDashboard() {
 
                   {prodPreviews.length > 0 && (
                     <div className="mt-2.5 grid grid-cols-3 gap-2">
-                      {prodPreviews.map((src) => (
+                      {prodPreviews.map((src, index) => (
                         <div
                           key={src}
-                          className="relative aspect-square rounded border border-[#DDD9D1] overflow-hidden"
+                          className="flex flex-col overflow-hidden rounded border border-[#DDD9D1] bg-[#FAF9F7]"
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={src}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
+                          <div className="relative aspect-square bg-[#EFECE6]">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={src}
+                              alt={`신규 사진 ${index + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                            {editingExistingImages.length === 0 &&
+                            index === 0 ? (
+                              <span className="absolute top-1 left-1 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                대표
+                              </span>
+                            ) : (
+                              editingExistingImages.length === 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => makePrimaryProdFile(index)}
+                                  className="absolute top-1 left-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-[#D9531E]"
+                                >
+                                  대표 지정
+                                </button>
+                              )
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeProdFile(index)}
+                              aria-label="사진 삭제"
+                              className="absolute top-1 right-1 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
+                            >
+                              <Icon d={ICON.close} className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => rotateProdFile(index, 90)}
+                              title="시계방향 90도 회전"
+                              aria-label="시계방향 90도 회전"
+                              className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E]"
+                            >
+                              <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-[10.5px] font-bold text-[#4B5260]">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveProdFile(index, index - 1)}
+                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            >
+                              ← 앞
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === prodPreviews.length - 1}
+                              onClick={() => moveProdFile(index, index + 1)}
+                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            >
+                              뒤 →
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -2505,9 +2707,18 @@ export default function IntegratedAdminDashboard() {
                     )}
                     {aiSearchSpecs.length > 0 && (
                       <div>
-                        <strong className="text-[#0E1A2B]">
-                          2) 검색으로 확인한 참고 제원:
-                        </strong>
+                        <div className="flex items-center justify-between">
+                          <strong className="text-[#0E1A2B]">
+                            2) 검색으로 확인한 참고 제원:
+                          </strong>
+                          <button
+                            type="button"
+                            onClick={appendSearchSpecsToAdminDesc}
+                            className="text-[11px] font-bold text-[#D9531E] underline"
+                          >
+                            + 설명란에 반영
+                          </button>
+                        </div>
                         <ul className="list-disc pl-4 text-[#4B5260]">
                           {aiSearchSpecs.map((x, i) => (
                             <li key={i}>{x}</li>
@@ -3019,6 +3230,60 @@ export default function IntegratedAdminDashboard() {
     </div>
   );
 }
+]]>
+    </file>
+    <file path="app/api/admin/fix-tv-categories/route.ts" lines="50">
+      <![CDATA[
+// 파일 경로: app/api/admin/fix-tv-categories/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
+import { createServerSupabaseClient } from "../../../../lib/supabase";
+
+export const runtime = "nodejs";
+
+const MAINT_KEY = "hanbat_maint_fix_tv_20261021";
+
+export async function POST(req: NextRequest) {
+  try {
+    const key = req.nextUrl.searchParams.get("key");
+    if (key !== MAINT_KEY) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const supabase = createServerSupabaseClient(undefined, true);
+
+    // 제목에 TV가 포함된 모든 매물의 카테고리를 '기타'로 정상화
+    const { data: updated, error } = await supabase
+      .from("products")
+      .update({ category: "기타" })
+      .ilike("title", "%TV%")
+      .select("id, title, category");
+
+    if (error) {
+      console.error("[fix-tv-categories] DB 업데이트 실패:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    try {
+      revalidatePath("/gallery");
+      revalidatePath("/");
+    } catch {
+      // ignore
+    }
+
+    return NextResponse.json({
+      success: true,
+      updatedCount: updated?.length || 0,
+      items: updated,
+    });
+  } catch (err: unknown) {
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Internal error" },
+      { status: 500 }
+    );
+  }
+}
+
 ]]>
     </file>
     <file path="app/api/admin/reset-views/route.ts" lines="57">
@@ -4535,11 +4800,11 @@ export async function POST(req: NextRequest) {
 
 ## 카테고리 자동 판별
 관리자 선택값("${categoryHint || "미지정"}")과 무관하게, 첨부 사진 속 실제 제품을 보고 아래 5개 중 하나로 분류:
-- "에어컨/냉난방기"
+- "에어컨/냉난방기": 벽걸이/스탠드/천장형 에어컨, 시스템 냉난방기 전용 (※ TV나 다른 가전은 절대 에어컨으로 분류 금지)
 - "냉장고"
 - "세탁기/건조기"
 - "업소용기기"
-- "기타"
+- "기타": TV, 모니터, 컴퓨터, 영상가전, 전자레인지, 밥솥, 청소기, 주방·생활 소형가전 (※ TV 및 디스플레이는 절대 '에어컨/냉난방기'가 아니며 반드시 '기타'로 분류)
 
 ## 출력 형식 (반드시 다른 해설 문장 없이 아래 유효한 JSON 형식으로만 응답)
 {
@@ -5959,7 +6224,7 @@ export const metadata: Metadata = {
   title:
     "실시간 판매 제품 갤러리 (가격공개 · 무상A/S 최대 8개월) — 중고가전·업소용 주방기기",
   description:
-    "[분해 고압 살균세척 · 시운전 완료 실매물] 대전 한밭중고전자 직영 매장에서 판매 중인 에어컨·냉난방기(8개월 보증), 냉장고, 세탁기, 업소용 45박스 냉장고·제빙기·쇼케이스(4개월 보증) 실시간 재고와 가격을 확인하세요.",
+    "[분해 세척 · 작동 점검 완료 실매물] 대전 한밭중고전자 직영 매장에서 판매 중인 에어컨·냉난방기(최대 8개월), 냉장고, 세탁기(최대 4개월), TV 및 업소용 설비 등 계약 조건별 보증 실시간 재고와 가격을 확인하세요.",
   alternates: {
     canonical: "/gallery",
   },
@@ -5986,7 +6251,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2659">
+    <file path="app/gallery/page.tsx" lines="2850">
       <![CDATA[
 "use client";
 
@@ -6001,6 +6266,7 @@ import {
 import {
   STORE,
   telHref,
+  smsHref,
   splitImages,
   compressImage,
   rotateImageFile,
@@ -6008,6 +6274,7 @@ import {
   validateImageFiles,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
+  PRODUCT_CONDITION_GRADES,
   PRODUCT_STATUS,
   STORAGE_BUCKETS,
   isProductSold,
@@ -6017,6 +6284,8 @@ import {
   hasProductPrice,
   formatProductPrice,
   extractModelName,
+  extractSpecCapsules,
+  parseProductDescription,
   extractStorageFilesByBucket,
   trackEvent,
 } from "../../lib/site";
@@ -6036,6 +6305,10 @@ import {
   type ProductItem,
 } from "../../components/products/product-card";
 import { ProductStatusBadge } from "../../components/products/product-status-badge";
+import {
+  CopyPromoPostButton,
+  QuoteBasketButton,
+} from "../../components/products/product-detail-gallery";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
@@ -6115,6 +6388,9 @@ function ProductDetailModal({
   const [editPrice, setEditPrice] = useState(
     product.price && product.price > 0 ? String(product.price) : ""
   );
+  const [editGrade, setEditGrade] = useState<string>(
+    product.condition_grade || PRODUCT_CONDITION_GRADES[1]
+  );
   const [editStatus, setEditStatus] = useState<string>(
     normalizeProductStatus(product.status)
   );
@@ -6153,6 +6429,15 @@ function ProductDetailModal({
   const sold = isProductSold(currentStatus);
   const categoryLabel = normalizeProductCategory(product.category);
   const modelName = extractModelName(product.description, product.title);
+  const specCapsules = extractSpecCapsules(
+    product.title,
+    product.description,
+    4
+  );
+  const parsedDesc = useMemo(
+    () => parseProductDescription(product.description),
+    [product.description]
+  );
 
   const moveExistingImage = (fromIdx: number, toIdx: number) => {
     if (toIdx < 0 || toIdx >= editExistingImages.length) return;
@@ -6274,6 +6559,7 @@ function ProductDetailModal({
           title: editTitle.trim(),
           category: normalizedCat,
           price: numericPrice,
+          condition_grade: editGrade || null,
           status: normalizedStat,
           description: editDescription.trim(),
           image_url: finalImageUrl,
@@ -6288,7 +6574,6 @@ function ProductDetailModal({
         );
       }
 
-      // 기존 사진 중 제거된 파일이 있다면 Storage에서도 정리
       const removedUrls = images.filter((u) => !editExistingImages.includes(u));
       if (removedUrls.length > 0) {
         await removeProductImagesFromStorage(removedUrls);
@@ -6303,6 +6588,7 @@ function ProductDetailModal({
         title: editTitle.trim(),
         category: normalizedCat,
         price: numericPrice,
+        condition_grade: editGrade || null,
         status: normalizedStat,
         description: editDescription.trim(),
         image_url: finalImageUrl,
@@ -6332,6 +6618,7 @@ function ProductDetailModal({
     setEditPrice(
       product.price && product.price > 0 ? String(product.price) : ""
     );
+    setEditGrade(product.condition_grade || PRODUCT_CONDITION_GRADES[1]);
     setEditStatus(normalizeProductStatus(product.status));
     setEditDescription(product.description || "");
     setIsEditing(false);
@@ -6362,7 +6649,7 @@ function ProductDetailModal({
 
   const inquiryParams = new URLSearchParams({
     write: "1",
-    type: "구매 문의",
+    type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
     productId: String(product.id),
     title: `[상품문의] ${product.title}`,
     category: categoryLabel,
@@ -6385,7 +6672,7 @@ function ProductDetailModal({
         <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] flex flex-col overflow-hidden max-h-[90vh] w-full">
           {/* 모달 상단 헤더 */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {!isEditing ? (
                 <>
                   <span className="text-[12px] font-bold text-[#4B5260] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
@@ -6395,6 +6682,11 @@ function ProductDetailModal({
                     status={product.status}
                     createdAt={product.created_at}
                   />
+                  {product.condition_grade && (
+                    <span className="rounded-sm border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                      {product.condition_grade}
+                    </span>
+                  )}
                 </>
               ) : (
                 <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-sm">
@@ -6403,7 +6695,13 @@ function ProductDetailModal({
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              {!isEditing && (
+                <CopyPromoPostButton
+                  product={product}
+                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1.5 text-[11.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                />
+              )}
               {isAdmin && !isEditing && (
                 <>
                   <button
@@ -6460,8 +6758,7 @@ function ProductDetailModal({
                     </div>
                   )}
 
-                  {displayImages[0] && (
-                    <div className="absolute top-3 right-3 bg-black/65 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
+                  {displayImages[0] && (                    <div className="absolute top-3 right-3 bg-black/65 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
                       <Icon d={ICON.search} className="w-3.5 h-3.5" />
                       <span>클릭하여 확대</span>
                     </div>
@@ -6644,13 +6941,13 @@ function ProductDetailModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="hb-label">카테고리</label>
                       <select
                         value={editCategory}
                         onChange={(e) => setEditCategory(e.target.value)}
-                        className="hb-input mt-1 text-[14px] font-semibold"
+                        className="hb-input mt-1 text-[13.5px] font-semibold"
                       >
                         {PRODUCT_CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -6664,11 +6961,25 @@ function ProductDetailModal({
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="hb-input mt-1 text-[14px] font-semibold"
+                        className="hb-input mt-1 text-[13.5px] font-semibold"
                       >
                         <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                         <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
                         <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="hb-label">상태 등급</label>
+                      <select
+                        value={editGrade}
+                        onChange={(e) => setEditGrade(e.target.value)}
+                        className="hb-input mt-1 text-[13.5px] font-semibold"
+                      >
+                        {PRODUCT_CONDITION_GRADES.map((g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -6717,6 +7028,18 @@ function ProductDetailModal({
                     <h2 className="text-[20px] sm:text-[22px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
                       {product.title}
                     </h2>
+                    {specCapsules.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {specCapsules.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {modelName && (
                       <p className="mt-1.5 text-[13px] font-semibold text-[#4B5260]">
                         모델명:{" "}
@@ -6737,7 +7060,7 @@ function ProductDetailModal({
                           판매완료
                         </p>
                       ) : hasProductPrice(product.price) ? (
-                        <p className="text-[24px] sm:text-[26px] font-bold tracking-tight text-[#D9531E]">
+                        <p className="text-[24px] sm:text-[26px] font-bold tracking-tight text-[#D9531E] tabular-nums">
                           {formatProductPrice(product.price, categoryLabel)}
                         </p>
                       ) : (
@@ -6753,7 +7076,7 @@ function ProductDetailModal({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[12.5px] font-semibold text-[#6B7280]">
+                      <span className="text-[12.5px] font-semibold text-[#6B7280] tabular-nums">
                         조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회
                       </span>
                       <Link
@@ -6765,6 +7088,19 @@ function ProductDetailModal({
                     </div>
                   </div>
 
+                  {!sold && (
+                    <QuoteBasketButton
+                      item={{
+                        id: product.id,
+                        title: product.title,
+                        category: categoryLabel,
+                        price: product.price,
+                        modelName,
+                        imageUrl: images[0] || null,
+                      }}
+                    />
+                  )}
+
                   {/* 핵심 가치 아이콘 바 (Trust Micro-strip) */}
                   <ProductTrustMicroStrip category={categoryLabel} />
 
@@ -6772,14 +7108,99 @@ function ProductDetailModal({
                     <AirconSetGuideBanner variant="card" className="mt-4" />
                   )}
 
+                  {/* 구조화된 제품 사양 및 상태 설명 (parseProductDescription 적용) */}
                   {product.description && (
-                    <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
-                      <span className="text-[12px] font-bold text-[#6B7280] block mb-1.5">
-                        제품 규격 및 상세 설명
-                      </span>
-                      <p className="text-[14px] text-[#1F2530] whitespace-pre-wrap leading-relaxed">
-                        {product.description}
-                      </p>
+                    <div className="space-y-4">
+                      {parsedDesc.hasStructuredSections ? (
+                        <>
+                          {parsedDesc.summary.length > 0 && (
+                            <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-4 text-[13.5px] leading-relaxed text-[#2D333F]">
+                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-1.5 flex items-center gap-1.5">
+                                <Icon
+                                  d={ICON.check}
+                                  className="h-4 w-4 text-[#D9531E]"
+                                />
+                                <span>한눈에 보는 제품 정보</span>
+                              </h3>
+                              {parsedDesc.summary.map((line, i) => (
+                                <p
+                                  key={i}
+                                  className="mt-1 first:mt-0 leading-relaxed text-[#3E4756]"
+                                >
+                                  {line}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+
+                          {parsedDesc.specs.length > 0 && (
+                            <div className="rounded-md border border-[#E5E2DC] bg-white p-4">
+                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
+                                주요 규격 및 사양
+                              </h3>
+                              <dl className="divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-[13.5px]">
+                                {parsedDesc.specs.map((s, i) => (
+                                  <div
+                                    key={s.label + i}
+                                    className="py-2 flex justify-between gap-4"
+                                  >
+                                    <dt className="font-medium text-[#646E7E] shrink-0">
+                                      {s.label}
+                                    </dt>
+                                    <dd className="font-semibold text-[#0E1A2B] text-right">
+                                      {s.value}
+                                    </dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </div>
+                          )}
+
+                          {parsedDesc.features.length > 0 && (
+                            <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-4">
+                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
+                                제품 특징
+                              </h3>
+                              <ul className="space-y-1.5 text-[13.5px] leading-relaxed text-[#3E4756]">
+                                {parsedDesc.features.map((f, i) => (
+                                  <li key={i} className="flex items-start gap-2">
+                                    <span className="text-[#D9531E] font-bold">
+                                      •
+                                    </span>
+                                    <span>{f}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {parsedDesc.checkPoints.length > 0 && (
+                            <div className="border-l-2 border-[#D9531E] bg-[#FAF9F7] pl-3.5 pr-3 py-2.5 text-[13px] text-[#3E4756]">
+                              <strong className="block font-bold text-[#0E1A2B] mb-1">
+                                구매 및 설치 전 확인사항
+                              </strong>
+                              {parsedDesc.checkPoints.map((c, i) => (
+                                <p key={i}>• {c}</p>
+                              ))}
+                            </div>
+                          )}
+
+                          {parsedDesc.rawRest.length > 0 && (
+                            <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8] text-[13.5px] leading-relaxed text-[#0E1A2B] whitespace-pre-line">
+                              {parsedDesc.rawRest.join("\n")}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
+                          <span className="text-[12px] font-bold text-[#6B7280] block mb-1.5">
+                            제품 규격 및 상세 설명
+                          </span>
+                          <p className="text-[14px] text-[#1F2530] whitespace-pre-wrap leading-relaxed">
+                            {product.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -6804,7 +7225,7 @@ function ProductDetailModal({
             </div>
           </div>
 
-          {/* 모달 하단 액션 바 */}
+          {/* 모달 하단 액션 바 (전화 / 문자 / 카톡 / 온라인 문의) */}
           <div className="p-4 border-t border-[#E4E0D8] bg-white shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2.5">
@@ -6826,26 +7247,41 @@ function ProductDetailModal({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <a
                   href={telHref(STORE.tel)}
-                  className="hb-btn-primary h-11 text-[13.5px]"
+                  className="hb-btn-primary h-11 text-[13px]"
                 >
-                  <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" /> 전화 문의
+                  <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
+                  <span>전화 문의</span>
+                </a>
+                <a
+                  href={smsHref(
+                    STORE.mobile,
+                    `[한밭중고전자 상품문의] ${product.title}${
+                      modelName ? ` (${modelName})` : ""
+                    } 재고 및 배송·설치 견적 문의드립니다.`
+                  )}
+                  className="hb-btn-outline h-11 text-[13px]"
+                >
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <span>문자 문의</span>
                 </a>
                 <a
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 text-[13.5px]"
+                  className="hb-btn-kakao h-11 text-[13px]"
                 >
-                  <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+                  <Icon d={ICON.chat} className="w-4 h-4" />
+                  <span>카톡 상담</span>
                 </a>
                 <Link
                   href={inquiryHref}
-                  className="hb-btn-outline h-11 text-[13.5px]"
+                  className="hb-btn-outline h-11 text-[13px]"
                 >
-                  <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" /> 온라인 문의
+                  <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <span>온라인 문의</span>
                 </Link>
               </div>
             )}
@@ -6961,6 +7397,9 @@ export default function GalleryPage() {
   const [productPrice, setProductPrice] = useState("");
   const [productStatus, setProductStatus] = useState<string>(
     PRODUCT_STATUS.SELLING
+  );
+  const [productGrade, setProductGrade] = useState<string>(
+    PRODUCT_CONDITION_GRADES[1]
   );
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
@@ -7427,6 +7866,8 @@ export default function GalleryPage() {
     setProductModel("");
     setProductDescription("");
     setProductPrice("");
+    setProductCategory(PRODUCT_CATEGORIES[0]);
+    setProductGrade(PRODUCT_CONDITION_GRADES[1]);
     setProductStatus(PRODUCT_STATUS.SELLING);
     setProductFiles([]);
     setProductPreviews([]);
@@ -7744,6 +8185,7 @@ export default function GalleryPage() {
         description: finalDesc,
         image_url: uploadedUrls.join(","),
         price: parsedPrice,
+        condition_grade: productGrade || null,
         status: normalizeProductStatus(productStatus),
         views: 0,
       });
@@ -8455,14 +8897,14 @@ export default function GalleryPage() {
                 </div>
               )}
 
-              {/* 3. 카테고리 및 판매 상태 */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* 3. 카테고리 · 판매 상태 · 상태 등급 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="hb-label">표준 카테고리 *</label>
                   <select
                     value={productCategory}
                     onChange={(e) => setProductCategory(e.target.value)}
-                    className="hb-input mt-1 font-semibold"
+                    className="hb-input mt-1 font-semibold text-[13.5px]"
                   >
                     {PRODUCT_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -8476,11 +8918,25 @@ export default function GalleryPage() {
                   <select
                     value={productStatus}
                     onChange={(e) => setProductStatus(e.target.value)}
-                    className="hb-input mt-1 font-semibold"
+                    className="hb-input mt-1 font-semibold text-[13.5px]"
                   >
                     <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                     <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
                     <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="hb-label">상태 등급</label>
+                  <select
+                    value={productGrade}
+                    onChange={(e) => setProductGrade(e.target.value)}
+                    className="hb-input mt-1 font-semibold text-[13.5px]"
+                  >
+                    {PRODUCT_CONDITION_GRADES.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -10412,7 +10868,7 @@ export const metadata: Metadata = {
     siteName: STORE.name,
     title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
     description:
-      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 8개월, 일반·업소용 가전 4개월 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
     images: [
       {
         url: "/og-image.jpg",
@@ -10434,7 +10890,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
     description:
-      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 8개월, 일반·업소용 가전 4개월 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
     images: ["/og-image.jpg"],
   },
   verification: {
@@ -10509,7 +10965,7 @@ export default function RootLayout({
     name: STORE.name,
     legalName: STORE.legalName,
     description:
-      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 에어컨·냉난방기 8개월, 일반 및 업소용 가전 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
+      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
     image: [`${STORE.url}/og-image.jpg`, `${STORE.url}/main-bg2.png`],
     logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
@@ -10561,12 +11017,12 @@ export default function RootLayout({
       itemListElement: [
         {
           "@type": "OfferCatalog",
-          name: "에어컨 · 냉난방기 (무상 A/S 8개월 보증)",
+          name: "에어컨 · 냉난방기 (계약 조건별 최대 8개월 보증)",
           url: `${STORE.url}/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0`,
         },
         {
           "@type": "OfferCatalog",
-          name: "가정용 냉장고 · 김치냉장고 (무상 A/S 4개월 보증)",
+          name: "가정용 냉장고 · 김치냉장고 (계약 조건별 최대 4개월 보증)",
           url: `${STORE.url}/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0`,
         },
         {
@@ -10819,7 +11275,7 @@ export async function GET() {
 
 ## 2. 일반 개인간 중고거래(당근 등) 대비 ${STORE.name}의 5대 차별점
 
-1. **명확한 무상 A/S 책임 보증**: 중고 에어컨·냉난방기 **8개월**, 냉장고·세탁기·업소용 기기 등 일반 가전 **4개월** 무상 A/S 보장 (계약 조건 기준)
+1. **명확한 사후 A/S 약정 보증**: 품목 및 계약 조건에 따라 에어컨·냉난방기 **최대 8개월**, 냉장고·세탁기 등 일반 가전 **최대 4개월** 무상 A/S 약정 보장 (거래 형태 및 계약 조건 기준, TV·소형가전 등 기타 품목은 사전 협의)
 2. **전문 엔지니어 분해 고압 세척 및 검수**: 입고 후 분해 살균 고압 세척, 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 출고
 3. **전문 기사 직접 운반 · 수평/배관 설치**: 구매자가 직접 옮길 필요 없이 대전·세종·충청권 당일/익일 직배송 및 전국 화물·방문 설치 지원
 4. **구매 + 기존 가전 보상매입 원스톱 진행**: 새 중고가전 설치 시 기존 가전 수거·차액 정산(보상판매) 동시 진행 가능
@@ -10998,8 +11454,8 @@ const USP = [
     no: "02",
     tag: "책임 보증 약정",
     t: "명확한 무상 A/S 책임 보증",
-    d: "중고 구매 후 고장 걱정을 덜어드리도록 에어컨·냉난방기 8개월, 냉장고·세탁기 및 일반 가전 4개월 무상 A/S를 보증합니다. (계약 조건별 약정)",
-    highlight: "냉난방기 8개월 · 일반가전 4개월 보증",
+    d: "중고 구매 후 고장 걱정을 덜어드리도록 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 냉장고·세탁기 등 일반 가전 최대 4개월 무상 A/S를 약정 지원합니다. (거래 형태 및 계약 조건 기준)",
+    highlight: "계약 조건별 에어컨 최대 8개월 · 가전 4개월",
   },
   {
     no: "03",
@@ -11054,7 +11510,7 @@ const FAQS = [
   {
     tag: "A/S 접수 · 보증 범위",
     q: "사용 중 문제가 생기면 무상 A/S는 어떻게 신청하며, 보증 기준은 무엇인가요?",
-    a: "대표전화(042-523-8179)나 카카오톡 채널로 증상을 알려주시면 담당 기사가 증상을 확인한 뒤 방문 수리 또는 동일 급 제품 교환으로 신속히 처리해 드립니다. 정상적인 사용 중 발생한 기기 기능 불량(냉매 누설, 콤프레샤·모터 불량 등)은 보증 기간 내 무상 처리되며, 고객 과실로 인한 파손이나 단순 소모품은 실비로 안내됩니다.",
+    a: "대표전화(042-523-8179)나 카카오톡 채널로 증상을 알려주시면 담당 기사가 증상을 확인한 뒤 방문 수리 또는 동일 급 제품 교환으로 신속히 처리해 드립니다. 정상적인 사용 중 발생한 기기 기능 불량(냉매 누설, 콤프레샤·모터 불량 등)은 약정된 보증 기간 내 무상 처리되며, 고객 과실로 인한 파손이나 단순 소모품은 실비로 안내됩니다. (※ 무상 A/S 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 상이할 수 있으며, 거래 시 계약 조건을 기준으로 적용됩니다.)",
   },
   {
     tag: "보상판매 · 기존 가전 철거",
@@ -13398,7 +13854,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 ]]>
     </file>
-    <file path="components/home/ai-recommendation-guide-section.tsx" lines="213">
+    <file path="components/home/ai-recommendation-guide-section.tsx" lines="214">
       <![CDATA[
 import React from "react";
 import Link from "next/link";
@@ -13409,7 +13865,8 @@ const COMPARISON_ROWS = [
   {
     criteria: "고장 시 무상 A/S 보증",
     personal: "보증 없음 (거래 직후 고장 시 구매자 전액 부담)",
-    hanbat: "냉난방기 8개월 · 일반/업소용 가전 4개월 무상 A/S 책임 보증",
+    hanbat:
+      "품목 및 계약 조건에 따라 최대 8개월(에어컨) · 최대 4개월(가전) 무상 A/S 약정 보증",
   },
   {
     criteria: "위생 및 내부 작동 검수",
@@ -14795,7 +15252,7 @@ export const HOME_FAQS = [
   },
   {
     q: "구매한 중고가전이 고장 나면 A/S 보증은 어떻게 되나요?",
-    a: "에어컨 및 냉난방기는 8개월, 그 외 냉장고·세탁기·업소용 기기 등은 4개월 무상 A/S를 기본 보장합니다. (단, 계약 조건 및 품목 특성에 따라 보증 기간과 범위는 사전 안내 후 달라질 수 있습니다.)",
+    a: "에어컨 및 냉난방기는 계약 조건별 최대 8개월, 냉장고·세탁기 등 일반 가전은 최대 4개월까지 무상 A/S를 약정 지원합니다. 단, 세부 보증 기간과 적용 범위는 품목 특성(TV, 소형가전, 특가 매물 등) 및 판매 계약 약정에 따라 상이할 수 있으므로 구매 상담 시 투명하게 사전 안내해 드립니다.",
   },
   {
     q: "중고가전 매입 시 대금 지급은 언제 이루어지나요?",
@@ -14889,35 +15346,41 @@ export function FaqSection() {
 }
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="520">
+    <file path="components/home/featured-products-section.tsx" lines="653">
       <![CDATA[
+// 파일 경로: components/home/featured-products-section.tsx
 "use client";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  extractModelName,
+  extractSpecCapsules,
   formatProductPrice,
   getProductStatusLabel,
   isProductSold,
   normalizeProductCategory,
   normalizeProductStatus,
+  parseProductDescription,
   PRODUCT_CATEGORIES,
+  smsHref,
   splitImages,
   STORE,
   telHref,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
 import {
   supabase,
   isAuthorizedAdminUser,
   getAdminAuthHeaders,
 } from "../../lib/supabase";
+import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
 import {
   ProductCard,
   ProductTrustMicroStrip,
   type ProductItem,
 } from "../products/product-card";
+import { QuoteBasketButton } from "../products/product-detail-gallery";
 
 const QUICK_FILTER_TABS = ["전체", ...PRODUCT_CATEGORIES] as const;
 
@@ -14975,6 +15438,7 @@ export function FeaturedProductsSection({
     try {
       const { data: authData } = await supabase.auth.getSession();
       if (isAuthorizedAdminUser(authData.session?.user)) return;
+
       const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
       const viewedList = JSON.parse(viewedStr) as string[];
       if (viewedList.includes(item.id)) return;
@@ -14987,8 +15451,8 @@ export function FeaturedProductsSection({
 
       const authHeaders = await getAdminAuthHeaders();
       const res = await fetch(`/api/products/${item.id}/view`, {
-        headers: authHeaders,
         method: "POST",
+        headers: authHeaders,
       });
       if (!res.ok) {
         setViewOverrides((prev) => ({ ...prev, [item.id]: currentViews }));
@@ -15027,6 +15491,16 @@ export function FeaturedProductsSection({
   const selectedCategory = selected
     ? normalizeProductCategory(selected.category)
     : "기타";
+  const selectedModelName = selected
+    ? extractModelName(selected.description, selected.title)
+    : null;
+  const selectedCapsules = selected
+    ? extractSpecCapsules(selected.title, selected.description, 4)
+    : [];
+  const selectedParsedDesc = useMemo(
+    () => parseProductDescription(selected?.description),
+    [selected?.description]
+  );
 
   return (
     <section
@@ -15117,7 +15591,6 @@ export function FeaturedProductsSection({
             ))}
           </div>
         ) : error ? (
-          /* 오류 상태 */
           <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 sm:p-10 text-center">
             <p className="text-[16px] font-bold text-[#0E1A2B]">
               실시간 상품 목록을 불러오지 못했습니다.
@@ -15134,7 +15607,6 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : products.length === 0 ? (
-          /* 빈 상태 */
           <div className="mt-8 flex flex-col items-start justify-between gap-6 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
               <p className="text-[17px] font-bold text-[#0E1A2B]">
@@ -15162,7 +15634,6 @@ export function FeaturedProductsSection({
             </div>
           </div>
         ) : filteredProducts.length === 0 ? (
-          /* 선택 카테고리에 추천 매물이 없을 때 */
           <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 text-center">
             <p className="text-[15.5px] font-bold text-[#0E1A2B]">
               최근 등록된 8개 추천 매물 중 &lsquo;{activeCategory}&rsquo; 품목이 없습니다.
@@ -15187,7 +15658,6 @@ export function FeaturedProductsSection({
             </div>
           </div>
         ) : (
-          /* 정상 상품 그리드 */
           <>
             <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
               {filteredProducts.map((product) => {
@@ -15205,7 +15675,6 @@ export function FeaturedProductsSection({
               })}
             </div>
 
-            {/* 하단 쇼룸 안내 바 */}
             <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260]">
               <p className="break-keep">
                 <strong className="text-[#0E1A2B]">
@@ -15235,7 +15704,7 @@ export function FeaturedProductsSection({
         )}
       </div>
 
-      {/* 빠른 상품 상세 미리보기 모달 */}
+      {/* 빠른 상품 상세 미리보기 모달 (구조화 사양 파서 + 견적함 + 문자 문의 통합) */}
       {selected && (
         <Modal
           open={!!selected}
@@ -15245,7 +15714,7 @@ export function FeaturedProductsSection({
         >
           <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg border border-[#E4E0D8] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-5 py-3.5 bg-white">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <span className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 text-[11.5px] font-bold text-[#4B5260]">
                   {selectedCategory}
                 </span>
@@ -15256,6 +15725,11 @@ export function FeaturedProductsSection({
                 >
                   {getProductStatusLabel(selected.status)}
                 </span>
+                {selected.condition_grade && (
+                  <span className="rounded-sm border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11px] font-bold text-[#D9531E]">
+                    {selected.condition_grade}
+                  </span>
+                )}
               </div>
               <button
                 type="button"
@@ -15329,9 +15803,31 @@ export function FeaturedProductsSection({
               )}
 
               <div className="p-4 sm:p-6 space-y-4">
-                <h3 className="text-[18px] sm:text-[20px] font-bold text-[#0E1A2B] leading-snug">
-                  {selected.title}
-                </h3>
+                <div>
+                  <h3 className="text-[18px] sm:text-[20px] font-bold text-[#0E1A2B] leading-snug">
+                    {selected.title}
+                  </h3>
+                  {selectedCapsules.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {selectedCapsules.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {selectedModelName && (
+                    <p className="mt-1.5 text-[12.5px] font-semibold text-[#4B5260]">
+                      모델명:{" "}
+                      <span className="font-mono text-[#0E1A2B]">
+                        {selectedModelName}
+                      </span>
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
                   <div>
@@ -15354,42 +15850,136 @@ export function FeaturedProductsSection({
                     </span>
                     <Link
                       href={`/${selected.id}`}
-                      className="text-[13px] font-bold text-[#0E1A2B] underline underline-offset-4 hover:text-[#D9531E]"
+                      className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                     >
-                      개별 상세페이지 이동 →
+                      개별 상세페이지 →
                     </Link>
                   </div>
                 </div>
 
+                {!selectedSold && (
+                  <QuoteBasketButton
+                    item={{
+                      id: selected.id,
+                      title: selected.title,
+                      category: selectedCategory,
+                      price: selected.price,
+                      modelName: selectedModelName,
+                      imageUrl: selectedImages[0] || null,
+                    }}
+                  />
+                )}
+
                 <ProductTrustMicroStrip category={selectedCategory} />
 
+                {/* 구조화된 제품 사양 및 설명 렌더링 ([한눈에 보는 제품 정보] 등 대괄호 파싱) */}
                 {selected.description && (
-                  <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
-                    <span className="block text-[12px] font-bold text-[#6B7280] mb-1.5">
-                      제품 규격 및 상세 설명
-                    </span>
-                    <p className="whitespace-pre-line text-[13.5px] sm:text-[14px] leading-relaxed text-[#1F2530]">
-                      {selected.description}
-                    </p>
+                  <div className="space-y-3.5">
+                    {selectedParsedDesc.hasStructuredSections ? (
+                      <>
+                        {selectedParsedDesc.summary.length > 0 && (
+                          <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 text-[13.5px] leading-relaxed text-[#3E4756]">
+                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-1">
+                              ✔ 한눈에 보는 제품 정보
+                            </strong>
+                            {selectedParsedDesc.summary.map((line, i) => (
+                              <p key={i} className="mt-1 first:mt-0">
+                                {line}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+
+                        {selectedParsedDesc.specs.length > 0 && (
+                          <div className="rounded-md border border-[#E5E2DC] bg-white p-3.5">
+                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-2">
+                              주요 규격 및 사양
+                            </strong>
+                            <dl className="divide-y divide-[#F0EDE7] text-[13px]">
+                              {selectedParsedDesc.specs.map((s, i) => (
+                                <div
+                                  key={s.label + i}
+                                  className="py-1.5 flex justify-between gap-4"
+                                >
+                                  <dt className="font-medium text-[#646E7E] shrink-0">
+                                    {s.label}
+                                  </dt>
+                                  <dd className="font-semibold text-[#0E1A2B] text-right">
+                                    {s.value}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </div>
+                        )}
+
+                        {selectedParsedDesc.features.length > 0 && (
+                          <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-3.5">
+                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-1.5">
+                              제품 특징
+                            </strong>
+                            <ul className="space-y-1 text-[13px] leading-relaxed text-[#3E4756]">
+                              {selectedParsedDesc.features.map((f, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <span className="text-[#D9531E] font-bold">
+                                    •
+                                  </span>
+                                  <span>{f}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {selectedParsedDesc.rawRest.length > 0 && (
+                          <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 text-[13.5px] whitespace-pre-line leading-relaxed text-[#1F2530]">
+                            {selectedParsedDesc.rawRest.join("\n")}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
+                        <span className="block text-[12px] font-bold text-[#6B7280] mb-1.5">
+                          제품 규격 및 상세 설명
+                        </span>
+                        <p className="whitespace-pre-line text-[13.5px] sm:text-[14px] leading-relaxed text-[#1F2530]">
+                          {selected.description}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-primary h-11 text-[13.5px]"
+                className="hb-btn-primary h-11 text-[13px]"
               >
-                <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+                <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
+                <span>전화 문의</span>
+              </a>
+              <a
+                href={smsHref(
+                  STORE.mobile,
+                  `[한밭중고전자 상품문의] ${selected.title}${
+                    selectedModelName ? ` (${selectedModelName})` : ""
+                  } 재고 및 견적 문의드립니다.`
+                )}
+                className="hb-btn-outline h-11 text-[13px]"
+              >
+                <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <span>문자 문의</span>
               </a>
               <a
                 href={STORE.kakaoChat}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hb-btn-kakao h-11 text-[13.5px]"
+                className="hb-btn-kakao h-11 text-[13px]"
               >
-                <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+                <Icon d={ICON.chat} className="w-4 h-4" />
+                <span>카톡 상담</span>
               </a>
               <button
                 type="button"
@@ -15398,9 +15988,10 @@ export function FeaturedProductsSection({
                   setSelected(null);
                   onInquireProduct(title);
                 }}
-                className="hb-btn-outline h-11 text-[13.5px]"
+                className="hb-btn-outline h-11 text-[13px]"
               >
-                <Icon d={ICON.pen} className="w-4 h-4" /> 온라인 문의
+                <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <span>온라인 문의</span>
               </button>
             </div>
           </div>
@@ -15409,7 +16000,6 @@ export function FeaturedProductsSection({
     </section>
   );
 }
-
 
 ]]>
     </file>
@@ -16340,7 +16930,7 @@ export function ServiceSplitSection({
 }
 ]]>
     </file>
-    <file path="components/home/trust-section.tsx" lines="116">
+    <file path="components/home/trust-section.tsx" lines="117">
       <![CDATA[
 import React from "react";
 import { STORE } from "../../lib/site";
@@ -16359,7 +16949,8 @@ const VERIFIED_FACTS = [
   },
   {
     title: "명확한 무상 A/S 기준",
-    desc: "에어컨·냉난방기 8개월, 그 외 품목 4개월 보증(계약 조건에 따라 상이할 수 있음).",
+    desc:
+      "에어컨 최대 8개월, 일반가전 최대 4개월 보증 (품목 특성 및 계약 조건에 따라 상이).",
   },
   {
     title: "대량 거래 · 세금계산서 발행",
@@ -18766,7 +19357,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="345">
+    <file path="components/products/product-card.tsx" lines="354">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -18811,19 +19402,28 @@ export function ProductTrustMicroStrip({
 }) {
   const normalizedCategory = normalizeProductCategory(category);
   const isHvac = normalizedCategory === "에어컨/냉난방기";
+  const isMajorAppliance =
+    normalizedCategory === "냉장고" || normalizedCategory === "세탁기/건조기";
+
+  const warrantyHighlight = isHvac
+    ? "에어컨류 계약조건별 최대 8개월"
+    : isMajorAppliance
+    ? "주요 가전 계약조건별 최대 4개월"
+    : "품목 및 계약조건에 따라 협의 적용";
 
   const items = [
     {
       title: "세척·작동 점검",
-      desc: "입고 후 작동 테스트 및 고압 세척 완료",
+      desc:
+        isHvac || isMajorAppliance
+          ? "입고 후 작동 테스트 및 고압 세척 완료"
+          : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
     },
     {
-      title: "무상 A/S 보증",
-      desc: "에어컨·냉난방기 8개월 / 그 외 가전 4개월",
-      highlight: isHvac
-        ? "해당 품목 8개월 보증 (계약조건 기준)"
-        : "해당 품목 4개월 보증 (계약조건 기준)",
+      title: "사후 A/S 안내",
+      desc: "계약 조건에 따라 보증 기간 차등 적용",
+      highlight: warrantyHighlight,
     },
     {
       title: "세금계산서 발행",
@@ -20744,7 +21344,7 @@ export function generatePromoPostText(product: {
     "────────────────────────────",
     `✅ ${STORE.name} 안심 거래 원칙 (SINCE ${STORE.since})`,
     "• 입고 후 분해 세척·정비 및 작동 검수를 마친 실매물입니다.",
-    "• 무상 A/S 보장: 에어컨·냉난방기 8개월 / 그 외 제품 4개월 (계약 조건에 따라 상이)",
+    "• 사후 A/S 보증: 품목 및 계약 조건에 따라 상이 (에어컨 최대 8개월 / 가전 최대 4개월, 사전 협의 기준)",
     "• 대전·세종·충청권 및 전국 배송·설치 상담 / 세금계산서 발행 가능",
     "",
     `📍 매장 위치: ${STORE.address} (${STORE.addressNote}, ${STORE.parking})`,

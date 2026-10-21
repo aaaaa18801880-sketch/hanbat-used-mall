@@ -1,30 +1,36 @@
+// 파일 경로: components/home/featured-products-section.tsx
 "use client";
 
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  extractModelName,
+  extractSpecCapsules,
   formatProductPrice,
   getProductStatusLabel,
   isProductSold,
   normalizeProductCategory,
   normalizeProductStatus,
+  parseProductDescription,
   PRODUCT_CATEGORIES,
+  smsHref,
   splitImages,
   STORE,
   telHref,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
 import {
   supabase,
   isAuthorizedAdminUser,
   getAdminAuthHeaders,
 } from "../../lib/supabase";
+import { Icon, ICON, Modal, SafeImg, SectionHeading } from "../../lib/ui";
 import {
   ProductCard,
   ProductTrustMicroStrip,
   type ProductItem,
 } from "../products/product-card";
+import { QuoteBasketButton } from "../products/product-detail-gallery";
 
 const QUICK_FILTER_TABS = ["전체", ...PRODUCT_CATEGORIES] as const;
 
@@ -82,6 +88,7 @@ export function FeaturedProductsSection({
     try {
       const { data: authData } = await supabase.auth.getSession();
       if (isAuthorizedAdminUser(authData.session?.user)) return;
+
       const viewedStr = sessionStorage.getItem("viewed_products") || "[]";
       const viewedList = JSON.parse(viewedStr) as string[];
       if (viewedList.includes(item.id)) return;
@@ -94,8 +101,8 @@ export function FeaturedProductsSection({
 
       const authHeaders = await getAdminAuthHeaders();
       const res = await fetch(`/api/products/${item.id}/view`, {
-        headers: authHeaders,
         method: "POST",
+        headers: authHeaders,
       });
       if (!res.ok) {
         setViewOverrides((prev) => ({ ...prev, [item.id]: currentViews }));
@@ -134,6 +141,16 @@ export function FeaturedProductsSection({
   const selectedCategory = selected
     ? normalizeProductCategory(selected.category)
     : "기타";
+  const selectedModelName = selected
+    ? extractModelName(selected.description, selected.title)
+    : null;
+  const selectedCapsules = selected
+    ? extractSpecCapsules(selected.title, selected.description, 4)
+    : [];
+  const selectedParsedDesc = useMemo(
+    () => parseProductDescription(selected?.description),
+    [selected?.description]
+  );
 
   return (
     <section
@@ -224,7 +241,6 @@ export function FeaturedProductsSection({
             ))}
           </div>
         ) : error ? (
-          /* 오류 상태 */
           <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 sm:p-10 text-center">
             <p className="text-[16px] font-bold text-[#0E1A2B]">
               실시간 상품 목록을 불러오지 못했습니다.
@@ -241,7 +257,6 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : products.length === 0 ? (
-          /* 빈 상태 */
           <div className="mt-8 flex flex-col items-start justify-between gap-6 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
               <p className="text-[17px] font-bold text-[#0E1A2B]">
@@ -269,7 +284,6 @@ export function FeaturedProductsSection({
             </div>
           </div>
         ) : filteredProducts.length === 0 ? (
-          /* 선택 카테고리에 추천 매물이 없을 때 */
           <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 text-center">
             <p className="text-[15.5px] font-bold text-[#0E1A2B]">
               최근 등록된 8개 추천 매물 중 &lsquo;{activeCategory}&rsquo; 품목이 없습니다.
@@ -294,7 +308,6 @@ export function FeaturedProductsSection({
             </div>
           </div>
         ) : (
-          /* 정상 상품 그리드 */
           <>
             <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
               {filteredProducts.map((product) => {
@@ -312,7 +325,6 @@ export function FeaturedProductsSection({
               })}
             </div>
 
-            {/* 하단 쇼룸 안내 바 */}
             <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260]">
               <p className="break-keep">
                 <strong className="text-[#0E1A2B]">
@@ -342,7 +354,7 @@ export function FeaturedProductsSection({
         )}
       </div>
 
-      {/* 빠른 상품 상세 미리보기 모달 */}
+      {/* 빠른 상품 상세 미리보기 모달 (구조화 사양 파서 + 견적함 + 문자 문의 통합) */}
       {selected && (
         <Modal
           open={!!selected}
@@ -352,7 +364,7 @@ export function FeaturedProductsSection({
         >
           <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg border border-[#E4E0D8] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-5 py-3.5 bg-white">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-1.5">
                 <span className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 text-[11.5px] font-bold text-[#4B5260]">
                   {selectedCategory}
                 </span>
@@ -363,6 +375,11 @@ export function FeaturedProductsSection({
                 >
                   {getProductStatusLabel(selected.status)}
                 </span>
+                {selected.condition_grade && (
+                  <span className="rounded-sm border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11px] font-bold text-[#D9531E]">
+                    {selected.condition_grade}
+                  </span>
+                )}
               </div>
               <button
                 type="button"
@@ -436,9 +453,31 @@ export function FeaturedProductsSection({
               )}
 
               <div className="p-4 sm:p-6 space-y-4">
-                <h3 className="text-[18px] sm:text-[20px] font-bold text-[#0E1A2B] leading-snug">
-                  {selected.title}
-                </h3>
+                <div>
+                  <h3 className="text-[18px] sm:text-[20px] font-bold text-[#0E1A2B] leading-snug">
+                    {selected.title}
+                  </h3>
+                  {selectedCapsules.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {selectedCapsules.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {selectedModelName && (
+                    <p className="mt-1.5 text-[12.5px] font-semibold text-[#4B5260]">
+                      모델명:{" "}
+                      <span className="font-mono text-[#0E1A2B]">
+                        {selectedModelName}
+                      </span>
+                    </p>
+                  )}
+                </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
                   <div>
@@ -461,42 +500,136 @@ export function FeaturedProductsSection({
                     </span>
                     <Link
                       href={`/${selected.id}`}
-                      className="text-[13px] font-bold text-[#0E1A2B] underline underline-offset-4 hover:text-[#D9531E]"
+                      className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                     >
-                      개별 상세페이지 이동 →
+                      개별 상세페이지 →
                     </Link>
                   </div>
                 </div>
 
+                {!selectedSold && (
+                  <QuoteBasketButton
+                    item={{
+                      id: selected.id,
+                      title: selected.title,
+                      category: selectedCategory,
+                      price: selected.price,
+                      modelName: selectedModelName,
+                      imageUrl: selectedImages[0] || null,
+                    }}
+                  />
+                )}
+
                 <ProductTrustMicroStrip category={selectedCategory} />
 
+                {/* 구조화된 제품 사양 및 설명 렌더링 ([한눈에 보는 제품 정보] 등 대괄호 파싱) */}
                 {selected.description && (
-                  <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
-                    <span className="block text-[12px] font-bold text-[#6B7280] mb-1.5">
-                      제품 규격 및 상세 설명
-                    </span>
-                    <p className="whitespace-pre-line text-[13.5px] sm:text-[14px] leading-relaxed text-[#1F2530]">
-                      {selected.description}
-                    </p>
+                  <div className="space-y-3.5">
+                    {selectedParsedDesc.hasStructuredSections ? (
+                      <>
+                        {selectedParsedDesc.summary.length > 0 && (
+                          <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 text-[13.5px] leading-relaxed text-[#3E4756]">
+                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-1">
+                              ✔ 한눈에 보는 제품 정보
+                            </strong>
+                            {selectedParsedDesc.summary.map((line, i) => (
+                              <p key={i} className="mt-1 first:mt-0">
+                                {line}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+
+                        {selectedParsedDesc.specs.length > 0 && (
+                          <div className="rounded-md border border-[#E5E2DC] bg-white p-3.5">
+                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-2">
+                              주요 규격 및 사양
+                            </strong>
+                            <dl className="divide-y divide-[#F0EDE7] text-[13px]">
+                              {selectedParsedDesc.specs.map((s, i) => (
+                                <div
+                                  key={s.label + i}
+                                  className="py-1.5 flex justify-between gap-4"
+                                >
+                                  <dt className="font-medium text-[#646E7E] shrink-0">
+                                    {s.label}
+                                  </dt>
+                                  <dd className="font-semibold text-[#0E1A2B] text-right">
+                                    {s.value}
+                                  </dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </div>
+                        )}
+
+                        {selectedParsedDesc.features.length > 0 && (
+                          <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-3.5">
+                            <strong className="block text-[13px] font-bold text-[#0E1A2B] mb-1.5">
+                              제품 특징
+                            </strong>
+                            <ul className="space-y-1 text-[13px] leading-relaxed text-[#3E4756]">
+                              {selectedParsedDesc.features.map((f, i) => (
+                                <li key={i} className="flex items-start gap-2">
+                                  <span className="text-[#D9531E] font-bold">
+                                    •
+                                  </span>
+                                  <span>{f}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {selectedParsedDesc.rawRest.length > 0 && (
+                          <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 text-[13.5px] whitespace-pre-line leading-relaxed text-[#1F2530]">
+                            {selectedParsedDesc.rawRest.join("\n")}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-4">
+                        <span className="block text-[12px] font-bold text-[#6B7280] mb-1.5">
+                          제품 규격 및 상세 설명
+                        </span>
+                        <p className="whitespace-pre-line text-[13.5px] sm:text-[14px] leading-relaxed text-[#1F2530]">
+                          {selected.description}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-primary h-11 text-[13.5px]"
+                className="hb-btn-primary h-11 text-[13px]"
               >
-                <Icon d={ICON.phone} className="w-4 h-4" /> 전화 문의
+                <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
+                <span>전화 문의</span>
+              </a>
+              <a
+                href={smsHref(
+                  STORE.mobile,
+                  `[한밭중고전자 상품문의] ${selected.title}${
+                    selectedModelName ? ` (${selectedModelName})` : ""
+                  } 재고 및 견적 문의드립니다.`
+                )}
+                className="hb-btn-outline h-11 text-[13px]"
+              >
+                <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <span>문자 문의</span>
               </a>
               <a
                 href={STORE.kakaoChat}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hb-btn-kakao h-11 text-[13.5px]"
+                className="hb-btn-kakao h-11 text-[13px]"
               >
-                <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+                <Icon d={ICON.chat} className="w-4 h-4" />
+                <span>카톡 상담</span>
               </a>
               <button
                 type="button"
@@ -505,9 +638,10 @@ export function FeaturedProductsSection({
                   setSelected(null);
                   onInquireProduct(title);
                 }}
-                className="hb-btn-outline h-11 text-[13.5px]"
+                className="hb-btn-outline h-11 text-[13px]"
               >
-                <Icon d={ICON.pen} className="w-4 h-4" /> 온라인 문의
+                <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <span>온라인 문의</span>
               </button>
             </div>
           </div>
@@ -516,4 +650,3 @@ export function FeaturedProductsSection({
     </section>
   );
 }
-

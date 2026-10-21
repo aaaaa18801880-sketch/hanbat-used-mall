@@ -11,6 +11,7 @@ import {
 import {
   STORE,
   telHref,
+  smsHref,
   splitImages,
   compressImage,
   rotateImageFile,
@@ -18,6 +19,7 @@ import {
   validateImageFiles,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
+  PRODUCT_CONDITION_GRADES,
   PRODUCT_STATUS,
   STORAGE_BUCKETS,
   isProductSold,
@@ -27,6 +29,8 @@ import {
   hasProductPrice,
   formatProductPrice,
   extractModelName,
+  extractSpecCapsules,
+  parseProductDescription,
   extractStorageFilesByBucket,
   trackEvent,
 } from "../../lib/site";
@@ -46,6 +50,10 @@ import {
   type ProductItem,
 } from "../../components/products/product-card";
 import { ProductStatusBadge } from "../../components/products/product-status-badge";
+import {
+  CopyPromoPostButton,
+  QuoteBasketButton,
+} from "../../components/products/product-detail-gallery";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
@@ -125,6 +133,9 @@ function ProductDetailModal({
   const [editPrice, setEditPrice] = useState(
     product.price && product.price > 0 ? String(product.price) : ""
   );
+  const [editGrade, setEditGrade] = useState<string>(
+    product.condition_grade || PRODUCT_CONDITION_GRADES[1]
+  );
   const [editStatus, setEditStatus] = useState<string>(
     normalizeProductStatus(product.status)
   );
@@ -163,6 +174,15 @@ function ProductDetailModal({
   const sold = isProductSold(currentStatus);
   const categoryLabel = normalizeProductCategory(product.category);
   const modelName = extractModelName(product.description, product.title);
+  const specCapsules = extractSpecCapsules(
+    product.title,
+    product.description,
+    4
+  );
+  const parsedDesc = useMemo(
+    () => parseProductDescription(product.description),
+    [product.description]
+  );
 
   const moveExistingImage = (fromIdx: number, toIdx: number) => {
     if (toIdx < 0 || toIdx >= editExistingImages.length) return;
@@ -284,6 +304,7 @@ function ProductDetailModal({
           title: editTitle.trim(),
           category: normalizedCat,
           price: numericPrice,
+          condition_grade: editGrade || null,
           status: normalizedStat,
           description: editDescription.trim(),
           image_url: finalImageUrl,
@@ -298,7 +319,6 @@ function ProductDetailModal({
         );
       }
 
-      // 기존 사진 중 제거된 파일이 있다면 Storage에서도 정리
       const removedUrls = images.filter((u) => !editExistingImages.includes(u));
       if (removedUrls.length > 0) {
         await removeProductImagesFromStorage(removedUrls);
@@ -313,6 +333,7 @@ function ProductDetailModal({
         title: editTitle.trim(),
         category: normalizedCat,
         price: numericPrice,
+        condition_grade: editGrade || null,
         status: normalizedStat,
         description: editDescription.trim(),
         image_url: finalImageUrl,
@@ -342,6 +363,7 @@ function ProductDetailModal({
     setEditPrice(
       product.price && product.price > 0 ? String(product.price) : ""
     );
+    setEditGrade(product.condition_grade || PRODUCT_CONDITION_GRADES[1]);
     setEditStatus(normalizeProductStatus(product.status));
     setEditDescription(product.description || "");
     setIsEditing(false);
@@ -372,7 +394,7 @@ function ProductDetailModal({
 
   const inquiryParams = new URLSearchParams({
     write: "1",
-    type: "구매 문의",
+    type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
     productId: String(product.id),
     title: `[상품문의] ${product.title}`,
     category: categoryLabel,
@@ -395,7 +417,7 @@ function ProductDetailModal({
         <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] flex flex-col overflow-hidden max-h-[90vh] w-full">
           {/* 모달 상단 헤더 */}
           <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               {!isEditing ? (
                 <>
                   <span className="text-[12px] font-bold text-[#4B5260] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
@@ -405,6 +427,11 @@ function ProductDetailModal({
                     status={product.status}
                     createdAt={product.created_at}
                   />
+                  {product.condition_grade && (
+                    <span className="rounded-sm border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                      {product.condition_grade}
+                    </span>
+                  )}
                 </>
               ) : (
                 <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-sm">
@@ -413,7 +440,13 @@ function ProductDetailModal({
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              {!isEditing && (
+                <CopyPromoPostButton
+                  product={product}
+                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1.5 text-[11.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                />
+              )}
               {isAdmin && !isEditing && (
                 <>
                   <button
@@ -470,8 +503,7 @@ function ProductDetailModal({
                     </div>
                   )}
 
-                  {displayImages[0] && (
-                    <div className="absolute top-3 right-3 bg-black/65 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
+                  {displayImages[0] && (                    <div className="absolute top-3 right-3 bg-black/65 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
                       <Icon d={ICON.search} className="w-3.5 h-3.5" />
                       <span>클릭하여 확대</span>
                     </div>
@@ -654,13 +686,13 @@ function ProductDetailModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <label className="hb-label">카테고리</label>
                       <select
                         value={editCategory}
                         onChange={(e) => setEditCategory(e.target.value)}
-                        className="hb-input mt-1 text-[14px] font-semibold"
+                        className="hb-input mt-1 text-[13.5px] font-semibold"
                       >
                         {PRODUCT_CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -674,11 +706,25 @@ function ProductDetailModal({
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="hb-input mt-1 text-[14px] font-semibold"
+                        className="hb-input mt-1 text-[13.5px] font-semibold"
                       >
                         <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                         <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
                         <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="hb-label">상태 등급</label>
+                      <select
+                        value={editGrade}
+                        onChange={(e) => setEditGrade(e.target.value)}
+                        className="hb-input mt-1 text-[13.5px] font-semibold"
+                      >
+                        {PRODUCT_CONDITION_GRADES.map((g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        ))}
                       </select>
                     </div>
                   </div>
@@ -727,6 +773,18 @@ function ProductDetailModal({
                     <h2 className="text-[20px] sm:text-[22px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
                       {product.title}
                     </h2>
+                    {specCapsules.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {specCapsules.map((tag) => (
+                          <span
+                            key={tag}
+                            className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {modelName && (
                       <p className="mt-1.5 text-[13px] font-semibold text-[#4B5260]">
                         모델명:{" "}
@@ -747,7 +805,7 @@ function ProductDetailModal({
                           판매완료
                         </p>
                       ) : hasProductPrice(product.price) ? (
-                        <p className="text-[24px] sm:text-[26px] font-bold tracking-tight text-[#D9531E]">
+                        <p className="text-[24px] sm:text-[26px] font-bold tracking-tight text-[#D9531E] tabular-nums">
                           {formatProductPrice(product.price, categoryLabel)}
                         </p>
                       ) : (
@@ -763,7 +821,7 @@ function ProductDetailModal({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[12.5px] font-semibold text-[#6B7280]">
+                      <span className="text-[12.5px] font-semibold text-[#6B7280] tabular-nums">
                         조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회
                       </span>
                       <Link
@@ -775,6 +833,19 @@ function ProductDetailModal({
                     </div>
                   </div>
 
+                  {!sold && (
+                    <QuoteBasketButton
+                      item={{
+                        id: product.id,
+                        title: product.title,
+                        category: categoryLabel,
+                        price: product.price,
+                        modelName,
+                        imageUrl: images[0] || null,
+                      }}
+                    />
+                  )}
+
                   {/* 핵심 가치 아이콘 바 (Trust Micro-strip) */}
                   <ProductTrustMicroStrip category={categoryLabel} />
 
@@ -782,14 +853,99 @@ function ProductDetailModal({
                     <AirconSetGuideBanner variant="card" className="mt-4" />
                   )}
 
+                  {/* 구조화된 제품 사양 및 상태 설명 (parseProductDescription 적용) */}
                   {product.description && (
-                    <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
-                      <span className="text-[12px] font-bold text-[#6B7280] block mb-1.5">
-                        제품 규격 및 상세 설명
-                      </span>
-                      <p className="text-[14px] text-[#1F2530] whitespace-pre-wrap leading-relaxed">
-                        {product.description}
-                      </p>
+                    <div className="space-y-4">
+                      {parsedDesc.hasStructuredSections ? (
+                        <>
+                          {parsedDesc.summary.length > 0 && (
+                            <div className="bg-[#FAF9F7] rounded-md border border-[#E5E2DC] p-4 text-[13.5px] leading-relaxed text-[#2D333F]">
+                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-1.5 flex items-center gap-1.5">
+                                <Icon
+                                  d={ICON.check}
+                                  className="h-4 w-4 text-[#D9531E]"
+                                />
+                                <span>한눈에 보는 제품 정보</span>
+                              </h3>
+                              {parsedDesc.summary.map((line, i) => (
+                                <p
+                                  key={i}
+                                  className="mt-1 first:mt-0 leading-relaxed text-[#3E4756]"
+                                >
+                                  {line}
+                                </p>
+                              ))}
+                            </div>
+                          )}
+
+                          {parsedDesc.specs.length > 0 && (
+                            <div className="rounded-md border border-[#E5E2DC] bg-white p-4">
+                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
+                                주요 규격 및 사양
+                              </h3>
+                              <dl className="divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-[13.5px]">
+                                {parsedDesc.specs.map((s, i) => (
+                                  <div
+                                    key={s.label + i}
+                                    className="py-2 flex justify-between gap-4"
+                                  >
+                                    <dt className="font-medium text-[#646E7E] shrink-0">
+                                      {s.label}
+                                    </dt>
+                                    <dd className="font-semibold text-[#0E1A2B] text-right">
+                                      {s.value}
+                                    </dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </div>
+                          )}
+
+                          {parsedDesc.features.length > 0 && (
+                            <div className="rounded-md border border-[#E5E2DC] bg-[#FAF9F7] p-4">
+                              <h3 className="text-[13.5px] font-bold text-[#0E1A2B] mb-2">
+                                제품 특징
+                              </h3>
+                              <ul className="space-y-1.5 text-[13.5px] leading-relaxed text-[#3E4756]">
+                                {parsedDesc.features.map((f, i) => (
+                                  <li key={i} className="flex items-start gap-2">
+                                    <span className="text-[#D9531E] font-bold">
+                                      •
+                                    </span>
+                                    <span>{f}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+
+                          {parsedDesc.checkPoints.length > 0 && (
+                            <div className="border-l-2 border-[#D9531E] bg-[#FAF9F7] pl-3.5 pr-3 py-2.5 text-[13px] text-[#3E4756]">
+                              <strong className="block font-bold text-[#0E1A2B] mb-1">
+                                구매 및 설치 전 확인사항
+                              </strong>
+                              {parsedDesc.checkPoints.map((c, i) => (
+                                <p key={i}>• {c}</p>
+                              ))}
+                            </div>
+                          )}
+
+                          {parsedDesc.rawRest.length > 0 && (
+                            <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8] text-[13.5px] leading-relaxed text-[#0E1A2B] whitespace-pre-line">
+                              {parsedDesc.rawRest.join("\n")}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div className="p-4 rounded-md bg-[#FAF9F7] border border-[#E4E0D8]">
+                          <span className="text-[12px] font-bold text-[#6B7280] block mb-1.5">
+                            제품 규격 및 상세 설명
+                          </span>
+                          <p className="text-[14px] text-[#1F2530] whitespace-pre-wrap leading-relaxed">
+                            {product.description}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -814,7 +970,7 @@ function ProductDetailModal({
             </div>
           </div>
 
-          {/* 모달 하단 액션 바 */}
+          {/* 모달 하단 액션 바 (전화 / 문자 / 카톡 / 온라인 문의) */}
           <div className="p-4 border-t border-[#E4E0D8] bg-white shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2.5">
@@ -836,26 +992,41 @@ function ProductDetailModal({
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <a
                   href={telHref(STORE.tel)}
-                  className="hb-btn-primary h-11 text-[13.5px]"
+                  className="hb-btn-primary h-11 text-[13px]"
                 >
-                  <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" /> 전화 문의
+                  <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
+                  <span>전화 문의</span>
+                </a>
+                <a
+                  href={smsHref(
+                    STORE.mobile,
+                    `[한밭중고전자 상품문의] ${product.title}${
+                      modelName ? ` (${modelName})` : ""
+                    } 재고 및 배송·설치 견적 문의드립니다.`
+                  )}
+                  className="hb-btn-outline h-11 text-[13px]"
+                >
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <span>문자 문의</span>
                 </a>
                 <a
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 text-[13.5px]"
+                  className="hb-btn-kakao h-11 text-[13px]"
                 >
-                  <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
+                  <Icon d={ICON.chat} className="w-4 h-4" />
+                  <span>카톡 상담</span>
                 </a>
                 <Link
                   href={inquiryHref}
-                  className="hb-btn-outline h-11 text-[13.5px]"
+                  className="hb-btn-outline h-11 text-[13px]"
                 >
-                  <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" /> 온라인 문의
+                  <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <span>온라인 문의</span>
                 </Link>
               </div>
             )}
@@ -971,6 +1142,9 @@ export default function GalleryPage() {
   const [productPrice, setProductPrice] = useState("");
   const [productStatus, setProductStatus] = useState<string>(
     PRODUCT_STATUS.SELLING
+  );
+  const [productGrade, setProductGrade] = useState<string>(
+    PRODUCT_CONDITION_GRADES[1]
   );
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
@@ -1437,6 +1611,8 @@ export default function GalleryPage() {
     setProductModel("");
     setProductDescription("");
     setProductPrice("");
+    setProductCategory(PRODUCT_CATEGORIES[0]);
+    setProductGrade(PRODUCT_CONDITION_GRADES[1]);
     setProductStatus(PRODUCT_STATUS.SELLING);
     setProductFiles([]);
     setProductPreviews([]);
@@ -1754,6 +1930,7 @@ export default function GalleryPage() {
         description: finalDesc,
         image_url: uploadedUrls.join(","),
         price: parsedPrice,
+        condition_grade: productGrade || null,
         status: normalizeProductStatus(productStatus),
         views: 0,
       });
@@ -2465,14 +2642,14 @@ export default function GalleryPage() {
                 </div>
               )}
 
-              {/* 3. 카테고리 및 판매 상태 */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* 3. 카테고리 · 판매 상태 · 상태 등급 */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="hb-label">표준 카테고리 *</label>
                   <select
                     value={productCategory}
                     onChange={(e) => setProductCategory(e.target.value)}
-                    className="hb-input mt-1 font-semibold"
+                    className="hb-input mt-1 font-semibold text-[13.5px]"
                   >
                     {PRODUCT_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -2486,11 +2663,25 @@ export default function GalleryPage() {
                   <select
                     value={productStatus}
                     onChange={(e) => setProductStatus(e.target.value)}
-                    className="hb-input mt-1 font-semibold"
+                    className="hb-input mt-1 font-semibold text-[13.5px]"
                   >
                     <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                     <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
                     <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="hb-label">상태 등급</label>
+                  <select
+                    value={productGrade}
+                    onChange={(e) => setProductGrade(e.target.value)}
+                    className="hb-input mt-1 font-semibold text-[13.5px]"
+                  >
+                    {PRODUCT_CONDITION_GRADES.map((g) => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

@@ -41,19 +41,28 @@ export function ProductTrustMicroStrip({
 }) {
   const normalizedCategory = normalizeProductCategory(category);
   const isHvac = normalizedCategory === "에어컨/냉난방기";
+  const isMajorAppliance =
+    normalizedCategory === "냉장고" || normalizedCategory === "세탁기/건조기";
+
+  const warrantyHighlight = isHvac
+    ? "에어컨류 계약조건별 최대 8개월"
+    : isMajorAppliance
+    ? "주요 가전 계약조건별 최대 4개월"
+    : "품목 및 계약조건에 따라 협의 적용";
 
   const items = [
     {
       title: "세척·작동 점검",
-      desc: "입고 후 작동 테스트 및 고압 세척 완료",
+      desc:
+        isHvac || isMajorAppliance
+          ? "입고 후 작동 테스트 및 고압 세척 완료"
+          : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
     },
     {
-      title: "무상 A/S 보증",
-      desc: "에어컨·냉난방기 8개월 / 그 외 가전 4개월",
-      highlight: isHvac
-        ? "해당 품목 8개월 보증 (계약조건 기준)"
-        : "해당 품목 4개월 보증 (계약조건 기준)",
+      title: "사후 A/S 안내",
+      desc: "계약 조건에 따라 보증 기간 차등 적용",
+      highlight: warrantyHighlight,
     },
     {
       title: "세금계산서 발행",

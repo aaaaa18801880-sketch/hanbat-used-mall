@@ -1,7 +1,7 @@
 // 파일 경로: app/admin/page.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -24,6 +24,8 @@ import {
   formatProductPrice,
   splitImages,
   compressImage,
+  rotateImageFile,
+  sanitizeOldManufactureYear,
   validateImageFiles,
   extractModelName,
   extractInquiryImages,
@@ -464,11 +466,96 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
-  /* ───── Gemini AI 상품 사진 분석 (3계층 분리) ───── */
+  /* ───── Gemini AI 상품 사진 분석 (3계층 분리 + 5년 경과 연식 블라인드 + 자동 회전) ───── */
+  const adminUserRotatedRef = useRef<Set<number>>(new Set());
+
+  const rotateProdFile = async (
+    index: number,
+    degrees = 90,
+    isAuto = false
+  ) => {
+    let targetFile: File | null = null;
+    setProdFiles((prev) => {
+      targetFile = prev[index] || null;
+      return prev;
+    });
+    if (!targetFile) return;
+
+    try {
+      const rotated = await rotateImageFile(targetFile, degrees);
+      setProdFiles((prev) => {
+        const next = [...prev];
+        if (index < next.length) next[index] = rotated;
+        return next;
+      });
+      setProdPreviews((prev) => {
+        const next = [...prev];
+        if (index < next.length) {
+          if (next[index]) URL.revokeObjectURL(next[index]);
+          next[index] = URL.createObjectURL(rotated);
+        }
+        return next;
+      });
+      if (!isAuto) {
+        adminUserRotatedRef.current.add(index);
+        toast.success(`${index + 1}번 사진이 90° 회전되었습니다.`);
+      }
+    } catch {
+      if (!isAuto) toast.error("사진 회전에 실패했습니다.");
+    }
+  };
+
+  const removeProdFile = (index: number) => {
+    URL.revokeObjectURL(prodPreviews[index]);
+    setProdFiles((prev) => prev.filter((_, i) => i !== index));
+    setProdPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const moveProdFile = (fromIdx: number, toIdx: number) => {
+    if (toIdx < 0 || toIdx >= prodFiles.length) return;
+    setProdFiles((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+    setProdPreviews((prev) => {
+      const next = [...prev];
+      const [moved] = next.splice(fromIdx, 1);
+      next.splice(toIdx, 0, moved);
+      return next;
+    });
+  };
+
+  const makePrimaryProdFile = (targetIdx: number) => {
+    if (targetIdx <= 0 || targetIdx >= prodFiles.length) return;
+    setProdFiles((prev) => {
+      const next = [...prev];
+      const [picked] = next.splice(targetIdx, 1);
+      return [picked, ...next];
+    });
+    setProdPreviews((prev) => {
+      const next = [...prev];
+      const [picked] = next.splice(targetIdx, 1);
+      return [picked, ...next];
+    });
+  };
+
+  const appendSearchSpecsToAdminDesc = () => {
+    if (aiSearchSpecs.length === 0) return;
+    const block = aiSearchSpecs.map((s) => `• ${s}`).join("\n");
+    setProdDesc((prev) =>
+      prev.trim() ? `${prev.trim()}\n\n[검색 참조 사양]\n${block}` : block
+    );
+    toast.success("검색 참조 사양이 설명란에 추가되었습니다.");
+  };
+
   const runGeminiProductAnalysis = async (filesToAnalyze: File[]) => {
     if (filesToAnalyze.length === 0 || analyzingProduct) return;
     setAnalyzingProduct(true);
-    const toastId = toast.loading("Gemini AI가 사진을 판독하고 초안을 작성 중입니다...");
+    const toastId = toast.loading(
+      "Gemini AI가 사진을 판독하고 초안을 작성 중입니다..."
+    );
 
     try {
       const formData = new FormData();
@@ -476,8 +563,11 @@ export default function IntegratedAdminDashboard() {
       formData.append("searchSpecs", useSearchSpecs ? "true" : "false");
 
       for (const f of filesToAnalyze.slice(0, 3)) {
-        const blob = await compressImage(f);
-        formData.append("files", new File([blob], f.name, { type: "image/jpeg" }));
+        const blob = await compressImage(f, 1080, 0.72);
+        formData.append(
+          "files",
+          new File([blob], f.name, { type: "image/jpeg" })
+        );
       }
 
       const headers = await getAdminAuthHeaders();
@@ -489,18 +579,57 @@ export default function IntegratedAdminDashboard() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "AI 분석 실패");
 
-      if (data.category) setProdCategory(normalizeProductCategory(data.category));
-      if (data.title) setProdTitle(data.title);
-      if (data.modelNumber) setProdModel(data.modelNumber);
-      if (data.specDetails) setProdDesc(data.specDetails);
+      const cleanData = sanitizeOldManufactureYear(data);
 
-      setAiPhotoObserved(Array.isArray(data.photoObserved) ? data.photoObserved : []);
-      setAiSearchSpecs(
-        Array.isArray(data.searchDerivedSpecs) ? data.searchDerivedSpecs : []
+      if (cleanData.category) {
+        setProdCategory(normalizeProductCategory(cleanData.category));
+      }
+      if (cleanData.title) setProdTitle(cleanData.title);
+      if (cleanData.modelNumber) setProdModel(cleanData.modelNumber);
+      if (cleanData.specDetails) setProdDesc(cleanData.specDetails);
+
+      setAiPhotoObserved(
+        Array.isArray(cleanData.photoObserved) ? cleanData.photoObserved : []
       );
-      setAiWarnings(Array.isArray(data.needsReview) ? data.needsReview : []);
+      setAiSearchSpecs(
+        Array.isArray(cleanData.searchDerivedSpecs)
+          ? cleanData.searchDerivedSpecs
+          : []
+      );
+      setAiWarnings(
+        Array.isArray(cleanData.needsReview) ? cleanData.needsReview : []
+      );
       setAiSourceNote(data.sourceVerificationNote || "");
       setAiSources(Array.isArray(data.sourceUrls) ? data.sourceUrls : []);
+
+      if (
+        Array.isArray(data.imageRotations) &&
+        data.imageRotations.length > 0
+      ) {
+        const rotationsToApply = data.imageRotations.filter(
+          (r: { index?: unknown; rotate?: unknown }) => {
+            const idx = typeof r.index === "number" ? r.index - 1 : -1;
+            const deg = typeof r.rotate === "number" ? r.rotate : 0;
+            return (
+              idx >= 0 &&
+              idx < filesToAnalyze.length &&
+              deg > 0 &&
+              deg < 360 &&
+              !adminUserRotatedRef.current.has(idx)
+            );
+          }
+        );
+
+        if (rotationsToApply.length > 0) {
+          for (const r of rotationsToApply) {
+            const idx = (r.index as number) - 1;
+            await rotateProdFile(idx, r.rotate as number, true);
+          }
+          toast.success(
+            "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다."
+          );
+        }
+      }
 
       toast.success("AI 초안이 작성되었습니다. 확인 후 저장해 주세요.", {
         id: toastId,
@@ -519,6 +648,7 @@ export default function IntegratedAdminDashboard() {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
     e.target.value = "";
+    adminUserRotatedRef.current.clear();
     const remaining = 3 - (editingExistingImages.length + prodFiles.length);
     if (remaining <= 0) {
       toast.error("상품 사진은 최대 3장까지 등록할 수 있습니다.");
@@ -530,7 +660,10 @@ export default function IntegratedAdminDashboard() {
 
     const merged = [...prodFiles, ...ok];
     setProdFiles(merged);
-    setProdPreviews((prev) => [...prev, ...ok.map((f) => URL.createObjectURL(f))]);
+    setProdPreviews((prev) => [
+      ...prev,
+      ...ok.map((f) => URL.createObjectURL(f)),
+    ]);
 
     if (prodFiles.length === 0 && ok.length > 0 && !editingProductId) {
       runGeminiProductAnalysis(ok);
@@ -539,6 +672,7 @@ export default function IntegratedAdminDashboard() {
 
   const resetProductForm = () => {
     prodPreviews.forEach((u) => URL.revokeObjectURL(u));
+    adminUserRotatedRef.current.clear();
     setEditingProductId(null);
     setEditingExistingImages([]);
     setProdTitle("");
@@ -557,7 +691,7 @@ export default function IntegratedAdminDashboard() {
     setAiSources([]);
   };
 
-  const startEditProduct = (product: AdminProductRow) => {
+    const startEditProduct = (product: AdminProductRow) => {
     resetProductForm();
     setEditingProductId(product.id);
     setEditingExistingImages(splitImages(product.image_url));
@@ -1598,17 +1732,70 @@ export default function IntegratedAdminDashboard() {
 
                   {prodPreviews.length > 0 && (
                     <div className="mt-2.5 grid grid-cols-3 gap-2">
-                      {prodPreviews.map((src) => (
+                      {prodPreviews.map((src, index) => (
                         <div
                           key={src}
-                          className="relative aspect-square rounded border border-[#DDD9D1] overflow-hidden"
+                          className="flex flex-col overflow-hidden rounded border border-[#DDD9D1] bg-[#FAF9F7]"
                         >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={src}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
+                          <div className="relative aspect-square bg-[#EFECE6]">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={src}
+                              alt={`신규 사진 ${index + 1}`}
+                              className="h-full w-full object-cover"
+                            />
+                            {editingExistingImages.length === 0 &&
+                            index === 0 ? (
+                              <span className="absolute top-1 left-1 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                                대표
+                              </span>
+                            ) : (
+                              editingExistingImages.length === 0 && (
+                                <button
+                                  type="button"
+                                  onClick={() => makePrimaryProdFile(index)}
+                                  className="absolute top-1 left-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-[#D9531E]"
+                                >
+                                  대표 지정
+                                </button>
+                              )
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeProdFile(index)}
+                              aria-label="사진 삭제"
+                              className="absolute top-1 right-1 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
+                            >
+                              <Icon d={ICON.close} className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => rotateProdFile(index, 90)}
+                              title="시계방향 90도 회전"
+                              aria-label="시계방향 90도 회전"
+                              className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E]"
+                            >
+                              <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-[10.5px] font-bold text-[#4B5260]">
+                            <button
+                              type="button"
+                              disabled={index === 0}
+                              onClick={() => moveProdFile(index, index - 1)}
+                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            >
+                              ← 앞
+                            </button>
+                            <button
+                              type="button"
+                              disabled={index === prodPreviews.length - 1}
+                              onClick={() => moveProdFile(index, index + 1)}
+                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                            >
+                              뒤 →
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -1634,9 +1821,18 @@ export default function IntegratedAdminDashboard() {
                     )}
                     {aiSearchSpecs.length > 0 && (
                       <div>
-                        <strong className="text-[#0E1A2B]">
-                          2) 검색으로 확인한 참고 제원:
-                        </strong>
+                        <div className="flex items-center justify-between">
+                          <strong className="text-[#0E1A2B]">
+                            2) 검색으로 확인한 참고 제원:
+                          </strong>
+                          <button
+                            type="button"
+                            onClick={appendSearchSpecsToAdminDesc}
+                            className="text-[11px] font-bold text-[#D9531E] underline"
+                          >
+                            + 설명란에 반영
+                          </button>
+                        </div>
                         <ul className="list-disc pl-4 text-[#4B5260]">
                           {aiSearchSpecs.map((x, i) => (
                             <li key={i}>{x}</li>
