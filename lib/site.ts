@@ -506,7 +506,7 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
 }
 
 /* ════════════════════════════════════════════════════════════
-   2. 관심 매물 견적함 (묶음 문의) localStorage 헬퍼
+   2. 관심 매물 견적함 (묶음 문의 · 수량 조절 · 비교 연동) localStorage 헬퍼
    ════════════════════════════════════════════════════════════ */
 export const QUOTE_BASKET_STORAGE_KEY = "hb_quote_basket_v1";
 export const QUOTE_BASKET_EVENT = "hb-quote-basket-updated";
@@ -517,6 +517,10 @@ export interface QuoteBasketItem {
   title: string;
   category: string;
   price: number | null;
+  quantity?: number;
+  status?: string | null;
+  conditionGrade?: string | null;
+  description?: string | null;
   modelName?: string | null;
   imageUrl?: string | null;
 }
@@ -528,14 +532,24 @@ export function getQuoteBasket(): QuoteBasketItem[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (item): item is QuoteBasketItem =>
-        Boolean(
-          item &&
-            typeof item.id === "string" &&
-            typeof item.title === "string"
-        )
-    );
+    return parsed
+      .filter(
+        (item): item is QuoteBasketItem =>
+          Boolean(
+            item &&
+              typeof item.id === "string" &&
+              typeof item.title === "string"
+          )
+      )
+      .map((item) => ({
+        ...item,
+        quantity:
+          typeof item.quantity === "number" &&
+          Number.isFinite(item.quantity) &&
+          item.quantity >= 1
+            ? Math.min(99, Math.floor(item.quantity))
+            : 1,
+      }));
   } catch {
     return [];
   }
@@ -550,7 +564,7 @@ function saveQuoteBasket(items: QuoteBasketItem[]): void {
     );
     window.dispatchEvent(new CustomEvent(QUOTE_BASKET_EVENT));
   } catch {
-    // ignore storage errors
+    // 브라우저 로컬 스토리지 비활성화/용량 초과 시에도 사이트가 정상 동작하도록 무시
   }
 }
 
@@ -573,9 +587,29 @@ export function toggleQuoteBasketItem(item: QuoteBasketItem): {
   if (current.length >= MAX_QUOTE_BASKET_ITEMS) {
     return { added: false, limitReached: true, items: current };
   }
-  const next = [...current, item];
+  const normalizedItem: QuoteBasketItem = {
+    ...item,
+    quantity:
+      typeof item.quantity === "number" && item.quantity >= 1
+        ? Math.min(99, Math.floor(item.quantity))
+        : 1,
+  };
+  const next = [...current, normalizedItem];
   saveQuoteBasket(next);
   return { added: true, items: next };
+}
+
+export function updateQuoteBasketItemQuantity(
+  productId: string,
+  nextQuantity: number
+): QuoteBasketItem[] {
+  const safeQty = Math.max(1, Math.min(99, Math.floor(nextQuantity || 1)));
+  const current = getQuoteBasket();
+  const next = current.map((item) =>
+    item.id === productId ? { ...item, quantity: safeQty } : item
+  );
+  saveQuoteBasket(next);
+  return next;
 }
 
 export function removeQuoteBasketItem(productId: string): QuoteBasketItem[] {
@@ -594,6 +628,8 @@ export function formatQuoteBasketSummary(items: QuoteBasketItem[]): {
   hasCommercialItem: boolean;
   totalKnownPrice: number;
   pricedCount: number;
+  totalUnitCount: number;
+  soldItemCount: number;
 } {
   if (items.length === 0) {
     return {
@@ -602,47 +638,79 @@ export function formatQuoteBasketSummary(items: QuoteBasketItem[]): {
       hasCommercialItem: false,
       totalKnownPrice: 0,
       pricedCount: 0,
+      totalUnitCount: 0,
+      soldItemCount: 0,
     };
   }
 
-  const firstTitle = items[0].title;
-  const autoTitle =
-    items.length === 1
-      ? `[상품문의] ${firstTitle}`
-      : `[묶음견적 ${items.length}건] ${firstTitle} 외 ${items.length - 1}건`;
-
   let totalKnownPrice = 0;
   let pricedCount = 0;
+  let totalUnitCount = 0;
+  let soldItemCount = 0;
   let hasCommercialItem = false;
 
   const lines = items.map((item, idx) => {
     const cat = normalizeProductCategory(item.category);
+    const qty = item.quantity && item.quantity > 0 ? item.quantity : 1;
+    const sold = isProductSold(item.status);
+    totalUnitCount += qty;
+
     if (cat === "업소용기기") hasCommercialItem = true;
-    if (hasProductPrice(item.price)) {
-      totalKnownPrice += Number(item.price);
+    if (sold) {
+      soldItemCount += 1;
+    } else if (hasProductPrice(item.price)) {
+      totalKnownPrice += Number(item.price) * qty;
       pricedCount += 1;
     }
-    const priceStr = formatProductPrice(item.price, cat);
+
+    const unitPriceStr = sold
+      ? "판매완료 · 유사매물 재고문의"
+      : formatProductPrice(item.price, cat);
+    const subtotalStr =
+      !sold && hasProductPrice(item.price) && qty > 1
+        ? ` (단가 ${Number(item.price).toLocaleString()}원 × ${qty}대 = ${(
+            Number(item.price) * qty
+          ).toLocaleString()}원)`
+        : ` (${unitPriceStr})`;
     const modelStr = item.modelName ? ` | 모델명: ${item.modelName}` : "";
-    return `${idx + 1}. [${cat}] ${item.title}${modelStr} (${priceStr})\n   - 상품링크: ${STORE.url}/${item.id}`;
+
+    return `${idx + 1}. [${cat}] ${item.title}${modelStr} | 희망수량: ${qty}대${subtotalStr}\n   - 상품번호: #${String(
+      item.id
+    ).slice(0, 8)} / 상세링크: ${STORE.url}/${item.id}`;
   });
+
+  const firstTitle = items[0].title;
+  const autoTitle =
+    items.length === 1
+      ? `[상품문의] ${firstTitle}${
+          (items[0].quantity || 1) > 1 ? ` (${items[0].quantity}대)` : ""
+        }`
+      : `[묶음견적 ${items.length}종 / 총 ${totalUnitCount}대] ${firstTitle} 외 ${
+          items.length - 1
+        }건`;
 
   const priceSummaryLine =
     pricedCount > 0
-      ? `\n• 표시 가격 합계(${pricedCount}건 기준): ${totalKnownPrice.toLocaleString()}원 (세트 구매 및 배송·설치 조건에 따라 조율 가능)`
+      ? `\n• 표시 가격 합계(구매 가능 ${pricedCount}종 기준): ${totalKnownPrice.toLocaleString()}원 (세트 구매 및 배송·설치 여건에 따라 맞춤 조율 가능)`
+      : "";
+
+  const soldNoticeLine =
+    soldItemCount > 0
+      ? `\n※ 목록 중 판매완료 상품(${soldItemCount}건)은 매장 내 동일·유사 스펙 재고로 함께 확인 부탁드립니다.`
       : "";
 
   const autoDescription = [
-    `[선택한 관심 매물 목록 — 총 ${items.length}건]`,
+    `[선택한 관심 매물 목록 — 총 ${items.length}종 (${totalUnitCount}대)]`,
     ...lines,
     priceSummaryLine,
+    soldNoticeLine,
     "",
     "[추가 문의 사항]",
     "• 희망 배송/설치 지역: ",
     "• 설치 층수(엘리베이터 유무): ",
     "• 재고 여부 및 묶음 견적 부탁드립니다.",
   ]
-    .filter((l) => l !== null)
+    .filter((l) => l !== "")
     .join("\n");
 
   return {
@@ -651,7 +719,170 @@ export function formatQuoteBasketSummary(items: QuoteBasketItem[]): {
     hasCommercialItem,
     totalKnownPrice,
     pricedCount,
+    totalUnitCount,
+    soldItemCount,
   };
+}
+
+/* ════════════════════════════════════════════════════════════
+   2-2. [신규 기능 ④] 비로그인 최근 본 상품 (Recently Viewed) localStorage 헬퍼
+   ════════════════════════════════════════════════════════════ */
+export const RECENT_VIEWED_STORAGE_KEY = "hb_recent_views_v1";
+export const RECENT_VIEWED_EVENT = "hb-recent-views-updated";
+export const MAX_RECENT_VIEWED_ITEMS = 10;
+
+export interface RecentViewedItem {
+  id: string;
+  title: string;
+  category: string;
+  price: number | null;
+  status?: string | null;
+  conditionGrade?: string | null;
+  modelName?: string | null;
+  imageUrl?: string | null;
+  viewedAt: number;
+}
+
+export function getRecentViewedProducts(): RecentViewedItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(RECENT_VIEWED_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is RecentViewedItem =>
+        Boolean(
+          item &&
+            typeof item.id === "string" &&
+            typeof item.title === "string"
+        )
+    );
+  } catch {
+    return [];
+  }
+}
+
+export function addRecentViewedProduct(
+  item: Omit<RecentViewedItem, "viewedAt">
+): RecentViewedItem[] {
+  if (typeof window === "undefined" || !item?.id || !item?.title) return [];
+  try {
+    const current = getRecentViewedProducts().filter((x) => x.id !== item.id);
+    const nextItem: RecentViewedItem = {
+      ...item,
+      category: normalizeProductCategory(item.category),
+      viewedAt: Date.now(),
+    };
+    const next = [nextItem, ...current].slice(0, MAX_RECENT_VIEWED_ITEMS);
+    window.localStorage.setItem(
+      RECENT_VIEWED_STORAGE_KEY,
+      JSON.stringify(next)
+    );
+    window.dispatchEvent(new CustomEvent(RECENT_VIEWED_EVENT));
+    return next;
+  } catch {
+    return [];
+  }
+}
+
+export function removeRecentViewedProduct(
+  productId: string
+): RecentViewedItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const next = getRecentViewedProducts().filter((x) => x.id !== productId);
+    window.localStorage.setItem(
+      RECENT_VIEWED_STORAGE_KEY,
+      JSON.stringify(next)
+    );
+    window.dispatchEvent(new CustomEvent(RECENT_VIEWED_EVENT));
+    return next;
+  } catch {
+    return [];
+  }
+}
+
+export function clearRecentViewedProducts(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(RECENT_VIEWED_STORAGE_KEY);
+    window.dispatchEvent(new CustomEvent(RECENT_VIEWED_EVENT));
+  } catch {
+    // ignore
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   2-3. [신규 기능 ⑧ & ⑨] 카테고리별 맞춤 FAQ 및 재고 경과일 계산 헬퍼
+   ════════════════════════════════════════════════════════════ */
+export function getDaysSinceCreated(createdAt?: string | null): number {
+  if (!createdAt) return 0;
+  const createdMs = new Date(createdAt).getTime();
+  if (Number.isNaN(createdMs)) return 0;
+  return Math.max(0, Math.floor((Date.now() - createdMs) / (1000 * 60 * 60 * 24)));
+}
+
+export function getCategoryFaqs(
+  category?: string | null,
+  isSold = false
+): Array<{ q: string; a: string }> {
+  const cat = normalizeProductCategory(category);
+  const list: Array<{ q: string; a: string }> = [];
+
+  if (isSold) {
+    list.push({
+      q: "이 상품은 판매완료인데 비슷한 규격의 다른 재고가 있나요?",
+      a: `네, ${STORE.name} 중촌동 직영 매장에는 홈페이지에 미처 올리지 못한 동일·유사 규격(${cat}) 매물이 상시 입고되어 있습니다. 상단의 [동일·유사 모델 재고 문의] 또는 대표전화(${STORE.tel})로 연락주시면 즉시 확인해 드립니다.`,
+    });
+  }
+
+  if (cat === "에어컨/냉난방기") {
+    list.push(
+      {
+        q: "에어컨·냉난방기 구매 시 실내기와 실외기가 모두 포함되나요? 단품 구매도 가능한가요?",
+        a: "냉난방 성능과 냉매 호환 보증을 위해 실내기와 실외기 1:1 세트 구성으로만 판매하며, 실외기만 별도로 단독 구매하시는 것은 어렵습니다.",
+      },
+      {
+        q: "설치 비용은 어떻게 산정되며 보증 기간은 얼마인가요?",
+        a: "설치비(배관 길이, 타공 여부, 앵글 거치, 단상/삼상 전기 작업 등)는 현장 여건을 사진이나 전화로 알려주시면 사전 안내해 드리며, 에어컨·냉난방기는 판매 계약 조건에 따라 최대 8개월 무상 A/S 보증이 적용됩니다.",
+      }
+    );
+  } else if (cat === "업소용기기") {
+    list.push(
+      {
+        q: "식당·카페 오픈용으로 여러 대를 묶음 구매하면 세트 할인이나 세금계산서 발행이 되나요?",
+        a: "네, 45박스 냉장고·테이블냉장고·쇼케이스·제빙기 등 복수 품목을 [견적함]에 담아 일괄 문의해 주시면 수량별 맞춤 견적과 함께 전자세금계산서(및 카드·현금영수증)를 100% 정식 발행해 드립니다.",
+      },
+      {
+        q: "업소용 장비 도입 전 매장 전원이나 급·배수에서 무엇을 확인해야 하나요?",
+        a: "대형 냉장·주방설비는 단상 220V / 삼상 380V 전원 규격과 주방 출입문 통과 폭(가로×깊이), 제빙기·식기세척기의 경우 급·배수 배관 위치를 미리 확인해 주시면 정확한 설치가 가능합니다.",
+      }
+    );
+  } else if (cat === "냉장고" || cat === "세탁기/건조기") {
+    list.push(
+      {
+        q: "엘리베이터가 없는 층이거나 기존에 쓰던 가전이 있는데 동시 수거(보상매입)가 되나요?",
+        a: "일반 배송·수평 설치를 기본 지원하며, 엘리베이터 없는 2층 이상 계단 운반이나 사다리차 필요 여부만 사전에 협의합니다. 배송 당일 기존 가전 동시 수거 및 보상매입(차액 정산)도 원스톱으로 가능합니다.",
+      },
+      {
+        q: "중고 냉장고·세탁기의 위생 상태와 A/S 보증 기준이 궁금합니다.",
+        a: "입고 후 전문 엔지니어가 분해 고압 살균 세척과 냉각·탈수·누수 시운전을 완료한 제품만 출고하며, 주요 가정용 가전은 계약 조건에 따라 최대 4개월 무상 A/S를 보증합니다.",
+      }
+    );
+  } else {
+    list.push({
+      q: "오프라인 매장에서 실물을 직접 보고 구매하거나 배송 상담을 받을 수 있나요?",
+      a: `네, ${STORE.roadAddress}(${STORE.addressNote}) 1·2층 직영 쇼룸에 방문하시면 작동 상태를 직접 확인하실 수 있으며, 품목과 지역에 따라 직배송 또는 방문 수령 상담이 가능합니다.`,
+    });
+  }
+
+  list.push({
+    q: "배송 가능 지역은 어디까지인가요?",
+    a: "대전 전 지역(중구·서구·유성구·동구·대덕구)과 세종·청주·천안·공주·계룡 등 충청권 당일/익일 직배송은 물론, 품목과 수량에 따라 전국 각지 배송·설치 상담을 지원합니다.",
+  });
+
+  return list;
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -853,6 +1084,9 @@ export interface NotificationDispatchResult {
    ════════════════════════════════════════════════════════════ */
 export type AnalyticsEventName =
   | "view_item"
+  | "search_products"
+  | "add_to_quote_basket"
+  | "compare_products"
   | "click_tel_consult"
   | "click_sms_consult"
   | "click_kakao_consult"

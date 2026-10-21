@@ -51,12 +51,37 @@ import {
   CopyPromoPostButton,
   QuoteBasketButton,
 } from "../../components/products/product-detail-gallery";
+import { RecentViewedStrip } from "../../components/products/product-compare-modal";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
 import {
   removeProductImagesFromStorage,
   compressAndUploadProductImages,
 } from "../../lib/product-ops";
+
+type PriceRangeOption = "all" | "under30" | "30to70" | "70to150" | "over150";
+
+const PRICE_RANGE_OPTIONS: ReadonlyArray<{
+  value: PriceRangeOption;
+  label: string;
+  min?: number;
+  max?: number;
+}> = [
+  { value: "all", label: "전체 가격대" },
+  { value: "under30", label: "30만원 이하", max: 300000 },
+  { value: "30to70", label: "30만 ~ 70만원", min: 300000, max: 700000 },
+  { value: "70to150", label: "70만 ~ 150만원", min: 700000, max: 1500000 },
+  { value: "over150", label: "150만원 이상", min: 1500000 },
+] as const;
+
+const CATEGORY_QUICK_KEYWORDS: Record<string, readonly string[]> = {
+  전체: ["45박스", "제빙기", "쇼케이스", "벽걸이", "스탠드", "양문형", "드럼", "건조기"],
+  "에어컨/냉난방기": ["벽걸이", "스탠드", "2in1", "냉난방", "천장형", "인버터"],
+  냉장고: ["양문형", "4도어", "김치냉장고", "일반형", "소형"],
+  "세탁기/건조기": ["드럼", "통돌이", "건조기", "워시타워"],
+  업소용기기: ["45박스", "25박스", "테이블냉장", "쇼케이스", "제빙기", "식기세척기", "작업대"],
+  기타: ["TV", "모니터", "전자레인지", "소형가전"],
+};
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
 type StatusFilter = "all" | "selling" | "reserved" | "sold";
@@ -983,6 +1008,7 @@ export default function GalleryPage() {
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState<SortOption>("latest");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
     null
@@ -1164,6 +1190,23 @@ export default function GalleryPage() {
       if (statusFilter === "reserved" && !reserved) return false;
       if (statusFilter === "sold" && !sold) return false;
 
+      if (priceRange !== "all") {
+        if (!hasProductPrice(p.price)) return false;
+        const priceVal = Number(p.price);
+        if (priceRange === "under30" && priceVal > 300000) return false;
+        if (
+          priceRange === "30to70" &&
+          (priceVal < 300000 || priceVal > 700000)
+        )
+          return false;
+        if (
+          priceRange === "70to150" &&
+          (priceVal < 700000 || priceVal > 1500000)
+        )
+          return false;
+        if (priceRange === "over150" && priceVal < 1500000) return false;
+      }
+
       if (q) {
         const titleText = (p.title || "").toLowerCase();
         const modelText = (
@@ -1204,7 +1247,7 @@ export default function GalleryPage() {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
-  }, [products, activeCategory, statusFilter, search, sort]);
+  }, [products, activeCategory, statusFilter, priceRange, search, sort]);
 
   const displayedProducts = useMemo(
     () => filteredProducts.slice(0, visibleLimit),
@@ -1215,6 +1258,7 @@ export default function GalleryPage() {
     setActiveCategory("전체");
     setSearch("");
     setStatusFilter("all");
+    setPriceRange("all");
     setSort("latest");
     setVisibleLimit(PAGE_STEP);
   };
@@ -1966,6 +2010,73 @@ export default function GalleryPage() {
             </select>
           </div>
         </div>
+
+        {/* [기능 1] 세부 키워드 빠른 필터 칩 & 가격대 필터 바 */}
+        <div className="pt-2 border-t border-[#F0EDE7] flex flex-wrap items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+            <span className="text-[11.5px] font-bold text-[#646E7E] shrink-0 mr-0.5">
+              빠른키워드:
+            </span>
+            {(
+              CATEGORY_QUICK_KEYWORDS[activeCategory] ||
+              CATEGORY_QUICK_KEYWORDS["전체"]
+            ).map((kw) => {
+              const isKwActive =
+                search.trim().toLowerCase() === kw.toLowerCase();
+              return (
+                <button
+                  key={kw}
+                  type="button"
+                  onClick={() => {
+                    const nextSearch = isKwActive ? "" : kw;
+                    setSearch(nextSearch);
+                    setVisibleLimit(PAGE_STEP);
+                    if (nextSearch) {
+                      trackEvent("search_products", {
+                        keyword: nextSearch,
+                        category: activeCategory,
+                      });
+                    }
+                  }}
+                  className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold whitespace-nowrap border transition-colors shrink-0 ${
+                    isKwActive
+                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
+                      : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
+                  }`}
+                >
+                  #{kw}
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+            <select
+              value={priceRange}
+              onChange={(e) => {
+                const nextPrice = e.target.value as PriceRangeOption;
+                setPriceRange(nextPrice);
+                setVisibleLimit(PAGE_STEP);
+                trackEvent("filter_gallery", {
+                  category: activeCategory,
+                  price_range: nextPrice,
+                });
+              }}
+              aria-label="가격대 범위 필터"
+              className={`h-8 px-2.5 rounded-lg border text-[12px] font-bold focus:outline-none ${
+                priceRange !== "all"
+                  ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                  : "border-[#D8D3C8] bg-white text-[#3E4856]"
+              }`}
+            >
+              {PRICE_RANGE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
 
       {/* 메인 상품 그리드 */}
@@ -2167,6 +2278,9 @@ export default function GalleryPage() {
             </a>
           </div>
         </div>
+
+        {/* [기능 4] 비로그인 최근 본 매물 스트립 */}
+        <RecentViewedStrip className="mt-10" />
       </main>
 
       {/* 관리자 일괄 선택 플로팅 작업 바 */}

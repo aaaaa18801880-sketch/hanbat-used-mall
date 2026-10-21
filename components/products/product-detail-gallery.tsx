@@ -6,11 +6,13 @@ import toast from "react-hot-toast";
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 import {
+  addRecentViewedProduct,
   generatePromoPostText,
   getQuoteBasket,
   isProductSold,
   QUOTE_BASKET_EVENT,
   toggleQuoteBasketItem,
+  trackEvent,
   type QuoteBasketItem,
 } from "../../lib/site";
 import {
@@ -22,12 +24,20 @@ import {
 export function ProductDetailGallery({
   id,
   title,
+  category,
+  price,
+  modelName,
+  conditionGrade,
   images,
   status,
   createdAt,
 }: {
   id?: string;
   title: string;
+  category?: string | null;
+  price?: number | null;
+  modelName?: string | null;
+  conditionGrade?: string | null;
   images: string[];
   status: string | null;
   createdAt?: string | null;
@@ -39,10 +49,23 @@ export function ProductDetailGallery({
 
   useEffect(() => {
     if (!id) return;
+
+    // 1. 비로그인 최근 본 매물에 자동 저장 (localStorage)
+    addRecentViewedProduct({
+      id,
+      title,
+      category: category || "기타",
+      price: price ?? null,
+      status,
+      conditionGrade: conditionGrade ?? null,
+      modelName: modelName ?? null,
+      imageUrl: images[0] || null,
+    });
+
+    // 2. 조회수 증가 API 호출 (관리자 제외)
     let cancelled = false;
     (async () => {
       try {
-        // 관리자 로그인 상태에서는 본인 검수/수정 접속이므로 조회수를 카운트하지 않음
         const { data: authData } = await supabase.auth.getSession();
         if (cancelled) return;
         if (isAuthorizedAdminUser(authData.session?.user)) return;
@@ -71,7 +94,7 @@ export function ProductDetailGallery({
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, title, category, price, status, conditionGrade, modelName, images]);
 
   const moveSlide = useCallback(
     (delta: number) => {
@@ -304,11 +327,15 @@ export function CopyProductLinkButton({
       className="hb-btn-outline h-9 px-3 text-[12.5px]"
       aria-label={`${productTitle} 링크 복사`}
     >
-      <span>링크 복사</span>
+      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#646E7E]" />
+      <span>상품 링크 복사</span>
     </button>
   );
 }
 
+/**
+ * 관리자 전용 홍보글 복사 버튼 (일반 방문자 화면에서는 숨겨 시각적 복잡도를 줄임)
+ */
 export function CopyPromoPostButton({
   product,
   className = "",
@@ -327,36 +354,14 @@ export function CopyPromoPostButton({
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { data } = await supabase.auth.getSession();
-        if (!cancelled && isAuthorizedAdminUser(data.session?.user)) {
-          setIsAdmin(true);
-        }
-      } catch {
-        // ignore
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
+    supabase.auth
+      .getSession()
+      .then(({ data }) =>
+        setIsAdmin(isAuthorizedAdminUser(data.session?.user))
+      );
   }, []);
 
-  const handleCopyLink = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    try {
-      const url =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/${product.id}`
-          : "";
-      await navigator.clipboard.writeText(url);
-      toast.success("상품 링크가 복사되었습니다.");
-    } catch {
-      toast.error("링크 복사에 실패했습니다.");
-    }
-  };
+  if (!isAdmin) return null;
 
   const handleCopyPromo = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -370,36 +375,18 @@ export function CopyPromoPostButton({
     }
   };
 
-  if (!isAdmin) {
-    return (
-      <button
-        type="button"
-        onClick={handleCopyLink}
-        className={
-          className ||
-          "inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-9 text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
-        }
-        title="상품 링크 복사"
-        aria-label={`${product.title} 링크 복사`}
-      >
-        <Icon d={ICON.share} className="w-3.5 h-3.5 text-[#0E1A2B]" />
-        <span>🔗 상품 링크 복사</span>
-      </button>
-    );
-  }
-
   return (
     <button
       type="button"
       onClick={handleCopyPromo}
       className={
         className ||
-        "inline-flex items-center gap-1.5 rounded-md border border-[#DDD9D1] bg-[#FAF9F7] px-3 h-9 text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
+        "inline-flex items-center gap-1.5 rounded-md border border-[#FADCD0] bg-[#FFF5F0] px-3 h-9 text-[12px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
       }
-      title="당근마켓·네이버카페·블로그 업로드용 홍보 문구 복사 (관리자)"
+      title="관리자 전용: 당근마켓·네이버카페·블로그 업로드용 홍보 문구 복사"
     >
-      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
-      <span>📋 홍보글 복사</span>
+      <Icon d={ICON.copy} className="w-3.5 h-3.5" />
+      <span>[관리자] 홍보글 복사</span>
     </button>
   );
 }
@@ -431,6 +418,10 @@ export function QuoteBasketButton({
     if (res.limitReached) {
       toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
     } else if (res.added) {
+      trackEvent("add_to_quote_basket", {
+        category: item.category,
+        location: "product_detail",
+      });
       toast.success("관심 매물 견적함에 담았습니다.");
     } else {
       toast("견적함에서 제외했습니다.");
@@ -457,8 +448,8 @@ export function QuoteBasketButton({
       />
       <span>
         {inBasket
-          ? "견적함에 담김 (우측 하단에서 묶음 문의 가능)"
-          : "관심 매물 견적함에 담기 (복수 품목 묶음 문의)"}
+          ? "견적함에 담김 (하단 바에서 수량 조절 · 매물 비교 가능)"
+          : "관심 매물 견적함에 담기 (수량 선택 · 비교 · 묶음 문의)"}
       </span>
     </button>
   );

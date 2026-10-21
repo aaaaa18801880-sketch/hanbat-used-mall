@@ -32,6 +32,7 @@ import {
   extractStorageFilesByBucket,
   generatePromoPostText,
   parseStructuredInquiryDescription,
+  getDaysSinceCreated,
   type NotificationDispatchResult,
   telHref,
 } from "../../lib/site";
@@ -292,7 +293,13 @@ export default function IntegratedAdminDashboard() {
       const stat = normalizeProductStatus(p.status);
       if (prodCategoryFilter !== "전체" && cat !== prodCategoryFilter)
         return false;
-      if (prodStatusFilter !== "전체" && stat !== prodStatusFilter) return false;
+      if (prodStatusFilter === "stale30") {
+        if (stat !== "판매중" || getDaysSinceCreated(p.created_at) < 30) {
+          return false;
+        }
+      } else if (prodStatusFilter !== "전체" && stat !== prodStatusFilter) {
+        return false;
+      }
       if (q) {
         const hay = `${p.title || ""} ${p.description || ""}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -2036,9 +2043,17 @@ export default function IntegratedAdminDashboard() {
                           />
                         </div>
                         <div className="min-w-0">
-                          <span className="text-[11px] font-bold text-[#6B7280]">
-                            {catLabel} · 조회 {product.views || 0}
-                          </span>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <span className="text-[11px] font-bold text-[#6B7280]">
+                              {catLabel} · 조회 {product.views || 0}
+                            </span>
+                            {statValue === "판매중" &&
+                              getDaysSinceCreated(product.created_at) >= 30 && (
+                                <span className="rounded bg-amber-50 border border-amber-300 px-1.5 py-0.2 text-[10.5px] font-bold text-amber-800">
+                                  등록 +{getDaysSinceCreated(product.created_at)}일 · 재고점검 권장
+                                </span>
+                              )}
+                          </div>
                           <h3 className="truncate text-[14px] font-bold text-[#0E1A2B]">
                             {product.title}
                           </h3>

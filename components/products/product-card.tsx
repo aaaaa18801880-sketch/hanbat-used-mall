@@ -15,6 +15,7 @@ import {
   QUOTE_BASKET_EVENT,
   splitImages,
   toggleQuoteBasketItem,
+  trackEvent,
 } from "../../lib/site";
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
@@ -158,12 +159,20 @@ export function ProductCard({
       title: product.title,
       category: categoryLabel,
       price: product.price,
+      status: product.status,
+      conditionGrade: product.condition_grade,
+      description: product.description,
       modelName,
       imageUrl: images[0] || null,
+      quantity: 1,
     });
     if (res.limitReached) {
       toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
     } else if (res.added) {
+      trackEvent("add_to_quote_basket", {
+        category: categoryLabel,
+        location: "card",
+      });
       toast.success("관심 매물 견적함에 담았습니다.");
     } else {
       toast("견적함에서 제외했습니다.");

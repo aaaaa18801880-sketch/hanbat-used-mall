@@ -14,6 +14,7 @@ import {
   hasProductPrice,
   extractModelName,
   extractSpecCapsules,
+  getCategoryFaqs,
   type ProductCategoryValue,
 } from "../../lib/site";
 import {
@@ -35,6 +36,7 @@ import {
 } from "../../components/products/product-card";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
+import { RecentViewedStrip } from "../../components/products/product-compare-modal";
 
 export const dynamic = "force-dynamic";
 
@@ -235,7 +237,7 @@ export default async function ProductDetailPage({
               </a>
             </div>
           </div>
-        </main>
+          </main>
         <SiteFooter />
         <MobileCtaBar />
       </div>
@@ -722,6 +724,42 @@ export default async function ProductDetailPage({
             </div>
           </section>
         )}
+        {/* [기능 8] 해당 품목 구매·설치 관련 자주 묻는 질문 (FAQ) */}
+        <section
+          aria-label={`${categoryLabel} 자주 묻는 질문`}
+          className="mt-10 rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-7 shadow-2xs"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#E5E2DC]">
+            <div>
+              <span className="hb-eyebrow">품목별 핵심 안내</span>
+              <h2 className="mt-1 text-[18px] sm:text-[20px] font-extrabold text-[#0E1A2B]">
+                {categoryLabel} 구매 · 설치 자주 묻는 질문
+              </h2>
+            </div>
+            <Link
+              href="/#faq-section"
+              className="text-[12.5px] font-bold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-4"
+            >
+              전체 FAQ 보기 →
+            </Link>
+          </div>
+          <dl className="divide-y divide-[#E5E2DC]">
+            {getCategoryFaqs(categoryLabel, sold).map((faq) => (
+              <div key={faq.q} className="py-4 first:pt-4 last:pb-0">
+                <dt className="flex items-start gap-2 text-[14.5px] font-bold text-[#0E1A2B]">
+                  <span className="text-[#D9531E] font-extrabold">Q.</span>
+                  <span>{faq.q}</span>
+                </dt>
+                <dd className="mt-1.5 pl-6 text-[13.5px] leading-relaxed text-[#3E4756] break-keep">
+                  {faq.a}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        {/* [기능 4] 비로그인 최근 본 매물 스트립 */}
+        <RecentViewedStrip excludeId={String(product.id)} className="mt-8" />
       </main>
 
       <SiteFooter />

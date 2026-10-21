@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
+import { ProductCompareModal } from "../components/products/product-compare-modal";
 import {
   STORE,
   telHref,
@@ -11,6 +12,7 @@ import {
   trackEvent,
   getQuoteBasket,
   removeQuoteBasketItem,
+  updateQuoteBasketItemQuantity,
   clearQuoteBasket,
   toggleQuoteBasketItem,
   QUOTE_BASKET_EVENT,
@@ -665,6 +667,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
 export function QuoteBasketFloatingBar() {
   const [items, setItems] = useState<QuoteBasketItem[]>([]);
   const [expanded, setExpanded] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
 
   useEffect(() => {
     const sync = () => setItems(getQuoteBasket());
@@ -679,81 +682,151 @@ export function QuoteBasketFloatingBar() {
 
   if (items.length === 0) return null;
 
+  const totalUnits = items.reduce(
+    (acc, it) => acc + (it.quantity && it.quantity > 0 ? it.quantity : 1),
+    0
+  );
+
   return (
-    <aside
-      aria-label="관심 매물 견적함"
-      className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[380px] rounded-xl border border-white/15 bg-[#0E1A2B] text-white shadow-floating"
-    >
-      {expanded && (
-        <div className="border-b border-white/15 p-3.5 max-h-[240px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-xl">
-          <div className="flex items-center justify-between text-[12px] text-white/75 pb-1">
-            <span className="font-semibold">
-              담아둔 관심 매물 ({items.length}건)
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                clearQuoteBasket();
-                toast.success("견적함을 비웠습니다.");
-              }}
-              className="text-[11.5px] font-semibold text-[#FF8A50] hover:underline"
-            >
-              전체 비우기
-            </button>
-          </div>
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between gap-2 rounded bg-white/5 px-2.5 py-2 text-[12.5px]"
-            >
-              <Link
-                href={`/${item.id}`}
-                className="min-w-0 flex-1 truncate font-semibold text-white hover:text-[#FF8A50]"
-              >
-                {item.title}
-              </Link>
-              <span className="shrink-0 text-[11.5px] text-white/75 tabular-nums">
-                {formatProductPrice(item.price, item.category)}
+    <>
+      <aside
+        aria-label="관심 매물 견적함"
+        className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[410px] rounded-xl border border-white/15 bg-[#0E1A2B] text-white shadow-floating"
+      >
+        {expanded && (
+          <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-xl">
+            <div className="flex items-center justify-between text-[12px] text-white/75 pb-1">
+              <span className="font-semibold">
+                담아둔 관심 매물 ({items.length}종 · 총 {totalUnits}대)
               </span>
               <button
                 type="button"
-                onClick={() => removeQuoteBasketItem(item.id)}
-                aria-label={`${item.title} 견적함에서 제거`}
-                className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-red-600 hover:text-white"
+                onClick={() => {
+                  clearQuoteBasket();
+                  toast.success("견적함을 비웠습니다.");
+                }}
+                className="text-[11.5px] font-semibold text-[#FF8A50] hover:underline"
               >
-                <Icon d={ICON.close} className="w-3 h-3" />
+                전체 비우기
               </button>
             </div>
-          ))}
-        </div>
-      )}
+            {items.map((item) => {
+              const qty = item.quantity || 1;
+              const sold = isProductSold(item.status);
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between gap-2 rounded bg-white/5 px-2.5 py-2 text-[12.5px]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <Link
+                      href={`/${item.id}`}
+                      className="block truncate font-semibold text-white hover:text-[#FF8A50]"
+                    >
+                      {sold && (
+                        <span className="mr-1 rounded bg-white/20 px-1 py-0.2 text-[10px]">
+                          판매완료
+                        </span>
+                      )}
+                      {item.title}
+                    </Link>
+                    <span className="block text-[11px] text-white/70 tabular-nums">
+                      {sold
+                        ? "유사매물 재고문의"
+                        : formatProductPrice(item.price, item.category)}
+                    </span>
+                  </div>
 
-      <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="flex min-w-0 items-center gap-2 text-left text-[13px] font-bold text-white hover:text-[#FF8A50]"
-        >
-          <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white tabular-nums">
-            {items.length}
-          </span>
-          <span className="truncate">
-            관심 매물 견적함{" "}
-            <span className="text-[11.5px] font-normal text-white/70">
-              ({expanded ? "접기" : "열기"})
+                  {/* 수량 조절 버튼 */}
+                  <div className="flex items-center rounded border border-white/20 bg-white/10 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateQuoteBasketItemQuantity(item.id, qty - 1)
+                      }
+                      aria-label={`${item.title} 수량 감소`}
+                      className="px-2 py-0.5 text-[12px] font-bold text-white hover:bg-white/20"
+                    >
+                      -
+                    </button>
+                    <span className="px-1.5 text-[11.5px] font-bold tabular-nums">
+                      {qty}대
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateQuoteBasketItemQuantity(item.id, qty + 1)
+                      }
+                      aria-label={`${item.title} 수량 증가`}
+                      className="px-2 py-0.5 text-[12px] font-bold text-white hover:bg-white/20"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => removeQuoteBasketItem(item.id)}
+                    aria-label={`${item.title} 견적함에서 제거`}
+                    className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-red-600 hover:text-white"
+                  >
+                    <Icon d={ICON.close} className="w-3 h-3" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="flex min-w-0 items-center gap-2 text-left text-[13px] font-bold text-white hover:text-[#FF8A50]"
+          >
+            <span className="inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[#D9531E] px-1.5 text-[12px] font-bold text-white tabular-nums">
+              {items.length}
             </span>
-          </span>
-        </button>
+            <span className="truncate">
+              견적함 ({totalUnits}대){" "}
+              <span className="text-[11px] font-normal text-white/70">
+                {expanded ? "접기" : "수량·목록"}
+              </span>
+            </span>
+          </button>
 
-        <Link
-          href="/inquiry?write=1&bundle=1"
-          className="hb-btn-accent h-9 px-3.5 text-[12.5px] shrink-0 whitespace-nowrap"
-        >
-          <span>일괄 견적 문의</span>
-          <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-        </Link>
-      </div>
-    </aside>
+          <div className="flex items-center gap-1.5 shrink-0">
+            {items.length >= 2 && (
+              <button
+                type="button"
+                onClick={() => {
+                  trackEvent("compare_products", { count: items.length });
+                  setCompareOpen(true);
+                }}
+                className="rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-[12px] font-bold text-white hover:bg-white/20 whitespace-nowrap"
+              >
+                📊 비교({Math.min(3, items.length)})
+              </button>
+            )}
+            <Link
+              href="/inquiry?write=1&bundle=1"
+              className="hb-btn-accent h-9 px-3 text-[12.5px] shrink-0 whitespace-nowrap"
+            >
+              <span>일괄 문의</span>
+              <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </aside>
+
+      {compareOpen && (
+        <ProductCompareModal
+          open={compareOpen}
+          onClose={() => setCompareOpen(false)}
+          items={items}
+        />
+      )}
+    </>
   );
 }
 

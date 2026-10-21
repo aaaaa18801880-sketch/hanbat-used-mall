@@ -24,6 +24,8 @@ import {
   QUOTE_BASKET_EVENT,
   type QuoteBasketItem,
   removeQuoteBasketItem,
+  updateQuoteBasketItemQuantity,
+  isProductSold,
   smsHref,
   STORAGE_BUCKETS,
   STORE,
@@ -213,7 +215,7 @@ export function UnifiedInquiryForm({
     if (items.length === 0) return;
     const summary = formatQuoteBasketSummary(items);
     const nextType =
-      summary.hasCommercialItem || items.length >= 2
+      summary.hasCommercialItem || items.length >= 2 || summary.totalUnitCount >= 2
         ? "대량·업소용 상담"
         : "구매 문의";
     setInquiryType(nextType);
@@ -223,15 +225,17 @@ export function UnifiedInquiryForm({
       setBulkItems(
         items.map((it, idx) => ({
           id: `basket-${idx}`,
-          category: it.title,
-          requestedQuantity: "1대",
+          category: `${it.title} (#${String(it.id).slice(0, 6)})`,
+          requestedQuantity: `${it.quantity || 1}대`,
           modelNumber: it.modelName || "",
-          specs: formatProductPrice(it.price, it.category),
+          specs: isProductSold(it.status)
+            ? "판매완료(유사재고 요청)"
+            : formatProductPrice(it.price, it.category),
         }))
       );
     }
     setBundleApplied(true);
-      }, []);
+  }, []);
 
   
   useEffect(() => {
@@ -958,32 +962,61 @@ export function UnifiedInquiryForm({
           </div>
 
           <ul className="mt-2.5 flex flex-wrap gap-2">
-            {basketItems.map((item) => (
-              <li
-                key={item.id}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-[13px]"
-              >
-                <span className="font-bold text-[#0E1A2B]">
-                  {item.title}
-                </span>
-                <span className="text-[#D9531E] font-extrabold">
-                  ({formatProductPrice(item.price, item.category)})
-                </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    const next = removeQuoteBasketItem(item.id);
-                    if (bundleApplied && next.length > 0) {
-                      applyBasketToForm(next);
-                    }
-                  }}
-                  aria-label={`${item.title} 제외`}
-                  className="text-[#8A8478] hover:text-red-600 font-bold px-1"
+            {basketItems.map((item) => {
+              const qty = item.quantity || 1;
+              return (
+                <li
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-[13px]"
                 >
-                  ×
-                </button>
-              </li>
-            ))}
+                  <span className="font-bold text-[#0E1A2B]">
+                    {item.title}
+                  </span>
+                  <span className="text-[#D9531E] font-extrabold">
+                    ({formatProductPrice(item.price, item.category)})
+                  </span>
+                  {/* 수량 조절 버튼 */}
+                  <div className="inline-flex items-center rounded border border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = updateQuoteBasketItemQuantity(item.id, qty - 1);
+                        if (bundleApplied && next.length > 0) applyBasketToForm(next);
+                      }}
+                      className="px-1.5 py-0.5 hover:bg-white"
+                      aria-label={`${item.title} 수량 감소`}
+                    >
+                      -
+                    </button>
+                    <span className="px-1 tabular-nums">{qty}대</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const next = updateQuoteBasketItemQuantity(item.id, qty + 1);
+                        if (bundleApplied && next.length > 0) applyBasketToForm(next);
+                      }}
+                      className="px-1.5 py-0.5 hover:bg-white"
+                      aria-label={`${item.title} 수량 증가`}
+                    >
+                      +
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = removeQuoteBasketItem(item.id);
+                      if (bundleApplied && next.length > 0) {
+                        applyBasketToForm(next);
+                      }
+                    }}
+                    aria-label={`${item.title} 제외`}
+                    className="text-[#8A8478] hover:text-red-600 font-bold px-1"
+                  >
+                    ×
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
