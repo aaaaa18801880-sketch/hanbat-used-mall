@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-22T12:33:34.047Z">
+<project name="hanbat-mall" generated_at="2026-10-22T12:49:33.889Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>78</file_count>
+    <file_count>84</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -25465,6 +25465,45 @@ main().catch((err) => {
 
 ]]>
     </file>
+    <file path="scripts/do-push.mjs" lines="35">
+      <![CDATA[
+import { spawnSync } from 'child_process';
+import fs from 'fs';
+
+const gitBin = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
+const execPath = 'C:\\Program Files\\Git\\mingw64\\libexec\\git-core';
+console.log('git-remote-https exists:', fs.existsSync(`${execPath}\\git-remote-https.exe`));
+
+const env = {
+  ...process.env,
+  PATH: `C:\\Program Files\\Git\\mingw64\\bin;${execPath};C:\\Program Files\\Git\\usr\\bin;${process.env.PATH}`,
+  GIT_EXEC_PATH: execPath,
+};
+
+function run(args) {
+  console.log(`\n> git ${args.join(' ')}`);
+  const res = spawnSync(gitBin, args, { env, encoding: 'utf8' });
+  if (res.stdout) process.stdout.write(res.stdout);
+  if (res.stderr) process.stderr.write(res.stderr);
+  if (res.status !== 0) {
+    if (res.error) console.error('Error:', res.error);
+    throw new Error(`git ${args.join(' ')} failed with code ${res.status}`);
+  }
+  return res.stdout;
+}
+
+try {
+  run(['push', 'origin', 'main']);
+  run(['log', '-1', '--oneline']);
+  run(['status']);
+  console.log('\n=== PUSH SUCCEEDED ===');
+} catch (e) {
+  console.error(e.message);
+  process.exit(1);
+}
+
+]]>
+    </file>
     <file path="scripts/generate-favicons.mjs" lines="82">
       <![CDATA[
 import fs from "fs";
@@ -25581,6 +25620,84 @@ async function generateOgImages() {
 }
 
 generateOgImages().catch(console.error);
+
+]]>
+    </file>
+    <file path="scripts/git-commit-push.mjs" lines="35">
+      <![CDATA[
+import { execSync } from 'child_process';
+
+const gitPath = 'C:\\Program Files\\Git\\cmd\\git.exe';
+function run(cmd) {
+  console.log(`> ${cmd}`);
+  const out = execSync(`"${gitPath}" ${cmd}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
+  console.log(out);
+  return out;
+}
+
+try {
+  console.log('=== Staging all changes ===');
+  run('add -A');
+
+  console.log('=== Committing ===');
+  run('commit -m "fix: resolve prefix duplication, sold sms branching, form title cleanup, and script assertions"');
+
+  console.log('=== Waiting 5 seconds before push ===');
+  execSync('node -e "setTimeout(() => {}, 5000)"');
+
+  console.log('=== Pushing to origin main ===');
+  run('push origin main');
+
+  console.log('=== Verifying git log -1 and status ===');
+  run('log -1 --oneline');
+  run('status');
+  console.log('=== Git operations completed successfully ===');
+} catch (err) {
+  console.error('Git execution failed:');
+  if (err.stdout) console.log('STDOUT:', err.stdout.toString());
+  if (err.stderr) console.error('STDERR:', err.stderr.toString());
+  console.error(err.message);
+  process.exit(1);
+}
+
+]]>
+    </file>
+    <file path="scripts/git-push-only.mjs" lines="35">
+      <![CDATA[
+import { spawn } from 'child_process';
+
+function runGit(args) {
+  return new Promise((resolve, reject) => {
+    console.log(`\n> git ${args.join(' ')}`);
+    const proc = spawn('C:\\Program Files\\Git\\mingw64\\bin\\git.exe', args, {
+      stdio: 'inherit',
+      env: {
+        ...process.env,
+        PATH: 'C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\mingw64\\libexec\\git-core;C:\\Program Files\\Git\\usr\\bin;' + (process.env.PATH || ''),
+      }
+    });
+    proc.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`git ${args[0]} failed with code ${code}`));
+    });
+    proc.on('error', reject);
+  });
+}
+
+async function main() {
+  console.log('=== Pushing cb39c9f to origin main ===');
+  await runGit(['push', 'origin', 'main']);
+  console.log('\n=== Verifying git log -1 --oneline ===');
+  await runGit(['log', '-1', '--oneline']);
+  console.log('\n=== Verifying git status ===');
+  await runGit(['status']);
+  console.log('\n=== ALL DONE ===');
+}
+
+main().catch(err => {
+  console.error('Failed:', err);
+  process.exit(1);
+});
 
 ]]>
     </file>
@@ -25797,6 +25914,105 @@ async function run() {
 }
 
 run();
+
+]]>
+    </file>
+    <file path="scripts/run-git.mjs" lines="39">
+      <![CDATA[
+import { spawnSync } from 'child_process';
+import fs from 'fs';
+
+const gitExe = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
+
+function git(...args) {
+  console.log(`\n> git ${args.join(' ')}`);
+  const res = spawnSync(gitExe, args, { encoding: 'utf8' });
+  if (res.error) console.error('Spawn error:', res.error);
+  if (res.stdout) process.stdout.write(res.stdout);
+  if (res.stderr) process.stderr.write(res.stderr);
+  if (res.status !== 0) {
+    throw new Error(`git ${args[0]} failed with code ${res.status}`);
+  }
+  return res.stdout;
+}
+
+try {
+  console.log('--- Step 8: Git Stage, Commit & Push ---');
+  git('add', '-A');
+  git('commit', '-m', 'fix: resolve prefix duplication, sold sms branching, form title cleanup, and script assertions');
+  
+  console.log('\n--- Waiting 5 seconds before push ---');
+  const end = Date.now() + 5000;
+  while (Date.now() < end) {}
+
+  console.log('\n--- Pushing to origin main ---');
+  git('push', 'origin', 'main');
+
+  console.log('\n--- Verifying git log and status ---');
+  git('log', '-1', '--oneline');
+  git('status');
+
+  console.log('\n=== Git Stage, Commit & Push SUCCESS ===');
+} catch (e) {
+  console.error('\n❌ Execution error:', e.message);
+  process.exit(1);
+}
+
+]]>
+    </file>
+    <file path="scripts/sync-repo.mjs" lines="52">
+      <![CDATA[
+import { spawn } from 'child_process';
+
+const gitBin = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
+const gitExecPath = 'C:\\Program Files\\Git\\mingw64\\libexec\\git-core';
+const mingwBin = 'C:\\Program Files\\Git\\mingw64\\bin';
+const usrBin = 'C:\\Program Files\\Git\\usr\\bin';
+
+const origPath = process.env.Path || process.env.PATH || '';
+const cleanEnv = {};
+for (const key of Object.keys(process.env)) {
+  if (key.toUpperCase() !== 'PATH') {
+    cleanEnv[key] = process.env[key];
+  }
+}
+cleanEnv.Path = `${mingwBin};${gitExecPath};${usrBin};${origPath}`;
+cleanEnv.GIT_EXEC_PATH = gitExecPath;
+
+console.log('Testing Path prefix:', cleanEnv.Path.slice(0, 100));
+
+function runGit(args) {
+  return new Promise((resolve, reject) => {
+    console.log(`\n> git ${args.join(' ')}`);
+    const proc = spawn(gitBin, args, {
+      stdio: 'inherit',
+      env: cleanEnv,
+    });
+    proc.on('close', (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`git ${args.join(' ')} failed with code ${code}`));
+    });
+    proc.on('error', reject);
+  });
+}
+
+async function main() {
+  console.log('=== Step 8: Git Push with clean Path ===');
+  await runGit(['push', 'origin', 'main']);
+
+  console.log('\n=== Verifying git log -1 --oneline ===');
+  await runGit(['log', '-1', '--oneline']);
+
+  console.log('\n=== Verifying git status ===');
+  await runGit(['status']);
+
+  console.log('\n🎉 ALL GIT OPERATIONS COMPLETED SUCCESSFULLY!');
+}
+
+main().catch(err => {
+  console.error('\n❌ Execution error:', err.message);
+  process.exit(1);
+});
 
 ]]>
     </file>
@@ -26059,6 +26275,46 @@ async function runPhase4RegressionTests() {
 }
 
 runPhase4RegressionTests();
+
+]]>
+    </file>
+    <file path="scripts/verify-live-sites.mjs" lines="36">
+      <![CDATA[
+async function checkLive() {
+  const tests = [
+    { url: 'https://hanbatmall.com', name: 'Home' },
+    { url: 'https://hanbatmall.com/gallery', name: 'Gallery', expected: '카페·디저트창업' },
+    { url: 'https://hanbatmall.com/inquiry', name: 'Inquiry' },
+    { url: 'https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136', name: 'Product Detail' },
+  ];
+
+  console.log('=== Checking Live Production Status ===');
+  let allOk = true;
+
+  for (const t of tests) {
+    try {
+      const res = await fetch(t.url, {
+        headers: { 'User-Agent': 'hanbat-verify/1.0' },
+        cache: 'no-store'
+      });
+      const text = await res.text();
+      const statusOk = res.status === 200;
+      let contentOk = true;
+      if (t.expected) {
+        contentOk = text.includes(t.expected);
+      }
+      console.log(`[${t.name}] Status: ${res.status} | Content match: ${contentOk}`);
+      if (!statusOk || !contentOk) allOk = false;
+    } catch (e) {
+      console.error(`[${t.name}] Fetch failed:`, e.message);
+      allOk = false;
+    }
+  }
+
+  console.log(`\nLive check overall result: ${allOk ? 'ALL PASS ✅' : 'FAIL ❌'}`);
+}
+
+checkLive();
 
 ]]>
     </file>
