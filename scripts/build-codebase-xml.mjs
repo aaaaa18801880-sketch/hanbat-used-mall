@@ -11,6 +11,10 @@ try {
     fs.unlinkSync("scripts/deploy-step.ps1");
     console.log("Cleaned up scripts/deploy-step.ps1");
   }
+  if (fs.existsSync("scripts/clean-and-xml.mjs")) {
+    fs.unlinkSync("scripts/clean-and-xml.mjs");
+    console.log("Cleaned up scripts/clean-and-xml.mjs");
+  }
 } catch (e) {
   console.warn("Could not remove temp scripts:", e.message);
 }
