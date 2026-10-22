@@ -75,6 +75,33 @@ const PRICE_RANGE_OPTIONS: ReadonlyArray<{
   { value: "over150", label: "150만원 이상", min: 1500000 },
 ] as const;
 
+const SITUATION_PRESETS = [
+  {
+    label: "🏠 원룸·자취필수",
+    category: "냉장고",
+    keyword: "",
+    desc: "원룸·오피스텔 입주용 가전",
+  },
+  {
+    label: "☕ 카페·디저트창업",
+    category: "업소용기기",
+    keyword: "쇼케이스",
+    desc: "제빙기·테이블냉장·쇼케이스",
+  },
+  {
+    label: "🍖 식당·주방설비",
+    category: "업소용기기",
+    keyword: "45박스",
+    desc: "45박스·식기세척기·작업대",
+  },
+  {
+    label: "❄️ 사계절 냉난방",
+    category: "에어컨/냉난방기",
+    keyword: "냉난방",
+    desc: "상가·사무실·가정용 냉난방기",
+  },
+] as const;
+
 
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
@@ -1931,127 +1958,165 @@ export default function GalleryPage() {
 
       {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[68px] sm:h-[76px]에 정확히 밀착) */}
       <div className="sticky top-[68px] sm:top-[76px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E6E3DC] shadow-2xs">
-        <div className="hb-container py-2.5 sm:py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
-          {/* 카테고리 탭 */}
-          <div
-            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
-            role="tablist"
-            aria-label="상품 카테고리 필터"
-          >
-            {CATEGORIES_WITH_ALL.map((cat) => {
-              const active = activeCategory === cat;
-              return (
-                <button
-                  key={cat}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => {
-                    setActiveCategory(cat);
-                    setVisibleLimit(PAGE_STEP);
-                  }}
-                  className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-[12.5px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
-                    active
-                      ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
-                      : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
-                  }`}
-                >
-                  {cat}
-                  <span
-                    className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] tabular-nums ${
-                      active ? "text-[#FF8A50]" : "text-[#667085]"
+        <div className="hb-container py-2.5 sm:py-3 flex flex-col gap-2">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
+            {/* 카테고리 탭 */}
+            <div
+              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
+              role="tablist"
+              aria-label="상품 카테고리 필터"
+            >
+              {CATEGORIES_WITH_ALL.map((cat) => {
+                const active = activeCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    role="tab"
+                    aria-selected={active}
+                    onClick={() => {
+                      setActiveCategory(cat);
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-[12.5px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                      active
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
+                        : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
                     }`}
                   >
-                    {categoryCounts[cat] || 0}
-                  </span>
+                    {cat}
+                    <span
+                      className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] tabular-nums ${
+                        active ? "text-[#FF8A50]" : "text-[#667085]"
+                      }`}
+                    >
+                      {categoryCounts[cat] || 0}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* 검색창 + 판매 상태 필터 + 정렬 */}
+            <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
+              <div className="relative flex-1 min-w-0 sm:w-64">
+                <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
+                  <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setVisibleLimit(PAGE_STEP);
+                  }}
+                  placeholder="제품명·모델명 검색"
+                  aria-label="제품명 또는 모델명 검색"
+                  className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+                />
+                {search.trim() !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    aria-label="검색어 지우기"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                  >
+                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as StatusFilter);
+                  setVisibleLimit(PAGE_STEP);
+                }}
+                aria-label="판매 상태 필터"
+                className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+              >
+                <option value="all">전체 상태</option>
+                <option value="selling">판매중만</option>
+                <option value="reserved">예약중</option>
+                <option value="sold">판매완료</option>
+              </select>
+
+              <select
+                value={priceRange}
+                onChange={(e) => {
+                  const nextPrice = e.target.value as PriceRangeOption;
+                  setPriceRange(nextPrice);
+                  setVisibleLimit(PAGE_STEP);
+                  trackEvent("filter_gallery", {
+                    category: activeCategory,
+                    price_range: nextPrice,
+                  });
+                }}
+                aria-label="가격대 범위 필터"
+                className={`h-9 sm:h-10 px-2 sm:px-3 rounded-lg border text-[12px] sm:text-[13.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
+                  priceRange !== "all"
+                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                    : "border-[#D8D3C8] bg-white text-[#3E4856]"
+                }`}
+              >
+                {PRICE_RANGE_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                value={sort}
+                onChange={(e) => setSort(e.target.value as SortOption)}
+                aria-label="정렬 기준"
+                className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+              >
+                <option value="latest">최신 등록순</option>
+                <option value="views">조회 많은순</option>
+                <option value="priceAsc">낮은 가격순</option>
+                <option value="priceDesc">높은 가격순</option>
+              </select>
+            </div>
+          </div>
+
+          {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-1 border-t border-[#F0EDE6] text-[11.5px]">
+            <span className="shrink-0 text-[11px] font-bold text-[#8A8478] mr-0.5">
+              💡 맞춤 프리셋:
+            </span>
+            {SITUATION_PRESETS.map((preset) => {
+              const active =
+                activeCategory === preset.category &&
+                (!preset.keyword || search === preset.keyword);
+              return (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => {
+                    setActiveCategory(preset.category);
+                    setSearch(preset.keyword);
+                    setVisibleLimit(PAGE_STEP);
+                    trackEvent("click_situation_preset", {
+                      preset: preset.label,
+                      category: preset.category,
+                      keyword: preset.keyword,
+                    });
+                  }}
+                  className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors border shrink-0 ${
+                    active
+                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
+                      : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                  }`}
+                  title={preset.desc}
+                >
+                  {preset.label}
                 </button>
               );
             })}
-          </div>
-
-          {/* 검색창 + 판매 상태 필터 + 정렬 */}
-          <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
-            <div className="relative flex-1 min-w-0 sm:w-64">
-              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
-                <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </span>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setVisibleLimit(PAGE_STEP);
-                }}
-                placeholder="제품명·모델명 검색"
-                aria-label="제품명 또는 모델명 검색"
-                className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
-              />
-              {search.trim() !== "" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
-                    setVisibleLimit(PAGE_STEP);
-                  }}
-                  aria-label="검색어 지우기"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
-                >
-                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value as StatusFilter);
-                setVisibleLimit(PAGE_STEP);
-              }}
-              aria-label="판매 상태 필터"
-              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
-            >
-              <option value="all">전체 상태</option>
-              <option value="selling">판매중만</option>
-              <option value="reserved">예약중</option>
-              <option value="sold">판매완료</option>
-            </select>
-
-            <select
-              value={priceRange}
-              onChange={(e) => {
-                const nextPrice = e.target.value as PriceRangeOption;
-                setPriceRange(nextPrice);
-                setVisibleLimit(PAGE_STEP);
-                trackEvent("filter_gallery", {
-                  category: activeCategory,
-                  price_range: nextPrice,
-                });
-              }}
-              aria-label="가격대 범위 필터"
-              className={`h-9 sm:h-10 px-2 sm:px-3 rounded-lg border text-[12px] sm:text-[13.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
-                priceRange !== "all"
-                  ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
-                  : "border-[#D8D3C8] bg-white text-[#3E4856]"
-              }`}
-            >
-              {PRICE_RANGE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortOption)}
-              aria-label="정렬 기준"
-              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
-            >
-              <option value="latest">최신 등록순</option>
-              <option value="views">조회 많은순</option>
-              <option value="priceAsc">낮은 가격순</option>
-              <option value="priceDesc">높은 가격순</option>
-            </select>
           </div>
         </div>
       </div>
@@ -2173,53 +2238,15 @@ export default function GalleryPage() {
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
-            <p className="text-[#0E1A2B] text-[18px] font-bold">
-              조건에 맞는 상품이 없습니다.
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC] shadow-2xs">
+            <p className="text-[#0E1A2B] text-[18px] font-extrabold">
+              {search.trim()
+                ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
+                : "선택하신 필터 조건에 맞는 상품이 없습니다."}
             </p>
-            <p className="mt-1.5 text-[#667085] text-[14px]">
-              검색어나 필터를 초기화하시거나, 찾으시는 모델명을 전화·카톡으로 문의해 주세요.
+            <p className="mt-1.5 text-[#667085] text-[14px] max-w-lg mx-auto break-keep">
+              중촌동 직영 매장에는 온라인에 미처 올리지 못한 대기 매물이 많습니다. 찾으시는 품목을 바로 문의해 주시면 창고 재고를 즉시 확인해 드립니다.
             </p>
-
-            {search.trim() ? (
-              <div className="mx-auto mt-6 max-w-lg rounded-xl border border-[#D9531E]/20 bg-[#FFF9F6] p-4 sm:p-5 text-left">
-                <div className="flex items-start gap-3">
-                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#D9531E] text-white">
-                    <Icon d={ICON.search} className="h-5 w-5" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14.5px] font-bold text-[#0E1A2B]">
-                      &lsquo;{search.trim()}&rsquo; 관련 매장 미등록 재고가 필요하신가요?
-                    </p>
-                    <p className="mt-1 text-[12.5px] text-[#555] leading-relaxed break-keep">
-                      온라인 갤러리 미등록 창고 재고 및 입고 예정 제품 중 찾으시는 스펙이 있는지 빠르게 확인해 드립니다.
-                    </p>
-                    <div className="mt-3.5 flex flex-wrap gap-2">
-                      <Link
-                        href={`/inquiry?write=1&type=${encodeURIComponent(
-                          "구매 문의"
-                        )}&title=${encodeURIComponent(`[재고문의] ${search.trim()}`)}`}
-                        className="hb-btn-primary inline-flex h-10 items-center gap-1.5 px-4 text-[13px] font-bold shadow-xs"
-                      >
-                        <Icon d={ICON.pen} className="w-3.5 h-3.5" />
-                        &lsquo;{search.trim()}&rsquo; 매장 미등록 재고 바로 문의하기
-                      </Link>
-                      <a
-                        href={smsHref(
-                          STORE.mobile,
-                          `[한밭중고전자 매장 재고문의]\n- 검색 품목: ${search.trim()}\n- 매장 내 보유 중이거나 입고 예정인 제품이 있는지 확인 부탁드립니다.`
-                        )}
-                        className="hb-btn-outline inline-flex h-10 items-center gap-1.5 px-3.5 text-[13px] font-bold bg-white"
-                      >
-                        <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
-                        문자 문의
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
             <div className="mt-6 flex flex-wrap justify-center gap-2.5">
               <button
                 type="button"
@@ -2228,6 +2255,33 @@ export default function GalleryPage() {
               >
                 전체 필터 초기화
               </button>
+              <Link
+                href={`/inquiry?write=1&type=${encodeURIComponent(
+                  activeCategory === "업소용기기" ? "대량·업소용 상담" : "구매 문의"
+                )}&title=${encodeURIComponent(
+                  `[미등록 재고문의] ${
+                    search.trim() || activeCategory
+                  } 매물 재고 확인 부탁드립니다`
+                )}`}
+                className="hb-btn-accent h-11 px-5 text-[14px]"
+              >
+                <Icon d={ICON.pen} className="w-4 h-4" />
+                <span>
+                  &lsquo;{search.trim() || activeCategory}&rsquo; 매장 미등록 재고 문의
+                </span>
+              </Link>
+              <a
+                href={smsHref(
+                  STORE.mobile,
+                  `[한밭중고전자 미등록재고문의] 홈페이지에서 '${
+                    search.trim() || activeCategory
+                  }' 검색 후 문의드립니다. 매장 보유 재고와 사진 확인 가능할까요?`
+                )}
+                className="hb-btn-primary h-11 px-5 text-[14px]"
+              >
+                <Icon d={ICON.chat} className="w-4 h-4 text-[#FF8A50]" />
+                <span>문자로 실물사진 요청</span>
+              </a>
               <a
                 href={STORE.kakaoChat}
                 target="_blank"

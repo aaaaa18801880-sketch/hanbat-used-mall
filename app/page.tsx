@@ -1762,6 +1762,34 @@ export default function Home() {
                 ))}
               </div>
             )}
+
+            {/* 배송·설치 현장 기록 ↔ 실매물 갤러리 및 맞춤 견적 브릿지 */}
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 border-t border-white/15 pt-3.5">
+              <span className="text-[12.5px] text-white/75">
+                💡 이 현장과 비슷한 제품이나 설치 견적이 궁금하신가요?
+              </span>
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                <Link
+                  href="/gallery"
+                  onClick={() => setLightbox(null)}
+                  className="rounded-lg border border-white/25 bg-white/10 px-3.5 py-2 text-[12.5px] font-bold text-white hover:bg-white/20"
+                >
+                  판매 중인 실매물 보기
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const refTitle = lightbox.review.title || "배송·설치 현장 사례";
+                    setLightbox(null);
+                    openInquiry("구매 문의", `[설치사례 참고문의] ${refTitle}`);
+                  }}
+                  className="hb-btn-accent h-9 px-4 text-[12.5px]"
+                >
+                  <span>이 사례처럼 견적 문의하기</span>
+                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
           </div>
         </Modal>
       )}

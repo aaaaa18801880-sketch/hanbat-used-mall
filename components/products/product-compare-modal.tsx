@@ -22,6 +22,22 @@ import {
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
 
+function extractWidthMmFromItem(item: QuoteBasketItem): number | null {
+  const text = `${item.title || ""}\n${item.description || ""}`;
+  // 1) 명시적 가로/폭 mm 패턴 또는 가로×세로×높이 첫 숫자 추출
+  const dimMatch = text.match(
+    /(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm|\b(\d{3,4})\s*[x×*]\s*\d{3,4}/i
+  );
+  if (dimMatch) {
+    const val = Number(dimMatch[1] || dimMatch[2]);
+    if (val >= 350 && val <= 3000) return val;
+  }
+  // 2) 업소용 표준 박스 규격 참고치
+  if (/45\s*박스/.test(text)) return 1260;
+  if (/25\s*박스|30\s*박스/.test(text)) return 650;
+  return null;
+}
+
 export function ProductCompareModal({
   open,
   onClose,
@@ -97,7 +113,48 @@ export function ProductCompareModal({
               비교할 상품이 없습니다. 갤러리에서 관심 매물을 견적함에 담아주세요.
             </div>
           ) : (
-            <table className="w-full min-w-[540px] border-collapse text-left text-[13px] sm:text-[13.5px]">
+            <>
+              {(() => {
+                const widths = compareItems
+                  .map((it) => {
+                    const w = extractWidthMmFromItem(it);
+                    const qty = it.quantity && it.quantity > 0 ? it.quantity : 1;
+                    return w ? { title: it.title, width: w * qty, qty } : null;
+                  })
+                  .filter(
+                    (x): x is { title: string; width: number; qty: number } =>
+                      Boolean(x)
+                  );
+
+                if (widths.length === 0) return null;
+                const totalWidthMm = widths.reduce(
+                  (acc, cur) => acc + cur.width,
+                  0
+                );
+
+                return (
+                  <div className="mb-4 rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
+                    <span>
+                      📏{" "}
+                      <strong className="text-[#0E1A2B]">
+                        설치 공간 가로폭 참고:
+                      </strong>{" "}
+                      치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
+                      <strong className="text-[#D9531E] font-extrabold tabular-nums">
+                        {totalWidthMm.toLocaleString()}mm (
+                        {(totalWidthMm / 1000).toFixed(2)}m)
+                      </strong>
+                      입니다.
+                    </span>
+                    <span className="text-[11.5px] text-[#646E7E]">
+                      ※ 방열 및 문열림을 위해 양옆 최소 100mm 이상 여유 공간을
+                      권장합니다.
+                    </span>
+                  </div>
+                );
+              })()}
+
+              <table className="w-full min-w-[540px] border-collapse text-left text-[13px] sm:text-[13.5px]">
               <thead>
                 <tr className="border-b border-[#E5E2DC]">
                   <th className="w-[110px] sm:w-[130px] bg-[#FAF9F7] p-3 font-bold text-[#646E7E] align-middle">
@@ -362,6 +419,7 @@ export function ProductCompareModal({
                 </tr>
               </tbody>
             </table>
+            </>
           )}
         </div>
 

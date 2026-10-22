@@ -233,6 +233,11 @@ export default function IntegratedAdminDashboard() {
       (p) => normalizeProductStatus(p.status) === "예약중"
     ).length;
     const soldProducts = products.filter((p) => isProductSold(p.status)).length;
+    const staleSellingProducts = products.filter(
+      (p) =>
+        normalizeProductStatus(p.status) === "판매중" &&
+        getDaysSinceCreated(p.created_at) >= 30
+    ).length;
 
     return {
       totalInquiries: regularInquiries.length,
@@ -242,6 +247,7 @@ export default function IntegratedAdminDashboard() {
       sellingProducts,
       reservedProducts,
       soldProducts,
+      staleSellingProducts,
       deliveryCount: deliveryCases.length,
     };
   }, [inquiries, products, deliveryCases]);
@@ -1994,7 +2000,9 @@ export default function IntegratedAdminDashboard() {
                         {s}
                       </option>
                     ))}
-                    <option value="stale30">⚡ 30일+ 장기 판매중 점검</option>
+                    <option value="stale30">
+                      ⚡ 30일+ 장기 판매중 점검 ({metrics.staleSellingProducts}건)
+                    </option>
                   </select>
                   <input
                     type="search"

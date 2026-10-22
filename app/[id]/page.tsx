@@ -5,7 +5,6 @@ import { supabase } from "../../lib/supabase";
 import {
   STORE,
   telHref,
-  smsHref,
   splitImages,
   isProductSold,
   getProductStatusLabel,
@@ -28,7 +27,7 @@ import {
   ProductDetailGallery,
   CopyProductLinkButton,
   CopyPromoPostButton,
-  QuoteBasketButton,
+  InteractiveChecklistAndCta,
 } from "../../components/products/product-detail-gallery";
 import {
   ProductCard,
@@ -566,121 +565,26 @@ export default async function ProductDetailPage({
               </div>
             </div>
 
-            {/* 4. 설치 환경 체크리스트 표 + 상담 동선 */}
-            <div className="mt-7 pt-5 border-t border-[#E5E2DC] space-y-5">
-              <div aria-label={checklistConfig.title}>
-                <div className="flex items-center justify-between mb-2">
-                  <h2 className="text-[13.5px] font-bold text-[#0E1A2B] flex items-center gap-1.5">
-                    <Icon
-                      d={ICON.check}
-                      className="h-3.5 w-3.5 text-[#D9531E]"
-                    />
-                    <span>{checklistConfig.title}</span>
-                  </h2>
-                  <span className="text-[11.5px] font-semibold text-[#646E7E]">
-                    {checklistConfig.badge}
-                  </span>
-                </div>
+            {/* 4. 인터랙티브 설치 환경 체크리스트 표 + 조건 첨부 상담 동선 */}
+            <InteractiveChecklistAndCta
+              product={{
+                id: String(product.id),
+                title: product.title,
+                price: product.price,
+                status: product.status,
+                condition_grade: product.condition_grade,
+                description: product.description,
+              }}
+              categoryLabel={categoryLabel}
+              sold={sold}
+              modelName={modelName}
+              firstImageUrl={images[0] || null}
+              checklistConfig={checklistConfig}
+            />
 
-                <dl className="divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-[12.5px]">
-                  {checklistConfig.rows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="grid grid-cols-[78px_1fr] sm:grid-cols-[84px_1fr] gap-2.5 py-2 items-start"
-                    >
-                      <dt className="font-semibold text-[#0E1A2B]">
-                        {row.label}
-                      </dt>
-                      <dd className="text-[#3E4756] leading-snug break-keep">
-                        {row.desc}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-
-              {categoryLabel === "에어컨/냉난방기" && (
-                <AirconSetGuideBanner variant="card" className="mt-4" />
-              )}
-
-              {/* 상담 버튼 그룹 */}
-              <div className="space-y-2.5">
-                {sold ? (
-                  <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] p-3.5 text-[13px] text-[#3E4756]">
-                    <strong className="block font-bold text-[#D9531E] mb-0.5">
-                      💡 본 상품은 판매가 완료되었습니다.
-                    </strong>
-                    <p className="leading-snug break-keep">
-                      중촌동 직영 매장에는 온라인에 미처 등록하지 못한{" "}
-                      <strong className="text-[#0E1A2B]">
-                        동일·유사 규격({categoryLabel}) 매물
-                      </strong>
-                      이 상시 준비되어 있습니다. 아래 버튼으로 편하게 재고를 문의해 주세요.
-                    </p>
-                  </div>
-                ) : (
-                  <QuoteBasketButton
-                    item={{
-                      id: String(product.id),
-                      title: product.title,
-                      category: categoryLabel,
-                      price: product.price,
-                      modelName,
-                      imageUrl: images[0] || null,
-                    }}
-                  />
-                )}
-                <div className="grid grid-cols-2 gap-2.5">
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="hb-btn-primary h-11 text-[14px]"
-                  >
-                    <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
-                    <span>{sold ? "유사매물 전화문의" : "전화 상담"}</span>
-                  </a>
-                  <a
-                    href={STORE.kakaoChat}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hb-btn-kakao h-11 text-[14px]"
-                  >
-                    <Icon d={ICON.chat} className="h-4 w-4" />
-                    <span>카카오톡 문의</span>
-                  </a>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <a
-                    href={smsHref(
-                      STORE.mobile,
-                      sold
-                        ? `[한밭중고전자 유사매물문의] [${categoryLabel}] 판매완료된 '${product.title}'${
-                            modelName ? ` (${modelName})` : ""
-                          }와 비슷한 스펙의 현재 재고 문의드립니다.`
-                        : `[한밭중고전자 상품문의] [${categoryLabel}] ${product.title}${
-                            modelName ? ` (${modelName})` : ""
-                          } 재고 및 배송·설치 견적 문의드립니다.`
-                    )}
-                    className="hb-btn-outline h-10 text-[13px]"
-                  >
-                    <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E]" />
-                    <span>문자({STORE.mobile}) 문의</span>
-                  </a>
-                  <Link
-                    href={inquiryHref}
-                    className="hb-btn-outline h-10 text-[13px]"
-                  >
-                    <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#D9531E]" />
-                    <span>
-                      {sold ? "동일·유사 모델 재고 문의" : "온라인 문의 남기기"}
-                    </span>
-                  </Link>
-                </div>
-                <p className="pt-1 text-center text-[12px] text-[#646E7E] tabular-nums">
-                  매장 대표전화 <strong className="text-[#0E1A2B]">{STORE.tel}</strong> · 직통{" "}
-                  <strong className="text-[#0E1A2B]">{STORE.mobile}</strong>
-                </p>
-              </div>
-            </div>
+            {categoryLabel === "에어컨/냉난방기" && (
+              <AirconSetGuideBanner variant="card" className="mt-4" />
+            )}
           </div>
         </div>
 

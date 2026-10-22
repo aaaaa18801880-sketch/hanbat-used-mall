@@ -1092,7 +1092,8 @@ export type AnalyticsEventName =
   | "click_kakao_consult"
   | "begin_buyback_inquiry"
   | "submit_inquiry_success"
-  | "filter_gallery";
+  | "filter_gallery"
+  | "click_situation_preset";
 
 const FORBIDDEN_PII_KEYS = new Set([
   "name",

@@ -221,6 +221,7 @@ export default function InquiryBoardPage() {
         const qModel = params.get("model") || "";
         const qCategory = params.get("category") || "";
         const qProductId = params.get("productId") || "";
+        const qEnvNote = params.get("envNote") || "";
 
         if (
           qType === "구매 문의" ||
@@ -232,13 +233,14 @@ export default function InquiryBoardPage() {
           setWriteDefaultType(isBundle ? "대량·업소용 상담" : "내 물건 팔기");
         }
 
-        if (isBundle || qTitle || qModel || qProductId) {
+        if (isBundle || qTitle || qModel || qProductId || qEnvNote) {
           setLinkedProduct({
             productId: qProductId || undefined,
             productTitle: qTitle || undefined,
             modelName: qModel || undefined,
             category: qCategory || undefined,
             useBundle: isBundle,
+            envNote: qEnvNote || undefined,
           });
         }
         setIsWriteOpen(true);

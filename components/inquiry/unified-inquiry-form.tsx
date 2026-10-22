@@ -49,6 +49,7 @@ export interface LinkedProductContext {
   modelName?: string;
   category?: string;
   useBundle?: boolean;
+  envNote?: string;
 }
 
 const SELL_PHOTO_GUIDE_STEPS = [
@@ -275,6 +276,13 @@ export function UnifiedInquiryForm({
       }
       if (linkedProduct?.category) {
         setApplianceCategory(linkedProduct.category);
+      }
+      if (linkedProduct?.envNote) {
+        setDescription((prev) =>
+          prev.trim()
+            ? prev
+            : `[고객 선택 현장·설치 조건]\n• ${linkedProduct.envNote}\n\n[추가 문의 사항]\n• 희망 배송/설치 지역(동 단위): \n• 희망 일정 및 문의 내용: `
+        );
       }
     });
   }, [linkedProduct, applyBasketToForm]);
