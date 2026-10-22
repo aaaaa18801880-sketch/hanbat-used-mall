@@ -4,6 +4,7 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  addRecentViewedProduct,
   extractModelName,
   extractSpecCapsules,
   formatProductPrice,
@@ -80,6 +81,17 @@ export function FeaturedProductsSection({
 
     setSelected({ ...item, views: currentViews });
     setImgIdx(0);
+    const imgs = splitImages(item.image_url);
+    addRecentViewedProduct({
+      id: String(item.id),
+      title: item.title,
+      category: item.category || "기타",
+      price: item.price ?? null,
+      status: item.status,
+      conditionGrade: item.condition_grade ?? null,
+      modelName: extractModelName(item.title, item.description) ?? null,
+      imageUrl: imgs[0] || null,
+    });
     trackEvent("view_item", {
       category: normalizeProductCategory(item.category),
       status: normalizeProductStatus(item.status),
@@ -212,6 +224,37 @@ export function FeaturedProductsSection({
                   </button>
                 );
               })}
+            </div>
+
+            {/* 상황별 맞춤 프리셋 칩 (갤러리 직통 링크) */}
+            <div className="hidden lg:flex items-center gap-1.5 shrink-0 text-[12px]">
+              <span className="shrink-0 text-[11px] font-bold text-[#8A8478]">
+                맞춤 프리셋:
+              </span>
+              <Link
+                href="/gallery?category=냉장고"
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                🏠 원룸·자취
+              </Link>
+              <Link
+                href={`/gallery?category=${encodeURIComponent("업소용기기")}&q=${encodeURIComponent("쇼케이스")}`}
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                ☕ 카페창업
+              </Link>
+              <Link
+                href={`/gallery?category=${encodeURIComponent("업소용기기")}&q=${encodeURIComponent("45박스")}`}
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                🍖 식당주방
+              </Link>
+              <Link
+                href={`/gallery?category=${encodeURIComponent("에어컨/냉난방기")}&q=${encodeURIComponent("냉난방")}`}
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                ❄️ 냉난방기
+              </Link>
             </div>
           </div>
         )}

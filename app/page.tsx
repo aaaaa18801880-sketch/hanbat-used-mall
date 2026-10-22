@@ -43,6 +43,7 @@ import {
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
+import { RecentViewedStrip } from "../components/products/product-compare-modal";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -800,6 +801,11 @@ export default function Home() {
             openInquiry("구매 문의", `[상품문의] ${productTitle}`)
           }
         />
+
+        {/* [4-1] 최근 본 매물 스트립 (방문 고객이 둘러본 매물 유지 연계) */}
+        <div className="hb-container pb-8 -mt-4">
+          <RecentViewedStrip />
+        </div>
 
         {/* ════════════════════════════════════════════════════════════
             [6] 출고·설치 사례 및 신뢰 근거 (#reviews-section + 5대 운영 원칙)

@@ -1959,10 +1959,10 @@ export default function GalleryPage() {
       {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[68px] sm:h-[76px]에 정확히 밀착) */}
       <div className="sticky top-[68px] sm:top-[76px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E6E3DC] shadow-2xs">
         <div className="hb-container py-2.5 sm:py-3 flex flex-col gap-2">
+          {/* 1행: 카테고리 탭 (전체 6개 탭이 잘리지 않고 여유 있게 노출) + 우측 검색창 */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
-            {/* 카테고리 탭 */}
             <div
-              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
+              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0 pr-2 lg:pr-0"
               role="tablist"
               aria-label="상품 카테고리 필터"
             >
@@ -1978,7 +1978,7 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-[12.5px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                    className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[12px] sm:text-[13px] lg:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
                         : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
@@ -1997,38 +1997,78 @@ export default function GalleryPage() {
               })}
             </div>
 
-            {/* 검색창 + 판매 상태 필터 + 정렬 */}
-            <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
-              <div className="relative flex-1 min-w-0 sm:w-64">
-                <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
-                  <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </span>
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
+            {/* 검색창 (1행 우측에 배치되어 카테고리 탭과 충돌하지 않음) */}
+            <div className="relative w-full lg:w-64 xl:w-72 shrink-0">
+              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
+                <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </span>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setVisibleLimit(PAGE_STEP);
+                }}
+                placeholder="제품명·모델명 검색"
+                aria-label="제품명 또는 모델명 검색"
+                className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+              />
+              {search.trim() !== "" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  placeholder="제품명·모델명 검색"
-                  aria-label="제품명 또는 모델명 검색"
-                  className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
-                />
-                {search.trim() !== "" && (
+                  aria-label="검색어 지우기"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                >
+                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* 2행: 좌측 상황별 프리셋 4종 + 우측 판매상태·가격대·정렬 필터 3종 */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-1.5 border-t border-[#F0EDE6]">
+            {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11.5px] shrink-0 pr-2 lg:pr-0">
+              <span className="shrink-0 text-[11px] font-bold text-[#8A8478] mr-0.5">
+                💡 맞춤 프리셋:
+              </span>
+              {SITUATION_PRESETS.map((preset) => {
+                const active =
+                  activeCategory === preset.category &&
+                  (!preset.keyword || search === preset.keyword);
+                return (
                   <button
+                    key={preset.label}
                     type="button"
                     onClick={() => {
-                      setSearch("");
+                      setActiveCategory(preset.category);
+                      setSearch(preset.keyword);
                       setVisibleLimit(PAGE_STEP);
+                      trackEvent("click_situation_preset", {
+                        preset: preset.label,
+                        category: preset.category,
+                        keyword: preset.keyword,
+                      });
                     }}
-                    aria-label="검색어 지우기"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                    className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors border shrink-0 ${
+                      active
+                        ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
+                        : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                    }`}
+                    title={preset.desc}
                   >
-                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                    {preset.label}
                   </button>
-                )}
-              </div>
+                );
+              })}
+            </div>
 
+            {/* 필터 3종 (상태 + 가격대 + 정렬) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -2036,7 +2076,7 @@ export default function GalleryPage() {
                   setVisibleLimit(PAGE_STEP);
                 }}
                 aria-label="판매 상태 필터"
-                className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="all">전체 상태</option>
                 <option value="selling">판매중만</option>
@@ -2056,7 +2096,7 @@ export default function GalleryPage() {
                   });
                 }}
                 aria-label="가격대 범위 필터"
-                className={`h-9 sm:h-10 px-2 sm:px-3 rounded-lg border text-[12px] sm:text-[13.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
+                className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border text-[12px] sm:text-[12.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
                   priceRange !== "all"
                     ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                     : "border-[#D8D3C8] bg-white text-[#3E4856]"
@@ -2073,7 +2113,7 @@ export default function GalleryPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
-                className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
@@ -2081,42 +2121,6 @@ export default function GalleryPage() {
                 <option value="priceDesc">높은 가격순</option>
               </select>
             </div>
-          </div>
-
-          {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-1 border-t border-[#F0EDE6] text-[11.5px]">
-            <span className="shrink-0 text-[11px] font-bold text-[#8A8478] mr-0.5">
-              💡 맞춤 프리셋:
-            </span>
-            {SITUATION_PRESETS.map((preset) => {
-              const active =
-                activeCategory === preset.category &&
-                (!preset.keyword || search === preset.keyword);
-              return (
-                <button
-                  key={preset.label}
-                  type="button"
-                  onClick={() => {
-                    setActiveCategory(preset.category);
-                    setSearch(preset.keyword);
-                    setVisibleLimit(PAGE_STEP);
-                    trackEvent("click_situation_preset", {
-                      preset: preset.label,
-                      category: preset.category,
-                      keyword: preset.keyword,
-                    });
-                  }}
-                  className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors border shrink-0 ${
-                    active
-                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
-                      : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
-                  }`}
-                  title={preset.desc}
-                >
-                  {preset.label}
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>

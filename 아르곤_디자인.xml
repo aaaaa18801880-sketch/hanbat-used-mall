@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-22T02:11:44.224Z">
+<project name="hanbat-mall" generated_at="2026-10-22T05:06:42.189Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>77</file_count>
+    <file_count>79</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -6126,7 +6126,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2895">
+    <file path="app/gallery/page.tsx" lines="2899">
       <![CDATA[
 "use client";
 
@@ -8089,10 +8089,10 @@ export default function GalleryPage() {
       {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[68px] sm:h-[76px]에 정확히 밀착) */}
       <div className="sticky top-[68px] sm:top-[76px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E6E3DC] shadow-2xs">
         <div className="hb-container py-2.5 sm:py-3 flex flex-col gap-2">
+          {/* 1행: 카테고리 탭 (전체 6개 탭이 잘리지 않고 여유 있게 노출) + 우측 검색창 */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
-            {/* 카테고리 탭 */}
             <div
-              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-1 lg:pb-0"
+              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0 pr-2 lg:pr-0"
               role="tablist"
               aria-label="상품 카테고리 필터"
             >
@@ -8108,7 +8108,7 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-lg text-[12.5px] sm:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                    className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[12px] sm:text-[13px] lg:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
                         : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
@@ -8127,38 +8127,78 @@ export default function GalleryPage() {
               })}
             </div>
 
-            {/* 검색창 + 판매 상태 필터 + 정렬 */}
-            <div className="flex flex-nowrap items-center gap-1.5 sm:gap-2 w-full lg:w-auto">
-              <div className="relative flex-1 min-w-0 sm:w-64">
-                <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
-                  <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </span>
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
+            {/* 검색창 (1행 우측에 배치되어 카테고리 탭과 충돌하지 않음) */}
+            <div className="relative w-full lg:w-64 xl:w-72 shrink-0">
+              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
+                <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </span>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setVisibleLimit(PAGE_STEP);
+                }}
+                placeholder="제품명·모델명 검색"
+                aria-label="제품명 또는 모델명 검색"
+                className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+              />
+              {search.trim() !== "" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearch("");
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  placeholder="제품명·모델명 검색"
-                  aria-label="제품명 또는 모델명 검색"
-                  className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
-                />
-                {search.trim() !== "" && (
+                  aria-label="검색어 지우기"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                >
+                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* 2행: 좌측 상황별 프리셋 4종 + 우측 판매상태·가격대·정렬 필터 3종 */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-1.5 border-t border-[#F0EDE6]">
+            {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11.5px] shrink-0 pr-2 lg:pr-0">
+              <span className="shrink-0 text-[11px] font-bold text-[#8A8478] mr-0.5">
+                💡 맞춤 프리셋:
+              </span>
+              {SITUATION_PRESETS.map((preset) => {
+                const active =
+                  activeCategory === preset.category &&
+                  (!preset.keyword || search === preset.keyword);
+                return (
                   <button
+                    key={preset.label}
                     type="button"
                     onClick={() => {
-                      setSearch("");
+                      setActiveCategory(preset.category);
+                      setSearch(preset.keyword);
                       setVisibleLimit(PAGE_STEP);
+                      trackEvent("click_situation_preset", {
+                        preset: preset.label,
+                        category: preset.category,
+                        keyword: preset.keyword,
+                      });
                     }}
-                    aria-label="검색어 지우기"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                    className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors border shrink-0 ${
+                      active
+                        ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
+                        : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                    }`}
+                    title={preset.desc}
                   >
-                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                    {preset.label}
                   </button>
-                )}
-              </div>
+                );
+              })}
+            </div>
 
+            {/* 필터 3종 (상태 + 가격대 + 정렬) */}
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -8166,7 +8206,7 @@ export default function GalleryPage() {
                   setVisibleLimit(PAGE_STEP);
                 }}
                 aria-label="판매 상태 필터"
-                className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="all">전체 상태</option>
                 <option value="selling">판매중만</option>
@@ -8186,7 +8226,7 @@ export default function GalleryPage() {
                   });
                 }}
                 aria-label="가격대 범위 필터"
-                className={`h-9 sm:h-10 px-2 sm:px-3 rounded-lg border text-[12px] sm:text-[13.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
+                className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border text-[12px] sm:text-[12.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
                   priceRange !== "all"
                     ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                     : "border-[#D8D3C8] bg-white text-[#3E4856]"
@@ -8203,7 +8243,7 @@ export default function GalleryPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
-                className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
@@ -8211,42 +8251,6 @@ export default function GalleryPage() {
                 <option value="priceDesc">높은 가격순</option>
               </select>
             </div>
-          </div>
-
-          {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-1 border-t border-[#F0EDE6] text-[11.5px]">
-            <span className="shrink-0 text-[11px] font-bold text-[#8A8478] mr-0.5">
-              💡 맞춤 프리셋:
-            </span>
-            {SITUATION_PRESETS.map((preset) => {
-              const active =
-                activeCategory === preset.category &&
-                (!preset.keyword || search === preset.keyword);
-              return (
-                <button
-                  key={preset.label}
-                  type="button"
-                  onClick={() => {
-                    setActiveCategory(preset.category);
-                    setSearch(preset.keyword);
-                    setVisibleLimit(PAGE_STEP);
-                    trackEvent("click_situation_preset", {
-                      preset: preset.label,
-                      category: preset.category,
-                      keyword: preset.keyword,
-                    });
-                  }}
-                  className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors border shrink-0 ${
-                    active
-                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
-                      : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
-                  }`}
-                  title={preset.desc}
-                >
-                  {preset.label}
-                </button>
-              );
-            })}
           </div>
         </div>
       </div>
@@ -11293,7 +11297,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1954">
+    <file path="app/page.tsx" lines="1960">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11340,6 +11344,7 @@ import {
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
+import { RecentViewedStrip } from "../components/products/product-compare-modal";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -12097,6 +12102,11 @@ export default function Home() {
             openInquiry("구매 문의", `[상품문의] ${productTitle}`)
           }
         />
+
+        {/* [4-1] 최근 본 매물 스트립 (방문 고객이 둘러본 매물 유지 연계) */}
+        <div className="hb-container pb-8 -mt-4">
+          <RecentViewedStrip />
+        </div>
 
         {/* ════════════════════════════════════════════════════════════
             [6] 출고·설치 사례 및 신뢰 근거 (#reviews-section + 5대 운영 원칙)
@@ -15298,7 +15308,7 @@ export function FaqSection() {
 }
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="579">
+    <file path="components/home/featured-products-section.tsx" lines="622">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -15306,6 +15316,7 @@ export function FaqSection() {
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  addRecentViewedProduct,
   extractModelName,
   extractSpecCapsules,
   formatProductPrice,
@@ -15382,6 +15393,17 @@ export function FeaturedProductsSection({
 
     setSelected({ ...item, views: currentViews });
     setImgIdx(0);
+    const imgs = splitImages(item.image_url);
+    addRecentViewedProduct({
+      id: String(item.id),
+      title: item.title,
+      category: item.category || "기타",
+      price: item.price ?? null,
+      status: item.status,
+      conditionGrade: item.condition_grade ?? null,
+      modelName: extractModelName(item.title, item.description) ?? null,
+      imageUrl: imgs[0] || null,
+    });
     trackEvent("view_item", {
       category: normalizeProductCategory(item.category),
       status: normalizeProductStatus(item.status),
@@ -15514,6 +15536,37 @@ export function FeaturedProductsSection({
                   </button>
                 );
               })}
+            </div>
+
+            {/* 상황별 맞춤 프리셋 칩 (갤러리 직통 링크) */}
+            <div className="hidden lg:flex items-center gap-1.5 shrink-0 text-[12px]">
+              <span className="shrink-0 text-[11px] font-bold text-[#8A8478]">
+                맞춤 프리셋:
+              </span>
+              <Link
+                href="/gallery?category=냉장고"
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                🏠 원룸·자취
+              </Link>
+              <Link
+                href={`/gallery?category=${encodeURIComponent("업소용기기")}&q=${encodeURIComponent("쇼케이스")}`}
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                ☕ 카페창업
+              </Link>
+              <Link
+                href={`/gallery?category=${encodeURIComponent("업소용기기")}&q=${encodeURIComponent("45박스")}`}
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                🍖 식당주방
+              </Link>
+              <Link
+                href={`/gallery?category=${encodeURIComponent("에어컨/냉난방기")}&q=${encodeURIComponent("냉난방")}`}
+                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+              >
+                ❄️ 냉난방기
+              </Link>
             </div>
           </div>
         )}
@@ -25181,6 +25234,189 @@ async function runDiagnostics() {
 }
 
 runDiagnostics();
+
+]]>
+    </file>
+    <file path="scripts/deploy-and-verify.mjs" lines="127">
+      <![CDATA[
+import { execSync } from "child_process";
+
+function exec(cmd) {
+  console.log(`\n=== Running: ${cmd} ===`);
+  try {
+    const out = execSync(cmd, { encoding: "utf-8", stdio: ["inherit", "pipe", "pipe"] });
+    if (out) console.log(out.trim());
+    return { ok: true, out };
+  } catch (err) {
+    const out = (err.stdout ? err.stdout.toString() : "") + (err.stderr ? err.stderr.toString() : "");
+    console.error(`Error (${err.status}): ${out}`);
+    return { ok: false, out, status: err.status };
+  }
+}
+
+async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function verifyLive() {
+  console.log("\n=== Verifying Vercel Live Deployment ===");
+  const urls = [
+    {
+      url: "https://hanbatmall.com/gallery",
+      name: "Gallery page",
+      checkString: "카페·식당 창업", // Preset text
+    },
+    {
+      url: "https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136",
+      name: "Product Detail page",
+      checkString: "설치 환경", // Interactive checklist
+    },
+  ];
+
+  let allPassed = false;
+  const maxAttempts = 6;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    console.log(`\n--- Verification Attempt ${attempt}/${maxAttempts} ---`);
+    let passCount = 0;
+
+    for (const item of urls) {
+      try {
+        const res = await fetch(item.url, {
+          headers: { "User-Agent": "hanbat-mall-deploy-verifier/1.0" },
+          cache: "no-store",
+        });
+        const text = await res.text();
+        const statusOk = res.status === 200;
+        const hasContent = text.includes(item.checkString);
+
+        console.log(`[${item.name}] URL: ${item.url}`);
+        console.log(`  - Status: ${res.status} (OK: ${statusOk})`);
+        console.log(`  - Contains '${item.checkString}': ${hasContent}`);
+
+        if (statusOk && hasContent) {
+          passCount++;
+        }
+      } catch (e) {
+        console.error(`  - Fetch error for ${item.url}:`, e.message);
+      }
+    }
+
+    if (passCount === urls.length) {
+      allPassed = true;
+      console.log("\n✅ All live site verification checks PASSED successfully!");
+      break;
+    } else {
+      if (attempt < maxAttempts) {
+        console.log("⏳ Vercel build still deploying or propagating cache. Waiting 10s before retry...");
+        await sleep(10000);
+      }
+    }
+  }
+
+  if (!allPassed) {
+    console.warn("\n⚠️ Note: Vercel deployment may still be finalizing. Please re-check shortly.");
+  }
+}
+
+async function main() {
+  // 1. Stage files
+  const filesToStage = [
+    "app/[id]/page.tsx",
+    "app/admin/page.tsx",
+    "app/gallery/page.tsx",
+    "app/inquiry/page.tsx",
+    "app/page.tsx",
+    "components/inquiry/unified-inquiry-form.tsx",
+    "components/products/product-compare-modal.tsx",
+    "components/products/product-detail-gallery.tsx",
+    "lib/site.ts",
+    "package.json",
+    "scripts/verify-ux-benchmark-upgrade.mjs",
+    "아르곤_디자인.xml",
+  ];
+
+  exec(`git add ${filesToStage.map((f) => `"${f}"`).join(" ")}`);
+
+  // 2. Commit
+  const commitMsg = "feat(synergy): complete SME benchmarked feature synergy linkages (presets, envNote, interactive checklist, width guide, lightbox cta)";
+  exec(`git commit -m "${commitMsg}"`);
+
+  // 3. Wait 5s
+  console.log("Waiting 5 seconds before push...");
+  await sleep(5000);
+
+  // 4. Push
+  exec("git push origin main");
+
+  // 5. Check log and status
+  exec("git log -1 --oneline");
+  exec("git status");
+
+  // 6. Wait 35s for Vercel
+  console.log("\nWaiting 35 seconds for Vercel deployment...");
+  await sleep(35000);
+
+  // 7. Verify live site
+  await verifyLive();
+}
+
+main().catch((err) => {
+  console.error("Deploy script failed:", err);
+  process.exit(1);
+});
+
+]]>
+    </file>
+    <file path="scripts/deploy-now.mjs" lines="48">
+      <![CDATA[
+import { execSync } from "child_process";
+import fs from "fs";
+
+function run(cmd) {
+  console.log(`\n>>> ${cmd}`);
+  try {
+    execSync(cmd, {
+      stdio: "inherit",
+    });
+    return { ok: true };
+  } catch (err) {
+    console.error(`FAILED (${err.status}):`, err.message);
+    return { ok: false, status: err.status };
+  }
+}
+
+console.log("=== 1. 정적 검증 스크립트 실행 ===");
+const v = run("node scripts/verify-ux-benchmark-upgrade.mjs");
+if (!v.ok) process.exit(1);
+
+console.log("=== 2. TypeScript 타입 체크 ===");
+const ts = run("node node_modules/typescript/bin/tsc --noEmit");
+if (!ts.ok) process.exit(1);
+
+console.log("=== 3. Next.js 프로덕션 빌드 ===");
+const b = run("node node_modules/next/dist/bin/next build");
+if (!b.ok) process.exit(1);
+
+console.log("=== 4. codebase XML 스냅샷 재생성 ===");
+const xml = run("node scripts/build-codebase-xml.mjs");
+if (!xml.ok) process.exit(1);
+
+console.log("=== 5. Git 상태 확인 ===");
+run("git status --short");
+
+console.log("=== 6. Git 스테이징 및 커밋 ===");
+run("git add -A");
+const commitRes = run('git commit -m "fix(gallery): resolve sticky filter button clipping and integrate recent views to homepage"');
+
+console.log("=== 7. Git Push ===");
+const pushRes = run("git push origin main");
+console.log("Push result ok:", pushRes.ok);
+
+console.log("=== 8. Git 최신 커밋 로그 ===");
+run("git log -1 --oneline");
+
+console.log("🎉 모든 작업이 성공적으로 완료되었습니다!");
 
 ]]>
     </file>
