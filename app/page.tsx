@@ -646,7 +646,12 @@ export default function Home() {
           error={productsError}
           onRetry={loadFeaturedProducts}
           onInquireProduct={(productTitle) =>
-            openInquiry("구매 문의", `[상품문의] ${productTitle}`)
+            openInquiry(
+              "구매 문의",
+              productTitle.startsWith("[")
+                ? productTitle
+                : `[상품문의] ${productTitle}`
+            )
           }
         />
 

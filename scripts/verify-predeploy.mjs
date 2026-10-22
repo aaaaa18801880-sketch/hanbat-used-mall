@@ -30,7 +30,7 @@ function runPredeployChecks() {
       passed++;
       console.log(`✅ [PASS] ${title}`);
     } else {
-      console.error(`❌ [FAIL] ${title}${hint ? ` -> \${hint}` : ""}`);
+      console.error(`❌ [FAIL] ${title}${hint ? ` -> ${hint}` : ""}`);
     }
   }
 

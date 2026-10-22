@@ -23,7 +23,7 @@ async function verifyLive() {
     {
       url: "https://hanbatmall.com/gallery",
       name: "Gallery page",
-      checkString: "카페·식당 창업", // Preset text
+      checkString: "카페·디저트창업", // Preset text
     },
     {
       url: "https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136",

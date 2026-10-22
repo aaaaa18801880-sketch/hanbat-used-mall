@@ -489,7 +489,7 @@ function ProductDetailModal({
               <>
                 <div
                   onClick={() => displayImages[0] && setIsZoomOpen(true)}
-                  className="relative w-full h-[300px] sm:h-[370px] bg-[#F6F5F2] border-b border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
+                  className="relative w-full h-[300px] sm:h-[370px] bg-[#FAF9F7] border-b border-[#E5E2DC] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
                   title="클릭하여 전체화면으로 확대"
                 >
                   <SafeImg
@@ -548,7 +548,7 @@ function ProductDetailModal({
                 </div>
 
                 {displayImages.length > 1 && (
-                  <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E4E0D8] overflow-x-auto">
+                  <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E5E2DC] overflow-x-auto">
                     {displayImages.map((img, i) => (
                       <button
                         key={img + i}
@@ -558,7 +558,7 @@ function ProductDetailModal({
                         className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-all ${
                           i === idx
                             ? "border-[#D9531E] ring-2 ring-[#D9531E]/40"
-                            : "border-[#E4E0D8] opacity-60 hover:opacity-100"
+                            : "border-[#E5E2DC] opacity-60 hover:opacity-100"
                         }`}
                       >
                         <SafeImg
@@ -802,7 +802,7 @@ function ProductDetailModal({
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC]">
                     <div>
                       <span className="text-[11px] font-semibold text-[#6B7280] block mb-0.5">
                         판매 가격
@@ -869,7 +869,7 @@ function ProductDetailModal({
                     <ProductStructuredDescription description={product.description} />
                   )}
 
-                  <ul className="text-[13px] text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8]">
+                  <ul className="text-[13px] text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-xl p-4 border border-[#E5E2DC]">
                     <li className="flex items-start gap-2">
                       <Icon
                         d={ICON.check}
@@ -923,9 +923,13 @@ function ProductDetailModal({
                 <a
                   href={smsHref(
                     STORE.mobile,
-                    `[한밭중고전자 상품문의] ${product.title}${
-                      modelName ? ` (${modelName})` : ""
-                    } 재고 및 배송·설치 견적 문의드립니다.`
+                    sold
+                      ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
+                          modelName ? ` (${modelName})` : ""
+                        }와 비슷한 스펙의 현재 재고 문의드립니다.`
+                      : `[한밭중고전자 상품문의] ${product.title}${
+                          modelName ? ` (${modelName})` : ""
+                        } 재고 및 배송·설치 견적 문의드립니다.`
                   )}
                   className="hb-btn-outline h-11 text-[13px]"
                 >

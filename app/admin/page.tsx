@@ -1302,10 +1302,10 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={req.id}
-                      className={`rounded-md border p-4 sm:p-5 transition-colors ${
+                      className={`rounded-xl border p-4 sm:p-5 transition-colors ${
                         isPriority
                           ? "border-[#D9531E]/50 bg-[#FFFDFB] shadow-2xs"
-                          : "border-[#E4E0D8] bg-white"
+                          : "border-[#E5E2DC] bg-white"
                       }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">

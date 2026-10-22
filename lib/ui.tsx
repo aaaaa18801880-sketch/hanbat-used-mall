@@ -1252,9 +1252,13 @@ export function MobileCtaBar({
     const priceLabel = sold
       ? "판매완료"
       : formatProductPrice(productContext.price, productContext.category);
-    const productSmsBody = `[한밭중고전자 상품문의] ${productContext.title}${
-      productContext.modelName ? ` (${productContext.modelName})` : ""
-    } 재고 및 가격 문의드립니다.`;
+    const productSmsBody = sold
+      ? `[한밭중고전자 유사매물문의] 판매완료된 '${productContext.title}'${
+          productContext.modelName ? ` (${productContext.modelName})` : ""
+        }와 비슷한 스펙의 현재 재고 문의드립니다.`
+      : `[한밭중고전자 상품문의] ${productContext.title}${
+          productContext.modelName ? ` (${productContext.modelName})` : ""
+        } 재고 및 가격 문의드립니다.`;
 
     return (
       <div

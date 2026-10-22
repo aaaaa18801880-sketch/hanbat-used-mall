@@ -624,7 +624,7 @@ export function FeaturedProductsSection({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-[#E5E2DC] bg-white p-3.5 sm:p-4">
               <a
                 href={telHref(STORE.tel)}
                 className="hb-btn-primary h-11 text-[13px]"
@@ -635,9 +635,13 @@ export function FeaturedProductsSection({
               <a
                 href={smsHref(
                   STORE.mobile,
-                  `[한밭중고전자 상품문의] ${selected.title}${
-                    selectedModelName ? ` (${selectedModelName})` : ""
-                  } 재고 및 견적 문의드립니다.`
+                  isProductSold(selected.status)
+                    ? `[한밭중고전자 유사매물문의] 판매완료된 '${selected.title}'${
+                        selectedModelName ? ` (${selectedModelName})` : ""
+                      }와 비슷한 스펙의 현재 재고 문의드립니다.`
+                    : `[한밭중고전자 상품문의] ${selected.title}${
+                        selectedModelName ? ` (${selectedModelName})` : ""
+                      } 재고 및 견적 문의드립니다.`
                 )}
                 className="hb-btn-outline h-11 text-[13px]"
               >

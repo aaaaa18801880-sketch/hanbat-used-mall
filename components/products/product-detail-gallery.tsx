@@ -212,7 +212,7 @@ export function ProductDetailGallery({
 
       {displayImages.length > 1 && (
         <div
-          className="flex gap-2.5 overflow-x-auto border-t border-[#E4E0D8] bg-white p-3.5"
+          className="flex gap-2.5 overflow-x-auto border-t border-[#E5E2DC] bg-white p-3.5"
           role="tablist"
           aria-label="상품 추가 사진 목록"
         >
@@ -224,10 +224,10 @@ export function ProductDetailGallery({
               aria-selected={activeIndex === idx}
               aria-label={`${idx + 1}번 사진 선택`}
               onClick={() => setActiveIndex(idx)}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-[#F6F5F2] transition-all ${
+              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-[#FAF9F7] transition-all ${
                 activeIndex === idx
                   ? "border-[#D9531E] ring-2 ring-[#D9531E]/35 opacity-100"
-                  : "border-[#E4E0D8] opacity-65 hover:opacity-100"
+                  : "border-[#E5E2DC] opacity-65 hover:opacity-100"
               }`}
             >
               <SafeImg

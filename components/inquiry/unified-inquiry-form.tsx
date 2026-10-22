@@ -261,6 +261,17 @@ export function UnifiedInquiryForm({
 
   useEffect(() => {
     queueMicrotask(() => {
+      if (!linkedProduct) {
+        setTitle((prev) =>
+          prev.startsWith("[상품문의]") ||
+          prev.startsWith("[유사매물") ||
+          prev.startsWith("[설치사례") ||
+          prev.startsWith("[묶음견적")
+            ? ""
+            : prev
+        );
+        return;
+      }
       if (linkedProduct?.useBundle) {
         const items = getQuoteBasket();
         if (items.length > 0) {
@@ -896,6 +907,16 @@ export function UnifiedInquiryForm({
                   onClick={() => {
                     setInquiryType(t);
                     setPendingConflicts(null);
+                    if (t === "내 물건 팔기") {
+                      setTitle((prev) =>
+                        prev.startsWith("[상품문의]") ||
+                        prev.startsWith("[유사매물") ||
+                        prev.startsWith("[설치사례") ||
+                        prev.startsWith("[묶음견적")
+                          ? ""
+                          : prev
+                      );
+                    }
                   }}
                   className={`h-11 sm:h-12 rounded-lg px-3 text-[13.5px] sm:text-[15px] font-bold tracking-[-0.01em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
                     active
@@ -1622,7 +1643,7 @@ export function UnifiedInquiryForm({
                       setFieldErrors((p) => ({ ...p, title: "" }));
                   }}
                   placeholder="예: 삼성 지펠 4도어 냉장고 / LG 트롬 드럼세탁기"
-                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15.5px] font-semibold ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold ${
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -1832,7 +1853,7 @@ export function UnifiedInquiryForm({
                       ? "문의하실 제목을 입력해 주세요"
                       : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
                   }
-                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15.5px] font-semibold ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold ${
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -1850,7 +1871,7 @@ export function UnifiedInquiryForm({
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="스티커 모델명 확인 시 입력"
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] font-mono text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 font-mono text-[14.5px] sm:text-[15px]"
                   />
                 </div>
               )}

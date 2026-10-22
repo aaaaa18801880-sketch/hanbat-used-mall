@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-22T11:21:32.585Z">
+<project name="hanbat-mall" generated_at="2026-10-22T12:33:34.047Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -2058,10 +2058,10 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={req.id}
-                      className={`rounded-md border p-4 sm:p-5 transition-colors ${
+                      className={`rounded-xl border p-4 sm:p-5 transition-colors ${
                         isPriority
                           ? "border-[#D9531E]/50 bg-[#FFFDFB] shadow-2xs"
-                          : "border-[#E4E0D8] bg-white"
+                          : "border-[#E5E2DC] bg-white"
                       }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
@@ -6132,7 +6132,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2905">
+    <file path="app/gallery/page.tsx" lines="2909">
       <![CDATA[
 "use client";
 
@@ -6625,7 +6625,7 @@ function ProductDetailModal({
               <>
                 <div
                   onClick={() => displayImages[0] && setIsZoomOpen(true)}
-                  className="relative w-full h-[300px] sm:h-[370px] bg-[#F6F5F2] border-b border-[#E4E0D8] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
+                  className="relative w-full h-[300px] sm:h-[370px] bg-[#FAF9F7] border-b border-[#E5E2DC] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
                   title="클릭하여 전체화면으로 확대"
                 >
                   <SafeImg
@@ -6684,7 +6684,7 @@ function ProductDetailModal({
                 </div>
 
                 {displayImages.length > 1 && (
-                  <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E4E0D8] overflow-x-auto">
+                  <div className="flex gap-2 p-3 bg-[#FAF9F7] border-b border-[#E5E2DC] overflow-x-auto">
                     {displayImages.map((img, i) => (
                       <button
                         key={img + i}
@@ -6694,7 +6694,7 @@ function ProductDetailModal({
                         className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-all ${
                           i === idx
                             ? "border-[#D9531E] ring-2 ring-[#D9531E]/40"
-                            : "border-[#E4E0D8] opacity-60 hover:opacity-100"
+                            : "border-[#E5E2DC] opacity-60 hover:opacity-100"
                         }`}
                       >
                         <SafeImg
@@ -6938,7 +6938,7 @@ function ProductDetailModal({
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8]">
+                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC]">
                     <div>
                       <span className="text-[11px] font-semibold text-[#6B7280] block mb-0.5">
                         판매 가격
@@ -7005,7 +7005,7 @@ function ProductDetailModal({
                     <ProductStructuredDescription description={product.description} />
                   )}
 
-                  <ul className="text-[13px] text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8]">
+                  <ul className="text-[13px] text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-xl p-4 border border-[#E5E2DC]">
                     <li className="flex items-start gap-2">
                       <Icon
                         d={ICON.check}
@@ -7059,9 +7059,13 @@ function ProductDetailModal({
                 <a
                   href={smsHref(
                     STORE.mobile,
-                    `[한밭중고전자 상품문의] ${product.title}${
-                      modelName ? ` (${modelName})` : ""
-                    } 재고 및 배송·설치 견적 문의드립니다.`
+                    sold
+                      ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
+                          modelName ? ` (${modelName})` : ""
+                        }와 비슷한 스펙의 현재 재고 문의드립니다.`
+                      : `[한밭중고전자 상품문의] ${product.title}${
+                          modelName ? ` (${modelName})` : ""
+                        } 재고 및 배송·설치 견적 문의드립니다.`
                   )}
                   className="hb-btn-outline h-11 text-[13px]"
                 >
@@ -11318,7 +11322,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1851">
+    <file path="app/page.tsx" lines="1856">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11968,7 +11972,12 @@ export default function Home() {
           error={productsError}
           onRetry={loadFeaturedProducts}
           onInquireProduct={(productTitle) =>
-            openInquiry("구매 문의", `[상품문의] ${productTitle}`)
+            openInquiry(
+              "구매 문의",
+              productTitle.startsWith("[")
+                ? productTitle
+                : `[상품문의] ${productTitle}`
+            )
           }
         />
 
@@ -15183,7 +15192,7 @@ export function FaqSection() {
 }
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="677">
+    <file path="components/home/featured-products-section.tsx" lines="681">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -15811,7 +15820,7 @@ export function FeaturedProductsSection({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-[#E4E0D8] bg-white p-3.5 sm:p-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-t border-[#E5E2DC] bg-white p-3.5 sm:p-4">
               <a
                 href={telHref(STORE.tel)}
                 className="hb-btn-primary h-11 text-[13px]"
@@ -15822,9 +15831,13 @@ export function FeaturedProductsSection({
               <a
                 href={smsHref(
                   STORE.mobile,
-                  `[한밭중고전자 상품문의] ${selected.title}${
-                    selectedModelName ? ` (${selectedModelName})` : ""
-                  } 재고 및 견적 문의드립니다.`
+                  isProductSold(selected.status)
+                    ? `[한밭중고전자 유사매물문의] 판매완료된 '${selected.title}'${
+                        selectedModelName ? ` (${selectedModelName})` : ""
+                      }와 비슷한 스펙의 현재 재고 문의드립니다.`
+                    : `[한밭중고전자 상품문의] ${selected.title}${
+                        selectedModelName ? ` (${selectedModelName})` : ""
+                      } 재고 및 견적 문의드립니다.`
                 )}
                 className="hb-btn-outline h-11 text-[13px]"
               >
@@ -16912,7 +16925,7 @@ export function TrustSection() {
 }
 ]]>
     </file>
-    <file path="components/inquiry/unified-inquiry-form.tsx" lines="2001">
+    <file path="components/inquiry/unified-inquiry-form.tsx" lines="2022">
       <![CDATA[
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
@@ -17177,6 +17190,17 @@ export function UnifiedInquiryForm({
 
   useEffect(() => {
     queueMicrotask(() => {
+      if (!linkedProduct) {
+        setTitle((prev) =>
+          prev.startsWith("[상품문의]") ||
+          prev.startsWith("[유사매물") ||
+          prev.startsWith("[설치사례") ||
+          prev.startsWith("[묶음견적")
+            ? ""
+            : prev
+        );
+        return;
+      }
       if (linkedProduct?.useBundle) {
         const items = getQuoteBasket();
         if (items.length > 0) {
@@ -17812,6 +17836,16 @@ export function UnifiedInquiryForm({
                   onClick={() => {
                     setInquiryType(t);
                     setPendingConflicts(null);
+                    if (t === "내 물건 팔기") {
+                      setTitle((prev) =>
+                        prev.startsWith("[상품문의]") ||
+                        prev.startsWith("[유사매물") ||
+                        prev.startsWith("[설치사례") ||
+                        prev.startsWith("[묶음견적")
+                          ? ""
+                          : prev
+                      );
+                    }
                   }}
                   className={`h-11 sm:h-12 rounded-lg px-3 text-[13.5px] sm:text-[15px] font-bold tracking-[-0.01em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
                     active
@@ -18538,7 +18572,7 @@ export function UnifiedInquiryForm({
                       setFieldErrors((p) => ({ ...p, title: "" }));
                   }}
                   placeholder="예: 삼성 지펠 4도어 냉장고 / LG 트롬 드럼세탁기"
-                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15.5px] font-semibold ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold ${
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -18748,7 +18782,7 @@ export function UnifiedInquiryForm({
                       ? "문의하실 제목을 입력해 주세요"
                       : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
                   }
-                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15.5px] font-semibold ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold ${
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -18766,7 +18800,7 @@ export function UnifiedInquiryForm({
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="스티커 모델명 확인 시 입력"
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] font-mono text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 font-mono text-[14.5px] sm:text-[15px]"
                   />
                 </div>
               )}
@@ -20352,7 +20386,7 @@ export function ProductDetailGallery({
 
       {displayImages.length > 1 && (
         <div
-          className="flex gap-2.5 overflow-x-auto border-t border-[#E4E0D8] bg-white p-3.5"
+          className="flex gap-2.5 overflow-x-auto border-t border-[#E5E2DC] bg-white p-3.5"
           role="tablist"
           aria-label="상품 추가 사진 목록"
         >
@@ -20364,10 +20398,10 @@ export function ProductDetailGallery({
               aria-selected={activeIndex === idx}
               aria-label={`${idx + 1}번 사진 선택`}
               onClick={() => setActiveIndex(idx)}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-[#F6F5F2] transition-all ${
+              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-[#FAF9F7] transition-all ${
                 activeIndex === idx
                   ? "border-[#D9531E] ring-2 ring-[#D9531E]/35 opacity-100"
-                  : "border-[#E4E0D8] opacity-65 hover:opacity-100"
+                  : "border-[#E5E2DC] opacity-65 hover:opacity-100"
               }`}
             >
               <SafeImg
@@ -23524,7 +23558,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1443">
+    <file path="lib/ui.tsx" lines="1447">
       <![CDATA[
 "use client";
 
@@ -24780,9 +24814,13 @@ export function MobileCtaBar({
     const priceLabel = sold
       ? "판매완료"
       : formatProductPrice(productContext.price, productContext.category);
-    const productSmsBody = `[한밭중고전자 상품문의] ${productContext.title}${
-      productContext.modelName ? ` (${productContext.modelName})` : ""
-    } 재고 및 가격 문의드립니다.`;
+    const productSmsBody = sold
+      ? `[한밭중고전자 유사매물문의] 판매완료된 '${productContext.title}'${
+          productContext.modelName ? ` (${productContext.modelName})` : ""
+        }와 비슷한 스펙의 현재 재고 문의드립니다.`
+      : `[한밭중고전자 상품문의] ${productContext.title}${
+          productContext.modelName ? ` (${productContext.modelName})` : ""
+        } 재고 및 가격 문의드립니다.`;
 
     return (
       <div
@@ -25227,7 +25265,7 @@ async function verifyLive() {
     {
       url: "https://hanbatmall.com/gallery",
       name: "Gallery page",
-      checkString: "카페·식당 창업", // Preset text
+      checkString: "카페·디저트창업", // Preset text
     },
     {
       url: "https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136",
@@ -26058,7 +26096,7 @@ function runPredeployChecks() {
       passed++;
       console.log(`✅ [PASS] ${title}`);
     } else {
-      console.error(`❌ [FAIL] ${title}${hint ? ` -> \${hint}` : ""}`);
+      console.error(`❌ [FAIL] ${title}${hint ? ` -> ${hint}` : ""}`);
     }
   }
 
