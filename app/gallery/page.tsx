@@ -30,6 +30,7 @@ import {
   extractModelName,
   extractSpecCapsules,
   trackEvent,
+  addRecentViewedProduct,
 } from "../../lib/site";
 
 import {
@@ -1278,6 +1279,17 @@ export default function GalleryPage() {
     }
 
     setSelectedProduct(product);
+    const prodImages = splitImages(product.image_url);
+    addRecentViewedProduct({
+      id: product.id,
+      title: product.title,
+      category: product.category || "기타",
+      price: product.price ?? null,
+      status: product.status,
+      conditionGrade: product.condition_grade ?? null,
+      modelName: extractModelName(product.title, product.description) ?? null,
+      imageUrl: prodImages[0] || null,
+    });
     trackEvent("view_item", {
       category: normalizeProductCategory(product.category),
       status: normalizeProductStatus(product.status),
@@ -2161,13 +2173,53 @@ export default function GalleryPage() {
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="py-20 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
             <p className="text-[#0E1A2B] text-[18px] font-bold">
               조건에 맞는 상품이 없습니다.
             </p>
             <p className="mt-1.5 text-[#667085] text-[14px]">
               검색어나 필터를 초기화하시거나, 찾으시는 모델명을 전화·카톡으로 문의해 주세요.
             </p>
+
+            {search.trim() ? (
+              <div className="mx-auto mt-6 max-w-lg rounded-xl border border-[#D9531E]/20 bg-[#FFF9F6] p-4 sm:p-5 text-left">
+                <div className="flex items-start gap-3">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[#D9531E] text-white">
+                    <Icon d={ICON.search} className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14.5px] font-bold text-[#0E1A2B]">
+                      &lsquo;{search.trim()}&rsquo; 관련 매장 미등록 재고가 필요하신가요?
+                    </p>
+                    <p className="mt-1 text-[12.5px] text-[#555] leading-relaxed break-keep">
+                      온라인 갤러리 미등록 창고 재고 및 입고 예정 제품 중 찾으시는 스펙이 있는지 빠르게 확인해 드립니다.
+                    </p>
+                    <div className="mt-3.5 flex flex-wrap gap-2">
+                      <Link
+                        href={`/inquiry?write=1&type=${encodeURIComponent(
+                          "구매 문의"
+                        )}&title=${encodeURIComponent(`[재고문의] ${search.trim()}`)}`}
+                        className="hb-btn-primary inline-flex h-10 items-center gap-1.5 px-4 text-[13px] font-bold shadow-xs"
+                      >
+                        <Icon d={ICON.pen} className="w-3.5 h-3.5" />
+                        &lsquo;{search.trim()}&rsquo; 매장 미등록 재고 바로 문의하기
+                      </Link>
+                      <a
+                        href={smsHref(
+                          STORE.mobile,
+                          `[한밭중고전자 매장 재고문의]\n- 검색 품목: ${search.trim()}\n- 매장 내 보유 중이거나 입고 예정인 제품이 있는지 확인 부탁드립니다.`
+                        )}
+                        className="hb-btn-outline inline-flex h-10 items-center gap-1.5 px-3.5 text-[13px] font-bold bg-white"
+                      >
+                        <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                        문자 문의
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="mt-6 flex flex-wrap justify-center gap-2.5">
               <button
                 type="button"

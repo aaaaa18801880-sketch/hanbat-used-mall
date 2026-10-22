@@ -34,26 +34,31 @@ function runVerification() {
   const galleryCode = read("app/gallery/page.tsx");
   assert.ok(
     galleryCode.includes("PRICE_RANGE_OPTIONS") &&
-      galleryCode.includes("RecentViewedStrip"),
-    "app/gallery/page.tsx에 가격대 필터, 최근 본 매물 스트립이 연동되어야 합니다."
+      galleryCode.includes("RecentViewedStrip") &&
+      galleryCode.includes("addRecentViewedProduct") &&
+      galleryCode.includes("[재고문의]"),
+    "app/gallery/page.tsx에 가격대 필터, 최근 본 매물 등록/스트립 연동, 0건 검색어 문의 CTA가 포함되어야 합니다."
   );
-  console.log("✓ [PASS] 3. 갤러리 가격대 범위 필터·최근 본 매물 연동 확인");
+  console.log("✓ [PASS] 3. 갤러리 가격대 필터·최근 본 매물 등록·0건 검색어 문의 CTA 연동 확인");
 
   const detailCode = read("app/[id]/page.tsx");
   assert.ok(
     detailCode.includes("getCategoryFaqs") &&
-      detailCode.includes("RecentViewedStrip"),
-    "app/[id]/page.tsx에 품목별 맞춤 FAQ와 최근 본 매물 스트립이 연결되어야 합니다."
+      detailCode.includes("RecentViewedStrip") &&
+      detailCode.includes("외관 · 상태 등급"),
+    "app/[id]/page.tsx에 품목별 맞춤 FAQ, 최근 본 매물 스트립, 외관·상태 등급 표기가 연결되어야 합니다."
   );
-  console.log("✓ [PASS] 4. 상품 상세 페이지 품목별 맞춤 FAQ 및 상태 등급 표시 확인");
+  console.log("✓ [PASS] 4. 상품 상세 페이지 품목별 맞춤 FAQ 및 외관·상태 등급 표시 확인");
 
   const adminCode = read("app/admin/page.tsx");
   assert.ok(
     adminCode.includes("getDaysSinceCreated") &&
-      adminCode.includes("stale30"),
-    "app/admin/page.tsx에 30일 이상 장기 판매중 재고 점검 필터 및 배지가 포함되어야 합니다."
+      adminCode.includes("stale30") &&
+      adminCode.includes('value="stale30"') &&
+      !adminCode.includes("const removeStorageImagesSafe = async"),
+    "app/admin/page.tsx에 stale30 옵션 연계와 중복 removeStorageImagesSafe 제거가 적용되어야 합니다."
   );
-  console.log("✓ [PASS] 5. 관리자 대시보드 장기 판매중 재고 점검(30일+) 기능 확인");
+  console.log("✓ [PASS] 5. 관리자 대시보드 장기 판매중 재고 점검(30일+) UI 옵션 연계 및 중복 함수 제거 확인");
 
   console.log("🎉 모든 UX 벤치마킹 기능 고도화 정적 검증을 통과했습니다!");
 }

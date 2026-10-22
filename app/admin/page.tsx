@@ -16,7 +16,6 @@ import {
   PRODUCT_STATUS_LIST,
   PRODUCT_CONDITION_GRADES,
   INQUIRY_ADMIN_STATUS_OPTIONS,
-  STORAGE_BUCKETS,
   isPriorityInquiryStatus,
   isProductSold,
   normalizeProductStatus,
@@ -29,7 +28,6 @@ import {
   validateImageFiles,
   extractModelName,
   extractInquiryImages,
-  extractStorageFilesByBucket,
   generatePromoPostText,
   parseStructuredInquiryDescription,
   getDaysSinceCreated,
@@ -718,22 +716,6 @@ export default function IntegratedAdminDashboard() {
     setProdDesc(product.description || "");
     setActiveTab("products");
     window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const removeStorageImagesSafe = async (urls: string[]) => {
-    if (urls.length === 0) return;
-    const { inquiries: inqBucketFiles, productImages: prodBucketFiles } =
-      extractStorageFilesByBucket(urls);
-    if (inqBucketFiles.length > 0) {
-      await supabase.storage
-        .from(STORAGE_BUCKETS.inquiries)
-        .remove(inqBucketFiles);
-    }
-    if (prodBucketFiles.length > 0) {
-      await supabase.storage
-        .from(STORAGE_BUCKETS.legacyProductImages)
-        .remove(prodBucketFiles);
-    }
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -2012,6 +1994,7 @@ export default function IntegratedAdminDashboard() {
                         {s}
                       </option>
                     ))}
+                    <option value="stale30">⚡ 30일+ 장기 판매중 점검</option>
                   </select>
                   <input
                     type="search"

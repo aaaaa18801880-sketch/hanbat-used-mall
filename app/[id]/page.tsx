@@ -269,8 +269,8 @@ export default async function ProductDetailPage({
     type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
     productId: String(product.id),
     title: sold
-      ? `[유사매물 재고문의] ${product.title}`
-      : `[상품문의] ${product.title}`,
+      ? `[유사매물 재고문의] [${categoryLabel}] ${product.title}`
+      : `[상품문의] [${categoryLabel}] ${product.title}`,
     category: categoryLabel,
   });
   if (modelName) {
@@ -522,6 +522,23 @@ export default async function ProductDetailPage({
                   </div>
                   <div className="flex items-center justify-between gap-3 py-2.5">
                     <dt className="font-semibold text-[#646E7E] shrink-0">
+                      외관 · 상태 등급
+                    </dt>
+                    <dd className="font-semibold text-[#0E1A2B] text-right flex items-center justify-end gap-1.5">
+                      {product.condition_grade ? (
+                        <>
+                          <span className="inline-flex items-center rounded bg-[#D9531E]/10 px-1.5 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                            {product.condition_grade}
+                          </span>
+                          <span>작동 점검 및 세척 완료</span>
+                        </>
+                      ) : (
+                        <span>작동 점검·세척 완료 (매장 실물 확인 가능)</span>
+                      )}
+                    </dd>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 py-2.5">
+                    <dt className="font-semibold text-[#646E7E] shrink-0">
                       검수 · 보증 기준
                     </dt>
                     <dd className="font-semibold text-[#0E1A2B] text-right">
@@ -530,8 +547,6 @@ export default async function ProductDetailPage({
                         : isMajorApplianceDetail
                         ? "세척·점검 완료 (계약별 최대 4개월)"
                         : "작동 점검 완료 (품목·계약별 협의)"}
-
-
                     </dd>
                   </div>
                   <div className="flex items-center justify-between gap-3 py-2.5">
@@ -638,10 +653,10 @@ export default async function ProductDetailPage({
                     href={smsHref(
                       STORE.mobile,
                       sold
-                        ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
+                        ? `[한밭중고전자 유사매물문의] [${categoryLabel}] 판매완료된 '${product.title}'${
                             modelName ? ` (${modelName})` : ""
                           }와 비슷한 스펙의 현재 재고 문의드립니다.`
-                        : `[한밭중고전자 상품문의] ${product.title}${
+                        : `[한밭중고전자 상품문의] [${categoryLabel}] ${product.title}${
                             modelName ? ` (${modelName})` : ""
                           } 재고 및 배송·설치 견적 문의드립니다.`
                     )}
