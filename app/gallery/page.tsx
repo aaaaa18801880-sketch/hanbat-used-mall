@@ -419,13 +419,13 @@ function ProductDetailModal({
         closeOnOverlayClick={!isEditing}
         closeOnEsc={!isEditing}
       >
-        <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] flex flex-col overflow-hidden max-h-[90vh] w-full">
+        <div className="bg-white rounded-xl shadow-2xl border border-[#E5E2DC] flex flex-col overflow-hidden max-h-[90vh] w-full">
           {/* 모달 상단 헤더 */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E4E0D8] bg-white sticky top-0 z-20">
+          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E5E2DC] bg-white sticky top-0 z-20">
             <div className="flex flex-wrap items-center gap-1.5">
               {!isEditing ? (
                 <>
-                  <span className="text-[12px] font-bold text-[#4B5260] bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 rounded-sm">
+                  <span className="text-[12px] font-bold text-[#4B5260] bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 rounded-lg">
                     {categoryLabel}
                   </span>
                   <ProductStatusBadge
@@ -433,13 +433,13 @@ function ProductDetailModal({
                     createdAt={product.created_at}
                   />
                   {product.condition_grade && (
-                    <span className="rounded-sm border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                    <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
                       {product.condition_grade}
                     </span>
                   )}
                 </>
               ) : (
-                <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-sm">
+                <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-lg">
                   상품 정보 및 사진 편집 모드
                 </span>
               )}
@@ -1956,8 +1956,8 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-[68px] sm:h-[76px]에 정확히 밀착) */}
-      <div className="sticky top-[68px] sm:top-[76px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E6E3DC] shadow-2xs">
+      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-16 sm:h-[72px]에 정확히 밀착) */}
+      <div className="sticky top-16 sm:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E2DC] shadow-2xs">
         <div className="hb-container py-2.5 sm:py-3 flex flex-col gap-2">
           {/* 1행: 카테고리 탭 (전체 6개 탭이 잘리지 않고 여유 있게 노출) + 우측 검색창 */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">

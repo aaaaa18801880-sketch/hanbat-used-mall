@@ -75,9 +75,9 @@ export function ProductTrustMicroStrip({
   return (
     <section
       aria-label="한밭중고전자 핵심 거래 보증 안내"
-      className={`rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] ${className}`}
+      className={`rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] ${className}`}
     >
-      <div className="grid grid-cols-1 xs:grid-cols-3 divide-y xs:divide-y-0 xs:divide-x divide-[#E6E3DC]">
+      <div className="grid grid-cols-1 xs:grid-cols-3 divide-y xs:divide-y-0 xs:divide-x divide-[#E5E2DC]">
         {items.map((item) => (
           <div
             key={item.title}
@@ -283,17 +283,17 @@ export function ProductCard({
         </h3>
 
         {(specCapsules.length > 0 || modelName) && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 min-h-[1.5rem]">
             {specCapsules.map((tag) => (
               <span
                 key={tag}
-                className="rounded bg-[#F7F6F3] px-2 py-0.5 text-[11.5px] font-semibold text-[#434B59]"
+                className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
               >
                 {tag}
               </span>
             ))}
             {modelName && specCapsules.length < 2 && (
-              <span className="truncate rounded bg-[#F7F6F3] px-2 py-0.5 font-mono text-[11px] font-medium text-[#667085]">
+              <span className="truncate rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 font-mono text-[11px] font-medium text-[#646E7E]">
                 {modelName}
               </span>
             )}
@@ -301,7 +301,7 @@ export function ProductCard({
         )}
 
         <div className="mt-auto pt-3.5">
-          <div className="pt-2.5 border-t border-[#E6E3DC] flex items-center justify-between gap-2">
+          <div className="pt-2.5 border-t border-[#E5E2DC] flex items-center justify-between gap-2">
             <div className="min-w-0">
               {sold ? (
                 <span className="text-[15px] sm:text-[17px] font-bold text-[#858076]">

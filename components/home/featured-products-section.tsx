@@ -364,7 +364,7 @@ export function FeaturedProductsSection({
               })}
             </div>
 
-            <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260]">
+            <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260] shadow-2xs">
               <p className="break-keep">
                 <strong className="text-[#0E1A2B]">
                   💡 찾으시는 모델이나 규격이 목록에 없나요?
@@ -401,21 +401,21 @@ export function FeaturedProductsSection({
           label={`${selected.title} 상세 정보`}
           panelClassName="max-w-xl"
         >
-          <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-lg border border-[#E4E0D8] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E4E0D8] px-4 sm:px-5 py-3.5 bg-white">
+          <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E5E2DC] px-4 sm:px-5 py-3.5 bg-white">
               <div className="flex flex-wrap items-center gap-1.5">
-                <span className="rounded-sm bg-[#F6F5F2] border border-[#E4E0D8] px-2.5 py-1 text-[11.5px] font-bold text-[#4B5260]">
+                <span className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-[11.5px] font-bold text-[#4B5260]">
                   {selectedCategory}
                 </span>
                 <span
-                  className={`rounded-sm px-2.5 py-1 text-[11.5px] font-bold text-white ${
+                  className={`rounded-lg px-2.5 py-1 text-[11.5px] font-bold text-white ${
                     selectedSold ? "bg-[#6B7280]" : "bg-[#0E1A2B]"
                   }`}
                 >
                   {getProductStatusLabel(selected.status)}
                 </span>
                 {selected.condition_grade && (
-                  <span className="rounded-sm border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11px] font-bold text-[#D9531E]">
+                  <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11px] font-bold text-[#D9531E]">
                     {selected.condition_grade}
                   </span>
                 )}
@@ -431,7 +431,7 @@ export function FeaturedProductsSection({
             </div>
 
             <div className="flex-1 overflow-y-auto">
-              <div className="relative flex h-[260px] sm:h-[340px] w-full items-center justify-center bg-[#F6F5F2] p-4 border-b border-[#E4E0D8]">
+              <div className="relative flex h-[260px] sm:h-[340px] w-full items-center justify-center bg-[#FAF9F7] p-4 border-b border-[#E5E2DC]">
                 <SafeImg
                   src={selectedImages[imgIdx]}
                   alt={selected.title}
@@ -518,7 +518,7 @@ export function FeaturedProductsSection({
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 sm:p-4">
                   <div>
                     <span className="block text-[11.5px] font-semibold text-[#6B7280]">
                       판매 가격

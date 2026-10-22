@@ -897,12 +897,12 @@ export function UnifiedInquiryForm({
                     setInquiryType(t);
                     setPendingConflicts(null);
                   }}
-                  className={`h-14 sm:h-[60px] rounded-xl px-3 text-[16px] sm:text-[18px] font-extrabold tracking-[-0.02em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
+                  className={`h-11 sm:h-12 rounded-lg px-3 text-[13.5px] sm:text-[15px] font-bold tracking-[-0.01em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
                     active
                       ? t === "내 물건 팔기"
-                        ? "bg-[#D9531E] text-white shadow-card ring-2 ring-[#D9531E]/30"
-                        : "bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#0E1A2B]/25"
-                      : "border-2 border-[#E4E0D8] bg-[#FAF9F7] text-[#434B59] hover:border-[#0E1A2B] hover:bg-white hover:text-[#0E1A2B]"
+                        ? "bg-[#D9531E] text-white shadow-2xs ring-2 ring-[#D9531E]/30"
+                        : "bg-[#0E1A2B] text-white shadow-2xs ring-2 ring-[#0E1A2B]/25"
+                      : "border border-[#E5E2DC] bg-[#FAF9F7] text-[#434B59] hover:border-[#0E1A2B] hover:bg-white hover:text-[#0E1A2B]"
                   }`}
                 >
                   {tabLabel}
@@ -1909,9 +1909,9 @@ export function UnifiedInquiryForm({
                   inquiry_type: inquiryType,
                 })
               }
-              className="hb-btn-outline h-14 sm:h-[60px] px-5 text-[17px] sm:text-[18px] font-extrabold sm:col-span-5 whitespace-nowrap"
+              className="hb-btn-outline h-12 sm:h-[52px] px-5 text-[14.5px] sm:text-[15.5px] font-bold sm:col-span-5 whitespace-nowrap"
             >
-              <Icon d={ICON.chat} className="h-5 w-5 text-[#D9531E]" />
+              <Icon d={ICON.chat} className="h-4 w-4 text-[#D9531E]" />
               <span>문자로 사진 보내기</span>
             </a>
           )}
@@ -1920,7 +1920,7 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={onCancel}
               disabled={isBusy}
-              className="hb-btn-outline h-14 sm:h-[60px] px-6 text-[17px] font-extrabold sm:col-span-3"
+              className="hb-btn-outline h-12 sm:h-[52px] px-6 text-[14.5px] sm:text-[15.5px] font-bold sm:col-span-3"
             >
               취소
             </button>
@@ -1930,7 +1930,7 @@ export function UnifiedInquiryForm({
             disabled={isBusy}
             className={`${
               isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
-            } h-14 sm:h-[60px] px-7 text-[17px] sm:text-[18px] font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
+            } h-12 sm:h-[52px] px-7 text-[15px] sm:text-[16px] font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
               isNotice
                 ? onCancel
                   ? "sm:col-span-9"

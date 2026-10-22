@@ -424,7 +424,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       </a>
 
       <header className="sticky top-0 z-50 w-full border-b border-[#E5E2DC] bg-white/95 backdrop-blur-md">
-        <div className="hb-container flex h-[66px] sm:h-[72px] items-center justify-between gap-3">
+        <div className="hb-container flex h-16 sm:h-[72px] items-center justify-between gap-3">
           {/* 1. 브랜드 로고 */}
           <div className="flex items-center shrink-0">
             <Link
@@ -979,13 +979,8 @@ export function SiteFooter({
     <>
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
-      <footer className="relative bg-[#080F18] bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(217,83,30,0.22)_0%,rgba(255,122,69,0.08)_35%,#0E1A2B_70%,#080F18_100%)] text-white/80 mt-auto border-t border-[#382622] overflow-hidden">
-        {/* 상단 은은한 앰버 엠비언트 라이트 엣지 */}
-        <div
-          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FF7A45]/45 to-transparent pointer-events-none"
-          aria-hidden="true"
-        />
-        <div className="hb-container py-12 sm:py-16 relative z-1">
+      <footer className="relative bg-[#0E1A2B] text-white/80 mt-auto border-t border-[#182942]">
+        <div className="hb-container py-12 sm:py-16">
           <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
             {/* 브랜드 및 직통 고객센터 영역 */}
             <div className="lg:col-span-5 space-y-4">
@@ -1371,7 +1366,7 @@ export function MobileCtaBar({
       aria-label="모바일 빠른 상담 바"
       className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D7D2C8] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
     >
-      <div className="grid h-[52px] grid-cols-4 divide-x divide-[#E6E3DC]">
+      <div className="grid h-[56px] grid-cols-4 divide-x divide-[#E6E3DC]">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>

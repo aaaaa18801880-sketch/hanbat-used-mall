@@ -427,9 +427,9 @@ export default async function ProductDetailPage({
           </div>
         </nav>
 
-        <div className="overflow-hidden rounded-xl border border-[#E6E3DC] bg-white shadow-card grid grid-cols-1 lg:grid-cols-12">
+        <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card grid grid-cols-1 lg:grid-cols-12">
           {/* 좌측 7컬럼: 상품 이미지 뷰어 */}
-          <div className="border-b lg:border-b-0 lg:border-r border-[#E6E3DC] lg:col-span-7">
+          <div className="border-b lg:border-b-0 lg:border-r border-[#E5E2DC] lg:col-span-7">
             <ProductDetailGallery
               id={String(product.id)}
               title={product.title}

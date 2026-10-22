@@ -591,7 +591,7 @@ export default function InquiryBoardPage() {
       </SiteHeader>
 
       {/* 상단 게시판 헤더 */}
-      <section className="bg-white border-b border-[#E6E3DC]">
+      <section className="bg-[#FAF9F7] border-b border-[#E5E2DC]">
         <div className="hb-container py-9 sm:py-12">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             <div>
@@ -714,9 +714,9 @@ export default function InquiryBoardPage() {
         </div>
 
         {/* 데스크톱 테이블 */}
-        <div className="hidden md:block overflow-hidden rounded-xl border border-[#E6E3DC] bg-white shadow-card">
+        <div className="hidden md:block overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
           <table className="w-full text-[13.5px] text-center text-[#0E1A2B]">
-            <thead className="bg-[#FAF9F7] text-[#667085] text-[12.5px] font-bold border-b border-[#E6E3DC]">
+            <thead className="bg-[#FAF9F7] text-[#667085] text-[12.5px] font-bold border-b border-[#E5E2DC]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
                 <th className="w-32">구분</th>
@@ -839,7 +839,7 @@ export default function InquiryBoardPage() {
             Array.from({ length: 4 }).map((_, i) => (
               <li
                 key={`msk-${i}`}
-                className="h-24 bg-white rounded-xl border border-[#E6E3DC] animate-pulse"
+                className="h-24 bg-white rounded-xl border border-[#E5E2DC] animate-pulse"
               />
             ))
           ) : (
@@ -875,7 +875,7 @@ export default function InquiryBoardPage() {
                   <button
                     type="button"
                     onClick={() => handleItemClick(item)}
-                    className="w-full text-left bg-white border border-[#E6E3DC] rounded-xl p-4 hover:border-[#0E1A2B] transition-colors shadow-2xs"
+                    className="w-full text-left bg-white border border-[#E5E2DC] rounded-xl p-4 hover:border-[#0E1A2B] transition-colors shadow-2xs"
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <span

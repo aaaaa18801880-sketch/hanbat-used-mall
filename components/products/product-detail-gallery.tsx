@@ -137,7 +137,7 @@ export function ProductDetailGallery({
     <div className="flex flex-col bg-[#FAF9F7]">
       <div
         onClick={() => displayImages[0] && setZoomOpen(true)}
-        className={`relative aspect-[4/3] sm:aspect-square w-full overflow-hidden bg-[#EFECE6] flex items-center justify-center p-3 sm:p-5 select-none ${
+        className={`relative aspect-[4/3] sm:aspect-square w-full overflow-hidden bg-[#EFECE6] flex items-center justify-center p-2 sm:p-3.5 select-none ${
           displayImages[0] ? "cursor-zoom-in group" : ""
         }`}
         title={displayImages[0] ? "클릭하여 전체화면으로 확대" : undefined}
@@ -691,9 +691,9 @@ export function InteractiveChecklistAndCta({
         </div>
       </div>
 
-      {/* 2. 상담 및 견적함 액션 버튼 그룹 */}
+      {/* 2. 상담 및 견적함 액션 버튼 그룹 — 3계층 시각적 위계 정돈 */}
       <div className="space-y-2.5">
-        {sold ? (
+        {sold && (
           <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] p-3.5 text-[13px] text-[#3E4756]">
             <strong className="block font-bold text-[#D9531E] mb-0.5">
               💡 본 상품은 판매가 완료되었습니다.
@@ -706,7 +706,63 @@ export function InteractiveChecklistAndCta({
               이 상시 준비되어 있습니다. 아래 버튼으로 편하게 재고를 문의해 주세요.
             </p>
           </div>
-        ) : (
+        )}
+
+        {/* 1순위: 즉시 상담 직통 연결 (전화 상담 + 카톡 상담) */}
+        <div className="grid grid-cols-2 gap-2.5">
+          <a
+            href={telHref(STORE.tel)}
+            onClick={() =>
+              trackEvent("click_tel_consult", { location: "product_detail" })
+            }
+            className="hb-btn-primary h-12 text-[14.5px] sm:text-[15px]"
+          >
+            <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
+            <span>{sold ? "유사매물 전화문의" : "전화 상담"}</span>
+          </a>
+          <a
+            href={STORE.kakaoChat}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent("click_kakao_consult", { location: "product_detail" })
+            }
+            className="hb-btn-kakao h-12 text-[14.5px] sm:text-[15px]"
+          >
+            <Icon d={ICON.chat} className="h-4 w-4" />
+            <span>카카오톡 문의</span>
+          </a>
+        </div>
+
+        {/* 2순위: 비동기 문의 (문자 문의 + 온라인 상세 상담) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <a
+            href={smsHref(STORE.mobile, dynamicSmsBody)}
+            onClick={() =>
+              trackEvent("click_sms_consult", { location: "product_detail" })
+            }
+            className="hb-btn-outline h-10 text-[13px]"
+          >
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E]" />
+            <span>
+              문자({STORE.mobile}) 문의
+              {selectedEnvTags.length > 0 ? ` (조건 ${selectedEnvTags.length}건)` : ""}
+            </span>
+          </a>
+          <Link
+            href={dynamicInquiryHref}
+            className="hb-btn-outline h-10 text-[13px]"
+          >
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#D9531E]" />
+            <span>
+              {sold ? "동일·유사 모델 문의" : "온라인 문의 남기기"}
+              {selectedEnvTags.length > 0 ? ` (+조건첨부)` : ""}
+            </span>
+          </Link>
+        </div>
+
+        {/* 3순위: 복수 품목 묶음 견적함 (판매중일 때만 노출) */}
+        {!sold && (
           <QuoteBasketButton
             item={{
               id: String(product.id),
@@ -721,57 +777,6 @@ export function InteractiveChecklistAndCta({
             }}
           />
         )}
-
-        <div className="grid grid-cols-2 gap-2.5">
-          <a
-            href={telHref(STORE.tel)}
-            onClick={() =>
-              trackEvent("click_tel_consult", { location: "product_detail" })
-            }
-            className="hb-btn-primary h-11 text-[14px]"
-          >
-            <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
-            <span>{sold ? "유사매물 전화문의" : "전화 상담"}</span>
-          </a>
-          <a
-            href={STORE.kakaoChat}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackEvent("click_kakao_consult", { location: "product_detail" })
-            }
-            className="hb-btn-kakao h-11 text-[14px]"
-          >
-            <Icon d={ICON.chat} className="h-4 w-4" />
-            <span>카카오톡 문의</span>
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <a
-            href={smsHref(STORE.mobile, dynamicSmsBody)}
-            onClick={() =>
-              trackEvent("click_sms_consult", { location: "product_detail" })
-            }
-            className="hb-btn-outline h-10 text-[13px]"
-          >
-            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E]" />
-            <span>
-              문자({STORE.mobile}) 문의
-              {selectedEnvTags.length > 0 ? ` (조건 ${selectedEnvTags.length}건 포함)` : ""}
-            </span>
-          </a>
-          <Link
-            href={dynamicInquiryHref}
-            className="hb-btn-outline h-10 text-[13px]"
-          >
-            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#D9531E]" />
-            <span>
-              {sold ? "동일·유사 모델 재고 문의" : "온라인 문의 남기기"}
-              {selectedEnvTags.length > 0 ? ` (+조건첨부)` : ""}
-            </span>
-          </Link>
-        </div>
 
         <p className="pt-1 text-center text-[12px] text-[#646E7E] tabular-nums">
           매장 대표전화 <strong className="text-[#0E1A2B]">{STORE.tel}</strong> · 직통{" "}

@@ -977,7 +977,7 @@ export default function IntegratedAdminDashboard() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F6F5F2] text-[14px] font-semibold text-[#4B5260]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-[14px] font-semibold text-[#4B5260]">
         관리자 권한을 확인하고 있습니다...
       </div>
     );
@@ -985,8 +985,8 @@ export default function IntegratedAdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F6F5F2] p-4 font-sans">
-        <div className="bg-white p-7 sm:p-9 rounded-md shadow-card border border-[#E4E0D8] w-full max-w-sm">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
+        <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E2DC] w-full max-w-sm">
           <div className="text-center mb-6">
             <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-[10.5px] font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
               Admin Console
@@ -1043,7 +1043,7 @@ export default function IntegratedAdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F5F2] font-sans text-[#1F2530] pb-20">
+    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#1F2530] pb-20">
       {/* 상단 관리자 헤더 */}
       <header className="sticky top-0 z-40 bg-[#0E1A2B] text-white border-b border-white/10 shadow-md">
         <div className="hb-container py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-3">
@@ -1136,7 +1136,7 @@ export default function IntegratedAdminDashboard() {
                 onClick={() => setActiveTab(t.id)}
                 className={`px-3.5 sm:px-4 py-2.5 text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
                   active
-                    ? "bg-[#F6F5F2] text-[#0E1A2B]"
+                    ? "bg-[#FAF9F7] text-[#0E1A2B]"
                     : "text-white/75 hover:text-white hover:bg-white/8"
                 }`}
               >
@@ -1172,7 +1172,7 @@ export default function IntegratedAdminDashboard() {
               setActiveTab("inquiries");
               setInqStatusFilter("priority");
             }}
-            className="text-left rounded-md border border-[#FADCD0] bg-[#FFF5F0] p-4 hover:border-[#D9531E] transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#FADCD0] bg-[#FFF5F0] p-4 hover:border-[#D9531E] transition-colors shadow-2xs"
           >
             <div className="flex items-center justify-between gap-2">
               <span className="text-[11.5px] sm:text-[12px] font-bold text-[#B5431A]">
@@ -1191,7 +1191,7 @@ export default function IntegratedAdminDashboard() {
               setActiveTab("inquiries");
               setInqStatusFilter("전체");
             }}
-            className="text-left rounded-md border border-[#E4E0D8] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
             <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
               전체 문의 · 매입 신청
@@ -1207,7 +1207,7 @@ export default function IntegratedAdminDashboard() {
           <button
             type="button"
             onClick={() => setActiveTab("products")}
-            className="text-left rounded-md border border-[#E4E0D8] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
             <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
               현재 판매중 / 예약중 재고
@@ -1223,7 +1223,7 @@ export default function IntegratedAdminDashboard() {
           <button
             type="button"
             onClick={() => setActiveTab("delivery")}
-            className="text-left rounded-md border border-[#E4E0D8] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
             <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
               판매완료 / 배송사례
@@ -1239,8 +1239,8 @@ export default function IntegratedAdminDashboard() {
 
         {/* 2. 탭별 본문: OVERVIEW 또는 INQUIRIES */}
         {(activeTab === "overview" || activeTab === "inquiries") && (
-          <section className="rounded-md border border-[#E4E0D8] bg-white p-4 sm:p-6 shadow-card space-y-5">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E4E0D8] pb-4">
+          <section className="rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 shadow-2xs space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E5E2DC] pb-4">
               <div>
                 <h2 className="text-[17px] sm:text-[18px] font-extrabold text-[#0E1A2B]">
                   고객 문의 및 매입 신청 통합 관리
@@ -1604,7 +1604,7 @@ export default function IntegratedAdminDashboard() {
         {/* 3. 탭별 본문: PRODUCTS (AI 상품 등록·수정 및 재고 상태 관리) */}
         {activeTab === "products" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4">
+            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <div className="flex items-center justify-between">
                 <h2 className="text-[17px] font-bold text-[#0E1A2B]">
                   {editingProductId ? "상품 정보 수정" : "신규 상품 등록 (AI 보조)"}
@@ -1971,8 +1971,8 @@ export default function IntegratedAdminDashboard() {
             </section>
 
             {/* 우측: 등록된 상품 목록 및 명시적 상태 변경 */}
-            <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E4E0D8] pb-3">
+            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
                 <h2 className="text-[17px] font-bold text-[#0E1A2B]">
                   재고 목록 ({filteredProducts.length}건)
                 </h2>
@@ -2023,10 +2023,10 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={product.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded border border-[#E4E0D8] p-3 hover:border-[#0E1A2B]/40"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#E5E2DC] p-3 hover:border-[#0E1A2B]/40 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#EFECE6] border border-[#E4E0D8]">
+                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#FAF9F7] border border-[#E5E2DC]">
                           <SafeImg
                             src={imgs[0]}
                             alt={product.title}
