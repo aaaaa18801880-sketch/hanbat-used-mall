@@ -428,11 +428,15 @@ export default async function ProductDetailPage({
         </nav>
 
         <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card grid grid-cols-1 lg:grid-cols-12">
-          {/* 좌측 7컬럼: 상품 이미지 뷰어 */}
+          {/* 좌측 7컬럼: 상품 이미지 뷰어 (최근 본 매물 저장을 위해 category, price, modelName, conditionGrade 전달) */}
           <div className="border-b lg:border-b-0 lg:border-r border-[#E5E2DC] lg:col-span-7">
             <ProductDetailGallery
               id={String(product.id)}
               title={product.title}
+              category={categoryLabel}
+              price={product.price}
+              modelName={modelName}
+              conditionGrade={product.condition_grade}
               images={images}
               status={product.status}
               createdAt={product.created_at}
@@ -689,6 +693,8 @@ export default async function ProductDetailPage({
           category: categoryLabel,
           price: product.price,
           status: product.status,
+          conditionGrade: product.condition_grade,
+          description: product.description,
           modelName,
           imageUrl: images[0] || null,
           inquiryHref,

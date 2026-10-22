@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-22T09:19:19.470Z">
+<project name="hanbat-mall" generated_at="2026-10-22T11:21:32.585Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="699">
+    <file path="app/[id]/page.tsx" lines="705">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -452,11 +452,15 @@ export default async function ProductDetailPage({
         </nav>
 
         <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card grid grid-cols-1 lg:grid-cols-12">
-          {/* 좌측 7컬럼: 상품 이미지 뷰어 */}
+          {/* 좌측 7컬럼: 상품 이미지 뷰어 (최근 본 매물 저장을 위해 category, price, modelName, conditionGrade 전달) */}
           <div className="border-b lg:border-b-0 lg:border-r border-[#E5E2DC] lg:col-span-7">
             <ProductDetailGallery
               id={String(product.id)}
               title={product.title}
+              category={categoryLabel}
+              price={product.price}
+              modelName={modelName}
+              conditionGrade={product.condition_grade}
               images={images}
               status={product.status}
               createdAt={product.created_at}
@@ -713,6 +717,8 @@ export default async function ProductDetailPage({
           category: categoryLabel,
           price: product.price,
           status: product.status,
+          conditionGrade: product.condition_grade,
+          description: product.description,
           modelName,
           imageUrl: images[0] || null,
           inquiryHref,
@@ -2869,7 +2875,7 @@ export default function IntegratedAdminDashboard() {
         {/* 4. 탭별 본문: DELIVERY */}
         {activeTab === "delivery" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4">
+            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <h2 className="text-[17px] font-bold text-[#0E1A2B]">
                 배송·설치 현장 사례 등록 (AI 제목 보조)
               </h2>
@@ -2891,7 +2897,7 @@ export default function IntegratedAdminDashboard() {
                 </div>
 
                 {(delivObserved.length > 0 || delivReviewNotes.length > 0) && (
-                  <div className="rounded border border-[#E4E0D8] bg-[#FAF9F7] p-3 text-[12px] space-y-1.5">
+                  <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-[12px] space-y-1.5">
                     {delivObserved.length > 0 && (
                       <p>
                         <strong>📷 판독된 요소:</strong>{" "}
@@ -2930,7 +2936,7 @@ export default function IntegratedAdminDashboard() {
               </form>
             </section>
 
-            <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4">
+            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
               <h2 className="text-[17px] font-bold text-[#0E1A2B]">
                 등록된 배송·설치 사례 ({deliveryCases.length}건)
               </h2>
@@ -2940,7 +2946,7 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 rounded border border-[#E4E0D8] p-3"
+                      className="flex items-center gap-3 rounded-lg border border-[#E5E2DC] p-3"
                     >
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#EFECE6]">
                         <SafeImg
@@ -2976,7 +2982,7 @@ export default function IntegratedAdminDashboard() {
 
         {/* 5. 탭별 본문: NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 space-y-5">
+          <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
             <div>
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">
                 외부 알림(Telegram / 알림톡) 발송 상태 관리 및 재시도
@@ -2991,8 +2997,8 @@ export default function IntegratedAdminDashboard() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-[13.5px] border-t border-[#E4E0D8]">
-                <thead className="bg-[#FAF9F7] text-[#6B7280] border-b border-[#E4E0D8]">
+              <table className="w-full text-left text-[13.5px] border-t border-[#E5E2DC]">
+                <thead className="bg-[#FAF9F7] text-[#6B7280] border-b border-[#E5E2DC]">
                   <tr>
                     <th className="py-3 px-4">접수일시 / 고객명</th>
                     <th className="py-3 px-4">구분 / 제목</th>
@@ -6126,7 +6132,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2899">
+    <file path="app/gallery/page.tsx" lines="2905">
       <![CDATA[
 "use client";
 
@@ -6531,7 +6537,9 @@ function ProductDetailModal({
     write: "1",
     type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
     productId: String(product.id),
-    title: `[상품문의] ${product.title}`,
+    title: sold
+      ? `[유사매물 재고문의] ${product.title}`
+      : `[상품문의] ${product.title}`,
     category: categoryLabel,
   });
   if (modelName) {
@@ -6975,8 +6983,12 @@ function ProductDetailModal({
                         title: product.title,
                         category: categoryLabel,
                         price: product.price,
+                        status: product.status,
+                        conditionGrade: product.condition_grade,
+                        description: product.description,
                         modelName,
                         imageUrl: images[0] || null,
+                        quantity: 1,
                       }}
                     />
                   )}
@@ -7070,7 +7082,7 @@ function ProductDetailModal({
                   className="hb-btn-outline h-11 text-[13px]"
                 >
                   <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-                  <span>온라인 문의</span>
+                  <span>{sold ? "유사매물 문의" : "온라인 문의"}</span>
                 </Link>
               </div>
             )}
@@ -7444,7 +7456,7 @@ export default function GalleryPage() {
       price: product.price ?? null,
       status: product.status,
       conditionGrade: product.condition_grade ?? null,
-      modelName: extractModelName(product.title, product.description) ?? null,
+      modelName: extractModelName(product.description, product.title) ?? null,
       imageUrl: prodImages[0] || null,
     });
     trackEvent("view_item", {
@@ -9241,7 +9253,7 @@ export default function InquiryLayout({
 }
 ]]>
     </file>
-    <file path="app/inquiry/page.tsx" lines="1486">
+    <file path="app/inquiry/page.tsx" lines="1491">
       <![CDATA[
 "use client";
 
@@ -9471,11 +9483,16 @@ export default function InquiryBoardPage() {
         if (
           qType === "구매 문의" ||
           qType === "내 물건 팔기" ||
-          qType === "대량·업소용 상담"
+          qType === "대량·업소용 상담" ||
+          qType === "기타 문의"
         ) {
           setWriteDefaultType(qType);
+        } else if (isBundle) {
+          setWriteDefaultType("대량·업소용 상담");
+        } else if (qTitle || qProductId) {
+          setWriteDefaultType("구매 문의");
         } else {
-          setWriteDefaultType(isBundle ? "대량·업소용 상담" : "내 물건 팔기");
+          setWriteDefaultType("내 물건 팔기");
         }
 
         if (isBundle || qTitle || qModel || qProductId || qEnvNote) {
@@ -10265,8 +10282,8 @@ export default function InquiryBoardPage() {
           closeOnOverlayClick={false}
           closeOnEsc={false}
         >
-          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-lg shadow-2xl border border-[#E4E0D8] w-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
+          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-xl shadow-2xl border border-[#E5E2DC] w-full">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E2DC] sticky top-0 bg-white z-10">
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">
                 문의 · 매입 신청 작성
               </h2>
@@ -10302,7 +10319,7 @@ export default function InquiryBoardPage() {
           onClose={() => setIsPwModalOpen(false)}
           panelClassName="max-w-sm"
         >
-          <div className="bg-white rounded-lg shadow-xl border border-[#E4E0D8] p-6 sm:p-8 text-center w-full">
+          <div className="bg-white rounded-xl shadow-xl border border-[#E5E2DC] p-6 sm:p-8 text-center w-full">
             <h3 className="font-bold text-[#0E1A2B] text-[18px] mb-1.5">
               비밀글 열람
             </h3>
@@ -10358,7 +10375,7 @@ export default function InquiryBoardPage() {
           onClose={() => setIsDetailOpen(false)}
           panelClassName="max-w-2xl"
         >
-          <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] max-h-[90vh] flex flex-col w-full overflow-hidden">
+          <div className="bg-white rounded-xl shadow-2xl border border-[#E5E2DC] max-h-[90vh] flex flex-col w-full overflow-hidden">
             <div className="px-6 py-4 flex items-center justify-between bg-[#0E1A2B] text-white">
               <span className="text-[12px] font-bold bg-white/15 px-2.5 py-1 rounded-sm">
                 {getInquiryTypeLabel(selectedItem.inquiry_type)}
@@ -10413,7 +10430,7 @@ export default function InquiryBoardPage() {
                   );
                   if (!parsed.isStructured) {
                     return (
-                      <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                      <div className="bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC] whitespace-pre-wrap leading-relaxed">
                         {selectedItem.description}
                       </div>
                     );
@@ -10442,7 +10459,7 @@ export default function InquiryBoardPage() {
                             </dl>
                           )}
                           {parsed.bulkItems.length > 0 && (
-                            <div className="pt-2 border-t border-[#E4E0D8]">
+                            <div className="pt-2 border-t border-[#E5E2DC]">
                               <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
                                 📦 요청 장비 및 수량
                               </span>
@@ -10462,7 +10479,7 @@ export default function InquiryBoardPage() {
                       )}
 
                       {parsed.customerContent && (
-                        <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                        <div className="bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC] whitespace-pre-wrap leading-relaxed">
                           <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
                             ✍️ 문의 내용
                           </span>
@@ -10582,7 +10599,7 @@ export default function InquiryBoardPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-[#E4E0D8]">
+              <div className="flex items-center justify-between pt-4 border-t border-[#E5E2DC]">
                 <div className="flex gap-2">
                   {canManage && (
                     <>
@@ -10627,7 +10644,7 @@ export default function InquiryBoardPage() {
         >
           <form
             onSubmit={handleEditSubmit}
-            className="bg-white rounded-lg p-6 shadow-2xl border border-[#E4E0D8] space-y-4"
+            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E5E2DC] space-y-4"
           >
             <h3 className="text-[18px] font-bold text-[#0E1A2B]">
               게시글 수정
@@ -10694,7 +10711,7 @@ export default function InquiryBoardPage() {
         >
           <form
             onSubmit={handleAdminAuth}
-            className="bg-white rounded-lg p-6 shadow-2xl border border-[#E4E0D8] space-y-4"
+            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E5E2DC] space-y-4"
           >
             <h3 className="text-[18px] font-bold text-[#0E1A2B]">
               관리자 로그인
@@ -11301,7 +11318,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1855">
+    <file path="app/page.tsx" lines="1851">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11990,7 +12007,7 @@ export default function Home() {
                 />
               </div>
 
-              <ol className="lg:col-span-8 divide-y divide-[#E5E2DC] border-y border-[#E5E2DC]">
+              <ol className="lg:col-span-8 divide-y divide-[#E5E2DC] rounded-xl border border-[#E5E2DC] bg-white px-5 sm:px-7 shadow-2xs">
                 {USP.map((u) => (
                   <li
                     key={u.no}
@@ -12549,11 +12566,7 @@ export default function Home() {
               </div>
 
               <aside className="flex flex-col gap-5 lg:col-span-4">
-                <div className="rounded-xl bg-[#080F18] bg-[radial-gradient(ellipse_120%_80%_at_50%_0%,rgba(217,83,30,0.22)_0%,rgba(255,122,69,0.08)_35%,#0E1A2B_70%,#080F18_100%)] border border-[#382622] p-6 text-white shadow-card relative overflow-hidden">
-                  <div
-                    className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FF7A45]/45 to-transparent pointer-events-none"
-                    aria-hidden="true"
-                  />
+                <div className="rounded-xl bg-[#0E1A2B] border border-[#182942] p-6 text-white shadow-card">
                   <span className="inline-block rounded bg-[#D9531E] px-2.5 py-0.5 text-[11.5px] font-bold text-white">
                     직통 고객센터
                   </span>
@@ -13991,7 +14004,7 @@ const QUICK_MENU_ITEMS: QuickMenuItem[] = [
     key: "small",
     label: "소형가전",
     imageSrc: "/illustrations/picto-small.jpg",
-    href: "/gallery?category=%EC%A3%BC%EB%B0%A9%2F%EC%86%8C%ED%98%95%EA%B0%80%EC%A0%84",
+    href: "/gallery?category=%EA%B8%B0%ED%83%80",
     group: "home",
   },
   // 2. 업소용 설비 (식당·카페 전문 검수)
@@ -15170,7 +15183,7 @@ export function FaqSection() {
 }
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="671">
+    <file path="components/home/featured-products-section.tsx" lines="677">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -15277,7 +15290,7 @@ export function FeaturedProductsSection({
       price: item.price ?? null,
       status: item.status,
       conditionGrade: item.condition_grade ?? null,
-      modelName: extractModelName(item.title, item.description) ?? null,
+      modelName: extractModelName(item.description, item.title) ?? null,
       imageUrl: imgs[0] || null,
     });
     trackEvent("view_item", {
@@ -15776,8 +15789,12 @@ export function FeaturedProductsSection({
                       title: selected.title,
                       category: selectedCategory,
                       price: selected.price,
+                      status: selected.status,
+                      conditionGrade: selected.condition_grade,
+                      description: selected.description,
                       modelName: selectedModelName,
                       imageUrl: selectedImages[0] || null,
+                      quantity: 1,
                     }}
                   />
                 )}
@@ -15826,14 +15843,16 @@ export function FeaturedProductsSection({
               <button
                 type="button"
                 onClick={() => {
-                  const title = selected.title;
+                  const inquiryTitle = selectedSold
+                    ? `[유사매물 재고문의] ${selected.title}`
+                    : `[상품문의] ${selected.title}`;
                   setSelected(null);
-                  onInquireProduct(title);
+                  onInquireProduct(inquiryTitle);
                 }}
                 className="hb-btn-outline h-11 text-[13px]"
               >
                 <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-                <span>온라인 문의</span>
+                <span>{selectedSold ? "유사매물 문의" : "온라인 문의"}</span>
               </button>
             </div>
           </div>
@@ -17944,7 +17963,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, name: "" }));
               }}
               placeholder="홍길동 / 한밭식당"
-              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-medium ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-medium ${
                 fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -17966,7 +17985,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, phone: "" }));
               }}
               placeholder="010-0000-0000"
-              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold tabular-nums ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold tabular-nums ${
                 fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -17996,7 +18015,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, password: "" }));
               }}
               placeholder="숫자 4자리 (휴대폰 뒷자리 추천)"
-              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] ${
                 fieldErrors.password
                   ? "border-red-500 ring-1 ring-red-500"
                   : ""
@@ -18016,7 +18035,7 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+              className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
             />
           </div>
           <div>
@@ -18029,7 +18048,7 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+              className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
             />
           </div>
         </div>
@@ -18321,7 +18340,7 @@ export function UnifiedInquiryForm({
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   placeholder="예: 식당 오픈, 카페, 폐업정리"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
               <div>
@@ -18331,7 +18350,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={electricalPhase}
                   onChange={(e) => setElectricalPhase(e.target.value)}
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                 >
                   <option value="모름/미확인">모름 (상담/현장 확인)</option>
                   <option value="단상 220V">단상 220V (일반 상가)</option>
@@ -18345,7 +18364,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={voltageUpgrade}
                   onChange={(e) => setVoltageUpgrade(e.target.value)}
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                 >
                   <option value="모름·현장 확인 필요">
                     모름 (현장 확인 필요)
@@ -18400,7 +18419,7 @@ export function UnifiedInquiryForm({
                 {bulkItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E4E0D8]"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E5E2DC]"
                   >
                     <div className="sm:col-span-5">
                       <input
@@ -18463,7 +18482,7 @@ export function UnifiedInquiryForm({
                   value={spaceAndUtilities}
                   onChange={(e) => setSpaceAndUtilities(e.target.value)}
                   placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
               <div>
@@ -18475,7 +18494,7 @@ export function UnifiedInquiryForm({
                   value={accessAndRemoval}
                   onChange={(e) => setAccessAndRemoval(e.target.value)}
                   placeholder="예: 1층 진입 가능, 기존 냉장고 1대 철거 희망"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
             </div>
@@ -18495,7 +18514,7 @@ export function UnifiedInquiryForm({
                   id="uf-cat"
                   value={applianceCategory}
                   onChange={(e) => setApplianceCategory(e.target.value)}
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                 >
                   {PRODUCT_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
@@ -18547,7 +18566,7 @@ export function UnifiedInquiryForm({
                       setFieldErrors((p) => ({ ...p, region: "" }));
                   }}
                   placeholder="예: 대전 중구 중촌동 / 유성구 봉명동"
-                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] ${
                     fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -18563,7 +18582,7 @@ export function UnifiedInquiryForm({
                   value={schedule}
                   onChange={(e) => setSchedule(e.target.value)}
                   placeholder="예: 이번 주 금요일 오후 / 1층 또는 엘리베이터 있음"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
             </div>
@@ -18652,7 +18671,7 @@ export function UnifiedInquiryForm({
                     id="uf-cat"
                     value={applianceCategory}
                     onChange={(e) => setApplianceCategory(e.target.value)}
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                   >
                     {PRODUCT_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -18676,7 +18695,7 @@ export function UnifiedInquiryForm({
                         setFieldErrors((p) => ({ ...p, region: "" }));
                     }}
                     placeholder="예: 대전 서구 둔산동"
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                   />
                 </div>
 
@@ -18690,7 +18709,7 @@ export function UnifiedInquiryForm({
                     value={schedule}
                     onChange={(e) => setSchedule(e.target.value)}
                     placeholder="예: 금요일 오후 / 1층 상가"
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                   />
                 </div>
               </div>
@@ -21682,7 +21701,7 @@ export async function validateServerImageFiles(
 
 ]]>
     </file>
-    <file path="lib/site.ts" lines="1732">
+    <file path="lib/site.ts" lines="1744">
       <![CDATA[
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
@@ -21789,6 +21808,16 @@ export function normalizeProductCategory(
     return c as ProductCategoryValue;
   }
   if (c.includes("에어컨") || c.includes("냉난방")) return "에어컨/냉난방기";
+  // 가정용 소형가전·생활가전·영상가전은 '주방/소형가전'으로 들어와도 '기타'로 정확히 분류
+  if (
+    c.includes("소형") ||
+    c.includes("생활") ||
+    c.includes("전자레인지") ||
+    c.includes("밥솥") ||
+    c.includes("TV") ||
+    c.includes("모니터")
+  )
+    return "기타";
   if (
     c.includes("업소") ||
     c.includes("주방") ||
@@ -21834,8 +21863,9 @@ export function extractModelName(
   description?: string | null,
   title?: string | null
 ): string | null {
-  const desc = description ?? "";
-  const explicitMatch = desc.match(
+  // 인자 순서가 (description, title) 또는 (title, description) 어느 쪽으로 들어와도 안전하게 탐색
+  const combined = `${description ?? ""}\n${title ?? ""}`;
+  const explicitMatch = combined.match(
     /(?:[•\-*]\s*모델명\s*[:：]\s*|\[모델명\]\s*)([^\n\r]+)/i
   );
   if (explicitMatch && explicitMatch[1]) {
@@ -21850,10 +21880,11 @@ export function extractModelName(
     }
   }
 
-  const t = title ?? "";
-  const codeMatch = t.match(/\b([A-Z]{2,5}[0-9A-Z\-]{4,18})\b/);
-  if (codeMatch && /[0-9]/.test(codeMatch[1])) {
-    return codeMatch[1];
+  for (const source of [title ?? "", description ?? ""]) {
+    const codeMatch = source.match(/\b([A-Z]{2,5}[0-9A-Z\-]{4,18})\b/);
+    if (codeMatch && /[0-9]/.test(codeMatch[1])) {
+      return codeMatch[1];
+    }
   }
 
   return null;
@@ -23493,7 +23524,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1437">
+    <file path="lib/ui.tsx" lines="1443">
       <![CDATA[
 "use client";
 
@@ -23878,7 +23909,7 @@ const DRAWER_QUICK_CATEGORIES = [
   { label: "냉장고·김치냉장고", href: "/gallery?category=냉장고" },
   { label: "세탁기·건조기", href: "/gallery?category=세탁기/건조기" },
   { label: "업소용 냉장·주방", href: "/gallery?category=업소용기기" },
-  { label: "주방·소형가전", href: "/gallery?category=주방/소형가전" },
+  { label: "주방·소형가전", href: "/gallery?category=기타" },
   { label: "전체 판매 제품", href: "/gallery" },
 ] as const;
 
@@ -24597,7 +24628,7 @@ export function SiteFooter({
                   </li>
                   <li>
                     <Link
-                      href="/gallery?category=주방/소형가전"
+                      href="/gallery?category=기타"
                       className="hover:text-white transition-colors"
                     >
                       주방 · 생활 소형가전
@@ -24714,6 +24745,8 @@ export interface MobileProductCtaContext {
   category: string;
   price: number | null;
   status?: string | null;
+  conditionGrade?: string | null;
+  description?: string | null;
   modelName?: string | null;
   imageUrl?: string | null;
   inquiryHref: string;
@@ -24768,8 +24801,12 @@ export function MobileCtaBar({
                     title: productContext.title,
                     category: productContext.category,
                     price: productContext.price,
+                    status: productContext.status,
+                    conditionGrade: productContext.conditionGrade,
+                    description: productContext.description,
                     modelName: productContext.modelName,
                     imageUrl: productContext.imageUrl,
+                    quantity: 1,
                   });
                   if (res.limitReached) {
                     toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");

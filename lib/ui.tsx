@@ -381,7 +381,7 @@ const DRAWER_QUICK_CATEGORIES = [
   { label: "냉장고·김치냉장고", href: "/gallery?category=냉장고" },
   { label: "세탁기·건조기", href: "/gallery?category=세탁기/건조기" },
   { label: "업소용 냉장·주방", href: "/gallery?category=업소용기기" },
-  { label: "주방·소형가전", href: "/gallery?category=주방/소형가전" },
+  { label: "주방·소형가전", href: "/gallery?category=기타" },
   { label: "전체 판매 제품", href: "/gallery" },
 ] as const;
 
@@ -1100,7 +1100,7 @@ export function SiteFooter({
                   </li>
                   <li>
                     <Link
-                      href="/gallery?category=주방/소형가전"
+                      href="/gallery?category=기타"
                       className="hover:text-white transition-colors"
                     >
                       주방 · 생활 소형가전
@@ -1217,6 +1217,8 @@ export interface MobileProductCtaContext {
   category: string;
   price: number | null;
   status?: string | null;
+  conditionGrade?: string | null;
+  description?: string | null;
   modelName?: string | null;
   imageUrl?: string | null;
   inquiryHref: string;
@@ -1271,8 +1273,12 @@ export function MobileCtaBar({
                     title: productContext.title,
                     category: productContext.category,
                     price: productContext.price,
+                    status: productContext.status,
+                    conditionGrade: productContext.conditionGrade,
+                    description: productContext.description,
                     modelName: productContext.modelName,
                     imageUrl: productContext.imageUrl,
+                    quantity: 1,
                   });
                   if (res.limitReached) {
                     toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");

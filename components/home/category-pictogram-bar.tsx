@@ -54,7 +54,7 @@ const QUICK_MENU_ITEMS: QuickMenuItem[] = [
     key: "small",
     label: "소형가전",
     imageSrc: "/illustrations/picto-small.jpg",
-    href: "/gallery?category=%EC%A3%BC%EB%B0%A9%2F%EC%86%8C%ED%98%95%EA%B0%80%EC%A0%84",
+    href: "/gallery?category=%EA%B8%B0%ED%83%80",
     group: "home",
   },
   // 2. 업소용 설비 (식당·카페 전문 검수)

@@ -103,6 +103,16 @@ export function normalizeProductCategory(
     return c as ProductCategoryValue;
   }
   if (c.includes("에어컨") || c.includes("냉난방")) return "에어컨/냉난방기";
+  // 가정용 소형가전·생활가전·영상가전은 '주방/소형가전'으로 들어와도 '기타'로 정확히 분류
+  if (
+    c.includes("소형") ||
+    c.includes("생활") ||
+    c.includes("전자레인지") ||
+    c.includes("밥솥") ||
+    c.includes("TV") ||
+    c.includes("모니터")
+  )
+    return "기타";
   if (
     c.includes("업소") ||
     c.includes("주방") ||
@@ -148,8 +158,9 @@ export function extractModelName(
   description?: string | null,
   title?: string | null
 ): string | null {
-  const desc = description ?? "";
-  const explicitMatch = desc.match(
+  // 인자 순서가 (description, title) 또는 (title, description) 어느 쪽으로 들어와도 안전하게 탐색
+  const combined = `${description ?? ""}\n${title ?? ""}`;
+  const explicitMatch = combined.match(
     /(?:[•\-*]\s*모델명\s*[:：]\s*|\[모델명\]\s*)([^\n\r]+)/i
   );
   if (explicitMatch && explicitMatch[1]) {
@@ -164,10 +175,11 @@ export function extractModelName(
     }
   }
 
-  const t = title ?? "";
-  const codeMatch = t.match(/\b([A-Z]{2,5}[0-9A-Z\-]{4,18})\b/);
-  if (codeMatch && /[0-9]/.test(codeMatch[1])) {
-    return codeMatch[1];
+  for (const source of [title ?? "", description ?? ""]) {
+    const codeMatch = source.match(/\b([A-Z]{2,5}[0-9A-Z\-]{4,18})\b/);
+    if (codeMatch && /[0-9]/.test(codeMatch[1])) {
+      return codeMatch[1];
+    }
   }
 
   return null;

@@ -2119,7 +2119,7 @@ export default function IntegratedAdminDashboard() {
         {/* 4. 탭별 본문: DELIVERY */}
         {activeTab === "delivery" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4">
+            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <h2 className="text-[17px] font-bold text-[#0E1A2B]">
                 배송·설치 현장 사례 등록 (AI 제목 보조)
               </h2>
@@ -2141,7 +2141,7 @@ export default function IntegratedAdminDashboard() {
                 </div>
 
                 {(delivObserved.length > 0 || delivReviewNotes.length > 0) && (
-                  <div className="rounded border border-[#E4E0D8] bg-[#FAF9F7] p-3 text-[12px] space-y-1.5">
+                  <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-[12px] space-y-1.5">
                     {delivObserved.length > 0 && (
                       <p>
                         <strong>📷 판독된 요소:</strong>{" "}
@@ -2180,7 +2180,7 @@ export default function IntegratedAdminDashboard() {
               </form>
             </section>
 
-            <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4">
+            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
               <h2 className="text-[17px] font-bold text-[#0E1A2B]">
                 등록된 배송·설치 사례 ({deliveryCases.length}건)
               </h2>
@@ -2190,7 +2190,7 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 rounded border border-[#E4E0D8] p-3"
+                      className="flex items-center gap-3 rounded-lg border border-[#E5E2DC] p-3"
                     >
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#EFECE6]">
                         <SafeImg
@@ -2226,7 +2226,7 @@ export default function IntegratedAdminDashboard() {
 
         {/* 5. 탭별 본문: NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <section className="rounded-md border border-[#E4E0D8] bg-white p-5 sm:p-6 space-y-5">
+          <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
             <div>
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">
                 외부 알림(Telegram / 알림톡) 발송 상태 관리 및 재시도
@@ -2241,8 +2241,8 @@ export default function IntegratedAdminDashboard() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-[13.5px] border-t border-[#E4E0D8]">
-                <thead className="bg-[#FAF9F7] text-[#6B7280] border-b border-[#E4E0D8]">
+              <table className="w-full text-left text-[13.5px] border-t border-[#E5E2DC]">
+                <thead className="bg-[#FAF9F7] text-[#6B7280] border-b border-[#E5E2DC]">
                   <tr>
                     <th className="py-3 px-4">접수일시 / 고객명</th>
                     <th className="py-3 px-4">구분 / 제목</th>

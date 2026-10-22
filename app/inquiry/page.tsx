@@ -226,11 +226,16 @@ export default function InquiryBoardPage() {
         if (
           qType === "구매 문의" ||
           qType === "내 물건 팔기" ||
-          qType === "대량·업소용 상담"
+          qType === "대량·업소용 상담" ||
+          qType === "기타 문의"
         ) {
           setWriteDefaultType(qType);
+        } else if (isBundle) {
+          setWriteDefaultType("대량·업소용 상담");
+        } else if (qTitle || qProductId) {
+          setWriteDefaultType("구매 문의");
         } else {
-          setWriteDefaultType(isBundle ? "대량·업소용 상담" : "내 물건 팔기");
+          setWriteDefaultType("내 물건 팔기");
         }
 
         if (isBundle || qTitle || qModel || qProductId || qEnvNote) {
@@ -1020,8 +1025,8 @@ export default function InquiryBoardPage() {
           closeOnOverlayClick={false}
           closeOnEsc={false}
         >
-          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-lg shadow-2xl border border-[#E4E0D8] w-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] sticky top-0 bg-white z-10">
+          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-xl shadow-2xl border border-[#E5E2DC] w-full">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E2DC] sticky top-0 bg-white z-10">
               <h2 className="text-[18px] font-bold text-[#0E1A2B]">
                 문의 · 매입 신청 작성
               </h2>
@@ -1057,7 +1062,7 @@ export default function InquiryBoardPage() {
           onClose={() => setIsPwModalOpen(false)}
           panelClassName="max-w-sm"
         >
-          <div className="bg-white rounded-lg shadow-xl border border-[#E4E0D8] p-6 sm:p-8 text-center w-full">
+          <div className="bg-white rounded-xl shadow-xl border border-[#E5E2DC] p-6 sm:p-8 text-center w-full">
             <h3 className="font-bold text-[#0E1A2B] text-[18px] mb-1.5">
               비밀글 열람
             </h3>
@@ -1113,7 +1118,7 @@ export default function InquiryBoardPage() {
           onClose={() => setIsDetailOpen(false)}
           panelClassName="max-w-2xl"
         >
-          <div className="bg-white rounded-lg shadow-2xl border border-[#E4E0D8] max-h-[90vh] flex flex-col w-full overflow-hidden">
+          <div className="bg-white rounded-xl shadow-2xl border border-[#E5E2DC] max-h-[90vh] flex flex-col w-full overflow-hidden">
             <div className="px-6 py-4 flex items-center justify-between bg-[#0E1A2B] text-white">
               <span className="text-[12px] font-bold bg-white/15 px-2.5 py-1 rounded-sm">
                 {getInquiryTypeLabel(selectedItem.inquiry_type)}
@@ -1168,7 +1173,7 @@ export default function InquiryBoardPage() {
                   );
                   if (!parsed.isStructured) {
                     return (
-                      <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                      <div className="bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC] whitespace-pre-wrap leading-relaxed">
                         {selectedItem.description}
                       </div>
                     );
@@ -1197,7 +1202,7 @@ export default function InquiryBoardPage() {
                             </dl>
                           )}
                           {parsed.bulkItems.length > 0 && (
-                            <div className="pt-2 border-t border-[#E4E0D8]">
+                            <div className="pt-2 border-t border-[#E5E2DC]">
                               <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
                                 📦 요청 장비 및 수량
                               </span>
@@ -1217,7 +1222,7 @@ export default function InquiryBoardPage() {
                       )}
 
                       {parsed.customerContent && (
-                        <div className="bg-[#FAF9F7] p-4 rounded-md border border-[#E4E0D8] whitespace-pre-wrap leading-relaxed">
+                        <div className="bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC] whitespace-pre-wrap leading-relaxed">
                           <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
                             ✍️ 문의 내용
                           </span>
@@ -1337,7 +1342,7 @@ export default function InquiryBoardPage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-[#E4E0D8]">
+              <div className="flex items-center justify-between pt-4 border-t border-[#E5E2DC]">
                 <div className="flex gap-2">
                   {canManage && (
                     <>
@@ -1382,7 +1387,7 @@ export default function InquiryBoardPage() {
         >
           <form
             onSubmit={handleEditSubmit}
-            className="bg-white rounded-lg p-6 shadow-2xl border border-[#E4E0D8] space-y-4"
+            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E5E2DC] space-y-4"
           >
             <h3 className="text-[18px] font-bold text-[#0E1A2B]">
               게시글 수정
@@ -1449,7 +1454,7 @@ export default function InquiryBoardPage() {
         >
           <form
             onSubmit={handleAdminAuth}
-            className="bg-white rounded-lg p-6 shadow-2xl border border-[#E4E0D8] space-y-4"
+            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E5E2DC] space-y-4"
           >
             <h3 className="text-[18px] font-bold text-[#0E1A2B]">
               관리자 로그인

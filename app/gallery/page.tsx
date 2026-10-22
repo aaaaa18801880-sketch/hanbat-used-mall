@@ -401,7 +401,9 @@ function ProductDetailModal({
     write: "1",
     type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
     productId: String(product.id),
-    title: `[상품문의] ${product.title}`,
+    title: sold
+      ? `[유사매물 재고문의] ${product.title}`
+      : `[상품문의] ${product.title}`,
     category: categoryLabel,
   });
   if (modelName) {
@@ -845,8 +847,12 @@ function ProductDetailModal({
                         title: product.title,
                         category: categoryLabel,
                         price: product.price,
+                        status: product.status,
+                        conditionGrade: product.condition_grade,
+                        description: product.description,
                         modelName,
                         imageUrl: images[0] || null,
+                        quantity: 1,
                       }}
                     />
                   )}
@@ -940,7 +946,7 @@ function ProductDetailModal({
                   className="hb-btn-outline h-11 text-[13px]"
                 >
                   <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-                  <span>온라인 문의</span>
+                  <span>{sold ? "유사매물 문의" : "온라인 문의"}</span>
                 </Link>
               </div>
             )}
@@ -1314,7 +1320,7 @@ export default function GalleryPage() {
       price: product.price ?? null,
       status: product.status,
       conditionGrade: product.condition_grade ?? null,
-      modelName: extractModelName(product.title, product.description) ?? null,
+      modelName: extractModelName(product.description, product.title) ?? null,
       imageUrl: prodImages[0] || null,
     });
     trackEvent("view_item", {

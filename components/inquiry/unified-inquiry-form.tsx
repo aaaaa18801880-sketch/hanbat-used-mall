@@ -1047,7 +1047,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, name: "" }));
               }}
               placeholder="홍길동 / 한밭식당"
-              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-medium ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-medium ${
                 fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1069,7 +1069,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, phone: "" }));
               }}
               placeholder="010-0000-0000"
-              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold tabular-nums ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold tabular-nums ${
                 fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1099,7 +1099,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, password: "" }));
               }}
               placeholder="숫자 4자리 (휴대폰 뒷자리 추천)"
-              className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] ${
                 fieldErrors.password
                   ? "border-red-500 ring-1 ring-red-500"
                   : ""
@@ -1119,7 +1119,7 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+              className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
             />
           </div>
           <div>
@@ -1132,7 +1132,7 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+              className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
             />
           </div>
         </div>
@@ -1424,7 +1424,7 @@ export function UnifiedInquiryForm({
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   placeholder="예: 식당 오픈, 카페, 폐업정리"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
               <div>
@@ -1434,7 +1434,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={electricalPhase}
                   onChange={(e) => setElectricalPhase(e.target.value)}
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                 >
                   <option value="모름/미확인">모름 (상담/현장 확인)</option>
                   <option value="단상 220V">단상 220V (일반 상가)</option>
@@ -1448,7 +1448,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={voltageUpgrade}
                   onChange={(e) => setVoltageUpgrade(e.target.value)}
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                 >
                   <option value="모름·현장 확인 필요">
                     모름 (현장 확인 필요)
@@ -1503,7 +1503,7 @@ export function UnifiedInquiryForm({
                 {bulkItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E4E0D8]"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E5E2DC]"
                   >
                     <div className="sm:col-span-5">
                       <input
@@ -1566,7 +1566,7 @@ export function UnifiedInquiryForm({
                   value={spaceAndUtilities}
                   onChange={(e) => setSpaceAndUtilities(e.target.value)}
                   placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
               <div>
@@ -1578,7 +1578,7 @@ export function UnifiedInquiryForm({
                   value={accessAndRemoval}
                   onChange={(e) => setAccessAndRemoval(e.target.value)}
                   placeholder="예: 1층 진입 가능, 기존 냉장고 1대 철거 희망"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
             </div>
@@ -1598,7 +1598,7 @@ export function UnifiedInquiryForm({
                   id="uf-cat"
                   value={applianceCategory}
                   onChange={(e) => setApplianceCategory(e.target.value)}
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                 >
                   {PRODUCT_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
@@ -1650,7 +1650,7 @@ export function UnifiedInquiryForm({
                       setFieldErrors((p) => ({ ...p, region: "" }));
                   }}
                   placeholder="예: 대전 중구 중촌동 / 유성구 봉명동"
-                  className={`hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] ${
                     fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -1666,7 +1666,7 @@ export function UnifiedInquiryForm({
                   value={schedule}
                   onChange={(e) => setSchedule(e.target.value)}
                   placeholder="예: 이번 주 금요일 오후 / 1층 또는 엘리베이터 있음"
-                  className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                 />
               </div>
             </div>
@@ -1755,7 +1755,7 @@ export function UnifiedInquiryForm({
                     id="uf-cat"
                     value={applianceCategory}
                     onChange={(e) => setApplianceCategory(e.target.value)}
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px] font-semibold"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
                   >
                     {PRODUCT_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -1779,7 +1779,7 @@ export function UnifiedInquiryForm({
                         setFieldErrors((p) => ({ ...p, region: "" }));
                     }}
                     placeholder="예: 대전 서구 둔산동"
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                   />
                 </div>
 
@@ -1793,7 +1793,7 @@ export function UnifiedInquiryForm({
                     value={schedule}
                     onChange={(e) => setSchedule(e.target.value)}
                     placeholder="예: 금요일 오후 / 1층 상가"
-                    className="hb-input mt-1.5 h-[50px] sm:h-[52px] text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
                   />
                 </div>
               </div>

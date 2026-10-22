@@ -103,7 +103,7 @@ export function FeaturedProductsSection({
       price: item.price ?? null,
       status: item.status,
       conditionGrade: item.condition_grade ?? null,
-      modelName: extractModelName(item.title, item.description) ?? null,
+      modelName: extractModelName(item.description, item.title) ?? null,
       imageUrl: imgs[0] || null,
     });
     trackEvent("view_item", {
@@ -602,8 +602,12 @@ export function FeaturedProductsSection({
                       title: selected.title,
                       category: selectedCategory,
                       price: selected.price,
+                      status: selected.status,
+                      conditionGrade: selected.condition_grade,
+                      description: selected.description,
                       modelName: selectedModelName,
                       imageUrl: selectedImages[0] || null,
+                      quantity: 1,
                     }}
                   />
                 )}
@@ -652,14 +656,16 @@ export function FeaturedProductsSection({
               <button
                 type="button"
                 onClick={() => {
-                  const title = selected.title;
+                  const inquiryTitle = selectedSold
+                    ? `[유사매물 재고문의] ${selected.title}`
+                    : `[상품문의] ${selected.title}`;
                   setSelected(null);
-                  onInquireProduct(title);
+                  onInquireProduct(inquiryTitle);
                 }}
                 className="hb-btn-outline h-11 text-[13px]"
               >
                 <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-                <span>온라인 문의</span>
+                <span>{selectedSold ? "유사매물 문의" : "온라인 문의"}</span>
               </button>
             </div>
           </div>
