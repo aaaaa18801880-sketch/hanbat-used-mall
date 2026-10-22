@@ -1149,9 +1149,12 @@ export function UnifiedInquiryForm({
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[12.5px] font-bold text-[#667085] hover:text-[#0E1A2B] underline underline-offset-2"
+                className="text-[12.5px] font-bold text-[#D9531E] hover:text-[#B5431A] underline underline-offset-2 inline-flex items-center gap-1"
               >
-                {showPhotoGuide ? "촬영 가이드 닫기" : "권장 촬영 가이드 보기"}
+                <span>{showPhotoGuide ? "촬영 가이드 접기" : "권장 촬영 가이드 보기"}</span>
+                <span className="rounded bg-[#FFF0EB] border border-[#FADCD0] px-1.5 py-0.5 text-[10.5px] font-extrabold text-[#D9531E]">
+                  AI 가이드
+                </span>
               </button>
             )}
           </div>
@@ -1226,23 +1229,34 @@ export function UnifiedInquiryForm({
           </p>
         </div>
 
-        {/* 접이식 3컷 촬영 가이드 */}
+        {/* 접이식 AI 권장 촬영 가이드 (일러스트 배너 + 3단계 설명) */}
         {!isNotice && !isOther && showPhotoGuide && (
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-lg bg-white p-3.5 border border-[#E5E2DC] text-[12.5px]">
-            {photoGuideSteps.map((g) => (
-              <li key={g.step} className="flex items-start gap-2">
-                <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10.5px] font-bold text-white">
-                  {g.step}
-                </span>
-                <div>
-                  <strong className="font-bold text-[#0E1A2B] block">
-                    {g.title}
-                  </strong>
-                  <span className="text-[#4B5260]">{g.desc}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-2xs">
+            {/* 사용자 제작 AI 가이드 배너 */}
+            <div className="relative w-full overflow-hidden bg-[#FAF9F7] border-b border-[#E5E2DC]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/ai-photo-guide.png"
+                alt="사진만 올리면 AI가 상품 설명을 작성해 드려요 - 권장 촬영 가이드"
+                className="w-full h-auto object-contain block"
+              />
+            </div>
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-white text-[12.5px]">
+              {photoGuideSteps.map((g) => (
+                <li key={g.step} className="flex items-start gap-2">
+                  <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10.5px] font-bold text-white">
+                    {g.step}
+                  </span>
+                  <div>
+                    <strong className="font-bold text-[#0E1A2B] block">
+                      {g.title}
+                    </strong>
+                    <span className="text-[#4B5260]">{g.desc}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         )}
 
         {/* 사진 판독 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}

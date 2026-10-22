@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-22T07:17:26.231Z">
+<project name="hanbat-mall" generated_at="2026-10-22T08:53:44.983Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -11521,7 +11521,7 @@ export default function Home() {
   const [uploadingReview, setUploadingReview] = useState(false);
   const [isAnalyzingReview, setIsAnalyzingReview] = useState(false);
 
-  /* ── 1) 실시간 판매 매물 로드 (배송인증 제외) ── */
+  /* ── 1) 실시간 판매 매물 로드 (배송인증 제외, 전체 실매물) ── */
   const loadFeaturedProducts = useCallback(async () => {
     await Promise.resolve();
     setProductsLoading(true);
@@ -11532,7 +11532,7 @@ export default function Home() {
         .select("*")
         .neq("category", "배송인증")
         .order("created_at", { ascending: false })
-        .limit(12);
+        .limit(300);
 
       if (error) throw error;
       const rows = (data ?? []) as ProductItem[];
@@ -11541,7 +11541,7 @@ export default function Home() {
         const soldB = isProductSold(b.status) ? 1 : 0;
         return soldA - soldB;
       });
-      setFeaturedProducts(rows.slice(0, 8));
+      setFeaturedProducts(rows);
     } catch (err) {
       console.error("추천 매물 로드 실패:", err);
       setProductsError(true);
@@ -15207,7 +15207,7 @@ export function FaqSection() {
 }
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="622">
+    <file path="components/home/featured-products-section.tsx" lines="671">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -15246,6 +15246,9 @@ import { ProductStructuredDescription } from "../products/product-structured-des
 
 const QUICK_FILTER_TABS = ["전체", ...PRODUCT_CATEGORIES] as const;
 
+const INITIAL_VISIBLE_COUNT = 16;
+const PAGE_INCREMENT = 16;
+
 export function FeaturedProductsSection({
   products,
   loading,
@@ -15262,18 +15265,26 @@ export function FeaturedProductsSection({
   const [selected, setSelected] = useState<ProductItem | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState<string>("전체");
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT);
   const [viewOverrides, setViewOverrides] = useState<Record<string, number>>(
     {}
   );
 
-  const filteredProducts = useMemo(() => {
-    if (activeCategory === "전체") return products.slice(0, 8);
-    return products
-      .filter(
-        (p) => normalizeProductCategory(p.category) === activeCategory
-      )
-      .slice(0, 8);
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
+  };
+
+  const allFilteredProducts = useMemo(() => {
+    if (activeCategory === "전체") return products;
+    return products.filter(
+      (p) => normalizeProductCategory(p.category) === activeCategory
+    );
   }, [products, activeCategory]);
+
+  const displayedProducts = useMemo(() => {
+    return allFilteredProducts.slice(0, visibleCount);
+  }, [allFilteredProducts, visibleCount]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { 전체: products.length };
@@ -15283,6 +15294,9 @@ export function FeaturedProductsSection({
     }
     return counts;
   }, [products]);
+
+  const hasMore = displayedProducts.length < allFilteredProducts.length;
+  const remainingCount = allFilteredProducts.length - displayedProducts.length;
 
   const openModal = async (item: ProductItem) => {
     const currentViews =
@@ -15415,7 +15429,7 @@ export function FeaturedProductsSection({
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    onClick={() => setActiveCategory(cat)}
+                    onClick={() => handleCategoryChange(cat)}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] sm:text-[13.5px] font-semibold whitespace-nowrap border transition-colors ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] font-bold"
@@ -15533,34 +15547,34 @@ export function FeaturedProductsSection({
               </a>
             </div>
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 text-center">
+        ) : allFilteredProducts.length === 0 ? (
+          <div className="mt-8 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-8 text-center">
             <p className="text-[15.5px] font-bold text-[#0E1A2B]">
-              최근 등록된 8개 추천 매물 중 &lsquo;{activeCategory}&rsquo; 품목이 없습니다.
+              현재 등록된 &lsquo;{activeCategory}&rsquo; 실매물이 없습니다.
             </p>
             <p className="mt-1 text-[13.5px] text-[#6B7280]">
-              전체 판매 제품 갤러리에서 해당 카테고리의 전체 재고를 확인하시거나 전체 탭으로 돌아가실 수 있습니다.
+              오프라인 매장에 검수 중인 미등록 입고분이 상시 대기 중입니다. 찾으시는 모델을 말씀해 주시면 즉시 확인해 드립니다.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2.5">
               <button
                 type="button"
-                onClick={() => setActiveCategory("전체")}
+                onClick={() => handleCategoryChange("전체")}
                 className="hb-btn-outline h-10 px-4 text-[13px]"
               >
-                추천 매물 전체 보기
+                전체 실매물 보기
               </button>
               <Link
-                href={`/gallery?category=${encodeURIComponent(activeCategory)}`}
+                href="/gallery"
                 className="hb-btn-primary h-10 px-4 text-[13px]"
               >
-                {activeCategory} 전체 매물 보러가기 →
+                전체 판매 제품 갤러리로 이동 →
               </Link>
             </div>
           </div>
         ) : (
           <>
             <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-              {filteredProducts.map((product) => {
+              {displayedProducts.map((product) => {
                 const effectiveProduct =
                   typeof viewOverrides[product.id] === "number"
                     ? { ...product, views: viewOverrides[product.id] }
@@ -15574,6 +15588,41 @@ export function FeaturedProductsSection({
                 );
               })}
             </div>
+
+            {/* 실매물 더보기 / 전체 펼치기 컨트롤 */}
+            {hasMore ? (
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + PAGE_INCREMENT)}
+                  className="hb-btn-primary h-12 px-6 text-[14.5px] font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-2"
+                >
+                  <Icon d={ICON.refresh} className="w-4 h-4" />
+                  <span>실매물 더보기 (+{Math.min(remainingCount, PAGE_INCREMENT)}개)</span>
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[12px] font-semibold tabular-nums text-white">
+                    {displayedProducts.length} / {allFilteredProducts.length}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount(allFilteredProducts.length)}
+                  className="hb-btn-outline h-12 px-5 text-[13.5px] font-semibold"
+                >
+                  <span>
+                    {activeCategory === "전체"
+                      ? `전체 ${allFilteredProducts.length}개 매물 한 번에 보기`
+                      : `${activeCategory} ${allFilteredProducts.length}개 전체 펼치기`}
+                  </span>
+                </button>
+              </div>
+            ) : allFilteredProducts.length > INITIAL_VISIBLE_COUNT ? (
+              <div className="mt-6 text-center">
+                <p className="text-[13px] text-[#6B7280]">
+                  ✓ {activeCategory === "전체" ? "등록된 전체 실매물" : `${activeCategory} 실매물`}{" "}
+                  <strong className="text-[#0E1A2B]">{allFilteredProducts.length}개</strong>를 모두 표시했습니다.
+                </p>
+              </div>
+            ) : null}
 
             <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260] shadow-2xs">
               <p className="break-keep">
@@ -16881,7 +16930,7 @@ export function TrustSection() {
 }
 ]]>
     </file>
-    <file path="components/inquiry/unified-inquiry-form.tsx" lines="1987">
+    <file path="components/inquiry/unified-inquiry-form.tsx" lines="2001">
       <![CDATA[
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
@@ -18034,9 +18083,12 @@ export function UnifiedInquiryForm({
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[12.5px] font-bold text-[#667085] hover:text-[#0E1A2B] underline underline-offset-2"
+                className="text-[12.5px] font-bold text-[#D9531E] hover:text-[#B5431A] underline underline-offset-2 inline-flex items-center gap-1"
               >
-                {showPhotoGuide ? "촬영 가이드 닫기" : "권장 촬영 가이드 보기"}
+                <span>{showPhotoGuide ? "촬영 가이드 접기" : "권장 촬영 가이드 보기"}</span>
+                <span className="rounded bg-[#FFF0EB] border border-[#FADCD0] px-1.5 py-0.5 text-[10.5px] font-extrabold text-[#D9531E]">
+                  AI 가이드
+                </span>
               </button>
             )}
           </div>
@@ -18111,23 +18163,34 @@ export function UnifiedInquiryForm({
           </p>
         </div>
 
-        {/* 접이식 3컷 촬영 가이드 */}
+        {/* 접이식 AI 권장 촬영 가이드 (일러스트 배너 + 3단계 설명) */}
         {!isNotice && !isOther && showPhotoGuide && (
-          <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 rounded-lg bg-white p-3.5 border border-[#E5E2DC] text-[12.5px]">
-            {photoGuideSteps.map((g) => (
-              <li key={g.step} className="flex items-start gap-2">
-                <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10.5px] font-bold text-white">
-                  {g.step}
-                </span>
-                <div>
-                  <strong className="font-bold text-[#0E1A2B] block">
-                    {g.title}
-                  </strong>
-                  <span className="text-[#4B5260]">{g.desc}</span>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-2xs">
+            {/* 사용자 제작 AI 가이드 배너 */}
+            <div className="relative w-full overflow-hidden bg-[#FAF9F7] border-b border-[#E5E2DC]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/ai-photo-guide.png"
+                alt="사진만 올리면 AI가 상품 설명을 작성해 드려요 - 권장 촬영 가이드"
+                className="w-full h-auto object-contain block"
+              />
+            </div>
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-white text-[12.5px]">
+              {photoGuideSteps.map((g) => (
+                <li key={g.step} className="flex items-start gap-2">
+                  <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10.5px] font-bold text-white">
+                    {g.step}
+                  </span>
+                  <div>
+                    <strong className="font-bold text-[#0E1A2B] block">
+                      {g.title}
+                    </strong>
+                    <span className="text-[#4B5260]">{g.desc}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
         )}
 
         {/* 사진 판독 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
@@ -23467,7 +23530,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1436">
+    <file path="lib/ui.tsx" lines="1437">
       <![CDATA[
 "use client";
 
@@ -23523,6 +23586,7 @@ export const ICON = {
   share: "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8m-4-6-4-4-4 4m4-4v13",
   shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
+  refresh: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
 } as const;
 
 export function Icon({

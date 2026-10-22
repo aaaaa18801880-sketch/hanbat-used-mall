@@ -35,6 +35,9 @@ import { ProductStructuredDescription } from "../products/product-structured-des
 
 const QUICK_FILTER_TABS = ["전체", ...PRODUCT_CATEGORIES] as const;
 
+const INITIAL_VISIBLE_COUNT = 16;
+const PAGE_INCREMENT = 16;
+
 export function FeaturedProductsSection({
   products,
   loading,
@@ -51,18 +54,26 @@ export function FeaturedProductsSection({
   const [selected, setSelected] = useState<ProductItem | null>(null);
   const [imgIdx, setImgIdx] = useState(0);
   const [activeCategory, setActiveCategory] = useState<string>("전체");
+  const [visibleCount, setVisibleCount] = useState<number>(INITIAL_VISIBLE_COUNT);
   const [viewOverrides, setViewOverrides] = useState<Record<string, number>>(
     {}
   );
 
-  const filteredProducts = useMemo(() => {
-    if (activeCategory === "전체") return products.slice(0, 8);
-    return products
-      .filter(
-        (p) => normalizeProductCategory(p.category) === activeCategory
-      )
-      .slice(0, 8);
+  const handleCategoryChange = (cat: string) => {
+    setActiveCategory(cat);
+    setVisibleCount(INITIAL_VISIBLE_COUNT);
+  };
+
+  const allFilteredProducts = useMemo(() => {
+    if (activeCategory === "전체") return products;
+    return products.filter(
+      (p) => normalizeProductCategory(p.category) === activeCategory
+    );
   }, [products, activeCategory]);
+
+  const displayedProducts = useMemo(() => {
+    return allFilteredProducts.slice(0, visibleCount);
+  }, [allFilteredProducts, visibleCount]);
 
   const categoryCounts = useMemo(() => {
     const counts: Record<string, number> = { 전체: products.length };
@@ -72,6 +83,9 @@ export function FeaturedProductsSection({
     }
     return counts;
   }, [products]);
+
+  const hasMore = displayedProducts.length < allFilteredProducts.length;
+  const remainingCount = allFilteredProducts.length - displayedProducts.length;
 
   const openModal = async (item: ProductItem) => {
     const currentViews =
@@ -204,7 +218,7 @@ export function FeaturedProductsSection({
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    onClick={() => setActiveCategory(cat)}
+                    onClick={() => handleCategoryChange(cat)}
                     className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] sm:text-[13.5px] font-semibold whitespace-nowrap border transition-colors ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] font-bold"
@@ -322,34 +336,34 @@ export function FeaturedProductsSection({
               </a>
             </div>
           </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="mt-8 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-8 text-center">
+        ) : allFilteredProducts.length === 0 ? (
+          <div className="mt-8 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-8 text-center">
             <p className="text-[15.5px] font-bold text-[#0E1A2B]">
-              최근 등록된 8개 추천 매물 중 &lsquo;{activeCategory}&rsquo; 품목이 없습니다.
+              현재 등록된 &lsquo;{activeCategory}&rsquo; 실매물이 없습니다.
             </p>
             <p className="mt-1 text-[13.5px] text-[#6B7280]">
-              전체 판매 제품 갤러리에서 해당 카테고리의 전체 재고를 확인하시거나 전체 탭으로 돌아가실 수 있습니다.
+              오프라인 매장에 검수 중인 미등록 입고분이 상시 대기 중입니다. 찾으시는 모델을 말씀해 주시면 즉시 확인해 드립니다.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2.5">
               <button
                 type="button"
-                onClick={() => setActiveCategory("전체")}
+                onClick={() => handleCategoryChange("전체")}
                 className="hb-btn-outline h-10 px-4 text-[13px]"
               >
-                추천 매물 전체 보기
+                전체 실매물 보기
               </button>
               <Link
-                href={`/gallery?category=${encodeURIComponent(activeCategory)}`}
+                href="/gallery"
                 className="hb-btn-primary h-10 px-4 text-[13px]"
               >
-                {activeCategory} 전체 매물 보러가기 →
+                전체 판매 제품 갤러리로 이동 →
               </Link>
             </div>
           </div>
         ) : (
           <>
             <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-              {filteredProducts.map((product) => {
+              {displayedProducts.map((product) => {
                 const effectiveProduct =
                   typeof viewOverrides[product.id] === "number"
                     ? { ...product, views: viewOverrides[product.id] }
@@ -363,6 +377,41 @@ export function FeaturedProductsSection({
                 );
               })}
             </div>
+
+            {/* 실매물 더보기 / 전체 펼치기 컨트롤 */}
+            {hasMore ? (
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + PAGE_INCREMENT)}
+                  className="hb-btn-primary h-12 px-6 text-[14.5px] font-bold shadow-xs hover:shadow-md transition-all flex items-center gap-2"
+                >
+                  <Icon d={ICON.refresh} className="w-4 h-4" />
+                  <span>실매물 더보기 (+{Math.min(remainingCount, PAGE_INCREMENT)}개)</span>
+                  <span className="rounded-full bg-white/20 px-2 py-0.5 text-[12px] font-semibold tabular-nums text-white">
+                    {displayedProducts.length} / {allFilteredProducts.length}
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount(allFilteredProducts.length)}
+                  className="hb-btn-outline h-12 px-5 text-[13.5px] font-semibold"
+                >
+                  <span>
+                    {activeCategory === "전체"
+                      ? `전체 ${allFilteredProducts.length}개 매물 한 번에 보기`
+                      : `${activeCategory} ${allFilteredProducts.length}개 전체 펼치기`}
+                  </span>
+                </button>
+              </div>
+            ) : allFilteredProducts.length > INITIAL_VISIBLE_COUNT ? (
+              <div className="mt-6 text-center">
+                <p className="text-[13px] text-[#6B7280]">
+                  ✓ {activeCategory === "전체" ? "등록된 전체 실매물" : `${activeCategory} 실매물`}{" "}
+                  <strong className="text-[#0E1A2B]">{allFilteredProducts.length}개</strong>를 모두 표시했습니다.
+                </p>
+              </div>
+            ) : null}
 
             <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] px-4 sm:px-5 py-3.5 text-[13px] text-[#4B5260] shadow-2xs">
               <p className="break-keep">

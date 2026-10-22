@@ -216,7 +216,7 @@ export default function Home() {
   const [uploadingReview, setUploadingReview] = useState(false);
   const [isAnalyzingReview, setIsAnalyzingReview] = useState(false);
 
-  /* ── 1) 실시간 판매 매물 로드 (배송인증 제외) ── */
+  /* ── 1) 실시간 판매 매물 로드 (배송인증 제외, 전체 실매물) ── */
   const loadFeaturedProducts = useCallback(async () => {
     await Promise.resolve();
     setProductsLoading(true);
@@ -227,7 +227,7 @@ export default function Home() {
         .select("*")
         .neq("category", "배송인증")
         .order("created_at", { ascending: false })
-        .limit(12);
+        .limit(300);
 
       if (error) throw error;
       const rows = (data ?? []) as ProductItem[];
@@ -236,7 +236,7 @@ export default function Home() {
         const soldB = isProductSold(b.status) ? 1 : 0;
         return soldA - soldB;
       });
-      setFeaturedProducts(rows.slice(0, 8));
+      setFeaturedProducts(rows);
     } catch (err) {
       console.error("추천 매물 로드 실패:", err);
       setProductsError(true);

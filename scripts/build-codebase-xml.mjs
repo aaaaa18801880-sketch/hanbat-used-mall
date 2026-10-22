@@ -36,6 +36,9 @@ const IGNORED_FILES = new Set([
   "아르곤_디자인.xml",
   "repomix-output.xml",
   "scripts/build-codebase-xml.mjs",
+  "scripts/execute_pipeline.mjs",
+  "scripts/pipeline_result.json",
+  "scripts/copy_user_image.mjs",
 ]);
 
 const ALLOWED_EXTENSIONS = new Set([
