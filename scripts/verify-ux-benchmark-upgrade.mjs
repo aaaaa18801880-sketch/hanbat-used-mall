@@ -34,11 +34,10 @@ function runVerification() {
   const galleryCode = read("app/gallery/page.tsx");
   assert.ok(
     galleryCode.includes("PRICE_RANGE_OPTIONS") &&
-      galleryCode.includes("CATEGORY_QUICK_KEYWORDS") &&
       galleryCode.includes("RecentViewedStrip"),
-    "app/gallery/page.tsx에 가격대 필터, 세부 품목 키워드 칩, 최근 본 매물 스트립이 연동되어야 합니다."
+    "app/gallery/page.tsx에 가격대 필터, 최근 본 매물 스트립이 연동되어야 합니다."
   );
-  console.log("✓ [PASS] 3. 갤러리 가격대 범위 필터·세부 키워드 칩·최근 본 매물 연동 확인");
+  console.log("✓ [PASS] 3. 갤러리 가격대 범위 필터·최근 본 매물 연동 확인");
 
   const detailCode = read("app/[id]/page.tsx");
   assert.ok(

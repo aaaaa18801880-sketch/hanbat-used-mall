@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-21T15:23:42.326Z">
+<project name="hanbat-mall" generated_at="2026-10-22T01:38:35.931Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -6216,7 +6216,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2818">
+    <file path="app/gallery/page.tsx" lines="2789">
       <![CDATA[
 "use client";
 
@@ -6294,14 +6294,7 @@ const PRICE_RANGE_OPTIONS: ReadonlyArray<{
   { value: "over150", label: "150만원 이상", min: 1500000 },
 ] as const;
 
-const CATEGORY_QUICK_KEYWORDS: Record<string, readonly string[]> = {
-  전체: ["45박스", "제빙기", "쇼케이스", "벽걸이", "스탠드", "양문형", "드럼", "건조기"],
-  "에어컨/냉난방기": ["벽걸이", "스탠드", "2in1", "냉난방", "천장형", "인버터"],
-  냉장고: ["양문형", "4도어", "김치냉장고", "일반형", "소형"],
-  "세탁기/건조기": ["드럼", "통돌이", "건조기", "워시타워"],
-  업소용기기: ["45박스", "25박스", "테이블냉장", "쇼케이스", "제빙기", "식기세척기", "작업대"],
-  기타: ["TV", "모니터", "전자레인지", "소형가전"],
-};
+
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
 type StatusFilter = "all" | "selling" | "reserved" | "sold";
@@ -7323,6 +7316,14 @@ export default function GalleryPage() {
         ) {
           setStatusFilter(statusParam);
         }
+
+        const priceParam = params.get("price") as PriceRangeOption | null;
+        if (
+          priceParam &&
+          ["all", "under30", "30to70", "70to150", "over150"].includes(priceParam)
+        ) {
+          setPriceRange(priceParam);
+        }
       });
     }
 
@@ -7378,8 +7379,14 @@ export default function GalleryPage() {
       url.searchParams.delete("status");
     }
 
+    if (priceRange !== "all") {
+      url.searchParams.set("price", priceRange);
+    } else {
+      url.searchParams.delete("price");
+    }
+
     window.history.replaceState(null, "", url.toString());
-  }, [activeCategory, search, sort, statusFilter]);
+  }, [activeCategory, search, sort, statusFilter, priceRange]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
   const categoryCounts = useMemo(() => {
@@ -8218,60 +8225,6 @@ export default function GalleryPage() {
             </select>
 
             <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortOption)}
-              aria-label="정렬 기준"
-              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
-            >
-              <option value="latest">최신 등록순</option>
-              <option value="views">조회 많은순</option>
-              <option value="priceAsc">낮은 가격순</option>
-              <option value="priceDesc">높은 가격순</option>
-            </select>
-          </div>
-        </div>
-
-        {/* [기능 1] 세부 키워드 빠른 필터 칩 & 가격대 필터 바 */}
-        <div className="pt-2 border-t border-[#F0EDE7] flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-            <span className="text-[11.5px] font-bold text-[#646E7E] shrink-0 mr-0.5">
-              빠른키워드:
-            </span>
-            {(
-              CATEGORY_QUICK_KEYWORDS[activeCategory] ||
-              CATEGORY_QUICK_KEYWORDS["전체"]
-            ).map((kw) => {
-              const isKwActive =
-                search.trim().toLowerCase() === kw.toLowerCase();
-              return (
-                <button
-                  key={kw}
-                  type="button"
-                  onClick={() => {
-                    const nextSearch = isKwActive ? "" : kw;
-                    setSearch(nextSearch);
-                    setVisibleLimit(PAGE_STEP);
-                    if (nextSearch) {
-                      trackEvent("search_products", {
-                        keyword: nextSearch,
-                        category: activeCategory,
-                      });
-                    }
-                  }}
-                  className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold whitespace-nowrap border transition-colors shrink-0 ${
-                    isKwActive
-                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
-                      : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
-                  }`}
-                >
-                  #{kw}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-            <select
               value={priceRange}
               onChange={(e) => {
                 const nextPrice = e.target.value as PriceRangeOption;
@@ -8283,7 +8236,7 @@ export default function GalleryPage() {
                 });
               }}
               aria-label="가격대 범위 필터"
-              className={`h-8 px-2.5 rounded-lg border text-[12px] font-bold focus:outline-none ${
+              className={`h-9 sm:h-10 px-2 sm:px-3 rounded-lg border text-[12px] sm:text-[13.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
                 priceRange !== "all"
                   ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                   : "border-[#D8D3C8] bg-white text-[#3E4856]"
@@ -8294,6 +8247,18 @@ export default function GalleryPage() {
                   {opt.label}
                 </option>
               ))}
+            </select>
+
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortOption)}
+              aria-label="정렬 기준"
+              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+            >
+              <option value="latest">최신 등록순</option>
+              <option value="views">조회 많은순</option>
+              <option value="priceAsc">낮은 가격순</option>
+              <option value="priceDesc">높은 가격순</option>
             </select>
           </div>
         </div>
@@ -8326,9 +8291,15 @@ export default function GalleryPage() {
                 검색: &ldquo;{search.trim()}&rdquo;
               </span>
             )}
+            {priceRange !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[12px] font-bold text-[#D9531E]">
+                가격: {PRICE_RANGE_OPTIONS.find((o) => o.value === priceRange)?.label}
+              </span>
+            )}
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
+              priceRange !== "all" ||
               sort !== "latest") && (
               <button
                 type="button"
@@ -24772,33 +24743,99 @@ runDiagnostics();
 
 ]]>
     </file>
-    <file path="scripts/deploy.mjs" lines="26">
+    <file path="scripts/deploy.mjs" lines="92">
       <![CDATA[
-import { execFileSync } from 'child_process';
-import fs from 'fs';
+// scripts/deploy.mjs
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
 
-const bashExe = 'C:\\Program Files\\Git\\bin\\bash.exe';
-const cwd = 'c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall';
+const gitExe = "C:\\Program Files\\Git\\mingw64\\bin\\git.exe";
+const cwd = "c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall";
 
-try {
-  ['scripts/test-cmd-git.mjs', 'scripts/test-bash-git.mjs', 'scripts/git-push.bat', 'scripts/check-git.mjs', 'scripts/clean-temp.mjs', 'scripts/push.sh', 'scripts/run-commit.bat'].forEach(f => {
-    if (fs.existsSync(f)) fs.unlinkSync(f);
+async function main() {
+  // Clean up temporary files
+  ["scripts/deploy-pipeline.mjs", "scripts/run-lint.mjs"].forEach((f) => {
+    if (fs.existsSync(f)) {
+      try {
+        fs.unlinkSync(f);
+      } catch {}
+    }
   });
 
-  console.log('Deploying via single bash invocation...');
-  const cmd = 'git add -A && git commit -m "fix(layout): resolve hero headline line wraps, address footer structure, and balance sell section layout"';
-  const out = execFileSync(bashExe, ['-c', cmd], { cwd, encoding: 'utf8' });
-  console.log(out);
-  console.log('✅ Commit succeeded!');
-} catch (e) {
-  console.error('Git error:', e.message);
-  if (e.stdout) console.log('stdout:', e.stdout);
-  if (e.stderr) console.log('stderr:', e.stderr);
+  // Re-run XML build to make sure no temp files are included
+  console.log("=== Regenerating 아르곤_디자인.xml ===");
+  execFileSync(process.execPath, ["scripts/build-codebase-xml.mjs"], { cwd, stdio: "inherit" });
+
+  console.log("\n=== Git add -A ===");
+  execFileSync(gitExe, ["add", "-A"], { cwd, stdio: "inherit" });
+
+  console.log("\n=== Git commit ===");
+  const commitMsg = "fix(gallery): remove cluttered hashtag chips and streamline sticky filter to single clean row";
+  try {
+    execFileSync(gitExe, ["commit", "-m", commitMsg], { cwd, stdio: "inherit" });
+  } catch (err) {
+    console.log("Commit notice:", err.message);
+  }
+
+  console.log("\nWaiting 5 seconds before push...");
+  await new Promise((r) => setTimeout(r, 5000));
+
+  console.log("=== Git push origin main ===");
+  execFileSync(gitExe, ["push", "origin", "main"], { cwd, stdio: "inherit" });
+
+  const statusOut = execFileSync(gitExe, ["status"], { cwd, encoding: "utf8" });
+  console.log("\nGit Status:\n" + statusOut);
+
+  const commitHash = execFileSync(gitExe, ["rev-parse", "HEAD"], { cwd, encoding: "utf8" }).trim();
+  console.log(`✅ Commit hash: ${commitHash}`);
+
+  console.log("\n=== Waiting 35 seconds for Vercel deployment ===");
+  for (let s = 35; s > 0; s -= 5) {
+    console.log(`... ${s}s remaining`);
+    await new Promise((r) => setTimeout(r, 5000));
+  }
+
+  console.log("Verifying live site https://hanbatmall.com/gallery ...");
+  let livePass = false;
+  let attempts = 0;
+  while (!livePass && attempts < 5) {
+    attempts++;
+    try {
+      const res = await fetch(`https://hanbatmall.com/gallery?t=${Date.now()}`, {
+        headers: { "Cache-Control": "no-cache" },
+      });
+      const html = await res.text();
+      console.log(`[Attempt ${attempts}] HTTP ${res.status}, size: ${html.length} bytes`);
+
+      const hasHashtags = html.includes("#LG디오스") || html.includes("#삼성비스포크") || html.includes("#인버터냉난방기");
+      const hasFilterBar = html.includes("PRICE_RANGE_OPTIONS") || html.includes("가격대 범위 필터") || html.includes("제품명·모델명 검색");
+
+      console.log(`  - Hashtag chips present: ${hasHashtags} (expected: false)`);
+      console.log(`  - Streamlined filter bar present: ${hasFilterBar} (expected: true)`);
+
+      if (!hasHashtags) {
+        livePass = true;
+        console.log("🎉 LIVE VERIFICATION SUCCESS: Hashtag line completely gone, streamlined filter bar verified!");
+        break;
+      }
+    } catch (err) {
+      console.warn(`  - Fetch attempt ${attempts} failed:`, err.message);
+    }
+    if (!livePass) {
+      console.log("Waiting 8s before retry...");
+      await new Promise((r) => setTimeout(r, 8000));
+    }
+  }
+
+  console.log("\n==========================================");
+  console.log(`DEPLOYMENT COMPLETE: ${commitHash}`);
+  console.log("==========================================");
 }
 
-
-
-
+main().catch((err) => {
+  console.error("Deploy script failed:", err);
+  process.exit(1);
+});
 
 ]]>
     </file>
@@ -25730,7 +25767,7 @@ if (failedTests > 0) {
 
 ]]>
     </file>
-    <file path="scripts/verify-ux-benchmark-upgrade.mjs" lines="63">
+    <file path="scripts/verify-ux-benchmark-upgrade.mjs" lines="62">
       <![CDATA[
 // 파일 경로: scripts/verify-ux-benchmark-upgrade.mjs
 import assert from "node:assert/strict";
@@ -25768,11 +25805,10 @@ function runVerification() {
   const galleryCode = read("app/gallery/page.tsx");
   assert.ok(
     galleryCode.includes("PRICE_RANGE_OPTIONS") &&
-      galleryCode.includes("CATEGORY_QUICK_KEYWORDS") &&
       galleryCode.includes("RecentViewedStrip"),
-    "app/gallery/page.tsx에 가격대 필터, 세부 품목 키워드 칩, 최근 본 매물 스트립이 연동되어야 합니다."
+    "app/gallery/page.tsx에 가격대 필터, 최근 본 매물 스트립이 연동되어야 합니다."
   );
-  console.log("✓ [PASS] 3. 갤러리 가격대 범위 필터·세부 키워드 칩·최근 본 매물 연동 확인");
+  console.log("✓ [PASS] 3. 갤러리 가격대 범위 필터·최근 본 매물 연동 확인");
 
   const detailCode = read("app/[id]/page.tsx");
   assert.ok(

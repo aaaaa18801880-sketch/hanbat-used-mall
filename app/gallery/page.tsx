@@ -74,14 +74,7 @@ const PRICE_RANGE_OPTIONS: ReadonlyArray<{
   { value: "over150", label: "150만원 이상", min: 1500000 },
 ] as const;
 
-const CATEGORY_QUICK_KEYWORDS: Record<string, readonly string[]> = {
-  전체: ["45박스", "제빙기", "쇼케이스", "벽걸이", "스탠드", "양문형", "드럼", "건조기"],
-  "에어컨/냉난방기": ["벽걸이", "스탠드", "2in1", "냉난방", "천장형", "인버터"],
-  냉장고: ["양문형", "4도어", "김치냉장고", "일반형", "소형"],
-  "세탁기/건조기": ["드럼", "통돌이", "건조기", "워시타워"],
-  업소용기기: ["45박스", "25박스", "테이블냉장", "쇼케이스", "제빙기", "식기세척기", "작업대"],
-  기타: ["TV", "모니터", "전자레인지", "소형가전"],
-};
+
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
 type StatusFilter = "all" | "selling" | "reserved" | "sold";
@@ -1103,6 +1096,14 @@ export default function GalleryPage() {
         ) {
           setStatusFilter(statusParam);
         }
+
+        const priceParam = params.get("price") as PriceRangeOption | null;
+        if (
+          priceParam &&
+          ["all", "under30", "30to70", "70to150", "over150"].includes(priceParam)
+        ) {
+          setPriceRange(priceParam);
+        }
       });
     }
 
@@ -1158,8 +1159,14 @@ export default function GalleryPage() {
       url.searchParams.delete("status");
     }
 
+    if (priceRange !== "all") {
+      url.searchParams.set("price", priceRange);
+    } else {
+      url.searchParams.delete("price");
+    }
+
     window.history.replaceState(null, "", url.toString());
-  }, [activeCategory, search, sort, statusFilter]);
+  }, [activeCategory, search, sort, statusFilter, priceRange]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
   const categoryCounts = useMemo(() => {
@@ -1998,60 +2005,6 @@ export default function GalleryPage() {
             </select>
 
             <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value as SortOption)}
-              aria-label="정렬 기준"
-              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
-            >
-              <option value="latest">최신 등록순</option>
-              <option value="views">조회 많은순</option>
-              <option value="priceAsc">낮은 가격순</option>
-              <option value="priceDesc">높은 가격순</option>
-            </select>
-          </div>
-        </div>
-
-        {/* [기능 1] 세부 키워드 빠른 필터 칩 & 가격대 필터 바 */}
-        <div className="pt-2 border-t border-[#F0EDE7] flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
-            <span className="text-[11.5px] font-bold text-[#646E7E] shrink-0 mr-0.5">
-              빠른키워드:
-            </span>
-            {(
-              CATEGORY_QUICK_KEYWORDS[activeCategory] ||
-              CATEGORY_QUICK_KEYWORDS["전체"]
-            ).map((kw) => {
-              const isKwActive =
-                search.trim().toLowerCase() === kw.toLowerCase();
-              return (
-                <button
-                  key={kw}
-                  type="button"
-                  onClick={() => {
-                    const nextSearch = isKwActive ? "" : kw;
-                    setSearch(nextSearch);
-                    setVisibleLimit(PAGE_STEP);
-                    if (nextSearch) {
-                      trackEvent("search_products", {
-                        keyword: nextSearch,
-                        category: activeCategory,
-                      });
-                    }
-                  }}
-                  className={`rounded-full px-2.5 py-1 text-[11.5px] font-semibold whitespace-nowrap border transition-colors shrink-0 ${
-                    isKwActive
-                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
-                      : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
-                  }`}
-                >
-                  #{kw}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0 ml-auto">
-            <select
               value={priceRange}
               onChange={(e) => {
                 const nextPrice = e.target.value as PriceRangeOption;
@@ -2063,7 +2016,7 @@ export default function GalleryPage() {
                 });
               }}
               aria-label="가격대 범위 필터"
-              className={`h-8 px-2.5 rounded-lg border text-[12px] font-bold focus:outline-none ${
+              className={`h-9 sm:h-10 px-2 sm:px-3 rounded-lg border text-[12px] sm:text-[13.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
                 priceRange !== "all"
                   ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                   : "border-[#D8D3C8] bg-white text-[#3E4856]"
@@ -2074,6 +2027,18 @@ export default function GalleryPage() {
                   {opt.label}
                 </option>
               ))}
+            </select>
+
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortOption)}
+              aria-label="정렬 기준"
+              className="h-9 sm:h-10 px-2 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[13.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+            >
+              <option value="latest">최신 등록순</option>
+              <option value="views">조회 많은순</option>
+              <option value="priceAsc">낮은 가격순</option>
+              <option value="priceDesc">높은 가격순</option>
             </select>
           </div>
         </div>
@@ -2106,9 +2071,15 @@ export default function GalleryPage() {
                 검색: &ldquo;{search.trim()}&rdquo;
               </span>
             )}
+            {priceRange !== "all" && (
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[12px] font-bold text-[#D9531E]">
+                가격: {PRICE_RANGE_OPTIONS.find((o) => o.value === priceRange)?.label}
+              </span>
+            )}
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
+              priceRange !== "all" ||
               sort !== "latest") && (
               <button
                 type="button"
