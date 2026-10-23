@@ -33,6 +33,7 @@ import {
   extractStorageFilesByBucket,
   trackEvent,
   type InquiryTypeValue,
+  triggerQuickInquiry,
 } from "../lib/site";
 import { type ProductItem } from "../components/products/product-card";
 import { FeaturedProductsSection } from "../components/home/featured-products-section";
@@ -300,15 +301,19 @@ export default function Home() {
 
   const openInquiry = useCallback(
     (type?: InquiryTypeValue, productTitle?: string) => {
+      // 1) 1초 직통 간편 상담 모달 즉시 팝업 트리거
+      triggerQuickInquiry({
+        type: type || "구매 문의",
+        productTitle,
+      });
+
+      // 2) 하단 폼 상태도 동기화 (혹시 폼을 직접 찾아 내려간 방문자를 위해 보존)
       if (type) setInquiryType(type);
       if (productTitle) {
         setLinkedProduct({ productTitle });
       } else {
         setLinkedProduct(null);
       }
-      document
-        .getElementById("inquiry-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
     []
   );
@@ -590,6 +595,29 @@ export default function Home() {
                     className="hb-btn-outline flex-1 h-12 sm:h-13 px-6 text-[15.5px] whitespace-nowrap"
                   >
                     <span>가전 매입 신청</span>
+                  </button>
+                </div>
+
+                {/* 1초 직통 상담 퀵 훅 */}
+                <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[#4B5260]">
+                  <span className="inline-flex items-center gap-1 font-semibold text-[#0E1A2B]">
+                    <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                    직통 상담:{" "}
+                    <a
+                      href={telHref(STORE.tel)}
+                      className="font-bold text-[#D9531E] hover:underline tabular-nums"
+                    >
+                      {STORE.tel}
+                    </a>
+                  </span>
+                  <span className="text-[#D7D2C8]">·</span>
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("구매 문의")}
+                    className="font-bold text-[#0E1A2B] hover:text-[#D9531E] hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <span>10초 간편 견적 신청</span>
+                    <Icon d={ICON.arrow} className="w-3 h-3 text-[#D9531E]" />
                   </button>
                 </div>
               </div>

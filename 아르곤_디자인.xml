@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-22T12:49:33.889Z">
+<project name="hanbat-mall" generated_at="2026-10-23T14:18:06.069Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>84</file_count>
+    <file_count>81</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -11322,7 +11322,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1856">
+    <file path="app/page.tsx" lines="1884">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11359,6 +11359,7 @@ import {
   extractStorageFilesByBucket,
   trackEvent,
   type InquiryTypeValue,
+  triggerQuickInquiry,
 } from "../lib/site";
 import { type ProductItem } from "../components/products/product-card";
 import { FeaturedProductsSection } from "../components/home/featured-products-section";
@@ -11626,15 +11627,19 @@ export default function Home() {
 
   const openInquiry = useCallback(
     (type?: InquiryTypeValue, productTitle?: string) => {
+      // 1) 1초 직통 간편 상담 모달 즉시 팝업 트리거
+      triggerQuickInquiry({
+        type: type || "구매 문의",
+        productTitle,
+      });
+
+      // 2) 하단 폼 상태도 동기화 (혹시 폼을 직접 찾아 내려간 방문자를 위해 보존)
       if (type) setInquiryType(type);
       if (productTitle) {
         setLinkedProduct({ productTitle });
       } else {
         setLinkedProduct(null);
       }
-      document
-        .getElementById("inquiry-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     },
     []
   );
@@ -11916,6 +11921,29 @@ export default function Home() {
                     className="hb-btn-outline flex-1 h-12 sm:h-13 px-6 text-[15.5px] whitespace-nowrap"
                   >
                     <span>가전 매입 신청</span>
+                  </button>
+                </div>
+
+                {/* 1초 직통 상담 퀵 훅 */}
+                <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13px] text-[#4B5260]">
+                  <span className="inline-flex items-center gap-1 font-semibold text-[#0E1A2B]">
+                    <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                    직통 상담:{" "}
+                    <a
+                      href={telHref(STORE.tel)}
+                      className="font-bold text-[#D9531E] hover:underline tabular-nums"
+                    >
+                      {STORE.tel}
+                    </a>
+                  </span>
+                  <span className="text-[#D7D2C8]">·</span>
+                  <button
+                    type="button"
+                    onClick={() => openInquiry("구매 문의")}
+                    className="font-bold text-[#0E1A2B] hover:text-[#D9531E] hover:underline cursor-pointer flex items-center gap-1"
+                  >
+                    <span>10초 간편 견적 신청</span>
+                    <Icon d={ICON.arrow} className="w-3 h-3 text-[#D9531E]" />
                   </button>
                 </div>
               </div>
@@ -16925,6 +16953,116 @@ export function TrustSection() {
 }
 ]]>
     </file>
+    <file path="components/inquiry/quick-inquiry-modal.tsx" lines="106">
+      <![CDATA[
+// 파일 경로: components/inquiry/quick-inquiry-modal.tsx
+"use client";
+
+import React, { useState, useEffect, useCallback } from "react";
+import { Modal, Icon, ICON } from "../../lib/ui";
+import {
+  UnifiedInquiryForm,
+  type LinkedProductContext,
+} from "./unified-inquiry-form";
+import {
+  STORE,
+  QUICK_INQUIRY_EVENT,
+  type QuickInquiryDetail,
+  type InquiryTypeValue,
+} from "../../lib/site";
+
+export function QuickInquiryModal() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [inquiryType, setInquiryType] = useState<InquiryTypeValue>("구매 문의");
+  const [linkedProduct, setLinkedProduct] = useState<LinkedProductContext | null>(null);
+
+  const handleOpen = useCallback((e: Event) => {
+    const customEvent = e as CustomEvent<QuickInquiryDetail | undefined>;
+    const detail = customEvent.detail;
+    if (detail?.type) {
+      setInquiryType(detail.type);
+    } else {
+      setInquiryType("구매 문의");
+    }
+    if (detail) {
+      setLinkedProduct({
+        productTitle: detail.productTitle,
+        modelName: detail.modelName,
+        category: detail.category,
+        envNote: detail.envNote,
+        useBundle: detail.useBundle,
+      });
+    } else {
+      setLinkedProduct(null);
+    }
+    setIsOpen(true);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener(QUICK_INQUIRY_EVENT, handleOpen);
+    return () => {
+      window.removeEventListener(QUICK_INQUIRY_EVENT, handleOpen);
+    };
+  }, [handleOpen]);
+
+  if (!isOpen) return null;
+
+  return (
+    <Modal
+      open={isOpen}
+      onClose={() => setIsOpen(false)}
+      label="10초 빠른 간편 견적 및 상담 신청"
+      panelClassName="max-w-2xl w-full"
+    >
+      <div className="relative rounded-2xl bg-white border border-[#E5E2DC] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* 모달 상단 헤더 */}
+        <div className="bg-[#0E1A2B] text-white p-4 sm:p-5 flex items-start justify-between gap-3 shrink-0">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="rounded bg-[#D9531E] px-2 py-0.5 text-[10.5px] font-bold text-white tracking-wide">
+                직영 매장 직통
+              </span>
+              <span className="text-[12px] font-medium text-white/70">
+                대표전화 {STORE.tel} · {STORE.hours}
+              </span>
+            </div>
+            <h2 className="text-[17px] sm:text-[19px] font-bold text-white tracking-tight">
+              ⚡ 빠른 견적 및 상담 신청
+            </h2>
+            <p className="mt-0.5 text-[12px] sm:text-[12.5px] text-white/75">
+              처분/구매 품목과 연락처를 남겨주시면 담당 엔지니어가 10분 내로 확인 후 안내해 드립니다.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            aria-label="닫기"
+            className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+          >
+            <Icon d={ICON.close} className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* 폼 본문 (스크롤 영역) */}
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#FAF9F7]">
+          <UnifiedInquiryForm
+            defaultType={inquiryType}
+            linkedProduct={linkedProduct}
+            onSuccess={() => {
+              setTimeout(() => {
+                setIsOpen(false);
+              }, 2000);
+            }}
+            onCancel={() => setIsOpen(false)}
+          />
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+]]>
+    </file>
     <file path="components/inquiry/unified-inquiry-form.tsx" lines="2022">
       <![CDATA[
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
@@ -21735,7 +21873,7 @@ export async function validateServerImageFiles(
 
 ]]>
     </file>
-    <file path="lib/site.ts" lines="1744">
+    <file path="lib/site.ts" lines="1765">
       <![CDATA[
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
@@ -22254,6 +22392,27 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
   }
 
   return { inquiries, productImages };
+}
+
+/* ════════════════════════════════════════════════════════════
+   2-0. 1초 직통 간편 상담 모달(Quick Inquiry Modal) 전역 브릿지
+   ════════════════════════════════════════════════════════════ */
+export const QUICK_INQUIRY_EVENT = "hb-quick-inquiry-open";
+
+export interface QuickInquiryDetail {
+  type?: InquiryTypeValue;
+  productTitle?: string;
+  modelName?: string;
+  category?: string;
+  envNote?: string;
+  useBundle?: boolean;
+}
+
+export function triggerQuickInquiry(detail?: QuickInquiryDetail): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(QUICK_INQUIRY_EVENT, { detail })
+  );
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -23558,7 +23717,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1447">
+    <file path="lib/ui.tsx" lines="1499">
       <![CDATA[
 "use client";
 
@@ -23567,6 +23726,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { ProductCompareModal } from "../components/products/product-compare-modal";
+import { QuickInquiryModal } from "../components/inquiry/quick-inquiry-modal";
 import {
   STORE,
   telHref,
@@ -23581,6 +23741,8 @@ import {
   formatProductPrice,
   isProductSold,
   type QuoteBasketItem,
+  triggerQuickInquiry,
+  type InquiryTypeValue,
 } from "./site";
 
 /* ════════════════════════════════════════════════════════════
@@ -24394,56 +24556,94 @@ export function QuoteBasketFloatingBar() {
 }
 
 /* ════════════════════════════════════════════════════════════
-   6-2. 우측 슬림 상담 독 (FloatingQuickWing — 본문 비침범 컴팩트 설계)
+   6-2. 우측 슬림 상담 독 (FloatingQuickWing — 상시 가시성 & 원클릭 전환 고도화)
    ════════════════════════════════════════════════════════════ */
 export function FloatingQuickWing() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [basketCount, setBasketCount] = useState(0);
 
-  const handleInquiryClick = (type: string) => {
+  useEffect(() => {
+    const sync = () => setBasketCount(getQuoteBasket().length);
+    sync();
+    window.addEventListener(QUOTE_BASKET_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  const handleInquiryClick = (type: InquiryTypeValue = "구매 문의") => {
     trackEvent("begin_buyback_inquiry", {
       category: type,
       location: "floating_quick_wing",
     });
+    triggerQuickInquiry({ type });
+  };
 
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const scrollToInquirySection = () => {
     if (typeof window !== "undefined") {
       const el = document.getElementById("inquiry-section");
       if (el) {
         el.scrollIntoView({ behavior: "smooth" });
-        setIsOpen(false);
-        return;
+      } else {
+        triggerQuickInquiry();
       }
-      window.location.href = `/inquiry?write=1&type=${encodeURIComponent(type)}`;
     }
   };
 
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-4 bottom-6 z-40 hidden lg:flex flex-col items-end gap-2 select-none"
+      className="fixed right-3 xl:right-6 top-28 z-40 hidden lg:flex flex-col items-end select-none"
     >
-      {isOpen && (
-        <div className="w-[216px] rounded-xl border border-[#CFCAC0] bg-white p-4 shadow-floating space-y-3">
-          <div className="flex items-center justify-between border-b border-[#E5E2DC] pb-2.5">
+      {isCollapsed ? (
+        /* 접힌 상태: 우측 가장자리에 고정되는 슬림 탭 버튼 */
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(false)}
+          className="group flex flex-col items-center gap-2 rounded-l-2xl border-y border-l border-[#0E1A2B] bg-[#0E1A2B] py-4 px-2 text-white shadow-floating hover:bg-[#182942] transition-all cursor-pointer hover:-translate-x-1"
+          title="빠른 상담 사이드바 펼치기"
+          aria-label="빠른 상담 사이드바 펼치기"
+        >
+          <Icon d={ICON.left} className="w-4 h-4 text-[#FF8A50] transition-transform group-hover:-translate-x-0.5" />
+          <span className="text-[12px] font-bold tracking-widest text-white [writing-mode:vertical-rl]">
+            ⚡ 빠른상담
+          </span>
+          <span className="h-2 w-2 rounded-full bg-[#FF8A50] animate-pulse" />
+        </button>
+      ) : (
+        /* 펼쳐진 상태: 상시 노출되는 고시인성 프리미엄 퀵 카드 */
+        <div className="w-[218px] rounded-2xl border border-[#CFCAC0] bg-white/98 backdrop-blur-md p-3.5 shadow-[0_8px_30px_rgba(14,26,43,0.12)] space-y-2.5 transition-all">
+          <div className="flex items-center justify-between border-b border-[#E5E2DC] pb-2">
             <div>
-              <p className="text-[11px] font-bold text-[#D9531E]">
-                직영 매장 상담 안내
-              </p>
-              <strong className="text-[14.5px] font-bold text-[#0E1A2B]">
-                빠른 견적 · 재고 문의
+              <span className="rounded bg-[#FFF5F0] border border-[#FED7AA] px-1.5 py-0.2 text-[10px] font-extrabold text-[#D9531E]">
+                직영 상담센터
+              </span>
+              <strong className="block text-[14px] font-extrabold text-[#0E1A2B] pt-0.5">
+                ⚡ 빠른 상담·견적
               </strong>
             </div>
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
-              className="grid h-7 w-7 place-items-center rounded-md text-[#646E7E] hover:bg-[#FAF9F7] hover:text-[#0E1A2B]"
-              aria-label="상담 안내 닫기"
+              onClick={() => setIsCollapsed(true)}
+              className="grid h-7 w-7 place-items-center rounded-lg text-[#646E7E] hover:bg-[#FAF9F7] hover:text-[#0E1A2B] transition-colors"
+              aria-label="사이드바 접기"
+              title="사이드바 접기"
             >
-              <Icon d={ICON.close} className="w-4 h-4" />
+              <Icon d={ICON.right} className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] p-3 space-y-1">
-            <span className="block text-[11px] font-semibold text-[#646E7E]">
+          {/* 직통 전화 카드 */}
+          <div className="rounded-xl bg-[#FAF9F7] border border-[#E5E2DC] p-2.5 text-center space-y-0.5">
+            <span className="block text-[10.5px] font-semibold text-[#646E7E]">
               대표전화 ({STORE.hours})
             </span>
             <a
@@ -24453,7 +24653,7 @@ export function FloatingQuickWing() {
                   location: "floating_quick_wing_tel",
                 })
               }
-              className="block text-[17px] font-bold text-[#0E1A2B] hover:text-[#D9531E] tabular-nums"
+              className="block text-[17px] font-black text-[#0E1A2B] hover:text-[#D9531E] tracking-tight tabular-nums transition-colors"
             >
               {STORE.tel}
             </a>
@@ -24464,13 +24664,16 @@ export function FloatingQuickWing() {
                   location: "floating_quick_wing_mobile",
                 })
               }
-              className="block text-[12px] font-medium text-[#3E4756] hover:text-[#0E1A2B] tabular-nums"
+              className="block text-[11.5px] font-bold text-[#D9531E] hover:underline tabular-nums"
             >
               직통 {STORE.mobile}
             </a>
-            <p className="text-[11px] text-[#646E7E] pt-0.5">{STORE.closed}</p>
+            <p className="text-[10px] text-[#858076] pt-0.5">
+              문자·사진 전송 가능 · {STORE.closed}
+            </p>
           </div>
 
+          {/* 원클릭 상담 CTA 버튼 2종 */}
           <div className="space-y-1.5">
             <a
               href={STORE.kakaoChat}
@@ -24481,49 +24684,56 @@ export function FloatingQuickWing() {
                   location: "floating_quick_wing",
                 })
               }
-              className="hb-btn-kakao w-full h-9 text-[12.5px]"
+              className="hb-btn-kakao w-full h-9 text-[12px] font-bold shadow-2xs"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-              <span>카카오톡 상담</span>
+              <span>카톡 실시간 상담</span>
             </a>
             <button
               type="button"
-              onClick={() => handleInquiryClick("내 물건 팔기")}
-              className="hb-btn-outline w-full h-9 text-[12.5px]"
+              onClick={() => handleInquiryClick("구매 문의")}
+              className="hb-btn-primary w-full h-9 text-[12px] font-bold shadow-2xs bg-[#D9531E] hover:bg-[#BF4715] text-white"
             >
-              <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-              <span>매입·구매 온라인 접수</span>
+              <Icon d={ICON.pen} className="w-3.5 h-3.5 text-white" />
+              <span>10초 간편 견적 신청</span>
+            </button>
+          </div>
+
+          {/* 견적함 연동 미니 뱃지 (담긴 매물이 있을 때) */}
+          {basketCount > 0 && (
+            <div className="border-t border-[#E5E2DC] pt-2">
+              <Link
+                href="/inquiry?write=1&bundle=1"
+                className="flex items-center justify-between rounded-lg bg-[#FFF5F0] border border-[#FED7AA] px-2.5 py-1.5 text-[11px] font-bold text-[#D9531E] hover:bg-[#FADCD0] transition-colors"
+              >
+                <span>🛒 담아둔 견적함</span>
+                <span className="rounded-full bg-[#D9531E] text-white px-1.5 py-0.2 text-[10.5px] tabular-nums">
+                  {basketCount}대 일괄문의
+                </span>
+              </Link>
+            </div>
+          )}
+
+          {/* 퀵 네비게이션 컨트롤 */}
+          <div className="border-t border-[#E5E2DC] pt-2 flex items-center justify-between text-[11px] font-bold text-[#646E7E]">
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="flex-1 py-1 hover:text-[#0E1A2B] text-center transition-colors"
+            >
+              ▲ 맨 위로
+            </button>
+            <span className="text-[#D7D2C8]">|</span>
+            <button
+              type="button"
+              onClick={scrollToInquirySection}
+              className="flex-1 py-1 hover:text-[#0E1A2B] text-center transition-colors"
+            >
+              ▼ 폼으로
             </button>
           </div>
         </div>
       )}
-
-      <div className="flex items-center gap-1.5 rounded-full border border-[#CFCAC0] bg-white/95 backdrop-blur-md p-1.5 shadow-card">
-        <a
-          href={STORE.kakaoChat}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            trackEvent("click_kakao_consult", {
-              location: "floating_quick_wing_pill",
-            })
-          }
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[12.5px] font-bold text-[#191600] transition-colors"
-          aria-label="카카오톡 상담"
-        >
-          <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-          <span>카톡상담</span>
-        </a>
-        <button
-          type="button"
-          onClick={() => setIsOpen((v) => !v)}
-          aria-expanded={isOpen}
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#0E1A2B] hover:bg-[#182942] px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors"
-        >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-          <span>전화·상담 안내</span>
-        </button>
-      </div>
     </aside>
   );
 }
@@ -24542,6 +24752,7 @@ export function SiteFooter({
     <>
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
+      <QuickInquiryModal />
       <footer className="relative bg-[#0E1A2B] text-white/80 mt-auto border-t border-[#182942]">
         <div className="hb-container py-12 sm:py-16">
           <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
@@ -25238,21 +25449,41 @@ runDiagnostics();
 
 ]]>
     </file>
-    <file path="scripts/deploy-and-verify.mjs" lines="127">
+    <file path="scripts/deploy-and-verify.mjs" lines="141">
       <![CDATA[
-import { execSync } from "child_process";
+import { spawnSync } from "child_process";
+import fs from "fs";
 
-function exec(cmd) {
-  console.log(`\n=== Running: ${cmd} ===`);
-  try {
-    const out = execSync(cmd, { encoding: "utf-8", stdio: ["inherit", "pipe", "pipe"] });
-    if (out) console.log(out.trim());
-    return { ok: true, out };
-  } catch (err) {
-    const out = (err.stdout ? err.stdout.toString() : "") + (err.stderr ? err.stderr.toString() : "");
-    console.error(`Error (${err.status}): ${out}`);
-    return { ok: false, out, status: err.status };
-  }
+// Clean up any temporary scratch files
+for (const f of [
+  'scripts/sync-repo.mjs',
+  'scripts/do-push.mjs',
+  'scripts/git-push-only.mjs',
+  'scripts/git-sync.bat',
+  'scripts/verify-live-sites.mjs'
+]) {
+  try { fs.unlinkSync(f); } catch {}
+}
+
+const gitBin = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
+const gitExecPath = 'C:\\Program Files\\Git\\mingw64\\libexec\\git-core';
+const mingwBin = 'C:\\Program Files\\Git\\mingw64\\bin';
+const usrBin = 'C:\\Program Files\\Git\\usr\\bin';
+
+const origPath = process.env.Path || process.env.PATH || '';
+const cleanEnv = {};
+for (const key of Object.keys(process.env)) {
+  if (key.toUpperCase() !== 'PATH') cleanEnv[key] = process.env[key];
+}
+cleanEnv.Path = `${mingwBin};${gitExecPath};${usrBin};${origPath}`;
+cleanEnv.GIT_EXEC_PATH = gitExecPath;
+
+function exec(args) {
+  console.log(`\n=== Running: git ${args.join(' ')} ===`);
+  const res = spawnSync(gitBin, args, { env: cleanEnv, encoding: "utf-8" });
+  if (res.stdout) process.stdout.write(res.stdout);
+  if (res.stderr) process.stderr.write(res.stderr);
+  return { ok: res.status === 0, status: res.status };
 }
 
 async function sleep(ms) {
@@ -25263,9 +25494,19 @@ async function verifyLive() {
   console.log("\n=== Verifying Vercel Live Deployment ===");
   const urls = [
     {
+      url: "https://hanbatmall.com",
+      name: "Home page",
+      checkString: "한밭중고전자",
+    },
+    {
       url: "https://hanbatmall.com/gallery",
       name: "Gallery page",
       checkString: "카페·디저트창업", // Preset text
+    },
+    {
+      url: "https://hanbatmall.com/inquiry",
+      name: "Inquiry page",
+      checkString: "온라인 문의",
     },
     {
       url: "https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136",
@@ -25322,41 +25563,25 @@ async function verifyLive() {
 
 async function main() {
   // 1. Stage files
-  const filesToStage = [
-    "app/[id]/page.tsx",
-    "app/admin/page.tsx",
-    "app/gallery/page.tsx",
-    "app/inquiry/page.tsx",
-    "app/page.tsx",
-    "components/inquiry/unified-inquiry-form.tsx",
-    "components/products/product-compare-modal.tsx",
-    "components/products/product-detail-gallery.tsx",
-    "lib/site.ts",
-    "package.json",
-    "scripts/verify-ux-benchmark-upgrade.mjs",
-    "아르곤_디자인.xml",
-  ];
-
-  exec(`git add ${filesToStage.map((f) => `"${f}"`).join(" ")}`);
+  exec(["add", "-A"]);
 
   // 2. Commit
-  const commitMsg = "feat(synergy): complete SME benchmarked feature synergy linkages (presets, envNote, interactive checklist, width guide, lightbox cta)";
-  exec(`git commit -m "${commitMsg}"`);
+  exec(["commit", "-m", "fix: resolve prefix duplication, sold sms branching, form title cleanup, and script assertions"]);
 
   // 3. Wait 5s
   console.log("Waiting 5 seconds before push...");
   await sleep(5000);
 
   // 4. Push
-  exec("git push origin main");
+  exec(["push", "origin", "main"]);
 
   // 5. Check log and status
-  exec("git log -1 --oneline");
-  exec("git status");
+  exec(["log", "-1", "--oneline"]);
+  exec(["status"]);
 
-  // 6. Wait 35s for Vercel
-  console.log("\nWaiting 35 seconds for Vercel deployment...");
-  await sleep(35000);
+  // 6. Wait 40s for Vercel
+  console.log("\nWaiting 40 seconds for Vercel deployment...");
+  await sleep(40000);
 
   // 7. Verify live site
   await verifyLive();
@@ -25462,45 +25687,6 @@ main().catch((err) => {
   console.error("Deploy script failed:", err);
   process.exit(1);
 });
-
-]]>
-    </file>
-    <file path="scripts/do-push.mjs" lines="35">
-      <![CDATA[
-import { spawnSync } from 'child_process';
-import fs from 'fs';
-
-const gitBin = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
-const execPath = 'C:\\Program Files\\Git\\mingw64\\libexec\\git-core';
-console.log('git-remote-https exists:', fs.existsSync(`${execPath}\\git-remote-https.exe`));
-
-const env = {
-  ...process.env,
-  PATH: `C:\\Program Files\\Git\\mingw64\\bin;${execPath};C:\\Program Files\\Git\\usr\\bin;${process.env.PATH}`,
-  GIT_EXEC_PATH: execPath,
-};
-
-function run(args) {
-  console.log(`\n> git ${args.join(' ')}`);
-  const res = spawnSync(gitBin, args, { env, encoding: 'utf8' });
-  if (res.stdout) process.stdout.write(res.stdout);
-  if (res.stderr) process.stderr.write(res.stderr);
-  if (res.status !== 0) {
-    if (res.error) console.error('Error:', res.error);
-    throw new Error(`git ${args.join(' ')} failed with code ${res.status}`);
-  }
-  return res.stdout;
-}
-
-try {
-  run(['push', 'origin', 'main']);
-  run(['log', '-1', '--oneline']);
-  run(['status']);
-  console.log('\n=== PUSH SUCCEEDED ===');
-} catch (e) {
-  console.error(e.message);
-  process.exit(1);
-}
 
 ]]>
     </file>
@@ -25659,45 +25845,6 @@ try {
   console.error(err.message);
   process.exit(1);
 }
-
-]]>
-    </file>
-    <file path="scripts/git-push-only.mjs" lines="35">
-      <![CDATA[
-import { spawn } from 'child_process';
-
-function runGit(args) {
-  return new Promise((resolve, reject) => {
-    console.log(`\n> git ${args.join(' ')}`);
-    const proc = spawn('C:\\Program Files\\Git\\mingw64\\bin\\git.exe', args, {
-      stdio: 'inherit',
-      env: {
-        ...process.env,
-        PATH: 'C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\mingw64\\libexec\\git-core;C:\\Program Files\\Git\\usr\\bin;' + (process.env.PATH || ''),
-      }
-    });
-    proc.on('close', (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`git ${args[0]} failed with code ${code}`));
-    });
-    proc.on('error', reject);
-  });
-}
-
-async function main() {
-  console.log('=== Pushing cb39c9f to origin main ===');
-  await runGit(['push', 'origin', 'main']);
-  console.log('\n=== Verifying git log -1 --oneline ===');
-  await runGit(['log', '-1', '--oneline']);
-  console.log('\n=== Verifying git status ===');
-  await runGit(['status']);
-  console.log('\n=== ALL DONE ===');
-}
-
-main().catch(err => {
-  console.error('Failed:', err);
-  process.exit(1);
-});
 
 ]]>
     </file>
@@ -25960,62 +26107,6 @@ try {
 
 ]]>
     </file>
-    <file path="scripts/sync-repo.mjs" lines="52">
-      <![CDATA[
-import { spawn } from 'child_process';
-
-const gitBin = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
-const gitExecPath = 'C:\\Program Files\\Git\\mingw64\\libexec\\git-core';
-const mingwBin = 'C:\\Program Files\\Git\\mingw64\\bin';
-const usrBin = 'C:\\Program Files\\Git\\usr\\bin';
-
-const origPath = process.env.Path || process.env.PATH || '';
-const cleanEnv = {};
-for (const key of Object.keys(process.env)) {
-  if (key.toUpperCase() !== 'PATH') {
-    cleanEnv[key] = process.env[key];
-  }
-}
-cleanEnv.Path = `${mingwBin};${gitExecPath};${usrBin};${origPath}`;
-cleanEnv.GIT_EXEC_PATH = gitExecPath;
-
-console.log('Testing Path prefix:', cleanEnv.Path.slice(0, 100));
-
-function runGit(args) {
-  return new Promise((resolve, reject) => {
-    console.log(`\n> git ${args.join(' ')}`);
-    const proc = spawn(gitBin, args, {
-      stdio: 'inherit',
-      env: cleanEnv,
-    });
-    proc.on('close', (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`git ${args.join(' ')} failed with code ${code}`));
-    });
-    proc.on('error', reject);
-  });
-}
-
-async function main() {
-  console.log('=== Step 8: Git Push with clean Path ===');
-  await runGit(['push', 'origin', 'main']);
-
-  console.log('\n=== Verifying git log -1 --oneline ===');
-  await runGit(['log', '-1', '--oneline']);
-
-  console.log('\n=== Verifying git status ===');
-  await runGit(['status']);
-
-  console.log('\n🎉 ALL GIT OPERATIONS COMPLETED SUCCESSFULLY!');
-}
-
-main().catch(err => {
-  console.error('\n❌ Execution error:', err.message);
-  process.exit(1);
-});
-
-]]>
-    </file>
     <file path="scripts/test-analyze-inquiry.mjs" lines="99">
       <![CDATA[
 // 파일 경로: scripts/test-analyze-inquiry.mjs
@@ -26275,46 +26366,6 @@ async function runPhase4RegressionTests() {
 }
 
 runPhase4RegressionTests();
-
-]]>
-    </file>
-    <file path="scripts/verify-live-sites.mjs" lines="36">
-      <![CDATA[
-async function checkLive() {
-  const tests = [
-    { url: 'https://hanbatmall.com', name: 'Home' },
-    { url: 'https://hanbatmall.com/gallery', name: 'Gallery', expected: '카페·디저트창업' },
-    { url: 'https://hanbatmall.com/inquiry', name: 'Inquiry' },
-    { url: 'https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136', name: 'Product Detail' },
-  ];
-
-  console.log('=== Checking Live Production Status ===');
-  let allOk = true;
-
-  for (const t of tests) {
-    try {
-      const res = await fetch(t.url, {
-        headers: { 'User-Agent': 'hanbat-verify/1.0' },
-        cache: 'no-store'
-      });
-      const text = await res.text();
-      const statusOk = res.status === 200;
-      let contentOk = true;
-      if (t.expected) {
-        contentOk = text.includes(t.expected);
-      }
-      console.log(`[${t.name}] Status: ${res.status} | Content match: ${contentOk}`);
-      if (!statusOk || !contentOk) allOk = false;
-    } catch (e) {
-      console.error(`[${t.name}] Fetch failed:`, e.message);
-      allOk = false;
-    }
-  }
-
-  console.log(`\nLive check overall result: ${allOk ? 'ALL PASS ✅' : 'FAIL ❌'}`);
-}
-
-checkLive();
 
 ]]>
     </file>

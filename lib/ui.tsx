@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { ProductCompareModal } from "../components/products/product-compare-modal";
+import { QuickInquiryModal } from "../components/inquiry/quick-inquiry-modal";
 import {
   STORE,
   telHref,
@@ -19,6 +20,8 @@ import {
   formatProductPrice,
   isProductSold,
   type QuoteBasketItem,
+  triggerQuickInquiry,
+  type InquiryTypeValue,
 } from "./site";
 
 /* ════════════════════════════════════════════════════════════
@@ -832,56 +835,94 @@ export function QuoteBasketFloatingBar() {
 }
 
 /* ════════════════════════════════════════════════════════════
-   6-2. 우측 슬림 상담 독 (FloatingQuickWing — 본문 비침범 컴팩트 설계)
+   6-2. 우측 슬림 상담 독 (FloatingQuickWing — 상시 가시성 & 원클릭 전환 고도화)
    ════════════════════════════════════════════════════════════ */
 export function FloatingQuickWing() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [basketCount, setBasketCount] = useState(0);
 
-  const handleInquiryClick = (type: string) => {
+  useEffect(() => {
+    const sync = () => setBasketCount(getQuoteBasket().length);
+    sync();
+    window.addEventListener(QUOTE_BASKET_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  const handleInquiryClick = (type: InquiryTypeValue = "구매 문의") => {
     trackEvent("begin_buyback_inquiry", {
       category: type,
       location: "floating_quick_wing",
     });
+    triggerQuickInquiry({ type });
+  };
 
+  const scrollToTop = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const scrollToInquirySection = () => {
     if (typeof window !== "undefined") {
       const el = document.getElementById("inquiry-section");
       if (el) {
         el.scrollIntoView({ behavior: "smooth" });
-        setIsOpen(false);
-        return;
+      } else {
+        triggerQuickInquiry();
       }
-      window.location.href = `/inquiry?write=1&type=${encodeURIComponent(type)}`;
     }
   };
 
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-4 bottom-6 z-40 hidden lg:flex flex-col items-end gap-2 select-none"
+      className="fixed right-3 xl:right-6 top-28 z-40 hidden lg:flex flex-col items-end select-none"
     >
-      {isOpen && (
-        <div className="w-[216px] rounded-xl border border-[#CFCAC0] bg-white p-4 shadow-floating space-y-3">
-          <div className="flex items-center justify-between border-b border-[#E5E2DC] pb-2.5">
+      {isCollapsed ? (
+        /* 접힌 상태: 우측 가장자리에 고정되는 슬림 탭 버튼 */
+        <button
+          type="button"
+          onClick={() => setIsCollapsed(false)}
+          className="group flex flex-col items-center gap-2 rounded-l-2xl border-y border-l border-[#0E1A2B] bg-[#0E1A2B] py-4 px-2 text-white shadow-floating hover:bg-[#182942] transition-all cursor-pointer hover:-translate-x-1"
+          title="빠른 상담 사이드바 펼치기"
+          aria-label="빠른 상담 사이드바 펼치기"
+        >
+          <Icon d={ICON.left} className="w-4 h-4 text-[#FF8A50] transition-transform group-hover:-translate-x-0.5" />
+          <span className="text-[12px] font-bold tracking-widest text-white [writing-mode:vertical-rl]">
+            ⚡ 빠른상담
+          </span>
+          <span className="h-2 w-2 rounded-full bg-[#FF8A50] animate-pulse" />
+        </button>
+      ) : (
+        /* 펼쳐진 상태: 상시 노출되는 고시인성 프리미엄 퀵 카드 */
+        <div className="w-[218px] rounded-2xl border border-[#CFCAC0] bg-white/98 backdrop-blur-md p-3.5 shadow-[0_8px_30px_rgba(14,26,43,0.12)] space-y-2.5 transition-all">
+          <div className="flex items-center justify-between border-b border-[#E5E2DC] pb-2">
             <div>
-              <p className="text-[11px] font-bold text-[#D9531E]">
-                직영 매장 상담 안내
-              </p>
-              <strong className="text-[14.5px] font-bold text-[#0E1A2B]">
-                빠른 견적 · 재고 문의
+              <span className="rounded bg-[#FFF5F0] border border-[#FED7AA] px-1.5 py-0.2 text-[10px] font-extrabold text-[#D9531E]">
+                직영 상담센터
+              </span>
+              <strong className="block text-[14px] font-extrabold text-[#0E1A2B] pt-0.5">
+                ⚡ 빠른 상담·견적
               </strong>
             </div>
             <button
               type="button"
-              onClick={() => setIsOpen(false)}
-              className="grid h-7 w-7 place-items-center rounded-md text-[#646E7E] hover:bg-[#FAF9F7] hover:text-[#0E1A2B]"
-              aria-label="상담 안내 닫기"
+              onClick={() => setIsCollapsed(true)}
+              className="grid h-7 w-7 place-items-center rounded-lg text-[#646E7E] hover:bg-[#FAF9F7] hover:text-[#0E1A2B] transition-colors"
+              aria-label="사이드바 접기"
+              title="사이드바 접기"
             >
-              <Icon d={ICON.close} className="w-4 h-4" />
+              <Icon d={ICON.right} className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] p-3 space-y-1">
-            <span className="block text-[11px] font-semibold text-[#646E7E]">
+          {/* 직통 전화 카드 */}
+          <div className="rounded-xl bg-[#FAF9F7] border border-[#E5E2DC] p-2.5 text-center space-y-0.5">
+            <span className="block text-[10.5px] font-semibold text-[#646E7E]">
               대표전화 ({STORE.hours})
             </span>
             <a
@@ -891,7 +932,7 @@ export function FloatingQuickWing() {
                   location: "floating_quick_wing_tel",
                 })
               }
-              className="block text-[17px] font-bold text-[#0E1A2B] hover:text-[#D9531E] tabular-nums"
+              className="block text-[17px] font-black text-[#0E1A2B] hover:text-[#D9531E] tracking-tight tabular-nums transition-colors"
             >
               {STORE.tel}
             </a>
@@ -902,13 +943,16 @@ export function FloatingQuickWing() {
                   location: "floating_quick_wing_mobile",
                 })
               }
-              className="block text-[12px] font-medium text-[#3E4756] hover:text-[#0E1A2B] tabular-nums"
+              className="block text-[11.5px] font-bold text-[#D9531E] hover:underline tabular-nums"
             >
               직통 {STORE.mobile}
             </a>
-            <p className="text-[11px] text-[#646E7E] pt-0.5">{STORE.closed}</p>
+            <p className="text-[10px] text-[#858076] pt-0.5">
+              문자·사진 전송 가능 · {STORE.closed}
+            </p>
           </div>
 
+          {/* 원클릭 상담 CTA 버튼 2종 */}
           <div className="space-y-1.5">
             <a
               href={STORE.kakaoChat}
@@ -919,49 +963,56 @@ export function FloatingQuickWing() {
                   location: "floating_quick_wing",
                 })
               }
-              className="hb-btn-kakao w-full h-9 text-[12.5px]"
+              className="hb-btn-kakao w-full h-9 text-[12px] font-bold shadow-2xs"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-              <span>카카오톡 상담</span>
+              <span>카톡 실시간 상담</span>
             </a>
             <button
               type="button"
-              onClick={() => handleInquiryClick("내 물건 팔기")}
-              className="hb-btn-outline w-full h-9 text-[12.5px]"
+              onClick={() => handleInquiryClick("구매 문의")}
+              className="hb-btn-primary w-full h-9 text-[12px] font-bold shadow-2xs bg-[#D9531E] hover:bg-[#BF4715] text-white"
             >
-              <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-              <span>매입·구매 온라인 접수</span>
+              <Icon d={ICON.pen} className="w-3.5 h-3.5 text-white" />
+              <span>10초 간편 견적 신청</span>
+            </button>
+          </div>
+
+          {/* 견적함 연동 미니 뱃지 (담긴 매물이 있을 때) */}
+          {basketCount > 0 && (
+            <div className="border-t border-[#E5E2DC] pt-2">
+              <Link
+                href="/inquiry?write=1&bundle=1"
+                className="flex items-center justify-between rounded-lg bg-[#FFF5F0] border border-[#FED7AA] px-2.5 py-1.5 text-[11px] font-bold text-[#D9531E] hover:bg-[#FADCD0] transition-colors"
+              >
+                <span>🛒 담아둔 견적함</span>
+                <span className="rounded-full bg-[#D9531E] text-white px-1.5 py-0.2 text-[10.5px] tabular-nums">
+                  {basketCount}대 일괄문의
+                </span>
+              </Link>
+            </div>
+          )}
+
+          {/* 퀵 네비게이션 컨트롤 */}
+          <div className="border-t border-[#E5E2DC] pt-2 flex items-center justify-between text-[11px] font-bold text-[#646E7E]">
+            <button
+              type="button"
+              onClick={scrollToTop}
+              className="flex-1 py-1 hover:text-[#0E1A2B] text-center transition-colors"
+            >
+              ▲ 맨 위로
+            </button>
+            <span className="text-[#D7D2C8]">|</span>
+            <button
+              type="button"
+              onClick={scrollToInquirySection}
+              className="flex-1 py-1 hover:text-[#0E1A2B] text-center transition-colors"
+            >
+              ▼ 폼으로
             </button>
           </div>
         </div>
       )}
-
-      <div className="flex items-center gap-1.5 rounded-full border border-[#CFCAC0] bg-white/95 backdrop-blur-md p-1.5 shadow-card">
-        <a
-          href={STORE.kakaoChat}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            trackEvent("click_kakao_consult", {
-              location: "floating_quick_wing_pill",
-            })
-          }
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2 text-[12.5px] font-bold text-[#191600] transition-colors"
-          aria-label="카카오톡 상담"
-        >
-          <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-          <span>카톡상담</span>
-        </a>
-        <button
-          type="button"
-          onClick={() => setIsOpen((v) => !v)}
-          aria-expanded={isOpen}
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#0E1A2B] hover:bg-[#182942] px-3.5 py-2 text-[12.5px] font-bold text-white transition-colors"
-        >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-          <span>전화·상담 안내</span>
-        </button>
-      </div>
     </aside>
   );
 }
@@ -980,6 +1031,7 @@ export function SiteFooter({
     <>
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
+      <QuickInquiryModal />
       <footer className="relative bg-[#0E1A2B] text-white/80 mt-auto border-t border-[#182942]">
         <div className="hb-container py-12 sm:py-16">
           <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">

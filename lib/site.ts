@@ -518,6 +518,27 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
 }
 
 /* ════════════════════════════════════════════════════════════
+   2-0. 1초 직통 간편 상담 모달(Quick Inquiry Modal) 전역 브릿지
+   ════════════════════════════════════════════════════════════ */
+export const QUICK_INQUIRY_EVENT = "hb-quick-inquiry-open";
+
+export interface QuickInquiryDetail {
+  type?: InquiryTypeValue;
+  productTitle?: string;
+  modelName?: string;
+  category?: string;
+  envNote?: string;
+  useBundle?: boolean;
+}
+
+export function triggerQuickInquiry(detail?: QuickInquiryDetail): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent(QUICK_INQUIRY_EVENT, { detail })
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
    2. 관심 매물 견적함 (묶음 문의 · 수량 조절 · 비교 연동) localStorage 헬퍼
    ════════════════════════════════════════════════════════════ */
 export const QUOTE_BASKET_STORAGE_KEY = "hb_quote_basket_v1";
