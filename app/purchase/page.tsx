@@ -11,7 +11,7 @@ import {
   Icon,
   ICON,
 } from "../../lib/ui";
-import { UnifiedInquiryForm } from "../../components/inquiry/unified-inquiry-form";
+import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 
 const BUYBACK_STEPS = [
   {
@@ -116,7 +116,12 @@ export default function PurchasePage() {
               </span>
             </div>
 
-            <UnifiedInquiryForm defaultType="내 물건 팔기" fixedType="내 물건 팔기" hideTypeSelector={true} />
+            <V2InquirySectionWithWizard
+              defaultType="내 물건 팔기"
+              fixedType="내 물건 팔기"
+              hideTypeSelector={true}
+              variant="embedded"
+            />
           </div>
 
           {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}

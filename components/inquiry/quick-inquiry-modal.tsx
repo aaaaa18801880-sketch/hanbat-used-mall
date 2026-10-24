@@ -89,6 +89,7 @@ export function QuickInquiryModal() {
         {/* 폼 본문 (스크롤 영역) */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#FAF9F7]">
           <V2InquirySectionWithWizard
+            key={`${inquiryType}_${linkedProduct?.productTitle || ""}`}
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {
