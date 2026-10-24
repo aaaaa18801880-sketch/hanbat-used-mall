@@ -404,18 +404,28 @@ export function CopyPromoPostButton({
   };
 
   return (
-    <button
-      type="button"
-      onClick={handleCopyPromo}
-      className={
-        className ||
-        "inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors shadow-2xs"
-      }
-      title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
-    >
-      <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-      <span>홍보글 양식 복사 (관리자)</span>
-    </button>
+    <div className="inline-flex items-center gap-1.5">
+      <Link
+        href={`/admin?search=${encodeURIComponent(product.id)}`}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors shadow-2xs"
+        title="관리자 페이지에서 이 상품 정보 수정하기"
+      >
+        <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#0E1A2B]" />
+        <span>상품 수정 (관리자)</span>
+      </Link>
+      <button
+        type="button"
+        onClick={handleCopyPromo}
+        className={
+          className ||
+          "inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors shadow-2xs"
+        }
+        title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
+      >
+        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
+        <span>홍보글 양식 복사 (관리자)</span>
+      </button>
+    </div>
   );
 }
 

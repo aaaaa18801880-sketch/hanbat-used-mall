@@ -2388,7 +2388,7 @@ export default function GalleryPage() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onSelect={handleProductClick}
+                  onSelect={isSelectMode ? handleProductClick : undefined}
                   isSelectMode={isSelectMode}
                   isSelected={selectedIds.has(product.id)}
                   isAdmin={isAdmin}
