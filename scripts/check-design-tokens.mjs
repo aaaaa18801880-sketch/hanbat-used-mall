@@ -6,15 +6,24 @@ import path from "node:path";
 const ROOT = process.cwd();
 const SCOPED = [
   "app/page.tsx",
+  "app/gallery/page.tsx",
+  "app/[id]/page.tsx",
+  "app/inquiry/page.tsx",
+  "app/purchase/page.tsx",
   "lib/ui.tsx",
   "components/home/category-pictogram-bar.tsx",
   "components/home/featured-products-section.tsx",
   "components/products/product-card.tsx",
-  "components/inquiry/quick-inquiry-modal.tsx",
-  "components/inquiry/v2-wizard-quick-inquiry.tsx",
+  "components/products/product-status-badge.tsx",
+  "components/products/product-detail-gallery.tsx",
+  "components/products/product-compare-modal.tsx",
+  "components/products/product-structured-description.tsx",
+  "components/products/aircon-set-guide-banner.tsx",
   "components/products/v2-visual-inspection-viewer.tsx",
   "components/products/v2-spatial-fit-planner.tsx",
-  "app/purchase/page.tsx",
+  "components/inquiry/quick-inquiry-modal.tsx",
+  "components/inquiry/v2-wizard-quick-inquiry.tsx",
+  "components/inquiry/unified-inquiry-form.tsx",
 ];
 const GLOBAL_DIRS = ["app", "components", "lib"];
 const IGNORE_MARK = "design-token-ignore";

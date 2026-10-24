@@ -109,7 +109,7 @@ function StatusBadge({
   const matched = INQUIRY_ADMIN_STATUS_OPTIONS.find((o) => o.value === s);
   return (
     <span
-      className={`inline-block px-2.5 py-1 rounded-[4px] text-[11px] font-bold whitespace-nowrap ${
+      className={`inline-block px-2.5 py-1 rounded-[4px] text-hb-xs font-bold whitespace-nowrap ${
         matched ? matched.badgeClass : "bg-[#F0EDE7] text-[#4B5260]"
       }`}
     >
@@ -581,7 +581,7 @@ export default function InquiryBoardPage() {
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden sm:inline-flex items-center rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3.5 h-10 sm:h-11 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+            className="hidden sm:inline-flex items-center rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
           >
             통합 관리자 대시보드
           </Link>
@@ -589,7 +589,7 @@ export default function InquiryBoardPage() {
         <button
           type="button"
           onClick={handleOpenWrite}
-          className="hb-btn-primary h-10 sm:h-11 px-4 text-[13px] sm:text-[13.5px] whitespace-nowrap"
+          className="hb-btn-primary h-10 sm:h-11 px-4 text-hb-sm whitespace-nowrap"
         >
           문의 글쓰기
         </button>
@@ -602,15 +602,15 @@ export default function InquiryBoardPage() {
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="hb-eyebrow">구매 · 매입 · 업소용 상담 게시판</span>
-                <span className="text-[11px] text-[#D8D3C8]">|</span>
-                <span className="text-[12.5px] font-semibold text-[#667085]">
+                <span className="text-hb-xs text-[#D8D3C8]">|</span>
+                <span className="text-hb-xs font-semibold text-[#667085]">
                   비밀번호 보호 안전 열람
                 </span>
               </div>
-              <h1 className="text-[26px] sm:text-[36px] font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
+              <h1 className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
                 고객 문의 · 매입 신청 게시판
               </h1>
-              <p className="mt-2.5 text-[14.5px] sm:text-[15.5px] text-[#3E4856] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
+              <p className="mt-2.5 text-hb-base text-[#3E4856] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
                 남겨주신 구매 상담과 매입 신청은 비밀번호로 안전하게 열람하실 수 있습니다.
                 <br className="hidden sm:inline" /> 빠른 상담이 필요하신 경우 직통 대표전화로 연락해 주세요.
               </p>
@@ -620,14 +620,14 @@ export default function InquiryBoardPage() {
               <button
                 type="button"
                 onClick={handleOpenWrite}
-                className="hb-btn-accent h-11 px-5 text-[13.5px]"
+                className="hb-btn-accent h-11 px-5 text-hb-sm"
               >
                 <Icon d={ICON.plus} className="w-4 h-4" />
                 <span>문의 · 매입 신청 작성</span>
               </button>
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-outline h-11 px-4 text-[13.5px] tabular-nums"
+                className="hb-btn-outline h-11 px-4 text-hb-sm tabular-nums"
               >
                 <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
                 <span>전화 {STORE.tel}</span>
@@ -657,7 +657,7 @@ export default function InquiryBoardPage() {
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`px-3 sm:px-3.5 py-2 rounded-lg text-[12.5px] sm:text-[13.5px] font-bold whitespace-nowrap border transition-colors shrink-0 ${
+                  className={`px-3 sm:px-3.5 py-2 rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap border transition-colors shrink-0 ${
                     active
                       ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
                       : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
@@ -665,7 +665,7 @@ export default function InquiryBoardPage() {
                 >
                   {tab}
                   <span
-                    className={`ml-1.5 text-[11px] sm:text-[11.5px] tabular-nums ${
+                    className={`ml-1.5 text-hb-xs tabular-nums ${
                       active ? "text-[#FF8A50]" : "text-[#667085]"
                     }`}
                   >
@@ -687,7 +687,7 @@ export default function InquiryBoardPage() {
                 }}
                 placeholder="제목·품목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-full md:w-[230px] rounded-lg border border-[#D8D3C8] bg-white px-3 pl-9 pr-8 text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+                className="h-10 w-full md:w-[230px] rounded-lg border border-[#D8D3C8] bg-white px-3 pl-9 pr-8 text-hb-sm text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
@@ -710,7 +710,7 @@ export default function InquiryBoardPage() {
             <button
               type="button"
               onClick={handleOpenWrite}
-              className="hb-btn-primary h-10 px-4 text-[13px] whitespace-nowrap"
+              className="hb-btn-primary h-10 px-4 text-hb-sm whitespace-nowrap"
             >
               <Icon d={ICON.plus} className="w-4 h-4" />
               <span>글쓰기</span>
@@ -720,8 +720,8 @@ export default function InquiryBoardPage() {
 
         {/* 데스크톱 테이블 */}
         <div className="hidden md:block overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
-          <table className="w-full text-[13.5px] text-center text-[#0E1A2B]">
-            <thead className="bg-[#FAF9F7] text-[#667085] text-[12.5px] font-bold border-b border-[#E5E2DC]">
+          <table className="w-full text-hb-sm text-center text-[#0E1A2B]">
+            <thead className="bg-[#FAF9F7] text-[#667085] text-hb-xs font-bold border-b border-[#E5E2DC]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
                 <th className="w-32">구분</th>
@@ -750,12 +750,12 @@ export default function InquiryBoardPage() {
                         className="bg-[#FFF5F0] hover:bg-[#FDECE4] transition-colors h-14 cursor-pointer"
                       >
                         <td>
-                          <span className="bg-[#D9531E] text-white text-[11px] font-bold px-2 py-0.5 rounded">
+                          <span className="bg-[#D9531E] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
                             공지
                           </span>
                         </td>
                         <td>
-                          <span className="inline-block px-2.5 py-1 rounded text-[12px] font-bold text-[#B5431A]">
+                          <span className="inline-block px-2.5 py-1 rounded text-hb-xs font-bold text-[#B5431A]">
                             공지사항
                           </span>
                         </td>
@@ -797,7 +797,7 @@ export default function InquiryBoardPage() {
                       </td>
                       <td>
                         <span
-                          className={`inline-block px-2.5 py-1 rounded-md text-[11.5px] font-bold whitespace-nowrap ${typeStyle(
+                          className={`inline-block px-2.5 py-1 rounded-md text-hb-xs font-bold whitespace-nowrap ${typeStyle(
                             item.inquiry_type
                           )}`}
                         >
@@ -827,7 +827,7 @@ export default function InquiryBoardPage() {
                       <td className="text-[#3E4856] font-medium">
                         {item.masked_name || maskName(item.name)}
                       </td>
-                      <td className="text-[#667085] text-[12.5px] tabular-nums">
+                      <td className="text-[#667085] text-hb-xs tabular-nums">
                         {formatDate(item.created_at)}
                       </td>
                     </tr>
@@ -858,14 +858,14 @@ export default function InquiryBoardPage() {
                       className="w-full text-left bg-[#FFF5F0] border border-[#FADCD0] rounded-xl p-4 hover:bg-[#FDECE4] transition-colors"
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="bg-[#D9531E] text-white text-[11px] font-bold px-2 py-0.5 rounded">
+                        <span className="bg-[#D9531E] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
                           공지사항
                         </span>
-                        <span className="text-[11.5px] text-[#667085] tabular-nums">
+                        <span className="text-hb-xs text-[#667085] tabular-nums">
                           {formatDate(notice.created_at)}
                         </span>
                       </div>
-                      <p className="font-bold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
+                      <p className="font-bold text-[#0E1A2B] text-hb-base line-clamp-2 flex items-center gap-1.5">
                         <Icon
                           d={ICON.bell}
                           className="w-4 h-4 text-[#D9531E] shrink-0"
@@ -884,7 +884,7 @@ export default function InquiryBoardPage() {
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <span
-                        className={`px-2 py-0.5 rounded-md text-[11px] font-bold ${typeStyle(
+                        className={`px-2 py-0.5 rounded-md text-hb-xs font-bold ${typeStyle(
                           item.inquiry_type
                         )}`}
                       >
@@ -892,7 +892,7 @@ export default function InquiryBoardPage() {
                       </span>
                       <StatusBadge status={item.status} />
                     </div>
-                    <p className="font-bold text-[#0E1A2B] text-[14.5px] line-clamp-2 flex items-center gap-1.5">
+                    <p className="font-bold text-[#0E1A2B] text-hb-base line-clamp-2 flex items-center gap-1.5">
                       {!isAdmin && (
                         <Icon
                           d={ICON.lock}
@@ -907,7 +907,7 @@ export default function InquiryBoardPage() {
                         />
                       )}
                     </p>
-                    <div className="mt-2.5 pt-2 border-t border-[#EFECE6] flex items-center justify-between text-[12px] text-[#667085]">
+                    <div className="mt-2.5 pt-2 border-t border-[#EFECE6] flex items-center justify-between text-hb-xs text-[#667085]">
                       <span className="font-medium text-[#3E4856]">
                         {item.masked_name || maskName(item.name)}
                       </span>
@@ -931,7 +931,7 @@ export default function InquiryBoardPage() {
             <button
               type="button"
               onClick={loadData}
-              className="hb-btn-primary h-10 px-5 text-[13.5px]"
+              className="hb-btn-primary h-10 px-5 text-hb-sm"
             >
               다시 시도
             </button>
@@ -942,8 +942,8 @@ export default function InquiryBoardPage() {
           !loadError &&
           currentItems.length === 0 &&
           (!showNotices || noticeList.length === 0) && (
-            <div className="mt-6 py-16 text-center bg-white rounded-xl border border-[#E6E3DC] text-[14px]">
-              <p className="text-[#0E1A2B] font-bold mb-1 text-[16px]">
+            <div className="mt-6 py-16 text-center bg-white rounded-xl border border-[#E6E3DC] text-hb-sm">
+              <p className="text-[#0E1A2B] font-bold mb-1 text-hb-base">
                 {keyword.trim()
                   ? "검색 조건에 맞는 문의글이 없습니다."
                   : "아직 등록된 문의 내역이 없습니다."}
@@ -954,7 +954,7 @@ export default function InquiryBoardPage() {
               <button
                 type="button"
                 onClick={handleOpenWrite}
-                className="hb-btn-accent mt-5 h-10 px-5 text-[13.5px]"
+                className="hb-btn-accent mt-5 h-10 px-5 text-hb-sm"
               >
                 첫 문의 · 매입 신청 남기기
               </button>
@@ -985,7 +985,7 @@ export default function InquiryBoardPage() {
                   key={p}
                   type="button"
                   onClick={() => goPage(p)}
-                  className={`w-9 h-9 rounded text-[13.5px] font-semibold ${
+                  className={`w-9 h-9 rounded text-hb-sm font-semibold ${
                     safePage === p
                       ? "bg-[#0E1A2B] text-white"
                       : "border border-[#DDD9D1] bg-white text-[#4B5260]"
@@ -1027,7 +1027,7 @@ export default function InquiryBoardPage() {
         >
           <div className="bg-white max-h-[92vh] overflow-y-auto rounded-xl shadow-2xl border border-[#E5E2DC] w-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E2DC] sticky top-0 bg-white z-10">
-              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 문의 · 매입 신청 작성
               </h2>
               <button
@@ -1063,10 +1063,10 @@ export default function InquiryBoardPage() {
           panelClassName="max-w-sm"
         >
           <div className="bg-white rounded-xl shadow-xl border border-[#E5E2DC] p-6 sm:p-8 text-center w-full">
-            <h3 className="font-bold text-[#0E1A2B] text-[18px] mb-1.5">
+            <h3 className="font-bold text-[#0E1A2B] text-hb-lg mb-1.5">
               비밀글 열람
             </h3>
-            <p className="text-[13px] text-[#6B7280] mb-5">
+            <p className="text-hb-sm text-[#6B7280] mb-5">
               작성 시 설정하신 조회용 비밀번호를 입력해 주세요.
             </p>
             <form onSubmit={handleVerifyPassword} className="space-y-4">
@@ -1080,7 +1080,7 @@ export default function InquiryBoardPage() {
                   autoFocus
                   className="hb-input text-center tracking-widest"
                 />
-                <label className="mt-2 inline-flex items-center gap-1.5 text-[12px] text-[#6B7280] cursor-pointer select-none">
+                <label className="mt-2 inline-flex items-center gap-1.5 text-hb-xs text-[#6B7280] cursor-pointer select-none">
                   <input
                     type="checkbox"
                     checked={showVerifyPassword}
@@ -1094,14 +1094,14 @@ export default function InquiryBoardPage() {
                 <button
                   type="button"
                   onClick={() => setIsPwModalOpen(false)}
-                  className="hb-btn-outline w-1/2 h-11 text-[14px]"
+                  className="hb-btn-outline w-1/2 h-11 text-hb-sm"
                 >
                   취소
                 </button>
                 <button
                   type="submit"
                   disabled={isVerifyingPw}
-                  className="hb-btn-primary w-1/2 h-11 text-[14px]"
+                  className="hb-btn-primary w-1/2 h-11 text-hb-sm"
                 >
                   {isVerifyingPw ? "확인 중..." : "확인"}
                 </button>
@@ -1120,7 +1120,7 @@ export default function InquiryBoardPage() {
         >
           <div className="bg-white rounded-xl shadow-2xl border border-[#E5E2DC] max-h-[90vh] flex flex-col w-full overflow-hidden">
             <div className="px-6 py-4 flex items-center justify-between bg-[#0E1A2B] text-white">
-              <span className="text-[12px] font-bold bg-white/15 px-2.5 py-1 rounded-sm">
+              <span className="text-hb-xs font-bold bg-white/15 px-2.5 py-1 rounded-sm">
                 {getInquiryTypeLabel(selectedItem.inquiry_type)}
               </span>
               <button
@@ -1132,12 +1132,12 @@ export default function InquiryBoardPage() {
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-5 text-[14.5px]">
+            <div className="p-6 overflow-y-auto space-y-5 text-hb-base">
               <div className="border-b border-[#E4E0D8] pb-4">
-                <h2 className="text-[20px] font-bold text-[#0E1A2B] mb-2">
+                <h2 className="text-hb-xl font-bold text-[#0E1A2B] mb-2">
                   {selectedItem.category}
                 </h2>
-                <div className="flex flex-wrap gap-4 text-[13px] text-[#6B7280]">
+                <div className="flex flex-wrap gap-4 text-hb-sm text-[#6B7280]">
                   <span>
                     작성자:{" "}
                     <strong className="text-[#0E1A2B]">
@@ -1182,9 +1182,9 @@ export default function InquiryBoardPage() {
                     <div className="space-y-3">
                       {(parsed.structuredLines.length > 0 ||
                         parsed.bulkItems.length > 0) && (
-                        <div className="rounded-md border border-[#0E1A2B]/15 bg-[#F8FAFC] p-4 text-[13.5px] space-y-2">
-                          <strong className="text-[12.5px] font-extrabold text-[#0E1A2B] block">
-                            📋 상담 확인 조건 (
+                        <div className="rounded-md border border-[#0E1A2B]/15 bg-[#F8FAFC] p-4 text-hb-sm space-y-2">
+                          <strong className="text-hb-xs font-extrabold text-[#0E1A2B] block">
+                            상담 확인 조건 (
                             {getInquiryTypeLabel(selectedItem.inquiry_type)})
                           </strong>
                           {parsed.structuredLines.length > 0 && (
@@ -1203,10 +1203,10 @@ export default function InquiryBoardPage() {
                           )}
                           {parsed.bulkItems.length > 0 && (
                             <div className="pt-2 border-t border-[#E5E2DC]">
-                              <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
-                                📦 요청 장비 및 수량
+                              <span className="text-hb-xs font-bold text-[#D9531E] block mb-1">
+                                요청 장비 및 수량
                               </span>
-                              <ul className="space-y-1 text-[12.5px] font-medium text-[#0E1A2B]">
+                              <ul className="space-y-1 text-hb-xs font-medium text-[#0E1A2B]">
                                 {parsed.bulkItems.map((it, idx) => (
                                   <li
                                     key={idx}
@@ -1223,8 +1223,8 @@ export default function InquiryBoardPage() {
 
                       {parsed.customerContent && (
                         <div className="bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC] whitespace-pre-wrap leading-relaxed">
-                          <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
-                            ✍️ 문의 내용
+                          <span className="block text-hb-xs font-bold text-[#6B7280] mb-1">
+                            문의 내용
                           </span>
                           {parsed.customerContent}
                         </div>
@@ -1233,9 +1233,9 @@ export default function InquiryBoardPage() {
                       {isAdmin &&
                         (parsed.aiSummaryLines.length > 0 ||
                           parsed.missingAndQuestions.length > 0) && (
-                          <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-[12px] text-amber-950 space-y-1">
+                          <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-hb-xs text-amber-950 space-y-1">
                             <strong className="block text-amber-900">
-                              🤖 AI 사진 판독 참고 요약 (관리자 확인용)
+                              AI 사진 판독 참고 요약 (관리자 확인용)
                             </strong>
                             {parsed.aiSummaryLines.map((line, idx) => (
                               <p key={idx}>• {line}</p>
@@ -1245,7 +1245,7 @@ export default function InquiryBoardPage() {
                                 key={idx}
                                 className="font-semibold text-[#B5431A]"
                               >
-                                ⚠️ {q}
+                                [확인 필요] {q}
                               </p>
                             ))}
                           </div>
@@ -1275,10 +1275,10 @@ export default function InquiryBoardPage() {
 
               {selectedItem.admin_reply && (
                 <div className="bg-[#FEF5F2] rounded-md p-5 border border-[#FDECE4]">
-                  <h3 className="font-bold text-[#0E1A2B] text-[14px] mb-2">
+                  <h3 className="font-bold text-[#0E1A2B] text-hb-sm mb-2">
                     {STORE.name} 공식 답변
                   </h3>
-                  <p className="text-[14px] text-[#4B5260] whitespace-pre-wrap leading-relaxed">
+                  <p className="text-hb-sm text-[#4B5260] whitespace-pre-wrap leading-relaxed">
                     {selectedItem.admin_reply}
                   </p>
                 </div>
@@ -1287,7 +1287,7 @@ export default function InquiryBoardPage() {
               {!selectedItem.is_notice && isAdmin && (
                 <div className="bg-[#FAF9F7] rounded-md p-4 border border-[#E4E0D8] space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <label className="text-[13px] font-bold text-[#0E1A2B]">
+                    <label className="text-hb-sm font-bold text-[#0E1A2B]">
                       진행 상태 명시적 변경
                     </label>
                     <select
@@ -1295,7 +1295,7 @@ export default function InquiryBoardPage() {
                       onChange={(e) =>
                         handleStatusUpdate(selectedItem.id, e.target.value)
                       }
-                      className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-[13px] font-bold text-[#0E1A2B]"
+                      className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-hb-sm font-bold text-[#0E1A2B]"
                     >
                       {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -1307,7 +1307,7 @@ export default function InquiryBoardPage() {
 
                   {/* 자주 쓰는 답변 템플릿 버튼 */}
                   <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span className="text-[11.5px] font-bold text-[#6B7280] mr-1">
+                    <span className="text-hb-xs font-bold text-[#6B7280] mr-1">
                       빠른 답변 템플릿:
                     </span>
                     {REPLY_TEMPLATES.map((tpl) => (
@@ -1315,7 +1315,7 @@ export default function InquiryBoardPage() {
                         key={tpl.label}
                         type="button"
                         onClick={() => setReplyContent(tpl.text)}
-                        className="rounded border border-[#DDD9D1] bg-white px-2.5 py-1 text-[11.5px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                        className="rounded border border-[#DDD9D1] bg-white px-2.5 py-1 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
                       >
                         + {tpl.label}
                       </button>
@@ -1327,14 +1327,14 @@ export default function InquiryBoardPage() {
                     onChange={(e) => setReplyContent(e.target.value)}
                     rows={3}
                     placeholder="고객에게 남길 답변 내용을 입력해 주세요."
-                    className="hb-input text-[13.5px]"
+                    className="hb-input text-hb-sm"
                   />
                   <div className="flex justify-end">
                     <button
                       type="button"
                       onClick={handleReplySubmit}
                       disabled={isReplying}
-                      className="hb-btn-primary h-10 px-5 text-[13px]"
+                      className="hb-btn-primary h-10 px-5 text-hb-sm"
                     >
                       {isReplying ? "저장 중..." : "답변 저장 및 답변완료 처리"}
                     </button>
@@ -1349,14 +1349,14 @@ export default function InquiryBoardPage() {
                       <button
                         type="button"
                         onClick={handleOpenEdit}
-                        className="hb-btn-outline h-10 px-4 text-[13px]"
+                        className="hb-btn-outline h-10 px-4 text-hb-sm"
                       >
                         수정
                       </button>
                       <button
                         type="button"
                         onClick={handleDelete}
-                        className="rounded border border-red-200 bg-red-50 px-4 h-10 text-[13px] font-bold text-red-600"
+                        className="rounded border border-red-200 bg-red-50 px-4 h-10 text-hb-sm font-bold text-red-600"
                       >
                         삭제
                       </button>
@@ -1366,7 +1366,7 @@ export default function InquiryBoardPage() {
                 <button
                   type="button"
                   onClick={() => setIsDetailOpen(false)}
-                  className="hb-btn-primary h-10 px-6 text-[13px]"
+                  className="hb-btn-primary h-10 px-6 text-hb-sm"
                 >
                   닫기
                 </button>
@@ -1389,7 +1389,7 @@ export default function InquiryBoardPage() {
             onSubmit={handleEditSubmit}
             className="bg-white rounded-xl p-6 shadow-2xl border border-[#E5E2DC] space-y-4"
           >
-            <h3 className="text-[18px] font-bold text-[#0E1A2B]">
+            <h3 className="text-hb-lg font-bold text-[#0E1A2B]">
               게시글 수정
             </h3>
             <div>
@@ -1416,14 +1416,14 @@ export default function InquiryBoardPage() {
               <button
                 type="button"
                 onClick={() => setIsEditOpen(false)}
-                className="hb-btn-outline h-10 px-5 text-[13.5px]"
+                className="hb-btn-outline h-10 px-5 text-hb-sm"
               >
                 취소
               </button>
               <button
                 type="submit"
                 disabled={editUpdating}
-                className="hb-btn-primary h-10 px-6 text-[13.5px]"
+                className="hb-btn-primary h-10 px-6 text-hb-sm"
               >
                 {editUpdating ? "수정 중..." : "수정 완료"}
               </button>
@@ -1456,7 +1456,7 @@ export default function InquiryBoardPage() {
             onSubmit={handleAdminAuth}
             className="bg-white rounded-xl p-6 shadow-2xl border border-[#E5E2DC] space-y-4"
           >
-            <h3 className="text-[18px] font-bold text-[#0E1A2B]">
+            <h3 className="text-hb-lg font-bold text-[#0E1A2B]">
               관리자 로그인
             </h3>
             <input
@@ -1478,7 +1478,7 @@ export default function InquiryBoardPage() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="hb-btn-primary h-11 w-full text-[14px]"
+              className="hb-btn-primary h-11 w-full text-hb-sm"
             >
               {isLoggingIn ? "로그인 중..." : "로그인"}
             </button>

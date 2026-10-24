@@ -792,17 +792,17 @@ export function UnifiedInquiryForm({
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#0E1A2B] text-white">
           <Icon d={ICON.check} className="h-6 w-6 text-[#FF8A50]" />
         </div>
-        <h3 className="text-[20px] font-bold text-[#0E1A2B]">
+        <h3 className="text-hb-xl font-bold text-[#0E1A2B]">
           {isSell
             ? "매입 견적 신청이 정상 접수되었습니다."
             : "상담 문의가 정상 접수되었습니다."}
         </h3>
-        <p className="mt-2 text-[14px] leading-relaxed text-[#4B5260]">
+        <p className="mt-2 text-hb-sm leading-relaxed text-[#4B5260]">
           남겨주신 내용은 담당자가 확인 후 연락드립니다. 설정하신 비밀번호로{" "}
           <strong className="text-[#0E1A2B]">문의게시판</strong>에서 진행 상태와 답변을 언제든 조회하실 수 있습니다.
         </p>
 
-        <div className="mt-5 rounded border border-[#E4E0D8] bg-white p-4 text-left text-[13px] text-[#4B5260] max-w-md mx-auto space-y-1">
+        <div className="mt-5 rounded border border-[#E4E0D8] bg-white p-4 text-left text-hb-sm text-[#4B5260] max-w-md mx-auto space-y-1">
           <p>
             • 접수 구분:{" "}
             <strong className="text-[#0E1A2B]">{inquiryType}</strong>
@@ -812,20 +812,20 @@ export function UnifiedInquiryForm({
             <strong className="text-[#0E1A2B]">{title}</strong>
           </p>
           {createdInquiryId && (
-            <p className="text-[12px] text-[#8A8478]">
+            <p className="text-hb-xs text-[#8A8478]">
               • 접수 번호: #{String(createdInquiryId).slice(0, 8)}
             </p>
           )}
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
-          <Link href="/inquiry" className="hb-btn-primary h-11 px-5 text-[14px]">
+          <Link href="/inquiry" className="hb-btn-primary h-11 px-5 text-hb-sm">
             문의게시판에서 확인하기
           </Link>
           <button
             type="button"
             onClick={resetToInitial}
-            className="hb-btn-outline h-11 px-5 text-[14px]"
+            className="hb-btn-outline h-11 px-5 text-hb-sm"
           >
             추가 문의 작성하기
           </button>
@@ -846,10 +846,10 @@ export function UnifiedInquiryForm({
       {isAdmin && allowNoticeToggle && (
         <label className="flex cursor-pointer items-center justify-between rounded-xl border border-[#FADCD0] bg-[#FFF5F0] px-4 py-3.5">
           <div>
-            <span className="block text-[14.5px] font-bold text-[#B5431A]">
+            <span className="block text-hb-base font-bold text-[#B5431A]">
               최상단 고정 공지사항으로 등록
             </span>
-            <span className="mt-0.5 block text-[12.5px] text-[#D9531E]">
+            <span className="mt-0.5 block text-hb-xs text-[#D9531E]">
               체크 시 모든 방문자가 비밀번호 없이 열람할 수 있는 공지로 게시됩니다.
             </span>
           </div>
@@ -866,7 +866,7 @@ export function UnifiedInquiryForm({
       {!isNotice && !hideTypeSelector && !fixedType ? (
         <div>
           <div className="flex items-center justify-between gap-2 mb-2.5">
-            <span className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+            <span className="text-hb-base font-extrabold text-[#0E1A2B]">
               1. 원하시는 상담 유형을 선택해 주세요
             </span>
             <a
@@ -877,7 +877,7 @@ export function UnifiedInquiryForm({
                   inquiry_type: inquiryType,
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 py-1.5 text-[13px] font-extrabold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 py-1.5 text-hb-sm font-extrabold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
               title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
             >
               <Icon d={ICON.chat} className="h-4 w-4" />
@@ -918,7 +918,7 @@ export function UnifiedInquiryForm({
                       );
                     }
                   }}
-                  className={`h-11 sm:h-12 rounded-lg px-3 text-[13.5px] sm:text-[15px] font-bold tracking-[-0.01em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
+                  className={`h-11 sm:h-12 rounded-lg px-3 text-hb-sm sm:text-hb-base font-bold tracking-[-0.01em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
                     active
                       ? t === "내 물건 팔기"
                         ? "bg-[#D9531E] text-white shadow-2xs ring-2 ring-[#D9531E]/30"
@@ -935,10 +935,10 @@ export function UnifiedInquiryForm({
       ) : !isNotice && (isSell || fixedType === "내 물건 팔기") ? (
         <div className="rounded-xl border border-[#FADCD0] bg-[#FFF8F5] p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           <div className="flex items-center gap-2.5 min-w-0">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D9531E] text-white text-[14px]">
-              📸
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#D9531E] text-white">
+              <Icon d={ICON.camera} className="w-4 h-4" />
             </span>
-            <div className="text-[13.5px] leading-snug">
+            <div className="text-hb-sm leading-snug">
               <strong className="text-[#0E1A2B] font-bold">
                 사진과 수거 지역만 남겨주시면
               </strong>{" "}
@@ -955,7 +955,7 @@ export function UnifiedInquiryForm({
                 inquiry_type: inquiryType,
               })
             }
-            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#D9531E] bg-white px-3 py-1.5 text-[12.5px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors shrink-0"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#D9531E] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors shrink-0"
             title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5" />
@@ -969,10 +969,10 @@ export function UnifiedInquiryForm({
         <div className="rounded-xl border-2 border-[#0E1A2B] bg-[#F8FAFC] p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-[12px] font-bold text-white">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#D9531E] text-hb-xs font-bold text-white">
                 {basketItems.length}
               </span>
-              <strong className="text-[15px] font-extrabold text-[#0E1A2B]">
+              <strong className="text-hb-base font-extrabold text-[#0E1A2B]">
                 견적함에 담아둔 관심 상품 {basketItems.length}건
               </strong>
             </div>
@@ -984,7 +984,7 @@ export function UnifiedInquiryForm({
                   `견적함 상품 ${basketItems.length}건이 문의 내용에 자동 입력되었습니다.`
                 );
               }}
-              className="rounded-lg bg-[#0E1A2B] px-3.5 py-1.5 text-[13px] font-bold text-white hover:bg-[#1C2D47]"
+              className="rounded-lg bg-[#0E1A2B] px-3.5 py-1.5 text-hb-sm font-bold text-white hover:bg-[#1C2D47]"
             >
               {bundleApplied ? "목록 다시 반영" : "묶음 견적으로 자동 입력"}
             </button>
@@ -996,7 +996,7 @@ export function UnifiedInquiryForm({
               return (
                 <li
                   key={item.id}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-[13px]"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-hb-sm"
                 >
                   <span className="font-bold text-[#0E1A2B]">
                     {item.title}
@@ -1005,7 +1005,7 @@ export function UnifiedInquiryForm({
                     ({formatProductPrice(item.price, item.category)})
                   </span>
                   {/* 수량 조절 버튼 */}
-                  <div className="inline-flex items-center rounded border border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-bold">
+                  <div className="inline-flex items-center rounded border border-[#CFCAC0] bg-[#FAF9F7] text-hb-xs font-bold">
                     <button
                       type="button"
                       onClick={() => {
@@ -1068,7 +1068,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, name: "" }));
               }}
               placeholder="홍길동 / 한밭식당"
-              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-medium ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-medium ${
                 fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1090,7 +1090,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, phone: "" }));
               }}
               placeholder="010-0000-0000"
-              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold tabular-nums ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold tabular-nums ${
                 fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
@@ -1104,7 +1104,7 @@ export function UnifiedInquiryForm({
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="text-[12px] font-bold text-[#667085] hover:text-[#0E1A2B]"
+                className="text-hb-xs font-bold text-[#667085] hover:text-[#0E1A2B]"
               >
                 {showPassword ? "숨기기" : "표시"}
               </button>
@@ -1120,7 +1120,7 @@ export function UnifiedInquiryForm({
                   setFieldErrors((p) => ({ ...p, password: "" }));
               }}
               placeholder="숫자 4자리 (휴대폰 뒷자리 추천)"
-              className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] ${
+              className={`hb-input mt-1.5 h-11 sm:h-12 text-hb-base ${
                 fieldErrors.password
                   ? "border-red-500 ring-1 ring-red-500"
                   : ""
@@ -1140,7 +1140,7 @@ export function UnifiedInquiryForm({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder={STORE.name}
-              className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+              className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
             />
           </div>
           <div>
@@ -1153,7 +1153,7 @@ export function UnifiedInquiryForm({
               value={phone}
               onChange={(e) => setPhone(formatPhone(e.target.value))}
               placeholder={STORE.tel}
-              className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+              className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
             />
           </div>
         </div>
@@ -1163,17 +1163,17 @@ export function UnifiedInquiryForm({
       <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1.5 rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white">
+            <span className="inline-flex items-center gap-1.5 rounded bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white">
               사진 첨부 ({selectedFiles.length}/{MAX_PHOTOS}장 · 선택)
             </span>
             {!isNotice && !isOther && (
               <button
                 type="button"
                 onClick={() => setShowPhotoGuide((v) => !v)}
-                className="text-[12.5px] font-bold text-[#D9531E] hover:text-[#B5431A] underline underline-offset-2 inline-flex items-center gap-1"
+                className="text-hb-xs font-bold text-[#D9531E] hover:text-[#B5431A] underline underline-offset-2 inline-flex items-center gap-1"
               >
                 <span>{showPhotoGuide ? "촬영 가이드 접기" : "권장 촬영 가이드 보기"}</span>
-                <span className="rounded bg-[#FFF0EB] border border-[#FADCD0] px-1.5 py-0.5 text-[10.5px] font-extrabold text-[#D9531E]">
+                <span className="rounded bg-[#FFF0EB] border border-[#FADCD0] px-1.5 py-0.5 text-hb-xs font-extrabold text-[#D9531E]">
                   AI 가이드
                 </span>
               </button>
@@ -1185,7 +1185,7 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={handleRunGeminiAnalysis}
               disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
-              className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-[13px] font-bold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-hb-sm font-bold transition-colors ${
                 selectedFiles.length > 0
                   ? "bg-[#D9531E] text-white hover:bg-[#BE4415]"
                   : "bg-[#EAE6DF] text-[#858076] cursor-not-allowed"
@@ -1215,7 +1215,7 @@ export function UnifiedInquiryForm({
                 alt={`첨부 사진 ${idx + 1}`}
                 className="h-full w-full object-cover"
               />
-              <span className="absolute left-1 bottom-1 rounded bg-black/70 px-1.5 text-[10px] font-bold text-white">
+              <span className="absolute left-1 bottom-1 rounded bg-black/70 px-1.5 text-hb-xs font-bold text-white">
                 #{idx + 1}
               </span>
               <button
@@ -1230,7 +1230,7 @@ export function UnifiedInquiryForm({
           ))}
 
           {selectedFiles.length < MAX_PHOTOS && (
-            <label className="flex h-16 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-[#CFCAC0] bg-white text-[12.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors shrink-0">
+            <label className="flex h-16 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-[#CFCAC0] bg-white text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors shrink-0">
               <Icon d={ICON.camera} className="h-4 w-4 text-[#D9531E]" />
               <span>+ 사진 추가</span>
               <input
@@ -1243,7 +1243,7 @@ export function UnifiedInquiryForm({
             </label>
           )}
 
-          <p className="text-[13px] text-[#3F4856] leading-snug flex-1 min-w-[200px]">
+          <p className="text-hb-sm text-[#3F4856] leading-snug flex-1 min-w-[200px]">
             {selectedFiles.length === 0
               ? "제품 전면 또는 모델명 스티커 사진을 첨부하시면 더 정확한 견적을 안내해 드립니다. (생략 가능)"
               : "우측 [AI 자동입력] 버튼을 누르면 사진에서 품목과 모델명을 읽어옵니다."}
@@ -1262,10 +1262,10 @@ export function UnifiedInquiryForm({
                 className="w-full h-auto object-contain block"
               />
             </div>
-            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-white text-[12.5px]">
+            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-white text-hb-xs">
               {photoGuideSteps.map((g) => (
                 <li key={g.step} className="flex items-start gap-2">
-                  <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-[10.5px] font-bold text-white">
+                  <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                     {g.step}
                   </span>
                   <div>
@@ -1282,12 +1282,12 @@ export function UnifiedInquiryForm({
 
         {/* 사진 판독 결과 요약, 기존 입력값 충돌 시 선택 반영 패널, 후속 질문 칩 */}
         {aiResult && (
-          <div className="rounded-lg border border-[#0E1A2B]/20 bg-white p-3.5 space-y-3 text-[13px]">
+          <div className="rounded-lg border border-[#0E1A2B]/20 bg-white p-3.5 space-y-3 text-hb-sm">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-bold text-[#0E1A2B]">
                 판독 요약: {aiResult.summaryNote}
               </span>
-              <span className="text-[12px] text-[#667085]">
+              <span className="text-hb-xs text-[#667085]">
                 아래 입력칸에서 수정 가능합니다
               </span>
             </div>
@@ -1295,13 +1295,13 @@ export function UnifiedInquiryForm({
             {pendingConflicts && (
               <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 space-y-2 text-amber-950">
                 <div className="flex items-center justify-between">
-                  <strong className="text-[12.5px]">
+                  <strong className="text-hb-xs">
                     기존 입력 내용을 유지했습니다. 필요한 항목만 선택해 반영하세요.
                   </strong>
                   <button
                     type="button"
                     onClick={() => setPendingConflicts(null)}
-                    className="text-[12px] font-bold underline"
+                    className="text-hb-xs font-bold underline"
                   >
                     닫기
                   </button>
@@ -1320,7 +1320,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, title: undefined } : null
                         );
                       }}
-                      className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white"
+                      className="rounded bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white"
                     >
                       이 제목 적용
                     </button>
@@ -1343,7 +1343,7 @@ export function UnifiedInquiryForm({
                           prev ? { ...prev, model: undefined } : null
                         );
                       }}
-                      className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white"
+                      className="rounded bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white"
                     >
                       이 모델명 적용
                     </button>
@@ -1365,7 +1365,7 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded border border-[#0E1A2B] bg-white px-2.5 py-1 text-[12px] font-bold text-[#0E1A2B]"
+                        className="rounded border border-[#0E1A2B] bg-white px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B]"
                       >
                         내 글 아래에 추가
                       </button>
@@ -1377,7 +1377,7 @@ export function UnifiedInquiryForm({
                             prev ? { ...prev, description: undefined } : null
                           );
                         }}
-                        className="rounded bg-[#0E1A2B] px-2.5 py-1 text-[12px] font-bold text-white"
+                        className="rounded bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white"
                       >
                         이 내용으로 교체
                       </button>
@@ -1392,7 +1392,7 @@ export function UnifiedInquiryForm({
                 {aiResult.extractedFacts.map((fact, idx) => (
                   <span
                     key={fact.label + idx}
-                    className="inline-flex items-center gap-1 rounded border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[12px]"
+                    className="inline-flex items-center gap-1 rounded border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-hb-xs"
                   >
                     <strong className="text-[#0E1A2B]">{fact.label}:</strong>
                     <span className="text-[#4B5260]">{fact.value}</span>
@@ -1403,7 +1403,7 @@ export function UnifiedInquiryForm({
 
             {aiResult.followUpQuestions.length > 0 && (
               <div className="space-y-1.5 pt-1">
-                <span className="block text-[12px] font-bold text-[#B5431A]">
+                <span className="block text-hb-xs font-bold text-[#B5431A]">
                   추가 확인 항목 (클릭 시 본문에 입력 줄 추가):
                 </span>
                 <div className="flex flex-wrap gap-1.5">
@@ -1412,7 +1412,7 @@ export function UnifiedInquiryForm({
                       key={idx}
                       type="button"
                       onClick={() => appendFollowUpQuestionLine(q)}
-                      className="rounded border border-[#FADCD0] bg-[#FFF6F2] px-2.5 py-1 text-left text-[12px] font-bold text-[#B5431A] hover:bg-[#FADCD0]/60"
+                      className="rounded border border-[#FADCD0] bg-[#FFF6F2] px-2.5 py-1 text-left text-hb-xs font-bold text-[#B5431A] hover:bg-[#FADCD0]/60"
                     >
                       + {q}
                     </button>
@@ -1430,7 +1430,7 @@ export function UnifiedInquiryForm({
         {!isNotice && isBulk && (
           <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
-              <strong className="text-[14.5px] font-bold text-[#0E1A2B]">
+              <strong className="text-hb-base font-bold text-[#0E1A2B]">
                 업소용 · 창업 설비 체크 사항 (선택 입력)
               </strong>
             </div>
@@ -1445,7 +1445,7 @@ export function UnifiedInquiryForm({
                   value={businessType}
                   onChange={(e) => setBusinessType(e.target.value)}
                   placeholder="예: 식당 오픈, 카페, 폐업정리"
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
                 />
               </div>
               <div>
@@ -1455,7 +1455,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={electricalPhase}
                   onChange={(e) => setElectricalPhase(e.target.value)}
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold"
                 >
                   <option value="모름/미확인">모름 (상담/현장 확인)</option>
                   <option value="단상 220V">단상 220V (일반 상가)</option>
@@ -1469,7 +1469,7 @@ export function UnifiedInquiryForm({
                 <select
                   value={voltageUpgrade}
                   onChange={(e) => setVoltageUpgrade(e.target.value)}
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold"
                 >
                   <option value="모름·현장 확인 필요">
                     모름 (현장 확인 필요)
@@ -1488,7 +1488,7 @@ export function UnifiedInquiryForm({
                 <button
                   type="button"
                   onClick={() => addBulkEquipmentRow("")}
-                  className="text-[13.5px] font-extrabold text-[#D9531E] underline"
+                  className="text-hb-sm font-extrabold text-[#D9531E] underline"
                 >
                   + 장비 줄 추가
                 </button>
@@ -1513,7 +1513,7 @@ export function UnifiedInquiryForm({
                         addBulkEquipmentRow(preset);
                       }
                     }}
-                    className="rounded-lg border border-[#D7D2C8] bg-white px-3 py-1.5 text-[13px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                    className="rounded-lg border border-[#D7D2C8] bg-white px-3 py-1.5 text-hb-sm font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                   >
                     + {preset}
                   </button>
@@ -1534,7 +1534,7 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "category", e.target.value)
                         }
                         placeholder={`품목 ${idx + 1} (예: 45박스 냉장고, 제빙기)`}
-                        className="hb-input h-[46px] text-[14.5px]"
+                        className="hb-input h-[46px] text-hb-base"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -1549,7 +1549,7 @@ export function UnifiedInquiryForm({
                           )
                         }
                         placeholder="희망 수량 (예: 1대)"
-                        className="hb-input h-[46px] text-[14.5px]"
+                        className="hb-input h-[46px] text-hb-base"
                       />
                     </div>
                     <div className="sm:col-span-3">
@@ -1560,14 +1560,14 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "modelNumber", e.target.value)
                         }
                         placeholder="모델·규격 (선택)"
-                        className="hb-input h-[46px] text-[14px] font-mono"
+                        className="hb-input h-[46px] text-hb-sm font-mono"
                       />
                     </div>
                     <div className="sm:col-span-1 text-right">
                       <button
                         type="button"
                         onClick={() => removeBulkItem(item.id)}
-                        className="text-[13px] font-bold text-red-600 px-2 py-1"
+                        className="text-hb-sm font-bold text-red-600 px-2 py-1"
                       >
                         삭제
                       </button>
@@ -1587,7 +1587,7 @@ export function UnifiedInquiryForm({
                   value={spaceAndUtilities}
                   onChange={(e) => setSpaceAndUtilities(e.target.value)}
                   placeholder="예: 1층 주방 급배수 완비 / 환기 후드 있음"
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
                 />
               </div>
               <div>
@@ -1599,7 +1599,7 @@ export function UnifiedInquiryForm({
                   value={accessAndRemoval}
                   onChange={(e) => setAccessAndRemoval(e.target.value)}
                   placeholder="예: 1층 진입 가능, 기존 냉장고 1대 철거 희망"
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
                 />
               </div>
             </div>
@@ -1619,7 +1619,7 @@ export function UnifiedInquiryForm({
                   id="uf-cat"
                   value={applianceCategory}
                   onChange={(e) => setApplianceCategory(e.target.value)}
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold"
                 >
                   {PRODUCT_CATEGORIES.map((cat) => (
                     <option key={cat} value={cat}>
@@ -1643,7 +1643,7 @@ export function UnifiedInquiryForm({
                       setFieldErrors((p) => ({ ...p, title: "" }));
                   }}
                   placeholder="예: 삼성 지펠 4도어 냉장고 / LG 트롬 드럼세탁기"
-                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold ${
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -1671,7 +1671,7 @@ export function UnifiedInquiryForm({
                       setFieldErrors((p) => ({ ...p, region: "" }));
                   }}
                   placeholder="예: 대전 중구 중촌동 / 유성구 봉명동"
-                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-hb-base ${
                     fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -1687,26 +1687,26 @@ export function UnifiedInquiryForm({
                   value={schedule}
                   onChange={(e) => setSchedule(e.target.value)}
                   placeholder="예: 이번 주 금요일 오후 / 1층 또는 엘리베이터 있음"
-                  className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+                  className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
                 />
               </div>
             </div>
 
             {/* 3. 상태 및 연식 (선택 보조 옵션 콤팩트 박스) */}
             <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 sm:p-4">
-              <span className="text-[13px] font-bold text-[#0E1A2B] block mb-2.5">
+              <span className="text-hb-sm font-bold text-[#0E1A2B] block mb-2.5">
                 제품 상태 및 연식 <span className="font-normal text-[#667085]">(선택 사항 · 잘 모르시면 비워두셔도 됩니다)</span>
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label htmlFor="uf-op" className="text-[12px] font-bold text-[#646E7E] block mb-1">
+                  <label htmlFor="uf-op" className="text-hb-xs font-bold text-[#646E7E] block mb-1">
                     작동 상태
                   </label>
                   <select
                     id="uf-op"
                     value={operatingStatus}
                     onChange={(e) => setOperatingStatus(e.target.value)}
-                    className="hb-input h-[44px] text-[13.5px] font-medium bg-white"
+                    className="hb-input h-[44px] text-hb-sm font-medium bg-white"
                   >
                     <option value="정상 작동 확인됨">정상 작동 (냉기/세탁 이상 없음)</option>
                     <option value="작동 상태 미확인 (상담 시 안내)">미확인 (기사님 방문 시 점검)</option>
@@ -1715,7 +1715,7 @@ export function UnifiedInquiryForm({
                 </div>
 
                 <div>
-                  <label htmlFor="uf-mfg" className="text-[12px] font-bold text-[#646E7E] block mb-1">
+                  <label htmlFor="uf-mfg" className="text-hb-xs font-bold text-[#646E7E] block mb-1">
                     제조년월 / 연식
                   </label>
                   <input
@@ -1724,12 +1724,12 @@ export function UnifiedInquiryForm({
                     value={manufacturingDate}
                     onChange={(e) => setManufacturingDate(e.target.value)}
                     placeholder="예: 2021년식 / 미확인"
-                    className="hb-input h-[44px] text-[13.5px] bg-white"
+                    className="hb-input h-[44px] text-hb-sm bg-white"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="uf-model" className="text-[12px] font-bold text-[#646E7E] block mb-1">
+                  <label htmlFor="uf-model" className="text-hb-xs font-bold text-[#646E7E] block mb-1">
                     상세 모델 코드
                   </label>
                   <input
@@ -1738,7 +1738,7 @@ export function UnifiedInquiryForm({
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="명판 스티커 코드 (선택)"
-                    className="hb-input h-[44px] font-mono text-[13.5px] bg-white"
+                    className="hb-input h-[44px] font-mono text-hb-sm bg-white"
                   />
                 </div>
               </div>
@@ -1759,7 +1759,7 @@ export function UnifiedInquiryForm({
                     setFieldErrors((p) => ({ ...p, description: "" }));
                 }}
                 placeholder="흠집 여부, 이전 설치 여부, 사다리차 필요 여부 등 전하고 싶으신 말씀을 편하게 남겨주세요. (비워두셔도 정상 접수됩니다)"
-                className="hb-input mt-1.5 py-3 text-[14.5px] resize-y leading-relaxed"
+                className="hb-input mt-1.5 py-3 text-hb-base resize-y leading-relaxed"
               />
             </div>
           </div>
@@ -1776,7 +1776,7 @@ export function UnifiedInquiryForm({
                     id="uf-cat"
                     value={applianceCategory}
                     onChange={(e) => setApplianceCategory(e.target.value)}
-                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold"
                   >
                     {PRODUCT_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -1800,7 +1800,7 @@ export function UnifiedInquiryForm({
                         setFieldErrors((p) => ({ ...p, region: "" }));
                     }}
                     placeholder="예: 대전 서구 둔산동"
-                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
                   />
                 </div>
 
@@ -1814,7 +1814,7 @@ export function UnifiedInquiryForm({
                     value={schedule}
                     onChange={(e) => setSchedule(e.target.value)}
                     placeholder="예: 금요일 오후 / 1층 상가"
-                    className="hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 text-hb-base"
                   />
                 </div>
               </div>
@@ -1853,7 +1853,7 @@ export function UnifiedInquiryForm({
                       ? "문의하실 제목을 입력해 주세요"
                       : "예: 캐리어 벽걸이 냉난방기 9평형 재고·설치 문의"
                   }
-                  className={`hb-input mt-1.5 h-11 sm:h-12 text-[14.5px] sm:text-[15px] font-semibold ${
+                  className={`hb-input mt-1.5 h-11 sm:h-12 text-hb-base font-semibold ${
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
@@ -1871,7 +1871,7 @@ export function UnifiedInquiryForm({
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="스티커 모델명 확인 시 입력"
-                    className="hb-input mt-1.5 h-11 sm:h-12 font-mono text-[14.5px] sm:text-[15px]"
+                    className="hb-input mt-1.5 h-11 sm:h-12 font-mono text-hb-base"
                   />
                 </div>
               )}
@@ -1895,7 +1895,7 @@ export function UnifiedInquiryForm({
                     ? "예: 대전 서구 둔산동 1층 식당 오픈 준비 중입니다. 중고 업소용 냉장고와 제빙기 세트 견적 부탁드립니다."
                     : "예: 대전 서구 둔산동 1층 상가입니다. 배송 및 기본 설치 포함 견적이 궁금합니다."
                 }
-                className={`hb-input mt-1.5 py-3.5 text-[15.5px] resize-y leading-relaxed ${
+                className={`hb-input mt-1.5 py-3.5 text-hb-base resize-y leading-relaxed ${
                   fieldErrors.description
                     ? "border-red-500 ring-1 ring-red-500"
                     : ""
@@ -1909,7 +1909,7 @@ export function UnifiedInquiryForm({
       {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}
       <div className="pt-4 border-t border-[#E4E0D8] space-y-4">
         {!isNotice && (
-          <label className="flex cursor-pointer items-center gap-2.5 text-[14.5px] sm:text-[15px] text-[#434B59]">
+          <label className="flex cursor-pointer items-center gap-2.5 text-hb-base text-[#434B59]">
             <input
               type="checkbox"
               checked={agreed}
@@ -1944,7 +1944,7 @@ export function UnifiedInquiryForm({
                   inquiry_type: inquiryType,
                 })
               }
-              className="hb-btn-outline h-12 sm:h-[52px] px-5 text-[14.5px] sm:text-[15.5px] font-bold sm:col-span-5 whitespace-nowrap"
+              className="hb-btn-outline h-12 sm:h-[52px] px-5 text-hb-base font-bold sm:col-span-5 whitespace-nowrap"
             >
               <Icon d={ICON.chat} className="h-4 w-4 text-[#D9531E]" />
               <span>문자로 사진 보내기</span>
@@ -1955,7 +1955,7 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={onCancel}
               disabled={isBusy}
-              className="hb-btn-outline h-12 sm:h-[52px] px-6 text-[14.5px] sm:text-[15.5px] font-bold sm:col-span-3"
+              className="hb-btn-outline h-12 sm:h-[52px] px-6 text-hb-base font-bold sm:col-span-3"
             >
               취소
             </button>
@@ -1965,7 +1965,7 @@ export function UnifiedInquiryForm({
             disabled={isBusy}
             className={`${
               isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
-            } h-12 sm:h-[52px] px-7 text-[15px] sm:text-[16px] font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
+            } h-12 sm:h-[52px] px-7 text-hb-base font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
               isNotice
                 ? onCancel
                   ? "sm:col-span-9"
@@ -1997,20 +1997,20 @@ export function UnifiedInquiryForm({
       {phase === "error" && submitErrorMsg && (
         <div
           role="alert"
-          className="rounded-xl border border-red-200 bg-red-50 p-4 text-[14px] text-red-800 flex flex-wrap items-center justify-between gap-2"
+          className="rounded-xl border border-red-200 bg-red-50 p-4 text-hb-sm text-red-800 flex flex-wrap items-center justify-between gap-2"
         >
           <span className="font-bold">{submitErrorMsg}</span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => executeSubmit(true)}
-              className="rounded-lg bg-red-600 px-3.5 py-2 text-[13px] font-bold text-white hover:bg-red-700"
+              className="rounded-lg bg-red-600 px-3.5 py-2 text-hb-sm font-bold text-white hover:bg-red-700"
             >
               그대로 재시도
             </button>
             <a
               href={smsHref(STORE.mobile, smsBodyDraft)}
-              className="rounded-lg border border-red-300 bg-white px-3.5 py-2 text-[13px] font-bold text-red-700"
+              className="rounded-lg border border-red-300 bg-white px-3.5 py-2 text-hb-sm font-bold text-red-700"
             >
               문자({STORE.mobile}) 문의
             </a>

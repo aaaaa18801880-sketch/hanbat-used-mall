@@ -427,7 +427,7 @@ function ProductDetailModal({
             <div className="flex flex-wrap items-center gap-1.5">
               {!isEditing ? (
                 <>
-                  <span className="text-[12px] font-bold text-[#4B5260] bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 rounded-lg">
+                  <span className="text-hb-xs font-bold text-[#4B5260] bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 rounded-lg">
                     {categoryLabel}
                   </span>
                   <ProductStatusBadge
@@ -435,13 +435,13 @@ function ProductDetailModal({
                     createdAt={product.created_at}
                   />
                   {product.condition_grade && (
-                    <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                    <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
                       {product.condition_grade}
                     </span>
                   )}
                 </>
               ) : (
-                <span className="text-[12px] font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-lg">
+                <span className="text-hb-xs font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-lg">
                   상품 정보 및 사진 편집 모드
                 </span>
               )}
@@ -451,7 +451,7 @@ function ProductDetailModal({
               {!isEditing && (
                 <CopyPromoPostButton
                   product={product}
-                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1.5 text-[11.5px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                 />
               )}
               {isAdmin && !isEditing && (
@@ -459,14 +459,14 @@ function ProductDetailModal({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center gap-1 text-[12px] font-bold text-[#0E1A2B] bg-[#F6F5F2] hover:bg-[#EFECE6] border border-[#DDD9D1] px-2.5 py-1.5 rounded transition-colors"
+                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0E1A2B] bg-[#F6F5F2] hover:bg-[#EFECE6] border border-[#DDD9D1] px-2.5 py-1.5 rounded transition-colors"
                   >
                     <EditIcon /> 수정
                   </button>
                   <button
                     type="button"
                     onClick={() => onDeleteProduct(product.id)}
-                    className="inline-flex items-center gap-1 text-[12px] font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded transition-colors"
+                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded transition-colors"
                   >
                     삭제
                   </button>
@@ -504,13 +504,13 @@ function ProductDetailModal({
 
                   {sold && (
                     <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/45">
-                      <span className="px-5 py-2 rounded-sm bg-[#0E1A2B]/90 text-white text-[14px] font-bold tracking-[0.2em] border border-white/20">
+                      <span className="px-5 py-2 rounded-sm bg-[#0E1A2B]/90 text-white text-hb-sm font-bold tracking-[0.2em] border border-white/20">
                         판매완료
                       </span>
                     </div>
                   )}
 
-                  {displayImages[0] && (                    <div className="absolute top-3 right-3 bg-black/65 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
+                  {displayImages[0] && (                    <div className="absolute top-3 right-3 bg-black/65 text-white text-hb-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
                       <Icon d={ICON.search} className="w-3.5 h-3.5" />
                       <span>클릭하여 확대</span>
                     </div>
@@ -540,7 +540,7 @@ function ProductDetailModal({
                       >
                         <Icon d={ICON.right} className="w-4 h-4" />
                       </button>
-                      <span className="absolute bottom-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 rounded-full z-10 pointer-events-none">
+                      <span className="absolute bottom-3 right-3 bg-black/75 text-white text-hb-xs font-semibold px-2.5 py-1 rounded-full z-10 pointer-events-none">
                         {idx + 1} / {displayImages.length}
                       </span>
                     </>
@@ -582,7 +582,7 @@ function ProductDetailModal({
                       <span className="hb-label">
                         등록된 사진 관리 ({editExistingImages.length + editNewFiles.length}/{MAX_PHOTOS}장)
                       </span>
-                      <span className="text-[11px] font-semibold text-[#D9531E]">
+                      <span className="text-hb-xs font-semibold text-[#D9531E]">
                         맨 앞(1번) 사진이 대표 이미지입니다
                       </span>
                     </div>
@@ -600,14 +600,14 @@ function ProductDetailModal({
                               className="h-full w-full object-cover"
                             />
                             {i === 0 ? (
-                              <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                                 대표
                               </span>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => makePrimaryExistingImage(i)}
-                                className="absolute left-1.5 top-1.5 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-[#D9531E]"
+                                className="absolute left-1.5 top-1.5 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#D9531E]"
                               >
                                 대표 지정
                               </button>
@@ -621,7 +621,7 @@ function ProductDetailModal({
                               <Icon d={ICON.close} className="w-3 h-3" />
                             </button>
                           </div>
-                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-[11px] font-bold text-[#4B5260]">
+                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-hb-xs font-bold text-[#4B5260]">
                             <button
                               type="button"
                               disabled={i === 0}
@@ -653,7 +653,7 @@ function ProductDetailModal({
                             alt={`추가 사진 ${i + 1}`}
                             className="h-full w-full object-cover"
                           />
-                          <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                          <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#0E1A2B] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                             신규 추가
                           </span>
                           <button
@@ -678,7 +678,7 @@ function ProductDetailModal({
 
                       {editExistingImages.length + editNewFiles.length <
                         MAX_PHOTOS && (
-                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CFCAC0] bg-[#FAF9F7] text-[11px] font-semibold text-[#6B7280] hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
+                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CFCAC0] bg-[#FAF9F7] text-hb-xs font-semibold text-[#6B7280] hover:border-[#0E1A2B] hover:text-[#0E1A2B]">
                           <Icon d={ICON.plus} className="h-5 w-5" />
                           <span>사진 추가</span>
                           <input
@@ -699,7 +699,7 @@ function ProductDetailModal({
                       <select
                         value={editCategory}
                         onChange={(e) => setEditCategory(e.target.value)}
-                        className="hb-input mt-1 text-[13.5px] font-semibold"
+                        className="hb-input mt-1 text-hb-sm font-semibold"
                       >
                         {PRODUCT_CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -713,7 +713,7 @@ function ProductDetailModal({
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="hb-input mt-1 text-[13.5px] font-semibold"
+                        className="hb-input mt-1 text-hb-sm font-semibold"
                       >
                         <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                         <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
@@ -725,7 +725,7 @@ function ProductDetailModal({
                       <select
                         value={editGrade}
                         onChange={(e) => setEditGrade(e.target.value)}
-                        className="hb-input mt-1 text-[13.5px] font-semibold"
+                        className="hb-input mt-1 text-hb-sm font-semibold"
                       >
                         {PRODUCT_CONDITION_GRADES.map((g) => (
                           <option key={g} value={g}>
@@ -769,7 +769,7 @@ function ProductDetailModal({
                       rows={8}
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
-                      className="hb-input mt-1 font-mono text-[13.5px] leading-relaxed resize-y"
+                      className="hb-input mt-1 font-mono text-hb-sm leading-relaxed resize-y"
                       placeholder="특징 및 사양 내용을 수정하세요"
                     />
                   </div>
@@ -777,7 +777,7 @@ function ProductDetailModal({
               ) : (
                 <>
                   <div>
-                    <h2 className="text-[20px] sm:text-[22px] font-bold text-[#0E1A2B] leading-snug tracking-tight">
+                    <h2 className="text-hb-xl font-bold text-[#0E1A2B] leading-snug tracking-tight">
                       {product.title}
                     </h2>
                     {specCapsules.length > 0 && (
@@ -785,7 +785,7 @@ function ProductDetailModal({
                         {specCapsules.map((tag) => (
                           <span
                             key={tag}
-                            className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
+                            className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-semibold text-[#3E4756]"
                           >
                             {tag}
                           </span>
@@ -793,7 +793,7 @@ function ProductDetailModal({
                       </div>
                     )}
                     {modelName && (
-                      <p className="mt-1.5 text-[13px] font-semibold text-[#4B5260]">
+                      <p className="mt-1.5 text-hb-sm font-semibold text-[#4B5260]">
                         모델명:{" "}
                         <span className="font-mono text-[#0E1A2B]">
                           {modelName}
@@ -804,21 +804,21 @@ function ProductDetailModal({
 
                   <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAF9F7] p-4 rounded-xl border border-[#E5E2DC]">
                     <div>
-                      <span className="text-[11px] font-semibold text-[#6B7280] block mb-0.5">
+                      <span className="text-hb-xs font-semibold text-[#6B7280] block mb-0.5">
                         판매 가격
                       </span>
                       {sold ? (
-                        <p className="text-[24px] font-bold text-[#8A8478]">
+                        <p className="text-hb-2xl font-bold text-[#8A8478]">
                           판매완료
                         </p>
                       ) : hasProductPrice(product.price) ? (
-                        <p className="text-[24px] sm:text-[26px] font-bold tracking-tight text-[#D9531E] tabular-nums">
+                        <p className="text-hb-2xl font-bold tracking-tight text-[#D9531E] tabular-nums">
                           {formatProductPrice(product.price, categoryLabel)}
                         </p>
                       ) : (
                         <a
                           href={telHref(STORE.tel)}
-                          className="inline-flex items-center gap-2 text-[20px] sm:text-[22px] font-bold text-[#D9531E] hover:text-[#BF4715]"
+                          className="inline-flex items-center gap-2 text-hb-xl font-bold text-[#D9531E] hover:text-[#BF4715]"
                         >
                           <span className="underline underline-offset-4">
                             {formatProductPrice(product.price, categoryLabel)}
@@ -828,12 +828,12 @@ function ProductDetailModal({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-[12.5px] font-semibold text-[#6B7280] tabular-nums">
+                      <span className="text-hb-xs font-semibold text-[#6B7280] tabular-nums">
                         조회 <strong className="text-[#0E1A2B]">{product.views || 0}</strong>회
                       </span>
                       <Link
                         href={`/${product.id}`}
-                        className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                        className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                       >
                         개별 상세페이지 →
                       </Link>
@@ -869,7 +869,7 @@ function ProductDetailModal({
                     <ProductStructuredDescription description={product.description} />
                   )}
 
-                  <ul className="text-[13px] text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-xl p-4 border border-[#E5E2DC]">
+                  <ul className="text-hb-sm text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-xl p-4 border border-[#E5E2DC]">
                     <li className="flex items-start gap-2">
                       <Icon
                         d={ICON.check}
@@ -898,7 +898,7 @@ function ProductDetailModal({
                   type="button"
                   onClick={handleCancelEdit}
                   disabled={isSaving}
-                  className="hb-btn-outline h-11 text-[14px]"
+                  className="hb-btn-outline h-11 text-hb-sm"
                 >
                   취소
                 </button>
@@ -906,7 +906,7 @@ function ProductDetailModal({
                   type="button"
                   onClick={handleSaveEdit}
                   disabled={isSaving}
-                  className="hb-btn-primary h-11 text-[14px]"
+                  className="hb-btn-primary h-11 text-hb-sm"
                 >
                   {isSaving ? "저장 중..." : "변경사항 저장"}
                 </button>
@@ -915,7 +915,7 @@ function ProductDetailModal({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <a
                   href={telHref(STORE.tel)}
-                  className="hb-btn-primary h-11 text-[13px]"
+                  className="hb-btn-primary h-11 text-hb-sm"
                 >
                   <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
                   <span>전화 문의</span>
@@ -931,7 +931,7 @@ function ProductDetailModal({
                           modelName ? ` (${modelName})` : ""
                         } 재고 및 배송·설치 견적 문의드립니다.`
                   )}
-                  className="hb-btn-outline h-11 text-[13px]"
+                  className="hb-btn-outline h-11 text-hb-sm"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
                   <span>문자 문의</span>
@@ -940,14 +940,14 @@ function ProductDetailModal({
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 text-[13px]"
+                  className="hb-btn-kakao h-11 text-hb-sm"
                 >
                   <Icon d={ICON.chat} className="w-4 h-4" />
                   <span>카톡 상담</span>
                 </a>
                 <Link
                   href={inquiryHref}
-                  className="hb-btn-outline h-11 text-[13px]"
+                  className="hb-btn-outline h-11 text-hb-sm"
                 >
                   <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
                   <span>{sold ? "유사매물 문의" : "온라인 문의"}</span>
@@ -968,7 +968,7 @@ function ProductDetailModal({
           className="fixed inset-0 z-[90] bg-black/95 flex flex-col items-center justify-center p-4 select-none"
         >
           <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-20">
-            <span className="text-[13px] font-semibold bg-white/15 px-3 py-1 rounded-full">
+            <span className="text-hb-sm font-semibold bg-white/15 px-3 py-1 rounded-full">
               {idx + 1} / {displayImages.length}
             </span>
             <button
@@ -1040,6 +1040,7 @@ export default function GalleryPage() {
   const [sort, setSort] = useState<SortOption>("latest");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
     null
@@ -1712,7 +1713,6 @@ export default function GalleryPage() {
             toast.success(
               "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다.",
               {
-                icon: "🔄",
                 duration: 4000,
               }
             );
@@ -1913,14 +1913,14 @@ export default function GalleryPage() {
             <button
               type="button"
               onClick={() => setIsUploadModalOpen(true)}
-              className="hb-btn-primary h-10 sm:h-11 px-3.5 sm:px-4 text-[13px] sm:text-[13.5px] whitespace-nowrap"
+              className="hb-btn-primary h-10 sm:h-11 px-3.5 sm:px-4 text-hb-sm whitespace-nowrap"
             >
               <Icon d={ICON.plus} className="w-3.5 h-3.5" /> 상품 등록
             </button>
             <button
               type="button"
               onClick={handleAdminLogout}
-              className="hidden sm:inline-flex items-center rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 h-10 sm:h-11 text-[12.5px] font-semibold text-[#3E4856] hover:text-[#0E1A2B]"
+              className="hidden sm:inline-flex items-center rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 h-10 sm:h-11 text-hb-xs font-semibold text-[#3E4856] hover:text-[#0E1A2B]"
             >
               관리자 OFF
             </button>
@@ -1935,30 +1935,30 @@ export default function GalleryPage() {
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="hb-eyebrow">실시간 판매 매물</span>
-                <span className="text-[11px] text-[#D8D3C8]">|</span>
-                <span className="text-[12.5px] font-semibold text-[#667085]">
+                <span className="text-hb-xs text-[#D8D3C8]">|</span>
+                <span className="text-hb-xs font-semibold text-[#667085]">
                   대전 중촌동 직영 매장 실매물
                 </span>
               </div>
-              <h1 className="text-[26px] sm:text-[36px] font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
+              <h1 className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
                 판매 제품 갤러리
               </h1>
-              <p className="mt-2.5 text-[14.5px] sm:text-[15.5px] text-[#3E4856] leading-relaxed max-w-2xl break-keep">
+              <p className="mt-2.5 text-hb-base text-[#3E4856] leading-relaxed max-w-2xl break-keep">
                 매장에서 직접 세척과 작동 검수를 마친 실매물입니다. 제품명이나 모델명으로 검색하실 수 있으며, 온라인에 아직 등록되지 않은 재고는 전화나 카톡으로 문의해 주세요.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               {!isLoading && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0E1A2B] text-white text-[12.5px] font-bold tabular-nums">
+                <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0E1A2B] text-white text-hb-xs font-bold tabular-nums">
                   <span className="h-2 w-2 rounded-full bg-[#FF8A50]" />
                   현재 구매 가능 {sellingCount}건
                 </span>
               )}
-              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-[12.5px] font-bold">
+              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-hb-xs font-bold">
                 ✓ 분해·고압세척 검수
               </span>
-              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-[12.5px] font-bold">
+              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-hb-xs font-bold">
                 ✓ 세금계산서 발행
               </span>
             </div>
@@ -1969,7 +1969,7 @@ export default function GalleryPage() {
       {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-16 sm:h-[72px]에 정확히 밀착) */}
       <div className="sticky top-16 sm:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E2DC] shadow-2xs">
         <div className="hb-container py-2.5 sm:py-3 flex flex-col gap-2">
-          {/* 1행: 카테고리 탭 (전체 6개 탭이 잘리지 않고 여유 있게 노출) + 우측 검색창 */}
+          {/* 1행: 카테고리 탭 + 우측 검색창 & 모바일 상세필터 토글 */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
             <div
               className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0 pr-2 lg:pr-0"
@@ -1988,7 +1988,7 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`h-9 sm:h-10 px-2.5 sm:px-3.5 inline-flex items-center rounded-lg text-[12px] sm:text-[13px] lg:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                    className={`h-9 sm:h-10 px-2.5 sm:px-3.5 inline-flex items-center rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-colors border shrink-0 ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
                         : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
@@ -1996,7 +1996,7 @@ export default function GalleryPage() {
                   >
                     {cat}
                     <span
-                      className={`ml-1 sm:ml-1.5 text-[11px] sm:text-[12px] tabular-nums ${
+                      className={`ml-1 sm:ml-1.5 text-hb-xs tabular-nums ${
                         active ? "text-[#FF8A50]" : "text-[#667085]"
                       }`}
                     >
@@ -2007,44 +2007,77 @@ export default function GalleryPage() {
               })}
             </div>
 
-            {/* 검색창 (1행 우측에 배치되어 카테고리 탭과 충돌하지 않음) */}
-            <div className="relative w-full lg:w-64 xl:w-72 shrink-0">
-              <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
-                <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              </span>
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setVisibleLimit(PAGE_STEP);
-                }}
-                placeholder="제품명·모델명 검색"
-                aria-label="제품명 또는 모델명 검색"
-                className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-[12.5px] sm:text-[13.5px] text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
-              />
-              {search.trim() !== "" && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearch("");
+            {/* 검색창 + 모바일 상세필터 토글 버튼 */}
+            <div className="flex items-center gap-1.5 w-full lg:w-auto shrink-0">
+              <div className="relative flex-1 lg:w-64 xl:w-72">
+                <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
+                  <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  aria-label="검색어 지우기"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
-                >
-                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
-                </button>
-              )}
+                  placeholder="제품명·모델명 검색"
+                  aria-label="제품명 또는 모델명 검색"
+                  className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-hb-xs sm:text-hb-sm text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
+                />
+                {search.trim() !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    aria-label="검색어 지우기"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
+                  >
+                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen((v) => !v)}
+                aria-expanded={mobileFilterOpen}
+                className={`lg:hidden h-9 sm:h-10 px-3 inline-flex items-center gap-1 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors ${
+                  mobileFilterOpen ||
+                  statusFilter !== "all" ||
+                  priceRange !== "all" ||
+                  sort !== "latest"
+                    ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
+                    : "border-[#D8D3C8] bg-[#FAF9F7] text-[#0E1A2B]"
+                }`}
+              >
+                <span>필터·정렬</span>
+                <Icon
+                  d={ICON.down}
+                  className={`w-3.5 h-3.5 transition-transform ${
+                    mobileFilterOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
             </div>
           </div>
 
-          {/* 2행: 좌측 상황별 프리셋 4종 + 우측 판매상태·가격대·정렬 필터 3종 */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-1.5 border-t border-[#F0EDE6]">
+          {/* 2행: 좌측 상황별 프리셋 4종 + 우측 판매상태·가격대·정렬 필터 3종 (PC 상시 노출, 모바일 토글 또는 활성 필터 시 노출) */}
+          <div
+            className={`${
+              mobileFilterOpen ||
+              statusFilter !== "all" ||
+              priceRange !== "all" ||
+              sort !== "latest"
+                ? "flex"
+                : "hidden lg:flex"
+            } flex-col lg:flex-row lg:items-center justify-between gap-2 pt-1.5 border-t border-[#F0EDE6]`}
+          >
             {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-hb-xs shrink-0 pr-2 lg:pr-0">
               <span className="shrink-0 text-hb-xs font-bold text-[#8A8478] mr-0.5">
-                맞춤 프리셋:
+                추천 프리셋:
               </span>
               {SITUATION_PRESETS.map((preset) => {
                 const active =
@@ -2158,12 +2191,12 @@ export default function GalleryPage() {
               </span>
             )}
             {search.trim() !== "" && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[12px] font-bold text-[#D9531E]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
                 검색: &ldquo;{search.trim()}&rdquo;
               </span>
             )}
             {priceRange !== "all" && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[12px] font-bold text-[#D9531E]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
                 가격: {PRICE_RANGE_OPTIONS.find((o) => o.value === priceRange)?.label}
               </span>
             )}
@@ -2175,7 +2208,7 @@ export default function GalleryPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-[12.5px] font-bold text-[#D9531E] underline underline-offset-4 hover:text-[#BF4715]"
+                className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-4 hover:text-[#BF4715]"
               >
                 필터 초기화
               </button>
@@ -2183,7 +2216,7 @@ export default function GalleryPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-[13.5px] font-bold text-[#3E4856] cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-hb-sm font-bold text-[#3E4856] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={statusFilter === "selling"}
@@ -2202,7 +2235,7 @@ export default function GalleryPage() {
                   setIsSelectMode(!isSelectMode);
                   setSelectedIds(new Set());
                 }}
-                className={`px-3 py-1.5 rounded-lg text-[12.5px] font-bold border transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-lg text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
                   isSelectMode
                     ? "bg-[#D9531E] text-white border-[#D9531E]"
                     : "bg-white text-[#0E1A2B] border-[#D8D3C8] hover:bg-[#FAF9F7]"
@@ -2237,35 +2270,35 @@ export default function GalleryPage() {
           </div>
         ) : loadError ? (
           <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
-            <p className="text-[#0E1A2B] text-[17px] font-bold">
+            <p className="text-[#0E1A2B] text-hb-lg font-bold">
               상품 목록을 불러오지 못했습니다.
             </p>
-            <p className="mt-1 text-[14px] text-[#667085]">
+            <p className="mt-1 text-hb-sm text-[#667085]">
               네트워크 연결을 확인하신 후 다시 시도해 주세요.
             </p>
             <button
               type="button"
               onClick={fetchProducts}
-              className="hb-btn-primary mt-5 h-10 px-5 text-[13.5px]"
+              className="hb-btn-primary mt-5 h-10 px-5 text-hb-sm"
             >
               다시 불러오기
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC] shadow-2xs">
-            <p className="text-[#0E1A2B] text-[18px] font-extrabold">
+            <p className="text-[#0E1A2B] text-hb-lg font-extrabold">
               {search.trim()
                 ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
                 : "선택하신 필터 조건에 맞는 상품이 없습니다."}
             </p>
-            <p className="mt-1.5 text-[#667085] text-[14px] max-w-lg mx-auto break-keep">
+            <p className="mt-1.5 text-[#667085] text-hb-sm max-w-lg mx-auto break-keep">
               중촌동 직영 매장에는 온라인에 미처 올리지 못한 대기 매물이 많습니다. 찾으시는 품목을 바로 문의해 주시면 창고 재고를 즉시 확인해 드립니다.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2.5">
               <button
                 type="button"
                 onClick={resetFilters}
-                className="hb-btn-outline h-11 px-5 text-[14px]"
+                className="hb-btn-outline h-11 px-5 text-hb-sm"
               >
                 전체 필터 초기화
               </button>
@@ -2277,7 +2310,7 @@ export default function GalleryPage() {
                     search.trim() || activeCategory
                   } 매물 재고 확인 부탁드립니다`
                 )}`}
-                className="hb-btn-accent h-11 px-5 text-[14px]"
+                className="hb-btn-accent h-11 px-5 text-hb-sm"
               >
                 <Icon d={ICON.pen} className="w-4 h-4" />
                 <span>
@@ -2291,7 +2324,7 @@ export default function GalleryPage() {
                     search.trim() || activeCategory
                   }' 검색 후 문의드립니다. 매장 보유 재고와 사진 확인 가능할까요?`
                 )}
-                className="hb-btn-primary h-11 px-5 text-[14px]"
+                className="hb-btn-primary h-11 px-5 text-hb-sm"
               >
                 <Icon d={ICON.chat} className="w-4 h-4 text-[#FF8A50]" />
                 <span>문자로 실물사진 요청</span>
@@ -2300,7 +2333,7 @@ export default function GalleryPage() {
                 href={STORE.kakaoChat}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hb-btn-kakao h-11 px-5 text-[14px]"
+                className="hb-btn-kakao h-11 px-5 text-hb-sm"
               >
                 <Icon d={ICON.chat} className="w-4 h-4" /> 카톡으로 재고 문의
               </a>
@@ -2327,7 +2360,7 @@ export default function GalleryPage() {
                 <button
                   type="button"
                   onClick={() => setVisibleLimit((prev) => prev + PAGE_STEP)}
-                  className="hb-btn-outline h-12 px-8 text-[14px]"
+                  className="hb-btn-outline h-12 px-8 text-hb-sm"
                 >
                   <span>
                     상품 더 보기 ({filteredProducts.length - visibleLimit}건 남음)
@@ -2343,17 +2376,17 @@ export default function GalleryPage() {
         <div className="mt-12 rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div>
             <span className="hb-eyebrow">미등록 매장 재고 문의</span>
-            <h2 className="mt-1.5 text-[17px] sm:text-[19px] font-extrabold text-[#0E1A2B]">
+            <h2 className="mt-1.5 text-hb-lg font-extrabold text-[#0E1A2B]">
               찾으시는 모델이나 용량·수량이 목록에 없으신가요?
             </h2>
-            <p className="mt-1 text-[13.5px] sm:text-[14px] text-[#3E4856] leading-relaxed break-keep">
+            <p className="mt-1 text-hb-sm text-[#3E4856] leading-relaxed break-keep">
               중촌동 매장에는 세척·점검을 마치고 아직 홈페이지에 업로드되지 않은 가전과 업소용 주방설비가 상시 대기 중입니다.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <a
               href={telHref(STORE.tel)}
-              className="hb-btn-accent h-11 px-4 text-[13.5px]"
+              className="hb-btn-accent h-11 px-4 text-hb-sm"
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5" />
               <span>전화 재고 문의 ({STORE.tel})</span>
@@ -2362,7 +2395,7 @@ export default function GalleryPage() {
               href={STORE.kakaoChat}
               target="_blank"
               rel="noopener noreferrer"
-              className="hb-btn-kakao h-11 px-4 text-[13.5px]"
+              className="hb-btn-kakao h-11 px-4 text-hb-sm"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
               <span>카톡 실물사진 요청</span>
@@ -2377,14 +2410,14 @@ export default function GalleryPage() {
       {/* 관리자 일괄 선택 플로팅 작업 바 */}
       {isSelectMode && (
         <div className="fixed bottom-16 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 bg-[#0E1A2B]/95 text-white px-4 sm:px-6 py-3.5 rounded-xl shadow-2xl border border-white/15 max-w-[95vw] overflow-x-auto">
-          <span className="text-[13px] font-bold whitespace-nowrap">
+          <span className="text-hb-sm font-bold whitespace-nowrap">
             <strong className="text-[#FEE500]">{selectedIds.size}</strong>개 선택됨
           </span>
 
           <button
             type="button"
             onClick={toggleSelectAll}
-            className="text-[12px] font-semibold text-white/90 px-2.5 py-1.5 rounded bg-white/10 hover:bg-white/20 whitespace-nowrap"
+            className="text-hb-xs font-semibold text-white/90 px-2.5 py-1.5 rounded bg-white/10 hover:bg-white/20 whitespace-nowrap"
           >
             {selectedIds.size === filteredProducts.length
               ? "선택 해제"
@@ -2395,7 +2428,7 @@ export default function GalleryPage() {
             type="button"
             disabled={selectedIds.size === 0 || isBulkLoading}
             onClick={() => handleBulkStatusChange("판매중")}
-            className="text-[12px] font-bold text-white px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 whitespace-nowrap"
+            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 whitespace-nowrap"
           >
             판매중 변경
           </button>
@@ -2404,7 +2437,7 @@ export default function GalleryPage() {
             type="button"
             disabled={selectedIds.size === 0 || isBulkLoading}
             onClick={() => handleBulkStatusChange("예약중")}
-            className="text-[12px] font-bold text-white px-3 py-1.5 rounded bg-amber-700 hover:bg-amber-600 disabled:opacity-40 whitespace-nowrap"
+            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-amber-700 hover:bg-amber-600 disabled:opacity-40 whitespace-nowrap"
           >
             예약중 변경
           </button>
@@ -2413,7 +2446,7 @@ export default function GalleryPage() {
             type="button"
             disabled={selectedIds.size === 0 || isBulkLoading}
             onClick={() => handleBulkStatusChange("판매완료")}
-            className="text-[12px] font-bold text-white px-3 py-1.5 rounded bg-[#4B5260] hover:bg-[#606877] disabled:opacity-40 whitespace-nowrap"
+            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-[#4B5260] hover:bg-[#606877] disabled:opacity-40 whitespace-nowrap"
           >
             판매완료 처리
           </button>
@@ -2422,7 +2455,7 @@ export default function GalleryPage() {
             type="button"
             disabled={selectedIds.size === 0 || isBulkLoading}
             onClick={handleBulkDelete}
-            className="text-[12px] font-bold text-white px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 disabled:opacity-40 whitespace-nowrap"
+            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 disabled:opacity-40 whitespace-nowrap"
           >
             선택 삭제
           </button>
@@ -2473,11 +2506,11 @@ export default function GalleryPage() {
           <div className="bg-white w-full max-h-[92vh] flex flex-col rounded-lg shadow-2xl border border-[#E4E0D8] overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] bg-white shrink-0 z-10">
               <div className="flex items-center gap-2.5">
-                <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+                <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                   판매 상품 등록
                 </h2>
                 {isAnalyzing && (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-bold bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0] animate-pulse">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-hb-xs font-bold bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0] animate-pulse">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#D9531E] animate-ping" />
                     AI 작성 중
                   </span>
@@ -2498,20 +2531,20 @@ export default function GalleryPage() {
               className="flex flex-col flex-1 min-h-0 overflow-hidden"
             >
               {/* 스크롤 가능한 본문 영역 */}
-              <div className="overflow-y-auto flex-1 p-6 space-y-5 text-[14px]">
+              <div className="overflow-y-auto flex-1 p-6 space-y-5 text-hb-sm">
               {/* 1. 사진 업로드 및 순서 변경 */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="hb-label">
                     상품 사진 첨부 (최대 {MAX_PHOTOS}장) *
                   </label>
-                  <span className="text-[11px] font-bold text-[#D9531E]">
+                  <span className="text-hb-xs font-bold text-[#D9531E]">
                     1번 사진이 대표 이미지로 노출됩니다
                   </span>
                 </div>
 
                 <div className="mb-2.5 flex items-center justify-between gap-2 p-2.5 bg-[#FAF9F7] rounded border border-[#E4E0D8]">
-                  <label className="flex items-center gap-2 text-[12.5px] font-semibold text-[#0E1A2B] cursor-pointer select-none">
+                  <label className="flex items-center gap-2 text-hb-xs font-semibold text-[#0E1A2B] cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={searchSpecs}
@@ -2525,7 +2558,7 @@ export default function GalleryPage() {
                       type="button"
                       disabled={isAnalyzing}
                       onClick={() => analyzeImageWithAI(productFiles)}
-                      className="text-[12px] font-bold text-[#D9531E] underline underline-offset-2 disabled:opacity-50"
+                      className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-2 disabled:opacity-50"
                     >
                       AI 재분석
                     </button>
@@ -2538,11 +2571,11 @@ export default function GalleryPage() {
                   multiple
                   onChange={handleFileChange}
                   disabled={productFiles.length >= MAX_PHOTOS || isAnalyzing}
-                  className="w-full text-[12px] text-[#4B5260] file:mr-3 file:py-2 file:px-3.5 file:rounded file:border-0 file:text-[12px] file:font-bold file:bg-[#0E1A2B] file:text-white hover:file:bg-[#1C2D47] cursor-pointer disabled:opacity-50"
+                  className="w-full text-hb-xs text-[#4B5260] file:mr-3 file:py-2 file:px-3.5 file:rounded file:border-0 file:text-hb-xs file:font-bold file:bg-[#0E1A2B] file:text-white hover:file:bg-[#1C2D47] cursor-pointer disabled:opacity-50"
                 />
 
                 {isAnalyzing && (
-                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF5F0] border border-[#FADCD0] rounded text-[#D9531E] text-[12.5px] font-semibold animate-pulse">
+                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF5F0] border border-[#FADCD0] rounded text-[#D9531E] text-hb-xs font-semibold animate-pulse">
                     <span className="w-2 h-2 rounded-full bg-[#D9531E] animate-ping" />
                     AI가 사진 속 명판과 제품 사양을 분석하고 있습니다...
                   </div>
@@ -2563,14 +2596,14 @@ export default function GalleryPage() {
                             className="w-full h-full object-cover"
                           />
                           {index === 0 ? (
-                            <span className="absolute top-1.5 left-1.5 bg-[#D9531E] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">
+                            <span className="absolute top-1.5 left-1.5 bg-[#D9531E] text-white text-hb-xs font-bold px-1.5 py-0.5 rounded-sm">
                               대표
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => makePrimaryUploadFile(index)}
-                              className="absolute top-1.5 left-1.5 bg-[#0E1A2B]/85 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm hover:bg-[#D9531E]"
+                              className="absolute top-1.5 left-1.5 bg-[#0E1A2B]/85 text-white text-hb-xs font-bold px-1.5 py-0.5 rounded-sm hover:bg-[#D9531E]"
                             >
                               대표 지정
                             </button>
@@ -2594,7 +2627,7 @@ export default function GalleryPage() {
                             <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <div className="border-t border-[#E4E0D8] bg-white text-[11px] font-bold text-[#4B5260]">
+                        <div className="border-t border-[#E4E0D8] bg-white text-hb-xs font-bold text-[#4B5260]">
                           <button
                             type="button"
                             onClick={() => rotateUploadFile(index, 90)}
@@ -2633,11 +2666,11 @@ export default function GalleryPage() {
               {(photoObserved.length > 0 ||
                 searchDerivedSpecs.length > 0 ||
                 reviewWarnings.length > 0) && (
-                <div className="space-y-2.5 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 text-[12.5px]">
+                <div className="space-y-2.5 rounded-md border border-[#E4E0D8] bg-[#FAF9F7] p-3.5 text-hb-xs">
                   {photoObserved.length > 0 && (
                     <div>
                       <p className="font-bold text-[#0E1A2B]">
-                        📷 사진에서 직접 판독된 정보
+                        사진에서 직접 판독된 정보
                       </p>
                       <ul className="mt-1 list-disc pl-4 text-[#4B5260] space-y-0.5">
                         {photoObserved.map((item, i) => (
@@ -2651,12 +2684,12 @@ export default function GalleryPage() {
                     <div className="pt-2 border-t border-[#E4E0D8]">
                       <div className="flex items-center justify-between">
                         <p className="font-bold text-[#0E1A2B]">
-                          🌐 인터넷 검색으로 보충된 참고 사양
+                          인터넷 검색으로 보충된 참고 사양
                         </p>
                         <button
                           type="button"
                           onClick={appendSearchSpecsToDescription}
-                          className="text-[11px] font-bold text-[#D9531E] underline"
+                          className="text-hb-xs font-bold text-[#D9531E] underline"
                         >
                           + 설명란에 반영
                         </button>
@@ -2672,7 +2705,7 @@ export default function GalleryPage() {
                   {reviewWarnings.length > 0 && (
                     <div className="rounded border border-amber-300 bg-amber-50 p-2.5 text-amber-950">
                       <p className="font-bold text-amber-900">
-                        ⚠️ 담당자 육안 확인이 필요한 항목
+                        담당자 육안 확인이 필요한 항목
                       </p>
                       <ul className="mt-1 list-disc pl-4 text-amber-800 space-y-0.5">
                         {reviewWarnings.map((warn, i) => (
@@ -2683,7 +2716,7 @@ export default function GalleryPage() {
                   )}
 
                   {foundSources.length > 0 && (
-                    <div className="pt-1 text-[11.5px] text-[#6B7280]">
+                    <div className="pt-1 text-hb-xs text-[#6B7280]">
                       <span className="font-semibold">참조 출처: </span>
                       {foundSources.map((url, i) => (
                         <a
@@ -2708,7 +2741,7 @@ export default function GalleryPage() {
                   <select
                     value={productCategory}
                     onChange={(e) => setProductCategory(e.target.value)}
-                    className="hb-input mt-1 font-semibold text-[13.5px]"
+                    className="hb-input mt-1 font-semibold text-hb-sm"
                   >
                     {PRODUCT_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -2722,7 +2755,7 @@ export default function GalleryPage() {
                   <select
                     value={productStatus}
                     onChange={(e) => setProductStatus(e.target.value)}
-                    className="hb-input mt-1 font-semibold text-[13.5px]"
+                    className="hb-input mt-1 font-semibold text-hb-sm"
                   >
                     <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                     <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
@@ -2734,7 +2767,7 @@ export default function GalleryPage() {
                   <select
                     value={productGrade}
                     onChange={(e) => setProductGrade(e.target.value)}
-                    className="hb-input mt-1 font-semibold text-[13.5px]"
+                    className="hb-input mt-1 font-semibold text-hb-sm"
                   >
                     {PRODUCT_CONDITION_GRADES.map((g) => (
                       <option key={g} value={g}>
@@ -2764,7 +2797,7 @@ export default function GalleryPage() {
                     type="text"
                     value={productModel}
                     onChange={(e) => setProductModel(e.target.value)}
-                    className="hb-input mt-1 font-mono text-[13px]"
+                    className="hb-input mt-1 font-mono text-hb-sm"
                     placeholder="예: RF85B9111AP"
                   />
                 </div>
@@ -2799,7 +2832,7 @@ export default function GalleryPage() {
                   rows={6}
                   value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
-                  className="hb-input mt-1 font-mono text-[13px] leading-relaxed resize-y"
+                  className="hb-input mt-1 font-mono text-hb-sm leading-relaxed resize-y"
                   placeholder="[한눈에 보는 제품 정보], [제품 특징], [주요 사양] 핵심 3개 항목 위주로 초안이 자동 입력됩니다."
                 />
               </div>
@@ -2812,14 +2845,14 @@ export default function GalleryPage() {
                   <button
                     type="button"
                     onClick={handleCloseUploadModal}
-                    className="hb-btn-outline w-1/3 sm:w-1/4 h-12 text-[14px]"
+                    className="hb-btn-outline w-1/3 sm:w-1/4 h-12 text-hb-sm"
                   >
                     취소
                   </button>
                   <button
                     type="submit"
                     disabled={uploadingProduct || isAnalyzing}
-                    className="hb-btn-primary flex-1 h-12 text-[14px] font-bold flex items-center justify-center gap-2"
+                    className="hb-btn-primary flex-1 h-12 text-hb-sm font-bold flex items-center justify-center gap-2"
                   >
                     {uploadingProduct ? (
                       <>
@@ -2858,7 +2891,7 @@ export default function GalleryPage() {
             className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E4E0D8]"
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 관리자 로그인
               </h2>
               <button
@@ -2897,7 +2930,7 @@ export default function GalleryPage() {
             <button
               type="submit"
               disabled={isLoggingIn}
-              className="hb-btn-primary mt-6 h-12 w-full text-[15px]"
+              className="hb-btn-primary mt-6 h-12 w-full text-hb-base"
             >
               {isLoggingIn ? "인증 확인 중…" : "로그인"}
             </button>

@@ -1205,9 +1205,29 @@ export default function Home() {
                       </Link>
                     </div>
                     {recent.length === 0 ? (
-                      <p className="mt-4 text-hb-sm text-[#646E7E]">
-                        최근 접수된 문의 내역이 없습니다.
-                      </p>
+                      <div className="mt-3 rounded-lg border border-[#E5E2DC] bg-white p-4 text-hb-xs sm:text-hb-sm text-[#434B59] space-y-2.5">
+                        <p className="font-semibold text-[#0E1A2B]">
+                          비밀번호로 보호되는 실시간 1:1 견적 게시판입니다.
+                        </p>
+                        <p className="text-hb-xs text-[#646E7E] leading-relaxed break-keep">
+                          가전 구매 재고 확인, 방문 매입 신청, 식당·카페 업소용 묶음 견적을 남겨주시면 담당자가 확인 후 신속히 안내해 드립니다.
+                        </p>
+                        <div className="pt-1 flex flex-wrap items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => openInquiry("내 물건 팔기")}
+                            className="hb-btn-outline h-9 px-3 text-hb-xs"
+                          >
+                            <span>30초 간편 견적 접수</span>
+                          </button>
+                          <Link
+                            href="/inquiry"
+                            className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4 px-2"
+                          >
+                            <span>게시판 바로가기 →</span>
+                          </Link>
+                        </div>
+                      </div>
                     ) : (
                       <ul className="mt-2 hb-list">
                         {recent.map((r) => {

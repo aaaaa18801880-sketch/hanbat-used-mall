@@ -90,10 +90,10 @@ export function ProductCompareModal({
         {/* 상단 헤더 */}
         <div className="flex items-center justify-between border-b border-[#E5E2DC] bg-[#0E1A2B] px-5 py-4 text-white">
           <div>
-            <span className="text-[11.5px] font-bold text-[#FF8A50]">
+            <span className="text-hb-xs font-bold text-[#FF8A50]">
               실매물 스펙 · 조건 한눈에 비교
             </span>
-            <h2 className="text-[17px] sm:text-[19px] font-extrabold">
+            <h2 className="text-hb-lg font-extrabold">
               선택한 매물 비교 ({compareItems.length}건)
             </h2>
           </div>
@@ -110,7 +110,7 @@ export function ProductCompareModal({
         {/* 비교 테이블 본문 */}
         <div className="flex-1 overflow-x-auto overflow-y-auto p-4 sm:p-6">
           {compareItems.length === 0 ? (
-            <div className="py-12 text-center text-[14px] text-[#646E7E]">
+            <div className="py-12 text-center text-hb-sm text-[#646E7E]">
               비교할 상품이 없습니다. 갤러리에서 관심 매물을 견적함에 담아주세요.
             </div>
           ) : (
@@ -135,7 +135,7 @@ export function ProductCompareModal({
 
                 return (
                   <div className="mb-4 space-y-3">
-                    <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
+                    <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-hb-xs sm:text-hb-sm text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
                       <span>
                         <strong className="text-[#0E1A2B]">
                           설치 공간 가로폭 참고:
@@ -147,7 +147,7 @@ export function ProductCompareModal({
                         </strong>
                         입니다.
                       </span>
-                      <span className="text-[11.5px] text-[#646E7E]">
+                      <span className="text-hb-xs text-[#646E7E]">
                         ※ 방열 및 문열림을 위해 양옆 최소 100mm 이상 여유 공간을
                         권장합니다.
                       </span>
@@ -160,240 +160,160 @@ export function ProductCompareModal({
                 );
               })()}
 
-              <table className="w-full min-w-[540px] border-collapse text-left text-[13px] sm:text-[13.5px]">
-              <thead>
-                <tr className="border-b border-[#E5E2DC]">
-                  <th className="w-[110px] sm:w-[130px] bg-[#FAF9F7] p-3 font-bold text-[#646E7E] align-middle">
-                    비교 항목
-                  </th>
-                  {compareItems.map((item) => {
-                    const sold = isProductSold(item.status);
-                    return (
-                      <th
-                        key={item.id}
-                        className="w-1/3 p-3 align-top border-l border-[#E5E2DC]"
-                      >
-                        <div className="flex flex-col gap-2">
-                          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-[#E5E2DC] bg-[#F4F2ED]">
-                            <SafeImg
-                              src={item.imageUrl}
-                              alt={item.title}
-                              className="h-full w-full object-cover"
-                            />
-                            {sold && (
-                              <span className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/55 text-[11px] font-bold text-white">
-                                판매완료
-                              </span>
-                            )}
-                          </div>
-                          <Link
-                            href={`/${item.id}`}
-                            onClick={onClose}
-                            className="font-bold text-[#0E1A2B] hover:text-[#D9531E] line-clamp-2 leading-snug"
-                          >
-                            {item.title}
-                          </Link>
-                          <div className="flex items-center justify-between gap-1 pt-1">
+              <table className="w-full min-w-[540px] border-collapse text-left text-hb-sm">
+                <thead>
+                  <tr className="border-b border-[#E5E2DC]">
+                    <th className="w-[110px] sm:w-[130px] bg-[#FAF9F7] p-3 font-bold text-[#646E7E] align-middle">
+                      비교 항목
+                    </th>
+                    {compareItems.map((item) => {
+                      const sold = isProductSold(item.status);
+                      return (
+                        <th
+                          key={item.id}
+                          className="w-1/3 p-3 align-top border-l border-[#E5E2DC]"
+                        >
+                          <div className="flex flex-col gap-2">
+                            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-[#E5E2DC] bg-[#F7F6F3]">
+                              <SafeImg
+                                src={item.imageUrl}
+                                alt={item.title}
+                                className="h-full w-full object-cover"
+                              />
+                              {sold && (
+                                <span className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/55 text-hb-xs font-bold text-white">
+                                  판매완료
+                                </span>
+                              )}
+                            </div>
                             <Link
                               href={`/${item.id}`}
                               onClick={onClose}
-                              className="text-[11.5px] font-semibold text-[#646E7E] underline"
+                              className="font-bold text-[#0E1A2B] hover:text-[#D9531E] line-clamp-2 leading-snug"
                             >
-                              상세보기
+                              {item.title}
                             </Link>
-                            <button
-                              type="button"
-                              onClick={() => removeQuoteBasketItem(item.id)}
-                              className="text-[11.5px] font-semibold text-red-600 hover:underline"
-                            >
-                              제외
-                            </button>
-                          </div>
-                        </div>
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#E5E2DC]">
-                {/* 1. 판매 가격 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    판매 가격
-                  </th>
-                  {compareItems.map((item) => {
-                    const sold = isProductSold(item.status);
-                    return (
-                      <td
-                        key={item.id}
-                        className="p-3 font-extrabold text-[15px] text-[#D9531E] border-l border-[#E5E2DC] tabular-nums"
-                      >
-                        {sold
-                          ? "판매완료 (유사재고 문의)"
-                          : formatProductPrice(item.price, item.category)}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* 2. 희망 수량 조절 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    문의 수량
-                  </th>
-                  {compareItems.map((item) => {
-                    const qty = item.quantity || 1;
-                    return (
-                      <td
-                        key={item.id}
-                        className="p-3 border-l border-[#E5E2DC]"
-                      >
-                        <div className="inline-flex items-center rounded border border-[#CFCAC0] bg-white">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateQuoteBasketItemQuantity(item.id, qty - 1)
-                            }
-                            aria-label="수량 감소"
-                            className="h-7 w-7 font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
-                          >
-                            -
-                          </button>
-                          <span className="px-2.5 text-[12.5px] font-bold tabular-nums">
-                            {qty}대
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              updateQuoteBasketItemQuantity(item.id, qty + 1)
-                            }
-                            aria-label="수량 증가"
-                            className="h-7 w-7 font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* 3. 품목 분류 및 판매 상태 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    품목 / 상태
-                  </th>
-                  {compareItems.map((item) => (
-                    <td key={item.id} className="p-3 border-l border-[#E5E2DC]">
-                      <span className="font-semibold text-[#0E1A2B]">
-                        {normalizeProductCategory(item.category)}
-                      </span>
-                      <span className="ml-1.5 inline-block rounded bg-[#FAF9F7] border border-[#E5E2DC] px-1.5 py-0.5 text-[11px] font-bold text-[#3E4756]">
-                        {getProductStatusLabel(item.status)}
-                      </span>
-                    </td>
-                  ))}
-                </tr>
-
-                {/* 4. 확인된 모델명 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    모델명
-                  </th>
-                  {compareItems.map((item) => {
-                    const model =
-                      item.modelName ||
-                      extractModelName(item.description, item.title);
-                    return (
-                      <td
-                        key={item.id}
-                        className="p-3 font-mono text-[12.5px] border-l border-[#E5E2DC]"
-                      >
-                        {model ? (
-                          <span className="font-bold text-[#0E1A2B]">
-                            {model}
-                          </span>
-                        ) : (
-                          <span className="text-[#858076]">
-                            정보 없음 (상세 문의)
-                          </span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* 5. 확인된 상태 등급 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    상태 등급
-                  </th>
-                  {compareItems.map((item) => (
-                    <td key={item.id} className="p-3 border-l border-[#E5E2DC]">
-                      {item.conditionGrade ? (
-                        <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-[12px] font-bold text-[#D9531E]">
-                          {item.conditionGrade}
-                        </span>
-                      ) : (
-                        <span className="text-[#646E7E]">
-                          세척·점검 완료 (상세 문의)
-                        </span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-
-                {/* 6. 핵심 규격 캡슐 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    주요 규격
-                  </th>
-                  {compareItems.map((item) => {
-                    const tags = extractSpecCapsules(
-                      item.title,
-                      item.description,
-                      4
-                    );
-                    return (
-                      <td
-                        key={item.id}
-                        className="p-3 border-l border-[#E5E2DC]"
-                      >
-                        {tags.length > 0 ? (
-                          <div className="flex flex-wrap gap-1">
-                            {tags.map((t) => (
-                              <span
-                                key={t}
-                                className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#0E1A2B]"
+                            <div className="flex items-center justify-between gap-1 pt-1">
+                              <Link
+                                href={`/${item.id}`}
+                                onClick={onClose}
+                                className="text-hb-xs font-semibold text-[#646E7E] underline"
                               >
-                                {t}
-                              </span>
-                            ))}
+                                상세보기
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={() => removeQuoteBasketItem(item.id)}
+                                className="text-hb-xs font-semibold text-red-600 hover:underline"
+                              >
+                                제외
+                              </button>
+                            </div>
                           </div>
-                        ) : (
-                          <span className="text-[#858076]">
-                            정보 없음 (상세 문의)
-                          </span>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-
-                {/* 7. 실제 상세 설명에서 파싱된 세부 사양 행 */}
-                {allSpecLabels.map((label) => (
-                  <tr key={label}>
-                    <th className="bg-[#FAF9F7] p-3 font-semibold text-[#3E4756]">
-                      {label}
+                        </th>
+                      );
+                    })}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5E2DC]">
+                  {/* 1. 판매 가격 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      판매 가격
                     </th>
-                    {compareItems.map((item, idx) => {
-                      const val = parsedSpecsPerItem[idx]?.get(label);
+                    {compareItems.map((item) => {
+                      const sold = isProductSold(item.status);
                       return (
                         <td
-                          key={item.id + label}
-                          className="p-3 border-l border-[#E5E2DC] text-[#0E1A2B]"
+                          key={item.id}
+                          className="p-3 font-extrabold text-hb-base text-[#D9531E] border-l border-[#E5E2DC] tabular-nums"
                         >
-                          {val || (
+                          {sold
+                            ? "판매완료 (유사재고 문의)"
+                            : formatProductPrice(item.price, item.category)}
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* 2. 희망 수량 조절 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      문의 수량
+                    </th>
+                    {compareItems.map((item) => {
+                      const qty = item.quantity || 1;
+                      return (
+                        <td
+                          key={item.id}
+                          className="p-3 border-l border-[#E5E2DC]"
+                        >
+                          <div className="inline-flex items-center rounded border border-[#CFCAC0] bg-white">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateQuoteBasketItemQuantity(item.id, qty - 1)
+                              }
+                              aria-label="수량 감소"
+                              className="h-7 w-7 font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
+                            >
+                              -
+                            </button>
+                            <span className="px-2.5 text-hb-xs font-bold tabular-nums">
+                              {qty}대
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                updateQuoteBasketItemQuantity(item.id, qty + 1)
+                              }
+                              aria-label="수량 증가"
+                              className="h-7 w-7 font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* 3. 품목 분류 및 판매 상태 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      품목 / 상태
+                    </th>
+                    {compareItems.map((item) => (
+                      <td key={item.id} className="p-3 border-l border-[#E5E2DC]">
+                        <span className="font-semibold text-[#0E1A2B]">
+                          {normalizeProductCategory(item.category)}
+                        </span>
+                        <span className="ml-1.5 inline-block rounded bg-[#FAF9F7] border border-[#E5E2DC] px-1.5 py-0.5 text-hb-xs font-bold text-[#3E4756]">
+                          {getProductStatusLabel(item.status)}
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+
+                  {/* 4. 확인된 모델명 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      모델명
+                    </th>
+                    {compareItems.map((item) => {
+                      const model =
+                        item.modelName ||
+                        extractModelName(item.description, item.title);
+                      return (
+                        <td
+                          key={item.id}
+                          className="p-3 font-mono text-hb-xs border-l border-[#E5E2DC]"
+                        >
+                          {model ? (
+                            <span className="font-bold text-[#0E1A2B]">
+                              {model}
+                            </span>
+                          ) : (
                             <span className="text-[#858076]">
                               정보 없음 (상세 문의)
                             </span>
@@ -402,50 +322,130 @@ export function ProductCompareModal({
                       );
                     })}
                   </tr>
-                ))}
 
-                {/* 8. 보증 및 증빙 기준 */}
-                <tr>
-                  <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
-                    보증 / 증빙
-                  </th>
-                  {compareItems.map((item) => (
-                    <td
-                      key={item.id}
-                      className="p-3 border-l border-[#E5E2DC] text-[12.5px] text-[#3E4756]"
-                    >
-                      <span className="block font-semibold text-[#0E1A2B]">
-                        {getWarrantyText(item.category)}
-                      </span>
-                      <span className="text-[11.5px] text-[#646E7E]">
-                        세금계산서 · 카드 · 직배송 상담
-                      </span>
-                    </td>
+                  {/* 5. 확인된 상태 등급 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      상태 등급
+                    </th>
+                    {compareItems.map((item) => (
+                      <td key={item.id} className="p-3 border-l border-[#E5E2DC]">
+                        {item.conditionGrade ? (
+                          <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                            {item.conditionGrade}
+                          </span>
+                        ) : (
+                          <span className="text-[#646E7E]">
+                            세척·점검 완료 (상세 문의)
+                          </span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+
+                  {/* 6. 핵심 규격 캡슐 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      주요 규격
+                    </th>
+                    {compareItems.map((item) => {
+                      const tags = extractSpecCapsules(
+                        item.title,
+                        item.description,
+                        4
+                      );
+                      return (
+                        <td
+                          key={item.id}
+                          className="p-3 border-l border-[#E5E2DC]"
+                        >
+                          {tags.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {tags.map((t) => (
+                                <span
+                                  key={t}
+                                  className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-semibold text-[#0E1A2B]"
+                                >
+                                  {t}
+                                </span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-[#858076]">
+                              정보 없음 (상세 문의)
+                            </span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {/* 7. 실제 상세 설명에서 파싱된 세부 사양 행 */}
+                  {allSpecLabels.map((label) => (
+                    <tr key={label}>
+                      <th className="bg-[#FAF9F7] p-3 font-semibold text-[#3E4756]">
+                        {label}
+                      </th>
+                      {compareItems.map((item, idx) => {
+                        const val = parsedSpecsPerItem[idx]?.get(label);
+                        return (
+                          <td
+                            key={item.id + label}
+                            className="p-3 border-l border-[#E5E2DC] text-[#0E1A2B]"
+                          >
+                            {val || (
+                              <span className="text-[#858076]">
+                                정보 없음 (상세 문의)
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
                   ))}
-                </tr>
-              </tbody>
-            </table>
+
+                  {/* 8. 보증 및 증빙 기준 */}
+                  <tr>
+                    <th className="bg-[#FAF9F7] p-3 font-bold text-[#0E1A2B]">
+                      보증 / 증빙
+                    </th>
+                    {compareItems.map((item) => (
+                      <td
+                        key={item.id}
+                        className="p-3 border-l border-[#E5E2DC] text-hb-xs text-[#3E4756]"
+                      >
+                        <span className="block font-semibold text-[#0E1A2B]">
+                          {getWarrantyText(item.category)}
+                        </span>
+                        <span className="text-hb-xs text-[#646E7E]">
+                          세금계산서 · 카드 · 직배송 상담
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                </tbody>
+              </table>
             </>
           )}
         </div>
 
         {/* 하단 액션 바 */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[#E5E2DC] bg-[#FAF9F7] px-5 py-3.5">
-          <p className="text-[12px] text-[#646E7E]">
+          <p className="text-hb-xs text-[#646E7E]">
             ※ 표기된 사양 외에 설치 공간·전원·배관 호환 여부는 묶음 문의로 남겨주시면 정확히 안내해 드립니다.
           </p>
           <div className="flex items-center gap-2 ml-auto">
             <button
               type="button"
               onClick={onClose}
-              className="hb-btn-outline h-10 px-4 text-[13px]"
+              className="hb-btn-outline h-10 px-4 text-hb-sm"
             >
               닫기
             </button>
             <Link
               href="/inquiry?write=1&bundle=1"
               onClick={onClose}
-              className="hb-btn-accent h-10 px-5 text-[13px]"
+              className="hb-btn-accent h-10 px-5 text-hb-sm"
             >
               <span>이 구성으로 일괄 견적 문의</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
@@ -494,17 +494,17 @@ export function RecentViewedStrip({
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-[#D9531E]" />
-          <h2 className="text-[15px] sm:text-[16px] font-extrabold text-[#0E1A2B]">
+          <h2 className="text-hb-base font-extrabold text-[#0E1A2B]">
             최근 본 매물 ({items.length})
           </h2>
-          <span className="hidden sm:inline text-[12px] text-[#646E7E]">
+          <span className="hidden sm:inline text-hb-xs text-[#646E7E]">
             로그인 없이 현재 기기에만 안전하게 저장됩니다
           </span>
         </div>
         <button
           type="button"
           onClick={() => clearRecentViewedProducts()}
-          className="text-[12px] font-semibold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-2"
+          className="text-hb-xs font-semibold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-2"
         >
           기록 비우기
         </button>
@@ -531,7 +531,7 @@ export function RecentViewedStrip({
               </button>
 
               <Link href={`/${item.id}`} className="flex flex-1 flex-col">
-                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#EFECE6] border-b border-[#E5E2DC]">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F7F6F3] border-b border-[#E5E2DC]">
                   <SafeImg
                     src={item.imageUrl}
                     alt={item.title}
@@ -540,21 +540,21 @@ export function RecentViewedStrip({
                     }`}
                   />
                   {sold && (
-                    <span className="absolute bottom-1.5 left-1.5 rounded bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    <span className="absolute bottom-1.5 left-1.5 rounded bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white">
                       판매완료
                     </span>
                   )}
                 </div>
                 <div className="p-2.5 flex flex-1 flex-col justify-between">
                   <div>
-                    <span className="block text-[10.5px] font-semibold text-[#646E7E] truncate">
+                    <span className="block text-hb-xs font-semibold text-[#646E7E] truncate">
                       {item.category}
                     </span>
-                    <p className="mt-0.5 line-clamp-1 text-[12.5px] font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
+                    <p className="mt-0.5 line-clamp-1 text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
                       {item.title}
                     </p>
                   </div>
-                  <strong className="mt-1.5 block text-[13px] font-extrabold text-[#D9531E] tabular-nums">
+                  <strong className="mt-1.5 block text-hb-sm font-extrabold text-[#0E1A2B] tabular-nums">
                     {sold
                       ? "판매완료"
                       : formatProductPrice(item.price, item.category)}

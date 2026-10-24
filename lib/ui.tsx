@@ -1230,9 +1230,9 @@ export function MobileCtaBar({
       <div
         role="region"
         aria-label="상품 상세 모바일 구매·문의 바"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D7D2C8] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E2DC] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
       >
-        <div className="flex h-[56px] items-center justify-between gap-2 px-3">
+        <div className="flex h-[58px] items-center justify-between gap-2 px-3">
           <div className="min-w-0 flex items-center gap-2">
             {!sold && (
               <button
@@ -1259,26 +1259,28 @@ export function MobileCtaBar({
                   }
                 }}
                 aria-pressed={inBasket}
-                className={`flex h-9 shrink-0 flex-col items-center justify-center rounded border px-2 text-hb-xs font-bold transition-colors ${
+                className={`flex h-10 shrink-0 items-center gap-1 rounded-lg border px-2.5 text-hb-xs font-bold transition-colors ${
                   inBasket
-                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
-                    : "border-[#D7D2C8] bg-[#FAF9F7] text-[#434B59]"
+                    ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
+                    : "border-[#D7D2C8] bg-[#FAF9F7] text-[#0E1A2B]"
                 }`}
               >
                 <Icon
                   d={inBasket ? ICON.check : ICON.plus}
-                  className="h-3.5 w-3.5"
+                  className={`h-3.5 w-3.5 ${
+                    inBasket ? "text-[#FF8A50]" : "text-[#D9531E]"
+                  }`}
                 />
                 <span>{inBasket ? "담김" : "견적함"}</span>
               </button>
             )}
             <div className="min-w-0">
-              <span className="block truncate text-hb-xs font-semibold text-[#667085]">
+              <span className="block truncate text-hb-xs font-semibold text-[#646E7E]">
                 {productContext.category}
               </span>
               <strong
-                className={`block truncate text-hb-sm font-bold leading-tight ${
-                  sold ? "text-[#858076]" : "text-[#0E1A2B]"
+                className={`block truncate text-hb-sm font-extrabold leading-tight tabular-nums ${
+                  sold ? "text-[#646E7E]" : "text-[#0E1A2B]"
                 }`}
               >
                 {priceLabel}
@@ -1295,9 +1297,9 @@ export function MobileCtaBar({
                 })
               }
               aria-label="전화 상담"
-              className="grid h-9 w-9 place-items-center rounded-md bg-[#0E1A2B] text-white"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-[#D7D2C8] bg-[#FAF9F7] text-[#0E1A2B]"
             >
-              <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
+              <Icon d={ICON.phone} className="h-4 w-4 text-[#D9531E]" />
             </a>
             <a
               href={smsHref(STORE.mobile, productSmsBody)}
@@ -1307,7 +1309,7 @@ export function MobileCtaBar({
                 })
               }
               aria-label="문자 문의"
-              className="flex h-9 flex-col items-center justify-center rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2 text-hb-xs font-bold text-[#D9531E]"
+              className="hidden xs:inline-flex h-10 items-center justify-center rounded-lg border border-[#D7D2C8] bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B]"
             >
               <span>문자</span>
             </a>
@@ -1321,15 +1323,15 @@ export function MobileCtaBar({
                 })
               }
               aria-label="카카오톡 문의"
-              className="grid h-9 w-9 place-items-center rounded-md bg-[#FEE500] text-[#191600]"
+              className="grid h-10 w-10 place-items-center rounded-lg bg-[#FEE500] text-[#191600]"
             >
               <Icon d={ICON.chat} className="h-4 w-4" />
             </a>
             <Link
               href={productContext.inquiryHref}
-              className="hb-btn-accent h-9 px-3 text-hb-xs whitespace-nowrap"
+              className="hb-btn-accent h-10 px-3.5 text-hb-xs whitespace-nowrap"
             >
-              <span>문의</span>
+              <span>문의하기</span>
             </Link>
           </div>
         </div>
@@ -1341,31 +1343,18 @@ export function MobileCtaBar({
     <div
       role="region"
       aria-label="모바일 빠른 상담 바"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D7D2C8] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E2DC] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
     >
-      <div className="grid h-[56px] grid-cols-4 divide-x divide-[#E6E3DC]">
+      <div className="grid h-[58px] grid-cols-3 gap-2 px-3 py-2">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
             trackEvent("click_tel_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1 bg-[#0E1A2B] text-hb-xs font-bold text-white active:bg-[#1C2D47]"
+          className="flex items-center justify-center gap-1.5 rounded-lg border border-[#D7D2C8] bg-[#FAF9F7] text-hb-xs font-bold text-[#0E1A2B] active:bg-[#F0EDE7] whitespace-nowrap"
         >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
+          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
           <span>전화상담</span>
-        </a>
-        <a
-          href={smsHref(
-            STORE.mobile,
-            "[한밭중고전자 문의] 품목/지역/사진을 보내주시면 빠르게 견적을 안내해 드립니다."
-          )}
-          onClick={() =>
-            trackEvent("click_sms_consult", { location: "mobile_cta_bar" })
-          }
-          className="flex items-center justify-center gap-1 bg-[#FFF5F0] text-hb-xs font-bold text-[#D9531E] active:bg-[#FADCD0]"
-        >
-          <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-          <span>문자·사진</span>
         </a>
         <a
           href={STORE.kakaoChat}
@@ -1374,34 +1363,28 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_kakao_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1 bg-[#FEE500] text-hb-xs font-bold text-[#191600] active:bg-[#F2D900]"
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FEE500] text-hb-xs font-bold text-[#191600] active:bg-[#F2D900] whitespace-nowrap"
         >
           <Icon d={ICON.chat} className="w-3.5 h-3.5" />
           <span>카톡상담</span>
         </a>
-        {onInquiryClick ? (
-          <button
-            type="button"
-            onClick={() => {
-              trackEvent("begin_buyback_inquiry", {
-                location: "mobile_cta_bar",
-              });
+        <button
+          type="button"
+          onClick={() => {
+            trackEvent("begin_buyback_inquiry", {
+              location: "mobile_cta_bar",
+            });
+            if (onInquiryClick) {
               onInquiryClick();
-            }}
-            className="flex items-center justify-center gap-1 bg-white text-hb-xs font-bold text-[#0E1A2B] active:bg-[#F7F6F3]"
-          >
-            <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-            <span>견적 문의</span>
-          </button>
-        ) : (
-          <Link
-            href="/inquiry"
-            className="flex items-center justify-center gap-1 bg-white text-hb-xs font-bold text-[#0E1A2B] active:bg-[#F7F6F3]"
-          >
-            <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-            <span>견적 문의</span>
-          </Link>
-        )}
+            } else {
+              triggerQuickInquiry({ type: "구매 문의" });
+            }
+          }}
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#0E1A2B] text-hb-xs font-bold text-white active:bg-[#1C2D47] whitespace-nowrap cursor-pointer"
+        >
+          <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#FF8A50]" />
+          <span>견적·매입문의</span>
+        </button>
       </div>
     </div>
   );

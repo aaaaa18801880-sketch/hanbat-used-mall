@@ -217,28 +217,28 @@ export default async function ProductDetailPage({
         <main className="flex-1 flex items-center justify-center p-5">
           <div className="bg-white p-8 sm:p-10 rounded-xl shadow-card border border-[#E5E2DC] text-center max-w-md w-full">
             <p className="hb-eyebrow justify-center">Inventory Notice</p>
-            <h1 className="mt-2 text-[20px] sm:text-[22px] font-bold text-[#0E1A2B]">
+            <h1 className="mt-2 text-hb-xl font-bold text-[#0E1A2B]">
               찾으시는 상품 정보가 없습니다.
             </h1>
-            <p className="mt-2.5 text-[14px] leading-relaxed text-[#3E4756]">
+            <p className="mt-2.5 text-hb-sm leading-relaxed text-[#3E4756]">
               이미 판매가 완료되어 목록에서 내려갔거나 주소가 변경된 상품입니다. 판매 갤러리에서 현재 구매 가능한 다른 매물을 확인해 보세요.
             </p>
             <div className="mt-6 flex flex-col sm:flex-row gap-2.5 justify-center">
               <Link
                 href="/gallery"
-                className="hb-btn-primary h-11 px-6 text-[14px]"
+                className="hb-btn-primary h-11 px-6 text-hb-sm"
               >
                 판매 제품 갤러리로 이동
               </Link>
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-outline h-11 px-5 text-[14px]"
+                className="hb-btn-outline h-11 px-5 text-hb-sm"
               >
                 전화로 유사 매물 문의
               </a>
             </div>
           </div>
-          </main>
+        </main>
         <SiteFooter />
         <MobileCtaBar />
       </div>
@@ -392,7 +392,7 @@ export default async function ProductDetailPage({
           aria-label="경로 이동"
           className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3"
         >
-          <div className="flex flex-wrap items-center gap-2 text-[13px] sm:text-[13.5px] font-bold text-[#3E4856] min-w-0">
+          <div className="flex flex-wrap items-center gap-2 text-hb-sm font-bold text-[#3E4856] min-w-0">
             <Link
               href="/gallery"
               className="inline-flex items-center gap-1.5 text-[#0E1A2B] hover:text-[#D9531E] transition-colors shrink-0"
@@ -430,7 +430,7 @@ export default async function ProductDetailPage({
         </nav>
 
         <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card grid grid-cols-1 lg:grid-cols-12">
-          {/* 좌측 7컬럼: 상품 이미지 뷰어 (최근 본 매물 저장을 위해 category, price, modelName, conditionGrade 전달) */}
+          {/* 좌측 7컬럼: 상품 이미지 뷰어 */}
           <div className="border-b lg:border-b-0 lg:border-r border-[#E5E2DC] lg:col-span-7">
             <ProductDetailGallery
               id={String(product.id)}
@@ -451,7 +451,7 @@ export default async function ProductDetailPage({
               <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                  className={`rounded px-2.5 py-1 text-[12px] font-bold transition-colors ${
+                  className={`rounded px-2.5 py-1 text-hb-xs font-bold transition-colors ${
                     checklistConfig.isB2B
                       ? "bg-[#0E1A2B] text-white hover:bg-[#182942]"
                       : "border border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -460,14 +460,14 @@ export default async function ProductDetailPage({
                   {categoryLabel}
                 </Link>
                 {createdDate && (
-                  <span className="ml-auto text-[12px] text-[#646E7E] tabular-nums">
+                  <span className="ml-auto text-hb-xs text-[#646E7E] tabular-nums">
                     등록일 {createdDate}
                   </span>
                 )}
               </div>
 
               {/* 1. 상품명 및 규격 태그 */}
-              <h1 className="mt-3 text-[21px] sm:text-[25px] font-bold leading-[1.3] tracking-[-0.025em] text-[#0E1A2B] break-keep">
+              <h1 className="mt-3 text-hb-xl sm:text-hb-2xl font-bold leading-[1.3] tracking-[-0.025em] text-[#0E1A2B] break-keep">
                 {product.title}
               </h1>
 
@@ -476,7 +476,7 @@ export default async function ProductDetailPage({
                   {specCapsules.map((tag) => (
                     <span
                       key={tag}
-                      className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-0.5 text-[12px] font-semibold text-[#3E4756]"
+                      className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-0.5 text-hb-xs font-semibold text-[#3E4756]"
                     >
                       {tag}
                     </span>
@@ -487,36 +487,36 @@ export default async function ProductDetailPage({
               {/* 2. 판매 가격 및 기본 요약 표 */}
               <div className="mt-4 pt-4 border-t border-[#E5E2DC]">
                 <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-[12.5px] font-semibold text-[#646E7E]">
+                  <span className="text-hb-xs font-semibold text-[#646E7E]">
                     판매 가격 ({statusLabel})
                   </span>
                   {typeof product.views === "number" && (
-                    <span className="text-[12px] text-[#646E7E] tabular-nums">
+                    <span className="text-hb-xs text-[#646E7E] tabular-nums">
                       조회 {product.views}회
                     </span>
                   )}
                 </div>
 
                 {sold ? (
-                  <p className="mt-1 text-[24px] font-bold text-[#646E7E]">
+                  <p className="mt-1 text-hb-xl font-bold text-[#646E7E]">
                     판매완료
                   </p>
                 ) : priced ? (
-                  <p className="mt-1 text-[28px] sm:text-[31px] font-bold tracking-tight text-[#D9531E] tabular-nums">
+                  <p className="mt-1 text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
                     {priceDisplay}
                   </p>
                 ) : (
                   <div className="mt-1">
-                    <p className="text-[21px] sm:text-[24px] font-bold text-[#D9531E]">
+                    <p className="text-hb-xl font-bold text-[#D9531E]">
                       {priceDisplay}
                     </p>
-                    <p className="mt-1 text-[13px] text-[#3E4756]">
+                    <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#3E4756]">
                       설치 환경·배관 거리·수량에 따라 최적 견적을 안내해 드립니다.
                     </p>
                   </div>
                 )}
 
-                <dl className="mt-4 divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-[13px]">
+                <dl className="mt-4 divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-hb-sm">
                   <div className="flex items-center justify-between gap-3 py-2.5">
                     <dt className="font-semibold text-[#646E7E] shrink-0">
                       모델명 / 코드
@@ -532,7 +532,7 @@ export default async function ProductDetailPage({
                     <dd className="font-semibold text-[#0E1A2B] text-right flex items-center justify-end gap-1.5">
                       {product.condition_grade ? (
                         <>
-                          <span className="inline-flex items-center rounded bg-[#D9531E]/10 px-1.5 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                          <span className="inline-flex items-center rounded bg-[#D9531E]/10 px-1.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
                             {product.condition_grade}
                           </span>
                           <span>작동 점검 및 세척 완료</span>
@@ -594,47 +594,61 @@ export default async function ProductDetailPage({
           </div>
         </div>
 
-        {/* V2 비주얼 검수 리포트 & 설치 공간 시뮬레이터 (좌우 2컬럼 완벽 대칭 레이아웃) */}
+        {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
         <section
-          aria-label="한밭중고전자 정밀 검수 리포트 및 설치 공간 시뮬레이터"
-          className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch"
+          aria-label="품목별 공통 검수 기준 안내 및 설치 공간 시뮬레이터"
+          className="mt-10"
         >
-          <V2VisualInspectionViewer
-            category={categoryLabel}
-            conditionGrade={product.condition_grade}
-          />
-          <V2SpatialFitPlanner
-            title={product.title}
-            description={product.description}
-          />
+          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <span className="hb-eyebrow">구매 전 참고 도구</span>
+              <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
+                품목별 공통 검수 기준 &amp; 설치 공간 계산기
+              </h2>
+            </div>
+            <p className="text-hb-xs text-[#646E7E]">
+              한밭중고전자 공통 출고 기준과 설치 벽면·출입문 여유 폭을 미리 확인해 보세요.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            <V2VisualInspectionViewer
+              category={categoryLabel}
+              conditionGrade={product.condition_grade}
+            />
+            <V2SpatialFitPlanner
+              title={product.title}
+              description={product.description}
+            />
+          </div>
         </section>
 
-        {/* 하단 매장 거래 및 배송 안내 (기존 문구 100% 보존 + 오픈 구분선 레이아웃) */}
+        {/* 하단 매장 거래 및 배송 안내 */}
         <section
           aria-label="거래 및 배송·설치 안내"
-          className="mt-8 border-y border-[#E6E3DC] py-6 grid gap-6 sm:grid-cols-3 sm:divide-x sm:divide-[#E6E3DC]"
+          className="mt-8 border-y border-[#E5E2DC] py-6 grid gap-6 sm:grid-cols-3 sm:divide-x sm:divide-[#E5E2DC]"
         >
           <div className="sm:pr-4">
-            <h2 className="text-[14.5px] font-extrabold text-[#0E1A2B]">
+            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
               오프라인 매장 실물 확인
             </h2>
-            <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#3E4856]">
+            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
               {STORE.address} ({STORE.addressNote}) 매장에 방문하시면 제품을 직접 보고 결정하실 수 있습니다. ({STORE.hours}, {STORE.closed})
             </p>
           </div>
           <div className="sm:px-6">
-            <h2 className="text-[14.5px] font-extrabold text-[#0E1A2B]">
+            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
               배송 · 설치 안내
             </h2>
-            <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#3E4856]">
+            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
               대전·세종·충청권 및 타 지역 배송·설치 여부는 품목과 설치 환경(층수, 배관, 전원 규격 등)에 따라 사전 상담 후 조율합니다.
             </p>
           </div>
           <div className="sm:pl-6">
-            <h2 className="text-[14.5px] font-extrabold text-[#0E1A2B]">
+            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
               검수 및 증빙 안내
             </h2>
-            <p className="mt-1.5 text-[13.5px] leading-relaxed text-[#3E4856]">
+            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
               입고 후 정밀 작동 점검과 세척·클리닝을 마친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. 사후 A/S 보증 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 차등 적용됩니다.
             </p>
           </div>
@@ -646,13 +660,13 @@ export default async function ProductDetailPage({
             <div className="flex items-center justify-between mb-5">
               <div>
                 <p className="hb-eyebrow">연관 추천 매물</p>
-                <h2 className="mt-1 text-[21px] sm:text-[24px] font-extrabold text-[#0E1A2B]">
+                <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
                   같은 카테고리의 다른 매물
                 </h2>
               </div>
               <Link
                 href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                className="text-[13.5px] font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4"
+                className="text-hb-sm font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4"
               >
                 {categoryLabel} 전체 보기 →
               </Link>
@@ -664,6 +678,7 @@ export default async function ProductDetailPage({
             </div>
           </section>
         )}
+
         {/* [기능 8] 해당 품목 구매·설치 관련 자주 묻는 질문 (FAQ) */}
         <section
           aria-label={`${categoryLabel} 자주 묻는 질문`}
@@ -672,13 +687,13 @@ export default async function ProductDetailPage({
           <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#E5E2DC]">
             <div>
               <span className="hb-eyebrow">품목별 핵심 안내</span>
-              <h2 className="mt-1 text-[18px] sm:text-[20px] font-extrabold text-[#0E1A2B]">
+              <h2 className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#0E1A2B]">
                 {categoryLabel} 구매 · 설치 자주 묻는 질문
               </h2>
             </div>
             <Link
               href="/#faq-section"
-              className="text-[12.5px] font-bold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-4"
+              className="text-hb-xs font-bold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-4"
             >
               전체 FAQ 보기 →
             </Link>
@@ -686,11 +701,11 @@ export default async function ProductDetailPage({
           <dl className="divide-y divide-[#E5E2DC]">
             {getCategoryFaqs(categoryLabel, sold).map((faq) => (
               <div key={faq.q} className="py-4 first:pt-4 last:pb-0">
-                <dt className="flex items-start gap-2 text-[14.5px] font-bold text-[#0E1A2B]">
+                <dt className="flex items-start gap-2 text-hb-base font-bold text-[#0E1A2B]">
                   <span className="text-[#D9531E] font-extrabold">Q.</span>
                   <span>{faq.q}</span>
                 </dt>
-                <dd className="mt-1.5 pl-6 text-[13.5px] leading-relaxed text-[#3E4756] break-keep">
+                <dd className="mt-1.5 pl-6 text-hb-sm leading-relaxed text-[#3E4756] break-keep">
                   {faq.a}
                 </dd>
               </div>
