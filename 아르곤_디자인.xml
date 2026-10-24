@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-24T16:20:40.022Z">
+<project name="hanbat-mall" generated_at="2026-10-24T16:23:37.476Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -18251,9 +18251,9 @@ export function ProductCard({
             ) : null}
           </div>
 
-          {/* 상품명 (정확한 2줄 2.7em 고정 + overflow-hidden으로 3번째 줄 노출 원천 차단) */}
+          {/* 상품명 (2줄 말줄임 + 하단 글자 잘림 방지 여유고 및 그리드 정렬용 최소 높이) */}
           <h3
-            className={`mt-1 line-clamp-2 h-[2.7em] overflow-hidden text-hb-sm sm:text-hb-base font-bold leading-[1.35] tracking-[-0.015em] transition-colors break-keep ${
+            className={`mt-1 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-bold leading-[1.4] tracking-[-0.015em] transition-colors break-keep pb-0.5 ${
               sold
                 ? "text-[#646E7E]"
                 : "text-[#0E1A2B] group-hover:text-[#D9531E]"
