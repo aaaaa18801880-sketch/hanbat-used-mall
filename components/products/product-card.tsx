@@ -277,9 +277,9 @@ export function ProductCard({
             ) : null}
           </div>
 
-          {/* 상품명 (정확한 2줄 높이 고정 + overflow-hidden으로 3번째 줄 잘림 현상 원천 차단) */}
+          {/* 상품명 (정확한 2줄 2.7em 고정 + overflow-hidden으로 3번째 줄 노출 원천 차단) */}
           <h3
-            className={`mt-1 line-clamp-2 h-[2.65rem] sm:h-[2.95rem] overflow-hidden text-hb-sm sm:text-hb-base font-bold leading-[1.35] tracking-[-0.015em] transition-colors break-keep ${
+            className={`mt-1 line-clamp-2 h-[2.7em] overflow-hidden text-hb-sm sm:text-hb-base font-bold leading-[1.35] tracking-[-0.015em] transition-colors break-keep ${
               sold
                 ? "text-[#646E7E]"
                 : "text-[#0E1A2B] group-hover:text-[#D9531E]"
