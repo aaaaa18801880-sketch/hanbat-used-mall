@@ -45,6 +45,15 @@ async function verifyLiveSite() {
     const hasSpatialPlanner = productHtml.includes('설치 공간 시뮬레이터') || productHtml.includes('가구/가전 배치도');
     console.log(`Visual Inspection Viewer present: ${hasVisualViewer}`);
     console.log(`Spatial Fit Planner present: ${hasSpatialPlanner}`);
+
+    // 4. Purchase page (/purchase)
+    console.log('\n--- 4. Testing Purchase (/purchase) ---');
+    const purchaseRes = await fetch(`${BASE_URL}/purchase`, { headers: { 'User-Agent': 'Mozilla/5.0 HanbatBot/1.0' } });
+    console.log(`Purchase status: ${purchaseRes.status}`);
+    const purchaseHtml = await purchaseRes.text();
+    const hasWizard = purchaseHtml.includes('1단계 / 3단계') || purchaseHtml.includes('처분하실 품목을 모두 선택해 주세요');
+    console.log(`Purchase 3-step wizard present: ${hasWizard}`);
+
     return {
       homeStatus: homeRes.status,
       hasConcierge,
@@ -53,7 +62,9 @@ async function verifyLiveSite() {
       galleryStatus: galleryRes.status,
       productStatus: productRes.status,
       hasVisualViewer,
-      hasSpatialPlanner
+      hasSpatialPlanner,
+      purchaseStatus: purchaseRes.status,
+      hasPurchaseWizard: hasWizard
     };
   }
 }
