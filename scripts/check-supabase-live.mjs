@@ -43,7 +43,7 @@ const supabase = createClient(url, anonKey);
 async function runDiagnostics() {
   // 1. products 테이블 검사
   try {
-    const { data, error, count } = await supabase
+    const { error, count } = await supabase
       .from("products")
       .select("id, title, category, price, status, views, condition_grade", { count: "exact" })
       .limit(1);
@@ -59,7 +59,7 @@ async function runDiagnostics() {
 
   // 2. purchase_requests 테이블 신규 컬럼 검사
   try {
-    const { data, error, count } = await supabase
+    const { error, count } = await supabase
       .from("purchase_requests")
       .select("id, inquiry_type, category, status, is_notice, model, condition_grade, region, admin_reply", { count: "exact" })
       .limit(1);

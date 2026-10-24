@@ -1,5 +1,4 @@
 import { spawnSync } from 'child_process';
-import fs from 'fs';
 
 const gitExe = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
 

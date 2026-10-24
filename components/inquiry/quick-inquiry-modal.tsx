@@ -4,9 +4,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Icon, ICON } from "../../lib/ui";
 import {
-  UnifiedInquiryForm,
   type LinkedProductContext,
 } from "./unified-inquiry-form";
+import { V2InquirySectionWithWizard } from "./v2-wizard-quick-inquiry";
 import {
   STORE,
   QUICK_INQUIRY_EVENT,
@@ -88,7 +88,7 @@ export function QuickInquiryModal() {
 
         {/* 폼 본문 (스크롤 영역) */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#FAF9F7]">
-          <UnifiedInquiryForm
+          <V2InquirySectionWithWizard
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {
@@ -96,7 +96,6 @@ export function QuickInquiryModal() {
                 setIsOpen(false);
               }, 2000);
             }}
-            onCancel={() => setIsOpen(false)}
           />
         </div>
       </div>

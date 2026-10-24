@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-23T14:18:06.069Z">
+<project name="hanbat-mall" generated_at="2026-10-24T12:23:41.291Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>81</file_count>
+    <file_count>85</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="705">
+    <file path="app/[id]/page.tsx" lines="719">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -60,6 +60,8 @@ import {
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
 import { RecentViewedStrip } from "../../components/products/product-compare-modal";
+import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
+import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
 
 export const dynamic = "force-dynamic";
 
@@ -590,6 +592,18 @@ export default async function ProductDetailPage({
               {/* 3. 주요 사양 및 상태 설명 (통합 구조화 컴포넌트) */}
               <div className="mt-5">
                 <ProductStructuredDescription description={product.description} />
+              </div>
+
+              {/* 3-1. V2 비주얼 검수 리포트 & 설치 공간 시뮬레이터 */}
+              <div className="mt-5 space-y-4">
+                <V2VisualInspectionViewer
+                  category={categoryLabel}
+                  conditionGrade={product.condition_grade}
+                />
+                <V2SpatialFitPlanner
+                  title={product.title}
+                  description={product.description}
+                />
               </div>
             </div>
 
@@ -11322,7 +11336,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1884">
+    <file path="app/page.tsx" lines="1891">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11366,9 +11380,10 @@ import { FeaturedProductsSection } from "../components/home/featured-products-se
 import { CategoryPictogramBar } from "../components/home/category-pictogram-bar";
 import { AiRecommendationGuideSection } from "../components/home/ai-recommendation-guide-section";
 import {
-  UnifiedInquiryForm,
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
+import { V2DualModeConcierge } from "../components/home/v2-dual-mode-concierge";
+import { V2InquirySectionWithWizard } from "../components/inquiry/v2-wizard-quick-inquiry";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
 import { RecentViewedStrip } from "../components/products/product-compare-modal";
 
@@ -11990,6 +12005,12 @@ export default function Home() {
             ════════════════════════════════════════════════════════════ */}
         <CategoryPictogramBar onSelectInquiry={(type) => openInquiry(type)} />
 
+        {/* [3-1] V2.0 듀얼 모드(B2C/B2B) 스위처 & AI 예산 맞춤 세트 큐레이터 */}
+        <V2DualModeConcierge
+          products={featuredProducts}
+          onOpenInquiry={openInquiry}
+        />
+
         {/* ════════════════════════════════════════════════════════════
             [4] 실시간 추천 실매물 & 최근 본 매물 (#featured-products-section)
             — 카테고리 선택 후 바로 실매물을 확인하도록 상단 전진 배치
@@ -12595,7 +12616,7 @@ export default function Home() {
                 id="inquiry-form"
                 className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-7 lg:p-8 lg:col-span-8 shadow-2xs"
               >
-                <UnifiedInquiryForm
+                <V2InquirySectionWithWizard
                   defaultType={inquiryType}
                   linkedProduct={linkedProduct}
                   onSuccess={() => loadRecent()}
@@ -16953,7 +16974,451 @@ export function TrustSection() {
 }
 ]]>
     </file>
-    <file path="components/inquiry/quick-inquiry-modal.tsx" lines="106">
+    <file path="components/home/v2-dual-mode-concierge.tsx" lines="440">
+      <![CDATA[
+// 파일 경로: components/home/v2-dual-mode-concierge.tsx
+"use client";
+
+import React, { useState, useMemo } from "react";
+import Link from "next/link";
+import toast from "react-hot-toast";
+import {
+  formatProductPrice,
+  hasProductPrice,
+  isProductSold,
+  normalizeProductCategory,
+  splitImages,
+  toggleQuoteBasketItem,
+  trackEvent,
+  type InquiryTypeValue,
+} from "../../lib/site";
+import { Icon, ICON, SafeImg } from "../../lib/ui";
+import type { ProductItem } from "../products/product-card";
+
+type ShowroomMode = "b2c" | "b2b";
+
+interface ScenarioOption {
+  id: string;
+  mode: ShowroomMode;
+  label: string;
+  desc: string;
+  targetCategories: string[];
+  keywords: string[];
+  defaultBudget: number;
+}
+
+const SCENARIOS: readonly ScenarioOption[] = [
+  {
+    id: "oneroom",
+    mode: "b2c",
+    label: "🏡 원룸·자취 알뜰 세트",
+    desc: "냉장고 + 세탁기 + 에어컨 실속 조합",
+    targetCategories: ["냉장고", "세탁기/건조기", "에어컨/냉난방기"],
+    keywords: ["소형", "일반", "통돌이", "벽걸이", "드럼"],
+    defaultBudget: 800000,
+  },
+  {
+    id: "family",
+    mode: "b2c",
+    label: "🛋️ 신혼·가정집 업그레이드",
+    desc: "양문형/4도어 냉장고 + 드럼/건조기 + 스탠드 에어컨",
+    targetCategories: ["냉장고", "세탁기/건조기", "에어컨/냉난방기"],
+    keywords: ["양문형", "4도어", "비스포크", "드럼", "건조기", "스탠드", "2in1"],
+    defaultBudget: 1500000,
+  },
+  {
+    id: "cafe",
+    mode: "b2b",
+    label: "☕ 카페·디저트 오픈 패키지",
+    desc: "제빙기 + 테이블냉장고 + 쇼케이스 필수 조합",
+    targetCategories: ["업소용기기", "에어컨/냉난방기"],
+    keywords: ["제빙기", "테이블", "쇼케이스", "냉난방"],
+    defaultBudget: 1800000,
+  },
+  {
+    id: "restaurant",
+    mode: "b2b",
+    label: "🍖 식당·주방 핵심 설비 세트",
+    desc: "45박스 수직냉장고 + 식기세척기 + 중대형 냉난방기",
+    targetCategories: ["업소용기기", "에어컨/냉난방기"],
+    keywords: ["45박스", "25박스", "세척기", "작업대", "냉난방"],
+    defaultBudget: 2200000,
+  },
+] as const;
+
+const BUDGET_STEPS = [
+  { label: "60만원 이하", value: 600000 },
+  { label: "100만원 안팎", value: 1000000 },
+  { label: "150만원 안팎", value: 1500000 },
+  { label: "250만원 이하", value: 2500000 },
+  { label: "예산 무관(추천순)", value: 9900000 },
+] as const;
+
+export function V2DualModeConcierge({
+  products,
+  onOpenInquiry,
+}: {
+  products: ProductItem[];
+  onOpenInquiry: (type: InquiryTypeValue, prefillTitle?: string) => void;
+}) {
+  const [mode, setMode] = useState<ShowroomMode>("b2c");
+  const [selectedScenarioId, setSelectedScenarioId] =
+    useState<string>("oneroom");
+  const [budget, setBudget] = useState<number>(1000000);
+
+  const activeScenario = useMemo(
+    () =>
+      SCENARIOS.find((s) => s.id === selectedScenarioId) || SCENARIOS[0],
+    [selectedScenarioId]
+  );
+
+  const handleModeSwitch = (nextMode: ShowroomMode) => {
+    setMode(nextMode);
+    const firstScenario = SCENARIOS.find((s) => s.mode === nextMode);
+    if (firstScenario) {
+      setSelectedScenarioId(firstScenario.id);
+      setBudget(firstScenario.defaultBudget);
+    }
+  };
+
+  // 실제 판매중(selling) 재고 중에서 선택한 시나리오와 예산에 맞는 최대 3개 세트 자동 조합
+  const curatedBundle = useMemo(() => {
+    const available = products.filter((p) => !isProductSold(p.status));
+    if (available.length === 0) return { items: [], totalPrice: 0 };
+
+    const scored = available.map((p) => {
+      const cat = normalizeProductCategory(p.category);
+      const text = `${p.title} ${p.description || ""}`.toLowerCase();
+      let score = 0;
+
+      if (activeScenario.targetCategories.includes(cat)) score += 5;
+      if (mode === "b2b" && cat === "업소용기기") score += 4;
+      if (mode === "b2c" && cat !== "업소용기기") score += 3;
+
+      for (const kw of activeScenario.keywords) {
+        if (text.includes(kw.toLowerCase())) score += 4;
+      }
+      return { product: p, cat, score };
+    });
+
+    scored.sort((a, b) => b.score - a.score);
+
+    const picked: ProductItem[] = [];
+    const usedCats = new Set<string>();
+    let runningTotal = 0;
+
+    // 1차: 서로 다른 카테고리 조합 우선 선택 (예산 내)
+    for (const candidate of scored) {
+      if (picked.length >= 3) break;
+      if (candidate.score <= 0) continue;
+      const price = hasProductPrice(candidate.product.price)
+        ? Number(candidate.product.price)
+        : 0;
+
+      if (
+        !usedCats.has(candidate.cat) ||
+        activeScenario.mode === "b2b"
+      ) {
+        if (runningTotal + price <= budget || budget >= 9000000 || price === 0) {
+          picked.push(candidate.product);
+          usedCats.add(candidate.cat);
+          runningTotal += price;
+        }
+      }
+    }
+
+    // 만약 예산이 너무 낮아 덜 채워졌다면 점수 순으로 보충
+    if (picked.length < 2) {
+      for (const candidate of scored) {
+        if (picked.length >= 3) break;
+        if (!picked.some((x) => x.id === candidate.product.id)) {
+          picked.push(candidate.product);
+          if (hasProductPrice(candidate.product.price)) {
+            runningTotal += Number(candidate.product.price);
+          }
+        }
+      }
+    }
+
+    return { items: picked, totalPrice: runningTotal };
+  }, [products, activeScenario, budget, mode]);
+
+  const handleAddBundleToBasket = () => {
+    let addedCount = 0;
+    for (const item of curatedBundle.items) {
+      const imgs = splitImages(item.image_url);
+      const res = toggleQuoteBasketItem({
+        id: item.id,
+        title: item.title,
+        category: normalizeProductCategory(item.category),
+        price: item.price,
+        status: item.status,
+        conditionGrade: item.condition_grade,
+        description: item.description,
+        imageUrl: imgs[0] || null,
+        quantity: 1,
+      });
+      if (res.added) addedCount += 1;
+    }
+    trackEvent("add_to_quote_basket", {
+      category: activeScenario.label,
+      location: "v2_concierge_bundle",
+    });
+    toast.success(
+      addedCount > 0
+        ? `추천 세트 매물 ${addedCount}건을 견적함에 담았습니다! 하단 바에서 비교·일괄 문의가 가능합니다.`
+        : "이미 견적함에 담겨 있는 매물입니다."
+    );
+  };
+
+  const isB2B = mode === "b2b";
+
+  return (
+    <section
+      aria-label="맞춤 쇼룸 모드 및 스마트 세트 추천"
+      className={`border-b transition-colors duration-300 ${
+        isB2B
+          ? "border-[#1E2F48] bg-[#0E1A2B] text-white"
+          : "border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B]"
+      }`}
+    >
+      <div className="hb-container py-8 sm:py-10 space-y-6">
+        {/* 상단: B2C 가정용 vs B2B 프로 주방 듀얼 모드 스위처 */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-current/10">
+          <div>
+            <span
+              className={`inline-flex items-center gap-1.5 text-[12px] font-extrabold uppercase tracking-wider ${
+                isB2B ? "text-[#FF8A50]" : "text-[#D9531E]"
+              }`}
+            >
+              <span className="h-2 w-2 rounded-full bg-current" />
+              {isB2B
+                ? "PRO COMMERCIAL KITCHEN MODE · 사업자 전용 쇼룸"
+                : "HOME & LIVING RE-COMMERCE MODE · 가정·원룸 쇼룸"}
+            </span>
+            <h2 className="mt-1 text-[20px] sm:text-[24px] font-extrabold tracking-tight">
+              {isB2B
+                ? "식당·카페 오픈 설비부터 세금계산서·전원 규격까지 한눈에"
+                : "분해 고압 살균을 마친 깨끗한 가정·원룸 가전 맞춤 큐레이션"}
+            </h2>
+          </div>
+
+          {/* 모드 전환 캡슐 스위치 */}
+          <div
+            role="tablist"
+            aria-label="쇼룸 모드 전환"
+            className={`inline-grid grid-cols-2 rounded-xl p-1 border self-start shrink-0 ${
+              isB2B
+                ? "border-white/15 bg-[#16263D]"
+                : "border-[#CFCAC0] bg-white shadow-2xs"
+            }`}
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={!isB2B}
+              onClick={() => handleModeSwitch("b2c")}
+              className={`rounded-lg px-4 py-2 text-[13px] sm:text-[13.5px] font-extrabold transition-all ${
+                !isB2B
+                  ? "bg-[#0E1A2B] text-white shadow-2xs"
+                  : "text-white/70 hover:text-white"
+              }`}
+            >
+              🏡 가정 · 원룸 모드
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={isB2B}
+              onClick={() => handleModeSwitch("b2b")}
+              className={`rounded-lg px-4 py-2 text-[13px] sm:text-[13.5px] font-extrabold transition-all ${
+                isB2B
+                  ? "bg-[#D9531E] text-white shadow-2xs"
+                  : "text-[#3E4756] hover:text-[#0E1A2B]"
+              }`}
+            >
+              🏢 식당 · 카페 프로 모드
+            </button>
+          </div>
+        </div>
+
+        {/* 중단: 상황 선택 + 예산 필터 컨트롤 바 */}
+        <div className="grid gap-4 lg:grid-cols-12 items-center">
+          <div className="lg:col-span-6 flex flex-wrap gap-2">
+            {SCENARIOS.filter((s) => s.mode === mode).map((sc) => {
+              const active = sc.id === selectedScenarioId;
+              return (
+                <button
+                  key={sc.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedScenarioId(sc.id);
+                    setBudget(sc.defaultBudget);
+                  }}
+                  className={`flex-1 min-w-[200px] rounded-xl border p-3.5 text-left transition-all ${
+                    active
+                      ? isB2B
+                        ? "border-[#FF8A50] bg-white/10 text-white"
+                        : "border-[#D9531E] bg-white text-[#0E1A2B] shadow-card ring-1 ring-[#D9531E]"
+                      : isB2B
+                      ? "border-white/15 bg-white/5 text-white/75 hover:border-white/35"
+                      : "border-[#E5E2DC] bg-white/70 text-[#3E4756] hover:border-[#0E1A2B]"
+                  }`}
+                >
+                  <strong className="block text-[14.5px] font-extrabold">
+                    {sc.label}
+                  </strong>
+                  <span
+                    className={`mt-0.5 block text-[12px] ${
+                      isB2B ? "text-white/70" : "text-[#646E7E]"
+                    }`}
+                  >
+                    {sc.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="lg:col-span-6 flex flex-wrap items-center justify-end gap-1.5">
+            <span
+              className={`text-[12px] font-bold mr-1 ${
+                isB2B ? "text-white/75" : "text-[#646E7E]"
+              }`}
+            >
+              희망 세트 예산:
+            </span>
+            {BUDGET_STEPS.map((b) => {
+              const active = budget === b.value;
+              return (
+                <button
+                  key={b.label}
+                  type="button"
+                  onClick={() => setBudget(b.value)}
+                  className={`rounded-lg px-2.5 py-1.5 text-[12px] font-bold border transition-colors ${
+                    active
+                      ? "border-[#D9531E] bg-[#D9531E] text-white"
+                      : isB2B
+                      ? "border-white/20 bg-white/5 text-white/80 hover:bg-white/10"
+                      : "border-[#E5E2DC] bg-white text-[#3E4756] hover:border-[#0E1A2B]"
+                  }`}
+                >
+                  {b.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 하단: 실시간 DB 재고 기반 추천 번들 카드 3선 + 일괄 담기 액션 */}
+        {curatedBundle.items.length > 0 && (
+          <div
+            className={`rounded-xl border p-4 sm:p-5 ${
+              isB2B
+                ? "border-white/15 bg-[#132238]"
+                : "border-[#E5E2DC] bg-white shadow-2xs"
+            }`}
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-current/10">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded bg-[#D9531E] px-2 py-0.5 text-[11px] font-bold text-white">
+                  실시간 재고 매칭
+                </span>
+                <h3 className="text-[15px] sm:text-[16px] font-extrabold">
+                  {activeScenario.label} 추천 실매물 조합 ({curatedBundle.items.length}종)
+                </h3>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {curatedBundle.totalPrice > 0 && (
+                  <span className="text-[13px] font-bold tabular-nums mr-1">
+                    표시가 합계:{" "}
+                    <strong className="text-[16px] text-[#D9531E]">
+                      {curatedBundle.totalPrice.toLocaleString()}원
+                    </strong>
+                    <span className="text-[11px] opacity-75 ml-1">
+                      (세트 협의 가능)
+                    </span>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={handleAddBundleToBasket}
+                  className="hb-btn-accent h-9 px-3.5 text-[12.5px]"
+                >
+                  <Icon d={ICON.plus} className="w-3.5 h-3.5" />
+                  <span>이 조합 견적함에 한 번에 담기</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onOpenInquiry(
+                      isB2B ? "대량·업소용 상담" : "구매 문의",
+                      `[${activeScenario.label}] ${curatedBundle.items
+                        .map((i) => i.title)
+                        .join(" + ")} 세트 견적 문의`
+                    )
+                  }
+                  className={`h-9 rounded-lg border px-3.5 text-[12.5px] font-bold transition-colors ${
+                    isB2B
+                      ? "border-white/30 bg-white/10 text-white hover:bg-white/20"
+                      : "border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+                  }`}
+                >
+                  바로 세트 문의 →
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {curatedBundle.items.map((item, idx) => {
+                const imgs = splitImages(item.image_url);
+                const cat = normalizeProductCategory(item.category);
+                return (
+                  <Link
+                    key={item.id}
+                    href={`/${item.id}`}
+                    className={`group flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${
+                      isB2B
+                        ? "border-white/10 bg-white/5 hover:border-[#FF8A50]"
+                        : "border-[#E5E2DC] bg-[#FAF9F7] hover:border-[#0E1A2B]"
+                    }`}
+                  >
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded border border-black/10 bg-[#EFECE6]">
+                      <SafeImg
+                        src={imgs[0]}
+                        alt={item.title}
+                        className="h-full w-full object-cover"
+                      />
+                      <span className="absolute left-1 top-1 rounded bg-[#0E1A2B]/85 px-1 text-[9.5px] font-bold text-white">
+                        구성 {idx + 1}
+                      </span>
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-[11px] font-semibold opacity-70 truncate">
+                        {cat}
+                      </span>
+                      <p className="truncate text-[13.5px] font-bold group-hover:text-[#D9531E]">
+                        {item.title}
+                      </p>
+                      <strong className="mt-0.5 block text-[13.5px] font-extrabold text-[#D9531E] tabular-nums">
+                        {formatProductPrice(item.price, cat)}
+                      </strong>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/inquiry/quick-inquiry-modal.tsx" lines="105">
       <![CDATA[
 // 파일 경로: components/inquiry/quick-inquiry-modal.tsx
 "use client";
@@ -16961,9 +17426,9 @@ export function TrustSection() {
 import React, { useState, useEffect, useCallback } from "react";
 import { Modal, Icon, ICON } from "../../lib/ui";
 import {
-  UnifiedInquiryForm,
   type LinkedProductContext,
 } from "./unified-inquiry-form";
+import { V2InquirySectionWithWizard } from "./v2-wizard-quick-inquiry";
 import {
   STORE,
   QUICK_INQUIRY_EVENT,
@@ -17045,7 +17510,7 @@ export function QuickInquiryModal() {
 
         {/* 폼 본문 (스크롤 영역) */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#FAF9F7]">
-          <UnifiedInquiryForm
+          <V2InquirySectionWithWizard
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {
@@ -17053,7 +17518,6 @@ export function QuickInquiryModal() {
                 setIsOpen(false);
               }, 2000);
             }}
-            onCancel={() => setIsOpen(false)}
           />
         </div>
       </div>
@@ -19089,6 +19553,483 @@ export function UnifiedInquiryForm({
 }
 ]]>
     </file>
+    <file path="components/inquiry/v2-wizard-quick-inquiry.tsx" lines="473">
+      <![CDATA[
+// 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
+"use client";
+
+import React, { useState } from "react";
+import toast from "react-hot-toast";
+import {
+  formatPhone,
+  formatStructuredInquiryDescription,
+  INQUIRY_TYPES,
+  isValidPhone,
+  PRODUCT_CATEGORIES,
+  smsHref,
+  STORE,
+  trackEvent,
+  type InquiryTypeValue,
+} from "../../lib/site";
+import { Icon, ICON } from "../../lib/ui";
+import {
+  UnifiedInquiryForm,
+  type LinkedProductContext,
+} from "./unified-inquiry-form";
+
+const WIZARD_ENV_CHIPS: Record<InquiryTypeValue, readonly string[]> = {
+  "구매 문의": [
+    "1층 / 엘리베이터 있음",
+    "2층 이상 계단",
+    "기존 가전 동시수거(보상매입)",
+    "이번 주 내 배송 희망",
+  ],
+  "내 물건 팔기": [
+    "정상 작동 확인됨",
+    "1층 / 엘리베이터 있음",
+    "매장·원룸 일괄 정리",
+    "빠른 방문수거 희망",
+  ],
+  "대량·업소용 상담": [
+    "식당·카페 오픈 세팅",
+    "단상 220V",
+    "삼상 380V",
+    "전자세금계산서 발행",
+    "폐업 설비 일괄철거·매입",
+  ],
+  "기타 문의": ["A/S 보증 문의", "배송 일정 문의", "세금계산서·결제 문의"],
+};
+
+export function V2InquirySectionWithWizard({
+  defaultType = "구매 문의",
+  linkedProduct = null,
+  onSuccess,
+}: {
+  defaultType?: InquiryTypeValue;
+  linkedProduct?: LinkedProductContext | null;
+  onSuccess?: () => void;
+}) {
+  // 기본은 기존 올인원 상세 폼과 30초 위저드 모드 중 선택 가능 (상품 연동 시 상세 폼 우선)
+  const [formMode, setFormMode] = useState<"wizard" | "full">("wizard");
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(defaultType);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([
+    PRODUCT_CATEGORIES[0],
+  ]);
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
+  const [region, setRegion] = useState("");
+  const [memo, setMemo] = useState("");
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [agreed, setAgreed] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(cat)
+        ? prev.length > 1
+          ? prev.filter((c) => c !== cat)
+          : prev
+        : [...prev, cat]
+    );
+  };
+
+  const toggleChip = (chip: string) => {
+    setSelectedChips((prev) =>
+      prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip]
+    );
+  };
+
+  const handleWizardSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (submitting) return;
+    if (!name.trim()) {
+      toast.error("성함 또는 상호명을 입력해 주세요.");
+      return;
+    }
+    if (!isValidPhone(phone)) {
+      toast.error("올바른 연락처를 입력해 주세요.");
+      return;
+    }
+    if (password.trim().length < 4) {
+      toast.error("조회용 비밀번호 4자리 이상을 입력해 주세요.");
+      return;
+    }
+    if (!agreed) {
+      toast.error("개인정보 수집·이용에 동의해 주세요.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const catSummary = selectedCategories.join(" · ");
+      const autoTitle = `[${inquiryType}] ${catSummary} 상담 신청`;
+      const chipLine =
+        selectedChips.length > 0
+          ? `• 선택 조건: ${selectedChips.join(", ")}`
+          : "";
+      const bodyContent = [
+        `• 선택 품목: ${catSummary}`,
+        chipLine,
+        memo.trim() ? `• 추가 메모: ${memo.trim()}` : "",
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      const structuredDescription = formatStructuredInquiryDescription({
+        inquiryType,
+        customerContent: bodyContent,
+        applianceCategory: selectedCategories[0],
+        region: region.trim() || "대전/충청",
+      });
+
+      const res = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          phone: phone.trim(),
+          password: password.trim(),
+          inquiry_type: inquiryType,
+          category: autoTitle,
+          region: region.trim() || "대전/기타",
+          description: structuredDescription,
+          images: [],
+          is_notice: false,
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "접수 중 오류가 발생했습니다.");
+      }
+
+      trackEvent("submit_inquiry_success", {
+        inquiry_type: inquiryType,
+        has_photos: false,
+      });
+      toast.success("30초 간편 상담 접수가 완료되었습니다!");
+      setStep(1);
+      setMemo("");
+      onSuccess?.();
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "접수에 실패했습니다."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* 모드 전환 헤더: 30초 터치 위저드 vs 사진 AI 분석·전체 상세 폼 */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-2.5">
+        <span className="px-2 text-[12.5px] font-bold text-[#0E1A2B]">
+          편하신 작성 방식을 선택하세요
+        </span>
+        <div className="inline-grid grid-cols-2 rounded-lg bg-[#E5E2DC] p-1">
+          <button
+            type="button"
+            onClick={() => setFormMode("wizard")}
+            className={`rounded-md px-3 py-1.5 text-[12px] font-extrabold transition-all ${
+              formMode === "wizard"
+                ? "bg-[#0E1A2B] text-white shadow-2xs"
+                : "text-[#3E4756] hover:text-[#0E1A2B]"
+            }`}
+          >
+            ⚡ 30초 터치 간편접수
+          </button>
+          <button
+            type="button"
+            onClick={() => setFormMode("full")}
+            className={`rounded-md px-3 py-1.5 text-[12px] font-extrabold transition-all ${
+              formMode === "full"
+                ? "bg-[#D9531E] text-white shadow-2xs"
+                : "text-[#3E4756] hover:text-[#0E1A2B]"
+            }`}
+          >
+            📷 사진 AI 분석 · 상세입력
+          </button>
+        </div>
+      </div>
+
+      {formMode === "full" || linkedProduct?.productTitle ? (
+        <UnifiedInquiryForm
+          defaultType={defaultType}
+          linkedProduct={linkedProduct}
+          onSuccess={() => onSuccess?.()}
+        />
+      ) : (
+        <form
+          onSubmit={handleWizardSubmit}
+          className="rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
+        >
+          {/* 상단 스텝 프로그레스 바 */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-[12px] font-extrabold">
+              <span className="text-[#D9531E]">STEP {step} / 3</span>
+              <span className="text-[#646E7E]">
+                {step === 1
+                  ? "상담 목적과 품목을 터치해 주세요"
+                  : step === 2
+                  ? "현장 조건과 지역을 선택해 주세요"
+                  : "연락받을 번호만 입력하면 끝납니다"}
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
+              <div
+                style={{ width: `${(step / 3) * 100}%` }}
+                className="h-full bg-[#0E1A2B] transition-all duration-300"
+              />
+            </div>
+          </div>
+
+          {/* STEP 1: 상담 유형 & 품목 터치 */}
+          {step === 1 && (
+            <div className="space-y-4">
+              <div>
+                <span className="hb-label mb-2">1. 어떤 상담이 필요하신가요?</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {INQUIRY_TYPES.map((t) => {
+                    const active = inquiryType === t;
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          setInquiryType(t);
+                          setSelectedChips([]);
+                        }}
+                        className={`h-12 rounded-xl border px-3 text-[13.5px] font-extrabold transition-all ${
+                          active
+                            ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
+                            : "border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+                        }`}
+                      >
+                        {t === "내 물건 팔기" ? "가전 팔기(방문매입)" : t}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <span className="hb-label mb-2">
+                  2. 해당되는 품목을 모두 터치해 주세요 (복수 선택)
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {PRODUCT_CATEGORIES.map((cat) => {
+                    const active = selectedCategories.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => toggleCategory(cat)}
+                        className={`flex items-center justify-between rounded-lg border px-3 py-2.5 text-[13px] font-bold transition-all ${
+                          active
+                            ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                            : "border-[#E5E2DC] bg-white text-[#3E4756]"
+                        }`}
+                      >
+                        <span>{cat}</span>
+                        <span>{active ? "✓" : "+"}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="hb-btn-primary h-12 px-8 text-[14.5px] w-full sm:w-auto"
+                >
+                  <span>다음 단계 (조건 선택)</span>
+                  <Icon d={ICON.arrow} className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: 현장 조건 칩 & 지역 입력 */}
+          {step === 2 && (
+            <div className="space-y-4">
+              <div>
+                <span className="hb-label mb-2">
+                  3. 해당되는 현장 조건을 터치해 주세요 (선택)
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  {WIZARD_ENV_CHIPS[inquiryType].map((chip) => {
+                    const active = selectedChips.includes(chip);
+                    return (
+                      <button
+                        key={chip}
+                        type="button"
+                        onClick={() => toggleChip(chip)}
+                        className={`rounded-lg border px-3 py-2 text-[13px] font-bold transition-colors ${
+                          active
+                            ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                            : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756]"
+                        }`}
+                      >
+                        {active ? `✓ ${chip}` : `+ ${chip}`}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="hb-label text-[13px]">
+                    지역 (동 단위 권장)
+                  </label>
+                  <input
+                    type="text"
+                    value={region}
+                    onChange={(e) => setRegion(e.target.value)}
+                    placeholder="예: 대전 중구 중촌동 / 서구 둔산동"
+                    className="hb-input mt-1 h-11"
+                  />
+                </div>
+                <div>
+                  <label className="hb-label text-[13px]">
+                    간단 메모 (희망 모델·예산·일정 등)
+                  </label>
+                  <input
+                    type="text"
+                    value={memo}
+                    onChange={(e) => setMemo(e.target.value)}
+                    placeholder="예: 금요일 오후 희망 / 45박스 냉장고"
+                    className="hb-input mt-1 h-11"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="hb-btn-outline h-11 px-5 text-[13.5px]"
+                >
+                  ← 이전
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep(3)}
+                  className="hb-btn-primary h-11 px-7 text-[14px]"
+                >
+                  <span>다음 단계 (연락처 입력)</span>
+                  <Icon d={ICON.arrow} className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: 연락처 입력 및 완료 */}
+          {step === 3 && (
+            <div className="space-y-4">
+              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-[12.5px] text-[#3E4756]">
+                <strong className="text-[#0E1A2B]">선택 요약:</strong> [
+                {inquiryType}] {selectedCategories.join(", ")}{" "}
+                {selectedChips.length > 0 && `(${selectedChips.join(", ")})`}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="hb-label text-[13px]">
+                    성함 / 상호명 *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="홍길동 / 한밭식당"
+                    className="hb-input mt-1 h-11"
+                  />
+                </div>
+                <div>
+                  <label className="hb-label text-[13px]">연락처 *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    placeholder="010-0000-0000"
+                    className="hb-input mt-1 h-11 tabular-nums"
+                  />
+                </div>
+                <div>
+                  <label className="hb-label text-[13px]">
+                    조회 비밀번호(4자+) *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="내 글 확인용"
+                    className="hb-input mt-1 h-11"
+                  />
+                </div>
+              </div>
+
+              <label className="flex items-center gap-2 text-[12.5px] text-[#4B5260] cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="h-4 w-4 rounded border-[#CFCAC0] accent-[#0E1A2B]"
+                />
+                <span>상담 안내를 위한 개인정보 수집·이용에 동의합니다.</span>
+              </label>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E5E2DC]">
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  className="hb-btn-outline h-11 px-4 text-[13px]"
+                >
+                  ← 이전
+                </button>
+
+                <div className="flex flex-wrap items-center gap-2 ml-auto">
+                  <a
+                    href={smsHref(
+                      STORE.mobile,
+                      `[한밭중고전자 ${inquiryType}] 품목: ${selectedCategories.join(
+                        ", "
+                      )} / 조건: ${selectedChips.join(", ")} 문의드립니다.`
+                    )}
+                    className="hb-btn-outline h-11 px-4 text-[13px]"
+                  >
+                    ✉️ 문자로 바로 전송
+                  </a>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="hb-btn-accent h-11 px-7 text-[14.5px] font-extrabold"
+                  >
+                    {submitting ? "접수 중..." : "상담 신청 완료하기"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </form>
+      )}
+    </div>
+  );
+}
+
+]]>
+    </file>
     <file path="components/products/aircon-set-guide-banner.tsx" lines="279">
       <![CDATA[
 "use client";
@@ -19739,7 +20680,7 @@ export function ProductCard({
 }
 ]]>
     </file>
-    <file path="components/products/product-compare-modal.tsx" lines="565">
+    <file path="components/products/product-compare-modal.tsx" lines="572">
       <![CDATA[
 // 파일 경로: components/products/product-compare-modal.tsx
 "use client";
@@ -19764,6 +20705,7 @@ import {
   removeQuoteBasketItem,
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
+import { V2SpatialFitPlanner } from "./v2-spatial-fit-planner";
 
 function extractWidthMmFromItem(item: QuoteBasketItem): number | null {
   const text = `${item.title || ""}\n${item.description || ""}`;
@@ -19876,23 +20818,29 @@ export function ProductCompareModal({
                 );
 
                 return (
-                  <div className="mb-4 rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
-                    <span>
-                      📏{" "}
-                      <strong className="text-[#0E1A2B]">
-                        설치 공간 가로폭 참고:
-                      </strong>{" "}
-                      치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
-                      <strong className="text-[#D9531E] font-extrabold tabular-nums">
-                        {totalWidthMm.toLocaleString()}mm (
-                        {(totalWidthMm / 1000).toFixed(2)}m)
-                      </strong>
-                      입니다.
-                    </span>
-                    <span className="text-[11.5px] text-[#646E7E]">
-                      ※ 방열 및 문열림을 위해 양옆 최소 100mm 이상 여유 공간을
-                      권장합니다.
-                    </span>
+                  <div className="mb-4 space-y-3">
+                    <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
+                      <span>
+                        📏{" "}
+                        <strong className="text-[#0E1A2B]">
+                          설치 공간 가로폭 참고:
+                        </strong>{" "}
+                        치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
+                        <strong className="text-[#D9531E] font-extrabold tabular-nums">
+                          {totalWidthMm.toLocaleString()}mm (
+                          {(totalWidthMm / 1000).toFixed(2)}m)
+                        </strong>
+                        입니다.
+                      </span>
+                      <span className="text-[11.5px] text-[#646E7E]">
+                        ※ 방열 및 문열림을 위해 양옆 최소 100mm 이상 여유 공간을
+                        권장합니다.
+                      </span>
+                    </div>
+                    <V2SpatialFitPlanner
+                      overrideWidthMm={totalWidthMm}
+                      title={compareItems.map((it) => it.title).join(" + ")}
+                    />
                   </div>
                 );
               })()}
@@ -21317,6 +22265,469 @@ export function ProductStructuredDescription({
           {parsed.rawRest.join("\n")}
         </div>
       )}
+    </div>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/products/v2-spatial-fit-planner.tsx" lines="215">
+      <![CDATA[
+// 파일 경로: components/products/v2-spatial-fit-planner.tsx
+"use client";
+
+import React, { useState, useMemo } from "react";
+
+export function extractDimensionsFromText(
+  title?: string | null,
+  description?: string | null
+): { widthMm: number | null; depthMm: number | null; heightMm: number | null } {
+  const text = `${title || ""}\n${description || ""}`;
+
+  // 1) 1260 x 800 x 1900 형태 추출
+  const tripleMatch = text.match(
+    /\b(\d{3,4})\s*[x×*]\s*(\d{3,4})\s*[x×*]\s*(\d{3,4})\b/i
+  );
+  if (tripleMatch) {
+    const w = Number(tripleMatch[1]);
+    const d = Number(tripleMatch[2]);
+    const h = Number(tripleMatch[3]);
+    if (w >= 350 && w <= 3000) {
+      return { widthMm: w, depthMm: d, heightMm: h };
+    }
+  }
+
+  // 2) 가로/폭 단일 표기 추출
+  const widthMatch = text.match(/(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm/i);
+  if (widthMatch) {
+    return {
+      widthMm: Number(widthMatch[1]),
+      depthMm: null,
+      heightMm: null,
+    };
+  }
+
+  // 3) 업소용/가정용 대표 규격 표준 추정치
+  if (/45\s*박스/.test(text)) {
+    return { widthMm: 1260, depthMm: 800, heightMm: 1900 };
+  }
+  if (/25\s*박스|30\s*박스/.test(text)) {
+    return { widthMm: 650, depthMm: 800, heightMm: 1900 };
+  }
+  if (/양문형|4\s*도어|비스포크/.test(text)) {
+    return { widthMm: 910, depthMm: 850, heightMm: 1830 };
+  }
+
+  return { widthMm: null, depthMm: null, heightMm: null };
+}
+
+const DOOR_PRESETS = [
+  { label: "일반 방문 (800mm)", widthMm: 800 },
+  { label: "아파트 현관 (900mm)", widthMm: 900 },
+  { label: "상가 단문 (1,000mm)", widthMm: 1000 },
+  { label: "상가 양개문 (1,400mm)", widthMm: 1400 },
+] as const;
+
+export function V2SpatialFitPlanner({
+  title,
+  description,
+  overrideWidthMm,
+}: {
+  title?: string | null;
+  description?: string | null;
+  overrideWidthMm?: number | null;
+}) {
+  const detected = useMemo(
+    () => extractDimensionsFromText(title, description),
+    [title, description]
+  );
+
+  const productWidth = overrideWidthMm || detected.widthMm || 900;
+  const productDepth = detected.depthMm || 750;
+  const isEstimated = !overrideWidthMm && !detected.widthMm;
+
+  const [wallWidthMm, setWallWidthMm] = useState<number>(
+    Math.max(2000, productWidth + 600)
+  );
+  const [doorWidthMm, setDoorWidthMm] = useState<number>(900);
+
+  // 방열 및 문열림 권장 여유폭 (양옆 합산 100mm)
+  const clearanceMm = 100;
+  const requiredTotalWidth = productWidth + clearanceMm;
+  const occupyPercent = Math.min(
+    100,
+    Math.round((productWidth / wallWidthMm) * 100)
+  );
+  const clearancePercent = Math.min(
+    100 - occupyPercent,
+    Math.round((clearanceMm / wallWidthMm) * 100)
+  );
+
+  const fitsWall = wallWidthMm >= requiredTotalWidth;
+  // 반입 시에는 제품의 가로 또는 깊이 중 작은 쪽으로 회전하여 진입 가능
+  const minPassSide = Math.min(productWidth, productDepth);
+  const fitsDoor = doorWidthMm >= minPassSide + 20;
+
+  return (
+    <div className="rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-5 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
+        <div>
+          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#D9531E]">
+            SPATIAL FIT SIMULATOR
+          </span>
+          <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
+            📏 우리 집·매장 설치 공간 및 문폭 시뮬레이터
+          </h3>
+        </div>
+        <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-[11.5px] font-bold text-[#0E1A2B] tabular-nums">
+          기준 가로폭: {productWidth.toLocaleString()}mm{" "}
+          {isEstimated ? "(표준규격 참고치)" : "(제품 사양 기준)"}
+        </span>
+      </div>
+
+      {/* 1. 설치 벽면 가로 길이 슬라이더 & 1D 시각 게이지 바 */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between text-[12.5px]">
+          <label htmlFor="wall-width-range" className="font-bold text-[#0E1A2B]">
+            1) 설치할 자리(벽면) 가로 여유 폭 조절
+          </label>
+          <strong className="font-extrabold text-[#D9531E] tabular-nums">
+            내 공간: {wallWidthMm.toLocaleString()}mm ({(wallWidthMm / 1000).toFixed(1)}m)
+          </strong>
+        </div>
+
+        <input
+          id="wall-width-range"
+          type="range"
+          min={800}
+          max={4500}
+          step={50}
+          value={wallWidthMm}
+          onChange={(e) => setWallWidthMm(Number(e.target.value))}
+          className="w-full accent-[#0E1A2B] cursor-pointer"
+        />
+
+        {/* 시각적 1D 공간 점유 바 */}
+        <div className="relative h-9 w-full overflow-hidden rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] flex items-center">
+          <div
+            style={{ width: `${occupyPercent}%` }}
+            className={`h-full flex items-center justify-center text-[11px] font-extrabold text-white transition-all duration-200 ${
+              fitsWall ? "bg-[#0E1A2B]" : "bg-red-600"
+            }`}
+          >
+            제품 {productWidth}mm
+          </div>
+          {clearancePercent > 0 && (
+            <div
+              style={{ width: `${clearancePercent}%` }}
+              className="h-full bg-[#FADCD0] flex items-center justify-center text-[10px] font-bold text-[#B5431A] border-r border-dashed border-[#D9531E]"
+              title="양옆 방열 여유 100mm"
+            >
+              방열 100
+            </div>
+          )}
+          <div className="flex-1 px-2 text-right text-[11px] font-semibold text-[#646E7E] truncate tabular-nums">
+            {fitsWall
+              ? `남는 여유: ${(wallWidthMm - requiredTotalWidth).toLocaleString()}mm`
+              : `폭 부족: ${(requiredTotalWidth - wallWidthMm).toLocaleString()}mm`}
+          </div>
+        </div>
+      </div>
+
+      {/* 2. 출입문 반입 통과 시뮬레이션 */}
+      <div className="space-y-2 pt-1">
+        <span className="block text-[12.5px] font-bold text-[#0E1A2B]">
+          2) 출입구(현관·주방문) 폭 선택 — 반입 통과 여부 확인
+        </span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          {DOOR_PRESETS.map((d) => {
+            const active = doorWidthMm === d.widthMm;
+            return (
+              <button
+                key={d.label}
+                type="button"
+                onClick={() => setDoorWidthMm(d.widthMm)}
+                className={`rounded-lg border px-2.5 py-2 text-[11.5px] font-bold transition-colors ${
+                  active
+                    ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
+                    : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
+                }`}
+              >
+                {d.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div
+          className={`rounded-lg border px-3.5 py-2.5 text-[12.5px] flex items-center justify-between gap-2 ${
+            fitsWall && fitsDoor
+              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+              : "border-amber-300 bg-amber-50 text-amber-950"
+          }`}
+        >
+          <span>
+            {fitsWall && fitsDoor ? (
+              <>
+                ✅ <strong>설치 공간 및 출입문 반입 여유 충분:</strong> 양옆 방열 공간(100mm)을 포함해 안정적인 배치가 가능합니다.
+              </>
+            ) : !fitsWall ? (
+              <>
+                ⚠️ <strong>설치 자리 폭 확인 필요:</strong> 방열 여유를 포함해 최소{" "}
+                <strong>{requiredTotalWidth.toLocaleString()}mm</strong> 이상의 가로 공간이 권장됩니다.
+              </>
+            ) : (
+              <>
+                ⚠️ <strong>출입문 통과 확인 필요:</strong> 도어 탈거 반입이나 창문(사다리차) 진입 여부는 문의 시 알려주시면 안내해 드립니다.
+              </>
+            )}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/products/v2-visual-inspection-viewer.tsx" lines="240">
+      <![CDATA[
+// 파일 경로: components/products/v2-visual-inspection-viewer.tsx
+"use client";
+
+import React, { useState } from "react";
+import { normalizeProductCategory } from "../../lib/site";
+import { Icon, ICON } from "../../lib/ui";
+
+interface InspectionPoint {
+  id: string;
+  badge: string;
+  title: string;
+  status: string;
+  detail: string;
+}
+
+function getInspectionPoints(
+  categoryRaw?: string | null,
+  conditionGrade?: string | null
+): InspectionPoint[] {
+  const cat = normalizeProductCategory(categoryRaw);
+  const gradeText = conditionGrade || "A급 (매장 검수 통과)";
+
+  if (cat === "에어컨/냉난방기") {
+    return [
+      {
+        id: "hvac-core",
+        badge: "구동 · 냉매",
+        title: "콤프레샤 압력 및 냉난방 토출 온도",
+        status: "정상 작동 확인",
+        detail:
+          "실내기·실외기 연결 시운전을 통해 정격 냉매 압력과 목표 토출 온도 도달 여부를 점검했습니다.",
+      },
+      {
+        id: "hvac-clean",
+        badge: "분해 살균",
+        title: "열교환기(에바) · 송풍팬 고압 약제 세척",
+        status: "고압 살균 완료",
+        detail:
+          "전면 패널과 필터, 송풍팬을 분리하여 고압 세척기로 내부 먼지와 냄새 유발 물질을 제거했습니다.",
+      },
+      {
+        id: "hvac-elec",
+        badge: "전장 · 센서",
+        title: "인버터 기판 · 온도 센서 · 드레인 배수",
+        status: "점검 통과",
+        detail:
+          "응축수 배수 불량(누수) 여부와 리모컨 수신부, 풍향 날개 모터 작동을 확인했습니다.",
+      },
+      {
+        id: "hvac-body",
+        badge: "외관 등급",
+        title: `외관 컨디션 (${gradeText})`,
+        status: gradeText,
+        detail:
+          "중고 특성상 미세한 생활 흔적은 있을 수 있으나 깨짐이나 변형 없이 깔끔하게 정비된 상태입니다.",
+      },
+    ];
+  }
+
+  if (cat === "업소용기기") {
+    return [
+      {
+        id: "biz-comp",
+        badge: "냉각 · 콤프",
+        title: "콤프레샤 구동 및 영하/냉장 온도 편차",
+        status: "시운전 통과",
+        detail:
+          "연속 가동 테스트를 통해 설정 온도 도달 시간과 디지털 온도 조절기(온도 편차) 정상 작동을 확인했습니다.",
+      },
+      {
+        id: "biz-clean",
+        badge: "스텐 · 내부",
+        title: "내부 스텐 선반 · 배수로 고압 스팀 살균",
+        status: "스팀 세척 완료",
+        detail:
+          "식자재가 닿는 내부 선반과 바닥 배수로, 응축기(콘덴서) 먼지망까지 고압 세척 및 살균을 마쳤습니다.",
+      },
+      {
+        id: "biz-seal",
+        badge: "밀폐 · 패킹",
+        title: "도어 고무패킹 밀착력 및 힌지 탄성",
+        status: "냉기 누설 없음",
+        detail:
+          "문 닫힘 시 냉기가 새지 않도록 도어 가스켓(고무패킹)의 찢어짐 여부와 밀착 상태를 점검했습니다.",
+      },
+      {
+        id: "biz-body",
+        badge: "외관 등급",
+        title: `외관 컨디션 (${gradeText})`,
+        status: gradeText,
+        detail:
+          "매장 주방이나 홀에 바로 배치하실 수 있도록 외부 광택 및 오염 제거 작업을 완료했습니다.",
+      },
+    ];
+  }
+
+  return [
+    {
+      id: "home-motor",
+      badge: "모터 · 냉각",
+      title: "핵심 구동계(콤프레샤·모터) 연속 시운전",
+      status: "정상 작동 확인",
+      detail:
+        "입고 직후와 세척 완료 후 총 2회에 걸쳐 전원 인가 및 정상 가동(소음·진동·냉각) 테스트를 거쳤습니다.",
+    },
+    {
+      id: "home-clean",
+      badge: "분해 세척",
+      title: "내부 선반 · 세탁조 · 고무패킹 고압 살균",
+      status: "살균 세척 완료",
+      detail:
+        "일반 물걸레질이 아닌 부품 분리 후 고압 스팀·전용 세제로 보이지 않는 틈새 오염까지 제거했습니다.",
+    },
+    {
+      id: "home-leak",
+      badge: "누수 · 배수",
+      title: "급배수 밸브 · 도어 밀폐력 점검",
+      status: "이상 없음",
+      detail:
+        "설치 후 누수나 냉기 손실이 발생하지 않도록 패킹 밀착도와 배수 계통을 꼼꼼히 확인했습니다.",
+    },
+    {
+      id: "home-body",
+      badge: "외관 등급",
+      title: `외관 컨디션 (${gradeText})`,
+      status: gradeText,
+      detail:
+        "중촌동 직영 매장에 방문하시면 실제 외관과 내부 상태를 직접 열어보고 확인하실 수 있습니다.",
+    },
+  ];
+}
+
+export function V2VisualInspectionViewer({
+  category,
+  conditionGrade,
+}: {
+  category?: string | null;
+  conditionGrade?: string | null;
+}) {
+  const points = getInspectionPoints(category, conditionGrade);
+  const [activeId, setActiveId] = useState<string>(points[0].id);
+
+  const activePoint =
+    points.find((p) => p.id === activeId) || points[0];
+
+  return (
+    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#0E1A2B] text-white">
+            <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#FF8A50]" />
+          </span>
+          <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
+            한밭중고전자 4대 부위별 정밀 검수 리포트
+          </h3>
+        </div>
+        <span className="text-[11.5px] font-semibold text-[#646E7E]">
+          항목을 누르면 세부 점검 기준을 확인할 수 있습니다
+        </span>
+      </div>
+
+      {/* 3단계 세척·검수 공정 프로그레스 바 */}
+      <div className="grid grid-cols-3 gap-2 text-center text-[11.5px] font-bold">
+        {[
+          { step: "STEP 1", name: "입고 작동·냉매 진단" },
+          { step: "STEP 2", name: "분해 고압 스팀 살균" },
+          { step: "STEP 3", name: "출고 전 연속 시운전" },
+        ].map((st) => (
+          <div
+            key={st.step}
+            className="rounded-lg border border-[#E5E2DC] bg-white px-2 py-2"
+          >
+            <span className="block text-[10px] font-extrabold text-[#D9531E]">
+              {st.step} ✓
+            </span>
+            <span className="mt-0.5 block text-[#0E1A2B] truncate">
+              {st.name}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* 4대 부위별 인터랙티브 핀포인트 탭 */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {points.map((pt, idx) => {
+          const isSelected = pt.id === activeId;
+          return (
+            <button
+              key={pt.id}
+              type="button"
+              onClick={() => setActiveId(pt.id)}
+              aria-pressed={isSelected}
+              className={`flex flex-col items-start justify-between rounded-lg border p-2.5 text-left transition-all ${
+                isSelected
+                  ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
+                  : "border-[#E5E2DC] bg-white text-[#0E1A2B] hover:border-[#0E1A2B]"
+              }`}
+            >
+              <div className="flex w-full items-center justify-between gap-1">
+                <span
+                  className={`rounded px-1.5 py-0.5 text-[10px] font-extrabold ${
+                    isSelected
+                      ? "bg-[#D9531E] text-white"
+                      : "bg-[#FAF9F7] text-[#646E7E]"
+                  }`}
+                >
+                  0{idx + 1} · {pt.badge}
+                </span>
+                <span
+                  className={`h-2 w-2 rounded-full ${
+                    isSelected ? "bg-[#FF8A50]" : "bg-emerald-500"
+                  }`}
+                />
+              </div>
+              <strong className="mt-2 block text-[12px] font-bold leading-snug line-clamp-1">
+                {pt.status}
+              </strong>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 선택된 부위 상세 설명 박스 */}
+      <div className="rounded-lg border border-[#E5E2DC] bg-white p-3.5 text-[13px]">
+        <div className="flex items-center justify-between gap-2 mb-1">
+          <strong className="font-extrabold text-[#0E1A2B]">
+            • {activePoint.title}
+          </strong>
+          <span className="shrink-0 rounded bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
+            ✔ {activePoint.status}
+          </span>
+        </div>
+        <p className="text-[#3E4756] leading-relaxed break-keep">
+          {activePoint.detail}
+        </p>
+      </div>
     </div>
   );
 }
@@ -25400,7 +26811,7 @@ const supabase = createClient(url, anonKey);
 async function runDiagnostics() {
   // 1. products 테이블 검사
   try {
-    const { data, error, count } = await supabase
+    const { error, count } = await supabase
       .from("products")
       .select("id, title, category, price, status, views, condition_grade", { count: "exact" })
       .limit(1);
@@ -25416,7 +26827,7 @@ async function runDiagnostics() {
 
   // 2. purchase_requests 테이블 신규 컬럼 검사
   try {
-    const { data, error, count } = await supabase
+    const { error, count } = await supabase
       .from("purchase_requests")
       .select("id, inquiry_type, category, status, is_notice, model, condition_grade, region, admin_reply", { count: "exact" })
       .limit(1);
@@ -25690,10 +27101,9 @@ main().catch((err) => {
 
 ]]>
     </file>
-    <file path="scripts/generate-favicons.mjs" lines="82">
+    <file path="scripts/generate-favicons.mjs" lines="81">
       <![CDATA[
 import fs from "fs";
-import path from "path";
 import sharp from "sharp";
 
 const svg = `<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -25776,10 +27186,9 @@ main().catch(console.error);
 
 ]]>
     </file>
-    <file path="scripts/generate-og-image.mjs" lines="29">
+    <file path="scripts/generate-og-image.mjs" lines="28">
       <![CDATA[
 import sharp from "sharp";
-import fs from "fs";
 
 async function generateOgImages() {
   console.log("Generating og-image.jpg and og-image.png from main-bg2.png...");
@@ -26064,10 +27473,9 @@ run();
 
 ]]>
     </file>
-    <file path="scripts/run-git.mjs" lines="39">
+    <file path="scripts/run-git.mjs" lines="38">
       <![CDATA[
 import { spawnSync } from 'child_process';
-import fs from 'fs';
 
 const gitExe = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
 

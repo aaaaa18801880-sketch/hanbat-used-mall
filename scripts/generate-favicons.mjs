@@ -1,5 +1,4 @@
 import fs from "fs";
-import path from "path";
 import sharp from "sharp";
 
 const svg = `<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">

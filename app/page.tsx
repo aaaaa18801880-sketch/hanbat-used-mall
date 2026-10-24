@@ -40,9 +40,10 @@ import { FeaturedProductsSection } from "../components/home/featured-products-se
 import { CategoryPictogramBar } from "../components/home/category-pictogram-bar";
 import { AiRecommendationGuideSection } from "../components/home/ai-recommendation-guide-section";
 import {
-  UnifiedInquiryForm,
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
+import { V2DualModeConcierge } from "../components/home/v2-dual-mode-concierge";
+import { V2InquirySectionWithWizard } from "../components/inquiry/v2-wizard-quick-inquiry";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
 import { RecentViewedStrip } from "../components/products/product-compare-modal";
 
@@ -664,6 +665,12 @@ export default function Home() {
             ════════════════════════════════════════════════════════════ */}
         <CategoryPictogramBar onSelectInquiry={(type) => openInquiry(type)} />
 
+        {/* [3-1] V2.0 듀얼 모드(B2C/B2B) 스위처 & AI 예산 맞춤 세트 큐레이터 */}
+        <V2DualModeConcierge
+          products={featuredProducts}
+          onOpenInquiry={openInquiry}
+        />
+
         {/* ════════════════════════════════════════════════════════════
             [4] 실시간 추천 실매물 & 최근 본 매물 (#featured-products-section)
             — 카테고리 선택 후 바로 실매물을 확인하도록 상단 전진 배치
@@ -1269,7 +1276,7 @@ export default function Home() {
                 id="inquiry-form"
                 className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-7 lg:p-8 lg:col-span-8 shadow-2xs"
               >
-                <UnifiedInquiryForm
+                <V2InquirySectionWithWizard
                   defaultType={inquiryType}
                   linkedProduct={linkedProduct}
                   onSuccess={() => loadRecent()}

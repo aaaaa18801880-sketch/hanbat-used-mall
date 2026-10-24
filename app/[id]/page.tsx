@@ -36,6 +36,8 @@ import {
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
 import { RecentViewedStrip } from "../../components/products/product-compare-modal";
+import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
+import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
 
 export const dynamic = "force-dynamic";
 
@@ -566,6 +568,18 @@ export default async function ProductDetailPage({
               {/* 3. 주요 사양 및 상태 설명 (통합 구조화 컴포넌트) */}
               <div className="mt-5">
                 <ProductStructuredDescription description={product.description} />
+              </div>
+
+              {/* 3-1. V2 비주얼 검수 리포트 & 설치 공간 시뮬레이터 */}
+              <div className="mt-5 space-y-4">
+                <V2VisualInspectionViewer
+                  category={categoryLabel}
+                  conditionGrade={product.condition_grade}
+                />
+                <V2SpatialFitPlanner
+                  title={product.title}
+                  description={product.description}
+                />
               </div>
             </div>
 

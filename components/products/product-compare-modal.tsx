@@ -21,6 +21,7 @@ import {
   removeQuoteBasketItem,
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
+import { V2SpatialFitPlanner } from "./v2-spatial-fit-planner";
 
 function extractWidthMmFromItem(item: QuoteBasketItem): number | null {
   const text = `${item.title || ""}\n${item.description || ""}`;
@@ -133,23 +134,29 @@ export function ProductCompareModal({
                 );
 
                 return (
-                  <div className="mb-4 rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
-                    <span>
-                      📏{" "}
-                      <strong className="text-[#0E1A2B]">
-                        설치 공간 가로폭 참고:
-                      </strong>{" "}
-                      치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
-                      <strong className="text-[#D9531E] font-extrabold tabular-nums">
-                        {totalWidthMm.toLocaleString()}mm (
-                        {(totalWidthMm / 1000).toFixed(2)}m)
-                      </strong>
-                      입니다.
-                    </span>
-                    <span className="text-[11.5px] text-[#646E7E]">
-                      ※ 방열 및 문열림을 위해 양옆 최소 100mm 이상 여유 공간을
-                      권장합니다.
-                    </span>
+                  <div className="mb-4 space-y-3">
+                    <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
+                      <span>
+                        📏{" "}
+                        <strong className="text-[#0E1A2B]">
+                          설치 공간 가로폭 참고:
+                        </strong>{" "}
+                        치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
+                        <strong className="text-[#D9531E] font-extrabold tabular-nums">
+                          {totalWidthMm.toLocaleString()}mm (
+                          {(totalWidthMm / 1000).toFixed(2)}m)
+                        </strong>
+                        입니다.
+                      </span>
+                      <span className="text-[11.5px] text-[#646E7E]">
+                        ※ 방열 및 문열림을 위해 양옆 최소 100mm 이상 여유 공간을
+                        권장합니다.
+                      </span>
+                    </div>
+                    <V2SpatialFitPlanner
+                      overrideWidthMm={totalWidthMm}
+                      title={compareItems.map((it) => it.title).join(" + ")}
+                    />
                   </div>
                 );
               })()}

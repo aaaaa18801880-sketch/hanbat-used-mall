@@ -1,5 +1,4 @@
 import sharp from "sharp";
-import fs from "fs";
 
 async function generateOgImages() {
   console.log("Generating og-image.jpg and og-image.png from main-bg2.png...");
