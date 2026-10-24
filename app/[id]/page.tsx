@@ -608,18 +608,18 @@ export default async function ProductDetailPage({
 
         {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
         <section
-          aria-label="품목별 공통 검수 기준 안내 및 설치 공간 시뮬레이터"
+          aria-label="출고 전 정밀 검수 내역 및 우리 집 설치 환경 체크"
           className="mt-12 pt-8 border-t-2 border-[#0E1A2B]"
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <span className="hb-eyebrow">SHOWROOM INSPECTION &amp; FIT</span>
+              <span className="hb-eyebrow">INSPECTION &amp; INSTALLATION GUIDE</span>
               <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
-                품목별 4대 부위 검수 기준 &amp; 설치 가능성 계산기
+                출고 전 정밀 검수 내역 &amp; 우리 집 설치 환경 체크
               </h2>
             </div>
             <p className="text-hb-xs text-[#646E7E]">
-              한밭중고전자 공통 출고 검수 기준과 우리 집 설치 여유 공간을 미리 확인해 보세요.
+              한밭중고전자 전문 엔지니어의 4대 핵심 검수 내역과 우리 집 설치 가능 여부를 한눈에 확인하세요.
             </p>
           </div>
 
@@ -631,6 +631,7 @@ export default async function ProductDetailPage({
             <V2SpatialFitPlanner
               title={product.title}
               description={product.description}
+              category={categoryLabel}
             />
           </div>
         </section>

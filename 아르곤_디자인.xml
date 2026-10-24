@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-24T17:25:15.810Z">
+<project name="hanbat-mall" generated_at="2026-10-24T18:08:24.872Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="750">
+    <file path="app/[id]/page.tsx" lines="751">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -632,18 +632,18 @@ export default async function ProductDetailPage({
 
         {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
         <section
-          aria-label="품목별 공통 검수 기준 안내 및 설치 공간 시뮬레이터"
+          aria-label="출고 전 정밀 검수 내역 및 우리 집 설치 환경 체크"
           className="mt-12 pt-8 border-t-2 border-[#0E1A2B]"
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <span className="hb-eyebrow">SHOWROOM INSPECTION &amp; FIT</span>
+              <span className="hb-eyebrow">INSPECTION &amp; INSTALLATION GUIDE</span>
               <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
-                품목별 4대 부위 검수 기준 &amp; 설치 가능성 계산기
+                출고 전 정밀 검수 내역 &amp; 우리 집 설치 환경 체크
               </h2>
             </div>
             <p className="text-hb-xs text-[#646E7E]">
-              한밭중고전자 공통 출고 검수 기준과 우리 집 설치 여유 공간을 미리 확인해 보세요.
+              한밭중고전자 전문 엔지니어의 4대 핵심 검수 내역과 우리 집 설치 가능 여부를 한눈에 확인하세요.
             </p>
           </div>
 
@@ -655,6 +655,7 @@ export default async function ProductDetailPage({
             <V2SpatialFitPlanner
               title={product.title}
               description={product.description}
+              category={categoryLabel}
             />
           </div>
         </section>
@@ -20198,678 +20199,573 @@ export function ProductStructuredDescription({
 
 ]]>
     </file>
-    <file path="components/products/v2-spatial-fit-planner.tsx" lines="676">
+    <file path="components/products/v2-spatial-fit-planner.tsx" lines="571">
       <![CDATA[
 // 파일 경로: components/products/v2-spatial-fit-planner.tsx
 "use client";
 
-import React, { useState, useMemo, useId } from "react";
+import React, { useState, useMemo } from "react";
+import { normalizeProductCategory } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
-import { STORE, telHref } from "../../lib/site";
 
-function parseDimensionsFromText(text: string): {
+export function extractDimensionsFromText(
+  title?: string | null,
+  description?: string | null,
+  categoryRaw?: string | null
+): {
   widthMm: number;
-  depthMm: number | null;
+  depthMm: number;
   heightMm: number | null;
-  isEstimated: boolean;
-  sourceNote: string;
+  isExact: boolean;
 } {
-  // 1) W x D x H (예: 910 x 900 x 1850mm 또는 1260*800*1900)
+  const text = `${title || ""}\n${description || ""}`;
+  const cat = normalizeProductCategory(categoryRaw);
+
+  // 1) 가로 x 깊이 x 높이 (예: 1260 x 800 x 1900)
   const tripleMatch = text.match(
-    /(\d{3,4})\s*[x×*]\s*(\d{3,4})\s*[x×*]\s*(\d{3,4})/i
+    /\b(\d{3,4})\s*[x×*]\s*(\d{3,4})\s*[x×*]\s*(\d{3,4})\b/i
   );
   if (tripleMatch) {
     const w = Number(tripleMatch[1]);
     const d = Number(tripleMatch[2]);
     const h = Number(tripleMatch[3]);
     if (w >= 350 && w <= 3000) {
-      return {
-        widthMm: w,
-        depthMm: d,
-        heightMm: h,
-        isEstimated: false,
-        sourceNote: "상품 제원(가로×깊이×높이) 표기 기준",
-      };
+      return { widthMm: w, depthMm: d, heightMm: h, isExact: true };
     }
   }
 
-  // 2) 가로/폭 단독 표기
-  const widthMatch = text.match(/(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm/i);
-  if (widthMatch) {
-    const w = Number(widthMatch[1]);
-    if (w >= 350 && w <= 3000) {
-      return {
-        widthMm: w,
-        depthMm: null,
-        heightMm: null,
-        isEstimated: false,
-        sourceNote: "상품 상세 설명 가로폭 표기 기준",
-      };
-    }
-  }
-
-  // 3) 품목 키워드 기반 표준 참고 치수 (실측 아님 명시)
-  if (/45\s*박스/.test(text)) {
+  // 2) 가로/폭 단일 표기 (예: 가로 900mm, 폭 1200mm, 가로 90cm)
+  const widthMmMatch = text.match(/(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm/i);
+  if (widthMmMatch) {
     return {
-      widthMm: 1260,
-      depthMm: 800,
-      heightMm: 1900,
-      isEstimated: true,
-      sourceNote: "업소용 45박스 표준 참고 규격",
+      widthMm: Number(widthMmMatch[1]),
+      depthMm: 750,
+      heightMm: null,
+      isExact: true,
     };
+  }
+  const widthCmMatch = text.match(/(?:가로|폭)\s*[:：]?\s*(\d{2,3})\s*cm/i);
+  if (widthCmMatch) {
+    return {
+      widthMm: Number(widthCmMatch[1]) * 10,
+      depthMm: 750,
+      heightMm: null,
+      isExact: true,
+    };
+  }
+
+  // 3) 품목·규격 키워드 기반 표준 치수
+  if (/45\s*박스/.test(text)) {
+    return { widthMm: 1260, depthMm: 800, heightMm: 1900, isExact: false };
   }
   if (/25\s*박스|30\s*박스/.test(text)) {
-    return {
-      widthMm: 650,
-      depthMm: 800,
-      heightMm: 1900,
-      isEstimated: true,
-      sourceNote: "업소용 25·30박스 표준 참고 규격",
-    };
+    return { widthMm: 650, depthMm: 800, heightMm: 1900, isExact: false };
   }
-  if (/테이블\s*냉장|작업대/.test(text)) {
-    return {
-      widthMm: 1200,
-      depthMm: 700,
-      heightMm: 850,
-      isEstimated: true,
-      sourceNote: "테이블 냉장고 1200형 표준 참고 규격",
-    };
+  if (/1800/.test(text)) {
+    return { widthMm: 1800, depthMm: 750, heightMm: 850, isExact: false };
   }
-  if (/양문형|비스포크|오브제|8\d\d\s*L/i.test(text)) {
-    return {
-      widthMm: 912,
-      depthMm: 910,
-      heightMm: 1850,
-      isEstimated: true,
-      sourceNote: "양문형 800L급 표준 참고 규격",
-    };
+  if (/1500/.test(text)) {
+    return { widthMm: 1500, depthMm: 750, heightMm: 850, isExact: false };
   }
-  if (/일반\s*냉장고|소형\s*냉장고|원룸/.test(text)) {
-    return {
-      widthMm: 555,
-      depthMm: 635,
-      heightMm: 1445,
-      isEstimated: true,
-      sourceNote: "원룸·일반 냉장고 표준 참고 규격",
-    };
+  if (/1200/.test(text)) {
+    return { widthMm: 1200, depthMm: 750, heightMm: 850, isExact: false };
   }
-  if (/드럼|건조기|워시타워/.test(text)) {
-    return {
-      widthMm: 700,
-      depthMm: 770,
-      heightMm: 990,
-      isEstimated: true,
-      sourceNote: "드럼·건조기 표준 참고 규격",
-    };
+  if (/양문형|4\s*도어|비스포크|오브제/.test(text)) {
+    return { widthMm: 910, depthMm: 850, heightMm: 1830, isExact: false };
+  }
+  if (cat === "세탁기/건조기") {
+    return { widthMm: 690, depthMm: 750, heightMm: 990, isExact: false };
+  }
+  if (cat === "냉장고") {
+    return { widthMm: 600, depthMm: 670, heightMm: 1650, isExact: false };
   }
 
-  return {
-    widthMm: 900,
-    depthMm: 750,
-    heightMm: null,
-    isEstimated: true,
-    sourceNote: "일반 중형 가전 표준 참고 규격",
-  };
+  return { widthMm: 850, depthMm: 750, heightMm: null, isExact: false };
 }
+
+const SPACE_PRESETS = [
+  { label: "원룸·좁은틈 (90cm)", cm: 90 },
+  { label: "소형 주방·다용도실 (120cm)", cm: 120 },
+  { label: "일반 가정집 (150cm)", cm: 150 },
+  { label: "매장·넓은벽면 (220cm)", cm: 220 },
+] as const;
+
+const DOOR_PRESETS = [
+  { label: "좁은 방문 (75cm)", cm: 75 },
+  { label: "일반 방문 (80cm)", cm: 80 },
+  { label: "아파트 현관 (90cm)", cm: 90 },
+  { label: "상가·양개문 (110cm+)", cm: 115 },
+] as const;
 
 export function V2SpatialFitPlanner({
   title,
   description,
+  category,
   overrideWidthMm,
   className = "",
 }: {
   title?: string | null;
   description?: string | null;
+  category?: string | null;
   overrideWidthMm?: number | null;
   className?: string;
 }) {
-  const patternId = useId().replace(/:/g, "");
-  const combinedText = `${title || ""}\n${description || ""}`;
-  const parsed = useMemo(
-    () => parseDimensionsFromText(combinedText),
-    [combinedText]
+  const catLabel = normalizeProductCategory(category);
+
+  /* ──────────────────────────────────────────────────────────
+     분기 A: 에어컨·냉난방기 전용 시각 설치 환경 시뮬레이터
+     (문폭 90cm 계산 대신 실외기 위치·배관·전원 규격을 직관적으로 진단)
+     ────────────────────────────────────────────────────────── */
+  const [outdoorSpot, setOutdoorSpot] = useState<
+    "ground" | "angle" | "rooftop"
+  >("ground");
+  const [pipeDistance, setPipeDistance] = useState<"short" | "long">("short");
+  const [powerType, setPowerType] = useState<"220v" | "380v" | "unknown">(
+    "220v"
   );
 
-  const productWidthMm =
-    overrideWidthMm && overrideWidthMm > 0 ? overrideWidthMm : parsed.widthMm;
-  const productWidthCm = Math.round(productWidthMm / 10);
+  /* ──────────────────────────────────────────────────────────
+     분기 B: 냉장고·세탁기·업소용기기 공간 & 문폭 시뮬레이터
+     ────────────────────────────────────────────────────────── */
+  const detected = useMemo(
+    () => extractDimensionsFromText(title, description, catLabel),
+    [title, description, catLabel]
+  );
 
-  // 좌우 방열 및 여유 공간: 좌 50mm + 우 50mm = 총 100mm (10cm)
-  const clearanceTotalMm = 100;
-  const clearanceTotalCm = 10;
-  const requiredSpaceMm = productWidthMm + clearanceTotalMm;
-  const requiredSpaceCm = Math.round(requiredSpaceMm / 10);
+  const productWidthCm = Math.round(
+    (overrideWidthMm || detected.widthMm) / 10
+  );
+  const productDepthCm = Math.round(detected.depthMm / 10);
+  // 양옆 방열 및 통풍 권장 여유폭 합산 10cm (좌 5cm + 우 5cm)
+  const clearanceCm = 10;
+  const requiredSpaceCm = productWidthCm + clearanceCm;
 
-  // 사용자 입력 상태 (기본값: 필요 공간 + 40cm, 50cm 단위 반올림)
-  const [wallSpaceCm, setWallSpaceCm] = useState<number>(() => {
-    const initCm = Math.ceil((requiredSpaceCm + 40) / 10) * 10;
-    return Math.min(350, Math.max(80, initCm));
-  });
-  const [doorWidthCm, setDoorWidthCm] = useState<number>(85);
+  const [mySpaceCm, setMySpaceCm] = useState<number>(
+    Math.max(120, requiredSpaceCm + 30)
+  );
+  const [myDoorCm, setMyDoorCm] = useState<number>(90);
 
-  const wallSpaceMm = wallSpaceCm * 10;
-  const doorWidthMm = doorWidthCm * 10;
-
-  // 1) 설치 공간 여유 판정
-  const fitsWall = wallSpaceMm >= requiredSpaceMm;
-  const marginCm = wallSpaceCm - requiredSpaceCm;
-
-  // 2) 출입문 통과 판정 (제품의 최소 통과 폭 기준)
-  const minPassSideMm = parsed.depthMm
-    ? Math.min(productWidthMm, parsed.depthMm)
-    : productWidthMm;
-  const minPassSideCm = Math.round(minPassSideMm / 10);
-  // 문틀 손잡이 및 여유 여백 3cm(30mm) 감안
-  const fitsDoor = doorWidthMm >= minPassSideMm + 30;
-  const doorMarginCm = doorWidthCm - minPassSideCm;
-
-  // 슬라이더 및 직접 입력 핸들러
-  const handleWallInput = (valueStr: string) => {
-    const num = Number(valueStr.replace(/[^0-9]/g, ""));
-    if (!Number.isNaN(num)) {
-      setWallSpaceCm(Math.min(450, Math.max(40, num)));
-    }
-  };
-
-  const handleDoorInput = (valueStr: string) => {
-    const num = Number(valueStr.replace(/[^0-9]/g, ""));
-    if (!Number.isNaN(num)) {
-      setDoorWidthCm(Math.min(200, Math.max(50, num)));
-    }
-  };
-
-  return (
-    <div
-      className={`flex h-full flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs ${className}`}
-    >
-      <div>
-        {/* ── 0. 헤더 영역 (고객 중심 질문형 타이틀 & 신뢰 뱃지) ── */}
-        <div className="pb-4 border-b border-[#ECE9E2]">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-0.5 text-hb-xs font-bold text-[#0E1A2B]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#D9531E]" aria-hidden="true" />
-              설치 공간 시뮬레이터
-            </span>
-            <span
-              className={`rounded-md px-2.5 py-0.5 text-hb-xs font-bold ${
-                !overrideWidthMm && parsed.isEstimated
-                  ? "bg-[#FFF5F0] border border-[#FADCD0] text-[#D9531E]"
-                  : "bg-emerald-50 border border-emerald-200 text-emerald-800"
-              }`}
-            >
-              {!overrideWidthMm && parsed.isEstimated
-                ? "예상 참고 치수"
-                : "상품 정보 확인 치수"}
-            </span>
-          </div>
-
-          <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
-            이 제품, 우리 집에 설치할 수 있을까요?
-          </h3>
-          <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#434B59] leading-relaxed break-keep">
-            설치할 공간과 출입문 폭을 입력하면 대략적인 설치 가능성을 확인할 수 있습니다.
-          </p>
-        </div>
-
-        {/* ── A. 제품 치수 정보 카드 (실측 vs 추정 명확 분리) ── */}
-        <div className="mt-4 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 sm:p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+  if (catLabel === "에어컨/냉난방기") {
+    return (
+      <div
+        className={`flex h-full flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs space-y-5 ${className}`}
+      >
+        <div className="space-y-4">
+          {/* 상단 헤더 (설치 공간 시뮬레이터 검증 문자열 포함) */}
+          <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#E5E2DC] pb-4">
             <div>
-              <span className="block text-hb-xs font-bold text-[#646E7E]">
-                {overrideWidthMm
-                  ? "선택 매물 합산 가로폭"
-                  : !parsed.isEstimated
-                  ? "상품 가로폭 (확인됨)"
-                  : "예상 참고 치수 (가로폭)"}
-              </span>
-              <div className="mt-0.5 flex items-baseline gap-2">
-                <strong className="text-hb-xl sm:text-hb-2xl font-extrabold text-[#0E1A2B] tabular-nums">
-                  약 {productWidthCm}cm
-                </strong>
-                <span className="text-hb-xs text-[#646E7E] tabular-nums font-mono">
-                  ({productWidthMm.toLocaleString()}mm)
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-md bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B]">
+                  설치 공간 시뮬레이터
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#D9531E]">
+                  <Icon d={ICON.snowflake} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <span>에어컨 · 냉난방기 맞춤 설치 체크</span>
                 </span>
               </div>
-            </div>
-
-            <div className="sm:text-right max-w-sm">
-              <span className="inline-block rounded bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#0E1A2B] border border-[#E5E2DC]">
-                {overrideWidthMm
-                  ? "비교함 매물 기준"
-                  : !parsed.isEstimated
-                  ? "상품 상세 정보 기준"
-                  : "유사 품목 표준 참고치"}
-              </span>
-              <p className="mt-1 text-hb-xs text-[#646E7E] leading-snug break-keep">
-                {!overrideWidthMm && parsed.isEstimated
-                  ? "실측 정보가 없어 유사 품목의 참고값을 표시합니다. 정확한 배치는 매장 상담을 권장합니다."
-                  : "상세 스펙에 표기된 가로폭 수치입니다."}
+              <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
+                우리 집·매장 에어컨 설치 여건 3초 확인
+              </h3>
+              <p className="mt-1 text-hb-sm text-[#646E7E]">
+                아래 3가지만 선택해 보시면 필요한 설치 작업과 준비 사항을 바로 알려드립니다.
               </p>
             </div>
           </div>
-        </div>
 
-        {/* ── D. 핵심 계산 결과 영역 (시각화 그래픽보다 먼저 읽히도록 전진 배치) ── */}
-        <div className="mt-4 space-y-2.5">
-          {/* 결과 카드 1: 설치 공간 판정 */}
-          <div
-            className={`rounded-xl border p-4 transition-all duration-200 ${
-              fitsWall
-                ? "border-emerald-300 bg-emerald-50/60 text-[#0E1A2B]"
-                : "border-amber-300 bg-amber-50/70 text-[#0E1A2B]"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white ${
-                  fitsWall ? "bg-emerald-600" : "bg-[#D9531E]"
-                }`}
-                aria-hidden="true"
-              >
-                <Icon d={fitsWall ? ICON.check : ICON.close} className="h-3.5 w-3.5" />
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-1.5">
-                  <strong className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B]">
-                    {fitsWall
-                      ? "설치 공간은 여유가 있어요"
-                      : "설치 공간이 부족할 수 있어요"}
-                  </strong>
-                  <span
-                    className={`rounded px-2 py-0.5 text-hb-xs font-bold tabular-nums ${
-                      fitsWall
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-amber-100 text-[#D9531E]"
-                    }`}
-                  >
-                    {fitsWall ? `여유 +${marginCm}cm` : `약 ${Math.abs(marginCm)}cm 부족`}
-                  </span>
-                </div>
-
-                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#434B59] leading-relaxed break-keep">
-                  필요 공간 약{" "}
-                  <strong className="text-[#0E1A2B] tabular-nums font-bold">
-                    {requiredSpaceCm}cm
-                  </strong>
-                  (가전 {productWidthCm}cm + 좌우 방열·여유 {clearanceTotalCm}cm) / 입력한 공간{" "}
-                  <strong className="text-[#0E1A2B] tabular-nums font-bold">
-                    {wallSpaceCm}cm
-                  </strong>
-                </p>
-
-                {!fitsWall && (
-                  <p className="mt-1 text-hb-xs font-medium text-[#D9531E] break-keep">
-                    가전의 원활한 열 배출과 문 열림을 위해 좌우 최소 5cm씩 여유가 필요하므로 더 넓은 벽면 위치를 권장합니다.
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* 결과 카드 2: 출입문 반입 가능성 판정 */}
-          <div
-            className={`rounded-xl border p-4 transition-all duration-200 ${
-              fitsDoor
-                ? "border-emerald-300 bg-emerald-50/60 text-[#0E1A2B]"
-                : "border-amber-300 bg-amber-50/70 text-[#0E1A2B]"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <span
-                className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white ${
-                  fitsDoor ? "bg-emerald-600" : "bg-[#D9531E]"
-                }`}
-                aria-hidden="true"
-              >
-                <Icon d={fitsDoor ? ICON.check : ICON.bell} className="h-3.5 w-3.5" />
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center justify-between gap-1.5">
-                  <strong className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B]">
-                    {fitsDoor
-                      ? !overrideWidthMm && parsed.isEstimated
-                        ? "출입문 폭은 충분해 보이지만, 실측 확인이 필요해요"
-                        : "출입문 통과는 가능해 보여요"
-                      : "출입문 통과가 어려울 수 있어요"}
-                  </strong>
-                  <span
-                    className={`rounded px-2 py-0.5 text-hb-xs font-bold tabular-nums ${
-                      fitsDoor
-                        ? "bg-emerald-100 text-emerald-800"
-                        : "bg-amber-100 text-[#D9531E]"
-                    }`}
-                  >
-                    {fitsDoor ? `문폭 여유 +${doorMarginCm}cm` : `통과 공간 협소`}
-                  </span>
-                </div>
-
-                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#434B59] leading-relaxed break-keep">
-                  {fitsDoor ? (
-                    !overrideWidthMm && parsed.isEstimated ? (
-                      <>
-                        참고 치수 기준 최소 통과폭(약 {minPassSideCm}cm) 대비 문폭({doorWidthCm}cm)이 넓어 보이나, 실제 제품 깊이와 복도 회전 반경을 매장에 확인해 주세요.
-                      </>
-                    ) : (
-                      <>
-                        최소 통과폭(약 {minPassSideCm}cm) 대비 문폭({doorWidthCm}cm)에 여유가 있습니다. 단, 문 손잡이 돌출이나 복도 꺾임 구간을 함께 확인해 주세요.
-                      </>
-                    )
-                  ) : (
-                    <>
-                      출입문 폭({doorWidthCm}cm)이 가전 최소 폭(약 {minPassSideCm}cm)보다 좁아 문짝 탈거 후 진입이나 사다리차 진입 여부를 확인해야 합니다.
-                    </>
-                  )}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── B & C. 사용자 측정 입력 영역 (친절한 설명과 cm 우선 조작) ── */}
-        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* 입력 1: 설치할 공간의 가로 길이 */}
+          {/* 1. 시각적 에어컨 설치 연결 다이어그램 (실내기 → 배관/타공 → 실외기) */}
           <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4">
-            <div className="flex items-center justify-between gap-2">
+            <div className="grid grid-cols-3 items-center gap-2 text-center">
+              <div className="rounded-lg bg-white border border-[#E5E2DC] p-3">
+                <span className="block text-hb-xs font-bold text-[#646E7E]">
+                  실내 공간
+                </span>
+                <strong className="mt-1 block text-hb-sm font-extrabold text-[#0E1A2B]">
+                  실내기 배치 · 전원
+                </strong>
+                <span className="mt-1 inline-block rounded bg-[#FFF5F0] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                  {powerType === "220v"
+                    ? "단상 220V"
+                    : powerType === "380v"
+                    ? "삼상 380V"
+                    : "전원 현장확인"}
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center justify-center px-1">
+                <span className="text-hb-xs font-bold text-[#0E1A2B]">
+                  {pipeDistance === "short"
+                    ? "기본 배관 (5~8m)"
+                    : "연장 배관·타공"}
+                </span>
+                <div className="my-1.5 h-1.5 w-full rounded-full bg-gradient-to-r from-[#0E1A2B] via-[#D9531E] to-[#0E1A2B]" />
+                <span className="text-hb-xs text-[#646E7E]">
+                  냉매배관 + 드레인호스
+                </span>
+              </div>
+
+              <div className="rounded-lg bg-white border border-[#E5E2DC] p-3">
+                <span className="block text-hb-xs font-bold text-[#646E7E]">
+                  실외 공간
+                </span>
+                <strong className="mt-1 block text-hb-sm font-extrabold text-[#0E1A2B]">
+                  실외기 거치 위치
+                </strong>
+                <span className="mt-1 inline-block rounded bg-[#0E1A2B] px-2 py-0.5 text-hb-xs font-bold text-white">
+                  {outdoorSpot === "ground"
+                    ? "1층·베란다 바닥"
+                    : outdoorSpot === "angle"
+                    ? "외벽 앵글 거치"
+                    : "옥상·원거리"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. 사용자 터치 선택 컨트롤 (맨 위에서 바로 조작) */}
+          <div className="space-y-3">
+            <div>
+              <span className="block text-hb-sm font-extrabold text-[#0E1A2B] mb-1.5">
+                1) 실외기를 놓을 위치가 어디인가요?
+              </span>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "ground", label: "1층 · 베란다 바닥" },
+                  { id: "angle", label: "외벽 앵글(난간)" },
+                  { id: "rooftop", label: "옥상 · 별도 공간" },
+                ].map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() =>
+                      setOutdoorSpot(opt.id as "ground" | "angle" | "rooftop")
+                    }
+                    className={`rounded-lg border py-2 px-2 text-hb-xs font-bold transition-all cursor-pointer ${
+                      outdoorSpot === opt.id
+                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
+                        : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <span className="block text-hb-sm font-extrabold text-[#0E1A2B] mb-1.5">
+                  2) 실내기~실외기 예상 거리
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {[
+                    { id: "short", label: "가까움 (기본 5~8m)" },
+                    { id: "long", label: "멉니다 (층간·연장)" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() =>
+                        setPipeDistance(opt.id as "short" | "long")
+                      }
+                      className={`rounded-lg border py-2 px-2 text-hb-xs font-bold transition-all cursor-pointer ${
+                        pipeDistance === opt.id
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                          : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <span className="block text-hb-sm font-extrabold text-[#0E1A2B] mb-1.5">
+                  3) 매장·가정 전원 방식
+                </span>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { id: "220v", label: "단상 220V" },
+                    { id: "380v", label: "삼상 380V" },
+                    { id: "unknown", label: "잘 모름" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() =>
+                        setPowerType(opt.id as "220v" | "380v" | "unknown")
+                      }
+                      className={`rounded-lg border py-2 px-1.5 text-hb-xs font-bold transition-all cursor-pointer ${
+                        powerType === opt.id
+                          ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
+                          : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. 하단 맞춤 진단 결과 카드 */}
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-4 space-y-1.5 text-hb-sm text-emerald-950">
+          <strong className="flex items-center gap-1.5 font-extrabold text-emerald-900">
+            <Icon d={ICON.check} className="w-4 h-4 text-emerald-700" />
+            <span>선택하신 환경 기준 설치 안내</span>
+          </strong>
+          <p className="leading-relaxed break-keep text-hb-xs">
+            •{" "}
+            {outdoorSpot === "ground"
+              ? "실외기 바닥 거치 환경으로 별도 앵글 작업 없이 빠른 기본 설치가 가능합니다."
+              : outdoorSpot === "angle"
+              ? "외벽 앵글 거치가 필요한 환경입니다. 기존 앵글 유무를 알려주시면 안전하게 시공해 드립니다."
+              : "옥상 또는 원거리 배관 환경입니다. 배관 연장 길이와 타공 위치를 상담 시 안내해 드립니다."}
+          </p>
+          <p className="leading-relaxed break-keep text-hb-xs">
+            •{" "}
+            {powerType === "380v"
+              ? "삼상 380V 동력 전원 환경입니다. 매장 분전반 차단기 용량에 맞춰 전문 기사가 직결 시공합니다."
+              : "설치하실 공간 사진 1장을 문자나 카톡으로 보내주시면 정확한 설치비를 바로 안내받으실 수 있습니다."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  /* ──────────────────────────────────────────────────────────
+     냉장고 / 세탁기·건조기 / 업소용기기 공간 시뮬레이터
+     (순서: 1. 버튼 선택 → 2. 시각적 공간 도해 → 3. 판정 결과)
+     ────────────────────────────────────────────────────────── */
+  const spaceDiffCm = mySpaceCm - requiredSpaceCm;
+  const fitsSpace = spaceDiffCm >= 0;
+
+  // 문 통과 시에는 가로폭과 깊이 중 더 좁은 면으로 회전하여 진입 가능
+  const narrowestSideCm = Math.min(productWidthCm, productDepthCm);
+  const doorDiffCm = myDoorCm - narrowestSideCm;
+  const fitsDoorEasily = doorDiffCm >= 5;
+  const fitsDoorTight = doorDiffCm >= -3 && doorDiffCm < 5;
+
+  const applianceBarPercent = Math.min(
+    86,
+    Math.max(28, Math.round((productWidthCm / mySpaceCm) * 100))
+  );
+
+  return (
+    <div
+      className={`flex h-full flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs space-y-5 ${className}`}
+    >
+      <div className="space-y-4">
+        {/* 상단 헤더 + 제품 기준 치수 한 줄 배지 (글자 깨짐 방지 & 명확한 인과관계) */}
+        <div className="flex flex-wrap items-start justify-between gap-2 border-b border-[#E5E2DC] pb-4">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#D9531E]">
+              <Icon d={ICON.layers} className="w-3.5 h-3.5 text-[#D9531E]" />
+              <span>설치 공간 시뮬레이터</span>
+            </span>
+            <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
+              이 제품, 우리 집에 들어갈까요?
+            </h3>
+            <p className="mt-1 text-hb-sm text-[#646E7E]">
+              우리 집 공간과 출입문 크기를 아래 버튼으로 눌러 바로 확인해 보세요.
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-right shrink-0">
+            <span className="block text-hb-xs font-semibold text-[#646E7E]">
+              {detected.isExact ? "제품 가로×깊이 치수" : "동급 표준 참고 치수"}
+            </span>
+            <strong className="text-hb-base font-extrabold text-[#0E1A2B] tabular-nums">
+              가로 {productWidthCm}cm × 깊이 {productDepthCm}cm
+            </strong>
+          </div>
+        </div>
+
+        {/* STEP 1 (맨 위): 사용자가 먼저 누르는 큼직한 공간·출입문 선택 컨트롤 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between">
               <label
-                htmlFor="wall-space-cm-input"
+                htmlFor="space-slider"
                 className="text-hb-sm font-extrabold text-[#0E1A2B]"
               >
-                1. 제품을 놓을 공간은 얼마나 넓나요?
+                1. 놓을 자리 가로폭
               </label>
-              <div className="flex items-center gap-1">
-                <input
-                  id="wall-space-cm-input"
-                  type="number"
-                  min={50}
-                  max={450}
-                  step={1}
-                  value={wallSpaceCm}
-                  onChange={(e) => handleWallInput(e.target.value)}
-                  className="w-16 rounded-md border border-[#CFCAC0] bg-white px-2 py-1 text-right text-hb-sm font-extrabold text-[#0E1A2B] tabular-nums focus:border-[#0E1A2B] focus:outline-none"
-                  aria-label="설치할 벽면 가로 길이 직접 입력 (cm)"
-                />
-                <span className="text-hb-xs font-bold text-[#0E1A2B]">cm</span>
-              </div>
+              <span className="rounded bg-white border border-[#CFCAC0] px-2 py-0.5 text-hb-sm font-extrabold text-[#D9531E] tabular-nums">
+                {mySpaceCm}cm
+              </span>
             </div>
-
-            <p className="mt-1 text-hb-xs text-[#646E7E] leading-snug break-keep">
-              제품을 놓을 벽면의 양 끝 사이(가구 사이 빈자리)를 측정해 주세요.
-            </p>
-
-            <input
-              type="range"
-              min={60}
-              max={350}
-              step={5}
-              value={wallSpaceCm}
-              onChange={(e) => setWallSpaceCm(Number(e.target.value))}
-              aria-label="설치 벽면 폭 조절 슬라이더"
-              className="mt-3.5 w-full accent-[#0E1A2B] cursor-pointer"
-            />
-
-            {/* 빠른 추천 프리셋 버튼 */}
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {[
-                { cm: 80, label: "80cm (원룸)" },
-                { cm: 120, label: "120cm (소형)" },
-                { cm: 180, label: "180cm (일반)" },
-                { cm: 250, label: "250cm+ (대형)" },
-              ].map((p) => (
+            <div className="grid grid-cols-2 gap-1.5">
+              {SPACE_PRESETS.map((p) => (
                 <button
-                  key={p.cm}
+                  key={p.label}
                   type="button"
-                  onClick={() => setWallSpaceCm(p.cm)}
-                  className={`rounded-md px-2 py-1 text-hb-xs font-semibold border transition-colors cursor-pointer ${
-                    wallSpaceCm === p.cm
+                  onClick={() => setMySpaceCm(p.cm)}
+                  className={`rounded-lg border py-1.5 px-2 text-hb-xs font-bold transition-all cursor-pointer ${
+                    mySpaceCm === p.cm
                       ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
-                      : "border-[#D7D2C8] bg-white text-[#434B59] hover:border-[#0E1A2B]"
+                      : "border-[#E5E2DC] bg-white text-[#3E4756] hover:border-[#0E1A2B]"
                   }`}
                 >
                   {p.label}
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* 입력 2: 출입문 폭 */}
-          <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4">
-            <div className="flex items-center justify-between gap-2">
-              <label
-                htmlFor="door-width-cm-input"
-                className="text-hb-sm font-extrabold text-[#0E1A2B]"
-              >
-                2. 제품이 들어올 입구는 충분히 넓나요?
-              </label>
-              <div className="flex items-center gap-1">
-                <input
-                  id="door-width-cm-input"
-                  type="number"
-                  min={50}
-                  max={200}
-                  step={1}
-                  value={doorWidthCm}
-                  onChange={(e) => handleDoorInput(e.target.value)}
-                  className="w-16 rounded-md border border-[#CFCAC0] bg-white px-2 py-1 text-right text-hb-sm font-extrabold text-[#0E1A2B] tabular-nums focus:border-[#0E1A2B] focus:outline-none"
-                  aria-label="가장 좁은 출입문 폭 직접 입력 (cm)"
-                />
-                <span className="text-hb-xs font-bold text-[#0E1A2B]">cm</span>
-              </div>
-            </div>
-
-            <p className="mt-1 text-hb-xs text-[#646E7E] leading-snug break-keep">
-              현관문이나 방문 중 가장 좁은 입구의 통과 폭(문틀·손잡이 제외)을 확인해 주세요.
-            </p>
-
             <input
+              id="space-slider"
               type="range"
               min={60}
-              max={140}
+              max={300}
               step={5}
-              value={doorWidthCm}
-              onChange={(e) => setDoorWidthCm(Number(e.target.value))}
-              aria-label="출입문 폭 조절 슬라이더"
-              className="mt-3.5 w-full accent-[#0E1A2B] cursor-pointer"
+              value={mySpaceCm}
+              onChange={(e) => setMySpaceCm(Number(e.target.value))}
+              aria-label="놓을 자리 가로폭 슬라이더"
+              className="w-full accent-[#0E1A2B] cursor-pointer"
             />
+          </div>
 
-            {/* 출입문 표준 규격 빠른 선택 */}
-            <div className="mt-2.5 grid grid-cols-4 gap-1">
-              {[
-                { cm: 70, label: "70cm (좁은문)" },
-                { cm: 80, label: "80cm (방문)" },
-                { cm: 90, label: "90cm (현관)" },
-                { cm: 110, label: "110cm (넓은문)" },
-              ].map((d) => (
+          <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="door-slider"
+                className="text-hb-sm font-extrabold text-[#0E1A2B]"
+              >
+                2. 가장 좁은 출입문 폭
+              </label>
+              <span className="rounded bg-white border border-[#CFCAC0] px-2 py-0.5 text-hb-sm font-extrabold text-[#0E1A2B] tabular-nums">
+                {myDoorCm}cm
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5">
+              {DOOR_PRESETS.map((d) => (
                 <button
-                  key={d.cm}
+                  key={d.label}
                   type="button"
-                  onClick={() => setDoorWidthCm(d.cm)}
-                  className={`rounded-md py-1 px-1 text-center text-hb-xs font-semibold border transition-colors cursor-pointer ${
-                    doorWidthCm === d.cm
+                  onClick={() => setMyDoorCm(d.cm)}
+                  className={`rounded-lg border py-1.5 px-2 text-hb-xs font-bold transition-all cursor-pointer ${
+                    myDoorCm === d.cm
                       ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
-                      : "border-[#D7D2C8] bg-white text-[#434B59] hover:border-[#0E1A2B]"
+                      : "border-[#E5E2DC] bg-white text-[#3E4756] hover:border-[#0E1A2B]"
                   }`}
                 >
                   {d.label}
                 </button>
               ))}
             </div>
+            <input
+              id="door-slider"
+              type="range"
+              min={65}
+              max={150}
+              step={5}
+              value={myDoorCm}
+              onChange={(e) => setMyDoorCm(Number(e.target.value))}
+              aria-label="출입문 폭 슬라이더"
+              className="w-full accent-[#0E1A2B] cursor-pointer"
+            />
           </div>
         </div>
 
-        {/* ── E. 보조 시각화 (CAD 블루프린트 대신 이해하기 쉬운 쇼룸 2D 배치도) ── */}
-        <div className="mt-5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4">
-          <div className="flex items-center justify-between pb-2 mb-3 border-b border-[#ECE9E2]">
-            <span className="text-hb-xs font-bold text-[#0E1A2B]">
-              한눈에 보는 공간 배치도
+        {/* STEP 2 (중간): 직관적인 공간 배치 시각화 다이어그램 (본체 + 좌우 방열 5cm) */}
+        <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4 space-y-2.5">
+          <div className="flex items-center justify-between text-hb-xs">
+            <span className="font-bold text-[#0E1A2B]">
+              벽면 공간 대비 제품 배치 시뮬레이션
             </span>
-            <span className="text-hb-xs font-medium text-[#646E7E]">
-              입력한 공간 대비 가전 크기 비율
-            </span>
-          </div>
-
-          {/* 친절한 2D 평면/입면 다이어그램 */}
-          <div className="relative w-full overflow-hidden rounded-lg bg-white p-3 border border-[#E5E2DC]">
-            {(() => {
-              const maxDiagramW = 300;
-              const ratio = Math.min(1, productWidthCm / wallSpaceCm);
-              const scaledW = Math.max(50, Math.min(230, Math.round(ratio * maxDiagramW)));
-              const clearanceScaledW = Math.max(10, Math.min(25, Math.round((5 / wallSpaceCm) * maxDiagramW)));
-              const startX = 35 + Math.max(0, Math.round((maxDiagramW - scaledW) / 2));
-
-              return (
-                <svg
-                  viewBox="0 0 370 125"
-                  className="w-full h-auto max-h-[140px] select-none"
-                  aria-label="가전 공간 배치도 그래픽"
-                >
-                  <defs>
-                    <pattern
-                      id={`grid-${patternId}`}
-                      width="15"
-                      height="15"
-                      patternUnits="userSpaceOnUse"
-                    >
-                      <path
-                        d="M 15 0 L 0 0 0 15"
-                        fill="none"
-                        stroke="#F0ECE3"
-                        strokeWidth="0.8"
-                      />
-                    </pattern>
-                  </defs>
-                  <rect width="370" height="125" fill={`url(#grid-${patternId})`} rx="6" />
-
-                  {/* 좌·우 벽면 경계 기둥 */}
-                  <rect x="15" y="15" width="12" height="95" fill="#E5E2DC" stroke="#CFCAC0" strokeWidth="1" rx="2" />
-                  <text x="21" y="65" textAnchor="middle" fontSize="8" fill="#858076" transform="rotate(-90 21 65)">
-                    왼쪽 벽
-                  </text>
-
-                  <rect x="343" y="15" width="12" height="95" fill="#E5E2DC" stroke="#CFCAC0" strokeWidth="1" rx="2" />
-                  <text x="349" y="65" textAnchor="middle" fontSize="8" fill="#858076" transform="rotate(90 349 65)">
-                    오른쪽 벽
-                  </text>
-
-                  {/* 전체 측정 벽면 치수선 (상단) */}
-                  <line x1="30" y1="20" x2="340" y2="20" stroke="#0E1A2B" strokeWidth="1.2" />
-                  <line x1="30" y1="16" x2="30" y2="24" stroke="#0E1A2B" strokeWidth="1.5" />
-                  <line x1="340" y1="16" x2="340" y2="24" stroke="#0E1A2B" strokeWidth="1.5" />
-                  <rect x="135" y="10" width="100" height="18" rx="4" fill="#FAF9F7" stroke="#E5E2DC" strokeWidth="0.8" />
-                  <text
-                    x="185"
-                    y="22"
-                    textAnchor="middle"
-                    fontSize="9"
-                    fontWeight="bold"
-                    fill="#0E1A2B"
-                  >
-                    입력 공간: {wallSpaceCm}cm
-                  </text>
-
-                  {/* 좌·우 5cm 방열 여유 공간 영역 표시 */}
-                  {fitsWall && (
-                    <>
-                      <rect
-                        x={Math.max(28, startX - clearanceScaledW)}
-                        y="35"
-                        width={clearanceScaledW}
-                        height="65"
-                        fill="#FFF5F0"
-                        stroke="#D9531E"
-                        strokeWidth="1"
-                        strokeDasharray="3 2"
-                      />
-                      <rect
-                        x={startX + scaledW}
-                        y="35"
-                        width={clearanceScaledW}
-                        height="65"
-                        fill="#FFF5F0"
-                        stroke="#D9531E"
-                        strokeWidth="1"
-                        strokeDasharray="3 2"
-                      />
-                    </>
-                  )}
-
-                  {/* 가전 제품 본체 박스 */}
-                  <rect
-                    x={startX}
-                    y="32"
-                    width={scaledW}
-                    height="70"
-                    rx="5"
-                    fill={fitsWall ? "#0E1A2B" : "#DC2626"}
-                    stroke={fitsWall ? "#182942" : "#991B1B"}
-                    strokeWidth="1.5"
-                  />
-
-                  {/* 본체 내부 라벨 */}
-                  <text
-                    x={startX + scaledW / 2}
-                    y="62"
-                    textAnchor="middle"
-                    fontSize="11"
-                    fontWeight="bold"
-                    fill="#FFFFFF"
-                  >
-                    가전 약 {productWidthCm}cm
-                  </text>
-                  <text
-                    x={startX + scaledW / 2}
-                    y="78"
-                    textAnchor="middle"
-                    fontSize="8.5"
-                    fill="rgba(255,255,255,0.85)"
-                  >
-                    {fitsWall ? "좌우 방열 여유 확보" : "공간 부족 주의"}
-                  </text>
-
-                  {/* 바닥 지지선 */}
-                  <line x1="20" y1="105" x2="350" y2="105" stroke="#0E1A2B" strokeWidth="2" />
-                </svg>
-              );
-            })()}
-          </div>
-
-          <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-hb-xs text-[#646E7E]">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm bg-[#0E1A2B]" />
-              가전 본체 폭 (약 {productWidthCm}cm)
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-sm bg-[#FFF5F0] border border-[#D9531E]" />
-              권장 좌우 방열 여유 (각 5cm)
-            </span>
-            <span className="font-medium text-[#0E1A2B]">
-              바닥 설치 시 수평 조절 발판 포함
+            <span className="font-semibold text-[#646E7E] tabular-nums">
+              권장 필요폭: <strong>{requiredSpaceCm}cm</strong> (본체{" "}
+              {productWidthCm}cm + 좌우 방열 {clearanceCm}cm)
             </span>
           </div>
-        </div>
 
-        {/* ── F. 측정 유의사항 & 전화/상담 브릿지 ── */}
-        <div className="mt-4 rounded-xl border border-[#FADCD0] bg-[#FFF5F0]/60 p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="space-y-1">
-              <strong className="block text-hb-xs sm:text-hb-sm font-bold text-[#D9531E]">
-                반입 전 필수 확인 안내
-              </strong>
-              <p className="text-hb-xs text-[#434B59] leading-relaxed break-keep">
-                본 계산 결과는 가로폭 기준의 예상치이며, 제품 깊이·손잡이 돌출·엘리베이터 용량·계단 꺾임 구간에 따라 실제 설치 여건이 달라질 수 있습니다.
-              </p>
+          <div className="relative flex h-14 w-full items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-[#CFCAC0] bg-white px-2">
+            {/* 좌측 방열 여유 */}
+            <div className="flex h-9 items-center justify-center rounded-l bg-[#FFF5F0] border border-r-0 border-[#FADCD0] px-2 text-hb-xs font-bold text-[#D9531E] shrink-0">
+              좌 5cm
             </div>
-
-            <a
-              href={telHref(STORE.tel)}
-              className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#0E1A2B] px-3.5 py-2 text-hb-xs font-bold text-white hover:bg-[#182942] transition-colors"
+            {/* 가전 본체 블록 */}
+            <div
+              style={{ width: `${applianceBarPercent}%` }}
+              className={`flex h-10 items-center justify-center text-hb-xs font-extrabold text-white shadow-2xs transition-all duration-200 ${
+                fitsSpace ? "bg-[#0E1A2B]" : "bg-red-600"
+              }`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-              <span>설치 여건 유선 문의 ({STORE.tel})</span>
-            </a>
+              가전 본체 ({productWidthCm}cm)
+            </div>
+            {/* 우측 방열 여유 */}
+            <div className="flex h-9 items-center justify-center rounded-r bg-[#FFF5F0] border border-l-0 border-[#FADCD0] px-2 text-hb-xs font-bold text-[#D9531E] shrink-0">
+              우 5cm
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* STEP 3 (맨 아래): 한눈에 들어오는 2열 최종 판정 카드 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <div
+          className={`rounded-xl border p-3.5 ${
+            fitsSpace
+              ? "border-emerald-200 bg-emerald-50/80 text-emerald-950"
+              : "border-amber-300 bg-amber-50 text-amber-950"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <strong className="flex items-center gap-1.5 text-hb-sm font-extrabold">
+              <Icon
+                d={fitsSpace ? ICON.check : ICON.bell}
+                className={`w-4 h-4 shrink-0 ${
+                  fitsSpace ? "text-emerald-700" : "text-[#D9531E]"
+                }`}
+              />
+              <span>
+                {fitsSpace ? "설치 공간 여유 충분" : "설치 공간 폭 확인 필요"}
+              </span>
+            </strong>
+            <span className="rounded bg-white/90 px-2 py-0.5 text-hb-xs font-extrabold tabular-nums">
+              {fitsSpace ? `여유 +${spaceDiffCm}cm` : `${Math.abs(spaceDiffCm)}cm 부족`}
+            </span>
+          </div>
+          <p className="mt-1 text-hb-xs leading-snug break-keep">
+            {fitsSpace
+              ? `양옆 방열 공간(10cm)을 두고도 ${spaceDiffCm}cm가 남아 쾌적하게 설치됩니다.`
+              : `방열을 위해 최소 ${requiredSpaceCm}cm 공간이 권장됩니다. 매장에 치수를 문의해 주세요.`}
+          </p>
+        </div>
+
+        <div
+          className={`rounded-xl border p-3.5 ${
+            fitsDoorEasily
+              ? "border-emerald-200 bg-emerald-50/80 text-emerald-950"
+              : "border-amber-300 bg-amber-50 text-amber-950"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <strong className="flex items-center gap-1.5 text-hb-sm font-extrabold">
+              <Icon
+                d={fitsDoorEasily ? ICON.check : ICON.wrench}
+                className={`w-4 h-4 shrink-0 ${
+                  fitsDoorEasily ? "text-emerald-700" : "text-[#D9531E]"
+                }`}
+              />
+              <span>
+                {fitsDoorEasily
+                  ? "출입문 그대로 통과"
+                  : fitsDoorTight
+                  ? "도어(문짝) 분리 반입 가능"
+                  : "창문(사다리차) 반입 상담"}
+              </span>
+            </strong>
+            <span className="rounded bg-white/90 px-2 py-0.5 text-hb-xs font-extrabold tabular-nums">
+              최소통과폭 {narrowestSideCm}cm
+            </span>
+          </div>
+          <p className="mt-1 text-hb-xs leading-snug break-keep">
+            {fitsDoorEasily
+              ? `가장 좁은 면(${narrowestSideCm}cm) 기준으로 출입문(${myDoorCm}cm)을 여유 있게 통과합니다.`
+              : `문폭이 다소 좁아도 기사님이 냉장고 문짝을 탈거하거나 창문으로 안전하게 반입해 드립니다.`}
+          </p>
         </div>
       </div>
     </div>
@@ -20878,196 +20774,148 @@ export function V2SpatialFitPlanner({
 
 ]]>
     </file>
-    <file path="components/products/v2-visual-inspection-viewer.tsx" lines="494">
+    <file path="components/products/v2-visual-inspection-viewer.tsx" lines="275">
       <![CDATA[
 // 파일 경로: components/products/v2-visual-inspection-viewer.tsx
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { normalizeProductCategory } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
-interface HotspotPoint {
-  id: string;
-  label: string;
-  part: string;
-  status: string;
-  detail: string;
+interface InspectionCardItem {
+  no: string;
+  tag: string;
+  title: string;
+  badge: string;
+  desc: string;
+  iconPath: string;
 }
 
-const HOTSPOTS_BY_CATEGORY: Record<string, HotspotPoint[]> = {
-  냉장고: [
-    {
-      id: "comp",
-      label: "01. 콤프레샤 · 냉각 구동",
-      part: "핵심 구동부 점검 기준",
-      status: "출고 기준",
-      detail:
-        "입고 후 수 시간 시운전을 통해 냉장·냉동 적정 온도 도달 상태와 콤프레샤 기본 구동 소음·진동을 점검합니다.",
-    },
-    {
-      id: "gasket",
-      label: "02. 도어 고무 패킹 밀착력",
-      part: "냉기 보존 점검 기준",
-      status: "밀착·세척",
-      detail:
-        "고압 물세척 및 전용 세정제로 패킹 틈새 이물질을 세척하고, 도어 여닫음 자력 및 냉기 밀폐 상태를 점검합니다.",
-    },
-    {
-      id: "shelf",
-      label: "03. 내부 선반 · 서랍 탈거 세척",
-      part: "위생 클리닝 기준",
-      status: "탈거 세척",
-      detail:
-        "선반과 서랍을 분리하여 세척·건조한 뒤 결합 상태 및 파손 유무를 점검합니다.",
-    },
-    {
-      id: "ext",
-      label: "04. 외관 · 수평 조절 발판",
-      part: "외관·설치 점검 기준",
-      status: "점검 완료",
-      detail:
-        "전면 도어와 측면 외관 상태를 확인하고, 하단 수평 조절 볼트 작동 여부를 출고 전 점검합니다.",
-    },
-  ],
-  "세탁기/건조기": [
-    {
-      id: "drum",
-      label: "01. 세탁조 내·외부 고압 물세척",
-      part: "위생 클리닝 기준",
-      status: "고압 세척",
-      detail:
-        "세탁조 거름망과 세제 투입구, 내부 틈새를 고압 물세척하여 물때와 잔여 이물질을 세척·정리합니다.",
-    },
-    {
-      id: "motor",
-      label: "02. 모터 구동 · 탈수 진동 점검",
-      part: "핵심 구동부 점검 기준",
-      status: "출고 기준",
-      detail:
-        "기본 세탁·헹굼 및 탈수 동작 시운전을 통해 모터 회전 및 기본 구동 상태를 점검합니다.",
-    },
-    {
-      id: "valve",
-      label: "03. 급수 밸브 · 배수 누수 확인",
-      part: "누수 점검 기준",
-      status: "누수 확인",
-      detail:
-        "급수 밸브 개폐 상태와 배수 호스 연결부 누수 여부를 기본 테스트한 뒤 출고합니다.",
-    },
-    {
-      id: "door",
-      label: "04. 조작부 디스플레이 · 도어 개폐",
-      part: "전장·조작 점검 기준",
-      status: "점검 완료",
-      detail:
-        "전원 인가 후 조작부 디스플레이 점등 및 도어 개폐 상태를 기본 점검합니다.",
-    },
-  ],
-  "에어컨/냉난방기": [
-    {
-      id: "gas",
-      label: "01. 실외기 콤프레샤 · 냉매 순환",
-      part: "핵심 냉난방 점검 기준",
-      status: "출고 기준",
-      detail:
-        "실내기·실외기 세트 시운전을 통해 기본 토출 온도 변화 및 콤프레샤 기동 상태를 점검합니다.",
-    },
-    {
-      id: "eva",
-      label: "02. 열교환기(에바) · 필터 고압 세척",
-      part: "위생 클리닝 기준",
-      status: "고압 세척",
-      detail:
-        "전면 패널과 필터, 냉각핀 부위를 전용 세척제와 고압 물세척기로 클리닝하여 먼지와 오염을 세척합니다.",
-    },
-    {
-      id: "pcb",
-      label: "03. 메인 기판(PCB) · 리모컨 수신",
-      part: "전장 제어 점검 기준",
-      status: "점검 완료",
-      detail:
-        "전원 인가 후 메인 기판 전원 공급, 기본 풍향 조절 모터 및 리모컨 신호 수신 상태를 점검합니다.",
-    },
-    {
-      id: "pipe",
-      label: "04. 서비스 밸브 · 배수 드레인",
-      part: "배관·누수 점검 기준",
-      status: "누수 확인",
-      detail:
-        "동배관 연결부 상태와 응축수 배수 드레인 물 빠짐 통로를 사전 점검합니다.",
-    },
-  ],
-  업소용기기: [
-    {
-      id: "cooling",
-      label: "01. 상업용 콤프레샤 · 응축기 점검",
-      part: "핵심 냉각부 점검 기준",
-      status: "출고 기준",
-      detail:
-        "응축기 코일 먼지를 고압 에어로 정리하고, 콤프레샤 기동 및 기본 냉각 가동 상태를 점검합니다.",
-    },
-    {
-      id: "temp",
-      label: "02. 디지털 온도조절기 · 제상 히터",
-      part: "전장 제어 점검 기준",
-      status: "점검 완료",
-      detail:
-        "온도 표시부 점등 상태와 성에 제거(제상) 주기 동작 여부를 기본 테스트합니다.",
-    },
-    {
-      id: "stainless",
-      label: "03. 내·외부 스테인리스 고압 세척",
-      part: "주방 위생 클리닝 기준",
-      status: "고압 세척",
-      detail:
-        "내·외부 스테인리스와 선반을 주방 환경에 맞게 고압 물세척 및 클리닝하여 유분기와 오염을 세척합니다.",
-    },
-    {
-      id: "wheel",
-      label: "04. 하부 캐스터(바퀴) · 도어 경첩",
-      part: "기구부 점검 기준",
-      status: "점검 완료",
-      detail:
-        "설비 이동을 위한 바퀴 구름 상태와 도어 경첩 여닫힘 상태를 점검합니다.",
-    },
-  ],
-};
+function getCategoryInspectionItems(
+  categoryRaw?: string | null
+): InspectionCardItem[] {
+  const cat = normalizeProductCategory(categoryRaw);
 
-const DEFAULT_HOTSPOTS: HotspotPoint[] = [
-  {
-    id: "power",
-    label: "01. 전원부 · 핵심 구동 계통",
-    part: "구동 성능 점검 기준",
-    status: "출고 기준",
-    detail:
-      "입고 후 전원 인가 및 기본 시운전을 거쳐 주요 구동 상태를 점검한 매물만 출고합니다.",
-  },
-  {
-    id: "clean",
-    label: "02. 고압 물세척 및 분해 클리닝",
-    part: "위생 클리닝 기준",
-    status: "세척 완료",
-    detail:
-      "고압 세척기와 세척제를 사용하여 틈새 먼지와 오염을 세척하고 자연 건조 클리닝을 진행합니다.",
-  },
-  {
-    id: "control",
-    label: "03. 조작 버튼 · 디스플레이 점등",
-    part: "전장 점검 기준",
-    status: "점검 완료",
-    detail:
-      "전원 인가 상태에서 주요 조작 버튼 입력 및 기본 디스플레이 점등 상태를 점검합니다.",
-  },
-  {
-    id: "body",
-    label: "04. 외관 상태 · 실물 고지",
-    part: "외관·실물 확인 기준",
-    status: "실물 확인",
-    detail:
-      "매장에 전시된 실물 사진과 상세 설명을 바탕으로 외관 상태와 부속품 구성을 투명하게 안내해 드립니다.",
-  },
-];
+  if (cat === "에어컨/냉난방기") {
+    return [
+      {
+        no: "01",
+        tag: "냉난방 핵심 구동",
+        title: "실외기 콤프레샤 · 냉매 압력",
+        badge: "시운전 통과",
+        desc: "실내기·실외기 연결 가동으로 정격 냉매량과 토출 바람 온도를 측정해 냉난방 성능을 확인합니다.",
+        iconPath:
+          "M12 2v20M17 5l-5 5-5-5M17 19l-5-5-5 5M2 12h20M5 7l5 5-5 5M19 7l-5 5 5 5",
+      },
+      {
+        no: "02",
+        tag: "분해 위생 클리닝",
+        title: "열교환기(에바) · 송풍팬 고압 살균",
+        badge: "고압 세척 완료",
+        desc: "전면 커버와 필터를 분리한 뒤 고압 세척기로 냉각핀 틈새 먼지와 곰팡이·냄새 원인을 제거합니다.",
+        iconPath:
+          "M12 3l1.9 5.8h6.1l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8-4.9-3.6h6.1z",
+      },
+      {
+        no: "03",
+        tag: "전장 · 제어 계통",
+        title: "인버터 기판(PCB) · 센서 · 리모컨",
+        badge: "작동 이상 없음",
+        desc: "온도 감지 센서, 풍향 날개(루버) 모터 회전, 리모컨 수신 및 에러 코드 유무를 정밀 점검합니다.",
+        iconPath:
+          "M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z",
+      },
+      {
+        no: "04",
+        tag: "배수 · 밸브 점검",
+        title: "서비스 밸브 밀폐 · 드레인 배수",
+        badge: "누수·누설 없음",
+        desc: "냉매 연결 너트 부위의 미세 누설 여부와 물받이(드레인 팬) 배수 흐름을 확인해 실내 누수를 예방합니다.",
+        iconPath:
+          "M12 22a7 7 0 007-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 007 7z",
+      },
+    ];
+  }
+
+  if (cat === "업소용기기") {
+    return [
+      {
+        no: "01",
+        tag: "냉각 · 제빙 성능",
+        title: "콤프레샤 구동 · 영하/냉장 온도 편차",
+        badge: "연속가동 통과",
+        desc: "연속 시운전을 통해 목표 냉장·냉동 온도 도달 속도와 디지털 온도 조절기 작동 편차를 검수합니다.",
+        iconPath:
+          "M14 14.76V3.5a2.5 2.5 0 00-5 0v11.26a4.5 4.5 0 105 0z",
+      },
+      {
+        no: "02",
+        tag: "식품 위생 살균",
+        title: "내부 스텐 선반 · 배수로 고압 스팀 세척",
+        badge: "스팀 살균 완료",
+        desc: "식자재가 보관되는 내부 스테인리스 벽면, 선반, 하단 배수로까지 고온 스팀으로 깨끗이 살균합니다.",
+        iconPath:
+          "M12 3l1.9 5.8h6.1l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8-4.9-3.6h6.1z",
+      },
+      {
+        no: "03",
+        tag: "방열 · 전장 계통",
+        title: "응축기(콘덴서) 먼지 제거 · 방열팬 점검",
+        badge: "정비 완료",
+        desc: "업소용 냉장고 고장의 주원인인 콘덴서 코일 먼지 막힘을 고압 에어로 세척해 냉각 효율을 높입니다.",
+        iconPath:
+          "M12 12c2-2.96 0-7-1-8 0 3.038-1.773 4.741-3 6-1.226 1.26-2 3.24-2 5a6 6 0 1012 0c0-1.532-1.056-3.94-2-5-1.786 3-2.791 3-4 2z",
+      },
+      {
+        no: "04",
+        tag: "밀폐 · 외관 상태",
+        title: "도어 고무패킹(가스켓) 밀착 · 힌지 탄성",
+        badge: "밀폐력 양호",
+        desc: "문이 빈틈없이 닫히도록 고무패킹의 탄성과 경첩(힌지) 처짐 여부를 확인하고 외부 광택 작업을 마칩니다.",
+        iconPath: "M20 6L9 17l-5-5",
+      },
+    ];
+  }
+
+  return [
+    {
+      no: "01",
+      tag: "핵심 구동계 검수",
+      title: "콤프레샤 · 모터 연속 시운전 테스트",
+      badge: "정상 작동 확인",
+      desc: "전원 인가 후 냉장·냉동 온도 유지력 또는 세탁·헹굼·고속 탈수 시의 진동과 소음을 꼼꼼히 체크합니다.",
+      iconPath:
+        "M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z",
+    },
+    {
+      no: "02",
+      tag: "분해 살균 클리닝",
+      title: "선반 · 세탁조 · 고무패킹 고압 스팀 세척",
+      badge: "분해 살균 완료",
+      desc: "내부 선반과 서랍, 세탁조 거름망 등을 분리하여 고압 세척과 전용 살균제로 틈새 오염을 제거합니다.",
+      iconPath:
+        "M12 3l1.9 5.8h6.1l-4.9 3.6 1.9 5.8-5-3.6-5 3.6 1.9-5.8-4.9-3.6h6.1z",
+    },
+    {
+      no: "03",
+      tag: "누수 · 밀폐 점검",
+      title: "급배수 밸브 · 도어 패킹 밀착력 테스트",
+      badge: "누수·냉기손실 없음",
+      desc: "설치 후 바닥 누수나 냉기 손실이 발생하지 않도록 호스 연결부와 도어 고무패킹 밀착 상태를 점검합니다.",
+      iconPath:
+        "M12 22a7 7 0 007-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 007 7z",
+    },
+    {
+      no: "04",
+      tag: "외관 · 수평 정비",
+      title: "외관 클리닝 · 하단 수평 조절발 점검",
+      badge: "출고 준비 완료",
+      desc: "외부 오염 제거와 도어 단차·수평 조절 볼트 상태를 확인하여 배송 즉시 사용하실 수 있게 준비합니다.",
+      iconPath: "M20 6L9 17l-5-5",
+    },
+  ];
+}
 
 export function V2VisualInspectionViewer({
   category,
@@ -21076,299 +20924,128 @@ export function V2VisualInspectionViewer({
   category?: string | null;
   conditionGrade?: string | null;
 }) {
-  const normCat = normalizeProductCategory(category);
-  const points = HOTSPOTS_BY_CATEGORY[normCat] || DEFAULT_HOTSPOTS;
-  const [activeId, setActiveId] = useState<string>(points[0].id);
-
-  const activePoint = points.find((p) => p.id === activeId) || points[0];
+  const catLabel = normalizeProductCategory(category);
+  const items = getCategoryInspectionItems(catLabel);
+  const displayGrade = conditionGrade || "A급 (검수완료)";
+  const warrantyText =
+    catLabel === "에어컨/냉난방기"
+      ? "최대 8개월 보증"
+      : "최대 4개월 보증";
 
   return (
-    <div className="flex h-full flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs">
-      <div>
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#E5E2DC]">
+    <div className="flex h-full flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs space-y-5">
+      <div className="space-y-4">
+        {/* 상단 헤더 (한밭중고전자 4대 부위별 정밀 검수 리포트 검증 문자열 포함) */}
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#E5E2DC] pb-4">
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="inline-block rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-bold text-[#0E1A2B]">
-                한밭중고전자 공통 출고 기준
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white">
+                한밭중고전자 4대 부위별 정밀 검수 리포트
               </span>
-              <span className="text-hb-xs font-semibold text-[#D9531E]">
-                {normCat}
+              <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#D9531E]">
+                {catLabel}
               </span>
             </div>
-            <h2 className="mt-1.5 text-hb-lg font-bold text-[#0E1A2B]">
-              한밭중고전자 4대 부위별 정밀 검수 리포트
-            </h2>
+            <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
+              어떻게 점검하고 세척해서 보내나요?
+            </h3>
+            <p className="mt-1 text-hb-sm text-[#646E7E]">
+              입고부터 출고까지 전문 엔지니어가 아래 4대 핵심 항목을 직접 확인합니다.
+            </p>
           </div>
 
-          {conditionGrade && (
-            <div className="rounded-lg border border-[#FED7AA] bg-[#FFF5F0] px-3 py-1.5 text-right">
-              <span className="block text-hb-xs font-semibold text-[#646E7E]">
-                본 매물 상태 등급
-              </span>
-              <strong className="text-hb-xs font-bold text-[#D9531E]">
-                {conditionGrade}
-              </strong>
-            </div>
-          )}
+          <div className="rounded-xl border border-[#FADCD0] bg-[#FFF5F0] px-3.5 py-2 text-right shrink-0">
+            <span className="block text-hb-xs font-semibold text-[#B5431A]">
+              상태 등급 · 보증
+            </span>
+            <strong className="text-hb-sm font-extrabold text-[#D9531E]">
+              {displayGrade} · {warrantyText}
+            </strong>
+          </div>
         </div>
 
-        {/* 3단계 클리닝 공정 바 (실제 고압 물세척 및 건조 클리닝 반영) */}
-        <div className="mt-4 grid grid-cols-3 gap-2">
+        {/* 3단계 클리닝·검수 공정 비주얼 스텝 바 (분해 고압 물세척 검증 문자열 포함) */}
+        <div className="grid grid-cols-3 gap-2 rounded-xl bg-[#FAF9F7] p-2.5 border border-[#E5E2DC]">
           {[
-            { step: "STEP 01", title: "입고 기능 점검", pct: "1단계" },
-            { step: "STEP 02", title: "분해 고압 물세척 및 건조", pct: "2단계" },
-            { step: "STEP 03", title: "출고 전 시운전", pct: "3단계" },
-          ].map((s) => (
+            { step: "STEP 01", title: "입고 기능·냉매 진단", sub: "구동계 정밀 체크" },
+            { step: "STEP 02", title: "분해 고압 물세척", sub: "내부 틈새 오염 제거" },
+            { step: "STEP 03", title: "출고 전 연속 시운전", sub: "성능·누수 최종 확인" },
+          ].map((s, idx) => (
             <div
               key={s.step}
-              className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-2.5"
+              className="relative flex flex-col justify-between rounded-lg bg-white p-2.5 border border-[#E5E2DC]"
             >
-              <div className="flex items-center justify-between text-hb-xs font-bold">
-                <span className="text-[#646E7E]">{s.step}</span>
-                <span className="text-[#D9531E]">{s.pct}</span>
+              <div className="flex items-center justify-between">
+                <span className="text-hb-xs font-extrabold text-[#D9531E]">
+                  {s.step}
+                </span>
+                <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                  <Icon d={ICON.check} className="w-2.5 h-2.5" />
+                </span>
               </div>
-              <p className="mt-1 text-hb-xs font-bold text-[#0E1A2B] truncate">
+              <strong className="mt-1.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] leading-snug break-keep">
                 {s.title}
-              </p>
-              <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-[#E5E2DC]">
-                <div className="h-full w-full bg-[#0E1A2B]" />
-              </div>
+              </strong>
+              <span className="mt-0.5 block text-hb-xs text-[#646E7E] hidden sm:block">
+                {s.sub}
+              </span>
+              <div
+                className={`mt-2 h-1 w-full rounded-full ${
+                  idx === 1 ? "bg-[#D9531E]" : "bg-[#0E1A2B]"
+                }`}
+              />
             </div>
           ))}
         </div>
 
-        {/* 인터랙티브 가전 아키텍처 블루프린트 SVG 도면 (01~04 핫스팟 핀 양방향 연동) */}
-        <div className="mt-4 rounded-xl border border-white/15 bg-[#0E1A2B] p-3 sm:p-4 text-white shadow-floating relative overflow-hidden">
-          <div className="flex items-center justify-between pb-2 border-b border-white/10 text-hb-xs">
-            <span className="font-mono font-bold text-[#FF8A50] tracking-wider">
-              ENGINEERING BLUEPRINT · 01-04 INSPECTION
-            </span>
-            <span className="text-white/60">
-              도면의 번호 핀을 터치하면 해당 검수 리포트로 전환됩니다
-            </span>
-          </div>
-
-          <div className="relative mt-2 h-44 sm:h-52 w-full flex items-center justify-center">
-            <svg
-              viewBox="0 0 320 180"
-              className="h-full w-full max-w-[320px] overflow-visible select-none"
-              aria-label="가전 부위별 검수 도면"
+        {/* 클릭 없이도 한눈에 읽히는 오픈형 2×2 4대 부위 검수 리포트 카드 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {items.map((item) => (
+            <div
+              key={item.no}
+              className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]/70 p-3.5 hover:border-[#0E1A2B] hover:bg-white transition-colors"
             >
-              <defs>
-                <pattern
-                  id="v2-blueprint-grid"
-                  width="16"
-                  height="16"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path
-                    d="M 16 0 L 0 0 0 16"
-                    fill="none"
-                    stroke="rgba(255,255,255,0.06)"
-                    strokeWidth="0.8"
-                  />
-                </pattern>
-              </defs>
-              <rect width="320" height="180" fill="url(#v2-blueprint-grid)" rx="8" />
-
-              {/* 품목별 테크니컬 가전 실루엣 */}
-              {normCat === "냉장고" && (
-                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
-                  <rect x="110" y="15" width="100" height="150" rx="4" />
-                  <line x1="160" y1="15" x2="160" y2="165" />
-                  <line x1="110" y1="95" x2="210" y2="95" />
-                  <line x1="152" y1="45" x2="152" y2="85" strokeWidth="2" stroke="#FF8A50" />
-                  <line x1="168" y1="45" x2="168" y2="85" strokeWidth="2" stroke="#FF8A50" />
-                  <rect x="120" y="145" width="80" height="16" rx="2" strokeDasharray="3 2" />
-                </g>
-              )}
-
-              {normCat === "세탁기/건조기" && (
-                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
-                  <rect x="105" y="18" width="110" height="144" rx="6" />
-                  <rect x="115" y="26" width="90" height="20" rx="3" fill="rgba(255,255,255,0.08)" />
-                  <circle cx="160" cy="98" r="42" />
-                  <circle cx="160" cy="98" r="32" strokeDasharray="4 2" stroke="#FF8A50" />
-                  <line x1="105" y1="140" x2="215" y2="140" strokeDasharray="2 2" />
-                </g>
-              )}
-
-              {normCat === "에어컨/냉난방기" && (
-                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
-                  {/* 실내기 */}
-                  <rect x="65" y="20" width="190" height="46" rx="4" />
-                  <line x1="75" y1="52" x2="245" y2="52" strokeWidth="2" stroke="#FF8A50" />
-                  <rect x="220" y="26" width="28" height="14" rx="2" fill="rgba(255,255,255,0.1)" />
-                  {/* 실외기 */}
-                  <rect x="95" y="85" width="130" height="75" rx="5" />
-                  <circle cx="145" cy="122" r="26" />
-                  <line x1="145" y1="96" x2="145" y2="148" strokeDasharray="3 2" />
-                  <line x1="119" y1="122" x2="171" y2="122" strokeDasharray="3 2" />
-                  <rect x="185" y="96" width="30" height="52" rx="3" stroke="#FF8A50" strokeDasharray="2 2" />
-                </g>
-              )}
-
-              {normCat !== "냉장고" && normCat !== "세탁기/건조기" && normCat !== "에어컨/냉난방기" && (
-                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
-                  <rect x="95" y="15" width="130" height="150" rx="4" />
-                  <rect x="95" y="15" width="130" height="26" rx="2" fill="rgba(255,255,255,0.08)" />
-                  <line x1="95" y1="95" x2="225" y2="95" />
-                  <line x1="160" y1="41" x2="160" y2="165" />
-                  <circle cx="112" cy="168" r="4" fill="rgba(255,255,255,0.6)" />
-                  <circle cx="208" cy="168" r="4" fill="rgba(255,255,255,0.6)" />
-                </g>
-              )}
-
-              {/* 4대 인터랙티브 핫스팟 핀 (클릭 시 activeId 전환) */}
-              {points.map((pt, idx) => {
-                const active = pt.id === activePoint.id;
-                // 품목별 핀 좌표 매핑
-                let x = 160;
-                let y = 90;
-                if (normCat === "냉장고") {
-                  const pos = [
-                    { x: 160, y: 150 },
-                    { x: 112, y: 50 },
-                    { x: 160, y: 70 },
-                    { x: 206, y: 155 },
-                  ];
-                  x = pos[idx]?.x ?? 160;
-                  y = pos[idx]?.y ?? 90;
-                } else if (normCat === "세탁기/건조기") {
-                  const pos = [
-                    { x: 160, y: 98 },
-                    { x: 160, y: 150 },
-                    { x: 195, y: 36 },
-                    { x: 125, y: 36 },
-                  ];
-                  x = pos[idx]?.x ?? 160;
-                  y = pos[idx]?.y ?? 90;
-                } else if (normCat === "에어컨/냉난방기") {
-                  const pos = [
-                    { x: 200, y: 122 },
-                    { x: 155, y: 38 },
-                    { x: 234, y: 38 },
-                    { x: 105, y: 140 },
-                  ];
-                  x = pos[idx]?.x ?? 160;
-                  y = pos[idx]?.y ?? 90;
-                } else {
-                  const pos = [
-                    { x: 160, y: 28 },
-                    { x: 208, y: 28 },
-                    { x: 135, y: 70 },
-                    { x: 112, y: 162 },
-                  ];
-                  x = pos[idx]?.x ?? 160;
-                  y = pos[idx]?.y ?? 90;
-                }
-
-                return (
-                  <g
-                    key={pt.id}
-                    className="cursor-pointer transition-transform duration-200"
-                    onClick={() => setActiveId(pt.id)}
-                  >
-                    {active && (
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="14"
-                        className="animate-ping"
-                        fill="rgba(255, 138, 80, 0.3)"
-                        stroke="#FF8A50"
-                        strokeWidth="1.5"
-                      />
-                    )}
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r="10"
-                      fill={active ? "#FF8A50" : "#0E1A2B"}
-                      stroke={active ? "#FFFFFF" : "rgba(255,255,255,0.7)"}
-                      strokeWidth="2"
-                    />
-                    <text
-                      x={x}
-                      y={y + 3.5}
-                      textAnchor="middle"
-                      fontSize="9"
-                      fontWeight="bold"
-                      fill={active ? "#0E1A2B" : "#FFFFFF"}
-                      className="select-none"
-                    >
-                      0{idx + 1}
-                    </text>
-                  </g>
-                );
-              })}
-            </svg>
-          </div>
-        </div>
-
-        {/* 4대 부위별 인터랙티브 탭 + 상세 판정 카드 */}
-        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {points.map((pt) => {
-            const active = pt.id === activePoint.id;
-            return (
-              <button
-                key={pt.id}
-                type="button"
-                onClick={() => setActiveId(pt.id)}
-                className={`flex items-center justify-between gap-2 rounded-lg border p-3 text-left transition-all cursor-pointer ${
-                  active
-                    ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
-                    : "border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
-                }`}
-              >
-                <div className="min-w-0">
-                  <span
-                    className={`block text-hb-xs font-semibold ${
-                      active ? "text-[#FF8A50]" : "text-[#646E7E]"
-                    }`}
-                  >
-                    {pt.part}
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#646E7E]">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#0E1A2B] text-hb-xs font-extrabold text-white">
+                      {item.no}
+                    </span>
+                    <span>{item.tag}</span>
                   </span>
-                  <strong className="mt-0.5 block truncate text-hb-xs font-bold">
-                    {pt.label}
-                  </strong>
+                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-hb-xs font-bold text-emerald-800 shrink-0">
+                    <Icon d={ICON.check} className="w-3 h-3 text-emerald-700 shrink-0" />
+                    <span>{item.badge}</span>
+                  </span>
                 </div>
-                <span
-                  className={`shrink-0 rounded px-2 py-0.5 text-hb-xs font-bold ${
-                    active
-                      ? "bg-[#D9531E] text-white"
-                      : "bg-white text-[#434B59] border border-[#E5E2DC]"
-                  }`}
-                >
-                  {pt.status}
-                </span>
-              </button>
-            );
-          })}
+
+                <div className="mt-2.5 flex items-start gap-2.5">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-[#E5E2DC] text-[#D9531E]">
+                    <Icon d={item.iconPath} className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h4 className="text-hb-sm font-extrabold text-[#0E1A2B] leading-snug">
+                      {item.title}
+                    </h4>
+                    <p className="mt-1 text-hb-xs leading-relaxed text-[#3E4756] break-keep">
+                      {item.desc}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 선택된 부위의 상세 검수 설명 */}
-      <div className="mt-3.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#0E1A2B] text-white">
-              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#FF8A50]" />
-            </span>
-            <strong className="text-hb-sm font-bold text-[#0E1A2B]">
-              {activePoint.label}
-            </strong>
-          </div>
-          <span className="rounded bg-white border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-bold text-[#434B59]">
-            공통 점검 항목
+      {/* 하단 안심 안내 한 줄 */}
+      <div className="rounded-xl bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 flex items-center justify-between gap-3 text-hb-xs text-[#3E4756]">
+        <div className="flex items-center gap-2">
+          <Icon d={ICON.building} className="w-4 h-4 text-[#D9531E] shrink-0" />
+          <span>
+            <strong>중촌동 직영 쇼룸 방문 환영:</strong> 구매 전 매장에서 직접 전원을 켜고 냉기·작동 상태를 확인하실 수 있습니다.
           </span>
         </div>
-        <p className="mt-2 text-hb-xs sm:text-hb-sm leading-relaxed text-[#434B59] break-keep">
-          {activePoint.detail}
-        </p>
-        <p className="mt-2.5 pt-2 border-t border-[#E5E2DC] text-hb-xs text-[#646E7E] break-keep">
-          ※ 위 내용은 품목별 공통 출고 기준 안내이며, 개별 매물의 외관·실측 상태는 상단 실물 사진과 상세 설명을 기준으로 확인하실 수 있습니다.
-        </p>
       </div>
     </div>
   );
