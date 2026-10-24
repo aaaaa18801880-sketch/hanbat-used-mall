@@ -54,7 +54,7 @@ export function QuickInquiryModal() {
     <Modal
       open={isOpen}
       onClose={() => setIsOpen(false)}
-      label="10초 빠른 간편 견적 및 상담 신청"
+      label="견적 문의"
       panelClassName="max-w-2xl w-full"
     >
       <div className="relative rounded-2xl bg-white border border-[#E5E2DC] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -62,18 +62,18 @@ export function QuickInquiryModal() {
         <div className="bg-[#0E1A2B] text-white p-4 sm:p-5 flex items-start justify-between gap-3 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="rounded bg-[#D9531E] px-2 py-0.5 text-[10.5px] font-bold text-white tracking-wide">
+              <span className="rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
                 직영 매장 직통
               </span>
-              <span className="text-[12px] font-medium text-white/70">
+              <span className="text-hb-xs font-medium text-white/70">
                 대표전화 {STORE.tel} · {STORE.hours}
               </span>
             </div>
-            <h2 className="text-[17px] sm:text-[19px] font-bold text-white tracking-tight">
-              ⚡ 빠른 견적 및 상담 신청
+            <h2 className="text-hb-lg font-bold text-white tracking-tight">
+              견적 문의
             </h2>
-            <p className="mt-0.5 text-[12px] sm:text-[12.5px] text-white/75">
-              처분/구매 품목과 연락처를 남겨주시면 담당 엔지니어가 10분 내로 확인 후 안내해 드립니다.
+            <p className="mt-0.5 text-hb-xs text-white/75">
+              처분/구매 품목과 연락처를 남겨주시면 담당 엔지니어가 확인 후 안내해 드립니다.
             </p>
           </div>
           <button

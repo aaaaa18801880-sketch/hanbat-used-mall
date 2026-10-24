@@ -10,6 +10,15 @@ module.exports = {
       screens: {
         xs: "375px",
       },
+      fontSize: {
+        "hb-xs": ["12px", { lineHeight: "1.5" }],
+        "hb-sm": ["14px", { lineHeight: "1.55" }],
+        "hb-base": ["16px", { lineHeight: "1.65" }],
+        "hb-lg": ["18px", { lineHeight: "1.45" }],
+        "hb-xl": ["22px", { lineHeight: "1.35" }],
+        "hb-2xl": ["28px", { lineHeight: "1.3" }],
+        "hb-3xl": ["36px", { lineHeight: "1.22" }],
+      },
       fontFamily: {
         sans: [
           '"Pretendard Variable"',
@@ -56,4 +65,3 @@ module.exports = {
   },
   plugins: [],
 };
-

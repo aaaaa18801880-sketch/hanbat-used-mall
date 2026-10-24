@@ -137,7 +137,6 @@ export function ProductCompareModal({
                   <div className="mb-4 space-y-3">
                     <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-4 py-2.5 text-[12.5px] text-[#3E4756] flex flex-wrap items-center justify-between gap-2">
                       <span>
-                        📏{" "}
                         <strong className="text-[#0E1A2B]">
                           설치 공간 가로폭 참고:
                         </strong>{" "}

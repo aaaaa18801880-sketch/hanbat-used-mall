@@ -52,7 +52,6 @@ export function V2InquirySectionWithWizard({
   linkedProduct?: LinkedProductContext | null;
   onSuccess?: () => void;
 }) {
-  // 기본은 기존 올인원 상세 폼과 30초 위저드 모드 중 선택 가능 (상품 연동 시 상세 폼 우선)
   const [formMode, setFormMode] = useState<"wizard" | "full">("wizard");
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -154,7 +153,7 @@ export function V2InquirySectionWithWizard({
         inquiry_type: inquiryType,
         has_photos: false,
       });
-      toast.success("30초 간편 상담 접수가 완료되었습니다!");
+      toast.success("상담 접수가 완료되었습니다!");
       setStep(1);
       setMemo("");
       onSuccess?.();
@@ -169,43 +168,25 @@ export function V2InquirySectionWithWizard({
 
   return (
     <div className="space-y-4">
-      {/* 모드 전환 헤더: 30초 터치 위저드 vs 사진 AI 분석·전체 상세 폼 */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-2.5">
-        <span className="px-2 text-[12.5px] font-bold text-[#0E1A2B]">
-          편하신 작성 방식을 선택하세요
-        </span>
-        <div className="inline-grid grid-cols-2 rounded-lg bg-[#E5E2DC] p-1">
-          <button
-            type="button"
-            onClick={() => setFormMode("wizard")}
-            className={`rounded-md px-3 py-1.5 text-[12px] font-extrabold transition-all ${
-              formMode === "wizard"
-                ? "bg-[#0E1A2B] text-white shadow-2xs"
-                : "text-[#3E4756] hover:text-[#0E1A2B]"
-            }`}
-          >
-            ⚡ 30초 터치 간편접수
-          </button>
-          <button
-            type="button"
-            onClick={() => setFormMode("full")}
-            className={`rounded-md px-3 py-1.5 text-[12px] font-extrabold transition-all ${
-              formMode === "full"
-                ? "bg-[#D9531E] text-white shadow-2xs"
-                : "text-[#3E4756] hover:text-[#0E1A2B]"
-            }`}
-          >
-            📷 사진 AI 분석 · 상세입력
-          </button>
-        </div>
-      </div>
-
       {formMode === "full" || linkedProduct?.productTitle ? (
-        <UnifiedInquiryForm
-          defaultType={defaultType}
-          linkedProduct={linkedProduct}
-          onSuccess={() => onSuccess?.()}
-        />
+        <div className="space-y-3">
+          {!linkedProduct?.productTitle && (
+            <div className="flex items-center justify-end">
+              <button
+                type="button"
+                onClick={() => setFormMode("wizard")}
+                className="text-hb-xs font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4 transition-colors"
+              >
+                간편 선택 모드로 돌아가기 →
+              </button>
+            </div>
+          )}
+          <UnifiedInquiryForm
+            defaultType={defaultType}
+            linkedProduct={linkedProduct}
+            onSuccess={() => onSuccess?.()}
+          />
+        </div>
       ) : (
         <form
           onSubmit={handleWizardSubmit}
@@ -213,14 +194,14 @@ export function V2InquirySectionWithWizard({
         >
           {/* 상단 스텝 프로그레스 바 */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between text-[12px] font-extrabold">
-              <span className="text-[#D9531E]">STEP {step} / 3</span>
+            <div className="flex items-center justify-between text-hb-xs font-extrabold">
+              <span className="text-[#D9531E]">{step}단계 / 3단계</span>
               <span className="text-[#646E7E]">
                 {step === 1
-                  ? "상담 목적과 품목을 터치해 주세요"
+                  ? "상담 목적과 품목을 선택해 주세요"
                   : step === 2
                   ? "현장 조건과 지역을 선택해 주세요"
-                  : "연락받을 번호만 입력하면 끝납니다"}
+                  : "연락받을 번호만 입력하면 완료됩니다"}
               </span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
@@ -231,7 +212,7 @@ export function V2InquirySectionWithWizard({
             </div>
           </div>
 
-          {/* STEP 1: 상담 유형 & 품목 터치 */}
+          {/* STEP 1: 상담 유형 & 품목 선택 */}
           {step === 1 && (
             <div className="space-y-4">
               <div>
@@ -247,7 +228,7 @@ export function V2InquirySectionWithWizard({
                           setInquiryType(t);
                           setSelectedChips([]);
                         }}
-                        className={`h-12 rounded-xl border px-3 text-[13.5px] font-extrabold transition-all ${
+                        className={`h-12 rounded-xl border px-3 text-hb-sm font-extrabold transition-all ${
                           active
                             ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
                             : "border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -262,7 +243,7 @@ export function V2InquirySectionWithWizard({
 
               <div>
                 <span className="hb-label mb-2">
-                  2. 해당되는 품목을 모두 터치해 주세요 (복수 선택)
+                  2. 해당되는 품목을 모두 선택해 주세요 (복수 선택)
                 </span>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {PRODUCT_CATEGORIES.map((cat) => {
@@ -272,7 +253,7 @@ export function V2InquirySectionWithWizard({
                         key={cat}
                         type="button"
                         onClick={() => toggleCategory(cat)}
-                        className={`flex items-center justify-between rounded-lg border px-3 py-2.5 text-[13px] font-bold transition-all ${
+                        className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-all ${
                           active
                             ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                             : "border-[#E5E2DC] bg-white text-[#3E4756]"
@@ -286,11 +267,18 @@ export function V2InquirySectionWithWizard({
                 </div>
               </div>
 
-              <div className="pt-2 flex justify-end">
+              <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-[#E5E2DC]">
+                <button
+                  type="button"
+                  onClick={() => setFormMode("full")}
+                  className="text-hb-xs font-bold text-[#646E7E] hover:text-[#D9531E] text-left transition-colors"
+                >
+                  사진을 첨부해 자세히 쓰기 →
+                </button>
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="hb-btn-primary h-12 px-8 text-[14.5px] w-full sm:w-auto"
+                  className="hb-btn-primary h-11 px-7 text-hb-sm w-full sm:w-auto"
                 >
                   <span>다음 단계 (조건 선택)</span>
                   <Icon d={ICON.arrow} className="w-4 h-4" />
@@ -304,7 +292,7 @@ export function V2InquirySectionWithWizard({
             <div className="space-y-4">
               <div>
                 <span className="hb-label mb-2">
-                  3. 해당되는 현장 조건을 터치해 주세요 (선택)
+                  3. 해당되는 현장 조건을 선택해 주세요 (선택)
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {WIZARD_ENV_CHIPS[inquiryType].map((chip) => {
@@ -314,7 +302,7 @@ export function V2InquirySectionWithWizard({
                         key={chip}
                         type="button"
                         onClick={() => toggleChip(chip)}
-                        className={`rounded-lg border px-3 py-2 text-[13px] font-bold transition-colors ${
+                        className={`h-11 rounded-lg border px-3 text-hb-sm font-bold transition-colors ${
                           active
                             ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                             : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756]"
@@ -329,9 +317,7 @@ export function V2InquirySectionWithWizard({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="hb-label text-[13px]">
-                    지역 (동 단위 권장)
-                  </label>
+                  <label className="hb-label">지역 (동 단위 권장)</label>
                   <input
                     type="text"
                     value={region}
@@ -341,7 +327,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[13px]">
+                  <label className="hb-label">
                     간단 메모 (희망 모델·예산·일정 등)
                   </label>
                   <input
@@ -354,18 +340,18 @@ export function V2InquirySectionWithWizard({
                 </div>
               </div>
 
-              <div className="pt-2 flex items-center justify-between gap-2">
+              <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E5E2DC]">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="hb-btn-outline h-11 px-5 text-[13.5px]"
+                  className="hb-btn-outline h-11 px-5 text-hb-sm"
                 >
                   ← 이전
                 </button>
                 <button
                   type="button"
                   onClick={() => setStep(3)}
-                  className="hb-btn-primary h-11 px-7 text-[14px]"
+                  className="hb-btn-primary h-11 px-7 text-hb-sm"
                 >
                   <span>다음 단계 (연락처 입력)</span>
                   <Icon d={ICON.arrow} className="w-4 h-4" />
@@ -377,7 +363,7 @@ export function V2InquirySectionWithWizard({
           {/* STEP 3: 연락처 입력 및 완료 */}
           {step === 3 && (
             <div className="space-y-4">
-              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-[12.5px] text-[#3E4756]">
+              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs text-[#3E4756]">
                 <strong className="text-[#0E1A2B]">선택 요약:</strong> [
                 {inquiryType}] {selectedCategories.join(", ")}{" "}
                 {selectedChips.length > 0 && `(${selectedChips.join(", ")})`}
@@ -385,9 +371,7 @@ export function V2InquirySectionWithWizard({
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="hb-label text-[13px]">
-                    성함 / 상호명 *
-                  </label>
+                  <label className="hb-label">성함 / 상호명 *</label>
                   <input
                     type="text"
                     required
@@ -398,7 +382,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[13px]">연락처 *</label>
+                  <label className="hb-label">연락처 *</label>
                   <input
                     type="tel"
                     required
@@ -409,9 +393,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[13px]">
-                    조회 비밀번호(4자+) *
-                  </label>
+                  <label className="hb-label">조회 비밀번호(4자+) *</label>
                   <input
                     type="password"
                     required
@@ -423,7 +405,7 @@ export function V2InquirySectionWithWizard({
                 </div>
               </div>
 
-              <label className="flex items-center gap-2 text-[12.5px] text-[#4B5260] cursor-pointer select-none">
+              <label className="flex items-center gap-2 text-hb-xs text-[#4B5260] cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={agreed}
@@ -437,7 +419,7 @@ export function V2InquirySectionWithWizard({
                 <button
                   type="button"
                   onClick={() => setStep(2)}
-                  className="hb-btn-outline h-11 px-4 text-[13px]"
+                  className="hb-btn-outline h-11 px-4 text-hb-sm"
                 >
                   ← 이전
                 </button>
@@ -450,16 +432,17 @@ export function V2InquirySectionWithWizard({
                         ", "
                       )} / 조건: ${selectedChips.join(", ")} 문의드립니다.`
                     )}
-                    className="hb-btn-outline h-11 px-4 text-[13px]"
+                    className="hb-btn-outline h-11 px-4 text-hb-sm"
                   >
-                    ✉️ 문자로 바로 전송
+                    <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
+                    <span>문자로 바로 전송</span>
                   </a>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="hb-btn-accent h-11 px-7 text-[14.5px] font-extrabold"
+                    className="hb-btn-accent h-11 px-7 text-hb-sm font-extrabold"
                   >
-                    {submitting ? "접수 중..." : "상담 신청 완료하기"}
+                    {submitting ? "접수 중..." : "견적 문의 완료하기"}
                   </button>
                 </div>
               </div>

@@ -1137,17 +1137,17 @@ export default function IntegratedAdminDashboard() {
                 className={`px-3.5 sm:px-4 py-2.5 text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
                   active
                     ? "bg-[#FAF9F7] text-[#0E1A2B]"
-                    : "text-white/75 hover:text-white hover:bg-white/8"
+                    : "text-white/75 hover:text-white hover:bg-white/10"
                 }`}
               >
                 <span>{t.label}</span>
                 {t.badge !== null && (
                   <span
-                    className={`rounded-full px-1.5 py-0.2 text-[11px] font-extrabold tabular-nums ${
+                    className={`rounded-full px-1.5 py-0.5 text-[11px] font-extrabold tabular-nums ${
                       t.highlight
                         ? "bg-[#D9531E] text-white"
                         : active
-                        ? "bg-[#0E1A2B]/12 text-[#0E1A2B]"
+                        ? "bg-[#0E1A2B]/10 text-[#0E1A2B]"
                         : "bg-white/15 text-white/85"
                     }`}
                   >
@@ -2040,7 +2040,7 @@ export default function IntegratedAdminDashboard() {
                             </span>
                             {statValue === "판매중" &&
                               getDaysSinceCreated(product.created_at) >= 30 && (
-                                <span className="rounded bg-amber-50 border border-amber-300 px-1.5 py-0.2 text-[10.5px] font-bold text-amber-800">
+                                <span className="rounded bg-amber-50 border border-amber-300 px-1.5 py-0.5 text-[10.5px] font-bold text-amber-800">
                                   등록 +{getDaysSinceCreated(product.created_at)}일 · 재고점검 권장
                                 </span>
                               )}

@@ -98,14 +98,14 @@ export function V2SpatialFitPlanner({
       <div className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
           <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#D9531E]">
-              SPATIAL FIT SIMULATOR
+            <span className="text-hb-xs font-extrabold tracking-wide text-[#D9531E]">
+              설치 공간 · 문폭 시뮬레이터
             </span>
-            <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
-              📏 우리 집·매장 설치 공간 및 문폭 시뮬레이터
+            <h3 className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B]">
+              설치 공간 시뮬레이터
             </h3>
           </div>
-          <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-[11.5px] font-bold text-[#0E1A2B] tabular-nums">
+          <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] tabular-nums">
             기준 가로폭: {productWidth.toLocaleString()}mm{" "}
             {isEstimated ? "(표준규격 참고치)" : "(제품 사양 기준)"}
           </span>
@@ -113,7 +113,7 @@ export function V2SpatialFitPlanner({
 
         {/* 1. 설치 벽면 가로 길이 슬라이더 & 1D 시각 게이지 바 */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between text-[12.5px]">
+          <div className="flex items-center justify-between text-hb-xs sm:text-hb-sm">
             <label htmlFor="wall-width-range" className="font-bold text-[#0E1A2B]">
               1) 설치할 자리(벽면) 가로 여유 폭 조절
             </label>
@@ -137,7 +137,7 @@ export function V2SpatialFitPlanner({
           <div className="relative h-9 w-full overflow-hidden rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] flex items-center">
             <div
               style={{ width: `${occupyPercent}%` }}
-              className={`h-full flex items-center justify-center text-[11px] font-extrabold text-white transition-all duration-200 ${
+              className={`h-full flex items-center justify-center text-hb-xs font-extrabold text-white transition-all duration-200 ${
                 fitsWall ? "bg-[#0E1A2B]" : "bg-red-600"
               }`}
             >
@@ -146,13 +146,13 @@ export function V2SpatialFitPlanner({
             {clearancePercent > 0 && (
               <div
                 style={{ width: `${clearancePercent}%` }}
-                className="h-full bg-[#FADCD0] flex items-center justify-center text-[10px] font-bold text-[#B5431A] border-r border-dashed border-[#D9531E]"
+                className="h-full bg-[#FADCD0] flex items-center justify-center text-hb-xs font-bold text-[#B5431A] border-r border-dashed border-[#D9531E]"
                 title="양옆 방열 여유 100mm"
               >
                 방열 100
               </div>
             )}
-            <div className="flex-1 px-2 text-right text-[11px] font-semibold text-[#646E7E] truncate tabular-nums">
+            <div className="flex-1 px-2 text-right text-hb-xs font-semibold text-[#646E7E] truncate tabular-nums">
               {fitsWall
                 ? `남는 여유: ${(wallWidthMm - requiredTotalWidth).toLocaleString()}mm`
                 : `폭 부족: ${(requiredTotalWidth - wallWidthMm).toLocaleString()}mm`}
@@ -163,7 +163,7 @@ export function V2SpatialFitPlanner({
 
       {/* 2. 출입문 반입 통과 시뮬레이션 */}
       <div className="space-y-2 pt-1">
-        <span className="block text-[12.5px] font-bold text-[#0E1A2B]">
+        <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]">
           2) 출입구(현관·주방문) 폭 선택 — 반입 통과 여부 확인
         </span>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -174,7 +174,7 @@ export function V2SpatialFitPlanner({
                 key={d.label}
                 type="button"
                 onClick={() => setDoorWidthMm(d.widthMm)}
-                className={`rounded-lg border px-2.5 py-2 text-[11.5px] font-bold transition-colors ${
+                className={`rounded-lg border px-2.5 py-2 text-hb-xs font-bold transition-colors ${
                   active
                     ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
                     : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
@@ -187,7 +187,7 @@ export function V2SpatialFitPlanner({
         </div>
 
         <div
-          className={`rounded-lg border px-3.5 py-2.5 text-[12.5px] flex items-center justify-between gap-2 ${
+          className={`rounded-lg border px-3.5 py-2.5 text-hb-xs sm:text-hb-sm flex items-center justify-between gap-2 ${
             fitsWall && fitsDoor
               ? "border-emerald-200 bg-emerald-50 text-emerald-900"
               : "border-amber-300 bg-amber-50 text-amber-950"
@@ -196,16 +196,16 @@ export function V2SpatialFitPlanner({
           <span>
             {fitsWall && fitsDoor ? (
               <>
-                ✅ <strong>설치 공간 및 출입문 반입 여유 충분:</strong> 양옆 방열 공간(100mm)을 포함해 안정적인 배치가 가능합니다.
+                <strong>설치 공간 및 출입문 반입 여유 충분:</strong> 양옆 방열 공간(100mm)을 포함해 안정적인 배치가 가능합니다.
               </>
             ) : !fitsWall ? (
               <>
-                ⚠️ <strong>설치 자리 폭 확인 필요:</strong> 방열 여유를 포함해 최소{" "}
+                <strong>설치 자리 폭 확인 필요:</strong> 방열 여유를 포함해 최소{" "}
                 <strong>{requiredTotalWidth.toLocaleString()}mm</strong> 이상의 가로 공간이 권장됩니다.
               </>
             ) : (
               <>
-                ⚠️ <strong>출입문 통과 확인 필요:</strong> 도어 탈거 반입이나 창문(사다리차) 진입 여부는 문의 시 알려주시면 안내해 드립니다.
+                <strong>출입문 통과 확인 필요:</strong> 도어 탈거 반입이나 창문(사다리차) 진입 여부는 문의 시 알려주시면 안내해 드립니다.
               </>
             )}
           </span>

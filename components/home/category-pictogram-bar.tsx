@@ -12,19 +12,14 @@ export type PictogramKey =
   | "small"
   | "bizFridge"
   | "showcase"
-  | "kitchen"
-  | "sell"
-  | "clearance"
-  | "storePkg"
-  | "certified";
+  | "kitchen";
 
 interface QuickMenuItem {
   key: PictogramKey;
   label: string;
   imageSrc: string;
-  href?: string;
-  inquiryType?: InquiryTypeValue;
-  group: "home" | "biz" | "service";
+  href: string;
+  group: "home" | "biz";
 }
 
 const QUICK_MENU_ITEMS: QuickMenuItem[] = [
@@ -79,133 +74,79 @@ const QUICK_MENU_ITEMS: QuickMenuItem[] = [
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
     group: "biz",
   },
-  // 3. 매입 · 창업 지원 서비스 (원스톱 직영)
-  {
-    key: "sell",
-    label: "가전팔기",
-    imageSrc: "/illustrations/picto-sell.jpg",
-    inquiryType: "내 물건 팔기",
-    group: "service",
-  },
-  {
-    key: "clearance",
-    label: "폐업정리",
-    imageSrc: "/illustrations/picto-clearance.jpg",
-    href: "/purchase",
-    group: "service",
-  },
-  {
-    key: "storePkg",
-    label: "창업상담",
-    imageSrc: "/illustrations/picto-store-pkg.jpg",
-    inquiryType: "대량·업소용 상담",
-    group: "service",
-  },
-  {
-    key: "certified",
-    label: "배송후기",
-    imageSrc: "/illustrations/picto-certified.jpg",
-    href: "#reviews-section",
-    group: "service",
-  },
 ];
 
 export function CategoryPictogramBar({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSelectInquiry,
 }: {
-  onSelectInquiry: (type: InquiryTypeValue) => void;
+  onSelectInquiry?: (type: InquiryTypeValue) => void;
 }) {
   const [hoveredKey, setHoveredKey] = useState<PictogramKey | null>(null);
 
   return (
     <section
       id="category-section"
-      aria-label="취급 품목 및 주요 서비스 바로가기"
+      aria-label="취급 품목 바로가기"
       className="bg-white border-b border-[#E5E2DC] py-4 sm:py-5"
     >
       <div className="hb-container">
-        {/* 1번 사진 벤치마크: 단일 수평 카테고리 내비게이션 바 */}
         <div
-          className="flex items-center justify-start lg:justify-between gap-1.5 sm:gap-2 lg:gap-2.5 overflow-x-auto scrollbar-none py-1 -mx-4 px-4 sm:mx-0 sm:px-0"
+          className="flex items-center justify-start lg:justify-between gap-2 sm:gap-3 lg:gap-4 overflow-x-auto scrollbar-none py-1 -mx-4 px-4 sm:mx-0 sm:px-0"
           onMouseLeave={() => setHoveredKey(null)}
         >
           {QUICK_MENU_ITEMS.map((item) => {
             const isHovered = hoveredKey === item.key;
-            // 그룹 간 얇은 구분선 (소형가전 뒤, 주방설비 뒤)
-            const showDividerAfter =
-              item.key === "small" || item.key === "kitchen";
-
-            const itemContent = (
-              <div
-                className={`group relative flex flex-col items-center justify-center py-2.5 px-2 sm:px-3 rounded-xl transition-all duration-200 cursor-pointer w-[76px] sm:w-[86px] lg:w-full min-w-0 shrink-0 lg:shrink ${
-                  isHovered ? "bg-[#F2F4F8] shadow-2xs" : "hover:bg-[#F7F8FA]"
-                }`}
-              >
-                {/* 3D 픽토그램 아이콘 (Image 1 스타일: 단일 플랫 래퍼) */}
-                <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:-translate-y-0.5">
-                  <SafeImg
-                    src={item.imageSrc}
-                    alt={item.label}
-                    eager
-                    className="h-full w-full object-contain scale-[1.12] transition-transform duration-200 group-hover:scale-[1.20]"
-                  />
-                </div>
-
-                {/* 카테고리 텍스트 레이블 */}
-                <span
-                  className={`mt-1.5 text-center text-[12px] sm:text-[13px] font-bold tracking-[-0.02em] whitespace-nowrap transition-colors ${
-                    isHovered
-                      ? "text-[#D9531E]"
-                      : "text-[#2B3340] group-hover:text-[#D9531E]"
-                  }`}
-                >
-                  {item.label}
-                </span>
-
-                {/* 활성/호버 시 미세 하단 인디케이터 바 */}
-                <span
-                  aria-hidden="true"
-                  className={`mt-1 h-0.5 rounded-full bg-[#D9531E] transition-all duration-200 ease-out ${
-                    isHovered ? "w-4 opacity-100" : "w-0 opacity-0"
-                  }`}
-                />
-              </div>
-            );
+            const showDividerAfter = item.key === "small";
 
             return (
               <React.Fragment key={item.key}>
-                {item.inquiryType ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      trackEvent("begin_buyback_inquiry", {
-                        category: item.label,
-                        location: "top_pictogram_bar",
-                      });
-                      onSelectInquiry(item.inquiryType!);
-                    }}
-                    onMouseEnter={() => setHoveredKey(item.key)}
-                    className="shrink-0 lg:shrink lg:flex-1 flex justify-center focus:outline-hidden"
+                <Link
+                  href={item.href}
+                  onClick={() =>
+                    trackEvent("filter_gallery", {
+                      category: item.label,
+                      location: "top_pictogram_bar",
+                    })
+                  }
+                  onMouseEnter={() => setHoveredKey(item.key)}
+                  className="shrink-0 lg:shrink lg:flex-1 flex justify-center focus:outline-none"
+                >
+                  <div
+                    className={`group relative flex flex-col items-center justify-center py-2.5 px-2.5 sm:px-3.5 rounded-xl transition-all duration-200 cursor-pointer w-[84px] sm:w-[96px] lg:w-full min-w-0 shrink-0 lg:shrink ${
+                      isHovered
+                        ? "bg-[#F2F4F8] shadow-2xs"
+                        : "hover:bg-[#F7F8FA]"
+                    }`}
                   >
-                    {itemContent}
-                  </button>
-                ) : (
-                  <Link
-                    href={item.href || "/gallery"}
-                    onClick={() =>
-                      trackEvent("filter_gallery", {
-                        category: item.label,
-                        location: "top_pictogram_bar",
-                      })
-                    }
-                    onMouseEnter={() => setHoveredKey(item.key)}
-                    className="shrink-0 lg:shrink lg:flex-1 flex justify-center focus:outline-hidden"
-                  >
-                    {itemContent}
-                  </Link>
-                )}
+                    <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:-translate-y-0.5">
+                      <SafeImg
+                        src={item.imageSrc}
+                        alt={item.label}
+                        eager
+                        className="h-full w-full object-contain scale-[1.12] transition-transform duration-200 group-hover:scale-[1.20]"
+                      />
+                    </div>
 
-                {/* 그룹 간 얇은 세로 헤어라인 구분선 (데스크톱에서 자연스럽게 3개 영역 분리) */}
+                    <span
+                      className={`mt-1.5 text-center text-hb-xs sm:text-hb-sm font-bold tracking-[-0.02em] whitespace-nowrap transition-colors ${
+                        isHovered
+                          ? "text-[#D9531E]"
+                          : "text-[#2B3340] group-hover:text-[#D9531E]"
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+
+                    <span
+                      aria-hidden="true"
+                      className={`mt-1 h-0.5 rounded-full bg-[#D9531E] transition-all duration-200 ease-out ${
+                        isHovered ? "w-4 opacity-100" : "w-0 opacity-0"
+                      }`}
+                    />
+                  </div>
+                </Link>
+
                 {showDividerAfter && (
                   <div
                     className="hidden lg:block h-9 w-px bg-[#E5E2DC] self-center shrink-0 mx-1"

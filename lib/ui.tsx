@@ -37,6 +37,7 @@ export const ICON = {
   search: "m21 21-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z",
   left: "m15 18-6-6 6-6",
   right: "m9 18 6-6-6-6",
+  up: "m18 15-6-6-6 6",
   down: "m6 9 6 6 6-6",
   arrow: "M5 12h14M13 6l6 6-6 6",
   lock: "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-12 0V7a5 5 0 0 1 10 0v4",
@@ -132,8 +133,8 @@ export function HanbatBrandLogo({
         <span
           className={`font-extrabold tracking-[-0.03em] leading-none ${
             size === "compact"
-              ? "text-[18px] sm:text-[19px]"
-              : "text-[19px] xs:text-[21px] sm:text-[22px]"
+              ? "text-hb-lg"
+              : "text-hb-lg sm:text-hb-xl"
           } ${dark ? "text-white" : "text-[#0E1A2B]"}`}
         >
           {STORE.name}
@@ -171,7 +172,7 @@ export function SafeImg({
       <div
         role="img"
         aria-label={alt || "상품 이미지 준비 중"}
-        className={`flex flex-col items-center justify-center gap-1 bg-[#F0EDE7] text-[#646E7E] text-[12.5px] font-medium select-none ${className}`}
+        className={`flex flex-col items-center justify-center gap-1 bg-[#F0EDE7] text-[#646E7E] text-hb-xs font-medium select-none ${className}`}
       >
         <Icon d={ICON.image} className="w-5 h-5 text-[#858076]/70" />
         <span>이미지 준비 중</span>
@@ -214,7 +215,7 @@ export function SectionHeading({
     <div className={className}>
       {eyebrow && (
         <p
-          className={`mb-2 text-[13px] font-semibold tracking-[-0.01em] ${
+          className={`mb-2 text-hb-xs font-semibold tracking-[-0.01em] ${
             dark ? "text-[#FF8A50]" : "text-[#D9531E]"
           }`}
         >
@@ -222,7 +223,7 @@ export function SectionHeading({
         </p>
       )}
       <h2
-        className={`mt-2 text-[23px] font-bold leading-[1.28] tracking-[-0.024em] break-keep sm:text-[28px] lg:text-[32px] ${
+        className={`mt-2 text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] tracking-[-0.024em] break-keep ${
           dark ? "text-white" : "text-[#0E1A2B]"
         }`}
       >
@@ -230,7 +231,7 @@ export function SectionHeading({
       </h2>
       {desc && (
         <p
-          className={`mt-2.5 max-w-2xl text-[15px] leading-[1.65] break-keep [text-wrap:pretty] sm:text-[16px] ${
+          className={`mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base leading-[1.65] break-keep [text-wrap:pretty] ${
             dark ? "text-white/75" : "text-[#3E4756]"
           }`}
         >
@@ -368,15 +369,13 @@ export function Modal({
 }
 
 /* ════════════════════════════════════════════════════════════
-   5. 상단 공통 헤더 (SiteHeader — 단일 1단 구조: 로고 · 핵심 메뉴 · 전화 · 카톡)
+   5. 상단 공통 헤더 (SiteHeader — 4대 핵심 메뉴 · 전화 · 카톡)
    ════════════════════════════════════════════════════════════ */
 const HEADER_NAV = [
   { label: "판매 제품", href: "/gallery", matchPrefix: "/gallery" },
-  { label: "취급 품목", href: "/#category-section", matchPrefix: "" },
   { label: "가전 매입", href: "/purchase", matchPrefix: "/purchase" },
-  { label: "출고·설치", href: "/#reviews-section", matchPrefix: "" },
-  { label: "매장 위치", href: "/#location-section", matchPrefix: "" },
-  { label: "상담·문의", href: "/inquiry", matchPrefix: "/inquiry" },
+  { label: "업소·창업", href: "/#business-section", matchPrefix: "" },
+  { label: "매장 안내", href: "/#location-section", matchPrefix: "" },
 ] as const;
 
 const DRAWER_QUICK_CATEGORIES = [
@@ -385,7 +384,7 @@ const DRAWER_QUICK_CATEGORIES = [
   { label: "세탁기·건조기", href: "/gallery?category=세탁기/건조기" },
   { label: "업소용 냉장·주방", href: "/gallery?category=업소용기기" },
   { label: "주방·소형가전", href: "/gallery?category=기타" },
-  { label: "전체 판매 제품", href: "/gallery" },
+  { label: "견적 문의 게시판", href: "/inquiry" },
 ] as const;
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
@@ -422,7 +421,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#0E1A2B] focus:px-4 focus:py-2.5 focus:text-[14px] focus:font-bold focus:text-white focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#0E1A2B] focus:px-4 focus:py-2.5 focus:text-hb-sm focus:font-bold focus:text-white focus:shadow-lg"
       >
         본문 바로가기
       </a>
@@ -440,9 +439,9 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             </Link>
           </div>
 
-          {/* 2. 핵심 내비게이션 메뉴 */}
+          {/* 2. 핵심 내비게이션 메뉴 (4대 메뉴) */}
           <nav
-            className="hidden lg:flex items-center justify-center gap-1 xl:gap-1.5"
+            className="hidden lg:flex items-center justify-center gap-1 xl:gap-2"
             aria-label="주요 메뉴"
           >
             {HEADER_NAV.map((item) => {
@@ -453,7 +452,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative px-3 xl:px-3.5 py-2 text-[15px] font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] ${
+                  className={`relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] ${
                     isActive
                       ? "text-[#D9531E] bg-[#FFF5F0] font-bold"
                       : "text-[#0E1A2B] hover:text-[#D9531E] hover:bg-[#FAF9F7]"
@@ -470,12 +469,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 h-9 sm:h-10 text-[13px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
-                title="담아둔 관심 매물 일괄 견적 문의하기"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 h-10 text-hb-xs font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
+                title="담아둔 관심 매물 견적함 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-[11px] font-bold text-white tabular-nums">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-hb-xs font-bold text-white tabular-nums">
                   {basketCount}
                 </span>
               </Link>
@@ -486,7 +485,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] px-3.5 h-10 text-[13.5px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors whitespace-nowrap tabular-nums"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] px-3.5 h-10 text-hb-sm font-semibold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors whitespace-nowrap tabular-nums"
               aria-label={`전화 상담 ${STORE.tel}`}
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
@@ -503,7 +502,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_kakao_consult", { location: "site_header" })
               }
-              className="hidden sm:inline-flex hb-btn-kakao h-10 px-3.5 text-[13.5px] whitespace-nowrap"
+              className="hidden sm:inline-flex hb-btn-kakao h-10 px-3.5 text-hb-sm whitespace-nowrap"
               aria-label="카카오톡 채널 상담 열기"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
@@ -561,7 +560,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             aria-label="모바일 메뉴 목록"
           >
             <div>
-              <p className="text-[12px] font-bold text-[#646E7E] mb-2">
+              <p className="text-hb-xs font-bold text-[#646E7E] mb-2">
                 주요 메뉴
               </p>
               <ul className="divide-y divide-[#E5E2DC] border-y border-[#E5E2DC]">
@@ -573,7 +572,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                       <Link
                         href={item.href}
                         onClick={() => setMenuOpen(false)}
-                        className={`flex items-center justify-between py-3.5 text-[16px] font-bold transition-colors ${
+                        className={`flex items-center justify-between py-3.5 text-hb-base font-bold transition-colors ${
                           isActive
                             ? "text-[#D9531E]"
                             : "text-[#0E1A2B] hover:text-[#D9531E]"
@@ -592,8 +591,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             </div>
 
             <div>
-              <p className="text-[12px] font-bold text-[#646E7E] mb-2.5">
-                품목별 매물 바로가기
+              <p className="text-hb-xs font-bold text-[#646E7E] mb-2.5">
+                품목별 바로가기
               </p>
               <div className="grid grid-cols-2 gap-2">
                 {DRAWER_QUICK_CATEGORIES.map((cat) => (
@@ -601,7 +600,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                     key={cat.label}
                     href={cat.href}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-between rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-3 text-[13.5px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                    className="flex items-center justify-between rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-3 text-hb-sm font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
                   >
                     <span className="truncate">{cat.label}</span>
                     <Icon
@@ -613,12 +612,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="rounded-lg border border-[#E5E2DC] bg-[#F7F6F3] p-4 text-[13.5px] text-[#3E4756] space-y-1.5">
+            <div className="rounded-lg border border-[#E5E2DC] bg-[#F7F6F3] p-4 text-hb-sm text-[#3E4756] space-y-1.5">
               <div className="flex items-center justify-between">
                 <p className="font-bold text-[#0E1A2B]">
                   {STORE.name} 직영 매장
                 </p>
-                <span className="rounded bg-[#0E1A2B] px-2 py-0.5 text-[11px] font-bold text-white">
+                <span className="rounded bg-[#0E1A2B] px-2 py-0.5 text-hb-xs font-bold text-white">
                   {STORE.since}년 개업
                 </span>
               </div>
@@ -642,7 +641,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "mobile_drawer" })
               }
-              className="hb-btn-primary h-12 text-[14.5px]"
+              className="hb-btn-primary h-12 text-hb-sm"
             >
               <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" /> 전화
               상담
@@ -654,7 +653,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_kakao_consult", { location: "mobile_drawer" })
               }
-              className="hb-btn-kakao h-12 text-[14.5px]"
+              className="hb-btn-kakao h-12 text-hb-sm"
             >
               <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
             </a>
@@ -699,7 +698,7 @@ export function QuoteBasketFloatingBar() {
       >
         {expanded && (
           <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-xl">
-            <div className="flex items-center justify-between text-[12px] text-white/75 pb-1">
+            <div className="flex items-center justify-between text-hb-xs text-white/75 pb-1">
               <span className="font-semibold">
                 담아둔 관심 매물 ({items.length}종 · 총 {totalUnits}대)
               </span>
@@ -709,7 +708,7 @@ export function QuoteBasketFloatingBar() {
                   clearQuoteBasket();
                   toast.success("견적함을 비웠습니다.");
                 }}
-                className="text-[11.5px] font-semibold text-[#FF8A50] hover:underline"
+                className="text-hb-xs font-semibold text-[#FF8A50] hover:underline"
               >
                 전체 비우기
               </button>
@@ -720,7 +719,7 @@ export function QuoteBasketFloatingBar() {
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between gap-2 rounded bg-white/5 px-2.5 py-2 text-[12.5px]"
+                  className="flex items-center justify-between gap-2 rounded bg-white/5 px-2.5 py-2 text-hb-xs"
                 >
                   <div className="min-w-0 flex-1">
                     <Link
@@ -728,13 +727,13 @@ export function QuoteBasketFloatingBar() {
                       className="block truncate font-semibold text-white hover:text-[#FF8A50]"
                     >
                       {sold && (
-                        <span className="mr-1 rounded bg-white/20 px-1 py-0.2 text-[10px]">
+                        <span className="mr-1 rounded bg-white/20 px-1 py-0.5 text-hb-xs">
                           판매완료
                         </span>
                       )}
                       {item.title}
                     </Link>
-                    <span className="block text-[11px] text-white/70 tabular-nums">
+                    <span className="block text-hb-xs text-white/70 tabular-nums">
                       {sold
                         ? "유사매물 재고문의"
                         : formatProductPrice(item.price, item.category)}
@@ -749,11 +748,11 @@ export function QuoteBasketFloatingBar() {
                         updateQuoteBasketItemQuantity(item.id, qty - 1)
                       }
                       aria-label={`${item.title} 수량 감소`}
-                      className="px-2 py-0.5 text-[12px] font-bold text-white hover:bg-white/20"
+                      className="px-2 py-0.5 text-hb-xs font-bold text-white hover:bg-white/20"
                     >
                       -
                     </button>
-                    <span className="px-1.5 text-[11.5px] font-bold tabular-nums">
+                    <span className="px-1.5 text-hb-xs font-bold tabular-nums">
                       {qty}대
                     </span>
                     <button
@@ -762,7 +761,7 @@ export function QuoteBasketFloatingBar() {
                         updateQuoteBasketItemQuantity(item.id, qty + 1)
                       }
                       aria-label={`${item.title} 수량 증가`}
-                      className="px-2 py-0.5 text-[12px] font-bold text-white hover:bg-white/20"
+                      className="px-2 py-0.5 text-hb-xs font-bold text-white hover:bg-white/20"
                     >
                       +
                     </button>
@@ -786,14 +785,14 @@ export function QuoteBasketFloatingBar() {
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="flex min-w-0 items-center gap-2 text-left text-[13px] font-bold text-white hover:text-[#FF8A50]"
+            className="flex min-w-0 items-center gap-2 text-left text-hb-sm font-bold text-white hover:text-[#FF8A50]"
           >
-            <span className="inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[#D9531E] px-1.5 text-[12px] font-bold text-white tabular-nums">
+            <span className="inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[#D9531E] px-1.5 text-hb-xs font-bold text-white tabular-nums">
               {items.length}
             </span>
             <span className="truncate">
               견적함 ({totalUnits}대){" "}
-              <span className="text-[11px] font-normal text-white/70">
+              <span className="text-hb-xs font-normal text-white/70">
                 {expanded ? "접기" : "수량·목록"}
               </span>
             </span>
@@ -807,16 +806,16 @@ export function QuoteBasketFloatingBar() {
                   trackEvent("compare_products", { count: items.length });
                   setCompareOpen(true);
                 }}
-                className="rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-[12px] font-bold text-white hover:bg-white/20 whitespace-nowrap"
+                className="rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap"
               >
-                📊 비교({Math.min(3, items.length)})
+                비교({Math.min(3, items.length)})
               </button>
             )}
             <Link
               href="/inquiry?write=1&bundle=1"
-              className="hb-btn-accent h-9 px-3 text-[12.5px] shrink-0 whitespace-nowrap"
+              className="hb-btn-accent h-9 px-3 text-hb-xs shrink-0 whitespace-nowrap"
             >
-              <span>일괄 문의</span>
+              <span>견적함 문의</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -835,10 +834,9 @@ export function QuoteBasketFloatingBar() {
 }
 
 /* ════════════════════════════════════════════════════════════
-   6-2. 우측 슬림 상담 독 (FloatingQuickWing — 상시 가시성 & 원클릭 전환 고도화)
+   6-2. 우측 슬림 아이콘 독 (FloatingQuickWing — 1440px+ 전용 64px 독)
    ════════════════════════════════════════════════════════════ */
 export function FloatingQuickWing() {
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [basketCount, setBasketCount] = useState(0);
 
   useEffect(() => {
@@ -866,153 +864,69 @@ export function FloatingQuickWing() {
     }
   };
 
-  const scrollToInquirySection = () => {
-    if (typeof window !== "undefined") {
-      const el = document.getElementById("inquiry-section");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      } else {
-        triggerQuickInquiry();
-      }
-    }
-  };
-
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-3 xl:right-6 top-28 z-40 hidden lg:flex flex-col items-end select-none"
+      className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden min-[1440px]:flex flex-col items-center select-none"
     >
-      {isCollapsed ? (
-        /* 접힌 상태: 우측 가장자리에 고정되는 슬림 탭 버튼 */
+      <div className="w-16 rounded-2xl border border-[#CFCAC0] bg-white/95 backdrop-blur-md p-1.5 shadow-floating flex flex-col items-center divide-y divide-[#E5E2DC]">
+        <a
+          href={telHref(STORE.tel)}
+          onClick={() =>
+            trackEvent("click_tel_consult", {
+              location: "floating_quick_wing_tel",
+            })
+          }
+          title={`대표전화 ${STORE.tel}`}
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-t-xl text-[#0E1A2B] hover:bg-[#FAF9F7] hover:text-[#D9531E] transition-colors"
+        >
+          <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+          <span className="text-hb-xs font-bold leading-none">전화</span>
+        </a>
+
+        <a
+          href={STORE.kakaoChat}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() =>
+            trackEvent("click_kakao_consult", {
+              location: "floating_quick_wing",
+            })
+          }
+          title="카카오톡 상담"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#0E1A2B] hover:bg-[#FAF9F7] hover:text-[#D9531E] transition-colors"
+        >
+          <span className="grid h-5 w-5 place-items-center rounded-md bg-[#FEE500] text-[#191600]">
+            <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+          </span>
+          <span className="text-hb-xs font-bold leading-none">카톡</span>
+        </a>
+
         <button
           type="button"
-          onClick={() => setIsCollapsed(false)}
-          className="group flex flex-col items-center gap-2 rounded-l-2xl border-y border-l border-[#0E1A2B] bg-[#0E1A2B] py-4 px-2 text-white shadow-floating hover:bg-[#182942] transition-all cursor-pointer hover:-translate-x-1"
-          title="빠른 상담 사이드바 펼치기"
-          aria-label="빠른 상담 사이드바 펼치기"
+          onClick={() => handleInquiryClick("구매 문의")}
+          title="견적 문의"
+          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#0E1A2B] hover:bg-[#FFF5F0] hover:text-[#D9531E] transition-colors"
         >
-          <Icon d={ICON.left} className="w-4 h-4 text-[#FF8A50] transition-transform group-hover:-translate-x-0.5" />
-          <span className="text-[12px] font-bold tracking-widest text-white [writing-mode:vertical-rl]">
-            ⚡ 빠른상담
-          </span>
-          <span className="h-2 w-2 rounded-full bg-[#FF8A50] animate-pulse" />
-        </button>
-      ) : (
-        /* 펼쳐진 상태: 상시 노출되는 고시인성 프리미엄 퀵 카드 */
-        <div className="w-[218px] rounded-2xl border border-[#CFCAC0] bg-white/98 backdrop-blur-md p-3.5 shadow-[0_8px_30px_rgba(14,26,43,0.12)] space-y-2.5 transition-all">
-          <div className="flex items-center justify-between border-b border-[#E5E2DC] pb-2">
-            <div>
-              <span className="rounded bg-[#FFF5F0] border border-[#FED7AA] px-1.5 py-0.2 text-[10px] font-extrabold text-[#D9531E]">
-                직영 상담센터
-              </span>
-              <strong className="block text-[14px] font-extrabold text-[#0E1A2B] pt-0.5">
-                ⚡ 빠른 상담·견적
-              </strong>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsCollapsed(true)}
-              className="grid h-7 w-7 place-items-center rounded-lg text-[#646E7E] hover:bg-[#FAF9F7] hover:text-[#0E1A2B] transition-colors"
-              aria-label="사이드바 접기"
-              title="사이드바 접기"
-            >
-              <Icon d={ICON.right} className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* 직통 전화 카드 */}
-          <div className="rounded-xl bg-[#FAF9F7] border border-[#E5E2DC] p-2.5 text-center space-y-0.5">
-            <span className="block text-[10.5px] font-semibold text-[#646E7E]">
-              대표전화 ({STORE.hours})
-            </span>
-            <a
-              href={telHref(STORE.tel)}
-              onClick={() =>
-                trackEvent("click_tel_consult", {
-                  location: "floating_quick_wing_tel",
-                })
-              }
-              className="block text-[17px] font-black text-[#0E1A2B] hover:text-[#D9531E] tracking-tight tabular-nums transition-colors"
-            >
-              {STORE.tel}
-            </a>
-            <a
-              href={telHref(STORE.mobile)}
-              onClick={() =>
-                trackEvent("click_tel_consult", {
-                  location: "floating_quick_wing_mobile",
-                })
-              }
-              className="block text-[11.5px] font-bold text-[#D9531E] hover:underline tabular-nums"
-            >
-              직통 {STORE.mobile}
-            </a>
-            <p className="text-[10px] text-[#858076] pt-0.5">
-              문자·사진 전송 가능 · {STORE.closed}
-            </p>
-          </div>
-
-          {/* 원클릭 상담 CTA 버튼 2종 */}
-          <div className="space-y-1.5">
-            <a
-              href={STORE.kakaoChat}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent("click_kakao_consult", {
-                  location: "floating_quick_wing",
-                })
-              }
-              className="hb-btn-kakao w-full h-9 text-[12px] font-bold shadow-2xs"
-            >
-              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-              <span>카톡 실시간 상담</span>
-            </a>
-            <button
-              type="button"
-              onClick={() => handleInquiryClick("구매 문의")}
-              className="hb-btn-primary w-full h-9 text-[12px] font-bold shadow-2xs bg-[#D9531E] hover:bg-[#BF4715] text-white"
-            >
-              <Icon d={ICON.pen} className="w-3.5 h-3.5 text-white" />
-              <span>10초 간편 견적 신청</span>
-            </button>
-          </div>
-
-          {/* 견적함 연동 미니 뱃지 (담긴 매물이 있을 때) */}
+          <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
+          <span className="text-hb-xs font-bold leading-none">견적</span>
           {basketCount > 0 && (
-            <div className="border-t border-[#E5E2DC] pt-2">
-              <Link
-                href="/inquiry?write=1&bundle=1"
-                className="flex items-center justify-between rounded-lg bg-[#FFF5F0] border border-[#FED7AA] px-2.5 py-1.5 text-[11px] font-bold text-[#D9531E] hover:bg-[#FADCD0] transition-colors"
-              >
-                <span>🛒 담아둔 견적함</span>
-                <span className="rounded-full bg-[#D9531E] text-white px-1.5 py-0.2 text-[10.5px] tabular-nums">
-                  {basketCount}대 일괄문의
-                </span>
-              </Link>
-            </div>
+            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-hb-xs font-bold text-white tabular-nums">
+              {basketCount}
+            </span>
           )}
+        </button>
 
-          {/* 퀵 네비게이션 컨트롤 */}
-          <div className="border-t border-[#E5E2DC] pt-2 flex items-center justify-between text-[11px] font-bold text-[#646E7E]">
-            <button
-              type="button"
-              onClick={scrollToTop}
-              className="flex-1 py-1 hover:text-[#0E1A2B] text-center transition-colors"
-            >
-              ▲ 맨 위로
-            </button>
-            <span className="text-[#D7D2C8]">|</span>
-            <button
-              type="button"
-              onClick={scrollToInquirySection}
-              className="flex-1 py-1 hover:text-[#0E1A2B] text-center transition-colors"
-            >
-              ▼ 폼으로
-            </button>
-          </div>
-        </div>
-      )}
+        <button
+          type="button"
+          onClick={scrollToTop}
+          title="맨 위로 이동"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-b-xl text-[#646E7E] hover:bg-[#FAF9F7] hover:text-[#0E1A2B] transition-colors"
+        >
+          <Icon d={ICON.up} className="w-4 h-4" />
+          <span className="text-hb-xs font-semibold leading-none">맨 위</span>
+        </button>
+      </div>
     </aside>
   );
 }
@@ -1039,16 +953,16 @@ export function SiteFooter({
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center gap-3">
                 <HanbatBrandLogo dark size="compact" />
-                <span className="rounded bg-[#D9531E]/20 border border-[#D9531E]/40 px-2 py-0.5 text-[11px] font-bold text-[#FF8A50]">
+                <span className="rounded bg-[#D9531E]/20 border border-[#D9531E]/40 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
                   {STORE.since}년 개업
                 </span>
               </div>
-              <p className="max-w-md text-[14px] leading-[1.7] text-white/75 break-keep">
+              <p className="max-w-md text-hb-sm leading-[1.7] text-white/75 break-keep">
                 가정용 중고가전(에어컨·냉난방기·냉장고·세탁기·건조기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 분해·고압세척 및 작동 검수를 마친 정직한 상품만 출고합니다.
               </p>
 
-              <div className="rounded-xl border border-white/12 bg-white/[0.04] backdrop-blur-xs p-4 sm:p-4.5 max-w-md shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
-                <p className="text-[12px] font-bold text-[#FF8A50]">
+              <div className="rounded-xl border border-white/15 bg-white/[0.04] backdrop-blur-xs p-4 sm:p-5 max-w-md shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
+                <p className="text-hb-xs font-bold text-[#FF8A50]">
                   고객상담 및 방문 매입 직통 센터
                 </p>
                 <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1 tabular-nums">
@@ -1059,7 +973,7 @@ export function SiteFooter({
                         location: "site_footer",
                       })
                     }
-                    className="text-[21px] font-extrabold text-white hover:text-[#FF8A50] transition-colors"
+                    className="text-hb-xl font-extrabold text-white hover:text-[#FF8A50] transition-colors"
                   >
                     {STORE.tel}
                   </a>
@@ -1070,12 +984,12 @@ export function SiteFooter({
                         location: "site_footer_mobile",
                       })
                     }
-                    className="text-[14px] font-semibold text-white/80 hover:text-white transition-colors"
+                    className="text-hb-sm font-semibold text-white/80 hover:text-white transition-colors"
                   >
                     직통 {STORE.mobile}
                   </a>
                 </div>
-                <p className="mt-1 text-[12.5px] text-white/65">
+                <p className="mt-1 text-hb-xs text-white/65">
                   영업시간 {STORE.hours} · {STORE.closed} · 세금계산서 즉시 발행
                 </p>
               </div>
@@ -1086,7 +1000,7 @@ export function SiteFooter({
                   onClick={() =>
                     trackEvent("click_tel_consult", { location: "site_footer" })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/15 px-3.5 py-2.5 text-[13px] font-bold text-white transition-colors tabular-nums"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/15 px-3.5 py-2.5 text-hb-xs font-bold text-white transition-colors tabular-nums"
                 >
                   <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
                   전화 상담 연결
@@ -1100,7 +1014,7 @@ export function SiteFooter({
                       location: "site_footer",
                     })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2.5 text-[13px] font-bold text-[#191600] transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2.5 text-hb-xs font-bold text-[#191600] transition-colors"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5" />
                   카카오톡 실시간 상담
@@ -1110,11 +1024,11 @@ export function SiteFooter({
 
             {/* 내비게이션 링크 */}
             <nav
-              className="grid grid-cols-2 gap-8 text-[14px] sm:grid-cols-3 lg:col-span-7"
+              className="grid grid-cols-2 gap-8 text-hb-sm sm:grid-cols-3 lg:col-span-7"
               aria-label="푸터 메뉴"
             >
               <div>
-                <p className="font-bold text-white text-[13.5px]">
+                <p className="font-bold text-white text-hb-sm">
                   취급 품목 안내
                 </p>
                 <ul className="mt-3.5 space-y-2.5 text-white/70">
@@ -1162,7 +1076,7 @@ export function SiteFooter({
               </div>
 
               <div>
-                <p className="font-bold text-white text-[13.5px]">
+                <p className="font-bold text-white text-hb-sm">
                   고객 지원 · 매입
                 </p>
                 <ul className="mt-3.5 space-y-2.5 text-white/70">
@@ -1195,7 +1109,7 @@ export function SiteFooter({
                       href="/inquiry"
                       className="hover:text-white transition-colors"
                     >
-                      고객 문의 · 매입 게시판
+                      견적 문의 · 매입 게시판
                     </Link>
                   </li>
                   <li>
@@ -1210,10 +1124,10 @@ export function SiteFooter({
               </div>
 
               <div className="col-span-2 sm:col-span-1">
-                <p className="font-bold text-white text-[13.5px]">
+                <p className="font-bold text-white text-hb-sm">
                   오프라인 매장 안내
                 </p>
-                <ul className="mt-3.5 space-y-2 text-white/70 text-[13.5px] leading-relaxed">
+                <ul className="mt-3.5 space-y-2 text-white/70 text-hb-sm leading-relaxed">
                   <li className="text-white font-semibold">{STORE.roadAddress}</li>
                   <li className="text-white/85">지번: {STORE.jibunAddress}</li>
                   <li>({STORE.addressNote})</li>
@@ -1227,7 +1141,7 @@ export function SiteFooter({
             </nav>
           </div>
 
-          <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-[12.5px] leading-relaxed text-white/55">
+          <div className="pt-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4 text-hb-xs leading-relaxed text-white/55">
             <div>
               <p>
                 상호: {STORE.legalName} · 대표자: {STORE.ceo} · 사업자등록번호:{" "}
@@ -1239,7 +1153,7 @@ export function SiteFooter({
                 휴대전화: {STORE.mobile}
               </p>
               <p className="mt-1">
-                © {new Date().getFullYear()} {STORE.name}. All rights reserved.
+                &copy; {new Date().getFullYear()} {STORE.name}. All rights reserved.
               </p>
             </div>
 
@@ -1247,7 +1161,7 @@ export function SiteFooter({
               <button
                 type="button"
                 onClick={onAdminClick}
-                className="text-[12.5px] text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end shrink-0"
+                className="text-hb-xs text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end shrink-0"
               >
                 {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
               </button>
@@ -1316,7 +1230,7 @@ export function MobileCtaBar({
       <div
         role="region"
         aria-label="상품 상세 모바일 구매·문의 바"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D7D2C8] bg-white/98 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#D7D2C8] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
       >
         <div className="flex h-[56px] items-center justify-between gap-2 px-3">
           <div className="min-w-0 flex items-center gap-2">
@@ -1345,7 +1259,7 @@ export function MobileCtaBar({
                   }
                 }}
                 aria-pressed={inBasket}
-                className={`flex h-9 shrink-0 flex-col items-center justify-center rounded border px-2 text-[10.5px] font-bold transition-colors ${
+                className={`flex h-9 shrink-0 flex-col items-center justify-center rounded border px-2 text-hb-xs font-bold transition-colors ${
                   inBasket
                     ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                     : "border-[#D7D2C8] bg-[#FAF9F7] text-[#434B59]"
@@ -1359,11 +1273,11 @@ export function MobileCtaBar({
               </button>
             )}
             <div className="min-w-0">
-              <span className="block truncate text-[10.5px] font-semibold text-[#667085]">
+              <span className="block truncate text-hb-xs font-semibold text-[#667085]">
                 {productContext.category}
               </span>
               <strong
-                className={`block truncate text-[14px] font-bold leading-tight ${
+                className={`block truncate text-hb-sm font-bold leading-tight ${
                   sold ? "text-[#858076]" : "text-[#0E1A2B]"
                 }`}
               >
@@ -1393,7 +1307,7 @@ export function MobileCtaBar({
                 })
               }
               aria-label="문자 문의"
-              className="flex h-9 flex-col items-center justify-center rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2 text-[10.5px] font-bold text-[#D9531E]"
+              className="flex h-9 flex-col items-center justify-center rounded-md border border-[#D9531E] bg-[#FFF5F0] px-2 text-hb-xs font-bold text-[#D9531E]"
             >
               <span>문자</span>
             </a>
@@ -1413,7 +1327,7 @@ export function MobileCtaBar({
             </a>
             <Link
               href={productContext.inquiryHref}
-              className="hb-btn-accent h-9 px-3 text-[12.5px] whitespace-nowrap"
+              className="hb-btn-accent h-9 px-3 text-hb-xs whitespace-nowrap"
             >
               <span>문의</span>
             </Link>
@@ -1435,7 +1349,7 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_tel_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1 bg-[#0E1A2B] text-[12px] font-bold text-white active:bg-[#1C2D47]"
+          className="flex items-center justify-center gap-1 bg-[#0E1A2B] text-hb-xs font-bold text-white active:bg-[#1C2D47]"
         >
           <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
           <span>전화상담</span>
@@ -1448,7 +1362,7 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_sms_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1 bg-[#FFF5F0] text-[12px] font-bold text-[#D9531E] active:bg-[#FADCD0]"
+          className="flex items-center justify-center gap-1 bg-[#FFF5F0] text-hb-xs font-bold text-[#D9531E] active:bg-[#FADCD0]"
         >
           <Icon d={ICON.chat} className="w-3.5 h-3.5" />
           <span>문자·사진</span>
@@ -1460,7 +1374,7 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_kakao_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1 bg-[#FEE500] text-[12px] font-bold text-[#191600] active:bg-[#F2D900]"
+          className="flex items-center justify-center gap-1 bg-[#FEE500] text-hb-xs font-bold text-[#191600] active:bg-[#F2D900]"
         >
           <Icon d={ICON.chat} className="w-3.5 h-3.5" />
           <span>카톡상담</span>
@@ -1474,18 +1388,18 @@ export function MobileCtaBar({
               });
               onInquiryClick();
             }}
-            className="flex items-center justify-center gap-1 bg-white text-[12px] font-bold text-[#0E1A2B] active:bg-[#F7F6F3]"
+            className="flex items-center justify-center gap-1 bg-white text-hb-xs font-bold text-[#0E1A2B] active:bg-[#F7F6F3]"
           >
             <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-            <span>문의·매입</span>
+            <span>견적 문의</span>
           </button>
         ) : (
           <Link
             href="/inquiry"
-            className="flex items-center justify-center gap-1 bg-white text-[12px] font-bold text-[#0E1A2B] active:bg-[#F7F6F3]"
+            className="flex items-center justify-center gap-1 bg-white text-hb-xs font-bold text-[#0E1A2B] active:bg-[#F7F6F3]"
           >
             <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
-            <span>문의·매입</span>
+            <span>견적 문의</span>
           </Link>
         )}
       </div>

@@ -81,35 +81,39 @@ body {
   }
 
   .hb-h1 {
-    @apply text-[28px] font-bold leading-[1.24] tracking-[-0.028em] text-[#0E1A2B] xs:text-[32px] sm:text-[38px] lg:text-[44px];
+    @apply text-hb-2xl lg:text-hb-3xl font-bold tracking-[-0.028em] text-[#0E1A2B];
   }
 
   .hb-h2 {
-    @apply text-[23px] font-bold leading-[1.28] tracking-[-0.024em] text-[#0E1A2B] sm:text-[28px] lg:text-[32px];
+    @apply text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.024em] text-[#0E1A2B];
   }
 
   .hb-h3 {
-    @apply text-[17px] font-bold leading-[1.38] tracking-[-0.016em] text-[#0E1A2B] sm:text-[19px];
+    @apply text-hb-base sm:text-hb-lg font-bold tracking-[-0.016em] text-[#0E1A2B];
   }
 
   .hb-body {
-    @apply text-[15px] leading-[1.65] text-[#3E4756] sm:text-[16px];
+    @apply text-hb-sm sm:text-hb-base text-[#3E4756];
   }
 
   .hb-label {
-    @apply block text-[14px] font-semibold tracking-[-0.01em] text-[#0E1A2B] sm:text-[14.5px];
+    @apply block text-hb-sm font-semibold tracking-[-0.01em] text-[#0E1A2B];
   }
 
   .hb-caption {
-    @apply text-[13px] leading-[1.55] text-[#646E7E];
+    @apply text-hb-xs text-[#646E7E];
   }
 
   .hb-eyebrow {
-    @apply inline-flex items-center gap-2 text-[12.5px] sm:text-[13px] font-bold tracking-[-0.01em] text-[#D9531E];
+    @apply inline-flex items-center gap-2 text-hb-xs font-bold tracking-[-0.01em] text-[#D9531E];
+  }
+
+  .hb-chip {
+    @apply inline-flex items-center h-8 rounded-full border border-[#E5E2DC] bg-white px-3 text-hb-xs font-semibold text-[#3E4756] transition-colors;
   }
 
   .hb-input {
-    @apply w-full rounded-lg border border-[#CFCAC0] bg-white px-3.5 py-2.5 text-[15px] sm:text-[15.5px] text-[#0E1A2B] placeholder:text-[#858076] transition-colors duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
+    @apply w-full h-11 rounded-lg border border-[#CFCAC0] bg-white px-3.5 text-hb-sm sm:text-hb-base text-[#0E1A2B] placeholder:text-[#858076] transition-colors duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
   }
 
   /* Clean Retail Button Tokens — Restrained & Trustworthy */

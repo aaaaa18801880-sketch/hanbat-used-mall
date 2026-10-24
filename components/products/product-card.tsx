@@ -84,21 +84,21 @@ export function ProductTrustMicroStrip({
             className="flex flex-col justify-between px-3.5 py-3"
           >
             <div>
-              <div className="flex items-center gap-1.5 text-[12.5px] sm:text-[13px] font-bold tracking-[-0.01em] text-[#0E1A2B]">
+              <div className="flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
                 <span
                   aria-hidden="true"
-                  className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#D9531E]/12 text-[10px] font-extrabold text-[#D9531E]"
+                  className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[#D9531E]/10 text-hb-xs font-extrabold text-[#D9531E]"
                 >
-                  ✓
+                  <Icon d={ICON.check} className="w-3 h-3" />
                 </span>
                 <span className="truncate">{item.title}</span>
               </div>
-              <p className="mt-1 text-[12px] leading-[1.45] text-[#434B59] break-keep">
+              <p className="mt-1 text-hb-xs leading-[1.45] text-[#434B59] break-keep">
                 {item.desc}
               </p>
             </div>
             {item.highlight && (
-              <span className="mt-1.5 inline-block text-[11px] font-semibold text-[#D9531E] break-keep">
+              <span className="mt-1.5 inline-block text-hb-xs font-semibold text-[#D9531E] break-keep">
                 · {item.highlight}
               </span>
             )}
@@ -199,14 +199,14 @@ export function ProductCard({
 
         {sold && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/45">
-            <span className="rounded bg-[#0E1A2B]/90 px-4 py-1.5 text-[12.5px] font-bold tracking-wider text-white">
+            <span className="rounded bg-[#0E1A2B]/90 px-4 py-1.5 text-hb-xs font-bold tracking-wider text-white">
               판매완료
             </span>
           </div>
         )}
 
         {!sold && images.length > 1 && (
-          <span className="pointer-events-none absolute bottom-2.5 right-2.5 z-10 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-[11px] font-semibold text-white tabular-nums">
+          <span className="pointer-events-none absolute bottom-2.5 right-2.5 z-10 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums">
             사진 {images.length}장
           </span>
         )}
@@ -254,7 +254,7 @@ export function ProductCard({
               aria-pressed={inBasket}
               title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
               aria-label={`${product.title} ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded border px-2 py-1 text-[11px] font-bold transition-colors ${
+              className={`absolute right-2.5 top-2.5 z-20 inline-flex items-center gap-1 rounded border px-2 py-1 text-hb-xs font-bold transition-colors ${
                 inBasket
                   ? "border-[#D9531E] bg-[#D9531E] text-white"
                   : "border-[#CFCAC0] bg-white/95 text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -269,16 +269,16 @@ export function ProductCard({
 
       {/* 2. 상품 정보 영역 — 카테고리 · 제목 · 규격 · 가격의 명확한 타이포 위계 */}
       <div className="flex flex-1 flex-col p-3.5 sm:p-4">
-        <div className="flex items-center justify-between gap-2 text-[12px] font-semibold text-[#667085]">
+        <div className="flex items-center justify-between gap-2 text-hb-xs font-semibold text-[#667085]">
           <span className="truncate">{categoryLabel}</span>
           {typeof product.views === "number" && product.views > 0 ? (
-            <span className="shrink-0 text-[11.5px] text-[#858076] tabular-nums">
+            <span className="shrink-0 text-hb-xs text-[#858076] tabular-nums">
               조회 {product.views}
             </span>
           ) : null}
         </div>
 
-        <h3 className="mt-1.5 line-clamp-2 min-h-[2.7rem] sm:min-h-[2.9rem] text-[14.5px] sm:text-[16px] font-bold leading-[1.38] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors break-keep">
+        <h3 className="mt-1.5 line-clamp-2 min-h-[2.7rem] sm:min-h-[2.9rem] text-hb-sm sm:text-hb-base font-bold leading-[1.38] text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors break-keep">
           {product.title}
         </h3>
 
@@ -287,17 +287,17 @@ export function ProductCard({
             specCapsules.map((tag) => (
               <span
                 key={tag}
-                className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
+                className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-semibold text-[#3E4756]"
               >
                 {tag}
               </span>
             ))
           ) : modelName ? (
-            <span className="truncate rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 font-mono text-[11px] font-medium text-[#646E7E]">
+            <span className="truncate rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 font-mono text-hb-xs font-medium text-[#646E7E]">
               {modelName}
             </span>
           ) : (
-            <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC]/80 px-2 py-0.5 text-[11px] font-medium text-[#858076]">
+            <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC]/80 px-2 py-0.5 text-hb-xs font-medium text-[#858076]">
               검수·세척 완료
             </span>
           )}
@@ -307,22 +307,22 @@ export function ProductCard({
           <div className="pt-2.5 border-t border-[#E5E2DC] flex items-center justify-between gap-2">
             <div className="min-w-0">
               {sold ? (
-                <span className="text-[15px] sm:text-[17px] font-bold text-[#858076]">
+                <span className="text-hb-base sm:text-hb-lg font-bold text-[#858076]">
                   판매완료
                 </span>
               ) : priced ? (
-                <span className="text-[16px] xs:text-[17.5px] sm:text-[19px] font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
+                <span className="text-hb-base sm:text-hb-lg font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
                   {priceText}
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-[13px] sm:text-[13.5px] font-bold text-[#D9531E]">
+                <span className="inline-flex items-center gap-1 text-hb-sm font-bold text-[#D9531E]">
                   <Icon d={ICON.phone} className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">{priceText}</span>
                 </span>
               )}
             </div>
 
-            <span className="inline-flex shrink-0 items-center gap-0.5 text-[12px] font-bold text-[#434B59] group-hover:text-[#D9531E] transition-colors">
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-bold text-[#434B59] group-hover:text-[#D9531E] transition-colors">
               <span className="hidden sm:inline">보기</span>
               <Icon
                 d={ICON.right}

@@ -77,25 +77,25 @@ const PRICE_RANGE_OPTIONS: ReadonlyArray<{
 
 const SITUATION_PRESETS = [
   {
-    label: "🏠 원룸·자취필수",
+    label: "원룸·자취필수",
     category: "냉장고",
     keyword: "",
     desc: "원룸·오피스텔 입주용 가전",
   },
   {
-    label: "☕ 카페·디저트창업",
+    label: "카페·디저트창업",
     category: "업소용기기",
     keyword: "쇼케이스",
     desc: "제빙기·테이블냉장·쇼케이스",
   },
   {
-    label: "🍖 식당·주방설비",
+    label: "식당·주방설비",
     category: "업소용기기",
     keyword: "45박스",
     desc: "45박스·식기세척기·작업대",
   },
   {
-    label: "❄️ 사계절 냉난방",
+    label: "사계절 냉난방",
     category: "에어컨/냉난방기",
     keyword: "냉난방",
     desc: "상가·사무실·가정용 냉난방기",
@@ -2042,9 +2042,9 @@ export default function GalleryPage() {
           {/* 2행: 좌측 상황별 프리셋 4종 + 우측 판매상태·가격대·정렬 필터 3종 */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-1.5 border-t border-[#F0EDE6]">
             {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[11.5px] shrink-0 pr-2 lg:pr-0">
-              <span className="shrink-0 text-[11px] font-bold text-[#8A8478] mr-0.5">
-                💡 맞춤 프리셋:
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-hb-xs shrink-0 pr-2 lg:pr-0">
+              <span className="shrink-0 text-hb-xs font-bold text-[#8A8478] mr-0.5">
+                맞춤 프리셋:
               </span>
               {SITUATION_PRESETS.map((preset) => {
                 const active =
@@ -2064,7 +2064,7 @@ export default function GalleryPage() {
                         keyword: preset.keyword,
                       });
                     }}
-                    className={`h-8 sm:h-8.5 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 ${
+                    className={`h-8 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 ${
                       active
                         ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
                         : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
@@ -2086,7 +2086,7 @@ export default function GalleryPage() {
                   setVisibleLimit(PAGE_STEP);
                 }}
                 aria-label="판매 상태 필터"
-                className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="all">전체 상태</option>
                 <option value="selling">판매중만</option>
@@ -2106,7 +2106,7 @@ export default function GalleryPage() {
                   });
                 }}
                 aria-label="가격대 범위 필터"
-                className={`h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg border text-[12px] sm:text-[12.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
+                className={`h-8 px-2.5 sm:px-3 rounded-lg border text-hb-xs font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
                   priceRange !== "all"
                     ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                     : "border-[#D8D3C8] bg-white text-[#3E4856]"
@@ -2123,7 +2123,7 @@ export default function GalleryPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
-                className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
@@ -2139,7 +2139,7 @@ export default function GalleryPage() {
       <main className="hb-container py-6 sm:py-10 flex-1">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <p className="text-[14px] text-[#3E4856]">
+            <p className="text-hb-sm text-[#3E4856]">
               {isLoading ? (
                 "상품 목록을 불러오는 중..."
               ) : (
@@ -2153,7 +2153,7 @@ export default function GalleryPage() {
               )}
             </p>
             {activeCategory !== "전체" && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B]/8 px-2.5 py-0.5 text-[12px] font-bold text-[#0E1A2B]">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B]/10 px-2.5 py-0.5 text-hb-xs font-bold text-[#0E1A2B]">
                 {activeCategory}
               </span>
             )}
