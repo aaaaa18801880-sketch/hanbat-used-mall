@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-24T17:00:25.017Z">
+<project name="hanbat-mall" generated_at="2026-10-24T17:14:30.691Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>74</file_count>
+    <file_count>75</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -9183,7 +9183,7 @@ export default function GalleryPage() {
 }
 ]]>
     </file>
-    <file path="app/globals.css" lines="196">
+    <file path="app/globals.css" lines="224">
       <![CDATA[
 /* 파일 경로: app/globals.css */
 @tailwind base;
@@ -9282,6 +9282,34 @@ body {
 
   .hb-bento-dark {
     @apply rounded-2xl border border-white/15 bg-[#132238]/90 text-white shadow-floating transition-all duration-200 hover:border-[#FF8A50]/50;
+  }
+
+  /* 2026 Fluid Neo-Depth Surface Tokens */
+  .hb-fluid-h1 {
+    font-size: clamp(1.625rem, 2.2vw + 1rem, 2.375rem);
+    line-height: 1.24;
+    letter-spacing: -0.03em;
+    font-weight: 800;
+  }
+
+  .hb-fluid-h2 {
+    font-size: clamp(1.35rem, 1.5vw + 0.9rem, 1.95rem);
+    line-height: 1.28;
+    letter-spacing: -0.025em;
+    font-weight: 800;
+  }
+
+  .hb-surface-card {
+    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-200;
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 2px 6px -1px rgba(14, 26, 43, 0.04), 0 8px 20px -4px rgba(14, 26, 43, 0.04);
+  }
+
+  .hb-snap-row {
+    @apply flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 scrollbar-none;
+  }
+
+  .hb-snap-item {
+    @apply snap-start shrink-0;
   }
 
   .hb-h1 {
@@ -11481,7 +11509,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="2029">
+    <file path="app/page.tsx" lines="2037">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11533,6 +11561,7 @@ import {
   type PictogramKey,
 } from "../components/home/category-pictogram-bar";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
+import { ModernApplianceIcon } from "../components/ui/modern-icons";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -11563,18 +11592,21 @@ const TRUST_SUMMARY_CARDS = [
     badge: "입고 검수 및 세척",
     title: "분해 세척·작동 검수 후 출고",
     desc: "입고된 모든 가전과 주방설비는 엔지니어가 분해 고압 세척과 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 출고합니다.",
+    icon: "sparkle" as const,
   },
   {
     step: "02",
     badge: "책임 보증 약정",
     title: "계약 조건별 무상 A/S 보증",
     desc: "품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 냉장고·세탁기 등 일반 가전 최대 4개월 무상 A/S를 약정 지원합니다. (거래 형태 및 계약 조건 기준)",
+    icon: "shield" as const,
   },
   {
     step: "03",
     badge: "사업자 정식 증빙",
     title: "사업자 증빙 및 직배송 완비",
     desc: "대전·세종·충청권 직배송 수평 설치는 물론 전자세금계산서·신용카드·현금영수증을 100% 정식 발행합니다.",
+    icon: "tax" as const,
   },
 ] as const;
 
@@ -11611,28 +11643,28 @@ const COMMERCIAL_EQUIP_MATRIX = [
     title: "업소용 냉장 · 냉동 설비",
     items: "45박스 · 25박스 수직냉장/냉동 · 테이블냉장고 · 반찬냉장고 · 급속냉동고",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
-    icon: ICON.snowflake,
+    icon: "biz-fridge" as const,
   },
   {
     code: "B2B · 02",
     title: "음료 · 제과 · 주류 쇼케이스",
     items: "음료/주류 직냉식·간냉식 쇼케이스 · 제과/케이크 쇼케이스 · 오픈 쇼케이스",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
-    icon: ICON.layers,
+    icon: "showcase" as const,
   },
   {
     code: "B2B · 03",
     title: "제빙기 · 세척기 · 스텐 주방",
     items: "업소용 제빙기 · 식기세척기 · 스텐 작업대 · 싱크대 · 가스레인지 · 육수통",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
-    icon: ICON.sparkles,
+    icon: "kitchen" as const,
   },
   {
     code: "B2B · 04",
     title: "중대형 냉난방 · 폐업 일괄정리",
     items: "상가·사무실 중대형 스탠드/천장형 냉난방기 · 폐업 매장 집기 방문 일괄매입",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
-    icon: ICON.bolt,
+    icon: "closure" as const,
   },
 ] as const;
 
@@ -12117,7 +12149,7 @@ export default function Home() {
 
                   <h1
                     id="hero-title"
-                    className="mt-3 text-hb-2xl sm:text-hb-3xl font-extrabold leading-[1.22] tracking-[-0.03em] text-[#0E1A2B] break-keep"
+                    className="mt-3 hb-fluid-h1 text-[#0E1A2B] break-keep"
                   >
                     가정용 가전부터 업소용 주방설비까지,
                     <br />
@@ -12198,10 +12230,10 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (DuotoneIcon 결합) */}
+                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (ModernApplianceIcon 결합) */}
                 <div className="mt-8 pt-5 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
                   <div className="min-w-0 flex items-start gap-2.5">
-                    <DuotoneIcon d={ICON.droplet} tone="orange" size="sm" />
+                    <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
                       <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                         01 · INSPECTION
@@ -12215,7 +12247,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <DuotoneIcon d={ICON.shieldCheck} tone="navy" size="sm" />
+                    <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
                       <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                         02 · WARRANTY
@@ -12229,7 +12261,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <DuotoneIcon d={ICON.truck} tone="emerald" size="sm" />
+                    <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
                       <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                         03 · DELIVERY & TAX
@@ -12341,6 +12373,7 @@ export default function Home() {
           onSelectCategory={(item) => {
             setSelectedCategory(item);
           }}
+          onSelectInquiry={openInquiry}
         />
 
         {/* ════════════════════════════════════════════════════════════
@@ -12412,7 +12445,7 @@ export default function Home() {
                     <div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <DuotoneIcon d={cell.icon} tone="light" size="sm" />
+                          <ModernApplianceIcon name={cell.icon} dark className="w-8 h-8" />
                           <span className="font-mono text-hb-xs font-bold text-[#FF8A50]">
                             {cell.code}
                           </span>
@@ -12697,13 +12730,16 @@ export default function Home() {
                     className="flex flex-col justify-between md:border-l md:first:border-l-0 md:border-[#E5E2DC] md:pl-6 md:first:pl-0"
                   >
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-hb-base font-extrabold text-[#D9531E]">
-                          {card.step}
-                        </span>
-                        <span className="text-hb-xs font-bold text-[#646E7E] uppercase">
-                          {card.badge}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-hb-base font-extrabold text-[#D9531E]">
+                            {card.step}
+                          </span>
+                          <span className="text-hb-xs font-bold text-[#646E7E] uppercase">
+                            {card.badge}
+                          </span>
+                        </div>
+                        <ModernApplianceIcon name={card.icon} className="w-8 h-8 shrink-0" />
                       </div>
                       <h3 className="mt-2 text-hb-lg font-extrabold text-[#0E1A2B]">
                         {card.title}
@@ -13703,7 +13739,7 @@ export default function PurchaseLayout({
 }
 ]]>
     </file>
-    <file path="app/purchase/page.tsx" lines="264">
+    <file path="app/purchase/page.tsx" lines="263">
       <![CDATA[
 "use client";
 
@@ -13717,8 +13753,8 @@ import {
   SafeImg,
   Icon,
   ICON,
-  DuotoneIcon,
 } from "../../lib/ui";
+import { ModernApplianceIcon } from "../../components/ui/modern-icons";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 
 const BUYBACK_STEPS = [
@@ -13727,21 +13763,21 @@ const BUYBACK_STEPS = [
     num: "01",
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
-    icon: ICON.camera,
+    icon: "sell" as const,
   },
   {
     step: "02단계",
     num: "02",
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
-    icon: ICON.chat,
+    icon: "closure" as const,
   },
   {
     step: "03단계",
     num: "03",
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
-    icon: ICON.wallet,
+    icon: "shield" as const,
   },
 ] as const;
 
@@ -13788,15 +13824,14 @@ export default function PurchasePage() {
           aria-label="방문 매입 진행 절차"
           className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
         >
-          {BUYBACK_STEPS.map((item, idx) => (
+          {BUYBACK_STEPS.map((item) => (
             <div
               key={item.step}
               className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
             >
-              <DuotoneIcon
-                d={item.icon}
-                tone={idx === 2 ? "orange" : "navy"}
-                size="lg"
+              <ModernApplianceIcon
+                name={item.icon}
+                className="w-11 h-11 sm:w-12 sm:h-12 shrink-0"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
@@ -14300,15 +14335,23 @@ export function AiRecommendationGuideSection() {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="287">
+    <file path="components/home/category-pictogram-bar.tsx" lines="409">
       <![CDATA[
 // 파일 경로: components/home/category-pictogram-bar.tsx
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import { trackEvent, type InquiryTypeValue } from "../../lib/site";
-import { Icon, ICON, SafeImg } from "../../lib/ui";
+import {
+  trackEvent,
+  triggerQuickInquiry,
+  type InquiryTypeValue,
+} from "../../lib/site";
+import { Icon, ICON } from "../../lib/ui";
+import {
+  ModernApplianceIcon,
+  type ModernIconType,
+} from "../ui/modern-icons";
 
 export type PictogramKey =
   | "all"
@@ -14324,6 +14367,7 @@ export interface ShowroomCategoryItem {
   key: PictogramKey;
   label: string;
   subLabel: string;
+  icon: ModernIconType;
   imageSrc: string;
   href: string;
   filterCategory: string;
@@ -14336,6 +14380,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "all",
     label: "전체 실매물",
     subLabel: "전 품목 보기",
+    icon: "all",
     imageSrc: "/illustrations/picto-fridge.jpg",
     href: "/gallery",
     filterCategory: "전체",
@@ -14345,6 +14390,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "aircon",
     label: "에어컨·냉난방",
     subLabel: "벽걸이·스탠드·천장형",
+    icon: "aircon",
     imageSrc: "/illustrations/picto-aircon.jpg",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     filterCategory: "에어컨/냉난방기",
@@ -14352,8 +14398,9 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
   {
     key: "fridge",
-    label: "냉장고",
-    subLabel: "양문형·일반·김치",
+    label: "냉장고·김치냉장",
+    subLabel: "양문형·4도어·일반",
+    icon: "fridge",
     imageSrc: "/illustrations/picto-fridge.jpg",
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
     filterCategory: "냉장고",
@@ -14362,7 +14409,8 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   {
     key: "washer",
     label: "세탁기·건조기",
-    subLabel: "드럼·통돌이·건조",
+    subLabel: "드럼·통돌이·워시타워",
+    icon: "washer",
     imageSrc: "/illustrations/picto-washer.jpg",
     href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
     filterCategory: "세탁기/건조기",
@@ -14372,6 +14420,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "small",
     label: "TV·소형가전",
     subLabel: "TV·전자레인지·기타",
+    icon: "small",
     imageSrc: "/illustrations/picto-small.jpg",
     href: "/gallery?category=%EA%B8%B0%ED%83%80",
     filterCategory: "기타",
@@ -14379,8 +14428,9 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
   {
     key: "bizFridge",
-    label: "업소용 냉장",
-    subLabel: "45박스·테이블냉장",
+    label: "업소용 냉장고",
+    subLabel: "25·45박스·테이블냉장",
+    icon: "biz-fridge",
     imageSrc: "/illustrations/picto-biz-fridge.jpg",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
     filterCategory: "업소용기기",
@@ -14389,8 +14439,9 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
   {
     key: "showcase",
-    label: "쇼케이스",
+    label: "음료·주류 쇼케이스",
     subLabel: "음료·주류·제과",
+    icon: "showcase",
     imageSrc: "/illustrations/picto-showcase.jpg",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
     filterCategory: "업소용기기",
@@ -14399,8 +14450,9 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
   {
     key: "kitchen",
-    label: "업소 주방설비",
+    label: "제빙기·주방설비",
     subLabel: "제빙기·세척기·작업대",
+    icon: "kitchen",
     imageSrc: "/illustrations/picto-kitchen.jpg",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
     filterCategory: "업소용기기",
@@ -14408,11 +14460,43 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
 ];
 
+const ACTION_BENTO_ITEMS: ReadonlyArray<{
+  label: string;
+  sub: string;
+  icon: ModernIconType;
+  inquiryType?: InquiryTypeValue;
+  scrollTarget?: string;
+}> = [
+  {
+    label: "가전 방문매입",
+    sub: "당일 수거·현금 입금",
+    icon: "sell",
+    inquiryType: "내 물건 팔기",
+  },
+  {
+    label: "식당·카페 폐업정리",
+    sub: "주방설비 일괄 매입·철거",
+    icon: "closure",
+    inquiryType: "대량·업소용 상담",
+  },
+  {
+    label: "창업 패키지 상담",
+    sub: "업종별 맞춤 설비 견적",
+    icon: "startup",
+    inquiryType: "대량·업소용 상담",
+  },
+  {
+    label: "출고·설치 사례",
+    sub: "실제 현장 납품 기록",
+    icon: "shield",
+    scrollTarget: "reviews-section",
+  },
+];
+
 export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
   categoryCounts,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSelectInquiry,
 }: {
   selectedKey?: PictogramKey;
@@ -14420,169 +14504,242 @@ export function CategoryPictogramBar({
   categoryCounts?: Partial<Record<PictogramKey, number>>;
   onSelectInquiry?: (type: InquiryTypeValue) => void;
 }) {
+  const allItem = SHOWROOM_CATEGORIES[0];
+  const homeItems = SHOWROOM_CATEGORIES.filter((c) => c.group === "home");
+  const bizItems = SHOWROOM_CATEGORIES.filter((c) => c.group === "biz");
+
+  const handleCategoryClick = (item: ShowroomCategoryItem) => {
+    trackEvent("filter_gallery", {
+      category: item.label,
+      location: "top_pictogram_bar",
+    });
+    if (onSelectCategory) {
+      onSelectCategory(item);
+      if (typeof document !== "undefined") {
+        document
+          .getElementById("featured-products-section")
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  };
+
+  const handleActionClick = (action: (typeof ACTION_BENTO_ITEMS)[number]) => {
+    if (action.inquiryType) {
+      trackEvent("begin_buyback_inquiry", {
+        location: "category_pictogram_bar",
+      });
+      if (onSelectInquiry) {
+        onSelectInquiry(action.inquiryType);
+      } else {
+        triggerQuickInquiry({ type: action.inquiryType });
+      }
+      return;
+    }
+    if (action.scrollTarget && typeof document !== "undefined") {
+      document
+        .getElementById(action.scrollTarget)
+        ?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
     <section
       id="category-section"
-      aria-label="취급 품목 탐색 시스템"
-      className="bg-white border-b border-[#E5E2DC] py-6 sm:py-8"
+      aria-label="취급 품목 및 주요 서비스 바로가기"
+      className="border-b border-[#E5E2DC] bg-white py-7 sm:py-10"
     >
       <div className="hb-container">
-        {/* 상단 카테고리 탐색 헤더 바 */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 pb-4 border-b border-[#ECE9E2]">
-          <div className="flex items-center gap-3">
-            <span className="inline-block h-4 w-1 bg-[#D9531E]" aria-hidden="true" />
+        {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[#ECE9E2]">
+          <div className="flex items-center gap-2.5">
+            <span
+              className="inline-block h-4 w-1 rounded-full bg-[#D9531E]"
+              aria-hidden="true"
+            />
             <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] tracking-tight">
-              품목별 쇼룸 카탈로그
+              품목별 쇼룸 카탈로그 &amp; 원스톱 서비스
             </h2>
-            <span className="hidden sm:inline text-hb-xs text-[#646E7E]">
-              원하시는 품목을 선택하면 아래에서 실시간 전시 매물을 바로 확인하실 수 있습니다
+            <span className="hidden md:inline text-hb-xs text-[#646E7E]">
+              품목을 선택하시면 아래에서 실시간 전시 매물을 바로 필터링합니다
             </span>
           </div>
-          <div className="flex items-center gap-3 text-hb-xs font-semibold text-[#646E7E]">
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#0E1A2B]" />
-              가정·원룸 가전
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-[#D9531E]" />
-              식당·카페 업소설비
-            </span>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleCategoryClick(allItem)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-extrabold transition-all cursor-pointer ${
+                selectedKey === "all"
+                  ? "bg-[#0E1A2B] text-white shadow-2xs"
+                  : "border border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+              }`}
+            >
+              <span>전체 실매물</span>
+              {typeof categoryCounts?.all === "number" && (
+                <span className="text-[#FF8A50] tabular-nums">
+                  {categoryCounts.all}대
+                </span>
+              )}
+            </button>
             <Link
               href="/gallery"
-              className="ml-auto sm:ml-2 inline-flex items-center gap-1 font-bold text-[#0E1A2B] hover:text-[#D9531E]"
+              className="inline-flex items-center gap-1 rounded-full border border-[#E5E2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:text-[#D9531E] transition-colors"
             >
-              <span>상세 검색</span>
+              <span>갤러리 전체보기</span>
               <Icon d={ICON.right} className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
 
-        {/* 8대 쇼룸 카테고리 탭 그리드 (모바일 2열 · 소형모바일 4열 · 데스크톱 8열) */}
-        <div
-          role="tablist"
-          aria-label="품목별 쇼룸 필터"
-          className="mt-4 grid grid-cols-2 xs:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5"
-        >
-          {SHOWROOM_CATEGORIES.map((item) => {
-            const isSelected = selectedKey === item.key;
-            const count = categoryCounts?.[item.key];
-            const isBiz = item.group === "biz";
-
-            const content = (
-              <div
-                className={`group relative flex flex-col items-center justify-between rounded-xl px-2 py-3 sm:px-3 sm:py-3.5 transition-all duration-200 cursor-pointer h-full ${
-                  isSelected
-                    ? "bg-[#0E1A2B] text-white shadow-card -translate-y-0.5"
-                    : "bg-[#FAF9F7] text-[#0E1A2B] hover:bg-[#F1EFEA] hover:-translate-y-0.5"
-                }`}
-              >
-                {/* 실시간 매물 대수 캡슐 뱃지 또는 그룹 인디케이터 점 */}
-                {typeof count === "number" ? (
-                  <span
-                    className={`absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.5 text-hb-xs font-bold leading-none tabular-nums ${
-                      isSelected
-                        ? "bg-[#FF8A50] text-[#0E1A2B]"
-                        : "bg-white text-[#0E1A2B] shadow-2xs border border-[#E5E2DC]"
-                    }`}
-                  >
-                    {count}대
-                  </span>
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className={`absolute top-2 right-2 h-1.5 w-1.5 rounded-full ${
-                      isSelected
-                        ? "bg-[#FF8A50]"
-                        : isBiz
-                        ? "bg-[#D9531E]/60"
-                        : "bg-[#0E1A2B]/25"
-                    }`}
-                  />
-                )}
-
-                {/* 통일된 스튜디오 아이콘 프레임 */}
-                <div
-                  className={`h-11 w-11 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center p-1 transition-transform duration-200 group-hover:scale-105 ${
-                    isSelected ? "bg-white" : "bg-white/90"
-                  }`}
-                >
-                  <SafeImg
-                    src={item.imageSrc}
-                    alt={item.label}
-                    eager
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-
-                {/* 카테고리명 및 서브 설명 */}
-                <div className="mt-2 text-center min-w-0 w-full">
-                  <span
-                    className={`block truncate text-hb-xs sm:text-hb-sm font-extrabold tracking-tight ${
-                      isSelected
-                        ? "text-white"
-                        : "text-[#0E1A2B] group-hover:text-[#D9531E]"
-                    }`}
-                  >
-                    {item.label}
-                  </span>
-                  <span
-                    className={`mt-0.5 hidden sm:block truncate text-hb-xs ${
-                      isSelected ? "text-white/75" : "text-[#646E7E]"
-                    }`}
-                  >
-                    {typeof count === "number" ? `${count}대 전시` : item.subLabel}
-                  </span>
-                </div>
-
-                {/* 선택 상태 하단 액센트 바 */}
-                <span
-                  aria-hidden="true"
-                  className={`mt-2 h-0.5 rounded-full transition-all duration-200 ${
-                    isSelected
-                      ? "w-8 bg-[#FF8A50]"
-                      : "w-0 bg-transparent group-hover:w-5 group-hover:bg-[#D9531E]/50"
-                  }`}
-                />
+        {/* 모바일·태블릿·데스크톱 3단 적응형 벤토 그리드 */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5 items-stretch">
+          {/* 1. 가정·원룸 중고가전 (5컬럼) */}
+          <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-[#FAF9F7] p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+            <div className="flex items-center justify-between gap-2 mb-3.5">
+              <div className="flex items-center gap-2">
+                <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-extrabold text-white">
+                  가정 · 원룸 가전
+                </span>
+                <span className="text-hb-xs font-bold text-[#3E4756]">
+                  분해 고압 살균 · 무상 A/S
+                </span>
               </div>
-            );
-
-            if (onSelectCategory) {
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={isSelected}
-                  onClick={() => {
-                    trackEvent("filter_gallery", {
-                      category: item.label,
-                      location: "top_pictogram_bar",
-                    });
-                    onSelectCategory(item);
-                  }}
-                  className="text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] rounded-lg min-w-0"
-                >
-                  {content}
-                </button>
-              );
-            }
-
-            return (
               <Link
-                key={item.key}
-                href={item.href}
-                onClick={() =>
-                  trackEvent("filter_gallery", {
-                    category: item.label,
-                    location: "top_pictogram_bar",
-                  })
-                }
-                className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] rounded-lg min-w-0"
+                href="/gallery"
+                className="text-hb-xs font-bold text-[#D9531E] hover:underline"
               >
-                {content}
+                전체보기 →
               </Link>
-            );
-          })}
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {homeItems.map((item) => {
+                const isSelected = selectedKey === item.key;
+                const count = categoryCounts?.[item.key];
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handleCategoryClick(item)}
+                    className={`group relative flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border p-3 sm:py-3.5 sm:px-2 text-left sm:text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
+                      isSelected
+                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-card"
+                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md"
+                    }`}
+                  >
+                    <ModernApplianceIcon
+                      name={item.icon}
+                      dark={isSelected}
+                      className="w-11 h-11 sm:w-12 sm:h-12"
+                    />
+                    <div className="min-w-0 flex-1 sm:w-full">
+                      <strong
+                        className={`block text-hb-xs sm:text-hb-sm font-extrabold truncate ${
+                          isSelected
+                            ? "text-white"
+                            : "text-[#0E1A2B] group-hover:text-[#D9531E]"
+                        }`}
+                      >
+                        {item.label}
+                      </strong>
+                      <span
+                        className={`mt-0.5 block text-hb-xs font-medium truncate ${
+                          isSelected ? "text-[#FF8A50]" : "text-[#646E7E]"
+                        }`}
+                      >
+                        {typeof count === "number"
+                          ? `${count}대 전시`
+                          : item.subLabel}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. 식당·카페 업소용 설비 (3컬럼 — 다크 네이비 글래스 테마) */}
+          <div className="lg:col-span-3 flex flex-col justify-between rounded-2xl border border-[#1E2F48] bg-[#0E1A2B] p-4 sm:p-5 text-white shadow-card">
+            <div className="flex items-center justify-between gap-2 mb-3.5">
+              <span className="rounded-md bg-[#D9531E] px-2.5 py-1 text-hb-xs font-extrabold text-white">
+                식당 · 카페 B2B
+              </span>
+              <span className="text-hb-xs font-semibold text-white/75">
+                전자세금계산서 100%
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-2.5">
+              {bizItems.map((item) => {
+                const isSelected = selectedKey === item.key;
+                const count = categoryCounts?.[item.key];
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handleCategoryClick(item)}
+                    className={`group flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border p-3 sm:py-3.5 sm:px-2 text-left sm:text-center backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
+                      isSelected
+                        ? "border-[#FF8A50] bg-white/20 shadow-md"
+                        : "border-white/15 bg-white/[0.06] hover:border-[#FF8A50] hover:bg-white/[0.12]"
+                    }`}
+                  >
+                    <ModernApplianceIcon
+                      name={item.icon}
+                      dark
+                      className="w-11 h-11 sm:w-12 sm:h-12"
+                    />
+                    <div className="min-w-0 flex-1 sm:w-full">
+                      <strong className="block text-hb-xs font-extrabold text-white group-hover:text-[#FF8A50] truncate">
+                        {item.label}
+                      </strong>
+                      <span className="mt-0.5 block text-hb-xs text-white/70 truncate">
+                        {typeof count === "number"
+                          ? `${count}대 전시`
+                          : item.subLabel}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. 방문매입 · 폐업정리 · 창업상담 (4컬럼 — 웜 오렌지 포인트 테마) */}
+          <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-[#FADCD0] bg-[#FFF5F0]/80 p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+            <div className="flex items-center justify-between gap-2 mb-3.5">
+              <span className="rounded-md bg-[#D9531E] px-2.5 py-1 text-hb-xs font-extrabold text-white">
+                방문매입 · 원스톱
+              </span>
+              <span className="text-hb-xs font-bold text-[#B5431A]">
+                수거 당일 현금 입금
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {ACTION_BENTO_ITEMS.map((item) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={() => handleActionClick(item)}
+                  className="group flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border border-[#FADCD0] bg-white p-3 sm:py-3.5 sm:px-2 text-left sm:text-center shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-[#D9531E] hover:shadow-md cursor-pointer"
+                >
+                  <ModernApplianceIcon
+                    name={item.icon}
+                    className="w-11 h-11 sm:w-12 sm:h-12"
+                  />
+                  <div className="min-w-0 flex-1 sm:w-full">
+                    <strong className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] truncate">
+                      {item.label}
+                    </strong>
+                    <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
+                      {item.sub}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -18115,7 +18272,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="399">
+    <file path="components/products/product-card.tsx" lines="397">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -18136,8 +18293,9 @@ import {
   toggleQuoteBasketItem,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, DuotoneIcon, SafeImg } from "../../lib/ui";
+import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
+import { ModernApplianceIcon } from "../ui/modern-icons";
 
 export interface ProductItem {
   id: string;
@@ -18179,24 +18337,21 @@ export function ProductTrustMicroStrip({
           ? "입고 후 작동 테스트 및 고압 세척 완료"
           : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
-      icon: ICON.sparkles,
-      tone: "orange" as const,
+      icon: "sparkle" as const,
     },
     {
       step: "02",
       title: "사후 무상 A/S 보증",
       desc: "계약 조건에 따라 보증 기간 차등 적용",
       highlight: warrantyHighlight,
-      icon: ICON.shieldCheck,
-      tone: "navy" as const,
+      icon: "shield" as const,
     },
     {
       step: "03",
       title: "세금계산서·직배송",
       desc: "사업자 부가세 증빙 및 직영 배송·설치 지원",
       highlight: null,
-      icon: ICON.receipt,
-      tone: "emerald" as const,
+      icon: "tax" as const,
     },
   ] as const;
 
@@ -18212,8 +18367,8 @@ export function ProductTrustMicroStrip({
             className="flex flex-col justify-between px-4 py-3.5"
           >
             <div>
-              <div className="flex items-center gap-2 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
-                <DuotoneIcon d={item.icon} tone={item.tone} size="sm" />
+              <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
+                <ModernApplianceIcon name={item.icon} className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                 <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                   {item.step}
                 </span>
@@ -18315,7 +18470,7 @@ export function ProductCard({
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
         isSelected
           ? "ring-2 ring-[#D9531E] bg-[#FFFDFB] shadow-card-hover"
-          : "hb-bento-card"
+          : "hb-surface-card hover:border-[#0E1A2B]/40 hover:shadow-card-hover"
       }`}
     >
       {/* 1. 시원시원한 대형 풀블리드 사진 (내부 축소 패딩 및 배경색 제거 · 사진을 100% 꽉 채워 시원하게 노출) */}
@@ -18435,7 +18590,7 @@ export function ProductCard({
         </div>
 
         {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex flex-wrap items-center justify-between gap-1.5">
+        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-1.5 min-w-0">
           <div className="min-w-0 flex-1">
             {sold ? (
               <span className="text-hb-sm font-bold text-[#646E7E]">
@@ -20992,6 +21147,608 @@ export function V2VisualInspectionViewer({
           ※ 위 내용은 품목별 공통 출고 기준 안내이며, 개별 매물의 외관·실측 상태는 상단 실물 사진과 상세 설명을 기준으로 확인하실 수 있습니다.
         </p>
       </div>
+    </div>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/ui/modern-icons.tsx" lines="598">
+      <![CDATA[
+// 파일 경로: components/ui/modern-icons.tsx
+"use client";
+
+import React from "react";
+
+export type ModernIconType =
+  | "all"
+  | "aircon"
+  | "fridge"
+  | "washer"
+  | "small"
+  | "biz-fridge"
+  | "showcase"
+  | "kitchen"
+  | "sell"
+  | "closure"
+  | "startup"
+  | "shield"
+  | "sparkle"
+  | "tax";
+
+interface ModernIconProps {
+  name: ModernIconType;
+  className?: string;
+  dark?: boolean;
+}
+
+/**
+ * 2026 Geometric Neo-Depth & Layered Duotone SVG Icon System
+ * - OS 기본 이모지를 대체하는 한밭중고전자 전용 벡터 픽토그램
+ * - 부모 요소에 `group` 클래스가 있을 때 호버 마이크로 인터랙션 자동 작동
+ */
+export function ModernApplianceIcon({
+  name,
+  className = "w-11 h-11 sm:w-12 sm:h-12",
+  dark = false,
+}: ModernIconProps) {
+  const uid = React.useId().replace(/:/g, "");
+
+  const primaryStroke = dark ? "#FFFFFF" : "#0E1A2B";
+  const secondaryFill = dark ? "rgba(255,255,255,0.14)" : "#F1F4F9";
+  const accentColor = dark ? "#FF8A50" : "#D9531E";
+
+  return (
+    <div
+      className={`relative inline-flex items-center justify-center shrink-0 select-none ${className}`}
+      aria-hidden="true"
+    >
+      {/* 호버 시 은은하게 퍼지는 후면 앰비언트 광원 */}
+      <span
+        className={`pointer-events-none absolute inset-1 rounded-2xl opacity-0 blur-md transition-all duration-300 group-hover:opacity-100 group-hover:scale-110 ${
+          dark ? "bg-[#FF8A50]/25" : "bg-[#D9531E]/15"
+        }`}
+      />
+
+      <svg
+        viewBox="0 0 48 48"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="relative z-10 h-full w-full transition-transform duration-300 ease-out group-hover:scale-[1.06]"
+      >
+        <defs>
+          <linearGradient
+            id={`navyGrad-${uid}`}
+            x1="8"
+            y1="6"
+            x2="40"
+            y2="42"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor={dark ? "#2A4365" : "#1E324F"} />
+            <stop offset="1" stopColor={dark ? "#16263D" : "#0E1A2B"} />
+          </linearGradient>
+          <linearGradient
+            id={`orangeGrad-${uid}`}
+            x1="12"
+            y1="10"
+            x2="36"
+            y2="38"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#FF8A50" />
+            <stop offset="1" stopColor="#D9531E" />
+          </linearGradient>
+          <linearGradient
+            id={`glassGrad-${uid}`}
+            x1="10"
+            y1="8"
+            x2="38"
+            y2="40"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#FFFFFF" stopOpacity="0.9" />
+            <stop offset="1" stopColor="#E5E9F0" stopOpacity="0.45" />
+          </linearGradient>
+        </defs>
+
+        {/* 0. 전체 실매물 쇼룸 그리드 */}
+        {name === "all" && (
+          <>
+            <rect
+              x="7"
+              y="7"
+              width="15"
+              height="15"
+              rx="3.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <rect
+              x="26"
+              y="7"
+              width="15"
+              height="15"
+              rx="3.5"
+              fill={`url(#orangeGrad-${uid})`}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+              className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            />
+            <rect
+              x="7"
+              y="26"
+              width="15"
+              height="15"
+              rx="3.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <rect
+              x="26"
+              y="26"
+              width="15"
+              height="15"
+              rx="3.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+          </>
+        )}
+
+        {/* 1. 에어컨 · 냉난방기 */}
+        {name === "aircon" && (
+          <>
+            <rect
+              x="5"
+              y="9"
+              width="38"
+              height="18"
+              rx="4.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <path
+              d="M9 22H39"
+              stroke={primaryStroke}
+              strokeWidth="1.8"
+              strokeLinecap="round"
+            />
+            <rect
+              x="32"
+              y="13"
+              width="6"
+              height="3"
+              rx="1.5"
+              fill={accentColor}
+            />
+            <g className="transition-transform duration-300 group-hover:translate-y-1">
+              <path
+                d="M13 31C13 34 10 35.5 10 38.5"
+                stroke={accentColor}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M24 31V39"
+                stroke={accentColor}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M35 31C35 34 38 35.5 38 38.5"
+                stroke={accentColor}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+            </g>
+          </>
+        )}
+
+        {/* 2. 양문형 · 4도어 냉장고 */}
+        {name === "fridge" && (
+          <>
+            <rect
+              x="10"
+              y="5"
+              width="28"
+              height="38"
+              rx="4"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <path d="M24 5V43" stroke={primaryStroke} strokeWidth="2" />
+            <path d="M10 26H38" stroke={primaryStroke} strokeWidth="2" />
+            <rect
+              x="14"
+              y="11"
+              width="5"
+              height="7"
+              rx="1.5"
+              fill={`url(#orangeGrad-${uid})`}
+            />
+            <path
+              d="M21.5 12V20M26.5 12V20"
+              stroke={primaryStroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </>
+        )}
+
+        {/* 3. 드럼세탁기 · 워시타워 */}
+        {name === "washer" && (
+          <>
+            <rect
+              x="9"
+              y="5"
+              width="30"
+              height="38"
+              rx="4.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <path d="M9 13H39" stroke={primaryStroke} strokeWidth="2" />
+            <circle cx="15" cy="9" r="1.5" fill={accentColor} />
+            <rect
+              x="28"
+              y="7.5"
+              width="6"
+              height="3"
+              rx="1"
+              fill={primaryStroke}
+            />
+            <g className="origin-[24px_28px] transition-transform duration-500 group-hover:rotate-45">
+              <circle
+                cx="24"
+                cy="28"
+                r="9.5"
+                fill={`url(#glassGrad-${uid})`}
+                stroke={primaryStroke}
+                strokeWidth="2.2"
+              />
+              <path
+                d="M17.5 28C19.5 25.5 22 25.5 24 28C26 30.5 28.5 30.5 30.5 28"
+                stroke={accentColor}
+                strokeWidth="2.2"
+                strokeLinecap="round"
+              />
+            </g>
+          </>
+        )}
+
+        {/* 4. 주방 · 소형가전 */}
+        {name === "small" && (
+          <>
+            <rect
+              x="6"
+              y="11"
+              width="36"
+              height="26"
+              rx="4"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <rect
+              x="10"
+              y="15"
+              width="21"
+              height="18"
+              rx="2.5"
+              fill={`url(#glassGrad-${uid})`}
+              stroke={primaryStroke}
+              strokeWidth="2"
+            />
+            <circle cx="36.5" cy="19" r="2" fill={accentColor} />
+            <circle cx="36.5" cy="26" r="2" fill={primaryStroke} />
+            <path
+              d="M16 24H25"
+              stroke={accentColor}
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+          </>
+        )}
+
+        {/* 5. 업소용 45박스 수직 냉장·냉동고 */}
+        {name === "biz-fridge" && (
+          <>
+            <rect
+              x="8"
+              y="5"
+              width="32"
+              height="36"
+              rx="3"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <path d="M8 11H40" stroke={primaryStroke} strokeWidth="2" />
+            <rect
+              x="21"
+              y="7"
+              width="6"
+              height="2.5"
+              rx="1"
+              fill={accentColor}
+            />
+            <path d="M24 11V41" stroke={primaryStroke} strokeWidth="2" />
+            <path d="M8 26H40" stroke={primaryStroke} strokeWidth="2" />
+            <path
+              d="M12 41V44M36 41V44"
+              stroke={primaryStroke}
+              strokeWidth="2.4"
+              strokeLinecap="round"
+            />
+            <path
+              d="M21 16V21M27 16V21M21 31V36M27 31V36"
+              stroke={accentColor}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </>
+        )}
+
+        {/* 6. 음료 · 주류 · 디저트 쇼케이스 */}
+        {name === "showcase" && (
+          <>
+            <rect
+              x="10"
+              y="5"
+              width="28"
+              height="38"
+              rx="3.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <rect
+              x="14"
+              y="11"
+              width="20"
+              height="27"
+              rx="2"
+              fill={`url(#glassGrad-${uid})`}
+              stroke={primaryStroke}
+              strokeWidth="1.8"
+            />
+            <path
+              d="M14 20H34M14 29H34"
+              stroke={primaryStroke}
+              strokeWidth="1.8"
+            />
+            <rect
+              x="18"
+              y="14"
+              width="4"
+              height="6"
+              rx="1"
+              fill={accentColor}
+            />
+            <rect
+              x="25"
+              y="23"
+              width="4"
+              height="6"
+              rx="1"
+              fill={accentColor}
+            />
+          </>
+        )}
+
+        {/* 7. 업소용 제빙기 · 식기세척기 · 주방설비 */}
+        {name === "kitchen" && (
+          <>
+            <rect
+              x="8"
+              y="7"
+              width="32"
+              height="34"
+              rx="4"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <path d="M8 16H40" stroke={primaryStroke} strokeWidth="2" />
+            <rect
+              x="15"
+              y="22"
+              width="7"
+              height="7"
+              rx="2"
+              fill={`url(#orangeGrad-${uid})`}
+              className="transition-transform duration-300 group-hover:-translate-y-0.5"
+            />
+            <rect
+              x="26"
+              y="26"
+              width="7"
+              height="7"
+              rx="2"
+              fill={primaryStroke}
+              className="transition-transform duration-300 group-hover:translate-y-0.5"
+            />
+            <circle cx="14" cy="11.5" r="1.5" fill={accentColor} />
+            <circle cx="19" cy="11.5" r="1.5" fill={primaryStroke} />
+          </>
+        )}
+
+        {/* 8. 가전 팔기 (당일 현금 방문매입) */}
+        {name === "sell" && (
+          <>
+            <rect
+              x="6"
+              y="12"
+              width="36"
+              height="24"
+              rx="4.5"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <circle
+              cx="24"
+              cy="24"
+              r="6.5"
+              fill={`url(#orangeGrad-${uid})`}
+            />
+            <path
+              d="M21.5 23L23.5 25.5L27 21.5"
+              stroke="#FFFFFF"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M11 17H14M34 31H37"
+              stroke={primaryStroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+          </>
+        )}
+
+        {/* 9. 폐업 일괄 정리 · 방문 수거 트럭 */}
+        {name === "closure" && (
+          <>
+            <path
+              d="M5 14C5 12.3431 6.34315 11 8 11H29V33H5V14Z"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M29 18H37.5L43 24.5V33H29V18Z"
+              fill={`url(#orangeGrad-${uid})`}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <circle
+              cx="14"
+              cy="34"
+              r="4.5"
+              fill="#FFFFFF"
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <circle
+              cx="35"
+              cy="34"
+              r="4.5"
+              fill="#FFFFFF"
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+          </>
+        )}
+
+        {/* 10. 식당·카페 창업 맞춤 세팅 */}
+        {name === "startup" && (
+          <>
+            <path
+              d="M8 20V39C8 40.1046 8.89543 41 10 41H38C39.1046 41 40 40.1046 40 39V20"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+            />
+            <path
+              d="M5 19L9.5 9H38.5L43 19C43 21.5 40.5 23 38 23C35.5 23 33.5 21.5 33.5 19C33.5 21.5 31 23 28.5 23C26 23 24 21.5 24 19C24 21.5 21.5 23 19 23C16.5 23 14.5 21.5 14.5 19C14.5 21.5 12 23 9.5 23C7 23 5 21.5 5 19Z"
+              fill={`url(#orangeGrad-${uid})`}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <rect
+              x="19"
+              y="28"
+              width="10"
+              height="13"
+              rx="1.5"
+              fill="#FFFFFF"
+              stroke={primaryStroke}
+              strokeWidth="2"
+            />
+          </>
+        )}
+
+        {/* 11. 무상 A/S 책임 보증 쉴드 */}
+        {name === "shield" && (
+          <>
+            <path
+              d="M24 5L39 10.5V22.5C39 32.5 32.5 39.5 24 43C15.5 39.5 9 32.5 9 22.5V10.5L24 5Z"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M18 24L22.5 28.5L31 19.5"
+              stroke={accentColor}
+              strokeWidth="2.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </>
+        )}
+
+        {/* 12. 분해 고압 살균 세척 스파클 */}
+        {name === "sparkle" && (
+          <>
+            <path
+              d="M24 6L27.8 18.2L40 22L27.8 25.8L24 38L20.2 25.8L8 22L20.2 18.2L24 6Z"
+              fill={`url(#orangeGrad-${uid})`}
+              stroke={primaryStroke}
+              strokeWidth="2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M37 8L38.2 11.8L42 13L38.2 14.2L37 18L35.8 14.2L32 13L35.8 11.8L37 8Z"
+              fill={primaryStroke}
+            />
+          </>
+        )}
+
+        {/* 13. 세금계산서 · 직배송 증빙 */}
+        {name === "tax" && (
+          <>
+            <path
+              d="M11 6H37V42L32.5 39L28 42L24 39L20 42L15.5 39L11 42V6Z"
+              fill={secondaryFill}
+              stroke={primaryStroke}
+              strokeWidth="2.2"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M17 15H31M17 21H27"
+              stroke={primaryStroke}
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            <circle
+              cx="28"
+              cy="29"
+              r="5.5"
+              fill={`url(#orangeGrad-${uid})`}
+            />
+            <path
+              d="M25.8 29L27.3 30.5L30.5 27.5"
+              stroke="#FFFFFF"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </>
+        )}
+      </svg>
     </div>
   );
 }

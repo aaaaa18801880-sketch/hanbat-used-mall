@@ -17,8 +17,9 @@ import {
   toggleQuoteBasketItem,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, DuotoneIcon, SafeImg } from "../../lib/ui";
+import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
+import { ModernApplianceIcon } from "../ui/modern-icons";
 
 export interface ProductItem {
   id: string;
@@ -60,24 +61,21 @@ export function ProductTrustMicroStrip({
           ? "입고 후 작동 테스트 및 고압 세척 완료"
           : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
-      icon: ICON.sparkles,
-      tone: "orange" as const,
+      icon: "sparkle" as const,
     },
     {
       step: "02",
       title: "사후 무상 A/S 보증",
       desc: "계약 조건에 따라 보증 기간 차등 적용",
       highlight: warrantyHighlight,
-      icon: ICON.shieldCheck,
-      tone: "navy" as const,
+      icon: "shield" as const,
     },
     {
       step: "03",
       title: "세금계산서·직배송",
       desc: "사업자 부가세 증빙 및 직영 배송·설치 지원",
       highlight: null,
-      icon: ICON.receipt,
-      tone: "emerald" as const,
+      icon: "tax" as const,
     },
   ] as const;
 
@@ -93,8 +91,8 @@ export function ProductTrustMicroStrip({
             className="flex flex-col justify-between px-4 py-3.5"
           >
             <div>
-              <div className="flex items-center gap-2 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
-                <DuotoneIcon d={item.icon} tone={item.tone} size="sm" />
+              <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
+                <ModernApplianceIcon name={item.icon} className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                 <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                   {item.step}
                 </span>
@@ -196,7 +194,7 @@ export function ProductCard({
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
         isSelected
           ? "ring-2 ring-[#D9531E] bg-[#FFFDFB] shadow-card-hover"
-          : "hb-bento-card"
+          : "hb-surface-card hover:border-[#0E1A2B]/40 hover:shadow-card-hover"
       }`}
     >
       {/* 1. 시원시원한 대형 풀블리드 사진 (내부 축소 패딩 및 배경색 제거 · 사진을 100% 꽉 채워 시원하게 노출) */}
@@ -316,7 +314,7 @@ export function ProductCard({
         </div>
 
         {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex flex-wrap items-center justify-between gap-1.5">
+        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-1.5 min-w-0">
           <div className="min-w-0 flex-1">
             {sold ? (
               <span className="text-hb-sm font-bold text-[#646E7E]">

@@ -48,6 +48,7 @@ import {
   type PictogramKey,
 } from "../components/home/category-pictogram-bar";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
+import { ModernApplianceIcon } from "../components/ui/modern-icons";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -78,18 +79,21 @@ const TRUST_SUMMARY_CARDS = [
     badge: "입고 검수 및 세척",
     title: "분해 세척·작동 검수 후 출고",
     desc: "입고된 모든 가전과 주방설비는 엔지니어가 분해 고압 세척과 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 출고합니다.",
+    icon: "sparkle" as const,
   },
   {
     step: "02",
     badge: "책임 보증 약정",
     title: "계약 조건별 무상 A/S 보증",
     desc: "품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 냉장고·세탁기 등 일반 가전 최대 4개월 무상 A/S를 약정 지원합니다. (거래 형태 및 계약 조건 기준)",
+    icon: "shield" as const,
   },
   {
     step: "03",
     badge: "사업자 정식 증빙",
     title: "사업자 증빙 및 직배송 완비",
     desc: "대전·세종·충청권 직배송 수평 설치는 물론 전자세금계산서·신용카드·현금영수증을 100% 정식 발행합니다.",
+    icon: "tax" as const,
   },
 ] as const;
 
@@ -126,28 +130,28 @@ const COMMERCIAL_EQUIP_MATRIX = [
     title: "업소용 냉장 · 냉동 설비",
     items: "45박스 · 25박스 수직냉장/냉동 · 테이블냉장고 · 반찬냉장고 · 급속냉동고",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
-    icon: ICON.snowflake,
+    icon: "biz-fridge" as const,
   },
   {
     code: "B2B · 02",
     title: "음료 · 제과 · 주류 쇼케이스",
     items: "음료/주류 직냉식·간냉식 쇼케이스 · 제과/케이크 쇼케이스 · 오픈 쇼케이스",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
-    icon: ICON.layers,
+    icon: "showcase" as const,
   },
   {
     code: "B2B · 03",
     title: "제빙기 · 세척기 · 스텐 주방",
     items: "업소용 제빙기 · 식기세척기 · 스텐 작업대 · 싱크대 · 가스레인지 · 육수통",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
-    icon: ICON.sparkles,
+    icon: "kitchen" as const,
   },
   {
     code: "B2B · 04",
     title: "중대형 냉난방 · 폐업 일괄정리",
     items: "상가·사무실 중대형 스탠드/천장형 냉난방기 · 폐업 매장 집기 방문 일괄매입",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
-    icon: ICON.bolt,
+    icon: "closure" as const,
   },
 ] as const;
 
@@ -632,7 +636,7 @@ export default function Home() {
 
                   <h1
                     id="hero-title"
-                    className="mt-3 text-hb-2xl sm:text-hb-3xl font-extrabold leading-[1.22] tracking-[-0.03em] text-[#0E1A2B] break-keep"
+                    className="mt-3 hb-fluid-h1 text-[#0E1A2B] break-keep"
                   >
                     가정용 가전부터 업소용 주방설비까지,
                     <br />
@@ -713,10 +717,10 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (DuotoneIcon 결합) */}
+                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (ModernApplianceIcon 결합) */}
                 <div className="mt-8 pt-5 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
                   <div className="min-w-0 flex items-start gap-2.5">
-                    <DuotoneIcon d={ICON.droplet} tone="orange" size="sm" />
+                    <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
                       <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                         01 · INSPECTION
@@ -730,7 +734,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <DuotoneIcon d={ICON.shieldCheck} tone="navy" size="sm" />
+                    <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
                       <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                         02 · WARRANTY
@@ -744,7 +748,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <DuotoneIcon d={ICON.truck} tone="emerald" size="sm" />
+                    <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
                       <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                         03 · DELIVERY & TAX
@@ -856,6 +860,7 @@ export default function Home() {
           onSelectCategory={(item) => {
             setSelectedCategory(item);
           }}
+          onSelectInquiry={openInquiry}
         />
 
         {/* ════════════════════════════════════════════════════════════
@@ -927,7 +932,7 @@ export default function Home() {
                     <div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <DuotoneIcon d={cell.icon} tone="light" size="sm" />
+                          <ModernApplianceIcon name={cell.icon} dark className="w-8 h-8" />
                           <span className="font-mono text-hb-xs font-bold text-[#FF8A50]">
                             {cell.code}
                           </span>
@@ -1212,13 +1217,16 @@ export default function Home() {
                     className="flex flex-col justify-between md:border-l md:first:border-l-0 md:border-[#E5E2DC] md:pl-6 md:first:pl-0"
                   >
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-hb-base font-extrabold text-[#D9531E]">
-                          {card.step}
-                        </span>
-                        <span className="text-hb-xs font-bold text-[#646E7E] uppercase">
-                          {card.badge}
-                        </span>
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-hb-base font-extrabold text-[#D9531E]">
+                            {card.step}
+                          </span>
+                          <span className="text-hb-xs font-bold text-[#646E7E] uppercase">
+                            {card.badge}
+                          </span>
+                        </div>
+                        <ModernApplianceIcon name={card.icon} className="w-8 h-8 shrink-0" />
                       </div>
                       <h3 className="mt-2 text-hb-lg font-extrabold text-[#0E1A2B]">
                         {card.title}

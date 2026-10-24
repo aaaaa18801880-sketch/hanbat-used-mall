@@ -10,8 +10,8 @@ import {
   SafeImg,
   Icon,
   ICON,
-  DuotoneIcon,
 } from "../../lib/ui";
+import { ModernApplianceIcon } from "../../components/ui/modern-icons";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 
 const BUYBACK_STEPS = [
@@ -20,21 +20,21 @@ const BUYBACK_STEPS = [
     num: "01",
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
-    icon: ICON.camera,
+    icon: "sell" as const,
   },
   {
     step: "02단계",
     num: "02",
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
-    icon: ICON.chat,
+    icon: "closure" as const,
   },
   {
     step: "03단계",
     num: "03",
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
-    icon: ICON.wallet,
+    icon: "shield" as const,
   },
 ] as const;
 
@@ -81,15 +81,14 @@ export default function PurchasePage() {
           aria-label="방문 매입 진행 절차"
           className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
         >
-          {BUYBACK_STEPS.map((item, idx) => (
+          {BUYBACK_STEPS.map((item) => (
             <div
               key={item.step}
               className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
             >
-              <DuotoneIcon
-                d={item.icon}
-                tone={idx === 2 ? "orange" : "navy"}
-                size="lg"
+              <ModernApplianceIcon
+                name={item.icon}
+                className="w-11 h-11 sm:w-12 sm:h-12 shrink-0"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
