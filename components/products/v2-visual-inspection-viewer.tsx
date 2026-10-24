@@ -144,84 +144,86 @@ export function V2VisualInspectionViewer({
     points.find((p) => p.id === activeId) || points[0];
 
   return (
-    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4 sm:p-5 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#0E1A2B] text-white">
-            <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#FF8A50]" />
-          </span>
-          <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
-            한밭중고전자 4대 부위별 정밀 검수 리포트
-          </h3>
-        </div>
-        <span className="text-[11.5px] font-semibold text-[#646E7E]">
-          항목을 누르면 세부 점검 기준을 확인할 수 있습니다
-        </span>
-      </div>
-
-      {/* 3단계 세척·검수 공정 프로그레스 바 */}
-      <div className="grid grid-cols-3 gap-2 text-center text-[11.5px] font-bold">
-        {[
-          { step: "STEP 1", name: "입고 작동·냉매 진단" },
-          { step: "STEP 2", name: "분해 고압 스팀 살균" },
-          { step: "STEP 3", name: "출고 전 연속 시운전" },
-        ].map((st) => (
-          <div
-            key={st.step}
-            className="rounded-lg border border-[#E5E2DC] bg-white px-2 py-2"
-          >
-            <span className="block text-[10px] font-extrabold text-[#D9531E]">
-              {st.step} ✓
+    <div className="h-full flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 space-y-4 shadow-card">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#0E1A2B] text-white">
+              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#FF8A50]" />
             </span>
-            <span className="mt-0.5 block text-[#0E1A2B] truncate">
-              {st.name}
-            </span>
+            <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
+              한밭중고전자 4대 부위별 정밀 검수 리포트
+            </h3>
           </div>
-        ))}
-      </div>
+          <span className="text-[11.5px] font-semibold text-[#646E7E]">
+            항목을 누르면 세부 점검 기준을 확인할 수 있습니다
+          </span>
+        </div>
 
-      {/* 4대 부위별 인터랙티브 핀포인트 탭 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-        {points.map((pt, idx) => {
-          const isSelected = pt.id === activeId;
-          return (
-            <button
-              key={pt.id}
-              type="button"
-              onClick={() => setActiveId(pt.id)}
-              aria-pressed={isSelected}
-              className={`flex flex-col items-start justify-between rounded-lg border p-2.5 text-left transition-all ${
-                isSelected
-                  ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
-                  : "border-[#E5E2DC] bg-white text-[#0E1A2B] hover:border-[#0E1A2B]"
-              }`}
+        {/* 3단계 세척·검수 공정 프로그레스 바 */}
+        <div className="grid grid-cols-3 gap-2 text-center text-[11.5px] font-bold">
+          {[
+            { step: "STEP 1", name: "입고 작동·냉매 진단" },
+            { step: "STEP 2", name: "분해 고압 스팀 살균" },
+            { step: "STEP 3", name: "출고 전 연속 시운전" },
+          ].map((st) => (
+            <div
+              key={st.step}
+              className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-2"
             >
-              <div className="flex w-full items-center justify-between gap-1">
-                <span
-                  className={`rounded px-1.5 py-0.5 text-[10px] font-extrabold ${
-                    isSelected
-                      ? "bg-[#D9531E] text-white"
-                      : "bg-[#FAF9F7] text-[#646E7E]"
-                  }`}
-                >
-                  0{idx + 1} · {pt.badge}
-                </span>
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    isSelected ? "bg-[#FF8A50]" : "bg-emerald-500"
-                  }`}
-                />
-              </div>
-              <strong className="mt-2 block text-[12px] font-bold leading-snug line-clamp-1">
-                {pt.status}
-              </strong>
-            </button>
-          );
-        })}
+              <span className="block text-[10px] font-extrabold text-[#D9531E]">
+                {st.step} ✓
+              </span>
+              <span className="mt-0.5 block text-[#0E1A2B] truncate">
+                {st.name}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* 4대 부위별 인터랙티브 핀포인트 탭 */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {points.map((pt, idx) => {
+            const isSelected = pt.id === activeId;
+            return (
+              <button
+                key={pt.id}
+                type="button"
+                onClick={() => setActiveId(pt.id)}
+                aria-pressed={isSelected}
+                className={`flex flex-col items-start justify-between rounded-lg border p-2.5 text-left transition-all ${
+                  isSelected
+                    ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
+                    : "border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+                }`}
+              >
+                <div className="flex w-full items-center justify-between gap-1">
+                  <span
+                    className={`rounded px-1.5 py-0.5 text-[10px] font-extrabold ${
+                      isSelected
+                        ? "bg-[#D9531E] text-white"
+                        : "bg-white text-[#646E7E]"
+                    }`}
+                  >
+                    0{idx + 1} · {pt.badge}
+                  </span>
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      isSelected ? "bg-[#FF8A50]" : "bg-emerald-500"
+                    }`}
+                  />
+                </div>
+                <strong className="mt-2 block text-[12px] font-bold leading-snug line-clamp-1">
+                  {pt.status}
+                </strong>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* 선택된 부위 상세 설명 박스 */}
-      <div className="rounded-lg border border-[#E5E2DC] bg-white p-3.5 text-[13px]">
+      <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 text-[13px] mt-2">
         <div className="flex items-center justify-between gap-2 mb-1">
           <strong className="font-extrabold text-[#0E1A2B]">
             • {activePoint.title}

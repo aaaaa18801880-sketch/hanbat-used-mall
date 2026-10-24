@@ -126,7 +126,7 @@ export function CategoryPictogramBar({
       <div className="hb-container">
         {/* 1번 사진 벤치마크: 단일 수평 카테고리 내비게이션 바 */}
         <div
-          className="flex items-center justify-between gap-1 sm:gap-1.5 lg:gap-2 overflow-x-auto scrollbar-none py-1 -mx-4 px-4 sm:mx-0 sm:px-0"
+          className="flex items-center justify-start lg:justify-between gap-1.5 sm:gap-2 lg:gap-2.5 overflow-x-auto scrollbar-none py-1 -mx-4 px-4 sm:mx-0 sm:px-0"
           onMouseLeave={() => setHoveredKey(null)}
         >
           {QUICK_MENU_ITEMS.map((item) => {

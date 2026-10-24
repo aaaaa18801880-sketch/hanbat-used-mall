@@ -42,7 +42,6 @@ import { AiRecommendationGuideSection } from "../components/home/ai-recommendati
 import {
   type LinkedProductContext,
 } from "../components/inquiry/unified-inquiry-form";
-import { V2DualModeConcierge } from "../components/home/v2-dual-mode-concierge";
 import { V2InquirySectionWithWizard } from "../components/inquiry/v2-wizard-quick-inquiry";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
 import { RecentViewedStrip } from "../components/products/product-compare-modal";
@@ -664,12 +663,6 @@ export default function Home() {
             [3] 취급 품목 · 주요 서비스 3D 픽토그램 퀵메뉴 바 (#category-section)
             ════════════════════════════════════════════════════════════ */}
         <CategoryPictogramBar onSelectInquiry={(type) => openInquiry(type)} />
-
-        {/* [3-1] V2.0 듀얼 모드(B2C/B2B) 스위처 & AI 예산 맞춤 세트 큐레이터 */}
-        <V2DualModeConcierge
-          products={featuredProducts}
-          onOpenInquiry={openInquiry}
-        />
 
         {/* ════════════════════════════════════════════════════════════
             [4] 실시간 추천 실매물 & 최근 본 매물 (#featured-products-section)

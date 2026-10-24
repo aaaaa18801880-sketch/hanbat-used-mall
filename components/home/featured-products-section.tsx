@@ -247,25 +247,25 @@ export function FeaturedProductsSection({
               </span>
               <Link
                 href="/gallery?category=냉장고"
-                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+                className="inline-flex items-center h-8 rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-3 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
               >
                 🏠 원룸·자취
               </Link>
               <Link
                 href={`/gallery?category=${encodeURIComponent("업소용기기")}&q=${encodeURIComponent("쇼케이스")}`}
-                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+                className="inline-flex items-center h-8 rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-3 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
               >
                 ☕ 카페창업
               </Link>
               <Link
                 href={`/gallery?category=${encodeURIComponent("업소용기기")}&q=${encodeURIComponent("45박스")}`}
-                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+                className="inline-flex items-center h-8 rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-3 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
               >
                 🍖 식당주방
               </Link>
               <Link
                 href={`/gallery?category=${encodeURIComponent("에어컨/냉난방기")}&q=${encodeURIComponent("냉난방")}`}
-                className="rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
+                className="inline-flex items-center h-8 rounded-full border border-[#E5E2DC] bg-[#FAF9F7] px-3 text-[11.5px] font-semibold text-[#3E4756] hover:border-[#D9531E] hover:text-[#D9531E] whitespace-nowrap transition-colors"
               >
                 ❄️ 냉난방기
               </Link>
@@ -276,7 +276,7 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4"
+            className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
             aria-hidden="true"
           >
             {Array.from({ length: 4 }).map((_, idx) => (
@@ -362,7 +362,7 @@ export function FeaturedProductsSection({
           </div>
         ) : (
           <>
-            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+            <div className="mt-7 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 items-stretch">
               {displayedProducts.map((product) => {
                 const effectiveProduct =
                   typeof viewOverrides[product.id] === "number"

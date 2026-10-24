@@ -1988,7 +1988,7 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[12px] sm:text-[13px] lg:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                    className={`h-9 sm:h-10 px-2.5 sm:px-3.5 inline-flex items-center rounded-lg text-[12px] sm:text-[13px] lg:text-[13.5px] font-bold whitespace-nowrap transition-colors border shrink-0 ${
                       active
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
                         : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
@@ -2064,7 +2064,7 @@ export default function GalleryPage() {
                         keyword: preset.keyword,
                       });
                     }}
-                    className={`rounded-full px-2.5 py-0.5 font-semibold transition-colors border shrink-0 ${
+                    className={`h-8 sm:h-8.5 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 ${
                       active
                         ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
                         : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
@@ -2086,7 +2086,7 @@ export default function GalleryPage() {
                   setVisibleLimit(PAGE_STEP);
                 }}
                 aria-label="판매 상태 필터"
-                className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="all">전체 상태</option>
                 <option value="selling">판매중만</option>
@@ -2106,7 +2106,7 @@ export default function GalleryPage() {
                   });
                 }}
                 aria-label="가격대 범위 필터"
-                className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border text-[12px] sm:text-[12.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
+                className={`h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg border text-[12px] sm:text-[12.5px] font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
                   priceRange !== "all"
                     ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
                     : "border-[#D8D3C8] bg-white text-[#3E4856]"
@@ -2123,7 +2123,7 @@ export default function GalleryPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
-                className="h-8 sm:h-9 px-2 sm:px-2.5 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-8 sm:h-8.5 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-[12px] sm:text-[12.5px] font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
@@ -2308,7 +2308,7 @@ export default function GalleryPage() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
               {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}

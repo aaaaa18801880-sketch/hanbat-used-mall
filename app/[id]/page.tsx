@@ -569,18 +569,6 @@ export default async function ProductDetailPage({
               <div className="mt-5">
                 <ProductStructuredDescription description={product.description} />
               </div>
-
-              {/* 3-1. V2 비주얼 검수 리포트 & 설치 공간 시뮬레이터 */}
-              <div className="mt-5 space-y-4">
-                <V2VisualInspectionViewer
-                  category={categoryLabel}
-                  conditionGrade={product.condition_grade}
-                />
-                <V2SpatialFitPlanner
-                  title={product.title}
-                  description={product.description}
-                />
-              </div>
             </div>
 
             {/* 4. 인터랙티브 설치 환경 체크리스트 표 + 조건 첨부 상담 동선 */}
@@ -605,6 +593,21 @@ export default async function ProductDetailPage({
             )}
           </div>
         </div>
+
+        {/* V2 비주얼 검수 리포트 & 설치 공간 시뮬레이터 (좌우 2컬럼 완벽 대칭 레이아웃) */}
+        <section
+          aria-label="한밭중고전자 정밀 검수 리포트 및 설치 공간 시뮬레이터"
+          className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch"
+        >
+          <V2VisualInspectionViewer
+            category={categoryLabel}
+            conditionGrade={product.condition_grade}
+          />
+          <V2SpatialFitPlanner
+            title={product.title}
+            description={product.description}
+          />
+        </section>
 
         {/* 하단 매장 거래 및 배송 안내 (기존 문구 100% 보존 + 오픈 구분선 레이아웃) */}
         <section

@@ -94,67 +94,69 @@ export function V2SpatialFitPlanner({
   const fitsDoor = doorWidthMm >= minPassSide + 20;
 
   return (
-    <div className="rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-5 space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
-        <div>
-          <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#D9531E]">
-            SPATIAL FIT SIMULATOR
-          </span>
-          <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
-            📏 우리 집·매장 설치 공간 및 문폭 시뮬레이터
-          </h3>
-        </div>
-        <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-[11.5px] font-bold text-[#0E1A2B] tabular-nums">
-          기준 가로폭: {productWidth.toLocaleString()}mm{" "}
-          {isEstimated ? "(표준규격 참고치)" : "(제품 사양 기준)"}
-        </span>
-      </div>
-
-      {/* 1. 설치 벽면 가로 길이 슬라이더 & 1D 시각 게이지 바 */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-[12.5px]">
-          <label htmlFor="wall-width-range" className="font-bold text-[#0E1A2B]">
-            1) 설치할 자리(벽면) 가로 여유 폭 조절
-          </label>
-          <strong className="font-extrabold text-[#D9531E] tabular-nums">
-            내 공간: {wallWidthMm.toLocaleString()}mm ({(wallWidthMm / 1000).toFixed(1)}m)
-          </strong>
-        </div>
-
-        <input
-          id="wall-width-range"
-          type="range"
-          min={800}
-          max={4500}
-          step={50}
-          value={wallWidthMm}
-          onChange={(e) => setWallWidthMm(Number(e.target.value))}
-          className="w-full accent-[#0E1A2B] cursor-pointer"
-        />
-
-        {/* 시각적 1D 공간 점유 바 */}
-        <div className="relative h-9 w-full overflow-hidden rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] flex items-center">
-          <div
-            style={{ width: `${occupyPercent}%` }}
-            className={`h-full flex items-center justify-center text-[11px] font-extrabold text-white transition-all duration-200 ${
-              fitsWall ? "bg-[#0E1A2B]" : "bg-red-600"
-            }`}
-          >
-            제품 {productWidth}mm
+    <div className="h-full flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 space-y-4 shadow-card">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
+          <div>
+            <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#D9531E]">
+              SPATIAL FIT SIMULATOR
+            </span>
+            <h3 className="text-[14.5px] sm:text-[15.5px] font-extrabold text-[#0E1A2B]">
+              📏 우리 집·매장 설치 공간 및 문폭 시뮬레이터
+            </h3>
           </div>
-          {clearancePercent > 0 && (
+          <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-1 text-[11.5px] font-bold text-[#0E1A2B] tabular-nums">
+            기준 가로폭: {productWidth.toLocaleString()}mm{" "}
+            {isEstimated ? "(표준규격 참고치)" : "(제품 사양 기준)"}
+          </span>
+        </div>
+
+        {/* 1. 설치 벽면 가로 길이 슬라이더 & 1D 시각 게이지 바 */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between text-[12.5px]">
+            <label htmlFor="wall-width-range" className="font-bold text-[#0E1A2B]">
+              1) 설치할 자리(벽면) 가로 여유 폭 조절
+            </label>
+            <strong className="font-extrabold text-[#D9531E] tabular-nums">
+              내 공간: {wallWidthMm.toLocaleString()}mm ({(wallWidthMm / 1000).toFixed(1)}m)
+            </strong>
+          </div>
+
+          <input
+            id="wall-width-range"
+            type="range"
+            min={800}
+            max={4500}
+            step={50}
+            value={wallWidthMm}
+            onChange={(e) => setWallWidthMm(Number(e.target.value))}
+            className="w-full accent-[#0E1A2B] cursor-pointer"
+          />
+
+          {/* 시각적 1D 공간 점유 바 */}
+          <div className="relative h-9 w-full overflow-hidden rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] flex items-center">
             <div
-              style={{ width: `${clearancePercent}%` }}
-              className="h-full bg-[#FADCD0] flex items-center justify-center text-[10px] font-bold text-[#B5431A] border-r border-dashed border-[#D9531E]"
-              title="양옆 방열 여유 100mm"
+              style={{ width: `${occupyPercent}%` }}
+              className={`h-full flex items-center justify-center text-[11px] font-extrabold text-white transition-all duration-200 ${
+                fitsWall ? "bg-[#0E1A2B]" : "bg-red-600"
+              }`}
             >
-              방열 100
+              제품 {productWidth}mm
             </div>
-          )}
-          <div className="flex-1 px-2 text-right text-[11px] font-semibold text-[#646E7E] truncate tabular-nums">
-            {fitsWall
-              ? `남는 여유: ${(wallWidthMm - requiredTotalWidth).toLocaleString()}mm`
-              : `폭 부족: ${(requiredTotalWidth - wallWidthMm).toLocaleString()}mm`}
+            {clearancePercent > 0 && (
+              <div
+                style={{ width: `${clearancePercent}%` }}
+                className="h-full bg-[#FADCD0] flex items-center justify-center text-[10px] font-bold text-[#B5431A] border-r border-dashed border-[#D9531E]"
+                title="양옆 방열 여유 100mm"
+              >
+                방열 100
+              </div>
+            )}
+            <div className="flex-1 px-2 text-right text-[11px] font-semibold text-[#646E7E] truncate tabular-nums">
+              {fitsWall
+                ? `남는 여유: ${(wallWidthMm - requiredTotalWidth).toLocaleString()}mm`
+                : `폭 부족: ${(requiredTotalWidth - wallWidthMm).toLocaleString()}mm`}
+            </div>
           </div>
         </div>
       </div>

@@ -282,23 +282,26 @@ export function ProductCard({
           {product.title}
         </h3>
 
-        {(specCapsules.length > 0 || modelName) && (
-          <div className="mt-2 flex flex-wrap items-center gap-1.5 min-h-[1.5rem]">
-            {specCapsules.map((tag) => (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5 min-h-[1.6rem]">
+          {specCapsules.length > 0 ? (
+            specCapsules.map((tag) => (
               <span
                 key={tag}
                 className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-[11.5px] font-semibold text-[#3E4756]"
               >
                 {tag}
               </span>
-            ))}
-            {modelName && specCapsules.length < 2 && (
-              <span className="truncate rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 font-mono text-[11px] font-medium text-[#646E7E]">
-                {modelName}
-              </span>
-            )}
-          </div>
-        )}
+            ))
+          ) : modelName ? (
+            <span className="truncate rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 font-mono text-[11px] font-medium text-[#646E7E]">
+              {modelName}
+            </span>
+          ) : (
+            <span className="rounded bg-[#FAF9F7] border border-[#E5E2DC]/80 px-2 py-0.5 text-[11px] font-medium text-[#858076]">
+              검수·세척 완료
+            </span>
+          )}
+        </div>
 
         <div className="mt-auto pt-3.5">
           <div className="pt-2.5 border-t border-[#E5E2DC] flex items-center justify-between gap-2">
