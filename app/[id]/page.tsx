@@ -615,11 +615,11 @@ export default async function ProductDetailPage({
             <div>
               <span className="hb-eyebrow">SHOWROOM INSPECTION &amp; FIT</span>
               <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
-                품목별 공통 검수 기준 &amp; 설치 공간 계산기
+                품목별 4대 부위 검수 기준 &amp; 설치 가능성 계산기
               </h2>
             </div>
             <p className="text-hb-xs text-[#646E7E]">
-              한밭중고전자 공통 출고 기준과 설치 벽면·출입문 여유 폭을 미리 확인해 보세요.
+              한밭중고전자 공통 출고 검수 기준과 우리 집 설치 여유 공간을 미리 확인해 보세요.
             </p>
           </div>
 
