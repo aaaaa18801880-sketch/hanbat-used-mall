@@ -607,13 +607,13 @@ export function InteractiveChecklistAndCta({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <a
             href={telHref(STORE.tel)}
-            className="hb-btn-accent h-11 px-4 text-hb-sm"
+            className="hb-btn-accent h-11 px-3 sm:px-4 text-hb-xs sm:text-hb-sm"
           >
-            <Icon d={ICON.phone} className="h-4 w-4" />
-            <span>
+            <Icon d={ICON.phone} className="h-4 w-4 shrink-0" />
+            <span className="whitespace-nowrap">
               {sold
                 ? `유사 매물 전화 (${STORE.tel})`
-                : `전화로 바로 문의 (${STORE.tel})`}
+                : `전화 문의 (${STORE.tel})`}
             </span>
           </a>
 
@@ -621,22 +621,22 @@ export function InteractiveChecklistAndCta({
             href={STORE.kakaoChat}
             target="_blank"
             rel="noopener noreferrer"
-            className="hb-btn-kakao h-11 px-4 text-hb-sm"
+            className="hb-btn-kakao h-11 px-3 sm:px-4 text-hb-xs sm:text-hb-sm"
           >
-            <Icon d={ICON.chat} className="h-4 w-4" />
-            <span>{sold ? "카톡으로 유사 매물 찾기" : "카카오톡 상담"}</span>
+            <Icon d={ICON.chat} className="h-4 w-4 shrink-0" />
+            <span className="whitespace-nowrap">{sold ? "카톡 유사 매물 찾기" : "카카오톡 상담"}</span>
           </a>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="hb-btn-outline h-10 px-3 text-hb-xs"
+            className="hb-btn-outline h-10 px-2 sm:px-3 text-hb-xs"
           >
-            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E]" />
-            <span>
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E] shrink-0" />
+            <span className="truncate">
               {sold
-                ? "유사 매물 문자 요청"
+                ? "유사 매물 문자"
                 : selectedChips.length > 0
                 ? `조건 포함 문자 (${selectedChips.length})`
                 : `문자 문의 (${STORE.mobile})`}
@@ -645,15 +645,15 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={inquiryHref}
-            className="hb-btn-primary h-10 px-3 text-hb-xs"
+            className="hb-btn-primary h-10 px-2 sm:px-3 text-hb-xs"
           >
-            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#FF8A50]" />
-            <span>
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#FF8A50] shrink-0" />
+            <span className="truncate">
               {sold
-                ? "유사 매물 입고·재고 문의"
+                ? "유사 매물 재고 문의"
                 : selectedChips.length > 0
-                ? `선택 조건(${selectedChips.length}) 온라인 문의`
-                : "이 상품으로 온라인 문의"}
+                ? `조건(${selectedChips.length}) 온라인 문의`
+                : "온라인 견적 문의"}
             </span>
           </Link>
         </div>

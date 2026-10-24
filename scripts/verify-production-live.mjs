@@ -41,7 +41,7 @@ async function verifyLiveSite() {
   console.log(`Product page status: ${productRes.status}`);
   if (productRes.status === 200) {
     const productHtml = await productRes.text();
-    const hasVisualViewer = productHtml.includes('한밭중고전자 4대 부위별 정밀 검수 리포트') || productHtml.includes('분해 고압 스팀 살균');
+    const hasVisualViewer = productHtml.includes('한밭중고전자 4대 부위별 정밀 검수 리포트') || productHtml.includes('분해 고압 물세척');
     const hasSpatialPlanner = productHtml.includes('설치 공간 시뮬레이터') || productHtml.includes('가구/가전 배치도');
     console.log(`Visual Inspection Viewer present: ${hasVisualViewer}`);
     console.log(`Spatial Fit Planner present: ${hasSpatialPlanner}`);

@@ -636,7 +636,7 @@ export default function Home() {
                           세척·검수 완료 · 무상 A/S
                         </span>
                         <strong className="mt-0.5 block text-hb-lg font-extrabold text-white">
-                          중고가전 사기{" "}
+                          실매물 확인하기{" "}
                           {sellingCount > 0 && (
                             <span className="text-hb-sm font-bold text-white/80 tabular-nums">
                               ({sellingCount}대)
@@ -1524,53 +1524,114 @@ export default function Home() {
                   />
                 </div>
 
-                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between border-t border-[#E5E2DC] bg-white">
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between border-t border-[#E5E2DC] bg-white space-y-5">
+                  {/* 상단 주소 및 1·2층 직영 쇼룸 타이틀 */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <span className="text-hb-xs font-bold text-[#D9531E]">
-                        오프라인 직영 쇼룸
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="inline-block rounded bg-[#0E1A2B] px-2 py-0.5 text-hb-xs font-bold text-white">
+                          오프라인 직영 쇼룸
+                        </span>
+                        <span className="text-hb-xs font-bold text-[#D9531E]">
+                          1·2층 대형 매장
+                        </span>
+                      </div>
                       <h3
                         id="location-title"
-                        className="mt-0.5 text-hb-xl font-extrabold text-[#0E1A2B] break-keep"
+                        className="mt-1 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] break-keep"
                       >
                         {STORE.roadAddress}
                       </h3>
-                      <p className="mt-1 text-hb-sm text-[#3E4756]">
+                      <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#3E4756]">
                         지번: {STORE.jibunAddress} ({STORE.addressNote})
-                      </p>
-                      <p className="mt-1 text-hb-xs font-semibold text-[#646E7E]">
-                        영업시간: {STORE.hours} · {STORE.closed} · {STORE.parking}
                       </p>
                     </div>
 
                     <button
                       type="button"
                       onClick={handleCopyAddress}
-                      className="hb-btn-outline h-10 px-3.5 text-hb-xs shrink-0 self-start"
+                      className="hb-btn-outline h-9 px-3 text-hb-xs shrink-0 self-start"
                     >
                       <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
                       <span>도로명 주소 복사</span>
                     </button>
                   </div>
 
-                  <div className="mt-5 pt-4 border-t border-[#E5E2DC] grid grid-cols-2 gap-3">
-                    <a
-                      href={STORE.naverMap}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hb-btn bg-[#03C75A] text-white hover:bg-[#02b350] h-11 text-hb-sm"
-                    >
-                      네이버 지도 길찾기
-                    </a>
-                    <a
-                      href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hb-btn-kakao h-11 text-hb-sm"
-                    >
-                      카카오맵 길찾기
-                    </a>
+                  {/* 쇼룸 방문 특화 3대 편의 시설 안내 (허전함 해소 및 실질적 방문 정보 제공) */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-[#ECE9E2]">
+                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                        <span>전용 주차장 완비</span>
+                      </div>
+                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                        매장 정면 8대 전용 주차 · 승용차 및 1톤 화물차 진입 수월
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                        <span>현장 실물 점검</span>
+                      </div>
+                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                        전원 인가 및 시운전 직접 확인 후 당일 상차·수령 가능
+                      </p>
+                    </div>
+
+                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                        <span>오시는 길 랜드마크</span>
+                      </div>
+                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                        중촌고가교 바로 밑 대전천변 · 중촌동 버스정류장 도보 2분
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 하단 영업 시간 정보 및 4대 원클릭 안내 버튼 */}
+                  <div className="pt-4 border-t border-[#ECE9E2] space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-[#0E1A2B]">영업 시간:</span>
+                        <span className="font-semibold text-[#3E4756]">{STORE.hours}</span>
+                        <span className="text-[#858076]">|</span>
+                        <span className="text-[#646E7E]">{STORE.closed} (유선 협의 시 가능)</span>
+                      </div>
+                      <a
+                        href={telHref(STORE.tel)}
+                        className="font-bold text-[#D9531E] hover:underline tabular-nums"
+                      >
+                        전화 안내: {STORE.tel}
+                      </a>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                      <a
+                        href={STORE.naverMap}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hb-btn bg-[#03C75A] text-white hover:bg-[#02b350] h-11 text-hb-xs sm:text-hb-sm font-bold"
+                      >
+                        네이버 지도 길찾기
+                      </a>
+                      <a
+                        href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hb-btn-kakao h-11 text-hb-xs sm:text-hb-sm font-bold"
+                      >
+                        카카오맵 길찾기
+                      </a>
+                      <a
+                        href={telHref(STORE.tel)}
+                        className="hb-btn-outline h-11 text-hb-xs sm:text-hb-sm font-bold col-span-2 sm:col-span-1"
+                      >
+                        <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+                        <span>전화 길안내</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
