@@ -379,7 +379,7 @@ export default async function ProductDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col overflow-x-hidden">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
@@ -387,10 +387,11 @@ export default async function ProductDetailPage({
 
       <SiteHeader />
 
-      <main className="hb-container py-6 sm:py-10 flex-1">
+      <main className="hb-container py-5 sm:py-8 flex-1">
+        {/* 상단 브레드크럼 및 공유 액션 */}
         <nav
           aria-label="경로 이동"
-          className="mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-3"
+          className="mb-4 sm:mb-5 flex flex-wrap items-center justify-between gap-3"
         >
           <div className="flex flex-wrap items-center gap-2 text-hb-sm font-bold text-[#3E4856] min-w-0">
             <Link
@@ -408,7 +409,7 @@ export default async function ProductDetailPage({
               {categoryLabel}
             </Link>
             <span className="hidden md:inline text-[#D8D3C8]">/</span>
-            <span className="hidden md:inline truncate max-w-[260px] text-[#667085] font-medium">
+            <span className="hidden md:inline truncate max-w-[280px] text-[#667085] font-medium">
               {product.title}
             </span>
           </div>
@@ -429,9 +430,10 @@ export default async function ProductDetailPage({
           </div>
         </nav>
 
-        <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card grid grid-cols-1 lg:grid-cols-12">
-          {/* 좌측 7컬럼: 상품 이미지 뷰어 */}
-          <div className="border-b lg:border-b-0 lg:border-r border-[#E5E2DC] lg:col-span-7">
+        {/* 쇼룸 2컬럼 아키텍처 레이아웃: 좌측(사진 + 상세 제원서) / 우측(첫 화면 의사결정·상담 콘솔) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-9 items-start">
+          {/* 좌측 7컬럼: 1. 스튜디오 사진 뷰어 + 하단 상세 제원서 */}
+          <div className="lg:col-span-7 min-w-0 space-y-7">
             <ProductDetailGallery
               id={String(product.id)}
               title={product.title}
@@ -443,15 +445,23 @@ export default async function ProductDetailPage({
               status={product.status}
               createdAt={product.created_at}
             />
+
+            {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
+            <ProductStructuredDescription description={product.description} />
+
+            {categoryLabel === "에어컨/냉난방기" && (
+              <AirconSetGuideBanner variant="card" />
+            )}
           </div>
 
-          {/* 우측 5컬럼: 상품명·가격·사양 + 설치 체크리스트 + 상담 CTA */}
-          <div className="flex flex-col justify-between p-5 sm:p-7 lg:p-8 lg:col-span-5">
-            <div>
+          {/* 우측 5컬럼: 2~7. 상품명·가격·상태·모델명·검수·핵심스펙·설치체크·즉시문의 콘솔 (Sticky) */}
+          <div className="lg:col-span-5 min-w-0 lg:sticky lg:top-24">
+            <div className="border-t-2 border-[#0E1A2B] bg-white p-5 sm:p-6 rounded-b-xl border-x border-b border-[#E5E2DC] shadow-card">
+              {/* 상단 카테고리 & 등록일 헤더 */}
               <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                  className={`rounded px-2.5 py-1 text-hb-xs font-bold transition-colors ${
+                  className={`rounded px-2.5 py-0.5 text-hb-xs font-bold transition-colors ${
                     checklistConfig.isB2B
                       ? "bg-[#0E1A2B] text-white hover:bg-[#182942]"
                       : "border border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -459,149 +469,151 @@ export default async function ProductDetailPage({
                 >
                   {categoryLabel}
                 </Link>
-                {createdDate && (
-                  <span className="ml-auto text-hb-xs text-[#646E7E] tabular-nums">
-                    등록일 {createdDate}
-                  </span>
-                )}
+                <span
+                  className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
+                    sold
+                      ? "bg-[#E5E2DC] text-[#646E7E]"
+                      : "bg-[#D9531E]/10 text-[#D9531E]"
+                  }`}
+                >
+                  {statusLabel}
+                </span>
+                <div className="ml-auto flex items-center gap-2.5 text-hb-xs text-[#646E7E] tabular-nums">
+                  {createdDate && <span>등록 {createdDate}</span>}
+                  {typeof product.views === "number" && (
+                    <span>조회 {product.views}</span>
+                  )}
+                </div>
               </div>
 
-              {/* 1. 상품명 및 규격 태그 */}
-              <h1 className="mt-3 text-hb-xl sm:text-hb-2xl font-bold leading-[1.3] tracking-[-0.025em] text-[#0E1A2B] break-keep">
+              {/* 2. 상품명 */}
+              <h1 className="mt-2.5 text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] tracking-[-0.025em] text-[#0E1A2B] break-keep">
                 {product.title}
               </h1>
 
-              {specCapsules.length > 0 && (
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  {specCapsules.map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2.5 py-0.5 text-hb-xs font-semibold text-[#3E4756]"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* 2. 판매 가격 및 기본 요약 표 */}
-              <div className="mt-4 pt-4 border-t border-[#E5E2DC]">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="text-hb-xs font-semibold text-[#646E7E]">
-                    판매 가격 ({statusLabel})
-                  </span>
-                  {typeof product.views === "number" && (
-                    <span className="text-hb-xs text-[#646E7E] tabular-nums">
-                      조회 {product.views}회
-                    </span>
-                  )}
-                </div>
-
+              {/* 가격 하이라이트 배너 */}
+              <div className="mt-3.5 py-3 px-4 rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] flex items-baseline justify-between gap-3">
+                <span className="text-hb-xs font-bold text-[#3E4756] shrink-0">
+                  쇼룸 판매 가격
+                </span>
                 {sold ? (
-                  <p className="mt-1 text-hb-xl font-bold text-[#646E7E]">
-                    판매완료
-                  </p>
+                  <span className="text-hb-xl font-bold text-[#646E7E]">
+                    판매완료 (유사 매물 문의 가능)
+                  </span>
                 ) : priced ? (
-                  <p className="mt-1 text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
+                  <span className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
                     {priceDisplay}
-                  </p>
+                  </span>
                 ) : (
-                  <div className="mt-1">
-                    <p className="text-hb-xl font-bold text-[#D9531E]">
+                  <div className="text-right">
+                    <span className="text-hb-lg sm:text-hb-xl font-extrabold text-[#D9531E]">
                       {priceDisplay}
-                    </p>
-                    <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#3E4756]">
-                      설치 환경·배관 거리·수량에 따라 최적 견적을 안내해 드립니다.
+                    </span>
+                    <p className="text-hb-xs text-[#646E7E]">
+                      설치 환경·배관·수량별 맞춤 견적 안내
                     </p>
                   </div>
                 )}
-
-                <dl className="mt-4 divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-hb-sm">
-                  <div className="flex items-center justify-between gap-3 py-2.5">
-                    <dt className="font-semibold text-[#646E7E] shrink-0">
-                      모델명 / 코드
-                    </dt>
-                    <dd className="font-mono font-bold text-[#0E1A2B] text-right truncate">
-                      {modelName || "매장 문의 (상세 사진 참조)"}
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 py-2.5">
-                    <dt className="font-semibold text-[#646E7E] shrink-0">
-                      외관 · 상태 등급
-                    </dt>
-                    <dd className="font-semibold text-[#0E1A2B] text-right flex items-center justify-end gap-1.5">
-                      {product.condition_grade ? (
-                        <>
-                          <span className="inline-flex items-center rounded bg-[#D9531E]/10 px-1.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
-                            {product.condition_grade}
-                          </span>
-                          <span>작동 점검 및 세척 완료</span>
-                        </>
-                      ) : (
-                        <span>작동 점검·세척 완료 (매장 실물 확인 가능)</span>
-                      )}
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 py-2.5">
-                    <dt className="font-semibold text-[#646E7E] shrink-0">
-                      검수 · 보증 기준
-                    </dt>
-                    <dd className="font-semibold text-[#0E1A2B] text-right">
-                      {isHvacDetail
-                        ? "세척·점검 완료 (계약별 최대 8개월)"
-                        : isMajorApplianceDetail
-                        ? "세척·점검 완료 (계약별 최대 4개월)"
-                        : "작동 점검 완료 (품목·계약별 협의)"}
-                    </dd>
-                  </div>
-                  <div className="flex items-center justify-between gap-3 py-2.5">
-                    <dt className="font-semibold text-[#646E7E] shrink-0">
-                      결제 · 거래 증빙
-                    </dt>
-                    <dd className="font-semibold text-[#0E1A2B] text-right">
-                      전자세금계산서 · 카드 · 현금영수증
-                    </dd>
-                  </div>
-                </dl>
               </div>
 
-              {/* 3. 주요 사양 및 상태 설명 (통합 구조화 컴포넌트) */}
-              <div className="mt-5">
-                <ProductStructuredDescription description={product.description} />
-              </div>
+              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 */}
+              <dl className="mt-3.5 divide-y divide-[#E5E2DC] border-y border-[#E5E2DC] text-hb-xs sm:text-hb-sm">
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="font-semibold text-[#646E7E] shrink-0">
+                    모델명 / 코드
+                  </dt>
+                  <dd className="font-mono font-bold text-[#0E1A2B] text-right truncate">
+                    {modelName || "매장 실물 확인 (상세 사진 참조)"}
+                  </dd>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="font-semibold text-[#646E7E] shrink-0">
+                    외관 · 상태 등급
+                  </dt>
+                  <dd className="font-semibold text-[#0E1A2B] text-right flex items-center justify-end gap-1.5">
+                    {product.condition_grade ? (
+                      <>
+                        <span className="inline-flex items-center rounded bg-[#D9531E]/10 px-1.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                          {product.condition_grade}
+                        </span>
+                        <span>작동 점검 및 세척 완료</span>
+                      </>
+                    ) : (
+                      <span>작동 점검·세척 완료 (실물 확인 가능)</span>
+                    )}
+                  </dd>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="font-semibold text-[#646E7E] shrink-0">
+                    검수 · 보증 기준
+                  </dt>
+                  <dd className="font-semibold text-[#0E1A2B] text-right">
+                    {isHvacDetail
+                      ? "세척·점검 완료 (계약별 최대 8개월)"
+                      : isMajorApplianceDetail
+                      ? "세척·점검 완료 (계약별 최대 4개월)"
+                      : "작동 점검 완료 (품목·계약별 협의)"}
+                  </dd>
+                </div>
+
+                {specCapsules.length > 0 && (
+                  <div className="flex items-center justify-between gap-3 py-2">
+                    <dt className="font-semibold text-[#646E7E] shrink-0">
+                      핵심 스펙 요약
+                    </dt>
+                    <dd className="flex flex-wrap justify-end gap-1">
+                      {specCapsules.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-bold text-[#0E1A2B]"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between gap-3 py-2">
+                  <dt className="font-semibold text-[#646E7E] shrink-0">
+                    결제 · 거래 증빙
+                  </dt>
+                  <dd className="font-semibold text-[#0E1A2B] text-right">
+                    전자세금계산서 · 카드 · 현금영수증
+                  </dd>
+                </div>
+              </dl>
+
+              {/* 6 & 7. 배송/설치 체크 정보 + 주요 문의 버튼 */}
+              <InteractiveChecklistAndCta
+                product={{
+                  id: String(product.id),
+                  title: product.title,
+                  price: product.price,
+                  status: product.status,
+                  condition_grade: product.condition_grade,
+                  description: product.description,
+                }}
+                categoryLabel={categoryLabel}
+                sold={sold}
+                modelName={modelName}
+                firstImageUrl={images[0] || null}
+                checklistConfig={checklistConfig}
+              />
             </div>
-
-            {/* 4. 인터랙티브 설치 환경 체크리스트 표 + 조건 첨부 상담 동선 */}
-            <InteractiveChecklistAndCta
-              product={{
-                id: String(product.id),
-                title: product.title,
-                price: product.price,
-                status: product.status,
-                condition_grade: product.condition_grade,
-                description: product.description,
-              }}
-              categoryLabel={categoryLabel}
-              sold={sold}
-              modelName={modelName}
-              firstImageUrl={images[0] || null}
-              checklistConfig={checklistConfig}
-            />
-
-            {categoryLabel === "에어컨/냉난방기" && (
-              <AirconSetGuideBanner variant="card" className="mt-4" />
-            )}
           </div>
         </div>
 
         {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
         <section
           aria-label="품목별 공통 검수 기준 안내 및 설치 공간 시뮬레이터"
-          className="mt-10"
+          className="mt-12 pt-8 border-t-2 border-[#0E1A2B]"
         >
-          <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <span className="hb-eyebrow">구매 전 참고 도구</span>
+              <span className="hb-eyebrow">SHOWROOM INSPECTION &amp; FIT</span>
               <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
                 품목별 공통 검수 기준 &amp; 설치 공간 계산기
               </h2>
@@ -626,7 +638,7 @@ export default async function ProductDetailPage({
         {/* 하단 매장 거래 및 배송 안내 */}
         <section
           aria-label="거래 및 배송·설치 안내"
-          className="mt-8 border-y border-[#E5E2DC] py-6 grid gap-6 sm:grid-cols-3 sm:divide-x sm:divide-[#E5E2DC]"
+          className="mt-10 border-y border-[#E5E2DC] py-6 grid gap-6 sm:grid-cols-3 sm:divide-x sm:divide-[#E5E2DC]"
         >
           <div className="sm:pr-4">
             <h2 className="text-hb-base font-bold text-[#0E1A2B]">
@@ -656,12 +668,12 @@ export default async function ProductDetailPage({
 
         {/* 동일 카테고리 추천 매물 4선 */}
         {relatedProducts.length > 0 && (
-          <section className="mt-10 pt-4">
+          <section className="mt-12 pt-8 border-t-2 border-[#0E1A2B]">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <p className="hb-eyebrow">연관 추천 매물</p>
+                <p className="hb-eyebrow">RELATED SHOWROOM INVENTORY</p>
                 <h2 className="mt-1 text-hb-xl font-bold text-[#0E1A2B]">
-                  같은 카테고리의 다른 매물
+                  같은 카테고리의 다른 실매물
                 </h2>
               </div>
               <Link
@@ -682,11 +694,11 @@ export default async function ProductDetailPage({
         {/* [기능 8] 해당 품목 구매·설치 관련 자주 묻는 질문 (FAQ) */}
         <section
           aria-label={`${categoryLabel} 자주 묻는 질문`}
-          className="mt-10 rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-7 shadow-2xs"
+          className="mt-12 pt-8 border-t-2 border-[#0E1A2B]"
         >
           <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#E5E2DC]">
             <div>
-              <span className="hb-eyebrow">품목별 핵심 안내</span>
+              <span className="hb-eyebrow">CATEGORY FAQ</span>
               <h2 className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#0E1A2B]">
                 {categoryLabel} 구매 · 설치 자주 묻는 질문
               </h2>
@@ -700,7 +712,7 @@ export default async function ProductDetailPage({
           </div>
           <dl className="divide-y divide-[#E5E2DC]">
             {getCategoryFaqs(categoryLabel, sold).map((faq) => (
-              <div key={faq.q} className="py-4 first:pt-4 last:pb-0">
+              <div key={faq.q} className="py-4">
                 <dt className="flex items-start gap-2 text-hb-base font-bold text-[#0E1A2B]">
                   <span className="text-[#D9531E] font-extrabold">Q.</span>
                   <span>{faq.q}</span>

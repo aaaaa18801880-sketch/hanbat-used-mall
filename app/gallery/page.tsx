@@ -1928,51 +1928,99 @@ export default function GalleryPage() {
         )}
       </SiteHeader>
 
-      {/* 상단 쇼룸 헤더 */}
-      <section className="bg-white border-b border-[#E6E3DC]">
-        <div className="hb-container py-8 sm:py-11">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
-            <div>
-              <div className="inline-flex items-center gap-2 mb-2">
-                <span className="hb-eyebrow">실시간 판매 매물</span>
-                <span className="text-hb-xs text-[#D8D3C8]">|</span>
-                <span className="text-hb-xs font-semibold text-[#667085]">
-                  대전 중촌동 직영 매장 실매물
+      {/* 상단 쇼룸 컴팩트 다크 네이비 헤더 (타이틀 + 실시간 재고 지표 + 통합 검색바) */}
+      <section className="bg-[#0E1A2B] text-white border-b border-[#1E2F47]">
+        <div className="hb-container py-5 sm:py-7">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#FF8A50]">
+                <span>LIVE SHOWROOM CATALOG</span>
+                <span className="text-white/30">·</span>
+                <span className="text-white/80">
+                  대전 중촌동 1·2층 직영 매장 실매물
                 </span>
+                {!isLoading && (
+                  <span className="inline-flex items-center gap-1 rounded bg-white/10 px-2 py-0.5 text-hb-xs font-extrabold text-white tabular-nums">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FF8A50]" />
+                    구매 가능 {sellingCount}건
+                  </span>
+                )}
               </div>
-              <h1 className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#0E1A2B] tracking-[-0.03em] leading-[1.2]">
-                판매 제품 갤러리
-              </h1>
-              <p className="mt-2.5 text-hb-base text-[#3E4856] leading-relaxed max-w-2xl break-keep">
-                매장에서 직접 세척과 작동 검수를 마친 실매물입니다. 제품명이나 모델명으로 검색하실 수 있으며, 온라인에 아직 등록되지 않은 재고는 전화나 카톡으로 문의해 주세요.
-              </p>
+              <div className="mt-1 flex flex-wrap items-baseline gap-3">
+                <h1 className="text-hb-xl sm:text-hb-2xl font-extrabold text-white tracking-tight">
+                  판매 제품 갤러리
+                </h1>
+                <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-white/70">
+                  분해 세척과 작동 검수를 마친 실매물입니다. 온라인 미등록 재고는 전화·카톡으로 문의해 주세요.
+                </p>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              {!isLoading && (
-                <span className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#0E1A2B] text-white text-hb-xs font-bold tabular-nums">
-                  <span className="h-2 w-2 rounded-full bg-[#FF8A50]" />
-                  현재 구매 가능 {sellingCount}건
+            {/* 통합 검색창 + 모바일 상세필터 토글 */}
+            <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
+              <div className="relative flex-1 lg:w-80">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#646E7E] pointer-events-none">
+                  <Icon d={ICON.search} className="w-4 h-4" />
                 </span>
-              )}
-              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-hb-xs font-bold">
-                ✓ 분해·고압세척 검수
-              </span>
-              <span className="px-3 py-2 rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] text-[#3E4856] text-hb-xs font-bold">
-                ✓ 세금계산서 발행
-              </span>
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setVisibleLimit(PAGE_STEP);
+                  }}
+                  placeholder="제품명·모델명·규격 검색 (예: 45박스, 스탠드)"
+                  aria-label="제품명 또는 모델명 검색"
+                  className="w-full h-10 pl-9 pr-8 rounded-lg border border-white/20 bg-white text-hb-xs sm:text-hb-sm font-medium text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#FF8A50] focus:outline-none"
+                />
+                {search.trim() !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    aria-label="검색어 지우기"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#646E7E] hover:text-[#0E1A2B] p-0.5"
+                  >
+                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMobileFilterOpen((v) => !v)}
+                aria-expanded={mobileFilterOpen}
+                className={`h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                  mobileFilterOpen ||
+                  statusFilter !== "all" ||
+                  priceRange !== "all" ||
+                  sort !== "latest"
+                    ? "border-[#FF8A50] bg-[#D9531E] text-white"
+                    : "border-white/25 bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                <span>필터·프리셋</span>
+                <Icon
+                  d={ICON.down}
+                  className={`w-3.5 h-3.5 transition-transform ${
+                    mobileFilterOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 스티키 검색 및 카테고리 필터 바 (SiteHeader 높이 h-16 sm:h-[72px]에 정확히 밀착) */}
+      {/* 스티키 카테고리 및 필터 컨트롤 바 (단일 행 중심으로 상품 시인성 극대화) */}
       <div className="sticky top-16 sm:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E2DC] shadow-2xs">
-        <div className="hb-container py-2.5 sm:py-3 flex flex-col gap-2">
-          {/* 1행: 카테고리 탭 + 우측 검색창 & 모바일 상세필터 토글 */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 sm:gap-3">
+        <div className="hb-container py-2 sm:py-2.5 flex flex-col gap-2">
+          {/* 1행: 좌측 품목 탭 + 우측 데스크톱 인라인 필터 */}
+          <div className="flex items-center justify-between gap-3">
             <div
-              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 sm:pb-0 pr-2 lg:pr-0"
+              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2"
               role="tablist"
               aria-label="상품 카테고리 필터"
             >
@@ -1988,15 +2036,15 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`h-9 sm:h-10 px-2.5 sm:px-3.5 inline-flex items-center rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-colors border shrink-0 ${
+                    className={`h-9 px-3 inline-flex items-center rounded-md text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
                       active
-                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-2xs"
-                        : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B]/40 hover:bg-[#FAF9F7]"
+                        ? "bg-[#0E1A2B] text-white"
+                        : "bg-[#F4F3EF] text-[#3E4856] hover:bg-[#E8E5DE] hover:text-[#0E1A2B]"
                     }`}
                   >
                     {cat}
                     <span
-                      className={`ml-1 sm:ml-1.5 text-hb-xs tabular-nums ${
+                      className={`ml-1.5 text-hb-xs tabular-nums ${
                         active ? "text-[#FF8A50]" : "text-[#667085]"
                       }`}
                     >
@@ -2007,111 +2055,8 @@ export default function GalleryPage() {
               })}
             </div>
 
-            {/* 검색창 + 모바일 상세필터 토글 버튼 */}
-            <div className="flex items-center gap-1.5 w-full lg:w-auto shrink-0">
-              <div className="relative flex-1 lg:w-64 xl:w-72">
-                <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
-                  <Icon d={ICON.search} className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                </span>
-                <input
-                  type="search"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setVisibleLimit(PAGE_STEP);
-                  }}
-                  placeholder="제품명·모델명 검색"
-                  aria-label="제품명 또는 모델명 검색"
-                  className="w-full h-9 sm:h-10 pl-8 sm:pl-9 pr-7 sm:pr-8 rounded-lg border border-[#D8D3C8] bg-white text-hb-xs sm:text-hb-sm text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
-                />
-                {search.trim() !== "" && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSearch("");
-                      setVisibleLimit(PAGE_STEP);
-                    }}
-                    aria-label="검색어 지우기"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#0E1A2B] p-0.5"
-                  >
-                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setMobileFilterOpen((v) => !v)}
-                aria-expanded={mobileFilterOpen}
-                className={`lg:hidden h-9 sm:h-10 px-3 inline-flex items-center gap-1 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors ${
-                  mobileFilterOpen ||
-                  statusFilter !== "all" ||
-                  priceRange !== "all" ||
-                  sort !== "latest"
-                    ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
-                    : "border-[#D8D3C8] bg-[#FAF9F7] text-[#0E1A2B]"
-                }`}
-              >
-                <span>필터·정렬</span>
-                <Icon
-                  d={ICON.down}
-                  className={`w-3.5 h-3.5 transition-transform ${
-                    mobileFilterOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-            </div>
-          </div>
-
-          {/* 2행: 좌측 상황별 프리셋 4종 + 우측 판매상태·가격대·정렬 필터 3종 (PC 상시 노출, 모바일 토글 또는 활성 필터 시 노출) */}
-          <div
-            className={`${
-              mobileFilterOpen ||
-              statusFilter !== "all" ||
-              priceRange !== "all" ||
-              sort !== "latest"
-                ? "flex"
-                : "hidden lg:flex"
-            } flex-col lg:flex-row lg:items-center justify-between gap-2 pt-1.5 border-t border-[#F0EDE6]`}
-          >
-            {/* 상황·업종별 원클릭 프리셋 칩 4종 */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-hb-xs shrink-0 pr-2 lg:pr-0">
-              <span className="shrink-0 text-hb-xs font-bold text-[#8A8478] mr-0.5">
-                추천 프리셋:
-              </span>
-              {SITUATION_PRESETS.map((preset) => {
-                const active =
-                  activeCategory === preset.category &&
-                  (!preset.keyword || search === preset.keyword);
-                return (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => {
-                      setActiveCategory(preset.category);
-                      setSearch(preset.keyword);
-                      setVisibleLimit(PAGE_STEP);
-                      trackEvent("click_situation_preset", {
-                        preset: preset.label,
-                        category: preset.category,
-                        keyword: preset.keyword,
-                      });
-                    }}
-                    className={`h-8 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 ${
-                      active
-                        ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
-                        : "border-[#E5E2DC] bg-white text-[#4B5260] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
-                    }`}
-                    title={preset.desc}
-                  >
-                    {preset.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* 필터 3종 (상태 + 가격대 + 정렬) */}
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none shrink-0">
+            {/* 데스크톱 우측 인라인 필터 3종 */}
+            <div className="hidden lg:flex items-center gap-1.5 shrink-0">
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -2119,7 +2064,7 @@ export default function GalleryPage() {
                   setVisibleLimit(PAGE_STEP);
                 }}
                 aria-label="판매 상태 필터"
-                className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-9 px-2.5 rounded-md border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B] focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="all">전체 상태</option>
                 <option value="selling">판매중만</option>
@@ -2139,10 +2084,10 @@ export default function GalleryPage() {
                   });
                 }}
                 aria-label="가격대 범위 필터"
-                className={`h-8 px-2.5 sm:px-3 rounded-lg border text-hb-xs font-bold shrink-0 focus:border-[#0E1A2B] focus:outline-none ${
+                className={`h-9 px-2.5 rounded-md border text-hb-xs font-bold focus:border-[#0E1A2B] focus:outline-none ${
                   priceRange !== "all"
                     ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
-                    : "border-[#D8D3C8] bg-white text-[#3E4856]"
+                    : "border-[#D8D3C8] bg-white text-[#0E1A2B]"
                 }`}
               >
                 {PRICE_RANGE_OPTIONS.map((opt) => (
@@ -2156,7 +2101,7 @@ export default function GalleryPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
-                className="h-8 px-2.5 sm:px-3 rounded-lg border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#3E4856] shrink-0 focus:border-[#0E1A2B] focus:outline-none"
+                className="h-9 px-2.5 rounded-md border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B] focus:border-[#0E1A2B] focus:outline-none"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
@@ -2165,19 +2110,105 @@ export default function GalleryPage() {
               </select>
             </div>
           </div>
+
+          {/* 확장 행: 상황별 프리셋 4종 + 모바일 필터 3종 (토글 열림 시 노출) */}
+          {mobileFilterOpen && (
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-2 border-t border-[#ECE9E2]">
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-hb-xs">
+                <span className="shrink-0 font-bold text-[#646E7E] mr-1">
+                  상황별 프리셋:
+                </span>
+                {SITUATION_PRESETS.map((preset) => {
+                  const active =
+                    activeCategory === preset.category &&
+                    (!preset.keyword || search === preset.keyword);
+                  return (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(preset.category);
+                        setSearch(preset.keyword);
+                        setVisibleLimit(PAGE_STEP);
+                        trackEvent("click_situation_preset", {
+                          preset: preset.label,
+                          category: preset.category,
+                          keyword: preset.keyword,
+                        });
+                      }}
+                      className={`h-8 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
+                        active
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
+                          : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
+                      }`}
+                      title={preset.desc}
+                    >
+                      {preset.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div className="grid grid-cols-3 lg:hidden gap-1.5">
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value as StatusFilter);
+                    setVisibleLimit(PAGE_STEP);
+                  }}
+                  aria-label="모바일 판매 상태 필터"
+                  className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
+                >
+                  <option value="all">전체 상태</option>
+                  <option value="selling">판매중만</option>
+                  <option value="reserved">예약중</option>
+                  <option value="sold">판매완료</option>
+                </select>
+
+                <select
+                  value={priceRange}
+                  onChange={(e) => {
+                    const nextPrice = e.target.value as PriceRangeOption;
+                    setPriceRange(nextPrice);
+                    setVisibleLimit(PAGE_STEP);
+                  }}
+                  aria-label="모바일 가격대 필터"
+                  className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
+                >
+                  {PRICE_RANGE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value as SortOption)}
+                  aria-label="모바일 정렬 기준"
+                  className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
+                >
+                  <option value="latest">최신 등록순</option>
+                  <option value="views">조회 많은순</option>
+                  <option value="priceAsc">낮은 가격순</option>
+                  <option value="priceDesc">높은 가격순</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
       {/* 메인 상품 그리드 */}
-      <main className="hb-container py-6 sm:py-10 flex-1">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <p className="text-hb-sm text-[#3E4856]">
+      <main className="hb-container py-5 sm:py-8 flex-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#ECE9E2]">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-hb-xs sm:text-hb-sm text-[#3E4856]">
               {isLoading ? (
                 "상품 목록을 불러오는 중..."
               ) : (
                 <>
-                  조회 매물{" "}
+                  전시 매물{" "}
                   <strong className="text-[#0E1A2B] font-extrabold tabular-nums">
                     {filteredProducts.length}
                   </strong>
@@ -2185,21 +2216,32 @@ export default function GalleryPage() {
                 </>
               )}
             </p>
-            {activeCategory !== "전체" && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#0E1A2B]/10 px-2.5 py-0.5 text-hb-xs font-bold text-[#0E1A2B]">
-                {activeCategory}
-              </span>
-            )}
-            {search.trim() !== "" && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
-                검색: &ldquo;{search.trim()}&rdquo;
-              </span>
-            )}
-            {priceRange !== "all" && (
-              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
-                가격: {PRICE_RANGE_OPTIONS.find((o) => o.value === priceRange)?.label}
-              </span>
-            )}
+            {/* 데스크톱 빠른 프리셋 링크 */}
+            <div className="hidden md:flex items-center gap-1 ml-2 pl-2 border-l border-[#E5E2DC]">
+              {SITUATION_PRESETS.map((preset) => {
+                const active =
+                  activeCategory === preset.category &&
+                  (!preset.keyword || search === preset.keyword);
+                return (
+                  <button
+                    key={preset.label}
+                    type="button"
+                    onClick={() => {
+                      setActiveCategory(preset.category);
+                      setSearch(preset.keyword);
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    className={`rounded px-2 py-0.5 text-hb-xs font-semibold transition-colors cursor-pointer ${
+                      active
+                        ? "bg-[#D9531E] text-white"
+                        : "text-[#646E7E] hover:bg-[#F4F3EF] hover:text-[#0E1A2B]"
+                    }`}
+                  >
+                    #{preset.label}
+                  </button>
+                );
+              })}
+            </div>
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
@@ -2208,24 +2250,24 @@ export default function GalleryPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-4 hover:text-[#BF4715]"
+                className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-4 hover:text-[#BF4715] ml-1"
               >
-                필터 초기화
+                초기화
               </button>
             )}
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="flex items-center gap-2 text-hb-sm font-bold text-[#3E4856] cursor-pointer select-none">
+            <label className="flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={statusFilter === "selling"}
                 onChange={(e) =>
                   setStatusFilter(e.target.checked ? "selling" : "all")
                 }
-                className="w-4 h-4 accent-[#0E1A2B]"
+                className="w-3.5 h-3.5 accent-[#0E1A2B]"
               />
-              판매중만 보기
+              판매중만
             </label>
 
             {isAdmin && (
@@ -2235,14 +2277,14 @@ export default function GalleryPage() {
                   setIsSelectMode(!isSelectMode);
                   setSelectedIds(new Set());
                 }}
-                className={`px-3 py-1.5 rounded-lg text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1 rounded text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
                   isSelectMode
                     ? "bg-[#D9531E] text-white border-[#D9531E]"
                     : "bg-white text-[#0E1A2B] border-[#D8D3C8] hover:bg-[#FAF9F7]"
                 }`}
               >
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                {isSelectMode ? "선택 모드 종료" : "선택 일괄 관리"}
+                {isSelectMode ? "선택 종료" : "일괄 관리"}
               </button>
             )}
           </div>

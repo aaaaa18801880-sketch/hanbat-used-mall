@@ -85,11 +85,24 @@ export function ProductDetailGallery({
 
   return (
     <>
-      <div className="flex flex-col bg-[#F7F6F3] h-full justify-between">
+      <div className="flex flex-col rounded-xl overflow-hidden border border-[#E5E2DC] bg-[#F3F1EC] shadow-card">
+        {/* 상단 쇼룸 이미지 뷰어 바 */}
+        <div className="bg-[#0E1A2B] text-white px-4 py-2.5 flex items-center justify-between gap-2 text-hb-xs">
+          <div className="flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-[#D9531E]" />
+            <span className="font-bold tracking-wider uppercase text-white/90">
+              SHOWROOM STUDIO PHOTO
+            </span>
+          </div>
+          <span className="text-white/75 font-medium tabular-nums">
+            실물 촬영 사진 ({idx + 1} / {displayImages.length})
+          </span>
+        </div>
+
         {/* 메인 프리뷰 영역 */}
         <div
           onClick={() => displayImages[0] && setIsZoomOpen(true)}
-          className="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-[#F7F6F3] flex items-center justify-center p-4 sm:p-6 overflow-hidden cursor-zoom-in group select-none"
+          className="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-[#F3F1EC] flex items-center justify-center p-4 sm:p-6 overflow-hidden cursor-zoom-in group select-none"
           title="클릭하여 원본 비율 전체화면으로 확대"
         >
           <SafeImg
@@ -97,12 +110,12 @@ export function ProductDetailGallery({
             src={displayImages[idx]}
             alt={`${title} - 사진 ${idx + 1}`}
             eager
-            className={`max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] ${
+            className={`max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] drop-shadow-sm ${
               sold ? "grayscale opacity-75" : ""
             }`}
           />
 
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-3.5 left-3.5 z-10">
             <ProductStatusBadge status={status} createdAt={createdAt} />
           </div>
 
@@ -115,9 +128,9 @@ export function ProductDetailGallery({
           )}
 
           {displayImages[0] && (
-            <div className="absolute top-4 right-4 bg-[#0E1A2B]/70 text-white text-hb-xs font-semibold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
+            <div className="absolute top-3.5 right-3.5 bg-[#0E1A2B]/75 text-white text-hb-xs font-semibold px-3 py-1 rounded-md flex items-center gap-1.5 pointer-events-none">
               <Icon d={ICON.search} className="w-3.5 h-3.5" />
-              <span>클릭하여 확대</span>
+              <span>원본 확대</span>
             </div>
           )}
 
@@ -145,23 +158,20 @@ export function ProductDetailGallery({
               >
                 <Icon d={ICON.right} className="w-5 h-5" />
               </button>
-              <span className="absolute bottom-3.5 right-4 bg-[#0E1A2B]/75 text-white text-hb-xs font-semibold px-3 py-1 rounded-full z-10 pointer-events-none tabular-nums">
-                {idx + 1} / {displayImages.length}
-              </span>
             </>
           )}
         </div>
 
         {/* 썸네일 스트립 */}
         {displayImages.length > 1 && (
-          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#E5E2DC] overflow-x-auto">
+          <div className="flex gap-2.5 p-3 sm:px-5 bg-white border-t border-[#E5E2DC] overflow-x-auto">
             {displayImages.map((img, i) => (
               <button
                 key={img + i}
                 type="button"
                 onClick={() => setIdx(i)}
                 aria-label={`${i + 1}번 사진 선택`}
-                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-[#F7F6F3] border transition-all ${
+                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-[#F3F1EC] border transition-all ${
                   i === idx
                     ? "border-[#D9531E] ring-2 ring-[#D9531E]/35"
                     : "border-[#E5E2DC] opacity-65 hover:opacity-100"
@@ -325,7 +335,7 @@ export function QuoteBasketButton({
       aria-pressed={inBasket}
       className={
         className ||
-        `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-11 text-hb-sm font-bold transition-colors w-full ${
+        `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-colors w-full ${
           inBasket
             ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
             : "border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
@@ -510,12 +520,13 @@ export function InteractiveChecklistAndCta({
       } 재고 및 배송·설치 견적 문의드립니다.`;
 
   return (
-    <div className="mt-6 space-y-5">
-      {/* 1. 인터랙티브 설치 환경 체크리스트 */}
-      <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-hb-xs text-[#3E4756]">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-[#E5E2DC]">
-          <strong className="font-bold text-[#0E1A2B] text-hb-sm">
-            {checklistConfig.title}
+    <div className="mt-4 pt-4 border-t border-[#E5E2DC] space-y-4">
+      {/* 1. 인터랙티브 설치 환경 체크 및 터치 칩 */}
+      <div>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <strong className="font-bold text-[#0E1A2B] text-hb-xs sm:text-hb-sm flex items-center gap-1.5">
+            <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E]" />
+            <span>{checklistConfig.title}</span>
           </strong>
           <span
             className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
@@ -528,10 +539,10 @@ export function InteractiveChecklistAndCta({
           </span>
         </div>
 
-        <dl className="mt-2.5 space-y-1.5">
+        <dl className="grid grid-cols-1 gap-1 text-hb-xs bg-[#FAF9F7] border-l-2 border-[#0E1A2B] pl-3 py-2">
           {checklistConfig.rows.map((row) => (
             <div key={row.label} className="flex items-start gap-2">
-              <dt className="w-[82px] shrink-0 font-bold text-[#0E1A2B]">
+              <dt className="w-[74px] shrink-0 font-bold text-[#0E1A2B]">
                 · {row.label}
               </dt>
               <dd className="text-[#3E4756] leading-snug break-keep">
@@ -542,11 +553,10 @@ export function InteractiveChecklistAndCta({
         </dl>
 
         {/* 터치형 현장 조건 선택 칩 */}
-        <div className="mt-3.5 pt-3 border-t border-[#E5E2DC]">
-          <div className="flex items-center justify-between gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#0E1A2B]">
-              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E]" />
-              <span>내 설치 조건 선택 (선택 시 문의 내용에 자동 반영)</span>
+        <div className="mt-3">
+          <div className="flex items-center justify-between gap-2 mb-1.5">
+            <span className="text-hb-xs font-bold text-[#3E4756]">
+              내 설치 조건 선택 (선택 시 문의 내용에 자동 첨부)
             </span>
             {selectedChips.length > 0 && (
               <button
@@ -570,7 +580,7 @@ export function InteractiveChecklistAndCta({
                   className={`rounded-md px-2.5 py-1 text-hb-xs font-semibold transition-colors border cursor-pointer ${
                     active
                       ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
-                      : "bg-white text-[#3E4756] border-[#D8D3C8] hover:border-[#0E1A2B]"
+                      : "bg-[#FAF9F7] text-[#3E4756] border-[#D8D3C8] hover:border-[#0E1A2B]"
                   }`}
                 >
                   {active ? `✓ ${chip}` : `+ ${chip}`}
@@ -581,18 +591,72 @@ export function InteractiveChecklistAndCta({
         </div>
       </div>
 
-      {/* 2. 다채널 즉시 상담 동선 (선택한 현장 조건이 온라인 문의 및 문자에 자동 포함됨) */}
-      <div className="pt-2 space-y-2.5">
+      {/* 2. 다채널 즉시 상담 동선 (첫 화면에 바로 노출) */}
+      <div className="pt-2 border-t border-[#E5E2DC] space-y-2">
         {sold && (
-          <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-3.5 py-2.5 text-hb-xs text-[#B5431A] font-semibold leading-snug flex items-start gap-1.5">
+          <div className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-3 py-2 text-hb-xs text-[#B5431A] font-semibold leading-snug flex items-start gap-1.5">
             <Icon d={ICON.bell} className="w-4 h-4 shrink-0 mt-0.5 text-[#D9531E]" />
             <span>
-              이 매물은 판매가 완료되었으나, 직영 매장에 아직 업로드되지 않은{" "}
-              <strong className="underline">동일·유사 스펙의 대기 매물</strong>이
-              있을 수 있습니다. 편하게 문의해 주세요.
+              이 매물은 판매 완료되었으나 직영 매장에{" "}
+              <strong className="underline">동일·유사 스펙 대기 매물</strong>이
+              있을 수 있습니다.
             </span>
           </div>
         )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <a
+            href={telHref(STORE.tel)}
+            className="hb-btn-accent h-11 px-4 text-hb-sm"
+          >
+            <Icon d={ICON.phone} className="h-4 w-4" />
+            <span>
+              {sold
+                ? `유사 매물 전화 (${STORE.tel})`
+                : `전화로 바로 문의 (${STORE.tel})`}
+            </span>
+          </a>
+
+          <a
+            href={STORE.kakaoChat}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hb-btn-kakao h-11 px-4 text-hb-sm"
+          >
+            <Icon d={ICON.chat} className="h-4 w-4" />
+            <span>{sold ? "카톡으로 유사 매물 찾기" : "카카오톡 상담"}</span>
+          </a>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <a
+            href={smsHref(STORE.mobile, smsBody)}
+            className="hb-btn-outline h-10 px-3 text-hb-xs"
+          >
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E]" />
+            <span>
+              {sold
+                ? "유사 매물 문자 요청"
+                : selectedChips.length > 0
+                ? `조건 포함 문자 (${selectedChips.length})`
+                : `문자 문의 (${STORE.mobile})`}
+            </span>
+          </a>
+
+          <Link
+            href={inquiryHref}
+            className="hb-btn-primary h-10 px-3 text-hb-xs"
+          >
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#FF8A50]" />
+            <span>
+              {sold
+                ? "유사 매물 입고·재고 문의"
+                : selectedChips.length > 0
+                ? `선택 조건(${selectedChips.length}) 온라인 문의`
+                : "이 상품으로 온라인 문의"}
+            </span>
+          </Link>
+        </div>
 
         <QuoteBasketButton
           item={{
@@ -610,60 +674,6 @@ export function InteractiveChecklistAndCta({
             quantity: 1,
           }}
         />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <a
-            href={telHref(STORE.tel)}
-            className="hb-btn-accent h-12 px-4 text-hb-sm"
-          >
-            <Icon d={ICON.phone} className="h-4 w-4" />
-            <span>
-              {sold
-                ? `유사 매물 전화 문의 (${STORE.tel})`
-                : `전화로 바로 문의 (${STORE.tel})`}
-            </span>
-          </a>
-
-          <a
-            href={STORE.kakaoChat}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hb-btn-kakao h-12 px-4 text-hb-sm"
-          >
-            <Icon d={ICON.chat} className="h-4 w-4" />
-            <span>{sold ? "카톡으로 유사 매물 찾기" : "카카오톡 상담"}</span>
-          </a>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2.5">
-          <a
-            href={smsHref(STORE.mobile, smsBody)}
-            className="hb-btn-outline h-11 px-3 text-hb-xs"
-          >
-            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E]" />
-            <span>
-              {sold
-                ? "유사 매물 문자 요청"
-                : selectedChips.length > 0
-                ? `조건 포함 문자 문의 (${selectedChips.length})`
-                : `문자 문의 (${STORE.mobile})`}
-            </span>
-          </a>
-
-          <Link
-            href={inquiryHref}
-            className="hb-btn-primary h-11 px-3 text-hb-xs"
-          >
-            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#FF8A50]" />
-            <span>
-              {sold
-                ? "유사 매물 입고·재고 문의"
-                : selectedChips.length > 0
-                ? `선택 조건(${selectedChips.length}) 포함 온라인 문의`
-                : "이 상품으로 온라인 문의"}
-            </span>
-          </Link>
-        </div>
       </div>
     </div>
   );
