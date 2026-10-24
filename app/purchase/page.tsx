@@ -10,6 +10,7 @@ import {
   SafeImg,
   Icon,
   ICON,
+  DuotoneIcon,
 } from "../../lib/ui";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 
@@ -19,18 +20,21 @@ const BUYBACK_STEPS = [
     num: "01",
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
+    icon: ICON.camera,
   },
   {
     step: "02단계",
     num: "02",
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
+    icon: ICON.chat,
   },
   {
     step: "03단계",
     num: "03",
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
+    icon: ICON.wallet,
   },
 ] as const;
 
@@ -72,16 +76,21 @@ export default function PurchasePage() {
       </section>
 
       <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 */}
+        {/* 3단계 매입 진행 프로세스 요약 바 (Tactile Bento 카드) */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 rounded-xl border border-[#E5E2DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E5E2DC] shadow-card"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
         >
-          {BUYBACK_STEPS.map((item) => (
-            <div key={item.step} className="flex items-start gap-4 p-5 sm:p-6">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0E1A2B] text-hb-sm font-extrabold text-white tabular-nums">
-                {item.num}
-              </span>
+          {BUYBACK_STEPS.map((item, idx) => (
+            <div
+              key={item.step}
+              className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
+            >
+              <DuotoneIcon
+                d={item.icon}
+                tone={idx === 2 ? "orange" : "navy"}
+                size="lg"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#D9531E]">

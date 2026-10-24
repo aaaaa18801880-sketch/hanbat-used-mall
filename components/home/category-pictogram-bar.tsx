@@ -153,11 +153,11 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 8대 쇼룸 카테고리 탭 그리드 (모바일 4열 · 데스크톱 8열 고정으로 스크롤 숨김 없이 한눈에 탐색) */}
+        {/* 8대 쇼룸 카테고리 탭 그리드 (모바일 2열 · 소형모바일 4열 · 데스크톱 8열) */}
         <div
           role="tablist"
           aria-label="품목별 쇼룸 필터"
-          className="mt-4 grid grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5"
+          className="mt-4 grid grid-cols-2 xs:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5"
         >
           {SHOWROOM_CATEGORIES.map((item) => {
             const isSelected = selectedKey === item.key;
@@ -166,27 +166,39 @@ export function CategoryPictogramBar({
 
             const content = (
               <div
-                className={`group relative flex flex-col items-center justify-between rounded-lg px-2 py-3 sm:px-3 sm:py-3.5 transition-all duration-150 cursor-pointer h-full ${
+                className={`group relative flex flex-col items-center justify-between rounded-xl px-2 py-3 sm:px-3 sm:py-3.5 transition-all duration-200 cursor-pointer h-full ${
                   isSelected
-                    ? "bg-[#0E1A2B] text-white shadow-card"
-                    : "bg-[#FAF9F7] text-[#0E1A2B] hover:bg-[#F1EFEA]"
+                    ? "bg-[#0E1A2B] text-white shadow-card -translate-y-0.5"
+                    : "bg-[#FAF9F7] text-[#0E1A2B] hover:bg-[#F1EFEA] hover:-translate-y-0.5"
                 }`}
               >
-                {/* 상단 그룹 인디케이터 점 */}
-                <span
-                  aria-hidden="true"
-                  className={`absolute top-2 right-2 h-1.5 w-1.5 rounded-full ${
-                    isSelected
-                      ? "bg-[#FF8A50]"
-                      : isBiz
-                      ? "bg-[#D9531E]/60"
-                      : "bg-[#0E1A2B]/25"
-                  }`}
-                />
+                {/* 실시간 매물 대수 캡슐 뱃지 또는 그룹 인디케이터 점 */}
+                {typeof count === "number" ? (
+                  <span
+                    className={`absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.5 text-hb-xs font-bold leading-none tabular-nums ${
+                      isSelected
+                        ? "bg-[#FF8A50] text-[#0E1A2B]"
+                        : "bg-white text-[#0E1A2B] shadow-2xs border border-[#E5E2DC]"
+                    }`}
+                  >
+                    {count}대
+                  </span>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-2 right-2 h-1.5 w-1.5 rounded-full ${
+                      isSelected
+                        ? "bg-[#FF8A50]"
+                        : isBiz
+                        ? "bg-[#D9531E]/60"
+                        : "bg-[#0E1A2B]/25"
+                    }`}
+                  />
+                )}
 
                 {/* 통일된 스튜디오 아이콘 프레임 */}
                 <div
-                  className={`h-11 w-11 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center p-1 transition-transform duration-200 group-hover:-translate-y-0.5 ${
+                  className={`h-11 w-11 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center p-1 transition-transform duration-200 group-hover:scale-105 ${
                     isSelected ? "bg-white" : "bg-white/90"
                   }`}
                 >

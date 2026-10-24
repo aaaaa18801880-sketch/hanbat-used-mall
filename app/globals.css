@@ -80,6 +80,23 @@ body {
     @apply rounded-xl border border-[#E5E2DC] bg-white shadow-2xs;
   }
 
+  /* 2025~2026 Tactile Bento & Liquid Glass Chrome Tokens */
+  .hb-glass {
+    @apply bg-white/85 backdrop-blur-md border-b border-[#E5E2DC]/80 shadow-glass-sm;
+  }
+
+  .hb-glass-dark {
+    @apply bg-[#0E1A2B]/90 backdrop-blur-md border border-white/15 shadow-floating;
+  }
+
+  .hb-bento-card {
+    @apply rounded-2xl border border-[#E5E2DC] bg-white shadow-card transition-all duration-200 hover:border-[#0E1A2B]/40 hover:shadow-card-hover;
+  }
+
+  .hb-bento-dark {
+    @apply rounded-2xl border border-white/15 bg-[#132238]/90 text-white shadow-floating transition-all duration-200 hover:border-[#FF8A50]/50;
+  }
+
   .hb-h1 {
     @apply text-hb-2xl lg:text-hb-3xl font-bold tracking-[-0.028em] text-[#0E1A2B];
   }
@@ -118,7 +135,7 @@ body {
 
   /* Clean Retail Button Tokens — Restrained & Trustworthy */
   .hb-btn {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-lg font-semibold tracking-[-0.01em] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-lg font-semibold tracking-[-0.01em] transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .hb-btn > svg:last-child {

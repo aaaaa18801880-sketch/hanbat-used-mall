@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-24T16:31:51.906Z">
+<project name="hanbat-mall" generated_at="2026-10-24T17:00:25.017Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -6177,7 +6177,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="2984">
+    <file path="app/gallery/page.tsx" lines="3002">
       <![CDATA[
 "use client";
 
@@ -8195,8 +8195,8 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 스티키 카테고리 및 필터 컨트롤 바 (단일 행 중심으로 상품 시인성 극대화) */}
-      <div className="sticky top-16 sm:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E2DC] shadow-2xs">
+      {/* 스티키 카테고리 및 필터 컨트롤 바 (리퀴드 글래스 단일 행 중심) */}
+      <div className="sticky top-16 sm:top-[72px] z-30 hb-glass">
         <div className="hb-container py-2 sm:py-2.5 flex flex-col gap-2">
           {/* 1행: 좌측 품목 탭 + 우측 데스크톱 인라인 필터 */}
           <div className="flex items-center justify-between gap-3">
@@ -8303,6 +8303,14 @@ export default function GalleryPage() {
                   const active =
                     activeCategory === preset.category &&
                     (!preset.keyword || search === preset.keyword);
+                  const presetIcon =
+                    preset.label === "원룸·자취필수"
+                      ? ICON.building
+                      : preset.label === "카페·디저트창업"
+                      ? ICON.sparkles
+                      : preset.label === "식당·주방설비"
+                      ? ICON.layers
+                      : ICON.snowflake;
                   return (
                     <button
                       key={preset.label}
@@ -8317,14 +8325,15 @@ export default function GalleryPage() {
                           keyword: preset.keyword,
                         });
                       }}
-                      className={`h-8 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
+                      className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
                         active
                           ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
                           : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                       title={preset.desc}
                     >
-                      {preset.label}
+                      <Icon d={presetIcon} className="w-3.5 h-3.5" />
+                      <span>{preset.label}</span>
                     </button>
                   );
                 })}
@@ -8398,11 +8407,19 @@ export default function GalleryPage() {
               )}
             </p>
             {/* 데스크톱 빠른 프리셋 링크 */}
-            <div className="hidden md:flex items-center gap-1 ml-2 pl-2 border-l border-[#E5E2DC]">
+            <div className="hidden md:flex items-center gap-1.5 ml-2 pl-2 border-l border-[#E5E2DC]">
               {SITUATION_PRESETS.map((preset) => {
                 const active =
                   activeCategory === preset.category &&
                   (!preset.keyword || search === preset.keyword);
+                const presetIcon =
+                  preset.label === "원룸·자취필수"
+                    ? ICON.building
+                    : preset.label === "카페·디저트창업"
+                    ? ICON.sparkles
+                    : preset.label === "식당·주방설비"
+                    ? ICON.layers
+                    : ICON.snowflake;
                 return (
                   <button
                     key={preset.label}
@@ -8412,13 +8429,14 @@ export default function GalleryPage() {
                       setSearch(preset.keyword);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`rounded px-2 py-0.5 text-hb-xs font-semibold transition-colors cursor-pointer ${
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-semibold transition-colors cursor-pointer ${
                       active
                         ? "bg-[#D9531E] text-white"
                         : "text-[#646E7E] hover:bg-[#F4F3EF] hover:text-[#0E1A2B]"
                     }`}
                   >
-                    #{preset.label}
+                    <Icon d={presetIcon} className="w-3 h-3" />
+                    <span>#{preset.label}</span>
                   </button>
                 );
               })}
@@ -9165,7 +9183,7 @@ export default function GalleryPage() {
 }
 ]]>
     </file>
-    <file path="app/globals.css" lines="179">
+    <file path="app/globals.css" lines="196">
       <![CDATA[
 /* 파일 경로: app/globals.css */
 @tailwind base;
@@ -9249,6 +9267,23 @@ body {
     @apply rounded-xl border border-[#E5E2DC] bg-white shadow-2xs;
   }
 
+  /* 2025~2026 Tactile Bento & Liquid Glass Chrome Tokens */
+  .hb-glass {
+    @apply bg-white/85 backdrop-blur-md border-b border-[#E5E2DC]/80 shadow-glass-sm;
+  }
+
+  .hb-glass-dark {
+    @apply bg-[#0E1A2B]/90 backdrop-blur-md border border-white/15 shadow-floating;
+  }
+
+  .hb-bento-card {
+    @apply rounded-2xl border border-[#E5E2DC] bg-white shadow-card transition-all duration-200 hover:border-[#0E1A2B]/40 hover:shadow-card-hover;
+  }
+
+  .hb-bento-dark {
+    @apply rounded-2xl border border-white/15 bg-[#132238]/90 text-white shadow-floating transition-all duration-200 hover:border-[#FF8A50]/50;
+  }
+
   .hb-h1 {
     @apply text-hb-2xl lg:text-hb-3xl font-bold tracking-[-0.028em] text-[#0E1A2B];
   }
@@ -9287,7 +9322,7 @@ body {
 
   /* Clean Retail Button Tokens — Restrained & Trustworthy */
   .hb-btn {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-lg font-semibold tracking-[-0.01em] transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-lg font-semibold tracking-[-0.01em] transition-all duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .hb-btn > svg:last-child {
@@ -11446,7 +11481,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="1991">
+    <file path="app/page.tsx" lines="2029">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -11462,6 +11497,7 @@ import {
 import {
   Icon,
   ICON,
+  DuotoneIcon,
   SafeImg,
   Modal,
   SiteHeader,
@@ -11547,21 +11583,25 @@ const SELL_STEPS = [
     step: "01",
     t: "사진·정보 접수",
     d: "사진·문자·카톡으로 제품 전면과 모델명(명판), 수거 지역을 남겨주세요.",
+    icon: ICON.camera,
   },
   {
     step: "02",
     t: "빠른 견적 안내",
     d: "외관 상태와 연식·시세를 종합 검토하여 합리적인 매입가를 신속히 안내합니다.",
+    icon: ICON.search,
   },
   {
     step: "03",
     t: "방문 확인·수거",
     d: "원하시는 일정에 전문 기사가 방문하여 안전하게 제품을 분리·수거합니다.",
+    icon: ICON.truck,
   },
   {
     step: "04",
     t: "현장 즉시 입금",
     d: "수거가 완료되는 즉시 지정하신 계좌로 매입 대금 전액을 현금 송금합니다.",
+    icon: ICON.wallet,
   },
 ] as const;
 
@@ -11571,24 +11611,28 @@ const COMMERCIAL_EQUIP_MATRIX = [
     title: "업소용 냉장 · 냉동 설비",
     items: "45박스 · 25박스 수직냉장/냉동 · 테이블냉장고 · 반찬냉장고 · 급속냉동고",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
+    icon: ICON.snowflake,
   },
   {
     code: "B2B · 02",
     title: "음료 · 제과 · 주류 쇼케이스",
     items: "음료/주류 직냉식·간냉식 쇼케이스 · 제과/케이크 쇼케이스 · 오픈 쇼케이스",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
+    icon: ICON.layers,
   },
   {
     code: "B2B · 03",
     title: "제빙기 · 세척기 · 스텐 주방",
     items: "업소용 제빙기 · 식기세척기 · 스텐 작업대 · 싱크대 · 가스레인지 · 육수통",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
+    icon: ICON.sparkles,
   },
   {
     code: "B2B · 04",
     title: "중대형 냉난방 · 폐업 일괄정리",
     items: "상가·사무실 중대형 스탠드/천장형 냉난방기 · 폐업 매장 집기 방문 일괄매입",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
+    icon: ICON.bolt,
   },
 ] as const;
 
@@ -12035,18 +12079,28 @@ export default function Home() {
           <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
             <div className="hb-container py-2 flex flex-wrap items-center justify-between gap-2 text-hb-xs">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="h-2 w-2 rounded-full bg-[#FF8A50] shrink-0" />
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF8A50] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF8A50]" />
+                </span>
                 <span className="font-bold text-white truncate">
                   SINCE {STORE.since} · 대전 중촌동 1·2층 직영 쇼룸 ({OPERATING_YEARS}년 운영)
                 </span>
               </div>
               <div className="hidden sm:flex items-center gap-4 text-white/80 tabular-nums">
-                <span>영업시간: {STORE.hours}</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon d={ICON.clock} className="w-3.5 h-3.5 text-white/60" />
+                  <span>영업시간: {STORE.hours}</span>
+                </span>
                 <span>·</span>
-                <span>매장 앞 전용 주차 완비</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon d={ICON.building} className="w-3.5 h-3.5 text-white/60" />
+                  <span>매장 앞 전용 주차 완비</span>
+                </span>
                 <span>·</span>
-                <strong className="text-[#FF8A50]">
-                  현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시
+                <strong className="inline-flex items-center gap-1 text-[#FF8A50]">
+                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                  <span>현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시</span>
                 </strong>
               </div>
             </div>
@@ -12144,40 +12198,49 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (반복적인 카드 박스를 배제한 수평 구분선 레이아웃) */}
+                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (DuotoneIcon 결합) */}
                 <div className="mt-8 pt-5 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
-                  <div className="min-w-0">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                      01 · INSPECTION
-                    </span>
-                    <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                      분해 고압세척 출고
-                    </p>
-                    <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                      냉매·콤프레샤·누수 시운전 통과
-                    </p>
+                  <div className="min-w-0 flex items-start gap-2.5">
+                    <DuotoneIcon d={ICON.droplet} tone="orange" size="sm" />
+                    <div className="min-w-0">
+                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                        01 · INSPECTION
+                      </span>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                        분해 고압세척 출고
+                      </p>
+                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
+                        냉매·콤프레샤·누수 시운전 통과
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                      02 · WARRANTY
-                    </span>
-                    <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                      무상 A/S 책임 보증
-                    </p>
-                    <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                      에어컨 최대 8개월 · 가전 4개월
-                    </p>
+                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
+                    <DuotoneIcon d={ICON.shieldCheck} tone="navy" size="sm" />
+                    <div className="min-w-0">
+                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                        02 · WARRANTY
+                      </span>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                        무상 A/S 책임 보증
+                      </p>
+                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
+                        에어컨 최대 8개월 · 가전 4개월
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                      03 · DELIVERY & TAX
-                    </span>
-                    <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                      직배송·세금계산서
-                    </p>
-                    <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                      충청권 직배송 · 부가세 증빙 100%
-                    </p>
+                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
+                    <DuotoneIcon d={ICON.truck} tone="emerald" size="sm" />
+                    <div className="min-w-0">
+                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                        03 · DELIVERY & TAX
+                      </span>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                        직배송·세금계산서
+                      </p>
+                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
+                        충청권 직배송 · 부가세 증빙 100%
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -12348,9 +12411,12 @@ export default function Home() {
                   >
                     <div>
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-hb-xs font-bold text-[#FF8A50]">
-                          {cell.code}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <DuotoneIcon d={cell.icon} tone="light" size="sm" />
+                          <span className="font-mono text-hb-xs font-bold text-[#FF8A50]">
+                            {cell.code}
+                          </span>
+                        </div>
                         <Icon
                           d={ICON.arrow}
                           className="w-4 h-4 text-white/40 group-hover:text-[#FF8A50] group-hover:translate-x-1 transition-all"
@@ -12439,9 +12505,16 @@ export default function Home() {
                       key={s.t}
                       className="relative flex items-start gap-4 pt-4 border-t-2 border-[#0E1A2B]"
                     >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0E1A2B] font-mono text-hb-sm font-extrabold text-[#FF8A50]">
-                        {s.step}
-                      </span>
+                      <div className="flex flex-col items-center gap-2 shrink-0">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0E1A2B] font-mono text-hb-sm font-extrabold text-[#FF8A50]">
+                          {s.step}
+                        </span>
+                        <DuotoneIcon
+                          d={s.icon}
+                          tone={i === 3 ? "orange" : "navy"}
+                          size="sm"
+                        />
+                      </div>
                       <div className="min-w-0">
                         <span className="text-hb-xs font-bold text-[#D9531E]">
                           STEP 0{i + 1}
@@ -13007,34 +13080,34 @@ export default function Home() {
                     </button>
                   </div>
 
-                  {/* 쇼룸 방문 특화 3대 편의 시설 안내 (허전함 해소 및 실질적 방문 정보 제공) */}
+                  {/* 쇼룸 방문 특화 3대 편의 시설 안내 (DuotoneIcon 결합) */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-[#ECE9E2]">
-                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#0E1A2B]">
+                        <DuotoneIcon d={ICON.pin} tone="orange" size="sm" />
                         <span>전용 주차장 완비</span>
                       </div>
-                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                      <p className="mt-1.5 text-[#646E7E] leading-relaxed">
                         매장 정면 8대 전용 주차 · 승용차 및 1톤 화물차 진입 수월
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#0E1A2B]">
+                        <DuotoneIcon d={ICON.wrench} tone="navy" size="sm" />
                         <span>현장 실물 점검</span>
                       </div>
-                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                      <p className="mt-1.5 text-[#646E7E] leading-relaxed">
                         전원 인가 및 시운전 직접 확인 후 당일 상차·수령 가능
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#0E1A2B]">
+                        <DuotoneIcon d={ICON.building} tone="emerald" size="sm" />
                         <span>오시는 길 랜드마크</span>
                       </div>
-                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                      <p className="mt-1.5 text-[#646E7E] leading-relaxed">
                         중촌고가교 바로 밑 대전천변 · 중촌동 버스정류장 도보 2분
                       </p>
                     </div>
@@ -13630,7 +13703,7 @@ export default function PurchaseLayout({
 }
 ]]>
     </file>
-    <file path="app/purchase/page.tsx" lines="255">
+    <file path="app/purchase/page.tsx" lines="264">
       <![CDATA[
 "use client";
 
@@ -13644,6 +13717,7 @@ import {
   SafeImg,
   Icon,
   ICON,
+  DuotoneIcon,
 } from "../../lib/ui";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 
@@ -13653,18 +13727,21 @@ const BUYBACK_STEPS = [
     num: "01",
     title: "사진 · 모델명 접수",
     desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
+    icon: ICON.camera,
   },
   {
     step: "02단계",
     num: "02",
     title: "예상 견적 및 일정 조율",
     desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
+    icon: ICON.chat,
   },
   {
     step: "03단계",
     num: "03",
     title: "방문 수거 · 현장 즉시 정산",
     desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
+    icon: ICON.wallet,
   },
 ] as const;
 
@@ -13706,16 +13783,21 @@ export default function PurchasePage() {
       </section>
 
       <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 */}
+        {/* 3단계 매입 진행 프로세스 요약 바 (Tactile Bento 카드) */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 rounded-xl border border-[#E5E2DC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E5E2DC] shadow-card"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
         >
-          {BUYBACK_STEPS.map((item) => (
-            <div key={item.step} className="flex items-start gap-4 p-5 sm:p-6">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#0E1A2B] text-hb-sm font-extrabold text-white tabular-nums">
-                {item.num}
-              </span>
+          {BUYBACK_STEPS.map((item, idx) => (
+            <div
+              key={item.step}
+              className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
+            >
+              <DuotoneIcon
+                d={item.icon}
+                tone={idx === 2 ? "orange" : "navy"}
+                size="lg"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#D9531E]">
@@ -14218,7 +14300,7 @@ export function AiRecommendationGuideSection() {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="275">
+    <file path="components/home/category-pictogram-bar.tsx" lines="287">
       <![CDATA[
 // 파일 경로: components/home/category-pictogram-bar.tsx
 "use client";
@@ -14375,11 +14457,11 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 8대 쇼룸 카테고리 탭 그리드 (모바일 4열 · 데스크톱 8열 고정으로 스크롤 숨김 없이 한눈에 탐색) */}
+        {/* 8대 쇼룸 카테고리 탭 그리드 (모바일 2열 · 소형모바일 4열 · 데스크톱 8열) */}
         <div
           role="tablist"
           aria-label="품목별 쇼룸 필터"
-          className="mt-4 grid grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5"
+          className="mt-4 grid grid-cols-2 xs:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5"
         >
           {SHOWROOM_CATEGORIES.map((item) => {
             const isSelected = selectedKey === item.key;
@@ -14388,27 +14470,39 @@ export function CategoryPictogramBar({
 
             const content = (
               <div
-                className={`group relative flex flex-col items-center justify-between rounded-lg px-2 py-3 sm:px-3 sm:py-3.5 transition-all duration-150 cursor-pointer h-full ${
+                className={`group relative flex flex-col items-center justify-between rounded-xl px-2 py-3 sm:px-3 sm:py-3.5 transition-all duration-200 cursor-pointer h-full ${
                   isSelected
-                    ? "bg-[#0E1A2B] text-white shadow-card"
-                    : "bg-[#FAF9F7] text-[#0E1A2B] hover:bg-[#F1EFEA]"
+                    ? "bg-[#0E1A2B] text-white shadow-card -translate-y-0.5"
+                    : "bg-[#FAF9F7] text-[#0E1A2B] hover:bg-[#F1EFEA] hover:-translate-y-0.5"
                 }`}
               >
-                {/* 상단 그룹 인디케이터 점 */}
-                <span
-                  aria-hidden="true"
-                  className={`absolute top-2 right-2 h-1.5 w-1.5 rounded-full ${
-                    isSelected
-                      ? "bg-[#FF8A50]"
-                      : isBiz
-                      ? "bg-[#D9531E]/60"
-                      : "bg-[#0E1A2B]/25"
-                  }`}
-                />
+                {/* 실시간 매물 대수 캡슐 뱃지 또는 그룹 인디케이터 점 */}
+                {typeof count === "number" ? (
+                  <span
+                    className={`absolute top-1.5 right-1.5 rounded-full px-1.5 py-0.5 text-hb-xs font-bold leading-none tabular-nums ${
+                      isSelected
+                        ? "bg-[#FF8A50] text-[#0E1A2B]"
+                        : "bg-white text-[#0E1A2B] shadow-2xs border border-[#E5E2DC]"
+                    }`}
+                  >
+                    {count}대
+                  </span>
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className={`absolute top-2 right-2 h-1.5 w-1.5 rounded-full ${
+                      isSelected
+                        ? "bg-[#FF8A50]"
+                        : isBiz
+                        ? "bg-[#D9531E]/60"
+                        : "bg-[#0E1A2B]/25"
+                    }`}
+                  />
+                )}
 
                 {/* 통일된 스튜디오 아이콘 프레임 */}
                 <div
-                  className={`h-11 w-11 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center p-1 transition-transform duration-200 group-hover:-translate-y-0.5 ${
+                  className={`h-11 w-11 sm:h-12 sm:w-12 rounded-lg flex items-center justify-center p-1 transition-transform duration-200 group-hover:scale-105 ${
                     isSelected ? "bg-white" : "bg-white/90"
                   }`}
                 >
@@ -16885,7 +16979,7 @@ export function UnifiedInquiryForm({
 }
 ]]>
     </file>
-    <file path="components/inquiry/v2-wizard-quick-inquiry.tsx" lines="799">
+    <file path="components/inquiry/v2-wizard-quick-inquiry.tsx" lines="850">
       <![CDATA[
 // 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
 "use client";
@@ -17230,8 +17324,8 @@ export function V2InquirySectionWithWizard({
             : "rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
         }
       >
-        {/* 상단 스텝 프로그레스 바 */}
-        <div className="space-y-2">
+        {/* 모던 스텝퍼(Stepper) UI */}
+        <div className="space-y-3 pb-2 border-b border-[#E5E2DC]">
           <div className="flex items-center justify-between text-hb-xs font-extrabold">
             <span className="text-[#D9531E]">{step}단계 / 3단계</span>
             <span className="text-[#646E7E]">
@@ -17244,7 +17338,51 @@ export function V2InquirySectionWithWizard({
                 : "수거·현장 조건과 연락처를 입력해 주세요"}
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
+
+          {/* 3단계 스텝퍼 번호/체크 아이콘 인디케이터 */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { num: 1, label: "상담 유형·품목" },
+              { num: 2, label: "사진·가이드" },
+              { num: 3, label: "현장조건·접수" },
+            ].map((s) => {
+              const isPast = step > s.num;
+              const isCurrent = step === s.num;
+              return (
+                <div
+                  key={s.num}
+                  className={`flex items-center gap-2 rounded-lg p-2 transition-all ${
+                    isCurrent
+                      ? "bg-[#0E1A2B] text-white"
+                      : isPast
+                      ? "bg-[#FFF5F0] text-[#D9531E] border border-[#FED7AA]"
+                      : "bg-[#F7F5F0] text-[#858076]"
+                  }`}
+                >
+                  <span
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold ${
+                      isCurrent
+                        ? "bg-[#FF8A50] text-[#0E1A2B]"
+                        : isPast
+                        ? "bg-[#D9531E] text-white"
+                        : "bg-[#E5E2DC] text-[#646E7E]"
+                    }`}
+                  >
+                    {isPast ? (
+                      <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                    ) : (
+                      s.num
+                    )}
+                  </span>
+                  <span className="truncate text-hb-xs font-bold">
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
             <div
               style={{ width: `${(step / 3) * 100}%` }}
               className="h-full bg-[#0E1A2B] transition-all duration-300"
@@ -17299,12 +17437,15 @@ export function V2InquirySectionWithWizard({
                       onClick={() => toggleCategory(cat)}
                       className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] ring-1 ring-[#D9531E]"
                           : "border-[#E5E2DC] bg-white text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                     >
                       <span>{cat}</span>
-                      <span>{active ? "✓" : "+"}</span>
+                      <Icon
+                        d={active ? ICON.check : ICON.plus}
+                        className="w-3.5 h-3.5 shrink-0"
+                      />
                     </button>
                   );
                 })}
@@ -17515,13 +17656,17 @@ export function V2InquirySectionWithWizard({
                       key={chip}
                       type="button"
                       onClick={() => toggleChip(chip)}
-                      className={`h-11 rounded-lg border px-3 text-hb-sm font-bold transition-colors cursor-pointer ${
+                      className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] ring-1 ring-[#D9531E]"
                           : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                     >
-                      {active ? `✓ ${chip}` : `+ ${chip}`}
+                      <Icon
+                        d={active ? ICON.check : ICON.plus}
+                        className="w-3.5 h-3.5 shrink-0"
+                      />
+                      <span>{chip}</span>
                     </button>
                   );
                 })}
@@ -17970,7 +18115,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="378">
+    <file path="components/products/product-card.tsx" lines="399">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -17991,7 +18136,7 @@ import {
   toggleQuoteBasketItem,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, SafeImg } from "../../lib/ui";
+import { Icon, ICON, DuotoneIcon, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 
 export interface ProductItem {
@@ -18034,18 +18179,24 @@ export function ProductTrustMicroStrip({
           ? "입고 후 작동 테스트 및 고압 세척 완료"
           : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
+      icon: ICON.sparkles,
+      tone: "orange" as const,
     },
     {
       step: "02",
       title: "사후 무상 A/S 보증",
       desc: "계약 조건에 따라 보증 기간 차등 적용",
       highlight: warrantyHighlight,
+      icon: ICON.shieldCheck,
+      tone: "navy" as const,
     },
     {
       step: "03",
       title: "세금계산서·직배송",
       desc: "사업자 부가세 증빙 및 직영 배송·설치 지원",
       highlight: null,
+      icon: ICON.receipt,
+      tone: "emerald" as const,
     },
   ] as const;
 
@@ -18062,12 +18213,13 @@ export function ProductTrustMicroStrip({
           >
             <div>
               <div className="flex items-center gap-2 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
+                <DuotoneIcon d={item.icon} tone={item.tone} size="sm" />
                 <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                   {item.step}
                 </span>
                 <span className="truncate">{item.title}</span>
               </div>
-              <p className="mt-1 text-hb-xs leading-[1.45] text-[#434B59] break-keep">
+              <p className="mt-1.5 text-hb-xs leading-[1.45] text-[#434B59] break-keep">
                 {item.desc}
               </p>
             </div>
@@ -18160,10 +18312,10 @@ export function ProductCard({
 
   const cardInner = (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-lg bg-white transition-all duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
         isSelected
-          ? "ring-2 ring-[#D9531E] bg-[#FFFDFB]"
-          : "border border-[#E5E2DC] hover:border-[#0E1A2B] hover:shadow-card"
+          ? "ring-2 ring-[#D9531E] bg-[#FFFDFB] shadow-card-hover"
+          : "hb-bento-card"
       }`}
     >
       {/* 1. 시원시원한 대형 풀블리드 사진 (내부 축소 패딩 및 배경색 제거 · 사진을 100% 꽉 채워 시원하게 노출) */}
@@ -18207,7 +18359,8 @@ export function ProductCard({
 
         {/* 우하단 다중 사진 수량 표시 */}
         {!sold && images.length > 1 && (
-          <span className="pointer-events-none absolute bottom-2 right-2 z-10 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums">
+          <span className="pointer-events-none absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-xs">
+            <Icon d={ICON.image} className="w-3 h-3 text-white/80" />
             +{images.length - 1}
           </span>
         )}
@@ -18262,21 +18415,34 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          {/* 사양 요약 (박스 나열 대신 깔끔한 1줄 텍스트 위계) */}
-          <p className="mt-1.5 truncate text-hb-xs font-medium text-[#646E7E]">
-            {specSummaryText}
-          </p>
+          {/* 사양 요약 (모바일/데스크톱 마이크로 스펙 칩) */}
+          {specCapsules.length > 0 ? (
+            <div className="mt-1.5 flex flex-wrap gap-1 overflow-hidden">
+              {specCapsules.map((cap) => (
+                <span
+                  key={cap}
+                  className="inline-block rounded bg-[#F4F2ED] px-1.5 py-0.5 text-hb-xs font-medium text-[#434B59] truncate max-w-full"
+                >
+                  {cap}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-1.5 truncate text-hb-xs font-medium text-[#646E7E]">
+              {specSummaryText}
+            </p>
+          )}
         </div>
 
         {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-2">
-          <div className="min-w-0">
+        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex flex-wrap items-center justify-between gap-1.5">
+          <div className="min-w-0 flex-1">
             {sold ? (
               <span className="text-hb-sm font-bold text-[#646E7E]">
                 판매완료 · 유사재고 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-base sm:text-hb-lg font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
+              <strong className="block text-hb-base sm:text-hb-lg font-extrabold tracking-tight text-[#0E1A2B] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
@@ -18295,7 +18461,7 @@ export function ProductCard({
               aria-label={`${product.title} ${
                 inBasket ? "견적함에서 제외" : "견적함에 담기"
               }`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded px-2.5 py-1 text-hb-xs font-bold transition-colors cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
                 inBasket
                   ? "bg-[#0E1A2B] text-white"
                   : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"
@@ -19877,7 +20043,7 @@ export function ProductStructuredDescription({
 
 ]]>
     </file>
-    <file path="components/products/v2-spatial-fit-planner.tsx" lines="309">
+    <file path="components/products/v2-spatial-fit-planner.tsx" lines="453">
       <![CDATA[
 // 파일 경로: components/products/v2-spatial-fit-planner.tsx
 "use client";
@@ -20094,6 +20260,150 @@ export function V2SpatialFitPlanner({
           </div>
         </div>
 
+        {/* 신규 시각 요소 — 실시간 2D 건축 입면도 & 치수선 블루프린트 SVG 다이어그램 */}
+        <div className="mt-4 rounded-xl border border-white/15 bg-[#0E1A2B] p-3 sm:p-4 text-white shadow-floating relative overflow-hidden">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10 text-hb-xs">
+            <span className="font-mono font-bold text-[#FF8A50] tracking-wider">
+              ELEVATION BLUEPRINT · 2D SPATIAL SIMULATOR
+            </span>
+            <span className="text-white/60 tabular-nums">
+              방열 여유폭(+100mm) 포함 기준
+            </span>
+          </div>
+
+          <div className="relative mt-2 h-36 sm:h-40 w-full flex items-center justify-center">
+            {(() => {
+              const totalWallW = 260;
+              const ratio = Math.min(1, productWidthMm / wallSpaceMm);
+              const scaledW = Math.max(36, Math.min(220, Math.round(ratio * totalWallW)));
+              const clearanceRatio = Math.min(0.2, 50 / wallSpaceMm);
+              const scaledCl = Math.max(8, Math.min(25, Math.round(clearanceRatio * totalWallW)));
+              const startX = 30 + Math.max(0, Math.round((totalWallW - scaledW) / 2));
+
+              return (
+                <svg
+                  viewBox="0 0 320 140"
+                  className="h-full w-full max-w-[320px] overflow-visible select-none"
+                  aria-label="가전 공간 배치 입면도"
+                >
+                  <defs>
+                    <pattern
+                      id="spatial-blueprint-grid"
+                      width="16"
+                      height="16"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 16 0 L 0 0 0 16"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.06)"
+                        strokeWidth="0.8"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect width="320" height="140" fill="url(#spatial-blueprint-grid)" rx="8" />
+
+                  {/* 벽면 전체 치수선 (상단) */}
+                  <line x1="30" y1="18" x2="290" y2="18" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="3 2" />
+                  <line x1="30" y1="14" x2="30" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
+                  <line x1="290" y1="14" x2="290" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
+                  <text
+                    x="160"
+                    y="14"
+                    textAnchor="middle"
+                    fontSize="9"
+                    fontWeight="bold"
+                    fill="#FF8A50"
+                  >
+                    벽면 가로 {wallSpaceMm.toLocaleString()}mm ({(wallSpaceMm / 1000).toFixed(2)}m)
+                  </text>
+
+                  {/* 바닥 지지선 */}
+                  <line x1="20" y1="110" x2="300" y2="110" stroke="#858076" strokeWidth="2" />
+                  {Array.from({ length: 15 }).map((_, i) => (
+                    <line
+                      key={i}
+                      x1={20 + i * 20}
+                      y1="110"
+                      x2={12 + i * 20}
+                      y2="118"
+                      stroke="rgba(255,255,255,0.2)"
+                      strokeWidth="1"
+                    />
+                  ))}
+
+                  {/* 좌·우 50mm 방열 여유폭 영역 */}
+                  {fitsWall && (
+                    <>
+                      <rect
+                        x={Math.max(25, startX - scaledCl)}
+                        y="40"
+                        width={scaledCl}
+                        height="70"
+                        fill="rgba(217, 83, 30, 0.2)"
+                        stroke="#D9531E"
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
+                      <rect
+                        x={startX + scaledW}
+                        y="40"
+                        width={scaledCl}
+                        height="70"
+                        fill="rgba(217, 83, 30, 0.2)"
+                        stroke="#D9531E"
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
+                    </>
+                  )}
+
+                  {/* 가전 제품 실루엣 본체 */}
+                  <rect
+                    x={startX}
+                    y="36"
+                    width={scaledW}
+                    height="74"
+                    rx="4"
+                    fill="rgba(255,255,255,0.12)"
+                    stroke={fitsWall ? "#FF8A50" : "#EF4444"}
+                    strokeWidth="1.8"
+                  />
+
+                  {/* 본체 내부 치수 텍스트 */}
+                  <text
+                    x={startX + scaledW / 2}
+                    y="72"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fontWeight="bold"
+                    fill="#FFFFFF"
+                  >
+                    {productWidthMm.toLocaleString()}mm
+                  </text>
+                  <text
+                    x={startX + scaledW / 2}
+                    y="86"
+                    textAnchor="middle"
+                    fontSize="9"
+                    fill="rgba(255,255,255,0.7)"
+                  >
+                    {fitsWall ? "설치 적합" : "공간 협소"}
+                  </text>
+
+                  {/* 출입문 유효폭 뱃지 */}
+                  <g transform="translate(230, 100)">
+                    <rect x="0" y="0" width="75" height="18" rx="3" fill={fitsDoor ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"} stroke={fitsDoor ? "#10B981" : "#EF4444"} strokeWidth="1" />
+                    <text x="37.5" y="12" textAnchor="middle" fontSize="9" fontWeight="bold" fill={fitsDoor ? "#34D399" : "#F87171"}>
+                      문폭 {doorWidthMm}mm {fitsDoor ? "통과" : "주의"}
+                    </text>
+                  </g>
+                </svg>
+              );
+            })()}
+          </div>
+        </div>
+
         {/* 시각적 가구/가전 배치 게이지 바 */}
         <div className="mt-4">
           <div className="flex items-center justify-between text-hb-xs font-semibold text-[#434B59] mb-1.5">
@@ -20190,7 +20500,7 @@ export function V2SpatialFitPlanner({
 
 ]]>
     </file>
-    <file path="components/products/v2-visual-inspection-viewer.tsx" lines="325">
+    <file path="components/products/v2-visual-inspection-viewer.tsx" lines="494">
       <![CDATA[
 // 파일 경로: components/products/v2-visual-inspection-viewer.tsx
 "use client";
@@ -20447,6 +20757,175 @@ export function V2VisualInspectionViewer({
               </div>
             </div>
           ))}
+        </div>
+
+        {/* 인터랙티브 가전 아키텍처 블루프린트 SVG 도면 (01~04 핫스팟 핀 양방향 연동) */}
+        <div className="mt-4 rounded-xl border border-white/15 bg-[#0E1A2B] p-3 sm:p-4 text-white shadow-floating relative overflow-hidden">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10 text-hb-xs">
+            <span className="font-mono font-bold text-[#FF8A50] tracking-wider">
+              ENGINEERING BLUEPRINT · 01-04 INSPECTION
+            </span>
+            <span className="text-white/60">
+              도면의 번호 핀을 터치하면 해당 검수 리포트로 전환됩니다
+            </span>
+          </div>
+
+          <div className="relative mt-2 h-44 sm:h-52 w-full flex items-center justify-center">
+            <svg
+              viewBox="0 0 320 180"
+              className="h-full w-full max-w-[320px] overflow-visible select-none"
+              aria-label="가전 부위별 검수 도면"
+            >
+              <defs>
+                <pattern
+                  id="v2-blueprint-grid"
+                  width="16"
+                  height="16"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 16 0 L 0 0 0 16"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth="0.8"
+                  />
+                </pattern>
+              </defs>
+              <rect width="320" height="180" fill="url(#v2-blueprint-grid)" rx="8" />
+
+              {/* 품목별 테크니컬 가전 실루엣 */}
+              {normCat === "냉장고" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  <rect x="110" y="15" width="100" height="150" rx="4" />
+                  <line x1="160" y1="15" x2="160" y2="165" />
+                  <line x1="110" y1="95" x2="210" y2="95" />
+                  <line x1="152" y1="45" x2="152" y2="85" strokeWidth="2" stroke="#FF8A50" />
+                  <line x1="168" y1="45" x2="168" y2="85" strokeWidth="2" stroke="#FF8A50" />
+                  <rect x="120" y="145" width="80" height="16" rx="2" strokeDasharray="3 2" />
+                </g>
+              )}
+
+              {normCat === "세탁기/건조기" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  <rect x="105" y="18" width="110" height="144" rx="6" />
+                  <rect x="115" y="26" width="90" height="20" rx="3" fill="rgba(255,255,255,0.08)" />
+                  <circle cx="160" cy="98" r="42" />
+                  <circle cx="160" cy="98" r="32" strokeDasharray="4 2" stroke="#FF8A50" />
+                  <line x1="105" y1="140" x2="215" y2="140" strokeDasharray="2 2" />
+                </g>
+              )}
+
+              {normCat === "에어컨/냉난방기" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  {/* 실내기 */}
+                  <rect x="65" y="20" width="190" height="46" rx="4" />
+                  <line x1="75" y1="52" x2="245" y2="52" strokeWidth="2" stroke="#FF8A50" />
+                  <rect x="220" y="26" width="28" height="14" rx="2" fill="rgba(255,255,255,0.1)" />
+                  {/* 실외기 */}
+                  <rect x="95" y="85" width="130" height="75" rx="5" />
+                  <circle cx="145" cy="122" r="26" />
+                  <line x1="145" y1="96" x2="145" y2="148" strokeDasharray="3 2" />
+                  <line x1="119" y1="122" x2="171" y2="122" strokeDasharray="3 2" />
+                  <rect x="185" y="96" width="30" height="52" rx="3" stroke="#FF8A50" strokeDasharray="2 2" />
+                </g>
+              )}
+
+              {normCat !== "냉장고" && normCat !== "세탁기/건조기" && normCat !== "에어컨/냉난방기" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  <rect x="95" y="15" width="130" height="150" rx="4" />
+                  <rect x="95" y="15" width="130" height="26" rx="2" fill="rgba(255,255,255,0.08)" />
+                  <line x1="95" y1="95" x2="225" y2="95" />
+                  <line x1="160" y1="41" x2="160" y2="165" />
+                  <circle cx="112" cy="168" r="4" fill="rgba(255,255,255,0.6)" />
+                  <circle cx="208" cy="168" r="4" fill="rgba(255,255,255,0.6)" />
+                </g>
+              )}
+
+              {/* 4대 인터랙티브 핫스팟 핀 (클릭 시 activeId 전환) */}
+              {points.map((pt, idx) => {
+                const active = pt.id === activePoint.id;
+                // 품목별 핀 좌표 매핑
+                let x = 160;
+                let y = 90;
+                if (normCat === "냉장고") {
+                  const pos = [
+                    { x: 160, y: 150 },
+                    { x: 112, y: 50 },
+                    { x: 160, y: 70 },
+                    { x: 206, y: 155 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                } else if (normCat === "세탁기/건조기") {
+                  const pos = [
+                    { x: 160, y: 98 },
+                    { x: 160, y: 150 },
+                    { x: 195, y: 36 },
+                    { x: 125, y: 36 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                } else if (normCat === "에어컨/냉난방기") {
+                  const pos = [
+                    { x: 200, y: 122 },
+                    { x: 155, y: 38 },
+                    { x: 234, y: 38 },
+                    { x: 105, y: 140 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                } else {
+                  const pos = [
+                    { x: 160, y: 28 },
+                    { x: 208, y: 28 },
+                    { x: 135, y: 70 },
+                    { x: 112, y: 162 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                }
+
+                return (
+                  <g
+                    key={pt.id}
+                    className="cursor-pointer transition-transform duration-200"
+                    onClick={() => setActiveId(pt.id)}
+                  >
+                    {active && (
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="14"
+                        className="animate-ping"
+                        fill="rgba(255, 138, 80, 0.3)"
+                        stroke="#FF8A50"
+                        strokeWidth="1.5"
+                      />
+                    )}
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r="10"
+                      fill={active ? "#FF8A50" : "#0E1A2B"}
+                      stroke={active ? "#FFFFFF" : "rgba(255,255,255,0.7)"}
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={x}
+                      y={y + 3.5}
+                      textAnchor="middle"
+                      fontSize="9"
+                      fontWeight="bold"
+                      fill={active ? "#0E1A2B" : "#FFFFFF"}
+                      className="select-none"
+                    >
+                      0{idx + 1}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
         </div>
 
         {/* 4대 부위별 인터랙티브 탭 + 상세 판정 카드 */}
@@ -22769,7 +23248,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1396">
+    <file path="lib/ui.tsx" lines="1473">
       <![CDATA[
 "use client";
 
@@ -22830,6 +23309,32 @@ export const ICON = {
   shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
   refresh: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
+  shieldCheck:
+    "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4",
+  sparkles:
+    "M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z",
+  truck:
+    "M1 3h15v13H1z M16 8h4l3 3v5h-7V8z M5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  bolt: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+  receipt:
+    "M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z M8 8h8 M8 12h8 M8 16h5",
+  wallet:
+    "M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 14h.01 M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2",
+  wrench:
+    "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
+  ruler:
+    "M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z M14.5 12.5l2-2 M11.5 9.5l2-2 M8.5 6.5l2-2 M17.5 15.5l2-2",
+  building:
+    "M3 21h18 M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16 M9 7h2 M13 7h2 M9 11h2 M13 11h2 M9 15h2 M13 15h2",
+  snowflake:
+    "M12 2v20 M17 5l-5 5-5-5 M17 19l-5-5-5 5 M2 12h20 M5 7l5 5-5 5 M19 7l-5 5 5 5",
+  droplet: "M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z",
+  layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
+  sliders:
+    "M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6",
+  external:
+    "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6 M15 3h6v6 M10 14L21 3",
+  grid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
 } as const;
 
 export function Icon({
@@ -22856,6 +23361,57 @@ export function Icon({
     >
       <path d={d} />
     </svg>
+  );
+}
+
+/**
+ * 입체 듀오톤 아이콘 뱃지 컴포넌트 (DuotoneIcon)
+ * - 2025~2026 Tactile Bento & Liquid Glass 디자인 시스템 전용 아이콘
+ * - 15% 틴트 배경 + 인셋 하이라이트 + 테마별 정밀 스트로크
+ */
+export function DuotoneIcon({
+  d,
+  tone = "navy",
+  size = "md",
+  className = "",
+  strokeWidth = 1.9,
+}: {
+  d: string;
+  tone?: "navy" | "orange" | "emerald" | "kakao" | "light";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+  strokeWidth?: number;
+}) {
+  const toneClasses = {
+    navy: "bg-[#0E1A2B]/10 text-[#0E1A2B] border border-[#0E1A2B]/15 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    orange:
+      "bg-[#D9531E]/10 text-[#D9531E] border border-[#D9531E]/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    emerald:
+      "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    kakao:
+      "bg-[#FEE500]/30 text-[#191600] border border-[#FEE500]/50 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    light:
+      "bg-white/15 text-white border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]",
+  };
+
+  const sizeClasses = {
+    sm: "h-7 w-7 rounded-lg",
+    md: "h-9 w-9 rounded-xl",
+    lg: "h-11 w-11 rounded-xl",
+  };
+
+  const iconSizes = {
+    sm: "w-3.5 h-3.5",
+    md: "w-4 h-4",
+    lg: "w-5 h-5",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center shrink-0 ${sizeClasses[size]} ${toneClasses[tone]} ${className}`}
+    >
+      <Icon d={d} className={iconSizes[size]} strokeWidth={strokeWidth} />
+    </span>
   );
 }
 
@@ -23199,7 +23755,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         본문 바로가기
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b border-[#E5E2DC] bg-white/95 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full hb-glass">
         <div className="hb-container flex h-16 sm:h-[72px] items-center justify-between gap-3">
           {/* 1. 브랜드 로고 */}
           <div className="flex items-center shrink-0">
@@ -23467,7 +24023,7 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[410px] rounded-xl border border-white/15 bg-[#0E1A2B] text-white shadow-floating"
+        className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[410px] hb-glass-dark text-white shadow-floating"
       >
         {expanded && (
           <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-xl">
@@ -23642,7 +24198,7 @@ export function FloatingQuickWing() {
       aria-label="빠른 상담 바로가기"
       className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden min-[1440px]:flex flex-col items-center select-none"
     >
-      <div className="w-16 rounded-2xl border border-[#CFCAC0] bg-white/95 backdrop-blur-md p-1.5 shadow-floating flex flex-col items-center divide-y divide-[#E5E2DC]">
+      <div className="w-16 rounded-2xl hb-glass p-1.5 shadow-floating flex flex-col items-center divide-y divide-[#E5E2DC]">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
@@ -24003,7 +24559,7 @@ export function MobileCtaBar({
       <div
         role="region"
         aria-label="상품 상세 모바일 구매·문의 바"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E2DC] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 hb-glass pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
       >
         <div className="flex h-[58px] items-center justify-between gap-2 px-3">
           <div className="min-w-0 flex items-center gap-2">
@@ -24116,7 +24672,7 @@ export function MobileCtaBar({
     <div
       role="region"
       aria-label="모바일 빠른 상담 바"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E2DC] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 hb-glass pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
     >
       <div className="grid h-[58px] grid-cols-3 gap-2 px-3 py-2">
         <a
@@ -25925,7 +26481,7 @@ runVerification();
 
 ]]>
     </file>
-    <file path="tailwind.config.js" lines="68">
+    <file path="tailwind.config.js" lines="71">
       <![CDATA[
 /** @type {import('tailwindcss').Config} */
 module.exports = {
@@ -25982,10 +26538,13 @@ module.exports = {
       boxShadow: {
         "2xs": "0 1px 2px 0 rgb(14 26 43 / 0.03)",
         xs: "0 1px 3px 0 rgb(14 26 43 / 0.05)",
-        card: "0 6px 24px -4px rgba(14, 26, 43, 0.06), 0 2px 6px -1px rgba(14, 26, 43, 0.03)",
+        card: "0 4px 20px -2px rgba(14, 26, 43, 0.05), 0 1px 3px 0 rgba(14, 26, 43, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
         "card-hover":
-          "0 14px 32px -6px rgba(14, 26, 43, 0.10), 0 4px 10px -2px rgba(14, 26, 43, 0.04)",
-        floating: "0 16px 40px -8px rgba(14, 26, 43, 0.22)",
+          "0 16px 36px -6px rgba(14, 26, 43, 0.11), 0 4px 12px -2px rgba(14, 26, 43, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+        floating:
+          "0 20px 44px -8px rgba(14, 26, 43, 0.26), 0 4px 12px -2px rgba(14, 26, 43, 0.12)",
+        "glass-sm":
+          "0 4px 16px -2px rgba(14, 26, 43, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.7)",
       },
       backdropBlur: {
         xs: "2px",

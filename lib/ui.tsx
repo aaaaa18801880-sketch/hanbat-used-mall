@@ -57,6 +57,32 @@ export const ICON = {
   shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
   refresh: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
+  shieldCheck:
+    "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4",
+  sparkles:
+    "M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z",
+  truck:
+    "M1 3h15v13H1z M16 8h4l3 3v5h-7V8z M5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  bolt: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
+  receipt:
+    "M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z M8 8h8 M8 12h8 M8 16h5",
+  wallet:
+    "M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 14h.01 M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2",
+  wrench:
+    "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
+  ruler:
+    "M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z M14.5 12.5l2-2 M11.5 9.5l2-2 M8.5 6.5l2-2 M17.5 15.5l2-2",
+  building:
+    "M3 21h18 M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16 M9 7h2 M13 7h2 M9 11h2 M13 11h2 M9 15h2 M13 15h2",
+  snowflake:
+    "M12 2v20 M17 5l-5 5-5-5 M17 19l-5-5-5 5 M2 12h20 M5 7l5 5-5 5 M19 7l-5 5 5 5",
+  droplet: "M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z",
+  layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
+  sliders:
+    "M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6",
+  external:
+    "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6 M15 3h6v6 M10 14L21 3",
+  grid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
 } as const;
 
 export function Icon({
@@ -83,6 +109,57 @@ export function Icon({
     >
       <path d={d} />
     </svg>
+  );
+}
+
+/**
+ * 입체 듀오톤 아이콘 뱃지 컴포넌트 (DuotoneIcon)
+ * - 2025~2026 Tactile Bento & Liquid Glass 디자인 시스템 전용 아이콘
+ * - 15% 틴트 배경 + 인셋 하이라이트 + 테마별 정밀 스트로크
+ */
+export function DuotoneIcon({
+  d,
+  tone = "navy",
+  size = "md",
+  className = "",
+  strokeWidth = 1.9,
+}: {
+  d: string;
+  tone?: "navy" | "orange" | "emerald" | "kakao" | "light";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+  strokeWidth?: number;
+}) {
+  const toneClasses = {
+    navy: "bg-[#0E1A2B]/10 text-[#0E1A2B] border border-[#0E1A2B]/15 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    orange:
+      "bg-[#D9531E]/10 text-[#D9531E] border border-[#D9531E]/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    emerald:
+      "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    kakao:
+      "bg-[#FEE500]/30 text-[#191600] border border-[#FEE500]/50 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+    light:
+      "bg-white/15 text-white border border-white/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.2)]",
+  };
+
+  const sizeClasses = {
+    sm: "h-7 w-7 rounded-lg",
+    md: "h-9 w-9 rounded-xl",
+    lg: "h-11 w-11 rounded-xl",
+  };
+
+  const iconSizes = {
+    sm: "w-3.5 h-3.5",
+    md: "w-4 h-4",
+    lg: "w-5 h-5",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center justify-center shrink-0 ${sizeClasses[size]} ${toneClasses[tone]} ${className}`}
+    >
+      <Icon d={d} className={iconSizes[size]} strokeWidth={strokeWidth} />
+    </span>
   );
 }
 
@@ -426,7 +503,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         본문 바로가기
       </a>
 
-      <header className="sticky top-0 z-50 w-full border-b border-[#E5E2DC] bg-white/95 backdrop-blur-md">
+      <header className="sticky top-0 z-50 w-full hb-glass">
         <div className="hb-container flex h-16 sm:h-[72px] items-center justify-between gap-3">
           {/* 1. 브랜드 로고 */}
           <div className="flex items-center shrink-0">
@@ -694,7 +771,7 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[410px] rounded-xl border border-white/15 bg-[#0E1A2B] text-white shadow-floating"
+        className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[410px] hb-glass-dark text-white shadow-floating"
       >
         {expanded && (
           <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-xl">
@@ -869,7 +946,7 @@ export function FloatingQuickWing() {
       aria-label="빠른 상담 바로가기"
       className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden min-[1440px]:flex flex-col items-center select-none"
     >
-      <div className="w-16 rounded-2xl border border-[#CFCAC0] bg-white/95 backdrop-blur-md p-1.5 shadow-floating flex flex-col items-center divide-y divide-[#E5E2DC]">
+      <div className="w-16 rounded-2xl hb-glass p-1.5 shadow-floating flex flex-col items-center divide-y divide-[#E5E2DC]">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
@@ -1230,7 +1307,7 @@ export function MobileCtaBar({
       <div
         role="region"
         aria-label="상품 상세 모바일 구매·문의 바"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E2DC] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 hb-glass pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
       >
         <div className="flex h-[58px] items-center justify-between gap-2 px-3">
           <div className="min-w-0 flex items-center gap-2">
@@ -1343,7 +1420,7 @@ export function MobileCtaBar({
     <div
       role="region"
       aria-label="모바일 빠른 상담 바"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E5E2DC] bg-white/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 hb-glass pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_14px_rgba(14,26,43,0.06)] lg:hidden"
     >
       <div className="grid h-[58px] grid-cols-3 gap-2 px-3 py-2">
         <a

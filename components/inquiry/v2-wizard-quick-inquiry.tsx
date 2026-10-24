@@ -341,8 +341,8 @@ export function V2InquirySectionWithWizard({
             : "rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
         }
       >
-        {/* 상단 스텝 프로그레스 바 */}
-        <div className="space-y-2">
+        {/* 모던 스텝퍼(Stepper) UI */}
+        <div className="space-y-3 pb-2 border-b border-[#E5E2DC]">
           <div className="flex items-center justify-between text-hb-xs font-extrabold">
             <span className="text-[#D9531E]">{step}단계 / 3단계</span>
             <span className="text-[#646E7E]">
@@ -355,7 +355,51 @@ export function V2InquirySectionWithWizard({
                 : "수거·현장 조건과 연락처를 입력해 주세요"}
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
+
+          {/* 3단계 스텝퍼 번호/체크 아이콘 인디케이터 */}
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { num: 1, label: "상담 유형·품목" },
+              { num: 2, label: "사진·가이드" },
+              { num: 3, label: "현장조건·접수" },
+            ].map((s) => {
+              const isPast = step > s.num;
+              const isCurrent = step === s.num;
+              return (
+                <div
+                  key={s.num}
+                  className={`flex items-center gap-2 rounded-lg p-2 transition-all ${
+                    isCurrent
+                      ? "bg-[#0E1A2B] text-white"
+                      : isPast
+                      ? "bg-[#FFF5F0] text-[#D9531E] border border-[#FED7AA]"
+                      : "bg-[#F7F5F0] text-[#858076]"
+                  }`}
+                >
+                  <span
+                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold ${
+                      isCurrent
+                        ? "bg-[#FF8A50] text-[#0E1A2B]"
+                        : isPast
+                        ? "bg-[#D9531E] text-white"
+                        : "bg-[#E5E2DC] text-[#646E7E]"
+                    }`}
+                  >
+                    {isPast ? (
+                      <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                    ) : (
+                      s.num
+                    )}
+                  </span>
+                  <span className="truncate text-hb-xs font-bold">
+                    {s.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
             <div
               style={{ width: `${(step / 3) * 100}%` }}
               className="h-full bg-[#0E1A2B] transition-all duration-300"
@@ -410,12 +454,15 @@ export function V2InquirySectionWithWizard({
                       onClick={() => toggleCategory(cat)}
                       className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] ring-1 ring-[#D9531E]"
                           : "border-[#E5E2DC] bg-white text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                     >
                       <span>{cat}</span>
-                      <span>{active ? "✓" : "+"}</span>
+                      <Icon
+                        d={active ? ICON.check : ICON.plus}
+                        className="w-3.5 h-3.5 shrink-0"
+                      />
                     </button>
                   );
                 })}
@@ -626,13 +673,17 @@ export function V2InquirySectionWithWizard({
                       key={chip}
                       type="button"
                       onClick={() => toggleChip(chip)}
-                      className={`h-11 rounded-lg border px-3 text-hb-sm font-bold transition-colors cursor-pointer ${
+                      className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] ring-1 ring-[#D9531E]"
                           : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                     >
-                      {active ? `✓ ${chip}` : `+ ${chip}`}
+                      <Icon
+                        d={active ? ICON.check : ICON.plus}
+                        className="w-3.5 h-3.5 shrink-0"
+                      />
+                      <span>{chip}</span>
                     </button>
                   );
                 })}

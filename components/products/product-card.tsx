@@ -17,7 +17,7 @@ import {
   toggleQuoteBasketItem,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, SafeImg } from "../../lib/ui";
+import { Icon, ICON, DuotoneIcon, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 
 export interface ProductItem {
@@ -60,18 +60,24 @@ export function ProductTrustMicroStrip({
           ? "입고 후 작동 테스트 및 고압 세척 완료"
           : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
+      icon: ICON.sparkles,
+      tone: "orange" as const,
     },
     {
       step: "02",
       title: "사후 무상 A/S 보증",
       desc: "계약 조건에 따라 보증 기간 차등 적용",
       highlight: warrantyHighlight,
+      icon: ICON.shieldCheck,
+      tone: "navy" as const,
     },
     {
       step: "03",
       title: "세금계산서·직배송",
       desc: "사업자 부가세 증빙 및 직영 배송·설치 지원",
       highlight: null,
+      icon: ICON.receipt,
+      tone: "emerald" as const,
     },
   ] as const;
 
@@ -88,12 +94,13 @@ export function ProductTrustMicroStrip({
           >
             <div>
               <div className="flex items-center gap-2 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
+                <DuotoneIcon d={item.icon} tone={item.tone} size="sm" />
                 <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
                   {item.step}
                 </span>
                 <span className="truncate">{item.title}</span>
               </div>
-              <p className="mt-1 text-hb-xs leading-[1.45] text-[#434B59] break-keep">
+              <p className="mt-1.5 text-hb-xs leading-[1.45] text-[#434B59] break-keep">
                 {item.desc}
               </p>
             </div>
@@ -186,10 +193,10 @@ export function ProductCard({
 
   const cardInner = (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-lg bg-white transition-all duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
         isSelected
-          ? "ring-2 ring-[#D9531E] bg-[#FFFDFB]"
-          : "border border-[#E5E2DC] hover:border-[#0E1A2B] hover:shadow-card"
+          ? "ring-2 ring-[#D9531E] bg-[#FFFDFB] shadow-card-hover"
+          : "hb-bento-card"
       }`}
     >
       {/* 1. 시원시원한 대형 풀블리드 사진 (내부 축소 패딩 및 배경색 제거 · 사진을 100% 꽉 채워 시원하게 노출) */}
@@ -233,7 +240,8 @@ export function ProductCard({
 
         {/* 우하단 다중 사진 수량 표시 */}
         {!sold && images.length > 1 && (
-          <span className="pointer-events-none absolute bottom-2 right-2 z-10 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums">
+          <span className="pointer-events-none absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-xs">
+            <Icon d={ICON.image} className="w-3 h-3 text-white/80" />
             +{images.length - 1}
           </span>
         )}
@@ -288,21 +296,34 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          {/* 사양 요약 (박스 나열 대신 깔끔한 1줄 텍스트 위계) */}
-          <p className="mt-1.5 truncate text-hb-xs font-medium text-[#646E7E]">
-            {specSummaryText}
-          </p>
+          {/* 사양 요약 (모바일/데스크톱 마이크로 스펙 칩) */}
+          {specCapsules.length > 0 ? (
+            <div className="mt-1.5 flex flex-wrap gap-1 overflow-hidden">
+              {specCapsules.map((cap) => (
+                <span
+                  key={cap}
+                  className="inline-block rounded bg-[#F4F2ED] px-1.5 py-0.5 text-hb-xs font-medium text-[#434B59] truncate max-w-full"
+                >
+                  {cap}
+                </span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-1.5 truncate text-hb-xs font-medium text-[#646E7E]">
+              {specSummaryText}
+            </p>
+          )}
         </div>
 
         {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-2">
-          <div className="min-w-0">
+        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex flex-wrap items-center justify-between gap-1.5">
+          <div className="min-w-0 flex-1">
             {sold ? (
               <span className="text-hb-sm font-bold text-[#646E7E]">
                 판매완료 · 유사재고 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-base sm:text-hb-lg font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
+              <strong className="block text-hb-base sm:text-hb-lg font-extrabold tracking-tight text-[#0E1A2B] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
@@ -321,7 +342,7 @@ export function ProductCard({
               aria-label={`${product.title} ${
                 inBasket ? "견적함에서 제외" : "견적함에 담기"
               }`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded px-2.5 py-1 text-hb-xs font-bold transition-colors cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
                 inBasket
                   ? "bg-[#0E1A2B] text-white"
                   : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"

@@ -2014,8 +2014,8 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 스티키 카테고리 및 필터 컨트롤 바 (단일 행 중심으로 상품 시인성 극대화) */}
-      <div className="sticky top-16 sm:top-[72px] z-30 bg-white/95 backdrop-blur-md border-b border-[#E5E2DC] shadow-2xs">
+      {/* 스티키 카테고리 및 필터 컨트롤 바 (리퀴드 글래스 단일 행 중심) */}
+      <div className="sticky top-16 sm:top-[72px] z-30 hb-glass">
         <div className="hb-container py-2 sm:py-2.5 flex flex-col gap-2">
           {/* 1행: 좌측 품목 탭 + 우측 데스크톱 인라인 필터 */}
           <div className="flex items-center justify-between gap-3">
@@ -2122,6 +2122,14 @@ export default function GalleryPage() {
                   const active =
                     activeCategory === preset.category &&
                     (!preset.keyword || search === preset.keyword);
+                  const presetIcon =
+                    preset.label === "원룸·자취필수"
+                      ? ICON.building
+                      : preset.label === "카페·디저트창업"
+                      ? ICON.sparkles
+                      : preset.label === "식당·주방설비"
+                      ? ICON.layers
+                      : ICON.snowflake;
                   return (
                     <button
                       key={preset.label}
@@ -2136,14 +2144,15 @@ export default function GalleryPage() {
                           keyword: preset.keyword,
                         });
                       }}
-                      className={`h-8 inline-flex items-center rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
+                      className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
                         active
                           ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
                           : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                       title={preset.desc}
                     >
-                      {preset.label}
+                      <Icon d={presetIcon} className="w-3.5 h-3.5" />
+                      <span>{preset.label}</span>
                     </button>
                   );
                 })}
@@ -2217,11 +2226,19 @@ export default function GalleryPage() {
               )}
             </p>
             {/* 데스크톱 빠른 프리셋 링크 */}
-            <div className="hidden md:flex items-center gap-1 ml-2 pl-2 border-l border-[#E5E2DC]">
+            <div className="hidden md:flex items-center gap-1.5 ml-2 pl-2 border-l border-[#E5E2DC]">
               {SITUATION_PRESETS.map((preset) => {
                 const active =
                   activeCategory === preset.category &&
                   (!preset.keyword || search === preset.keyword);
+                const presetIcon =
+                  preset.label === "원룸·자취필수"
+                    ? ICON.building
+                    : preset.label === "카페·디저트창업"
+                    ? ICON.sparkles
+                    : preset.label === "식당·주방설비"
+                    ? ICON.layers
+                    : ICON.snowflake;
                 return (
                   <button
                     key={preset.label}
@@ -2231,13 +2248,14 @@ export default function GalleryPage() {
                       setSearch(preset.keyword);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`rounded px-2 py-0.5 text-hb-xs font-semibold transition-colors cursor-pointer ${
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-semibold transition-colors cursor-pointer ${
                       active
                         ? "bg-[#D9531E] text-white"
                         : "text-[#646E7E] hover:bg-[#F4F3EF] hover:text-[#0E1A2B]"
                     }`}
                   >
-                    #{preset.label}
+                    <Icon d={presetIcon} className="w-3 h-3" />
+                    <span>#{preset.label}</span>
                   </button>
                 );
               })}

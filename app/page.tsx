@@ -12,6 +12,7 @@ import {
 import {
   Icon,
   ICON,
+  DuotoneIcon,
   SafeImg,
   Modal,
   SiteHeader,
@@ -97,21 +98,25 @@ const SELL_STEPS = [
     step: "01",
     t: "사진·정보 접수",
     d: "사진·문자·카톡으로 제품 전면과 모델명(명판), 수거 지역을 남겨주세요.",
+    icon: ICON.camera,
   },
   {
     step: "02",
     t: "빠른 견적 안내",
     d: "외관 상태와 연식·시세를 종합 검토하여 합리적인 매입가를 신속히 안내합니다.",
+    icon: ICON.search,
   },
   {
     step: "03",
     t: "방문 확인·수거",
     d: "원하시는 일정에 전문 기사가 방문하여 안전하게 제품을 분리·수거합니다.",
+    icon: ICON.truck,
   },
   {
     step: "04",
     t: "현장 즉시 입금",
     d: "수거가 완료되는 즉시 지정하신 계좌로 매입 대금 전액을 현금 송금합니다.",
+    icon: ICON.wallet,
   },
 ] as const;
 
@@ -121,24 +126,28 @@ const COMMERCIAL_EQUIP_MATRIX = [
     title: "업소용 냉장 · 냉동 설비",
     items: "45박스 · 25박스 수직냉장/냉동 · 테이블냉장고 · 반찬냉장고 · 급속냉동고",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
+    icon: ICON.snowflake,
   },
   {
     code: "B2B · 02",
     title: "음료 · 제과 · 주류 쇼케이스",
     items: "음료/주류 직냉식·간냉식 쇼케이스 · 제과/케이크 쇼케이스 · 오픈 쇼케이스",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
+    icon: ICON.layers,
   },
   {
     code: "B2B · 03",
     title: "제빙기 · 세척기 · 스텐 주방",
     items: "업소용 제빙기 · 식기세척기 · 스텐 작업대 · 싱크대 · 가스레인지 · 육수통",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
+    icon: ICON.sparkles,
   },
   {
     code: "B2B · 04",
     title: "중대형 냉난방 · 폐업 일괄정리",
     items: "상가·사무실 중대형 스탠드/천장형 냉난방기 · 폐업 매장 집기 방문 일괄매입",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
+    icon: ICON.bolt,
   },
 ] as const;
 
@@ -585,18 +594,28 @@ export default function Home() {
           <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
             <div className="hb-container py-2 flex flex-wrap items-center justify-between gap-2 text-hb-xs">
               <div className="flex items-center gap-2 min-w-0">
-                <span className="h-2 w-2 rounded-full bg-[#FF8A50] shrink-0" />
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF8A50] opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF8A50]" />
+                </span>
                 <span className="font-bold text-white truncate">
                   SINCE {STORE.since} · 대전 중촌동 1·2층 직영 쇼룸 ({OPERATING_YEARS}년 운영)
                 </span>
               </div>
               <div className="hidden sm:flex items-center gap-4 text-white/80 tabular-nums">
-                <span>영업시간: {STORE.hours}</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon d={ICON.clock} className="w-3.5 h-3.5 text-white/60" />
+                  <span>영업시간: {STORE.hours}</span>
+                </span>
                 <span>·</span>
-                <span>매장 앞 전용 주차 완비</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon d={ICON.building} className="w-3.5 h-3.5 text-white/60" />
+                  <span>매장 앞 전용 주차 완비</span>
+                </span>
                 <span>·</span>
-                <strong className="text-[#FF8A50]">
-                  현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시
+                <strong className="inline-flex items-center gap-1 text-[#FF8A50]">
+                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                  <span>현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시</span>
                 </strong>
               </div>
             </div>
@@ -694,40 +713,49 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (반복적인 카드 박스를 배제한 수평 구분선 레이아웃) */}
+                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (DuotoneIcon 결합) */}
                 <div className="mt-8 pt-5 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
-                  <div className="min-w-0">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                      01 · INSPECTION
-                    </span>
-                    <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                      분해 고압세척 출고
-                    </p>
-                    <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                      냉매·콤프레샤·누수 시운전 통과
-                    </p>
+                  <div className="min-w-0 flex items-start gap-2.5">
+                    <DuotoneIcon d={ICON.droplet} tone="orange" size="sm" />
+                    <div className="min-w-0">
+                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                        01 · INSPECTION
+                      </span>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                        분해 고압세척 출고
+                      </p>
+                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
+                        냉매·콤프레샤·누수 시운전 통과
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                      02 · WARRANTY
-                    </span>
-                    <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                      무상 A/S 책임 보증
-                    </p>
-                    <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                      에어컨 최대 8개월 · 가전 4개월
-                    </p>
+                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
+                    <DuotoneIcon d={ICON.shieldCheck} tone="navy" size="sm" />
+                    <div className="min-w-0">
+                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                        02 · WARRANTY
+                      </span>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                        무상 A/S 책임 보증
+                      </p>
+                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
+                        에어컨 최대 8개월 · 가전 4개월
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                      03 · DELIVERY & TAX
-                    </span>
-                    <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                      직배송·세금계산서
-                    </p>
-                    <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                      충청권 직배송 · 부가세 증빙 100%
-                    </p>
+                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
+                    <DuotoneIcon d={ICON.truck} tone="emerald" size="sm" />
+                    <div className="min-w-0">
+                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                        03 · DELIVERY & TAX
+                      </span>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                        직배송·세금계산서
+                      </p>
+                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
+                        충청권 직배송 · 부가세 증빙 100%
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -898,9 +926,12 @@ export default function Home() {
                   >
                     <div>
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-hb-xs font-bold text-[#FF8A50]">
-                          {cell.code}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <DuotoneIcon d={cell.icon} tone="light" size="sm" />
+                          <span className="font-mono text-hb-xs font-bold text-[#FF8A50]">
+                            {cell.code}
+                          </span>
+                        </div>
                         <Icon
                           d={ICON.arrow}
                           className="w-4 h-4 text-white/40 group-hover:text-[#FF8A50] group-hover:translate-x-1 transition-all"
@@ -989,9 +1020,16 @@ export default function Home() {
                       key={s.t}
                       className="relative flex items-start gap-4 pt-4 border-t-2 border-[#0E1A2B]"
                     >
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0E1A2B] font-mono text-hb-sm font-extrabold text-[#FF8A50]">
-                        {s.step}
-                      </span>
+                      <div className="flex flex-col items-center gap-2 shrink-0">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#0E1A2B] font-mono text-hb-sm font-extrabold text-[#FF8A50]">
+                          {s.step}
+                        </span>
+                        <DuotoneIcon
+                          d={s.icon}
+                          tone={i === 3 ? "orange" : "navy"}
+                          size="sm"
+                        />
+                      </div>
                       <div className="min-w-0">
                         <span className="text-hb-xs font-bold text-[#D9531E]">
                           STEP 0{i + 1}
@@ -1557,34 +1595,34 @@ export default function Home() {
                     </button>
                   </div>
 
-                  {/* 쇼룸 방문 특화 3대 편의 시설 안내 (허전함 해소 및 실질적 방문 정보 제공) */}
+                  {/* 쇼룸 방문 특화 3대 편의 시설 안내 (DuotoneIcon 결합) */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-[#ECE9E2]">
-                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#0E1A2B]">
+                        <DuotoneIcon d={ICON.pin} tone="orange" size="sm" />
                         <span>전용 주차장 완비</span>
                       </div>
-                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                      <p className="mt-1.5 text-[#646E7E] leading-relaxed">
                         매장 정면 8대 전용 주차 · 승용차 및 1톤 화물차 진입 수월
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#0E1A2B]">
+                        <DuotoneIcon d={ICON.wrench} tone="navy" size="sm" />
                         <span>현장 실물 점검</span>
                       </div>
-                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                      <p className="mt-1.5 text-[#646E7E] leading-relaxed">
                         전원 인가 및 시운전 직접 확인 후 당일 상차·수령 가능
                       </p>
                     </div>
 
-                    <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
-                      <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#0E1A2B]">
+                        <DuotoneIcon d={ICON.building} tone="emerald" size="sm" />
                         <span>오시는 길 랜드마크</span>
                       </div>
-                      <p className="mt-1 text-[#646E7E] leading-relaxed">
+                      <p className="mt-1.5 text-[#646E7E] leading-relaxed">
                         중촌고가교 바로 밑 대전천변 · 중촌동 버스정류장 도보 2분
                       </p>
                     </div>

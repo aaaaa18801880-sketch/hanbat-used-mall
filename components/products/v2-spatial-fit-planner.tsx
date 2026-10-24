@@ -213,6 +213,150 @@ export function V2SpatialFitPlanner({
           </div>
         </div>
 
+        {/* 신규 시각 요소 — 실시간 2D 건축 입면도 & 치수선 블루프린트 SVG 다이어그램 */}
+        <div className="mt-4 rounded-xl border border-white/15 bg-[#0E1A2B] p-3 sm:p-4 text-white shadow-floating relative overflow-hidden">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10 text-hb-xs">
+            <span className="font-mono font-bold text-[#FF8A50] tracking-wider">
+              ELEVATION BLUEPRINT · 2D SPATIAL SIMULATOR
+            </span>
+            <span className="text-white/60 tabular-nums">
+              방열 여유폭(+100mm) 포함 기준
+            </span>
+          </div>
+
+          <div className="relative mt-2 h-36 sm:h-40 w-full flex items-center justify-center">
+            {(() => {
+              const totalWallW = 260;
+              const ratio = Math.min(1, productWidthMm / wallSpaceMm);
+              const scaledW = Math.max(36, Math.min(220, Math.round(ratio * totalWallW)));
+              const clearanceRatio = Math.min(0.2, 50 / wallSpaceMm);
+              const scaledCl = Math.max(8, Math.min(25, Math.round(clearanceRatio * totalWallW)));
+              const startX = 30 + Math.max(0, Math.round((totalWallW - scaledW) / 2));
+
+              return (
+                <svg
+                  viewBox="0 0 320 140"
+                  className="h-full w-full max-w-[320px] overflow-visible select-none"
+                  aria-label="가전 공간 배치 입면도"
+                >
+                  <defs>
+                    <pattern
+                      id="spatial-blueprint-grid"
+                      width="16"
+                      height="16"
+                      patternUnits="userSpaceOnUse"
+                    >
+                      <path
+                        d="M 16 0 L 0 0 0 16"
+                        fill="none"
+                        stroke="rgba(255,255,255,0.06)"
+                        strokeWidth="0.8"
+                      />
+                    </pattern>
+                  </defs>
+                  <rect width="320" height="140" fill="url(#spatial-blueprint-grid)" rx="8" />
+
+                  {/* 벽면 전체 치수선 (상단) */}
+                  <line x1="30" y1="18" x2="290" y2="18" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="3 2" />
+                  <line x1="30" y1="14" x2="30" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
+                  <line x1="290" y1="14" x2="290" y2="22" stroke="rgba(255,255,255,0.6)" strokeWidth="1.5" />
+                  <text
+                    x="160"
+                    y="14"
+                    textAnchor="middle"
+                    fontSize="9"
+                    fontWeight="bold"
+                    fill="#FF8A50"
+                  >
+                    벽면 가로 {wallSpaceMm.toLocaleString()}mm ({(wallSpaceMm / 1000).toFixed(2)}m)
+                  </text>
+
+                  {/* 바닥 지지선 */}
+                  <line x1="20" y1="110" x2="300" y2="110" stroke="#858076" strokeWidth="2" />
+                  {Array.from({ length: 15 }).map((_, i) => (
+                    <line
+                      key={i}
+                      x1={20 + i * 20}
+                      y1="110"
+                      x2={12 + i * 20}
+                      y2="118"
+                      stroke="rgba(255,255,255,0.2)"
+                      strokeWidth="1"
+                    />
+                  ))}
+
+                  {/* 좌·우 50mm 방열 여유폭 영역 */}
+                  {fitsWall && (
+                    <>
+                      <rect
+                        x={Math.max(25, startX - scaledCl)}
+                        y="40"
+                        width={scaledCl}
+                        height="70"
+                        fill="rgba(217, 83, 30, 0.2)"
+                        stroke="#D9531E"
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
+                      <rect
+                        x={startX + scaledW}
+                        y="40"
+                        width={scaledCl}
+                        height="70"
+                        fill="rgba(217, 83, 30, 0.2)"
+                        stroke="#D9531E"
+                        strokeWidth="1"
+                        strokeDasharray="3 2"
+                      />
+                    </>
+                  )}
+
+                  {/* 가전 제품 실루엣 본체 */}
+                  <rect
+                    x={startX}
+                    y="36"
+                    width={scaledW}
+                    height="74"
+                    rx="4"
+                    fill="rgba(255,255,255,0.12)"
+                    stroke={fitsWall ? "#FF8A50" : "#EF4444"}
+                    strokeWidth="1.8"
+                  />
+
+                  {/* 본체 내부 치수 텍스트 */}
+                  <text
+                    x={startX + scaledW / 2}
+                    y="72"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fontWeight="bold"
+                    fill="#FFFFFF"
+                  >
+                    {productWidthMm.toLocaleString()}mm
+                  </text>
+                  <text
+                    x={startX + scaledW / 2}
+                    y="86"
+                    textAnchor="middle"
+                    fontSize="9"
+                    fill="rgba(255,255,255,0.7)"
+                  >
+                    {fitsWall ? "설치 적합" : "공간 협소"}
+                  </text>
+
+                  {/* 출입문 유효폭 뱃지 */}
+                  <g transform="translate(230, 100)">
+                    <rect x="0" y="0" width="75" height="18" rx="3" fill={fitsDoor ? "rgba(16, 185, 129, 0.2)" : "rgba(239, 68, 68, 0.2)"} stroke={fitsDoor ? "#10B981" : "#EF4444"} strokeWidth="1" />
+                    <text x="37.5" y="12" textAnchor="middle" fontSize="9" fontWeight="bold" fill={fitsDoor ? "#34D399" : "#F87171"}>
+                      문폭 {doorWidthMm}mm {fitsDoor ? "통과" : "주의"}
+                    </text>
+                  </g>
+                </svg>
+              );
+            })()}
+          </div>
+        </div>
+
         {/* 시각적 가구/가전 배치 게이지 바 */}
         <div className="mt-4">
           <div className="flex items-center justify-between text-hb-xs font-semibold text-[#434B59] mb-1.5">

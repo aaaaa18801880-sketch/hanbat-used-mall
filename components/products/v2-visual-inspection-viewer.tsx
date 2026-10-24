@@ -255,6 +255,175 @@ export function V2VisualInspectionViewer({
           ))}
         </div>
 
+        {/* 인터랙티브 가전 아키텍처 블루프린트 SVG 도면 (01~04 핫스팟 핀 양방향 연동) */}
+        <div className="mt-4 rounded-xl border border-white/15 bg-[#0E1A2B] p-3 sm:p-4 text-white shadow-floating relative overflow-hidden">
+          <div className="flex items-center justify-between pb-2 border-b border-white/10 text-hb-xs">
+            <span className="font-mono font-bold text-[#FF8A50] tracking-wider">
+              ENGINEERING BLUEPRINT · 01-04 INSPECTION
+            </span>
+            <span className="text-white/60">
+              도면의 번호 핀을 터치하면 해당 검수 리포트로 전환됩니다
+            </span>
+          </div>
+
+          <div className="relative mt-2 h-44 sm:h-52 w-full flex items-center justify-center">
+            <svg
+              viewBox="0 0 320 180"
+              className="h-full w-full max-w-[320px] overflow-visible select-none"
+              aria-label="가전 부위별 검수 도면"
+            >
+              <defs>
+                <pattern
+                  id="v2-blueprint-grid"
+                  width="16"
+                  height="16"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M 16 0 L 0 0 0 16"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.06)"
+                    strokeWidth="0.8"
+                  />
+                </pattern>
+              </defs>
+              <rect width="320" height="180" fill="url(#v2-blueprint-grid)" rx="8" />
+
+              {/* 품목별 테크니컬 가전 실루엣 */}
+              {normCat === "냉장고" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  <rect x="110" y="15" width="100" height="150" rx="4" />
+                  <line x1="160" y1="15" x2="160" y2="165" />
+                  <line x1="110" y1="95" x2="210" y2="95" />
+                  <line x1="152" y1="45" x2="152" y2="85" strokeWidth="2" stroke="#FF8A50" />
+                  <line x1="168" y1="45" x2="168" y2="85" strokeWidth="2" stroke="#FF8A50" />
+                  <rect x="120" y="145" width="80" height="16" rx="2" strokeDasharray="3 2" />
+                </g>
+              )}
+
+              {normCat === "세탁기/건조기" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  <rect x="105" y="18" width="110" height="144" rx="6" />
+                  <rect x="115" y="26" width="90" height="20" rx="3" fill="rgba(255,255,255,0.08)" />
+                  <circle cx="160" cy="98" r="42" />
+                  <circle cx="160" cy="98" r="32" strokeDasharray="4 2" stroke="#FF8A50" />
+                  <line x1="105" y1="140" x2="215" y2="140" strokeDasharray="2 2" />
+                </g>
+              )}
+
+              {normCat === "에어컨/냉난방기" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  {/* 실내기 */}
+                  <rect x="65" y="20" width="190" height="46" rx="4" />
+                  <line x1="75" y1="52" x2="245" y2="52" strokeWidth="2" stroke="#FF8A50" />
+                  <rect x="220" y="26" width="28" height="14" rx="2" fill="rgba(255,255,255,0.1)" />
+                  {/* 실외기 */}
+                  <rect x="95" y="85" width="130" height="75" rx="5" />
+                  <circle cx="145" cy="122" r="26" />
+                  <line x1="145" y1="96" x2="145" y2="148" strokeDasharray="3 2" />
+                  <line x1="119" y1="122" x2="171" y2="122" strokeDasharray="3 2" />
+                  <rect x="185" y="96" width="30" height="52" rx="3" stroke="#FF8A50" strokeDasharray="2 2" />
+                </g>
+              )}
+
+              {normCat !== "냉장고" && normCat !== "세탁기/건조기" && normCat !== "에어컨/냉난방기" && (
+                <g stroke="rgba(255,255,255,0.6)" strokeWidth="1.4" fill="rgba(255,255,255,0.03)">
+                  <rect x="95" y="15" width="130" height="150" rx="4" />
+                  <rect x="95" y="15" width="130" height="26" rx="2" fill="rgba(255,255,255,0.08)" />
+                  <line x1="95" y1="95" x2="225" y2="95" />
+                  <line x1="160" y1="41" x2="160" y2="165" />
+                  <circle cx="112" cy="168" r="4" fill="rgba(255,255,255,0.6)" />
+                  <circle cx="208" cy="168" r="4" fill="rgba(255,255,255,0.6)" />
+                </g>
+              )}
+
+              {/* 4대 인터랙티브 핫스팟 핀 (클릭 시 activeId 전환) */}
+              {points.map((pt, idx) => {
+                const active = pt.id === activePoint.id;
+                // 품목별 핀 좌표 매핑
+                let x = 160;
+                let y = 90;
+                if (normCat === "냉장고") {
+                  const pos = [
+                    { x: 160, y: 150 },
+                    { x: 112, y: 50 },
+                    { x: 160, y: 70 },
+                    { x: 206, y: 155 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                } else if (normCat === "세탁기/건조기") {
+                  const pos = [
+                    { x: 160, y: 98 },
+                    { x: 160, y: 150 },
+                    { x: 195, y: 36 },
+                    { x: 125, y: 36 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                } else if (normCat === "에어컨/냉난방기") {
+                  const pos = [
+                    { x: 200, y: 122 },
+                    { x: 155, y: 38 },
+                    { x: 234, y: 38 },
+                    { x: 105, y: 140 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                } else {
+                  const pos = [
+                    { x: 160, y: 28 },
+                    { x: 208, y: 28 },
+                    { x: 135, y: 70 },
+                    { x: 112, y: 162 },
+                  ];
+                  x = pos[idx]?.x ?? 160;
+                  y = pos[idx]?.y ?? 90;
+                }
+
+                return (
+                  <g
+                    key={pt.id}
+                    className="cursor-pointer transition-transform duration-200"
+                    onClick={() => setActiveId(pt.id)}
+                  >
+                    {active && (
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="14"
+                        className="animate-ping"
+                        fill="rgba(255, 138, 80, 0.3)"
+                        stroke="#FF8A50"
+                        strokeWidth="1.5"
+                      />
+                    )}
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r="10"
+                      fill={active ? "#FF8A50" : "#0E1A2B"}
+                      stroke={active ? "#FFFFFF" : "rgba(255,255,255,0.7)"}
+                      strokeWidth="2"
+                    />
+                    <text
+                      x={x}
+                      y={y + 3.5}
+                      textAnchor="middle"
+                      fontSize="9"
+                      fontWeight="bold"
+                      fill={active ? "#0E1A2B" : "#FFFFFF"}
+                      className="select-none"
+                    >
+                      0{idx + 1}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+
         {/* 4대 부위별 인터랙티브 탭 + 상세 판정 카드 */}
         <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
           {points.map((pt) => {
