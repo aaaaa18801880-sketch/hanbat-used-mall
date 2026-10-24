@@ -782,21 +782,23 @@ export default function Home() {
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group block min-w-0 rounded border border-[#E5E2DC] bg-[#FAF9F7] p-1.5 hover:border-[#0E1A2B] transition-colors"
+                            className="group block min-w-0 rounded-lg border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#0E1A2B] transition-colors"
                           >
-                            <div className="aspect-[4/3] w-full overflow-hidden rounded-xs bg-white flex items-center justify-center p-1">
+                            <div className="aspect-[4/3] w-full overflow-hidden bg-[#F5F4F0]">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}
-                                className="h-full w-full object-contain group-hover:scale-105 transition-transform"
+                                className="h-full w-full object-cover group-hover:scale-105 transition-transform"
                               />
                             </div>
-                            <p className="mt-1.5 truncate text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
-                              {item.title}
-                            </p>
-                            <p className="truncate text-hb-xs font-extrabold text-[#D9531E] tabular-nums">
-                              {formatProductPrice(item.price, cat)}
-                            </p>
+                            <div className="p-2">
+                              <p className="truncate text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
+                                {item.title}
+                              </p>
+                              <p className="truncate text-hb-xs font-extrabold text-[#D9531E] tabular-nums">
+                                {formatProductPrice(item.price, cat)}
+                              </p>
+                            </div>
                           </Link>
                         );
                       })}

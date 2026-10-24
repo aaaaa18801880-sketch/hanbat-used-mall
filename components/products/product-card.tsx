@@ -192,12 +192,12 @@ export function ProductCard({
           : "border border-[#E5E2DC] hover:border-[#0E1A2B] hover:shadow-card"
       }`}
     >
-      {/* 1. 쇼룸 스튜디오 사진 스테이지 (가전 전체 비율이 잘리지 않도록 object-contain + 중립 스튜디오 배경 적용) */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F3F1EC] p-2 sm:p-3 flex items-center justify-center">
+      {/* 1. 시원시원한 대형 풀블리드 사진 (내부 축소 패딩 및 배경색 제거 · 사진을 100% 꽉 채워 시원하게 노출) */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F5F4F0]">
         <SafeImg
           src={images[0]}
           alt={product.title}
-          className={`max-h-full max-w-full h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.03] ${
+          className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
             sold ? "grayscale opacity-65" : ""
           }`}
         />

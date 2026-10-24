@@ -85,7 +85,7 @@ export function ProductDetailGallery({
 
   return (
     <>
-      <div className="flex flex-col rounded-xl overflow-hidden border border-[#E5E2DC] bg-[#F3F1EC] shadow-card">
+      <div className="flex flex-col rounded-xl overflow-hidden border border-[#E5E2DC] bg-white shadow-card">
         {/* 상단 쇼룸 이미지 뷰어 바 */}
         <div className="bg-[#0E1A2B] text-white px-4 py-2.5 flex items-center justify-between gap-2 text-hb-xs">
           <div className="flex items-center gap-2">
@@ -99,10 +99,10 @@ export function ProductDetailGallery({
           </span>
         </div>
 
-        {/* 메인 프리뷰 영역 */}
+        {/* 메인 프리뷰 영역: 시원시원한 대형 뷰 (내부 축소 패딩 및 배경색 제거) */}
         <div
           onClick={() => displayImages[0] && setIsZoomOpen(true)}
-          className="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-[#F3F1EC] flex items-center justify-center p-4 sm:p-6 overflow-hidden cursor-zoom-in group select-none"
+          className="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-white flex items-center justify-center p-1 sm:p-2 overflow-hidden cursor-zoom-in group select-none"
           title="클릭하여 원본 비율 전체화면으로 확대"
         >
           <SafeImg
@@ -110,7 +110,7 @@ export function ProductDetailGallery({
             src={displayImages[idx]}
             alt={`${title} - 사진 ${idx + 1}`}
             eager
-            className={`max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] drop-shadow-sm ${
+            className={`w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.02] ${
               sold ? "grayscale opacity-75" : ""
             }`}
           />
@@ -171,7 +171,7 @@ export function ProductDetailGallery({
                 type="button"
                 onClick={() => setIdx(i)}
                 aria-label={`${i + 1}번 사진 선택`}
-                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-[#F3F1EC] border transition-all ${
+                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-[#F5F4F0] border transition-all ${
                   i === idx
                     ? "border-[#D9531E] ring-2 ring-[#D9531E]/35"
                     : "border-[#E5E2DC] opacity-65 hover:opacity-100"
