@@ -2407,6 +2407,7 @@ export default function GalleryPage() {
                   key={product.id}
                   product={product}
                   onSelect={isSelectMode ? handleProductClick : undefined}
+                  onQuickView={handleProductClick}
                   isSelectMode={isSelectMode}
                   isSelected={selectedIds.has(product.id)}
                   isAdmin={isAdmin}

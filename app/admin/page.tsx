@@ -724,6 +724,31 @@ export default function IntegratedAdminDashboard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  // URL 딥링크 (?search= 또는 ?edit=) 감지 및 원클릭 상품 수정 자동 전환
+  useEffect(() => {
+    if (typeof window === "undefined" || products.length === 0) return;
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchTarget = urlParams.get("search") || urlParams.get("edit");
+    if (!searchTarget) return;
+
+    queueMicrotask(() => {
+      setActiveTab("products");
+      setProdKeyword(searchTarget);
+
+      const matched = products.find(
+        (p) =>
+          p.id === searchTarget ||
+          p.id.toLowerCase() === searchTarget.toLowerCase() ||
+          p.title.includes(searchTarget)
+      );
+      if (matched) {
+        startEditProduct(matched);
+        toast.success(`'${matched.title}' 상품 수정 모드로 전환되었습니다.`);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products]);
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (savingProduct) return;

@@ -298,6 +298,15 @@ export default async function ProductDetailPage({
     : isMajorApplianceDetail
     ? "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
     : "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)";
+
+  const categoryFaqs = getCategoryFaqs(categoryLabel);
+  const createdTimestamp = product.created_at
+    ? new Date(product.created_at).getTime()
+    : 1767225600000;
+  const priceValidUntil = new Date(createdTimestamp + 90 * 86400000)
+    .toISOString()
+    .split("T")[0];
+
   const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@graph": [
@@ -362,6 +371,7 @@ export default async function ProductDetailPage({
           url: `${STORE.url}/${product.id}`,
           priceCurrency: "KRW",
           ...(priced ? { price: Number(product.price) } : {}),
+          priceValidUntil,
           availability: sold
             ? "https://schema.org/OutOfStock"
             : "https://schema.org/InStock",
@@ -375,6 +385,21 @@ export default async function ProductDetailPage({
           },
         },
       },
+      ...(categoryFaqs.length > 0
+        ? [
+            {
+              "@type": "FAQPage",
+              mainEntity: categoryFaqs.map((faq) => ({
+                "@type": "Question",
+                name: faq.q,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.a,
+                },
+              })),
+            },
+          ]
+        : []),
     ],
   };
 

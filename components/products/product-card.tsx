@@ -123,6 +123,7 @@ export function ProductTrustMicroStrip({
 export function ProductCard({
   product,
   onSelect,
+  onQuickView,
   isSelectMode = false,
   isSelected = false,
   isAdmin = false,
@@ -130,6 +131,7 @@ export function ProductCard({
 }: {
   product: ProductItem;
   onSelect?: (product: ProductItem) => void;
+  onQuickView?: (product: ProductItem) => void;
   isSelectMode?: boolean;
   isSelected?: boolean;
   isAdmin?: boolean;
@@ -338,33 +340,75 @@ export function ProductCard({
           </div>
 
           {!isSelectMode && !sold ? (
-            <button
-              type="button"
-              onClick={handleToggleBasket}
-              aria-pressed={inBasket}
-              title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
-              aria-label={`${product.title} ${
-                inBasket ? "견적함에서 제외" : "견적함에 담기"
-              }`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
-                inBasket
-                  ? "bg-[#0E1A2B] text-white"
-                  : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"
-              }`}
-            >
-              <Icon
-                d={inBasket ? ICON.check : ICON.plus}
-                className={`h-3 w-3 ${
-                  inBasket ? "text-[#FF8A50]" : "currentColor"
+            <div className="flex items-center gap-1.5 shrink-0">
+              {onQuickView && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onQuickView(product);
+                  }}
+                  title={isAdmin ? "관리자 빠른 수정" : "상품 빠른 미리보기"}
+                  aria-label={`${product.title} ${isAdmin ? "빠른 수정" : "미리보기"}`}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-1 text-hb-xs font-semibold text-[#3E4756] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors cursor-pointer"
+                >
+                  <Icon
+                    d={isAdmin ? ICON.pen : ICON.search}
+                    className="w-3 h-3 text-[#D9531E]"
+                  />
+                  <span>{isAdmin ? "수정" : "미리보기"}</span>
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleToggleBasket}
+                aria-pressed={inBasket}
+                title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
+                aria-label={`${product.title} ${
+                  inBasket ? "견적함에서 제외" : "견적함에 담기"
                 }`}
-              />
-              <span>{inBasket ? "담김" : "견적함"}</span>
-            </button>
+                className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+                  inBasket
+                    ? "bg-[#0E1A2B] text-white"
+                    : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"
+                }`}
+              >
+                <Icon
+                  d={inBasket ? ICON.check : ICON.plus}
+                  className={`h-3 w-3 ${
+                    inBasket ? "text-[#FF8A50]" : "currentColor"
+                  }`}
+                />
+                <span>{inBasket ? "담김" : "견적함"}</span>
+              </button>
+            </div>
           ) : (
-            <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">
-              <span>보기</span>
-              <Icon d={ICON.right} className="h-3.5 w-3.5" />
-            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {onQuickView && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onQuickView(product);
+                  }}
+                  title={isAdmin ? "관리자 빠른 수정" : "상품 빠른 미리보기"}
+                  aria-label={`${product.title} ${isAdmin ? "빠른 수정" : "미리보기"}`}
+                  className="inline-flex items-center gap-1 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-1 text-hb-xs font-semibold text-[#3E4756] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors cursor-pointer"
+                >
+                  <Icon
+                    d={isAdmin ? ICON.pen : ICON.search}
+                    className="w-3 h-3 text-[#D9531E]"
+                  />
+                  <span>{isAdmin ? "수정" : "미리보기"}</span>
+                </button>
+              )}
+              <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">
+                <span>보기</span>
+                <Icon d={ICON.right} className="h-3.5 w-3.5" />
+              </span>
+            </div>
           )}
         </div>
       </div>

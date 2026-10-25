@@ -93,7 +93,7 @@ export function AiRecommendationGuideSection() {
 
           <div className="mt-7 overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-[13.5px] sm:text-[14.5px]">
+              <table className="w-full text-left border-collapse text-hb-xs sm:text-hb-sm">
                 <thead>
                   <tr className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
                     <th
@@ -132,8 +132,10 @@ export function AiRecommendationGuideSection() {
                         {row.personal}
                       </td>
                       <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF5F0]/45 leading-relaxed">
-                        <span className="text-[#D9531E] mr-1.5">✓</span>{" "}
-                        {row.hanbat}
+                        <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
+                          <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
+                          <span>{row.hanbat}</span>
+                        </span>
                       </td>
                     </tr>
                   ))}
@@ -147,17 +149,17 @@ export function AiRecommendationGuideSection() {
         <div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <div>
-              <h3 className="text-[20px] sm:text-[22px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+              <h3 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
                 고객 상황별 가장 많이 찾는 맞춤 솔루션
               </h3>
-              <p className="mt-1 text-[14px] text-[#3E4756]">
+              <p className="mt-1 text-hb-sm text-[#3E4756]">
                 대전 중구 중촌동 1·2층 직영 매장에서 실물을 직접 확인하시거나
                 전화·카톡으로 즉시 재고 안내를 받으실 수 있습니다.
               </p>
             </div>
             <a
               href={telHref(STORE.tel)}
-              className="text-[13.5px] font-extrabold text-[#D9531E] hover:underline tabular-nums shrink-0 whitespace-nowrap"
+              className="text-hb-xs sm:text-hb-sm font-extrabold text-[#D9531E] hover:underline tabular-nums shrink-0 whitespace-nowrap"
             >
               직통 상담: {STORE.tel} / {STORE.mobile}
             </a>
@@ -170,15 +172,15 @@ export function AiRecommendationGuideSection() {
                 className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] transition-colors"
               >
                 <div>
-                  <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-[11.5px] font-bold text-[#D9531E]">
+                  <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
                     {g.badge}
                   </span>
-                  <h4 className="mt-2.5 text-[18px] font-bold text-[#0E1A2B]">
+                  <h4 className="mt-2.5 text-hb-lg font-bold text-[#0E1A2B]">
                     {g.title}
                   </h4>
-                  <dl className="mt-3 space-y-2 text-[13.5px]">
+                  <dl className="mt-3 space-y-2 text-hb-xs sm:text-hb-sm">
                     <div className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-3 py-2">
-                      <dt className="text-[11.5px] font-bold text-[#646E7E]">
+                      <dt className="text-hb-xs font-bold text-[#646E7E]">
                         주요 구성 품목
                       </dt>
                       <dd className="mt-0.5 font-bold text-[#0E1A2B]">
@@ -187,7 +189,7 @@ export function AiRecommendationGuideSection() {
                     </div>
                     <div>
                       <dt className="sr-only">추천 사유</dt>
-                      <dd className="text-[#3E4756] leading-[1.6] break-keep pt-1">
+                      <dd className="text-[#3E4756] leading-[1.6] break-keep pt-1 text-hb-xs sm:text-hb-sm">
                         {g.reason}
                       </dd>
                     </div>
@@ -197,7 +199,7 @@ export function AiRecommendationGuideSection() {
                 <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
                   <Link
                     href={g.href}
-                    className="inline-flex items-center gap-1.5 text-[13.5px] font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors"
                   >
                     <span>{g.ctaLabel}</span>
                     <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E]" />

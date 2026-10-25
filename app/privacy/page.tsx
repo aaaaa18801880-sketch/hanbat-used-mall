@@ -20,11 +20,11 @@ export default function PrivacyPage() {
       <main className="hb-container py-10 sm:py-14 flex-1">
         <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E2DC] bg-white p-6 sm:p-10 shadow-card">
           <p className="hb-eyebrow">Privacy Policy</p>
-          <h1 className="mt-2 text-[24px] sm:text-[30px] font-bold text-[#0E1A2B] pb-5 border-b border-[#E5E2DC]">
+          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#0E1A2B] pb-5 border-b border-[#E5E2DC]">
             개인정보처리방침
           </h1>
 
-          <div className="mt-6 space-y-7 text-[14.5px] leading-[1.75] text-[#3E4756]">
+          <div className="mt-6 space-y-7 text-hb-sm leading-relaxed text-[#3E4756]">
             <p>
               <strong className="text-[#0E1A2B]">{STORE.name}</strong>(이하
               &ldquo;회사&rdquo;)는 개인정보보호법 등 관련 법령에 따라 이용자의
@@ -33,7 +33,7 @@ export default function PrivacyPage() {
             </p>
 
             <section className="space-y-2">
-              <h2 className="text-[16px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
                 1. 개인정보의 수집 및 이용 목적
               </h2>
               <p>회사는 다음의 목적을 위하여 최소한의 개인정보를 처리합니다.</p>
@@ -51,7 +51,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-[16px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
                 2. 수집하는 개인정보의 항목
               </h2>
               <ul className="list-disc pl-5 space-y-1">
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-[16px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
                 3. 개인정보의 보유 및 이용기간
               </h2>
               <p>
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
                 있습니다. 단, 관계법령에 의해 보존할 필요가 있는 경우 법령이 정한
                 기간 동안 보관합니다.
               </p>
-              <ul className="list-disc pl-5 space-y-1 text-[13.5px]">
+              <ul className="list-disc pl-5 space-y-1 text-hb-xs">
                 <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
                 <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
                 <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-[16px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
                 4. 개인정보의 제3자 제공 및 안전성 확보 조치
               </h2>
               <p>
@@ -99,10 +99,10 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-[16px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
                 5. 개인정보 보호책임자 안내
               </h2>
-              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-[13.5px] space-y-1">
+              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-hb-xs space-y-1">
                 <p>
                   • <strong className="text-[#0E1A2B]">상호:</strong> {STORE.name}{" "}
                   (대표: {STORE.ceo})
@@ -130,9 +130,9 @@ export default function PrivacyPage() {
               </div>
             </section>
 
-            <div className="pt-5 border-t border-[#E5E2DC] flex flex-wrap items-center justify-between gap-4 text-[13px] text-[#646E7E]">
+            <div className="pt-5 border-t border-[#E5E2DC] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#646E7E]">
               <span>시행일자: 2026년 1월 1일</span>
-              <Link href="/" className="hb-btn-primary h-10 px-5 text-[13.5px]">
+              <Link href="/" className="hb-btn-primary h-10 px-5 text-hb-xs">
                 홈으로 돌아가기
               </Link>
             </div>

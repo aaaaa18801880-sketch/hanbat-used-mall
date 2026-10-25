@@ -6,7 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
-import { isAuthorizedAdminUser, supabase } from "../../lib/supabase";
+import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
 import {
   addRecentViewedProduct,
   generatePromoPostText,
@@ -59,6 +59,22 @@ export function ProductDetailGallery({
       modelName: modelName ?? null,
       imageUrl: images[0] || null,
     });
+
+    // 상세 페이지 직접 유입 및 조회수 집계 (sessionStorage 기준 1회 집계)
+    if (typeof window !== "undefined") {
+      const viewKey = `viewed_product_${id}`;
+      if (!sessionStorage.getItem(viewKey)) {
+        sessionStorage.setItem(viewKey, "1");
+        getAdminAuthHeaders().then((authHeaders) => {
+          fetch(`/api/products/${id}/view`, {
+            method: "POST",
+            headers: authHeaders,
+          }).catch(() => {
+            // 조회수 집계 비동기 실패는 조용히 무시
+          });
+        });
+      }
+    }
   }, [id, title, category, price, status, conditionGrade, modelName, images]);
 
   const go = useCallback(

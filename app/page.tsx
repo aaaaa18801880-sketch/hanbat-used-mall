@@ -49,6 +49,7 @@ import {
 } from "../components/home/category-pictogram-bar";
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
 import { ModernApplianceIcon } from "../components/ui/modern-icons";
+import { AiRecommendationGuideSection } from "../components/home/ai-recommendation-guide-section";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -1241,6 +1242,11 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        {/* ════════════════════════════════════════════════════════════
+            [S6.5] 직영 매장 비교 & 고객 상황별 맞춤 추천 가이드 (#buying-guide-section)
+            ════════════════════════════════════════════════════════════ */}
+        <AiRecommendationGuideSection />
 
         {/* ════════════════════════════════════════════════════════════
             [S7] 자주 묻는 질문 (#faq-section)

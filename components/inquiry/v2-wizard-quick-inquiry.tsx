@@ -1,11 +1,13 @@
 // 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import {
+  compressImage,
   formatPhone,
   formatStructuredInquiryDescription,
+  getQuoteBasket,
   INQUIRY_TYPES,
   isValidPhone,
   MAX_PHOTOS,
@@ -167,6 +169,59 @@ export function V2InquirySectionWithWizard({
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [region, setRegion] = useState("");
   const [memo, setMemo] = useState(linkedProduct?.productTitle || "");
+  const [analyzingAi, setAnalyzingAi] = useState(false);
+
+  useEffect(() => {
+    if (!linkedProduct) return;
+
+    queueMicrotask(() => {
+      if (
+        linkedProduct.category &&
+        (PRODUCT_CATEGORIES as readonly string[]).includes(linkedProduct.category)
+      ) {
+        setSelectedCategories([linkedProduct.category]);
+      }
+
+      if (linkedProduct.useBundle) {
+        const items = getQuoteBasket();
+        if (items.length > 0) {
+          const bundleLines = items
+            .map(
+              (it, idx) =>
+                `${idx + 1}. [${it.category}] ${it.title} (수량: ${it.quantity || 1}대)`
+            )
+            .join("\n");
+          setMemo(
+            `[견적함 묶음 문의 - 총 ${items.length}개 품목]\n${bundleLines}`
+          );
+          const cats = Array.from(
+            new Set(items.map((it) => it.category).filter(Boolean))
+          );
+          if (cats.length > 0) {
+            setSelectedCategories(cats);
+          }
+        }
+      } else if (linkedProduct.productTitle) {
+        const text = linkedProduct.modelName
+          ? `${linkedProduct.productTitle} (${linkedProduct.modelName})`
+          : linkedProduct.productTitle;
+        setMemo((prev) => {
+          if (!prev) return text;
+          if (!prev.includes(linkedProduct.productTitle!))
+            return `${text}\n${prev}`;
+          return prev;
+        });
+      }
+
+      if (linkedProduct.envNote) {
+        setSelectedChips((prev) =>
+          prev.includes(linkedProduct.envNote!)
+            ? prev
+            : [...prev, linkedProduct.envNote!]
+        );
+      }
+    });
+  }, [linkedProduct]);
 
   /* 사진 첨부 상태 (최대 3장) */
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -229,6 +284,70 @@ export function V2InquirySectionWithWizard({
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const handleAiPhotoAnalyze = async () => {
+    if (selectedFiles.length === 0 || analyzingAi) return;
+    setAnalyzingAi(true);
+    const toastId = toast.loading(
+      "첨부된 사진을 AI가 분석하여 품목과 모델명을 추출 중입니다..."
+    );
+    try {
+      const formData = new FormData();
+      formData.append("inquiryType", inquiryType);
+      formData.append("userDescription", memo);
+      formData.append("userRegion", region);
+
+      for (const file of selectedFiles.slice(0, MAX_PHOTOS)) {
+        const compressedBlob = await compressImage(file, 1280, 0.8);
+        const optimizedFile = new File([compressedBlob], file.name, {
+          type: "image/jpeg",
+        });
+        formData.append("files", optimizedFile);
+      }
+
+      const res = await fetch("/api/analyze-inquiry", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "AI 사진 분석에 실패했습니다.");
+      }
+
+      if (
+        data.applianceCategory &&
+        (PRODUCT_CATEGORIES as readonly string[]).includes(data.applianceCategory)
+      ) {
+        setSelectedCategories((prev) =>
+          prev.includes(data.applianceCategory)
+            ? prev
+            : [data.applianceCategory, ...prev]
+        );
+      }
+
+      const aiDetails: string[] = [];
+      if (data.title) aiDetails.push(data.title);
+      if (data.modelNumber) aiDetails.push(`모델명: ${data.modelNumber}`);
+      if (data.estimatedYear) aiDetails.push(`연식: ${data.estimatedYear}`);
+      if (aiDetails.length > 0) {
+        const aiText = `[AI 사진 판독: ${aiDetails.join(" / ")}]`;
+        setMemo((prev) => (prev ? `${aiText}\n${prev}` : aiText));
+      }
+
+      toast.success(
+        "AI 사진 판독 완료! 품목과 상세 정보가 자동으로 채워졌습니다.",
+        { id: toastId }
+      );
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error ? err.message : "AI 사진 분석에 실패했습니다.",
+        { id: toastId }
+      );
+    } finally {
+      setAnalyzingAi(false);
+    }
+  };
+
   const handleWizardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -282,6 +401,10 @@ export function V2InquirySectionWithWizard({
         customerContent: bodyContent,
         applianceCategory: selectedCategories[0],
         region: region.trim() || "대전/충청",
+        linkedProductUrl: linkedProduct?.productId
+          ? `${STORE.url}/${linkedProduct.productId}`
+          : undefined,
+        modelNumber: linkedProduct?.modelName || undefined,
       });
 
       const res = await fetch("/api/inquiries", {
@@ -534,6 +657,25 @@ export function V2InquirySectionWithWizard({
                   </label>
                 )}
               </div>
+
+              {selectedFiles.length > 0 && (
+                <div className="mt-2.5">
+                  <button
+                    type="button"
+                    onClick={handleAiPhotoAnalyze}
+                    disabled={analyzingAi}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#EFF6FF] px-3.5 py-2 text-hb-xs font-bold text-[#1D4ED8] hover:bg-[#DBEAFE] transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
+                  >
+                    <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0" />
+                    <span>
+                      {analyzingAi
+                        ? "AI 사진 판독 및 품목 분석 중..."
+                        : "AI 사진 판독으로 품목·모델명 자동 채우기"}
+                    </span>
+                  </button>
+                </div>
+              )}
+
               <p className="mt-2 text-hb-xs text-[#646E7E]">
                 제품 전면 또는 모델명 명판 스티커 사진을 첨부하시면 가장 신속하고 정확한 견적을 받으실 수 있습니다. (생략 가능)
               </p>
