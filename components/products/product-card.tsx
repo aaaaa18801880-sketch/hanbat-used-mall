@@ -260,7 +260,7 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className="absolute left-2.5 bottom-2.5 z-20 inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-all cursor-pointer active:scale-95"
+            className="absolute bottom-2.5 left-2.5 z-20 inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-colors cursor-pointer active:scale-95"
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
