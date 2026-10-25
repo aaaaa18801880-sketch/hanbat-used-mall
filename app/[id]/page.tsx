@@ -629,6 +629,7 @@ export default async function ProductDetailPage({
               conditionGrade={product.condition_grade}
             />
             <V2SpatialFitPlanner
+              productId={String(product.id)}
               title={product.title}
               description={product.description}
               category={categoryLabel}
