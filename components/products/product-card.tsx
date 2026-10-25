@@ -357,7 +357,7 @@ export function ProductCard({
                     d={isAdmin ? ICON.pen : ICON.search}
                     className="w-3 h-3 text-[#D9531E]"
                   />
-                  <span>{isAdmin ? "수정" : "미리보기"}</span>
+                  <span>{isAdmin ? "빠른 수정" : "미리보기"}</span>
                 </button>
               )}
               <button
@@ -401,7 +401,7 @@ export function ProductCard({
                     d={isAdmin ? ICON.pen : ICON.search}
                     className="w-3 h-3 text-[#D9531E]"
                   />
-                  <span>{isAdmin ? "수정" : "미리보기"}</span>
+                  <span>{isAdmin ? "빠른 수정" : "미리보기"}</span>
                 </button>
               )}
               <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">

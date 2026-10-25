@@ -299,7 +299,7 @@ export default async function ProductDetailPage({
     ? "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
     : "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)";
 
-  const categoryFaqs = getCategoryFaqs(categoryLabel);
+  const categoryFaqs = getCategoryFaqs(categoryLabel, sold);
   const createdTimestamp = product.created_at
     ? new Date(product.created_at).getTime()
     : 1767225600000;
@@ -389,6 +389,7 @@ export default async function ProductDetailPage({
         ? [
             {
               "@type": "FAQPage",
+              "@id": `${STORE.url}/${product.id}#faq`,
               mainEntity: categoryFaqs.map((faq) => ({
                 "@type": "Question",
                 name: faq.q,
@@ -738,7 +739,7 @@ export default async function ProductDetailPage({
             </Link>
           </div>
           <dl className="divide-y divide-[#E5E2DC]">
-            {getCategoryFaqs(categoryLabel, sold).map((faq) => (
+            {categoryFaqs.map((faq) => (
               <div key={faq.q} className="py-4">
                 <dt className="flex items-start gap-2 text-hb-base font-bold text-[#0E1A2B]">
                   <span className="text-[#D9531E] font-extrabold">Q.</span>

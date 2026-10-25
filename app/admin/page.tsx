@@ -724,13 +724,21 @@ export default function IntegratedAdminDashboard() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const handledDeepLinkRef = useRef(false);
+
   // URL 딥링크 (?search= 또는 ?edit=) 감지 및 원클릭 상품 수정 자동 전환
   useEffect(() => {
-    if (typeof window === "undefined" || products.length === 0) return;
+    if (
+      typeof window === "undefined" ||
+      products.length === 0 ||
+      handledDeepLinkRef.current
+    )
+      return;
     const urlParams = new URLSearchParams(window.location.search);
     const searchTarget = urlParams.get("search") || urlParams.get("edit");
     if (!searchTarget) return;
 
+    handledDeepLinkRef.current = true;
     queueMicrotask(() => {
       setActiveTab("products");
       setProdKeyword(searchTarget);

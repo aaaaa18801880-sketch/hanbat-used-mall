@@ -6,12 +6,14 @@ import toast from "react-hot-toast";
 import {
   compressImage,
   formatPhone,
+  formatQuoteBasketSummary,
   formatStructuredInquiryDescription,
   getQuoteBasket,
   INQUIRY_TYPES,
   isValidPhone,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
+  type QuoteBasketItem,
   smsHref,
   STORAGE_BUCKETS,
   STORE,
@@ -170,6 +172,19 @@ export function V2InquirySectionWithWizard({
   const [region, setRegion] = useState("");
   const [memo, setMemo] = useState(linkedProduct?.productTitle || "");
   const [analyzingAi, setAnalyzingAi] = useState(false);
+  const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
+  const [aiResult, setAiResult] = useState<{
+    applianceCategory?: string;
+    title?: string;
+    modelNumber?: string;
+    summaryNote?: string;
+  } | null>(null);
+
+  useEffect(() => {
+    queueMicrotask(() => {
+      setBasketItems(getQuoteBasket());
+    });
+  }, []);
 
   useEffect(() => {
     if (!linkedProduct) return;
@@ -214,6 +229,13 @@ export function V2InquirySectionWithWizard({
       }
 
       if (linkedProduct.envNote) {
+        const envText = `[선택한 설치조건: ${linkedProduct.envNote}]`;
+        setMemo((prev) => {
+          if (!prev) return envText;
+          if (!prev.includes(linkedProduct.envNote!))
+            return `${envText}\n${prev}`;
+          return prev;
+        });
         setSelectedChips((prev) =>
           prev.includes(linkedProduct.envNote!)
             ? prev
@@ -293,6 +315,7 @@ export function V2InquirySectionWithWizard({
     try {
       const formData = new FormData();
       formData.append("inquiryType", inquiryType);
+      formData.append("userTitle", memo);
       formData.append("userDescription", memo);
       formData.append("userRegion", region);
 
@@ -314,6 +337,15 @@ export function V2InquirySectionWithWizard({
         throw new Error(data.error || "AI 사진 분석에 실패했습니다.");
       }
 
+      setAiResult({
+        applianceCategory: data.applianceCategory,
+        title: data.title,
+        modelNumber: data.modelNumber,
+        summaryNote:
+          data.summaryNote ||
+          (data.estimatedYear ? `연식: ${data.estimatedYear}` : undefined),
+      });
+
       if (
         data.applianceCategory &&
         (PRODUCT_CATEGORIES as readonly string[]).includes(data.applianceCategory)
@@ -328,7 +360,8 @@ export function V2InquirySectionWithWizard({
       const aiDetails: string[] = [];
       if (data.title) aiDetails.push(data.title);
       if (data.modelNumber) aiDetails.push(`모델명: ${data.modelNumber}`);
-      if (data.estimatedYear) aiDetails.push(`연식: ${data.estimatedYear}`);
+      if (data.summaryNote) aiDetails.push(data.summaryNote);
+      else if (data.estimatedYear) aiDetails.push(`연식: ${data.estimatedYear}`);
       if (aiDetails.length > 0) {
         const aiText = `[AI 사진 판독: ${aiDetails.join(" / ")}]`;
         setMemo((prev) => (prev ? `${aiText}\n${prev}` : aiText));
@@ -533,6 +566,41 @@ export function V2InquirySectionWithWizard({
         {/* STEP 1: 상담 유형 & 품목 선택 */}
         {step === 1 && (
           <div className="space-y-4">
+            {basketItems.length > 0 && (
+              <div className="rounded-lg border border-[#3B82F6]/30 bg-[#EFF6FF] p-3 text-hb-xs text-[#1E3A8A] flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Icon d={ICON.bag} className="w-4 h-4 text-[#2563EB] shrink-0" />
+                  <span>
+                    견적함에 담긴 {formatQuoteBasketSummary(basketItems).totalUnitCount}개 품목이 감지되었습니다. (총 {basketItems.length}종)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const bundleLines = basketItems
+                      .map(
+                        (it, idx) =>
+                          `${idx + 1}. [${it.category}] ${it.title} (수량: ${it.quantity || 1}대)`
+                      )
+                      .join("\n");
+                    setMemo(
+                      `[견적함 묶음 문의 - 총 ${basketItems.length}개 품목]\n${bundleLines}`
+                    );
+                    const cats = Array.from(
+                      new Set(basketItems.map((it) => it.category).filter(Boolean))
+                    );
+                    if (cats.length > 0) {
+                      setSelectedCategories(cats);
+                    }
+                    toast.success("견적함 품목이 문의 내용에 입력되었습니다.");
+                  }}
+                  className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold bg-white text-[#1D4ED8] hover:bg-blue-50 border-[#93C5FD] cursor-pointer"
+                >
+                  견적함 품목 불러오기
+                </button>
+              </div>
+            )}
+
             {!hideTypeSelector && !fixedType && (
               <div>
                 <span className="hb-label mb-2">1. 어떤 상담이 필요하신가요?</span>
@@ -659,7 +727,7 @@ export function V2InquirySectionWithWizard({
               </div>
 
               {selectedFiles.length > 0 && (
-                <div className="mt-2.5">
+                <div className="mt-2.5 space-y-2">
                   <button
                     type="button"
                     onClick={handleAiPhotoAnalyze}
@@ -670,9 +738,31 @@ export function V2InquirySectionWithWizard({
                     <span>
                       {analyzingAi
                         ? "AI 사진 판독 및 품목 분석 중..."
-                        : "AI 사진 판독으로 품목·모델명 자동 채우기"}
+                        : "AI로 사진 속 품목·모델명 자동 판독"}
                     </span>
                   </button>
+
+                  {aiResult && (
+                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2.5 text-hb-xs text-emerald-800 flex items-start gap-2">
+                      <Icon
+                        d={ICON.check}
+                        className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"
+                      />
+                      <div className="leading-relaxed">
+                        <strong className="font-bold text-emerald-900">
+                          AI 판독 결과 적용됨:
+                        </strong>{" "}
+                        {[
+                          aiResult.applianceCategory,
+                          aiResult.title,
+                          aiResult.modelNumber,
+                          aiResult.summaryNote,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -60,20 +60,40 @@ export function ProductDetailGallery({
       imageUrl: images[0] || null,
     });
 
-    // 상세 페이지 직접 유입 및 조회수 집계 (sessionStorage 기준 1회 집계)
+    // 상세 페이지 직접 유입 및 조회수 집계 (sessionStorage "viewed_products" JSON 배열 기준 1회 집계)
     if (typeof window !== "undefined") {
-      const viewKey = `viewed_product_${id}`;
-      if (!sessionStorage.getItem(viewKey)) {
-        sessionStorage.setItem(viewKey, "1");
-        getAdminAuthHeaders().then((authHeaders) => {
-          fetch(`/api/products/${id}/view`, {
-            method: "POST",
-            headers: authHeaders,
-          }).catch(() => {
-            // 조회수 집계 비동기 실패는 조용히 무시
+      try {
+        const raw = sessionStorage.getItem("viewed_products");
+        const list: string[] = raw ? JSON.parse(raw) : [];
+        if (!list.includes(String(id))) {
+          getAdminAuthHeaders().then((authHeaders) => {
+            fetch(`/api/products/${id}/view`, {
+              method: "POST",
+              headers: authHeaders,
+            })
+              .then((res) => {
+                if (res.ok) {
+                  try {
+                    const currentRaw = sessionStorage.getItem("viewed_products");
+                    const currentList: string[] = currentRaw
+                      ? JSON.parse(currentRaw)
+                      : [];
+                    if (!currentList.includes(String(id))) {
+                      currentList.push(String(id));
+                      sessionStorage.setItem(
+                        "viewed_products",
+                        JSON.stringify(currentList)
+                      );
+                    }
+                  } catch {}
+                }
+              })
+              .catch(() => {
+                // 조회수 집계 비동기 실패는 조용히 무시
+              });
           });
-        });
-      }
+        }
+      } catch {}
     }
   }, [id, title, category, price, status, conditionGrade, modelName, images]);
 
