@@ -255,7 +255,7 @@ export function CategoryPictogramBar({
         {/* 모바일·태블릿·데스크톱 3단 적응형 벤토 그리드 */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5 items-stretch">
           {/* 1. 가정·원룸 중고가전 (5컬럼) */}
-          <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-[#FAF9F7] p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between gap-2 mb-3.5">
               <div className="flex items-center gap-2">
                 <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-extrabold text-white">
@@ -284,7 +284,7 @@ export function CategoryPictogramBar({
                     onClick={() => handleCategoryClick(item)}
                     className={`group relative flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border p-3 sm:py-3.5 sm:px-2 text-left sm:text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
                       isSelected
-                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-card"
+                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#D9531E]/20"
                         : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md"
                     }`}
                   >
@@ -320,7 +320,7 @@ export function CategoryPictogramBar({
           </div>
 
           {/* 2. 식당·카페 업소용 설비 (3컬럼 — 다크 네이비 글래스 테마) */}
-          <div className="lg:col-span-3 flex flex-col justify-between rounded-2xl border border-[#1E2F48] bg-[#0E1A2B] p-4 sm:p-5 text-white shadow-card">
+          <div className="lg:col-span-3 flex flex-col justify-between rounded-2xl border border-[#1E2F48] hb-dark-mesh p-4 sm:p-5 text-white shadow-card">
             <div className="flex items-center justify-between gap-2 mb-3.5">
               <span className="rounded-md bg-[#D9531E] px-2.5 py-1 text-hb-xs font-extrabold text-white">
                 식당 · 카페 B2B
@@ -341,7 +341,7 @@ export function CategoryPictogramBar({
                     onClick={() => handleCategoryClick(item)}
                     className={`group flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border p-3 sm:py-3.5 sm:px-2 text-left sm:text-center backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
                       isSelected
-                        ? "border-[#FF8A50] bg-white/20 shadow-md"
+                        ? "border-[#FF8A50] bg-white/20 shadow-md ring-2 ring-[#FF8A50]/30"
                         : "border-white/15 bg-white/[0.06] hover:border-[#FF8A50] hover:bg-white/[0.12]"
                     }`}
                   >
@@ -367,7 +367,7 @@ export function CategoryPictogramBar({
           </div>
 
           {/* 3. 방문매입 · 폐업정리 · 창업상담 (4컬럼 — 웜 오렌지 포인트 테마) */}
-          <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-[#FADCD0] bg-[#FFF5F0]/80 p-4 sm:p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+          <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-[#FADCD0] bg-gradient-to-br from-[#FFF8F5] to-[#FFF0E8] p-4 sm:p-5 shadow-card">
             <div className="flex items-center justify-between gap-2 mb-3.5">
               <span className="rounded-md bg-[#D9531E] px-2.5 py-1 text-hb-xs font-extrabold text-white">
                 방문매입 · 원스톱

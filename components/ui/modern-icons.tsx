@@ -37,9 +37,22 @@ export function ModernApplianceIcon({
 }: ModernIconProps) {
   const uid = React.useId().replace(/:/g, "");
 
+  const isCyanType = name === "aircon" || name === "fridge" || name === "showcase";
+  const isTealType = name === "washer" || name === "kitchen" || name === "sparkle" || name === "shield";
+
   const primaryStroke = dark ? "#FFFFFF" : "#0E1A2B";
   const secondaryFill = dark ? "rgba(255,255,255,0.14)" : "#F1F4F9";
-  const accentColor = dark ? "#FF8A50" : "#D9531E";
+  const accentColor = isCyanType
+    ? (dark ? "#38BDF8" : "#0284C7")
+    : isTealType
+    ? (dark ? "#2DD4BF" : "#0D9488")
+    : (dark ? "#FF8A50" : "#D9531E");
+
+  const glowClass = isCyanType
+    ? (dark ? "bg-[#38BDF8]/25" : "bg-[#0284C7]/15")
+    : isTealType
+    ? (dark ? "bg-[#2DD4BF]/25" : "bg-[#0D9488]/15")
+    : (dark ? "bg-[#FF8A50]/25" : "bg-[#D9531E]/15");
 
   return (
     <div
@@ -48,9 +61,7 @@ export function ModernApplianceIcon({
     >
       {/* 호버 시 은은하게 퍼지는 후면 앰비언트 광원 */}
       <span
-        className={`pointer-events-none absolute inset-1 rounded-2xl opacity-0 blur-md transition-all duration-300 group-hover:opacity-100 group-hover:scale-110 ${
-          dark ? "bg-[#FF8A50]/25" : "bg-[#D9531E]/15"
-        }`}
+        className={`pointer-events-none absolute inset-1 rounded-2xl opacity-0 blur-md transition-all duration-300 group-hover:opacity-100 group-hover:scale-110 ${glowClass}`}
       />
 
       <svg
@@ -81,6 +92,30 @@ export function ModernApplianceIcon({
           >
             <stop stopColor="#FF8A50" />
             <stop offset="1" stopColor="#D9531E" />
+          </linearGradient>
+          {/* 아이스 시안 → 오션 블루 (냉각·냉기 계열: 에어컨, 냉장고, 쇼케이스) */}
+          <linearGradient
+            id={`cyanGrad-${uid}`}
+            x1="12"
+            y1="10"
+            x2="36"
+            y2="38"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#38BDF8" />
+            <stop offset="1" stopColor="#0284C7" />
+          </linearGradient>
+          {/* 클린 민트 → 에메랄드 틸 (고압 살균·세척·보증 계열: 세탁기, 주방설비, 스파클, 쉴드) */}
+          <linearGradient
+            id={`tealGrad-${uid}`}
+            x1="12"
+            y1="10"
+            x2="36"
+            y2="38"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop stopColor="#2DD4BF" />
+            <stop offset="1" stopColor="#0D9488" />
           </linearGradient>
           <linearGradient
             id={`glassGrad-${uid}`}
@@ -213,7 +248,7 @@ export function ModernApplianceIcon({
               width="5"
               height="7"
               rx="1.5"
-              fill={`url(#orangeGrad-${uid})`}
+              fill={`url(#cyanGrad-${uid})`}
             />
             <path
               d="M21.5 12V20M26.5 12V20"
@@ -373,7 +408,7 @@ export function ModernApplianceIcon({
               width="4"
               height="6"
               rx="1"
-              fill={accentColor}
+              fill={`url(#cyanGrad-${uid})`}
             />
             <rect
               x="25"
@@ -381,7 +416,7 @@ export function ModernApplianceIcon({
               width="4"
               height="6"
               rx="1"
-              fill={accentColor}
+              fill={`url(#cyanGrad-${uid})`}
             />
           </>
         )}
@@ -406,7 +441,7 @@ export function ModernApplianceIcon({
               width="7"
               height="7"
               rx="2"
-              fill={`url(#orangeGrad-${uid})`}
+              fill={`url(#tealGrad-${uid})`}
               className="transition-transform duration-300 group-hover:-translate-y-0.5"
             />
             <rect
@@ -548,7 +583,7 @@ export function ModernApplianceIcon({
           <>
             <path
               d="M24 6L27.8 18.2L40 22L27.8 25.8L24 38L20.2 25.8L8 22L20.2 18.2L24 6Z"
-              fill={`url(#orangeGrad-${uid})`}
+              fill={`url(#tealGrad-${uid})`}
               stroke={primaryStroke}
               strokeWidth="2"
               strokeLinejoin="round"

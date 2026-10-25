@@ -62,6 +62,8 @@ export function ProductTrustMicroStrip({
           : "입고 후 전문 검수 및 클리닝 점검 완료",
       highlight: null,
       icon: "sparkle" as const,
+      color: "text-[#0D9488]",
+      badge: "bg-[#F0FDFA] text-[#0F766E] border-[#CCFBF1]",
     },
     {
       step: "02",
@@ -69,6 +71,8 @@ export function ProductTrustMicroStrip({
       desc: "계약 조건에 따라 보증 기간 차등 적용",
       highlight: warrantyHighlight,
       icon: "shield" as const,
+      color: "text-[#D9531E]",
+      badge: "bg-[#FFF5F0] text-[#D9531E] border-[#FADCD0]",
     },
     {
       step: "03",
@@ -76,6 +80,8 @@ export function ProductTrustMicroStrip({
       desc: "사업자 부가세 증빙 및 직영 배송·설치 지원",
       highlight: null,
       icon: "tax" as const,
+      color: "text-[#0284C7]",
+      badge: "bg-[#F0F9FF] text-[#0369A1] border-[#BAE6FD]",
     },
   ] as const;
 
@@ -93,7 +99,7 @@ export function ProductTrustMicroStrip({
             <div>
               <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
                 <ModernApplianceIcon name={item.icon} className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
+                <span className={`font-mono text-hb-xs font-extrabold ${item.color}`}>
                   {item.step}
                 </span>
                 <span className="truncate">{item.title}</span>
@@ -103,7 +109,7 @@ export function ProductTrustMicroStrip({
               </p>
             </div>
             {item.highlight && (
-              <span className="mt-1 inline-block text-hb-xs font-semibold text-[#D9531E] break-keep">
+              <span className={`mt-1 inline-block text-hb-xs font-semibold ${item.color} break-keep`}>
                 · {item.highlight}
               </span>
             )}
@@ -197,8 +203,8 @@ export function ProductCard({
           : "hb-surface-card hover:border-[#0E1A2B]/40 hover:shadow-card-hover"
       }`}
     >
-      {/* 1. 시원시원한 대형 풀블리드 사진 (내부 축소 패딩 및 배경색 제거 · 사진을 100% 꽉 채워 시원하게 노출) */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F5F4F0]">
+      {/* 1. 시원시원한 대형 풀블리드 사진 (스튜디오 조명 백드롭 적용) */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop">
         <SafeImg
           src={images[0]}
           alt={product.title}

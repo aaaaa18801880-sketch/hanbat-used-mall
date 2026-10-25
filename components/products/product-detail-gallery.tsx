@@ -99,10 +99,10 @@ export function ProductDetailGallery({
           </span>
         </div>
 
-        {/* 메인 프리뷰 영역: 시원시원한 대형 뷰 (내부 축소 패딩 및 배경색 제거) */}
+        {/* 메인 프리뷰 영역: 시원시원한 대형 뷰 (스튜디오 백드롭 적용) */}
         <div
           onClick={() => displayImages[0] && setIsZoomOpen(true)}
-          className="relative w-full aspect-[4/3] sm:aspect-[16/11] bg-white flex items-center justify-center p-1 sm:p-2 overflow-hidden cursor-zoom-in group select-none"
+          className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-1 sm:p-2 overflow-hidden cursor-zoom-in group select-none"
           title="클릭하여 원본 비율 전체화면으로 확대"
         >
           <SafeImg

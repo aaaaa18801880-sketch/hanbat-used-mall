@@ -116,6 +116,39 @@ function getBuyerConcernItems(
   ];
 }
 
+function getInspectionBadgeStyle(badge: string) {
+  if (
+    badge.includes("세척") ||
+    badge.includes("살균") ||
+    badge.includes("클리닝")
+  ) {
+    return {
+      wrap: "bg-[#F0FDFA] border-[#CCFBF1] text-[#0F766E]",
+      icon: "text-[#0F766E]",
+    };
+  }
+  if (badge.includes("보증") || badge.includes("무상")) {
+    return {
+      wrap: "bg-[#FFF5F0] border-[#FADCD0] text-[#D9531E]",
+      icon: "text-[#D9531E]",
+    };
+  }
+  if (
+    badge.includes("성능") ||
+    badge.includes("시운전") ||
+    badge.includes("검수")
+  ) {
+    return {
+      wrap: "bg-[#F0F9FF] border-[#BAE6FD] text-[#0369A1]",
+      icon: "text-[#0369A1]",
+    };
+  }
+  return {
+    wrap: "bg-[#F1F4F9] border-[#D8E1EC] text-[#1E3A5F]",
+    icon: "text-[#1E3A5F]",
+  };
+}
+
 export function V2VisualInspectionViewer({
   category,
   conditionGrade,
@@ -165,34 +198,42 @@ export function V2VisualInspectionViewer({
 
         {/* 4대 소비자 질문 & 해결 카드 (2×2 그리드) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {items.map((item) => (
-            <div
-              key={item.no}
-              className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]/75 p-4 hover:border-[#0E1A2B] hover:bg-white transition-colors"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#0E1A2B] text-hb-xs font-extrabold text-white">
-                    {item.no}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-hb-xs font-bold text-emerald-800 shrink-0">
-                    <Icon d={ICON.check} className="w-3 h-3 text-emerald-700 shrink-0" />
-                    <span>{item.badge}</span>
-                  </span>
-                </div>
+          {items.map((item) => {
+            const badgeStyle = getInspectionBadgeStyle(item.badge);
+            return (
+              <div
+                key={item.no}
+                className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]/75 p-4 hover:border-[#0E1A2B] hover:bg-white transition-colors"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#0E1A2B] text-hb-xs font-extrabold text-white">
+                      {item.no}
+                    </span>
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold shrink-0 ${badgeStyle.wrap}`}
+                    >
+                      <Icon
+                        d={ICON.check}
+                        className={`w-3 h-3 shrink-0 ${badgeStyle.icon}`}
+                      />
+                      <span>{item.badge}</span>
+                    </span>
+                  </div>
 
-                <p className="text-hb-xs font-bold text-[#D9531E] leading-snug break-keep">
-                  {item.question}
-                </p>
-                <h4 className="mt-1 text-hb-sm font-extrabold text-[#0E1A2B] leading-snug break-keep">
-                  {item.answerTitle}
-                </h4>
-                <p className="mt-1.5 text-hb-xs leading-relaxed text-[#3E4756] break-keep">
-                  {item.desc}
-                </p>
+                  <p className="text-hb-xs font-bold text-[#D9531E] leading-snug break-keep">
+                    {item.question}
+                  </p>
+                  <h4 className="mt-1 text-hb-sm font-extrabold text-[#0E1A2B] leading-snug break-keep">
+                    {item.answerTitle}
+                  </h4>
+                  <p className="mt-1.5 text-hb-xs leading-relaxed text-[#3E4756] break-keep">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

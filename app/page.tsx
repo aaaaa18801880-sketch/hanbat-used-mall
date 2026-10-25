@@ -592,7 +592,7 @@ export default function Home() {
         <section
           id="hero-section"
           aria-labelledby="hero-title"
-          className="relative w-full border-b border-[#E5E2DC] bg-[#F4F2ED]"
+          className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero"
         >
           {/* 상단 직영 쇼룸 상태 스트립 */}
           <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
@@ -765,7 +765,7 @@ export default function Home() {
               </div>
 
               {/* 우측 (5열): 오프라인 직영 쇼룸 비주얼 + 실시간 입고 실매물 3종 독 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-lg overflow-hidden border border-[#CFCAC0] bg-white shadow-card">
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0E1A2B]">
                   <SafeImg
                     src="/main-bg2.png"
@@ -816,7 +816,7 @@ export default function Home() {
                             href={`/${item.id}`}
                             className="group block min-w-0 rounded-lg border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#0E1A2B] transition-colors"
                           >
-                            <div className="aspect-[4/3] w-full overflow-hidden bg-[#F5F4F0]">
+                            <div className="aspect-[4/3] w-full overflow-hidden hb-studio-backdrop">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}
@@ -1380,7 +1380,7 @@ export default function Home() {
             <div className="mt-8 grid gap-8 lg:grid-cols-12 items-stretch">
               {/* 좌측 (5열): 직통 연락처 콘솔 + 최근 문의 현황 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col gap-6 justify-between">
-                <div className="rounded-lg bg-[#0E1A2B] p-6 text-white">
+                <div className="rounded-2xl hb-dark-mesh p-6 text-white shadow-card">
                   <span className="inline-block rounded bg-[#D9531E] px-2.5 py-0.5 text-hb-xs font-bold text-white">
                     직통 고객센터
                   </span>

@@ -13,6 +13,12 @@
   --hb-orange-hover: #c04615;
   --hb-orange-subtle: #fcede6;
 
+  /* 신규 추가: 위생·살균(Teal) & 냉기·성능(Cyan) 보조 포인트 컬러 */
+  --hb-teal: #0d9488;
+  --hb-teal-subtle: #f0fdfa;
+  --hb-cyan: #0284c7;
+  --hb-cyan-subtle: #f0f9ff;
+
   --hb-bg-warm: #f7f6f3;
   --hb-bg-subtle: #faf9f7;
   --hb-bg-muted: #f0ede7;
@@ -174,12 +180,58 @@ body {
     transform: translateX(2px);
   }
 
+  /* 1. 입체 마이크로 그라데이션 버튼 (상단 빛 반사 하이라이트 포함) */
   .hb-btn-primary {
-    @apply hb-btn bg-[#0E1A2B] text-white hover:bg-[#182942] active:bg-[#0A1320];
+    @apply hb-btn text-white;
+    background-image: linear-gradient(135deg, #1a2e4c 0%, #0e1a2b 100%);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+      0 2px 6px -1px rgba(14, 26, 43, 0.25);
+  }
+
+  .hb-btn-primary:hover {
+    background-image: linear-gradient(135deg, #223b60 0%, #13233a 100%);
   }
 
   .hb-btn-accent {
-    @apply hb-btn bg-[#D9531E] text-white hover:bg-[#C04615] active:bg-[#A63C10] focus-visible:ring-[#D9531E];
+    @apply hb-btn text-white focus-visible:ring-[#D9531E];
+    background-image: linear-gradient(135deg, #f06429 0%, #d04814 100%);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
+      0 4px 12px -2px rgba(217, 83, 30, 0.32);
+  }
+
+  .hb-btn-accent:hover {
+    background-image: linear-gradient(135deg, #e0561c 0%, #b83c0e 100%);
+  }
+
+  /* 2. 히어로 섹션용 소프트 앰비언트 메쉬 그라데이션 (웜 피치 + 쿨 시안 미스트) */
+  .hb-ambient-hero {
+    background-color: #faf9f7;
+    background-image:
+      radial-gradient(at 12% 18%, rgba(255, 138, 80, 0.11) 0px, transparent 48%),
+      radial-gradient(at 88% 22%, rgba(6, 182, 212, 0.09) 0px, transparent 52%),
+      linear-gradient(180deg, #ffffff 0%, #faf9f7 100%);
+  }
+
+  /* 3. B2B 업소용 & 다크 카드용 딥 메쉬 그라데이션 */
+  .hb-dark-mesh {
+    background-color: #0e1a2b;
+    background-image:
+      radial-gradient(at 90% 10%, rgba(217, 83, 30, 0.22) 0px, transparent 45%),
+      radial-gradient(at 10% 90%, rgba(14, 165, 233, 0.16) 0px, transparent 50%),
+      linear-gradient(135deg, #152740 0%, #0b1523 100%);
+  }
+
+  /* 4. 중고 매물 사진 보정용 스튜디오 조명 백드롭 */
+  .hb-studio-backdrop {
+    background-color: #f4f2ed;
+    background-image: radial-gradient(
+      circle at 50% 42%,
+      #ffffff 0%,
+      #f5f3ef 58%,
+      #eae6df 100%
+    );
   }
 
   .hb-btn-outline {
