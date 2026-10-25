@@ -15,6 +15,7 @@ import {
   splitImages,
   compressImage,
   rotateImageFile,
+  enhanceImageFile,
   sanitizeOldManufactureYear,
   validateImageFiles,
   MAX_PHOTOS,
@@ -1688,37 +1689,57 @@ export default function GalleryPage() {
       );
       setFoundSources(Array.isArray(cleanData.sourceUrls) ? cleanData.sourceUrls : []);
 
-      // AI가 감지한 옆으로 누운 사진 자동 정방향 회전
+      // AI가 감지한 사진 방향 및 실내 조명(광도·대비) 자동 최적화
       if (Array.isArray(data.imageRotations) && data.imageRotations.length > 0) {
-        const rotationsToApply = data.imageRotations.filter(
-          (r: { index?: unknown; rotate?: unknown }) => {
+        let rotatedCount = 0;
+        let enhancedLightCount = 0;
+
+        try {
+          for (const r of data.imageRotations as Array<{
+            index?: unknown;
+            rotate?: unknown;
+            brightness?: unknown;
+            contrast?: unknown;
+          }>) {
             const idx = typeof r.index === "number" ? r.index - 1 : -1;
             const deg = typeof r.rotate === "number" ? r.rotate : 0;
-            return (
+            const brightness = typeof r.brightness === "number" ? r.brightness : 1.0;
+            const contrast = typeof r.contrast === "number" ? r.contrast : 1.0;
+
+            if (
               idx >= 0 &&
               idx < filesToAnalyze.length &&
-              deg > 0 &&
-              deg < 360 &&
               !userManuallyRotatedRef.current.has(idx)
-            );
-          }
-        );
+            ) {
+              const needsRotate = deg > 0 && deg < 360;
+              const needsLight = brightness > 1.02 || contrast > 1.02;
 
-        if (rotationsToApply.length > 0) {
-          try {
-            for (const r of rotationsToApply) {
-              const idx = (r.index as number) - 1;
-              await rotateUploadFile(idx, r.rotate as number, true);
-            }
-            toast.success(
-              "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다.",
-              {
-                duration: 4000,
+              if (needsRotate || needsLight) {
+                await enhanceUploadFile(
+                  idx,
+                  {
+                    degrees: needsRotate ? deg : 0,
+                    brightness: needsLight ? brightness : 1.0,
+                    contrast: needsLight ? contrast : 1.0,
+                    saturate: needsLight ? 1.04 : 1.0,
+                  },
+                  true
+                );
+                if (needsRotate) rotatedCount++;
+                if (needsLight) enhancedLightCount++;
               }
-            );
-          } catch (rotateErr) {
-            console.warn("AI 자동 회전 적용 중 오류:", rotateErr);
+            }
           }
+
+          if (rotatedCount > 0 && enhancedLightCount > 0) {
+            toast.success("AI가 사진 방향과 스튜디오 조명(광도·대비)을 자동 최적화했습니다.");
+          } else if (rotatedCount > 0) {
+            toast.success("AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다.");
+          } else if (enhancedLightCount > 0) {
+            toast.success("AI가 실내 조명을 보정하여 화사한 쇼룸 스튜디오 톤으로 최적화했습니다.");
+          }
+        } catch (enhanceErr) {
+          console.warn("AI 자동 보정 적용 중 오류:", enhanceErr);
         }
       }
 
@@ -1808,6 +1829,46 @@ export default function GalleryPage() {
     } catch (err) {
       console.error("사진 회전 오류:", err);
       if (!isAuto) toast.error("사진 회전에 실패했습니다.");
+    }
+  };
+
+  const enhanceUploadFile = async (
+    index: number,
+    options: { degrees?: number; brightness?: number; contrast?: number; saturate?: number } = {},
+    isAuto = false
+  ) => {
+    let targetFile: File | null = null;
+    setProductFiles((prev) => {
+      targetFile = prev[index] || null;
+      return prev;
+    });
+
+    if (!targetFile) return;
+
+    try {
+      const enhanced = await enhanceImageFile(targetFile, options);
+      setProductFiles((prev) => {
+        const next = [...prev];
+        if (index < next.length) next[index] = enhanced;
+        return next;
+      });
+
+      setProductPreviews((prev) => {
+        const next = [...prev];
+        if (index < next.length) {
+          if (next[index]) URL.revokeObjectURL(next[index]);
+          next[index] = URL.createObjectURL(enhanced);
+        }
+        return next;
+      });
+
+      if (!isAuto) {
+        userManuallyRotatedRef.current.add(index);
+        toast.success(`${index + 1}번 사진이 스튜디오 조명(광도·대비) 보정되었습니다.`);
+      }
+    } catch (err) {
+      console.error("사진 보정 오류:", err);
+      if (!isAuto) toast.error("사진 보정에 실패했습니다.");
     }
   };
 
@@ -2679,6 +2740,18 @@ export default function GalleryPage() {
                             className="absolute top-1.5 right-1.5 bg-black/70 hover:bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center"
                           >
                             <Icon d={ICON.close} className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              enhanceUploadFile(index, { brightness: 1.14, contrast: 1.08, saturate: 1.04 });
+                              toast.success("스튜디오 화사한 조명 톤으로 보정되었습니다.");
+                            }}
+                            title="스튜디오 조명 톤업 (밝기+14%, 대비+8%)"
+                            aria-label="스튜디오 조명 톤업"
+                            className="absolute bottom-1.5 right-8 bg-black/75 hover:bg-[#D9531E] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
+                          >
+                            <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#FF8A50]" />
                           </button>
                           {/* 이미지 우하단 퀵 90도 회전 버튼 */}
                           <button

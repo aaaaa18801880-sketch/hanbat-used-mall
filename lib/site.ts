@@ -1346,14 +1346,31 @@ export function compressImage(
   });
 }
 
+export interface ImageEnhanceOptions {
+  degrees?: number;
+  brightness?: number; // 1.0 = 원본, 1.15 = +15% 광도 증가
+  contrast?: number;   // 1.0 = 원본, 1.10 = +10% 대비 증가
+  saturate?: number;   // 1.0 = 원본, 1.05 = +5% 생생한 채도
+  quality?: number;
+}
+
 /**
- * 이미지 File을 캔버스를 통해 지정된 각도(기본 90도 시계방향)로 회전하여 새로운 File 객체를 반환
+ * [스마트 쇼룸 리터칭 엔진]
+ * 이미지 File을 캔버스를 통해 회전 및 스튜디오 광도·대비·선명화 필터를 적용하여
+ * 추가 API 비용 없이 무손실 고화질 쇼룸 사진으로 변환
  */
-export function rotateImageFile(
+export function enhanceImageFile(
   file: File,
-  degrees = 90,
-  quality = 0.92
+  options: ImageEnhanceOptions = {}
 ): Promise<File> {
+  const {
+    degrees = 0,
+    brightness = 1.0,
+    contrast = 1.0,
+    saturate = 1.0,
+    quality = 0.92,
+  } = options;
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("파일을 읽지 못했습니다."));
@@ -1362,7 +1379,10 @@ export function rotateImageFile(
       img.onerror = () => reject(new Error("이미지를 불러오지 못했습니다."));
       img.onload = () => {
         const normalizedDeg = ((degrees % 360) + 360) % 360;
-        if (normalizedDeg === 0) {
+        const needsRotate = normalizedDeg !== 0;
+        const needsFilter = brightness !== 1.0 || contrast !== 1.0 || saturate !== 1.0;
+
+        if (!needsRotate && !needsFilter) {
           resolve(file);
           return;
         }
@@ -1378,8 +1398,14 @@ export function rotateImageFile(
           return;
         }
 
+        if (needsFilter) {
+          ctx.filter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
+        }
+
         ctx.translate(canvas.width / 2, canvas.height / 2);
-        ctx.rotate((normalizedDeg * Math.PI) / 180);
+        if (needsRotate) {
+          ctx.rotate((normalizedDeg * Math.PI) / 180);
+        }
         ctx.drawImage(img, -img.width / 2, -img.height / 2);
 
         canvas.toBlob(
@@ -1389,11 +1415,11 @@ export function rotateImageFile(
               return;
             }
             const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-            const rotatedFile = new File([blob], cleanName, {
+            const enhancedFile = new File([blob], cleanName, {
               type: "image/jpeg",
               lastModified: Date.now(),
             });
-            resolve(rotatedFile);
+            resolve(enhancedFile);
           },
           "image/jpeg",
           quality
@@ -1403,6 +1429,17 @@ export function rotateImageFile(
     };
     reader.readAsDataURL(file);
   });
+}
+
+/**
+ * 이미지 File을 캔버스를 통해 지정된 각도(기본 90도 시계방향)로 회전하여 새로운 File 객체를 반환
+ */
+export function rotateImageFile(
+  file: File,
+  degrees = 90,
+  quality = 0.92
+): Promise<File> {
+  return enhanceImageFile(file, { degrees, quality });
 }
 
 /* ════════════════════════════════════════════════════════════

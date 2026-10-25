@@ -24,6 +24,7 @@ import {
   splitImages,
   compressImage,
   rotateImageFile,
+  enhanceImageFile,
   sanitizeOldManufactureYear,
   validateImageFiles,
   extractModelName,
@@ -521,6 +522,42 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
+  const enhanceProdFile = async (
+    index: number,
+    options: { degrees?: number; brightness?: number; contrast?: number; saturate?: number } = {},
+    isAuto = false
+  ) => {
+    let targetFile: File | null = null;
+    setProdFiles((prev) => {
+      targetFile = prev[index] || null;
+      return prev;
+    });
+    if (!targetFile) return;
+
+    try {
+      const enhanced = await enhanceImageFile(targetFile, options);
+      setProdFiles((prev) => {
+        const next = [...prev];
+        if (index < next.length) next[index] = enhanced;
+        return next;
+      });
+      setProdPreviews((prev) => {
+        const next = [...prev];
+        if (index < next.length) {
+          if (next[index]) URL.revokeObjectURL(next[index]);
+          next[index] = URL.createObjectURL(enhanced);
+        }
+        return next;
+      });
+      if (!isAuto) {
+        adminUserRotatedRef.current.add(index);
+        toast.success(`${index + 1}번 사진이 스튜디오 조명(광도·대비) 보정되었습니다.`);
+      }
+    } catch {
+      if (!isAuto) toast.error("사진 보정에 실패했습니다.");
+    }
+  };
+
   const removeProdFile = (index: number) => {
     URL.revokeObjectURL(prodPreviews[index]);
     setProdFiles((prev) => prev.filter((_, i) => i !== index));
@@ -622,27 +659,56 @@ export default function IntegratedAdminDashboard() {
         Array.isArray(data.imageRotations) &&
         data.imageRotations.length > 0
       ) {
-        const rotationsToApply = data.imageRotations.filter(
-          (r: { index?: unknown; rotate?: unknown }) => {
-            const idx = typeof r.index === "number" ? r.index - 1 : -1;
-            const deg = typeof r.rotate === "number" ? r.rotate : 0;
-            return (
-              idx >= 0 &&
-              idx < filesToAnalyze.length &&
-              deg > 0 &&
-              deg < 360 &&
-              !adminUserRotatedRef.current.has(idx)
-            );
-          }
-        );
+        let rotatedCount = 0;
+        let enhancedLightCount = 0;
 
-        if (rotationsToApply.length > 0) {
-          for (const r of rotationsToApply) {
-            const idx = (r.index as number) - 1;
-            await rotateProdFile(idx, r.rotate as number, true);
+        for (const r of data.imageRotations as Array<{
+          index?: unknown;
+          rotate?: unknown;
+          brightness?: unknown;
+          contrast?: unknown;
+        }>) {
+          const idx = typeof r.index === "number" ? r.index - 1 : -1;
+          const deg = typeof r.rotate === "number" ? r.rotate : 0;
+          const brightness = typeof r.brightness === "number" ? r.brightness : 1.0;
+          const contrast = typeof r.contrast === "number" ? r.contrast : 1.0;
+
+          if (
+            idx >= 0 &&
+            idx < filesToAnalyze.length &&
+            !adminUserRotatedRef.current.has(idx)
+          ) {
+            const needsRotate = deg > 0 && deg < 360;
+            const needsLight = brightness > 1.02 || contrast > 1.02;
+
+            if (needsRotate || needsLight) {
+              await enhanceProdFile(
+                idx,
+                {
+                  degrees: needsRotate ? deg : 0,
+                  brightness: needsLight ? brightness : 1.0,
+                  contrast: needsLight ? contrast : 1.0,
+                  saturate: needsLight ? 1.04 : 1.0,
+                },
+                true
+              );
+              if (needsRotate) rotatedCount++;
+              if (needsLight) enhancedLightCount++;
+            }
           }
+        }
+
+        if (rotatedCount > 0 && enhancedLightCount > 0) {
+          toast.success(
+            "AI가 사진 방향과 스튜디오 조명(광도·대비)을 자동 최적화했습니다."
+          );
+        } else if (rotatedCount > 0) {
           toast.success(
             "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다."
+          );
+        } else if (enhancedLightCount > 0) {
+          toast.success(
+            "AI가 실내 조명을 보정하여 화사한 쇼룸 스튜디오 톤으로 최적화했습니다."
           );
         }
       }
@@ -1791,6 +1857,18 @@ export default function IntegratedAdminDashboard() {
                               className="absolute top-1 right-1 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
                             >
                               <Icon d={ICON.close} className="w-3 h-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                enhanceProdFile(index, { brightness: 1.14, contrast: 1.08, saturate: 1.04 });
+                                toast.success("스튜디오 화사한 조명 톤으로 보정되었습니다.");
+                              }}
+                              title="스튜디오 조명 톤업 (밝기+14%, 대비+8%)"
+                              aria-label="스튜디오 조명 톤업"
+                              className="absolute bottom-1 right-8 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E] transition-colors"
+                            >
+                              <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#FF8A50]" />
                             </button>
                             <button
                               type="button"
