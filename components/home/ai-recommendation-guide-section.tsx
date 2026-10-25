@@ -38,6 +38,7 @@ const COMPARISON_ROWS = [
 
 const SITUATION_GUIDES = [
   {
+    code: "SOLUTION 01",
     badge: "가정 · 원룸 · 자취 추천",
     title: "원룸 입주 · 신혼 · 가전 단품 구매",
     recommend: "소형~양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨",
@@ -47,6 +48,7 @@ const SITUATION_GUIDES = [
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
   },
   {
+    code: "SOLUTION 02",
     badge: "식당 · 카페 창업 추천",
     title: "업소용 냉장 · 쇼케이스 · 주방 패키지",
     recommend:
@@ -57,6 +59,7 @@ const SITUATION_GUIDES = [
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
   },
   {
+    code: "SOLUTION 03",
     badge: "이사 · 매장 폐업 추천",
     title: "가정 가전 처분 · 식당/카페 폐업 일괄 매입",
     recommend: "전면 사진 + 명판 스티커 전송 → 방문 수거 당일 100% 현금 입금",
@@ -104,15 +107,26 @@ export function AiRecommendationGuideSection() {
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-semibold text-white/75 w-[34%] min-w-[200px]"
+                      className="py-3.5 px-4 sm:px-6 font-semibold text-white/60 bg-[#0E1A2B]/90 w-[34%] min-w-[200px]"
                     >
-                      일반 개인간 중고거래 (직거래 앱 등)
+                      <span className="inline-block px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-hb-xs mb-1 font-normal">
+                        위험 · 주의
+                      </span>
+                      <p>일반 개인간 중고거래 (직거래 앱 등)</p>
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-extrabold text-[#FF8A50] bg-[#16263D] w-[42%] min-w-[240px]"
+                      className="py-3.5 px-4 sm:px-6 font-extrabold text-white bg-gradient-to-r from-[#16263D] to-[#1E3452] border-t-2 border-[#D9531E] w-[42%] min-w-[240px]"
                     >
-                      {STORE.name} (SINCE {STORE.since} 직영 쇼룸)
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
+                          <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
+                          OFFICIAL SHOWROOM GUARANTEE
+                        </span>
+                      </div>
+                      <p className="text-white text-hb-sm">
+                        {STORE.name} (SINCE {STORE.since} 직영 쇼룸)
+                      </p>
                     </th>
                   </tr>
                 </thead>
@@ -128,10 +142,10 @@ export function AiRecommendationGuideSection() {
                       >
                         {row.criteria}
                       </th>
-                      <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] leading-relaxed">
+                      <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] bg-[#FAF9F7]/40 leading-relaxed">
                         {row.personal}
                       </td>
-                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF5F0]/45 leading-relaxed">
+                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF5F0]/60 leading-relaxed">
                         <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
                           <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
                           <span>{row.hanbat}</span>
@@ -169,12 +183,17 @@ export function AiRecommendationGuideSection() {
             {SITUATION_GUIDES.map((g) => (
               <article
                 key={g.title}
-                className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] transition-colors"
+                className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] transition-all hover:shadow-card"
               >
                 <div>
-                  <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
-                    {g.badge}
-                  </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-hb-xs font-black text-[#D9531E] tracking-wider">
+                      {g.code}
+                    </span>
+                    <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                      {g.badge}
+                    </span>
+                  </div>
                   <h4 className="mt-2.5 text-hb-lg font-bold text-[#0E1A2B]">
                     {g.title}
                   </h4>
@@ -199,10 +218,10 @@ export function AiRecommendationGuideSection() {
                 <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
                   <Link
                     href={g.href}
-                    className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] hover:text-[#D9531E] transition-colors"
+                    className="hb-btn-outline w-full justify-between h-10 px-4 text-hb-xs font-bold rounded-lg group"
                   >
                     <span>{g.ctaLabel}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E]" />
+                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E] group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                 </div>
               </article>

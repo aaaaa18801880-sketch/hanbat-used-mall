@@ -166,8 +166,6 @@ export function CategoryPictogramBar({
   onSelectInquiry?: (type: InquiryTypeValue) => void;
 }) {
   const allItem = SHOWROOM_CATEGORIES[0];
-  const homeItems = SHOWROOM_CATEGORIES.filter((c) => c.group === "home");
-  const bizItems = SHOWROOM_CATEGORIES.filter((c) => c.group === "biz");
 
   const handleCategoryClick = (item: ShowroomCategoryItem) => {
     trackEvent("filter_gallery", {
@@ -252,48 +250,61 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 모바일·태블릿·데스크톱 3단 적응형 벤토 그리드 */}
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:gap-5 items-stretch">
-          {/* 1. 가정·원룸 중고가전 (5컬럼) */}
-          <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white/95 backdrop-blur-md p-4 sm:p-5 shadow-card">
-            <div className="flex items-center justify-between gap-2 mb-3.5">
+        {/* 2-Tier Flagship Showroom Deck (1단: 8열 와이드 카탈로그 독 / 2단: 4열 컨시어지 스트립) */}
+        <div className="space-y-4 sm:space-y-5">
+          {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
+          <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-4 shadow-card">
+            <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-[#ECE9E2]">
               <div className="flex items-center gap-2">
                 <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-extrabold text-white">
-                  가정 · 원룸 가전
+                  실시간 전시장 카탈로그
                 </span>
-                <span className="text-hb-xs font-bold text-[#3E4756]">
-                  분해 고압 살균 · 무상 A/S
+                <span className="text-hb-xs font-bold text-[#3E4756] hidden sm:inline">
+                  분해 고압살균 세척 완료 · 전 품목 무상 A/S 약정 보증
                 </span>
               </div>
-              <Link
-                href="/gallery"
-                className="text-hb-xs font-bold text-[#D9531E] hover:underline"
-              >
-                전체보기 →
-              </Link>
+              <span className="text-hb-xs text-[#646E7E]">
+                원하시는 가전을 터치하면 아래에서 즉시 필터링됩니다
+              </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {homeItems.map((item) => {
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5">
+              {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
                 const count = categoryCounts?.[item.key];
+                const isBiz = item.group === "biz";
                 return (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border p-3 sm:py-3.5 sm:px-2 text-left sm:text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
                       isSelected
                         ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#D9531E]/20"
+                        : isBiz
+                        ? "border-[#1E2F48] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md"
                         : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md"
                     }`}
                   >
+                    {isBiz && (
+                      <span
+                        className={`absolute top-1.5 right-1.5 text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                          isSelected
+                            ? "bg-[#FF8A50] text-[#0E1A2B]"
+                            : "bg-[#0E1A2B] text-white"
+                        }`}
+                      >
+                        B2B
+                      </span>
+                    )}
+
                     <ModernApplianceIcon
                       name={item.icon}
                       dark={isSelected}
-                      className="w-11 h-11 sm:w-12 sm:h-12"
+                      className="w-10 h-10 sm:w-11 sm:h-11"
                     />
-                    <div className="min-w-0 flex-1 sm:w-full">
+
+                    <div className="min-w-0 w-full">
                       <strong
                         className={`block text-hb-xs sm:text-hb-sm font-extrabold truncate ${
                           isSelected
@@ -305,7 +316,11 @@ export function CategoryPictogramBar({
                       </strong>
                       <span
                         className={`mt-0.5 block text-hb-xs font-medium truncate ${
-                          isSelected ? "text-[#FF8A50]" : "text-[#646E7E]"
+                          isSelected
+                            ? "text-[#FF8A50]"
+                            : isBiz
+                            ? "text-[#D9531E] font-bold"
+                            : "text-[#646E7E]"
                         }`}
                       >
                         {typeof count === "number"
@@ -313,93 +328,46 @@ export function CategoryPictogramBar({
                           : item.subLabel}
                       </span>
                     </div>
+
+                    {/* 선택 시 하단 오렌지 인디케이터 바 */}
+                    {isSelected && (
+                      <span
+                        className="absolute inset-x-3 bottom-0 h-1 rounded-full bg-[#D9531E]"
+                        aria-hidden="true"
+                      />
+                    )}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* 2. 식당·카페 업소용 설비 (3컬럼 — 다크 네이비 글래스 테마) */}
-          <div className="lg:col-span-3 flex flex-col justify-between rounded-2xl border border-[#1E2F48] hb-dark-mesh p-4 sm:p-5 text-white shadow-card">
-            <div className="flex items-center justify-between gap-2 mb-3.5">
-              <span className="rounded-md bg-[#D9531E] px-2.5 py-1 text-hb-xs font-extrabold text-white">
-                식당 · 카페 B2B
-              </span>
-              <span className="text-hb-xs font-semibold text-white/75">
-                전자세금계산서 100%
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-2.5">
-              {bizItems.map((item) => {
-                const isSelected = selectedKey === item.key;
-                const count = categoryCounts?.[item.key];
-                return (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => handleCategoryClick(item)}
-                    className={`group flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border p-3 sm:py-3.5 sm:px-2 text-left sm:text-center backdrop-blur-xs transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
-                      isSelected
-                        ? "border-[#FF8A50] bg-white/20 shadow-md ring-2 ring-[#FF8A50]/30"
-                        : "border-white/15 bg-white/[0.06] hover:border-[#FF8A50] hover:bg-white/[0.12]"
-                    }`}
-                  >
-                    <ModernApplianceIcon
-                      name={item.icon}
-                      dark
-                      className="w-11 h-11 sm:w-12 sm:h-12"
-                    />
-                    <div className="min-w-0 flex-1 sm:w-full">
-                      <strong className="block text-hb-xs font-extrabold text-white group-hover:text-[#FF8A50] truncate">
-                        {item.label}
-                      </strong>
-                      <span className="mt-0.5 block text-hb-xs text-white/70 truncate">
-                        {typeof count === "number"
-                          ? `${count}대 전시`
-                          : item.subLabel}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 3. 방문매입 · 폐업정리 · 창업상담 (4컬럼 — 웜 오렌지 포인트 테마) */}
-          <div className="lg:col-span-4 flex flex-col justify-between rounded-2xl border border-[#FADCD0] bg-gradient-to-br from-[#FFF8F5] to-[#FFF0E8] p-4 sm:p-5 shadow-card">
-            <div className="flex items-center justify-between gap-2 mb-3.5">
-              <span className="rounded-md bg-[#D9531E] px-2.5 py-1 text-hb-xs font-extrabold text-white">
-                방문매입 · 원스톱
-              </span>
-              <span className="text-hb-xs font-bold text-[#B5431A]">
-                수거 당일 현금 입금
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {ACTION_BENTO_ITEMS.map((item) => (
-                <button
-                  key={item.label}
-                  type="button"
-                  onClick={() => handleActionClick(item)}
-                  className="group flex sm:flex-col items-center sm:justify-center gap-3 sm:gap-2 rounded-xl border border-[#FADCD0] bg-white p-3 sm:py-3.5 sm:px-2 text-left sm:text-center shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-[#D9531E] hover:shadow-md cursor-pointer"
-                >
-                  <ModernApplianceIcon
-                    name={item.icon}
-                    className="w-11 h-11 sm:w-12 sm:h-12"
-                  />
-                  <div className="min-w-0 flex-1 sm:w-full">
-                    <strong className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] truncate">
-                      {item.label}
-                    </strong>
-                    <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
-                      {item.sub}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+          {/* 2단: 4대 원스톱 컨시어지 배너 (4열 와이드 스트립) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            {ACTION_BENTO_ITEMS.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => handleActionClick(item)}
+                className="group relative flex items-center gap-3.5 rounded-xl border border-[#E5E2DC] bg-gradient-to-r from-white to-[#FAF9F7] p-3.5 sm:p-4 text-left shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-[#D9531E] hover:shadow-card cursor-pointer"
+              >
+                <ModernApplianceIcon
+                  name={item.icon}
+                  className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <strong className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
+                    {item.label}
+                  </strong>
+                  <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
+                    {item.sub}
+                  </span>
+                </div>
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF9F7] border border-[#E5E2DC] text-[#646E7E] group-hover:bg-[#D9531E] group-hover:text-white group-hover:border-transparent transition-all">
+                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </div>

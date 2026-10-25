@@ -234,6 +234,28 @@ body {
     );
   }
 
+  /* 5. 건축적 도트/그리드 배경 패턴 & 표면 질감 토큰 */
+  .hb-arch-grid {
+    background-image: radial-gradient(rgba(14, 26, 43, 0.07) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .hb-specular {
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.85);
+  }
+
+  .hb-specular-dark {
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  }
+
+  .hb-showroom-frame {
+    @apply relative overflow-hidden rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-200;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 1px 3px 0 rgba(14, 26, 43, 0.04),
+      0 8px 24px -4px rgba(14, 26, 43, 0.05);
+  }
+
   .hb-btn-outline {
     @apply hb-btn border border-[#CFCAC0] bg-white text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-[#FAF9F7] active:bg-[#F2F0EC];
   }

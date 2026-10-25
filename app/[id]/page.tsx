@@ -517,29 +517,50 @@ export default async function ProductDetailPage({
                 {product.title}
               </h1>
 
-              {/* 가격 하이라이트 배너 */}
-              <div className="mt-3.5 py-3 px-4 rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] flex items-baseline justify-between gap-3">
-                <span className="text-hb-xs font-bold text-[#3E4756] shrink-0">
-                  쇼룸 판매 가격
-                </span>
-                {sold ? (
-                  <span className="text-hb-xl font-bold text-[#646E7E]">
-                    판매완료 (유사 매물 문의 가능)
+              {/* 가격 하이라이트: 투톤 공식 직영 쇼룸 보증 프라이스 카드 */}
+              <div className="mt-4 rounded-xl overflow-hidden border border-[#0E1A2B]/15 shadow-sm">
+                {/* 상단 다크 네이비 보증 헤더 바 */}
+                <div className="bg-[#0E1A2B] px-3.5 py-2 flex items-center justify-between text-white">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50] shrink-0" />
+                    <span className="text-hb-xs font-bold text-white/95 truncate">
+                      분해 고압세척 완료 · 무상 A/S 약정보증
+                    </span>
+                  </div>
+                  <span className="font-mono text-hb-xs font-black tracking-widest text-[#FF8A50] shrink-0">
+                    OFFICIAL
                   </span>
-                ) : priced ? (
-                  <span className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B] tabular-nums">
-                    {priceDisplay}
-                  </span>
-                ) : (
-                  <div className="text-right">
-                    <span className="text-hb-lg sm:text-hb-xl font-extrabold text-[#D9531E]">
+                </div>
+
+                {/* 하단 웜 그라데이션 가격 박스 */}
+                <div className="bg-gradient-to-b from-[#FAF9F7] to-[#F5F2EB] p-4 flex items-baseline justify-between gap-3">
+                  <div className="min-w-0">
+                    <span className="block text-hb-xs font-bold text-[#646E7E]">
+                      쇼룸 실매물 공급가
+                    </span>
+                    <span className="text-hb-xs text-[#8A94A6]">
+                      부가세 증빙 100% · 현금영수증 발행
+                    </span>
+                  </div>
+                  {sold ? (
+                    <span className="text-hb-lg sm:text-hb-xl font-bold text-[#646E7E]">
+                      판매완료 (유사 매물 문의 가능)
+                    </span>
+                  ) : priced ? (
+                    <span className="text-hb-2xl sm:text-hb-3xl font-black tracking-tight text-[#0E1A2B] tabular-nums">
                       {priceDisplay}
                     </span>
-                    <p className="text-hb-xs text-[#646E7E]">
-                      설치 환경·배관·수량별 맞춤 견적 안내
-                    </p>
-                  </div>
-                )}
+                  ) : (
+                    <div className="text-right">
+                      <span className="text-hb-lg sm:text-hb-xl font-black text-[#D9531E]">
+                        {priceDisplay}
+                      </span>
+                      <p className="text-hb-xs text-[#646E7E]">
+                        설치 환경·배관·수량별 맞춤 견적
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 */}

@@ -766,7 +766,7 @@ export default function Home() {
               </div>
 
               {/* 우측 (5열): 오프라인 직영 쇼룸 비주얼 + 실시간 입고 실매물 3종 독 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card">
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card hb-specular">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0E1A2B]">
                   <SafeImg
                     src="/main-bg2.png"
@@ -774,6 +774,21 @@ export default function Home() {
                     eager
                     className="h-full w-full object-cover object-center"
                   />
+
+                  {/* 건축적 뷰파인더 글래스 칩 (좌상단 플로팅) */}
+                  <div className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/80 backdrop-blur-md border border-white/20 px-2 py-0.5 text-hb-xs font-extrabold text-white">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#38D39F] animate-pulse" />
+                      1F 가정 · 업소용 대형전시
+                    </span>
+                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#E5E2DC]">
+                      2F 에어컨 · 주방설비관
+                    </span>
+                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#FF8A50]">
+                      전용주차 8대 완비
+                    </span>
+                  </div>
+
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
                     <div className="min-w-0">
                       <span className="text-hb-xs font-bold text-[#FF8A50]">
@@ -792,12 +807,15 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 첫 화면에서 즉시 확인하는 실시간 매장 전시 가전 미니 쇼케이스 */}
+                {/* 첫 화면에서 즉시 확인하는 실시간 매장 전시 가전 미니 쇼케이스 (프레스티지 포디움) */}
                 <div className="p-3.5 sm:p-4 bg-white flex-1 flex flex-col justify-between">
                   <div className="flex items-center justify-between pb-2.5 border-b border-[#ECE9E2]">
-                    <span className="text-hb-xs font-extrabold text-[#0E1A2B]">
-                      방금 입고된 쇼룸 실매물 미리보기
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-3.5 rounded-full bg-[#D9531E]" />
+                      <span className="text-hb-xs font-extrabold text-[#0E1A2B]">
+                        방금 입고된 쇼룸 실매물 미리보기
+                      </span>
+                    </div>
                     <Link
                       href="/gallery"
                       className="text-hb-xs font-bold text-[#D9531E] hover:underline"
@@ -807,30 +825,39 @@ export default function Home() {
                   </div>
 
                   {heroPreviewProducts.length > 0 ? (
-                    <div className="mt-2.5 grid grid-cols-3 gap-2.5">
-                      {heroPreviewProducts.map((item) => {
+                    <div className="mt-2.5 grid grid-cols-3 gap-2 sm:gap-2.5">
+                      {heroPreviewProducts.map((item, idx) => {
                         const thumb = splitImages(item.image_url)[0];
                         const cat = normalizeProductCategory(item.category);
+                        const podiumNum = String(idx + 1).padStart(2, "0");
                         return (
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group block min-w-0 rounded-lg border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#0E1A2B] transition-colors"
+                            className="group relative block min-w-0 rounded-xl border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#D9531E] hover:shadow-md transition-all duration-200"
                           >
-                            <div className="aspect-[4/3] w-full overflow-hidden hb-studio-backdrop">
+                            <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.06]">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}
-                                className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
+                              {/* 포디움 번호 태그 */}
+                              <div className="absolute top-1.5 left-1.5 z-10 rounded bg-[#0E1A2B]/85 backdrop-blur-xs border border-white/20 px-1.5 py-0.5">
+                                <span className="font-mono text-hb-xs font-black text-[#FF8A50] tracking-wider leading-none">
+                                  {podiumNum}
+                                </span>
+                              </div>
                             </div>
-                            <div className="p-2">
-                              <p className="truncate text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
+                            <div className="p-2 sm:p-2.5 bg-gradient-to-b from-white to-[#FAF9F7]">
+                              <p className="truncate text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors">
                                 {item.title}
                               </p>
-                              <p className="truncate text-hb-xs font-extrabold text-[#D9531E] tabular-nums">
-                                {formatProductPrice(item.price, cat)}
-                              </p>
+                              <div className="mt-1 flex items-baseline justify-between gap-1">
+                                <span className="truncate text-hb-xs font-extrabold text-[#D9531E] tabular-nums">
+                                  {formatProductPrice(item.price, cat)}
+                                </span>
+                              </div>
                             </div>
                           </Link>
                         );

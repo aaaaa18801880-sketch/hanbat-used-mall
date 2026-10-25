@@ -205,8 +205,8 @@ export function ProductCard({
           : "hb-surface-card hover:border-[#0E1A2B]/40 hover:shadow-card-hover"
       }`}
     >
-      {/* 1. 시원시원한 대형 풀블리드 사진 (스튜디오 조명 백드롭 적용) */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop">
+      {/* 1. 시원시원한 대형 풀블리드 사진 (스튜디오 조명 백드롭 & 내부 액자 링) */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.06]">
         <SafeImg
           src={images[0]}
           alt={product.title}
@@ -242,6 +242,27 @@ export function ProductCard({
               showNew={false}
             />
           </div>
+        )}
+
+        {/* 좌하단 플로팅 글래스 미리보기 / 관리자 빠른 수정 캡슐 */}
+        {!isSelectMode && onQuickView && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onQuickView(product);
+            }}
+            title={isAdmin ? "관리자 수정" : "상품 미리보기"}
+            aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
+            className="absolute left-2.5 bottom-2.5 z-20 inline-flex items-center gap-1 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-sm backdrop-blur-md hover:bg-[#0E1A2B] hover:text-white transition-all duration-150 cursor-pointer active:scale-95"
+          >
+            <Icon
+              d={isAdmin ? ICON.pen : ICON.search}
+              className="w-3 h-3 text-[#D9531E]"
+            />
+            <span>{isAdmin ? "수정" : "미리보기"}</span>
+          </button>
         )}
 
         {/* 우하단 다중 사진 수량 표시 */}
@@ -322,10 +343,10 @@ export function ProductCard({
         </div>
 
         {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-1.5 min-w-0">
+        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
             {sold ? (
-              <span className="text-hb-sm font-bold text-[#646E7E]">
+              <span className="text-hb-sm font-bold text-[#646E7E] truncate block">
                 판매완료 · 유사재고 문의
               </span>
             ) : priced ? (
@@ -340,75 +361,33 @@ export function ProductCard({
           </div>
 
           {!isSelectMode && !sold ? (
-            <div className="flex items-center gap-1.5 shrink-0">
-              {onQuickView && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onQuickView(product);
-                  }}
-                  title={isAdmin ? "관리자 수정" : "상품 미리보기"}
-                  aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-1 text-hb-xs font-semibold text-[#3E4756] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors cursor-pointer"
-                >
-                  <Icon
-                    d={isAdmin ? ICON.pen : ICON.search}
-                    className="w-3 h-3 text-[#D9531E]"
-                  />
-                  <span>{isAdmin ? "수정" : "미리보기"}</span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={handleToggleBasket}
-                aria-pressed={inBasket}
-                title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
-                aria-label={`${product.title} ${
-                  inBasket ? "견적함에서 제외" : "견적함에 담기"
+            <button
+              type="button"
+              onClick={handleToggleBasket}
+              aria-pressed={inBasket}
+              title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
+              aria-label={`${product.title} ${
+                inBasket ? "견적함에서 제외" : "견적함에 담기"
+              }`}
+              className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+                inBasket
+                  ? "bg-[#0E1A2B] text-white"
+                  : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"
+              }`}
+            >
+              <Icon
+                d={inBasket ? ICON.check : ICON.plus}
+                className={`h-3 w-3 ${
+                  inBasket ? "text-[#FF8A50]" : "currentColor"
                 }`}
-                className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
-                  inBasket
-                    ? "bg-[#0E1A2B] text-white"
-                    : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"
-                }`}
-              >
-                <Icon
-                  d={inBasket ? ICON.check : ICON.plus}
-                  className={`h-3 w-3 ${
-                    inBasket ? "text-[#FF8A50]" : "currentColor"
-                  }`}
-                />
-                <span>{inBasket ? "담김" : "견적함"}</span>
-              </button>
-            </div>
+              />
+              <span>{inBasket ? "담김" : "견적함"}</span>
+            </button>
           ) : (
-            <div className="flex items-center gap-1.5 shrink-0">
-              {onQuickView && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onQuickView(product);
-                  }}
-                  title={isAdmin ? "관리자 수정" : "상품 미리보기"}
-                  aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-1 text-hb-xs font-semibold text-[#3E4756] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors cursor-pointer"
-                >
-                  <Icon
-                    d={isAdmin ? ICON.pen : ICON.search}
-                    className="w-3 h-3 text-[#D9531E]"
-                  />
-                  <span>{isAdmin ? "수정" : "미리보기"}</span>
-                </button>
-              )}
-              <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">
-                <span>보기</span>
-                <Icon d={ICON.right} className="h-3.5 w-3.5" />
-              </span>
-            </div>
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">
+              <span>보기</span>
+              <Icon d={ICON.right} className="h-3.5 w-3.5" />
+            </span>
           )}
         </div>
       </div>
