@@ -254,31 +254,11 @@ export function CategoryPictogramBar({
         <div className="space-y-4 sm:space-y-5">
           {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
           <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-4 shadow-card">
-            <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-[#ECE9E2]">
-              <div className="flex items-center gap-2">
-                <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-extrabold text-white">
-                  실시간 전시장 카탈로그
-                </span>
-                <span className="text-hb-xs font-bold text-[#3E4756] hidden sm:inline">
-                  분해 고압살균 세척 완료 · 전 품목 무상 A/S 약정 보증
-                </span>
-              </div>
-              <span className="text-hb-xs text-[#646E7E]">
-                원하시는 가전을 터치하면 아래에서 즉시 필터링됩니다
-              </span>
-            </div>
-
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
                 const count = categoryCounts?.[item.key];
                 const isBiz = item.group === "biz";
-                const groupTag =
-                  item.group === "biz"
-                    ? "업소용 B2B"
-                    : item.group === "home"
-                    ? "가정용"
-                    : "전 품목";
 
                 return (
                   <button
@@ -293,18 +273,20 @@ export function CategoryPictogramBar({
                         : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
                     }`}
                   >
-                    {/* 상단 그룹 마이크로 태그 */}
-                    <span
-                      className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
-                        isSelected
-                          ? "bg-white/20 text-[#FF8A50]"
-                          : isBiz
-                          ? "bg-[#D9531E]/10 text-[#D9531E]"
-                          : "bg-[#0E1A2B]/5 text-[#646E7E]"
-                      }`}
-                    >
-                      {groupTag}
-                    </span>
+                    {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
+                    {isBiz ? (
+                      <span
+                        className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                          isSelected
+                            ? "bg-white/20 text-[#FF8A50]"
+                            : "bg-[#D9531E]/10 text-[#D9531E]"
+                        }`}
+                      >
+                        B2B
+                      </span>
+                    ) : (
+                      <span className="h-4" aria-hidden="true" />
+                    )}
 
                     <ModernApplianceIcon
                       name={item.icon}

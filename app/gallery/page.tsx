@@ -1992,7 +1992,7 @@ export default function GalleryPage() {
                 type="button"
                 onClick={() => setMobileFilterOpen((v) => !v)}
                 aria-expanded={mobileFilterOpen}
-                className={`h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
                   priceRange !== "all" ||
@@ -2055,8 +2055,23 @@ export default function GalleryPage() {
               })}
             </div>
 
-            {/* 데스크톱 우측 인라인 필터 3종 */}
+            {/* 데스크톱 우측 인라인 필터 */}
             <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter(statusFilter === "selling" ? "all" : "selling");
+                  setVisibleLimit(PAGE_STEP);
+                }}
+                className={`h-9 px-3 rounded-md text-hb-xs font-bold border transition-colors cursor-pointer ${
+                  statusFilter === "selling"
+                    ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
+                    : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                }`}
+              >
+                판매중만
+              </button>
+
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -2275,20 +2290,8 @@ export default function GalleryPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={statusFilter === "selling"}
-                onChange={(e) =>
-                  setStatusFilter(e.target.checked ? "selling" : "all")
-                }
-                className="w-3.5 h-3.5 accent-[#0E1A2B]"
-              />
-              판매중만
-            </label>
-
-            {isAdmin && (
+          {isAdmin && (
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -2304,8 +2307,8 @@ export default function GalleryPage() {
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
                 {isSelectMode ? "선택 종료" : "일괄 관리"}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {activeCategory === "에어컨/냉난방기" && (

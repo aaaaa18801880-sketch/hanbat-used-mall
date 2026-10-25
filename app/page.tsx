@@ -720,14 +720,11 @@ export default function Home() {
                 </div>
 
                 {/* 하단 무테두리 3대 쇼룸 원칙 레저 (ModernApplianceIcon 결합) */}
-                <div className="mt-8 pt-5 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
+                <div className="mt-6 pt-4 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
                   <div className="min-w-0 flex items-start gap-2.5">
                     <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
-                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                        01 · INSPECTION
-                      </span>
-                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
                         분해 고압세척 출고
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
@@ -738,10 +735,7 @@ export default function Home() {
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
                     <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
-                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                        02 · WARRANTY
-                      </span>
-                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
                         무상 A/S 책임 보증
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
@@ -752,10 +746,7 @@ export default function Home() {
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
                     <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
-                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                        03 · DELIVERY & TAX
-                      </span>
-                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
                         직배송·세금계산서
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
@@ -787,20 +778,6 @@ export default function Home() {
                     eager
                     className="h-full w-full object-cover object-center"
                   />
-
-                  {/* 건축적 뷰파인더 글래스 칩 (좌상단 플로팅) */}
-                  <div className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/80 backdrop-blur-md border border-white/20 px-2 py-0.5 text-hb-xs font-extrabold text-white">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#38D39F] animate-pulse" />
-                      1F 가정 · 업소용 대형전시
-                    </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#E5E2DC]">
-                      2F 냉난방 · 주방설비관
-                    </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#FF8A50]">
-                      전용주차 8대 완비
-                    </span>
-                  </div>
 
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
                     <div className="min-w-0">

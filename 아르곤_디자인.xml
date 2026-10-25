@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-25T10:42:06.825Z">
+<project name="hanbat-mall" generated_at="2026-10-25T11:16:55.710Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -20,7 +20,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="799">
+    <file path="app/[id]/page.tsx" lines="759">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -646,15 +646,6 @@ export default async function ProductDetailPage({
                     </dd>
                   </div>
                 )}
-
-                <div className="flex items-center justify-between gap-3 py-2">
-                  <dt className="font-semibold text-[#646E7E] shrink-0">
-                    결제 · 거래 증빙
-                  </dt>
-                  <dd className="font-semibold text-[#0E1A2B] text-right">
-                    전자세금계산서 · 카드 · 현금영수증
-                  </dd>
-                </div>
               </dl>
 
               {/* 6 & 7. 배송/설치 체크 정보 + 주요 문의 버튼 */}
@@ -705,37 +696,6 @@ export default async function ProductDetailPage({
               description={product.description}
               category={categoryLabel}
             />
-          </div>
-        </section>
-
-        {/* 하단 매장 거래 및 배송 안내 */}
-        <section
-          aria-label="거래 및 배송·설치 안내"
-          className="mt-10 border-y border-[#E5E2DC] py-6 grid gap-6 sm:grid-cols-3 sm:divide-x sm:divide-[#E5E2DC]"
-        >
-          <div className="sm:pr-4">
-            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-              오프라인 매장 실물 확인
-            </h2>
-            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
-              {STORE.address} ({STORE.addressNote}) 매장에 방문하시면 제품을 직접 보고 결정하실 수 있습니다. ({STORE.hours}, {STORE.closed})
-            </p>
-          </div>
-          <div className="sm:px-6">
-            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-              배송 · 설치 안내
-            </h2>
-            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
-              대전·세종·충청권 및 타 지역 배송·설치 여부는 품목과 설치 환경(층수, 배관, 전원 규격 등)에 따라 사전 상담 후 조율합니다.
-            </p>
-          </div>
-          <div className="sm:pl-6">
-            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-              검수 및 증빙 안내
-            </h2>
-            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
-              입고 후 정밀 작동 점검과 세척·클리닝을 마친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. 사후 A/S 보증 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 차등 적용됩니다.
-            </p>
           </div>
         </section>
 
@@ -6259,7 +6219,7 @@ export default function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="3003">
+    <file path="app/gallery/page.tsx" lines="3006">
       <![CDATA[
 "use client";
 
@@ -8255,7 +8215,7 @@ export default function GalleryPage() {
                 type="button"
                 onClick={() => setMobileFilterOpen((v) => !v)}
                 aria-expanded={mobileFilterOpen}
-                className={`h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
                   priceRange !== "all" ||
@@ -8318,8 +8278,23 @@ export default function GalleryPage() {
               })}
             </div>
 
-            {/* 데스크톱 우측 인라인 필터 3종 */}
+            {/* 데스크톱 우측 인라인 필터 */}
             <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter(statusFilter === "selling" ? "all" : "selling");
+                  setVisibleLimit(PAGE_STEP);
+                }}
+                className={`h-9 px-3 rounded-md text-hb-xs font-bold border transition-colors cursor-pointer ${
+                  statusFilter === "selling"
+                    ? "bg-[#0E1A2B] text-white border-[#0E1A2B]"
+                    : "bg-white text-[#3E4856] border-[#D8D3C8] hover:border-[#0E1A2B] hover:text-[#0E1A2B]"
+                }`}
+              >
+                판매중만
+              </button>
+
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -8538,20 +8513,8 @@ export default function GalleryPage() {
             )}
           </div>
 
-          <div className="flex items-center gap-3">
-            <label className="flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={statusFilter === "selling"}
-                onChange={(e) =>
-                  setStatusFilter(e.target.checked ? "selling" : "all")
-                }
-                className="w-3.5 h-3.5 accent-[#0E1A2B]"
-              />
-              판매중만
-            </label>
-
-            {isAdmin && (
+          {isAdmin && (
+            <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -8567,8 +8530,8 @@ export default function GalleryPage() {
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
                 {isSelectMode ? "선택 종료" : "일괄 관리"}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {activeCategory === "에어컨/냉난방기" && (
@@ -11689,7 +11652,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="2084">
+    <file path="app/page.tsx" lines="2061">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -12413,14 +12376,11 @@ export default function Home() {
                 </div>
 
                 {/* 하단 무테두리 3대 쇼룸 원칙 레저 (ModernApplianceIcon 결합) */}
-                <div className="mt-8 pt-5 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
+                <div className="mt-6 pt-4 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
                   <div className="min-w-0 flex items-start gap-2.5">
                     <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
-                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                        01 · INSPECTION
-                      </span>
-                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
                         분해 고압세척 출고
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
@@ -12431,10 +12391,7 @@ export default function Home() {
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
                     <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
-                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                        02 · WARRANTY
-                      </span>
-                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
                         무상 A/S 책임 보증
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
@@ -12445,10 +12402,7 @@ export default function Home() {
                   <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
                     <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                     <div className="min-w-0">
-                      <span className="font-mono text-hb-xs font-extrabold text-[#D9531E]">
-                        03 · DELIVERY & TAX
-                      </span>
-                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
                         직배송·세금계산서
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
@@ -12480,20 +12434,6 @@ export default function Home() {
                     eager
                     className="h-full w-full object-cover object-center"
                   />
-
-                  {/* 건축적 뷰파인더 글래스 칩 (좌상단 플로팅) */}
-                  <div className="absolute top-3 left-3 z-10 flex flex-wrap items-center gap-1.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/80 backdrop-blur-md border border-white/20 px-2 py-0.5 text-hb-xs font-extrabold text-white">
-                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#38D39F] animate-pulse" />
-                      1F 가정 · 업소용 대형전시
-                    </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#E5E2DC]">
-                      2F 냉난방 · 주방설비관
-                    </span>
-                    <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#FF8A50]">
-                      전용주차 8대 완비
-                    </span>
-                  </div>
 
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0E1A2B]/95 via-[#0E1A2B]/70 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
                     <div className="min-w-0">
@@ -14583,7 +14523,7 @@ export function AiRecommendationGuideSection() {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="387">
+    <file path="components/home/category-pictogram-bar.tsx" lines="369">
       <![CDATA[
 // 파일 경로: components/home/category-pictogram-bar.tsx
 "use client";
@@ -14841,31 +14781,11 @@ export function CategoryPictogramBar({
         <div className="space-y-4 sm:space-y-5">
           {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
           <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-4 shadow-card">
-            <div className="flex items-center justify-between gap-2 mb-3 pb-2.5 border-b border-[#ECE9E2]">
-              <div className="flex items-center gap-2">
-                <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-extrabold text-white">
-                  실시간 전시장 카탈로그
-                </span>
-                <span className="text-hb-xs font-bold text-[#3E4756] hidden sm:inline">
-                  분해 고압살균 세척 완료 · 전 품목 무상 A/S 약정 보증
-                </span>
-              </div>
-              <span className="text-hb-xs text-[#646E7E]">
-                원하시는 가전을 터치하면 아래에서 즉시 필터링됩니다
-              </span>
-            </div>
-
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
                 const count = categoryCounts?.[item.key];
                 const isBiz = item.group === "biz";
-                const groupTag =
-                  item.group === "biz"
-                    ? "업소용 B2B"
-                    : item.group === "home"
-                    ? "가정용"
-                    : "전 품목";
 
                 return (
                   <button
@@ -14880,18 +14800,20 @@ export function CategoryPictogramBar({
                         : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
                     }`}
                   >
-                    {/* 상단 그룹 마이크로 태그 */}
-                    <span
-                      className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
-                        isSelected
-                          ? "bg-white/20 text-[#FF8A50]"
-                          : isBiz
-                          ? "bg-[#D9531E]/10 text-[#D9531E]"
-                          : "bg-[#0E1A2B]/5 text-[#646E7E]"
-                      }`}
-                    >
-                      {groupTag}
-                    </span>
+                    {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
+                    {isBiz ? (
+                      <span
+                        className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                          isSelected
+                            ? "bg-white/20 text-[#FF8A50]"
+                            : "bg-[#D9531E]/10 text-[#D9531E]"
+                        }`}
+                      >
+                        B2B
+                      </span>
+                    ) : (
+                      <span className="h-4" aria-hidden="true" />
+                    )}
 
                     <ModernApplianceIcon
                       name={item.icon}
@@ -14974,7 +14896,7 @@ export function CategoryPictogramBar({
 
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="248">
+    <file path="components/home/featured-products-section.tsx" lines="245">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -14992,7 +14914,6 @@ import {
   ProductCard,
   type ProductItem,
 } from "../products/product-card";
-import { RecentViewedStrip } from "../products/product-compare-modal";
 import type { ShowroomCategoryItem } from "./category-pictogram-bar";
 
 const INITIAL_DISPLAY_LIMIT = 8;
@@ -15217,8 +15138,6 @@ export function FeaturedProductsSection({
             </div>
           </>
         )}
-
-        <RecentViewedStrip className="mt-8 rounded-lg border border-[#E5E2DC]" />
       </div>
     </section>
   );
@@ -18741,7 +18660,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="431">
+    <file path="components/products/product-card.tsx" lines="430">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -18980,17 +18899,12 @@ export function ProductCard({
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5">
+          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
               showNew={false}
             />
-            {product.condition_grade && (
-              <span className="rounded bg-white/90 backdrop-blur-xs px-2 py-0.5 text-hb-xs font-extrabold text-[#D9531E] shadow-2xs border border-[#E5E2DC]/80">
-                {product.condition_grade}
-              </span>
-            )}
           </div>
         )}
 
@@ -19005,7 +18919,11 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className="absolute bottom-2.5 left-2.5 z-20 inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-colors cursor-pointer active:scale-95"
+            className={`absolute bottom-2.5 left-2.5 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-colors cursor-pointer active:scale-95 ${
+              isAdmin
+                ? "inline-flex"
+                : "hidden sm:inline-flex opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200"
+            }`}
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
@@ -19057,7 +18975,7 @@ export function ProductCard({
               </span>
             ) : product.condition_grade ? (
               <span className="shrink-0 font-semibold text-[#646E7E]">
-                {product.condition_grade}
+                {product.condition_grade.split(" ")[0]}
               </span>
             ) : null}
           </div>
@@ -19751,7 +19669,7 @@ export function RecentViewedStrip({
 
 ]]>
     </file>
-    <file path="components/products/product-detail-gallery.tsx" lines="727">
+    <file path="components/products/product-detail-gallery.tsx" lines="740">
       <![CDATA[
 // 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
@@ -20277,6 +20195,7 @@ export function InteractiveChecklistAndCta({
     rows: ReadonlyArray<{ label: string; desc: string }>;
   };
 }) {
+  const [showChecklist, setShowChecklist] = useState(false);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const chips =
     QUICK_ENV_CHIPS_BY_CATEGORY[categoryLabel] ||
@@ -20329,29 +20248,40 @@ export function InteractiveChecklistAndCta({
             <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E]" />
             <span>{checklistConfig.title}</span>
           </strong>
-          <span
-            className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
-              checklistConfig.isB2B
-                ? "bg-[#0E1A2B] text-white"
-                : "bg-[#D9531E]/10 text-[#D9531E]"
-            }`}
-          >
-            {checklistConfig.badge}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
+                checklistConfig.isB2B
+                  ? "bg-[#0E1A2B] text-white"
+                  : "bg-[#D9531E]/10 text-[#D9531E]"
+              }`}
+            >
+              {checklistConfig.badge}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowChecklist((v) => !v)}
+              className="rounded border border-[#D8D3C8] bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
+            >
+              {showChecklist ? "체크포인트 닫기 ▴" : "체크포인트 보기 ▾"}
+            </button>
+          </div>
         </div>
 
-        <dl className="grid grid-cols-1 gap-1 text-hb-xs bg-[#FAF9F7] border-l-2 border-[#0E1A2B] pl-3 py-2">
-          {checklistConfig.rows.map((row) => (
-            <div key={row.label} className="flex items-start gap-2">
-              <dt className="w-[74px] shrink-0 font-bold text-[#0E1A2B]">
-                · {row.label}
-              </dt>
-              <dd className="text-[#3E4756] leading-snug break-keep">
-                {row.desc}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        {showChecklist && (
+          <dl className="grid grid-cols-1 gap-1 text-hb-xs bg-[#FAF9F7] border-l-2 border-[#0E1A2B] pl-3 py-2 mb-2">
+            {checklistConfig.rows.map((row) => (
+              <div key={row.label} className="flex items-start gap-2">
+                <dt className="w-[74px] shrink-0 font-bold text-[#0E1A2B]">
+                  · {row.label}
+                </dt>
+                <dd className="text-[#3E4756] leading-snug break-keep">
+                  {row.desc}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
         {/* 터치형 현장 조건 선택 칩 */}
         <div className="mt-3">
@@ -20405,16 +20335,17 @@ export function InteractiveChecklistAndCta({
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <a
             href={telHref(STORE.tel)}
-            className="hb-btn-accent h-11 px-3 sm:px-4 text-hb-xs sm:text-hb-sm"
+            className="hb-btn-accent h-11 px-3 text-hb-xs sm:text-hb-sm justify-center"
           >
             <Icon d={ICON.phone} className="h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">
+            <span className="truncate">
               {sold
-                ? `유사 매물 전화 (${STORE.tel})`
-                : `전화 문의 (${STORE.tel})`}
+                ? "유사 매물 전화"
+                : "전화 문의"}
+              <span className="hidden xl:inline"> ({STORE.tel})</span>
             </span>
           </a>
 
@@ -20422,39 +20353,39 @@ export function InteractiveChecklistAndCta({
             href={STORE.kakaoChat}
             target="_blank"
             rel="noopener noreferrer"
-            className="hb-btn-kakao h-11 px-3 sm:px-4 text-hb-xs sm:text-hb-sm"
+            className="hb-btn-kakao h-11 px-3 text-hb-xs sm:text-hb-sm justify-center"
           >
             <Icon d={ICON.chat} className="h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">{sold ? "카톡 유사 매물 찾기" : "카카오톡 상담"}</span>
+            <span className="truncate">{sold ? "카톡 유사 매물" : "카카오톡 상담"}</span>
           </a>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="hb-btn-outline h-10 px-2 sm:px-3 text-hb-xs"
+            className="hb-btn-outline h-10 px-2.5 text-hb-xs justify-center"
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E] shrink-0" />
             <span className="truncate">
               {sold
                 ? "유사 매물 문자"
                 : selectedChips.length > 0
-                ? `조건 포함 문자 (${selectedChips.length})`
-                : `문자 문의 (${STORE.mobile})`}
+                ? `조건 문자 (${selectedChips.length})`
+                : "문자 문의"}
             </span>
           </a>
 
           <Link
             href={inquiryHref}
-            className="hb-btn-primary h-10 px-2 sm:px-3 text-hb-xs"
+            className="hb-btn-primary h-10 px-2.5 text-hb-xs justify-center"
           >
             <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#FF8A50] shrink-0" />
             <span className="truncate">
               {sold
-                ? "유사 매물 재고 문의"
+                ? "유사 재고 문의"
                 : selectedChips.length > 0
-                ? `조건(${selectedChips.length}) 온라인 문의`
-                : "온라인 견적 문의"}
+                ? `조건 견적 (${selectedChips.length})`
+                : "온라인 견적"}
             </span>
           </Link>
         </div>
@@ -24545,7 +24476,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1473">
+    <file path="lib/ui.tsx" lines="1477">
       <![CDATA[
 "use client";
 
@@ -25320,10 +25251,14 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className="fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 w-[calc(100vw-20px)] max-w-[410px] hb-glass-dark text-white shadow-floating"
+        className={`fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
+          expanded
+            ? "w-[calc(100vw-20px)] max-w-[410px] rounded-2xl"
+            : "w-auto max-w-[92vw] rounded-full"
+        }`}
       >
         {expanded && (
-          <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-xl">
+          <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#132238] rounded-t-2xl">
             <div className="flex items-center justify-between text-hb-xs text-white/75 pb-1">
               <span className="font-semibold">
                 담아둔 관심 매물 ({items.length}종 · 총 {totalUnits}대)

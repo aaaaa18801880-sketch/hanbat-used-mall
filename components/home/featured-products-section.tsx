@@ -14,7 +14,6 @@ import {
   ProductCard,
   type ProductItem,
 } from "../products/product-card";
-import { RecentViewedStrip } from "../products/product-compare-modal";
 import type { ShowroomCategoryItem } from "./category-pictogram-bar";
 
 const INITIAL_DISPLAY_LIMIT = 8;
@@ -239,8 +238,6 @@ export function FeaturedProductsSection({
             </div>
           </>
         )}
-
-        <RecentViewedStrip className="mt-8 rounded-lg border border-[#E5E2DC]" />
       </div>
     </section>
   );

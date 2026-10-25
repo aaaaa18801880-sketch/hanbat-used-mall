@@ -522,6 +522,7 @@ export function InteractiveChecklistAndCta({
     rows: ReadonlyArray<{ label: string; desc: string }>;
   };
 }) {
+  const [showChecklist, setShowChecklist] = useState(false);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const chips =
     QUICK_ENV_CHIPS_BY_CATEGORY[categoryLabel] ||
@@ -574,29 +575,40 @@ export function InteractiveChecklistAndCta({
             <Icon d={ICON.check} className="w-4 h-4 text-[#D9531E]" />
             <span>{checklistConfig.title}</span>
           </strong>
-          <span
-            className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
-              checklistConfig.isB2B
-                ? "bg-[#0E1A2B] text-white"
-                : "bg-[#D9531E]/10 text-[#D9531E]"
-            }`}
-          >
-            {checklistConfig.badge}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span
+              className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
+                checklistConfig.isB2B
+                  ? "bg-[#0E1A2B] text-white"
+                  : "bg-[#D9531E]/10 text-[#D9531E]"
+              }`}
+            >
+              {checklistConfig.badge}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowChecklist((v) => !v)}
+              className="rounded border border-[#D8D3C8] bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B] transition-colors"
+            >
+              {showChecklist ? "체크포인트 닫기 ▴" : "체크포인트 보기 ▾"}
+            </button>
+          </div>
         </div>
 
-        <dl className="grid grid-cols-1 gap-1 text-hb-xs bg-[#FAF9F7] border-l-2 border-[#0E1A2B] pl-3 py-2">
-          {checklistConfig.rows.map((row) => (
-            <div key={row.label} className="flex items-start gap-2">
-              <dt className="w-[74px] shrink-0 font-bold text-[#0E1A2B]">
-                · {row.label}
-              </dt>
-              <dd className="text-[#3E4756] leading-snug break-keep">
-                {row.desc}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        {showChecklist && (
+          <dl className="grid grid-cols-1 gap-1 text-hb-xs bg-[#FAF9F7] border-l-2 border-[#0E1A2B] pl-3 py-2 mb-2">
+            {checklistConfig.rows.map((row) => (
+              <div key={row.label} className="flex items-start gap-2">
+                <dt className="w-[74px] shrink-0 font-bold text-[#0E1A2B]">
+                  · {row.label}
+                </dt>
+                <dd className="text-[#3E4756] leading-snug break-keep">
+                  {row.desc}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
         {/* 터치형 현장 조건 선택 칩 */}
         <div className="mt-3">
@@ -650,16 +662,17 @@ export function InteractiveChecklistAndCta({
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2">
           <a
             href={telHref(STORE.tel)}
-            className="hb-btn-accent h-11 px-3 sm:px-4 text-hb-xs sm:text-hb-sm"
+            className="hb-btn-accent h-11 px-3 text-hb-xs sm:text-hb-sm justify-center"
           >
             <Icon d={ICON.phone} className="h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">
+            <span className="truncate">
               {sold
-                ? `유사 매물 전화 (${STORE.tel})`
-                : `전화 문의 (${STORE.tel})`}
+                ? "유사 매물 전화"
+                : "전화 문의"}
+              <span className="hidden xl:inline"> ({STORE.tel})</span>
             </span>
           </a>
 
@@ -667,39 +680,39 @@ export function InteractiveChecklistAndCta({
             href={STORE.kakaoChat}
             target="_blank"
             rel="noopener noreferrer"
-            className="hb-btn-kakao h-11 px-3 sm:px-4 text-hb-xs sm:text-hb-sm"
+            className="hb-btn-kakao h-11 px-3 text-hb-xs sm:text-hb-sm justify-center"
           >
             <Icon d={ICON.chat} className="h-4 w-4 shrink-0" />
-            <span className="whitespace-nowrap">{sold ? "카톡 유사 매물 찾기" : "카카오톡 상담"}</span>
+            <span className="truncate">{sold ? "카톡 유사 매물" : "카카오톡 상담"}</span>
           </a>
         </div>
 
         <div className="grid grid-cols-2 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="hb-btn-outline h-10 px-2 sm:px-3 text-hb-xs"
+            className="hb-btn-outline h-10 px-2.5 text-hb-xs justify-center"
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#D9531E] shrink-0" />
             <span className="truncate">
               {sold
                 ? "유사 매물 문자"
                 : selectedChips.length > 0
-                ? `조건 포함 문자 (${selectedChips.length})`
-                : `문자 문의 (${STORE.mobile})`}
+                ? `조건 문자 (${selectedChips.length})`
+                : "문자 문의"}
             </span>
           </a>
 
           <Link
             href={inquiryHref}
-            className="hb-btn-primary h-10 px-2 sm:px-3 text-hb-xs"
+            className="hb-btn-primary h-10 px-2.5 text-hb-xs justify-center"
           >
             <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#FF8A50] shrink-0" />
             <span className="truncate">
               {sold
-                ? "유사 매물 재고 문의"
+                ? "유사 재고 문의"
                 : selectedChips.length > 0
-                ? `조건(${selectedChips.length}) 온라인 문의`
-                : "온라인 견적 문의"}
+                ? `조건 견적 (${selectedChips.length})`
+                : "온라인 견적"}
             </span>
           </Link>
         </div>

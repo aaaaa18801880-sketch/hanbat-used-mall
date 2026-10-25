@@ -235,17 +235,12 @@ export function ProductCard({
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5">
+          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
               showNew={false}
             />
-            {product.condition_grade && (
-              <span className="rounded bg-white/90 backdrop-blur-xs px-2 py-0.5 text-hb-xs font-extrabold text-[#D9531E] shadow-2xs border border-[#E5E2DC]/80">
-                {product.condition_grade}
-              </span>
-            )}
           </div>
         )}
 
@@ -260,7 +255,11 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className="absolute bottom-2.5 left-2.5 z-20 inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-colors cursor-pointer active:scale-95"
+            className={`absolute bottom-2.5 left-2.5 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-colors cursor-pointer active:scale-95 ${
+              isAdmin
+                ? "inline-flex"
+                : "hidden sm:inline-flex opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200"
+            }`}
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
@@ -312,7 +311,7 @@ export function ProductCard({
               </span>
             ) : product.condition_grade ? (
               <span className="shrink-0 font-semibold text-[#646E7E]">
-                {product.condition_grade}
+                {product.condition_grade.split(" ")[0]}
               </span>
             ) : null}
           </div>

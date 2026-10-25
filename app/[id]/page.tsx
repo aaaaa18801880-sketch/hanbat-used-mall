@@ -622,15 +622,6 @@ export default async function ProductDetailPage({
                     </dd>
                   </div>
                 )}
-
-                <div className="flex items-center justify-between gap-3 py-2">
-                  <dt className="font-semibold text-[#646E7E] shrink-0">
-                    결제 · 거래 증빙
-                  </dt>
-                  <dd className="font-semibold text-[#0E1A2B] text-right">
-                    전자세금계산서 · 카드 · 현금영수증
-                  </dd>
-                </div>
               </dl>
 
               {/* 6 & 7. 배송/설치 체크 정보 + 주요 문의 버튼 */}
@@ -681,37 +672,6 @@ export default async function ProductDetailPage({
               description={product.description}
               category={categoryLabel}
             />
-          </div>
-        </section>
-
-        {/* 하단 매장 거래 및 배송 안내 */}
-        <section
-          aria-label="거래 및 배송·설치 안내"
-          className="mt-10 border-y border-[#E5E2DC] py-6 grid gap-6 sm:grid-cols-3 sm:divide-x sm:divide-[#E5E2DC]"
-        >
-          <div className="sm:pr-4">
-            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-              오프라인 매장 실물 확인
-            </h2>
-            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
-              {STORE.address} ({STORE.addressNote}) 매장에 방문하시면 제품을 직접 보고 결정하실 수 있습니다. ({STORE.hours}, {STORE.closed})
-            </p>
-          </div>
-          <div className="sm:px-6">
-            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-              배송 · 설치 안내
-            </h2>
-            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
-              대전·세종·충청권 및 타 지역 배송·설치 여부는 품목과 설치 환경(층수, 배관, 전원 규격 등)에 따라 사전 상담 후 조율합니다.
-            </p>
-          </div>
-          <div className="sm:pl-6">
-            <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-              검수 및 증빙 안내
-            </h2>
-            <p className="mt-1.5 text-hb-sm leading-relaxed text-[#3E4856]">
-              입고 후 정밀 작동 점검과 세척·클리닝을 마친 제품이며, 사업자 고객님을 위한 세금계산서 발행이 가능합니다. 사후 A/S 보증 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 차등 적용됩니다.
-            </p>
           </div>
         </section>
 
