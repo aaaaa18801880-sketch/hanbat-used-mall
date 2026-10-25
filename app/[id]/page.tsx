@@ -524,7 +524,7 @@ export default async function ProductDetailPage({
                   <div className="flex items-center gap-1.5 min-w-0">
                     <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50] shrink-0" />
                     <span className="text-hb-xs font-bold text-[#FF8A50] truncate">
-                      SHOWROOM VERIFIED PRICE · 분해세척 및 시운전 완료
+                      SHOWROOM VERIFIED PRICE · 분해세척 및 작동검수 완료
                     </span>
                   </div>
                   <span className="font-mono text-hb-xs font-black tracking-widest text-[#FF8A50] shrink-0 ml-2">
