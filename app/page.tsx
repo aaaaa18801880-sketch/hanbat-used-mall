@@ -773,7 +773,7 @@ export default function Home() {
                   <div className="flex items-center gap-2">
                     <span className="inline-block w-2 h-2 rounded-full bg-[#FF8A50] animate-pulse" />
                     <span className="font-mono text-hb-xs font-extrabold tracking-wider text-white">
-                      SHOWROOM LIVE VIEW · 1F/2F 300평급 전시장
+                      SHOWROOM LIVE VIEW · 1·2층 직영 전시장
                     </span>
                   </div>
                   <span className="text-hb-xs text-[#FF8A50] font-bold">
