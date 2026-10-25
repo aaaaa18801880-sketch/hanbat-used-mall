@@ -268,35 +268,43 @@ export function CategoryPictogramBar({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
                 const count = categoryCounts?.[item.key];
                 const isBiz = item.group === "biz";
+                const groupTag =
+                  item.group === "biz"
+                    ? "업소용 B2B"
+                    : item.group === "home"
+                    ? "가정용"
+                    : "전 품목";
+
                 return (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#D9531E]/20"
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
                         : isBiz
-                        ? "border-[#1E2F48] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md"
-                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md"
+                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
+                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
                     }`}
                   >
-                    {isBiz && (
-                      <span
-                        className={`absolute top-1.5 right-1.5 text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
-                          isSelected
-                            ? "bg-[#FF8A50] text-[#0E1A2B]"
-                            : "bg-[#0E1A2B] text-white"
-                        }`}
-                      >
-                        B2B
-                      </span>
-                    )}
+                    {/* 상단 그룹 마이크로 태그 */}
+                    <span
+                      className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                        isSelected
+                          ? "bg-white/20 text-[#FF8A50]"
+                          : isBiz
+                          ? "bg-[#D9531E]/10 text-[#D9531E]"
+                          : "bg-[#0E1A2B]/5 text-[#646E7E]"
+                      }`}
+                    >
+                      {groupTag}
+                    </span>
 
                     <ModernApplianceIcon
                       name={item.icon}
@@ -332,7 +340,7 @@ export function CategoryPictogramBar({
                     {/* 선택 시 하단 오렌지 인디케이터 바 */}
                     {isSelected && (
                       <span
-                        className="absolute inset-x-3 bottom-0 h-1 rounded-full bg-[#D9531E]"
+                        className="h-1 w-8 rounded-full bg-[#FF8A50] mt-0.5"
                         aria-hidden="true"
                       />
                     )}
@@ -342,28 +350,30 @@ export function CategoryPictogramBar({
             </div>
           </div>
 
-          {/* 2단: 4대 원스톱 컨시어지 배너 (4열 와이드 스트립) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* 2단: 4열 와이드 원스톱 서비스 컨시어지 바 (ACTION_BENTO_ITEMS 4종) */}
+          <div className="mt-4 pt-4 border-t border-[#ECE9E2] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {ACTION_BENTO_ITEMS.map((item) => (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => handleActionClick(item)}
-                className="group relative flex items-center gap-3.5 rounded-xl border border-[#E5E2DC] bg-gradient-to-r from-white to-[#FAF9F7] p-3.5 sm:p-4 text-left shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-[#D9531E] hover:shadow-card cursor-pointer"
+                className="group relative flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border border-[#FADCD0] bg-gradient-to-r from-[#FFF9F6] to-white hover:border-[#D9531E] hover:shadow-card transition-all cursor-pointer text-left"
               >
-                <ModernApplianceIcon
-                  name={item.icon}
-                  className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <strong className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
-                    {item.label}
-                  </strong>
-                  <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
-                    {item.sub}
-                  </span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <ModernApplianceIcon
+                    name={item.icon}
+                    className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <strong className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
+                      {item.label}
+                    </strong>
+                    <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
+                      {item.sub}
+                    </span>
+                  </div>
                 </div>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF9F7] border border-[#E5E2DC] text-[#646E7E] group-hover:bg-[#D9531E] group-hover:text-white group-hover:border-transparent transition-all">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white border border-[#FADCD0] text-[#D9531E] group-hover:bg-[#D9531E] group-hover:text-white group-hover:border-transparent transition-all shadow-2xs ml-2">
                   <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
                 </span>
               </button>

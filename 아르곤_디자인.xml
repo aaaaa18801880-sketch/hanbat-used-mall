@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-25T09:52:44.410Z">
+<project name="hanbat-mall" generated_at="2026-10-25T10:08:03.541Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>75</file_count>
+    <file_count>74</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="10">
@@ -541,45 +541,45 @@ export default async function ProductDetailPage({
                 {product.title}
               </h1>
 
-              {/* 가격 하이라이트: 투톤 공식 직영 쇼룸 보증 프라이스 카드 */}
-              <div className="mt-4 rounded-xl overflow-hidden border border-[#0E1A2B]/15 shadow-sm">
-                {/* 상단 다크 네이비 보증 헤더 바 */}
-                <div className="bg-[#0E1A2B] px-3.5 py-2 flex items-center justify-between text-white">
+              {/* 가격 하이라이트: 다크 네이비 & 오렌지 포인트의 공식 프라이스 티켓 */}
+              <div className="mt-4 rounded-xl bg-[#0E1A2B] text-white p-4 sm:p-5 shadow-card border border-[#1E2F47]">
+                {/* 상단 마이크로 보증 헤더 */}
+                <div className="flex items-center justify-between pb-3 border-b border-white/15">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50] shrink-0" />
-                    <span className="text-hb-xs font-bold text-white/95 truncate">
-                      분해 고압세척 완료 · 무상 A/S 약정보증
+                    <span className="text-hb-xs font-bold text-[#FF8A50] truncate">
+                      SHOWROOM VERIFIED PRICE · 분해세척 및 시운전 완료
                     </span>
                   </div>
-                  <span className="font-mono text-hb-xs font-black tracking-widest text-[#FF8A50] shrink-0">
+                  <span className="font-mono text-hb-xs font-black tracking-widest text-[#FF8A50] shrink-0 ml-2">
                     OFFICIAL
                   </span>
                 </div>
 
-                {/* 하단 웜 그라데이션 가격 박스 */}
-                <div className="bg-gradient-to-b from-[#FAF9F7] to-[#F5F2EB] p-4 flex items-baseline justify-between gap-3">
+                {/* 하단 공급가 및 타이포그래피 */}
+                <div className="mt-3.5 flex items-baseline justify-between gap-3">
                   <div className="min-w-0">
-                    <span className="block text-hb-xs font-bold text-[#646E7E]">
+                    <span className="block text-hb-xs font-bold text-white/70">
                       쇼룸 실매물 공급가
                     </span>
-                    <span className="text-hb-xs text-[#8A94A6]">
+                    <span className="text-hb-xs text-white/50">
                       부가세 증빙 100% · 현금영수증 발행
                     </span>
                   </div>
                   {sold ? (
-                    <span className="text-hb-lg sm:text-hb-xl font-bold text-[#646E7E]">
+                    <span className="text-hb-lg sm:text-hb-xl font-bold text-slate-400">
                       판매완료 (유사 매물 문의 가능)
                     </span>
                   ) : priced ? (
-                    <span className="text-hb-2xl sm:text-hb-3xl font-black tracking-tight text-[#0E1A2B] tabular-nums">
+                    <span className="text-hb-2xl sm:text-hb-3xl font-extrabold text-white tabular-nums tracking-tight">
                       {priceDisplay}
                     </span>
                   ) : (
                     <div className="text-right">
-                      <span className="text-hb-lg sm:text-hb-xl font-black text-[#D9531E]">
+                      <span className="text-hb-lg sm:text-hb-xl font-extrabold text-[#FF8A50]">
                         {priceDisplay}
                       </span>
-                      <p className="text-hb-xs text-[#646E7E]">
+                      <p className="text-hb-xs text-white/60">
                         설치 환경·배관·수량별 맞춤 견적
                       </p>
                     </div>
@@ -9266,7 +9266,7 @@ export default function GalleryPage() {
 }
 ]]>
     </file>
-    <file path="app/globals.css" lines="298">
+    <file path="app/globals.css" lines="321">
       <![CDATA[
 /* 파일 경로: app/globals.css */
 @tailwind base;
@@ -9389,8 +9389,11 @@ body {
   }
 
   .hb-surface-card {
-    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-200;
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 2px 6px -1px rgba(14, 26, 43, 0.04), 0 8px 20px -4px rgba(14, 26, 43, 0.04);
+    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover hover:border-[#0E1A2B]/30;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 2px 6px -1px rgba(14, 26, 43, 0.04),
+      0 8px 20px -4px rgba(14, 26, 43, 0.04);
   }
 
   .hb-snap-row {
@@ -9504,10 +9507,30 @@ body {
     );
   }
 
-  /* 5. 건축적 도트/그리드 배경 패턴 & 표면 질감 토큰 */
+  /* 5. 건축적 도면 격자 배경 패턴 & 표면 질감 토큰 */
   .hb-arch-grid {
-    background-image: radial-gradient(rgba(14, 26, 43, 0.07) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-size: 28px 28px;
+    background-image:
+      linear-gradient(to right, rgba(14, 26, 43, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(14, 26, 43, 0.03) 1px, transparent 1px);
+  }
+
+  .hb-pedestal-card {
+    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-300;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+      0 4px 14px -2px rgba(14, 26, 43, 0.05);
+  }
+
+  .hb-pedestal-card:hover {
+    @apply -translate-y-1 border-[#0E1A2B]/40;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+      0 12px 28px -4px rgba(14, 26, 43, 0.1);
+  }
+
+  .hb-price-ticket {
+    @apply rounded-xl border border-[#1E2F47] bg-[#0E1A2B] text-white shadow-card;
   }
 
   .hb-specular {
@@ -11666,7 +11689,7 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="2070">
+    <file path="app/page.tsx" lines="2084">
       <![CDATA[
 // 파일 경로: app/page.tsx
 "use client";
@@ -12263,7 +12286,7 @@ export default function Home() {
         <section
           id="hero-section"
           aria-labelledby="hero-title"
-          className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero"
+          className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero hb-arch-grid"
         >
           {/* 상단 직영 쇼룸 상태 스트립 */}
           <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
@@ -12301,8 +12324,9 @@ export default function Home() {
               {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 무테두리 3대 기준 스트립 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
-                  <div className="inline-flex items-center gap-2 text-hb-xs font-extrabold tracking-wider text-[#D9531E] uppercase">
-                    <span>HANBAT APPLIANCE & COMMERCIAL SHOWROOM</span>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#D9531E]/25 bg-[#FFF5F0]/90 px-3.5 py-1 text-hb-xs font-extrabold text-[#D9531E] shadow-2xs">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <span>HANBAT APPLIANCE &amp; COMMERCIAL SHOWROOM</span>
                   </div>
 
                   <h1
@@ -12436,7 +12460,19 @@ export default function Home() {
               </div>
 
               {/* 우측 (5열): 오프라인 직영 쇼룸 비주얼 + 실시간 입고 실매물 3종 독 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card hb-specular">
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card hb-pedestal-card">
+                {/* 다크 네이비 뷰파인더 바 */}
+                <div className="bg-[#0E1A2B] px-3.5 py-2 flex items-center justify-between text-white border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#FF8A50] animate-pulse" />
+                    <span className="font-mono text-hb-xs font-extrabold tracking-wider text-white">
+                      SHOWROOM LIVE VIEW · 1F/2F 300평급 전시장
+                    </span>
+                  </div>
+                  <span className="text-hb-xs text-[#FF8A50] font-bold">
+                    실시간 직영 쇼룸
+                  </span>
+                </div>
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0E1A2B]">
                   <SafeImg
                     src="/main-bg2.png"
@@ -12452,7 +12488,7 @@ export default function Home() {
                       1F 가정 · 업소용 대형전시
                     </span>
                     <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#E5E2DC]">
-                      2F 에어컨 · 주방설비관
+                      2F 냉난방 · 주방설비관
                     </span>
                     <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#FF8A50]">
                       전용주차 8대 완비
@@ -12579,7 +12615,7 @@ export default function Home() {
             ════════════════════════════════════════════════════════════ */}
         <section
           id="business-section"
-          className="bg-[#0E1A2B] text-white py-12 sm:py-16 lg:py-20 border-b border-[#1E2F47]"
+          className="bg-[#0E1A2B] hb-dark-mesh relative overflow-hidden text-white py-12 sm:py-16 lg:py-20 border-b border-[#1E2F47]"
           aria-labelledby="business-title"
         >
           <div className="hb-container">
@@ -12625,8 +12661,9 @@ export default function Home() {
                   <Link
                     key={cell.code}
                     href={cell.href}
-                    className="group flex flex-col justify-between p-5 sm:p-6 border-r border-b border-white/15 bg-white/[0.03] hover:bg-white/[0.08] transition-colors"
+                    className="group relative flex flex-col justify-between p-5 sm:p-6 border-r border-b border-white/15 bg-white/[0.04] hover:bg-white/[0.09] transition-all overflow-hidden"
                   >
+                    <span className="absolute top-0 inset-x-0 h-0.5 bg-[#D9531E] opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -14432,7 +14469,7 @@ export function AiRecommendationGuideSection() {
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
                           <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
-                          OFFICIAL SHOWROOM GUARANTEE
+                          OFFICIAL GUARANTEE
                         </span>
                       </div>
                       <p className="text-white text-hb-sm">
@@ -14456,7 +14493,7 @@ export function AiRecommendationGuideSection() {
                       <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] bg-[#FAF9F7]/40 leading-relaxed">
                         {row.personal}
                       </td>
-                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF5F0]/60 leading-relaxed">
+                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF9F6] border-l-2 border-l-[#D9531E] leading-relaxed">
                         <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
                           <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
                           <span>{row.hanbat}</span>
@@ -14494,7 +14531,7 @@ export function AiRecommendationGuideSection() {
             {SITUATION_GUIDES.map((g) => (
               <article
                 key={g.title}
-                className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] transition-all hover:shadow-card"
+                className="group flex flex-col justify-between rounded-xl border border-[#E5E2DC] border-t-4 border-t-[#0E1A2B] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] hover:border-t-4 transition-all hover:shadow-card"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -14529,10 +14566,10 @@ export function AiRecommendationGuideSection() {
                 <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
                   <Link
                     href={g.href}
-                    className="hb-btn-outline w-full justify-between h-10 px-4 text-hb-xs font-bold rounded-lg group"
+                    className="flex w-full items-center justify-between rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:bg-[#0E1A2B] group-hover:text-white group-hover:border-[#0E1A2B] transition-colors"
                   >
                     <span>{g.ctaLabel}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E] group-hover:translate-x-0.5 transition-transform" />
+                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                   </Link>
                 </div>
               </article>
@@ -14546,7 +14583,7 @@ export function AiRecommendationGuideSection() {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="377">
+    <file path="components/home/category-pictogram-bar.tsx" lines="387">
       <![CDATA[
 // 파일 경로: components/home/category-pictogram-bar.tsx
 "use client";
@@ -14818,35 +14855,43 @@ export function CategoryPictogramBar({
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
                 const count = categoryCounts?.[item.key];
                 const isBiz = item.group === "biz";
+                const groupTag =
+                  item.group === "biz"
+                    ? "업소용 B2B"
+                    : item.group === "home"
+                    ? "가정용"
+                    : "전 품목";
+
                 return (
                   <button
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 hover:-translate-y-1 cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-card ring-2 ring-[#D9531E]/20"
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
                         : isBiz
-                        ? "border-[#1E2F48] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md"
-                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md"
+                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
+                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
                     }`}
                   >
-                    {isBiz && (
-                      <span
-                        className={`absolute top-1.5 right-1.5 text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
-                          isSelected
-                            ? "bg-[#FF8A50] text-[#0E1A2B]"
-                            : "bg-[#0E1A2B] text-white"
-                        }`}
-                      >
-                        B2B
-                      </span>
-                    )}
+                    {/* 상단 그룹 마이크로 태그 */}
+                    <span
+                      className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                        isSelected
+                          ? "bg-white/20 text-[#FF8A50]"
+                          : isBiz
+                          ? "bg-[#D9531E]/10 text-[#D9531E]"
+                          : "bg-[#0E1A2B]/5 text-[#646E7E]"
+                      }`}
+                    >
+                      {groupTag}
+                    </span>
 
                     <ModernApplianceIcon
                       name={item.icon}
@@ -14882,7 +14927,7 @@ export function CategoryPictogramBar({
                     {/* 선택 시 하단 오렌지 인디케이터 바 */}
                     {isSelected && (
                       <span
-                        className="absolute inset-x-3 bottom-0 h-1 rounded-full bg-[#D9531E]"
+                        className="h-1 w-8 rounded-full bg-[#FF8A50] mt-0.5"
                         aria-hidden="true"
                       />
                     )}
@@ -14892,28 +14937,30 @@ export function CategoryPictogramBar({
             </div>
           </div>
 
-          {/* 2단: 4대 원스톱 컨시어지 배너 (4열 와이드 스트립) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* 2단: 4열 와이드 원스톱 서비스 컨시어지 바 (ACTION_BENTO_ITEMS 4종) */}
+          <div className="mt-4 pt-4 border-t border-[#ECE9E2] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {ACTION_BENTO_ITEMS.map((item) => (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => handleActionClick(item)}
-                className="group relative flex items-center gap-3.5 rounded-xl border border-[#E5E2DC] bg-gradient-to-r from-white to-[#FAF9F7] p-3.5 sm:p-4 text-left shadow-2xs transition-all duration-200 hover:-translate-y-1 hover:border-[#D9531E] hover:shadow-card cursor-pointer"
+                className="group relative flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border border-[#FADCD0] bg-gradient-to-r from-[#FFF9F6] to-white hover:border-[#D9531E] hover:shadow-card transition-all cursor-pointer text-left"
               >
-                <ModernApplianceIcon
-                  name={item.icon}
-                  className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
-                />
-                <div className="min-w-0 flex-1">
-                  <strong className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
-                    {item.label}
-                  </strong>
-                  <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
-                    {item.sub}
-                  </span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <ModernApplianceIcon
+                    name={item.icon}
+                    className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <strong className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
+                      {item.label}
+                    </strong>
+                    <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
+                      {item.sub}
+                    </span>
+                  </div>
                 </div>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FAF9F7] border border-[#E5E2DC] text-[#646E7E] group-hover:bg-[#D9531E] group-hover:text-white group-hover:border-transparent transition-all">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white border border-[#FADCD0] text-[#D9531E] group-hover:bg-[#D9531E] group-hover:text-white group-hover:border-transparent transition-all shadow-2xs ml-2">
                   <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
                 </span>
               </button>
@@ -18694,7 +18741,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="426">
+    <file path="components/products/product-card.tsx" lines="431">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -18904,7 +18951,7 @@ export function ProductCard({
       }`}
     >
       {/* 1. 시원시원한 대형 풀블리드 사진 (스튜디오 조명 백드롭 & 내부 액자 링) */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.06]">
+      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.05]">
         <SafeImg
           src={images[0]}
           alt={product.title}
@@ -18921,7 +18968,7 @@ export function ProductCard({
           </div>
         )}
 
-        {/* 좌상단 판매 상태 배지 */}
+        {/* 좌상단 판매 상태 배지 & 외관 상태 등급 */}
         {isSelectMode ? (
           <div
             className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded border transition-colors ${
@@ -18933,12 +18980,17 @@ export function ProductCard({
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1">
+          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
               showNew={false}
             />
+            {product.condition_grade && (
+              <span className="rounded bg-white/90 backdrop-blur-xs px-2 py-0.5 text-hb-xs font-extrabold text-[#D9531E] shadow-2xs border border-[#E5E2DC]/80">
+                {product.condition_grade}
+              </span>
+            )}
           </div>
         )}
 
@@ -18953,7 +19005,7 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className="absolute left-2.5 bottom-2.5 z-20 inline-flex items-center gap-1 rounded-full border border-white/80 bg-white/90 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-sm backdrop-blur-md hover:bg-[#0E1A2B] hover:text-white transition-all duration-150 cursor-pointer active:scale-95"
+            className="absolute left-2.5 bottom-2.5 z-20 inline-flex items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-all cursor-pointer active:scale-95"
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
@@ -19041,7 +19093,7 @@ export function ProductCard({
         </div>
 
         {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F2EFE9] flex items-center justify-between gap-2 min-w-0">
+        <div className="mt-3 pt-2.5 border-t border-[#ECE9E2] flex items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
             {sold ? (
               <span className="text-hb-sm font-bold text-[#646E7E] truncate block">
@@ -26665,45 +26717,6 @@ async function generateOgImages() {
 }
 
 generateOgImages().catch(console.error);
-
-]]>
-    </file>
-    <file path="scripts/git-commit-push.mjs" lines="35">
-      <![CDATA[
-import { execSync } from 'child_process';
-
-const gitPath = 'C:\\Program Files\\Git\\cmd\\git.exe';
-function run(cmd) {
-  console.log(`> ${cmd}`);
-  const out = execSync(`"${gitPath}" ${cmd}`, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'] });
-  console.log(out);
-  return out;
-}
-
-try {
-  console.log('=== Staging all changes ===');
-  run('add -A');
-
-  console.log('=== Committing ===');
-  run('commit -m "fix: resolve prefix duplication, sold sms branching, form title cleanup, and script assertions"');
-
-  console.log('=== Waiting 5 seconds before push ===');
-  execSync('node -e "setTimeout(() => {}, 5000)"');
-
-  console.log('=== Pushing to origin main ===');
-  run('push origin main');
-
-  console.log('=== Verifying git log -1 and status ===');
-  run('log -1 --oneline');
-  run('status');
-  console.log('=== Git operations completed successfully ===');
-} catch (err) {
-  console.error('Git execution failed:');
-  if (err.stdout) console.log('STDOUT:', err.stdout.toString());
-  if (err.stderr) console.error('STDERR:', err.stderr.toString());
-  console.error(err.message);
-  process.exit(1);
-}
 
 ]]>
     </file>

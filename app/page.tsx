@@ -593,7 +593,7 @@ export default function Home() {
         <section
           id="hero-section"
           aria-labelledby="hero-title"
-          className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero"
+          className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero hb-arch-grid"
         >
           {/* 상단 직영 쇼룸 상태 스트립 */}
           <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
@@ -631,8 +631,9 @@ export default function Home() {
               {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 무테두리 3대 기준 스트립 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
-                  <div className="inline-flex items-center gap-2 text-hb-xs font-extrabold tracking-wider text-[#D9531E] uppercase">
-                    <span>HANBAT APPLIANCE & COMMERCIAL SHOWROOM</span>
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#D9531E]/25 bg-[#FFF5F0]/90 px-3.5 py-1 text-hb-xs font-extrabold text-[#D9531E] shadow-2xs">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#D9531E]" />
+                    <span>HANBAT APPLIANCE &amp; COMMERCIAL SHOWROOM</span>
                   </div>
 
                   <h1
@@ -766,7 +767,19 @@ export default function Home() {
               </div>
 
               {/* 우측 (5열): 오프라인 직영 쇼룸 비주얼 + 실시간 입고 실매물 3종 독 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card hb-specular">
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E2DC] bg-white/95 backdrop-blur-md shadow-card hb-pedestal-card">
+                {/* 다크 네이비 뷰파인더 바 */}
+                <div className="bg-[#0E1A2B] px-3.5 py-2 flex items-center justify-between text-white border-b border-white/10">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#FF8A50] animate-pulse" />
+                    <span className="font-mono text-hb-xs font-extrabold tracking-wider text-white">
+                      SHOWROOM LIVE VIEW · 1F/2F 300평급 전시장
+                    </span>
+                  </div>
+                  <span className="text-hb-xs text-[#FF8A50] font-bold">
+                    실시간 직영 쇼룸
+                  </span>
+                </div>
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#0E1A2B]">
                   <SafeImg
                     src="/main-bg2.png"
@@ -782,7 +795,7 @@ export default function Home() {
                       1F 가정 · 업소용 대형전시
                     </span>
                     <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#E5E2DC]">
-                      2F 에어컨 · 주방설비관
+                      2F 냉난방 · 주방설비관
                     </span>
                     <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#0E1A2B]/70 backdrop-blur-md border border-white/15 px-2 py-0.5 text-hb-xs font-semibold text-[#FF8A50]">
                       전용주차 8대 완비
@@ -909,7 +922,7 @@ export default function Home() {
             ════════════════════════════════════════════════════════════ */}
         <section
           id="business-section"
-          className="bg-[#0E1A2B] text-white py-12 sm:py-16 lg:py-20 border-b border-[#1E2F47]"
+          className="bg-[#0E1A2B] hb-dark-mesh relative overflow-hidden text-white py-12 sm:py-16 lg:py-20 border-b border-[#1E2F47]"
           aria-labelledby="business-title"
         >
           <div className="hb-container">
@@ -955,8 +968,9 @@ export default function Home() {
                   <Link
                     key={cell.code}
                     href={cell.href}
-                    className="group flex flex-col justify-between p-5 sm:p-6 border-r border-b border-white/15 bg-white/[0.03] hover:bg-white/[0.08] transition-colors"
+                    className="group relative flex flex-col justify-between p-5 sm:p-6 border-r border-b border-white/15 bg-white/[0.04] hover:bg-white/[0.09] transition-all overflow-hidden"
                   >
+                    <span className="absolute top-0 inset-x-0 h-0.5 bg-[#D9531E] opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">

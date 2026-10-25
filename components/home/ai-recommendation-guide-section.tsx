@@ -121,7 +121,7 @@ export function AiRecommendationGuideSection() {
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
                           <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
-                          OFFICIAL SHOWROOM GUARANTEE
+                          OFFICIAL GUARANTEE
                         </span>
                       </div>
                       <p className="text-white text-hb-sm">
@@ -145,7 +145,7 @@ export function AiRecommendationGuideSection() {
                       <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] bg-[#FAF9F7]/40 leading-relaxed">
                         {row.personal}
                       </td>
-                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF5F0]/60 leading-relaxed">
+                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF9F6] border-l-2 border-l-[#D9531E] leading-relaxed">
                         <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
                           <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
                           <span>{row.hanbat}</span>
@@ -183,7 +183,7 @@ export function AiRecommendationGuideSection() {
             {SITUATION_GUIDES.map((g) => (
               <article
                 key={g.title}
-                className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] transition-all hover:shadow-card"
+                className="group flex flex-col justify-between rounded-xl border border-[#E5E2DC] border-t-4 border-t-[#0E1A2B] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] hover:border-t-4 transition-all hover:shadow-card"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
@@ -218,10 +218,10 @@ export function AiRecommendationGuideSection() {
                 <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
                   <Link
                     href={g.href}
-                    className="hb-btn-outline w-full justify-between h-10 px-4 text-hb-xs font-bold rounded-lg group"
+                    className="flex w-full items-center justify-between rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:bg-[#0E1A2B] group-hover:text-white group-hover:border-[#0E1A2B] transition-colors"
                   >
                     <span>{g.ctaLabel}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E] group-hover:translate-x-0.5 transition-transform" />
+                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                   </Link>
                 </div>
               </article>

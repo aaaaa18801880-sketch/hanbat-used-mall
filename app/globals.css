@@ -119,8 +119,11 @@ body {
   }
 
   .hb-surface-card {
-    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-200;
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9), 0 2px 6px -1px rgba(14, 26, 43, 0.04), 0 8px 20px -4px rgba(14, 26, 43, 0.04);
+    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover hover:border-[#0E1A2B]/30;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
+      0 2px 6px -1px rgba(14, 26, 43, 0.04),
+      0 8px 20px -4px rgba(14, 26, 43, 0.04);
   }
 
   .hb-snap-row {
@@ -234,10 +237,30 @@ body {
     );
   }
 
-  /* 5. 건축적 도트/그리드 배경 패턴 & 표면 질감 토큰 */
+  /* 5. 건축적 도면 격자 배경 패턴 & 표면 질감 토큰 */
   .hb-arch-grid {
-    background-image: radial-gradient(rgba(14, 26, 43, 0.07) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-size: 28px 28px;
+    background-image:
+      linear-gradient(to right, rgba(14, 26, 43, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(14, 26, 43, 0.03) 1px, transparent 1px);
+  }
+
+  .hb-pedestal-card {
+    @apply rounded-2xl border border-[#E5E2DC] bg-white transition-all duration-300;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+      0 4px 14px -2px rgba(14, 26, 43, 0.05);
+  }
+
+  .hb-pedestal-card:hover {
+    @apply -translate-y-1 border-[#0E1A2B]/40;
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.95),
+      0 12px 28px -4px rgba(14, 26, 43, 0.1);
+  }
+
+  .hb-price-ticket {
+    @apply rounded-xl border border-[#1E2F47] bg-[#0E1A2B] text-white shadow-card;
   }
 
   .hb-specular {
