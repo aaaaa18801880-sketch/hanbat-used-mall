@@ -379,7 +379,7 @@ export default async function ProductDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}

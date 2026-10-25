@@ -567,7 +567,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#0E1A2B] overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-white text-[#0E1A2B]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}

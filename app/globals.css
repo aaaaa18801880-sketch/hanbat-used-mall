@@ -54,7 +54,7 @@ body {
   letter-spacing: -0.02em;
   word-break: keep-all;
   overflow-wrap: break-word;
-  overflow-x: hidden;
+  overflow-x: clip;
   font-feature-settings: "tnum" on, "lnum" on;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
