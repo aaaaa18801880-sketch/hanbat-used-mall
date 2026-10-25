@@ -349,15 +349,15 @@ export function ProductCard({
                     e.stopPropagation();
                     onQuickView(product);
                   }}
-                  title={isAdmin ? "관리자 빠른 수정" : "상품 빠른 미리보기"}
-                  aria-label={`${product.title} ${isAdmin ? "빠른 수정" : "미리보기"}`}
+                  title={isAdmin ? "관리자 수정" : "상품 미리보기"}
+                  aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-1 text-hb-xs font-semibold text-[#3E4756] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors cursor-pointer"
                 >
                   <Icon
                     d={isAdmin ? ICON.pen : ICON.search}
                     className="w-3 h-3 text-[#D9531E]"
                   />
-                  <span>{isAdmin ? "빠른 수정" : "미리보기"}</span>
+                  <span>{isAdmin ? "수정" : "미리보기"}</span>
                 </button>
               )}
               <button
@@ -393,15 +393,15 @@ export function ProductCard({
                     e.stopPropagation();
                     onQuickView(product);
                   }}
-                  title={isAdmin ? "관리자 빠른 수정" : "상품 빠른 미리보기"}
-                  aria-label={`${product.title} ${isAdmin ? "빠른 수정" : "미리보기"}`}
+                  title={isAdmin ? "관리자 수정" : "상품 미리보기"}
+                  aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
                   className="inline-flex items-center gap-1 rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-2 py-1 text-hb-xs font-semibold text-[#3E4756] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors cursor-pointer"
                 >
                   <Icon
                     d={isAdmin ? ICON.pen : ICON.search}
                     className="w-3 h-3 text-[#D9531E]"
                   />
-                  <span>{isAdmin ? "빠른 수정" : "미리보기"}</span>
+                  <span>{isAdmin ? "수정" : "미리보기"}</span>
                 </button>
               )}
               <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">

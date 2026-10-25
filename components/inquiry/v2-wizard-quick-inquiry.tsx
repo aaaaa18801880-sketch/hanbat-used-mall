@@ -170,7 +170,20 @@ export function V2InquirySectionWithWizard({
   ]);
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [region, setRegion] = useState("");
-  const [memo, setMemo] = useState(linkedProduct?.productTitle || "");
+  const initialMemo = linkedProduct?.productTitle
+    ? linkedProduct.modelName
+      ? `${linkedProduct.productTitle} (${linkedProduct.modelName})`
+      : linkedProduct.productTitle
+    : linkedProduct?.modelName
+    ? `모델명: ${linkedProduct.modelName}`
+    : "";
+  const [memo, setMemo] = useState(
+    linkedProduct?.envNote
+      ? initialMemo
+        ? `[선택한 설치조건: ${linkedProduct.envNote}]\n${initialMemo}`
+        : `[선택한 설치조건: ${linkedProduct.envNote}]`
+      : initialMemo
+  );
   const [analyzingAi, setAnalyzingAi] = useState(false);
   const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
   const [aiResult, setAiResult] = useState<{
@@ -571,32 +584,30 @@ export function V2InquirySectionWithWizard({
                 <div className="flex items-center gap-1.5">
                   <Icon d={ICON.bag} className="w-4 h-4 text-[#2563EB] shrink-0" />
                   <span>
-                    견적함에 담긴 {formatQuoteBasketSummary(basketItems).totalUnitCount}개 품목이 감지되었습니다. (총 {basketItems.length}종)
+                    견적함에 담긴 관심 매물 {basketItems.length}건을 문의 내용에 자동 반영하기
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={() => {
-                    const bundleLines = basketItems
-                      .map(
-                        (it, idx) =>
-                          `${idx + 1}. [${it.category}] ${it.title} (수량: ${it.quantity || 1}대)`
-                      )
-                      .join("\n");
-                    setMemo(
-                      `[견적함 묶음 문의 - 총 ${basketItems.length}개 품목]\n${bundleLines}`
-                    );
+                    const summary = formatQuoteBasketSummary(basketItems);
+                    if (summary.hasCommercialItem) {
+                      setInquiryType("대량·업소용 상담");
+                    }
+                    if (summary.autoDescription) {
+                      setMemo(summary.autoDescription);
+                    }
                     const cats = Array.from(
                       new Set(basketItems.map((it) => it.category).filter(Boolean))
                     );
                     if (cats.length > 0) {
                       setSelectedCategories(cats);
                     }
-                    toast.success("견적함 품목이 문의 내용에 입력되었습니다.");
+                    toast.success("견적함 매물이 문의 내용에 자동 반영되었습니다.");
                   }}
                   className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold bg-white text-[#1D4ED8] hover:bg-blue-50 border-[#93C5FD] cursor-pointer"
                 >
-                  견적함 품목 불러오기
+                  견적함 자동 반영
                 </button>
               </div>
             )}
@@ -738,7 +749,7 @@ export function V2InquirySectionWithWizard({
                     <span>
                       {analyzingAi
                         ? "AI 사진 판독 및 품목 분석 중..."
-                        : "AI로 사진 속 품목·모델명 자동 판독"}
+                        : "AI 사진 판독으로 품목·모델명 자동입력"}
                     </span>
                   </button>
 
