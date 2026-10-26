@@ -205,22 +205,19 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="border-b border-[#E5E2DC] bg-white py-7 sm:py-10"
+      className="border-b border-[#E5E2DC] bg-white py-5 sm:py-7"
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-[#ECE9E2]">
-          <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-[#ECE9E2]">
+          <div className="flex items-center gap-2">
             <span
-              className="inline-block h-4 w-1 rounded-full bg-[#D9531E]"
+              className="inline-block h-3.5 w-1 rounded-full bg-[#D9531E]"
               aria-hidden="true"
             />
             <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] tracking-tight">
-              품목별 쇼룸 카탈로그 &amp; 원스톱 서비스
+              품목별 쇼룸 카탈로그
             </h2>
-            <span className="hidden md:inline text-hb-xs text-[#646E7E]">
-              품목을 선택하시면 아래에서 실시간 전시 매물을 바로 필터링합니다
-            </span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -250,10 +247,10 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 2-Tier Flagship Showroom Deck (1단: 8열 와이드 카탈로그 독 / 2단: 4열 컨시어지 스트립) */}
-        <div className="space-y-4 sm:space-y-5">
+        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 */}
+        <div className="space-y-3">
           {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
-          <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-4 shadow-card">
+          <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-3.5 shadow-card">
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
@@ -265,7 +262,7 @@ export function CategoryPictogramBar({
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2 sm:py-3 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
                       isSelected
                         ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
                         : isBiz
@@ -332,32 +329,33 @@ export function CategoryPictogramBar({
             </div>
           </div>
 
-          {/* 2단: 4열 와이드 원스톱 서비스 컨시어지 바 (ACTION_BENTO_ITEMS 4종) */}
-          <div className="mt-4 pt-4 border-t border-[#ECE9E2] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* 2단: 슬림 인라인 퀵 캡슐 바 (Single-row Quick Action Strip) */}
+          <div className="pt-1 grid grid-cols-2 lg:grid-cols-4 gap-2">
             {ACTION_BENTO_ITEMS.map((item) => (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => handleActionClick(item)}
-                className="group relative flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border border-[#FADCD0] bg-gradient-to-r from-[#FFF9F6] to-white hover:border-[#D9531E] hover:shadow-card transition-all cursor-pointer text-left"
+                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-xs transition-all cursor-pointer text-left"
               >
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0">
                   <ModernApplianceIcon
                     name={item.icon}
-                    className="w-10 h-10 sm:w-11 sm:h-11 shrink-0"
+                    className="w-5 h-5 shrink-0"
                   />
                   <div className="min-w-0">
-                    <strong className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
+                    <span className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
                       {item.label}
-                    </strong>
-                    <span className="mt-0.5 block text-hb-xs font-medium text-[#646E7E] truncate">
+                    </span>
+                    <span className="hidden sm:block text-hb-xs text-[#646E7E] truncate">
                       {item.sub}
                     </span>
                   </div>
                 </div>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white border border-[#FADCD0] text-[#D9531E] group-hover:bg-[#D9531E] group-hover:text-white group-hover:border-transparent transition-all shadow-2xs ml-2">
-                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-                </span>
+                <Icon
+                  d={ICON.right}
+                  className="w-3.5 h-3.5 text-[#858076] group-hover:text-[#D9531E] group-hover:translate-x-0.5 transition-all shrink-0"
+                />
               </button>
             ))}
           </div>

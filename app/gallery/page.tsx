@@ -869,23 +869,6 @@ function ProductDetailModal({
                   {product.description && (
                     <ProductStructuredDescription description={product.description} />
                   )}
-
-                  <ul className="text-hb-sm text-[#4B5260] space-y-1.5 bg-[#FAF9F7] rounded-xl p-4 border border-[#E5E2DC]">
-                    <li className="flex items-start gap-2">
-                      <Icon
-                        d={ICON.check}
-                        className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0"
-                      />
-                      <span>세척·작동 점검을 마친 실매물이며 매장에서 직접 확인 가능합니다.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <Icon
-                        d={ICON.check}
-                        className="w-4 h-4 text-[#D9531E] mt-0.5 shrink-0"
-                      />
-                      <span>세금계산서 발행 및 지역·환경별 배송·설치 상담을 지원합니다.</span>
-                    </li>
-                  </ul>
                 </>
               )}
             </div>
@@ -2011,8 +1994,8 @@ export default function GalleryPage() {
                 <h1 className="text-hb-xl sm:text-hb-2xl font-extrabold text-white tracking-tight">
                   판매 제품 갤러리
                 </h1>
-                <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-white/70">
-                  분해 세척과 작동 검수를 마친 실매물입니다. 온라인 미등록 재고는 전화·카톡으로 문의해 주세요.
+                <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-white/70 truncate">
+                  분해 세척과 작동 검수를 마친 실매물입니다. 미등록 재고는 전화·카톡 문의 가능합니다.
                 </p>
               </div>
             </div>

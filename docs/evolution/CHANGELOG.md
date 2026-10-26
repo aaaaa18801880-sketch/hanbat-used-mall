@@ -211,5 +211,58 @@
 ### 4. 획득한 지식 및 교훈 (Lessons Learned)
 - **상담 본문 맥락 보존(Context Preservation)**: 고객이 모바일에서 문자 상담을 누를 때 상품의 고유 링크가 본문에 포함되어 있으면 오프라인 매장 관리자가 고객의 화면을 직접 보지 않고도 터치 한 번으로 정확한 재고 상태와 매입 이력을 대조할 수 있어 비즈니스 전환 속도가 비약적으로 향상됨.
 
+---
+
+## 🚀 [Cycle 7] 2026-10-26 — 인지 부하 제로(Zero Cognitive Overload) & 프리미엄 쇼룸 UX/UI 전면 고도화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-011`
+- **문제 진단**:
+  1. 기존 웹사이트에 설득을 위한 안내 문구가 과도하게 중복 배치되어 제품 중심의 시각적 스캐닝을 방해하고 사용자 피로도(인지 부하)를 가중시킴.
+  2. 상품 카드에 등급 시각 배지가 부재하고, 스펙 캡슐이 텍스트와 엉켜 직관적인 가격/상태 파악이 지연됨.
+  3. 상세 페이지의 액션 버튼 6개가 세로로 길게 늘어서 노트북/모바일에서 400px 이상의 스크롤 낭비를 유발함.
+  4. 갤러리 모달의 중복 체크리스트와 간편 문의 폼의 강제 펼침 배너로 인해 핵심 CTA 접근성이 떨어짐.
+
+### 2. 코드 변경 요약
+- **[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)**:
+  - 사진 좌상단 플로팅 등급 배지 추가 (`bg-white/95 text-[#0E1A2B] font-extrabold`).
+  - 상단 메타 라인 정돈: 카테고리 강조(`text-[#D9531E]`) + 모델명 모노스페이스(`font-mono`).
+  - 스펙 캡슐 디자인 명확화 및 가격 폰트 확대 (`text-hb-lg sm:text-hb-xl`).
+  - 하단 안심 가치 스트립 중복 문구 제거 및 1줄 단일 혜택으로 압축.
+- **[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx)**:
+  - 히어로 섹션 서브헤딩 및 3대 원칙 박스 문구 40% 이상 경량화.
+  - B2B 납품 섹션 및 매입 절차 가이드를 간결한 1줄 직관 카드로 재배치.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 섹션 상하 여백 슬림화 및 4열 거대 카드 제거, 단일 행 퀵 바둑판 스트립으로 정돈하여 실매물 그리드로 즉시 시선 연결.
+- **[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)**:
+  - 5대 품목 비교 행과 상황별 가이드의 서술형 줄글을 선명한 대비형 핵심 문장으로 압축.
+- **[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx) & [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)**:
+  - 공식 공급가 티켓 박스 헤더 배지 세련화 (`직영 쇼룸 검수 완료 · 실매물 공급가`).
+  - 전화 바로 문의 및 카카오톡 1:1 상담 버튼 높이를 균형 잡힌 `h-14`로 조정.
+  - 보조 액션(문자 문의, 온라인 견적서, 다른 매물 더보기, 관심 매물 견적함)을 2x2 컴팩트 그리드로 재배치하여 세로 높이를 210px 절감.
+- **[components/products/v2-visual-inspection-viewer.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/v2-visual-inspection-viewer.tsx)**:
+  - 4대 부위별 질문 태그 단순화 및 서술형 3줄 설명을 1줄 공식 품질 인증서 스타일 요약으로 정돈.
+- **[components/products/v2-spatial-fit-planner.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/v2-spatial-fit-planner.tsx)**:
+  - 에어컨 기본 포함 항목과 추가 점검 항목 간결화, 출입문 통과 및 운반비 여건에 컬러풀한 시각 판정 배지 적용.
+- **[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)**:
+  - 상단 다크 헤더 설명 1줄화, 모달 내부의 중복 2줄 점검 안내 박스 제거.
+- **[components/inquiry/v2-wizard-quick-inquiry.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/v2-wizard-quick-inquiry.tsx)**:
+  - 2단계 권장 촬영 예시 가이드의 초기 상태를 접힘(`showGuide: false`)으로 변경하여 모바일에서 다음 단계 CTA가 잘리는 현상 해결 (점진적 공개 적용).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.47s) — 임의 픽셀 폰트 0건, 이모지 0건, Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.27s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.42s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.36s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.32s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (2.95s) — 0 errors
+- **7. eslint**: PASS (14.21s) — 0 errors, 0 warnings
+- **8. next build**: PASS (19.93s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+- **총 소요 시간**: 약 39초
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **점진적 공개(Progressive Disclosure)의 실질적 전환 효과**: 모바일 화면에서 도움말이나 가이드 배너가 기본으로 펼쳐져 있으면 다음 액션 버튼을 화면 밖으로 밀어내어 이탈률을 높임. 접힘 상태를 기본값으로 두고 필요 시 원터치로 열 수 있도록 구성하는 것만으로 폼 전환 접근성이 대폭 향상됨.
+- **2x2 그리드를 통한 세로 뷰포트 보존**: 상세 페이지 우측 고정 영역에서 보조 액션 버튼들을 가로 2열로 컴팩트하게 모아주면 일반적인 1080p 및 노트북 화면에서 스크롤 없이도 핵심 사양과 결제/상담 버튼이 한눈에 들어오는 프리미엄 쇼룸 경험을 완성할 수 있음.
+
 
 

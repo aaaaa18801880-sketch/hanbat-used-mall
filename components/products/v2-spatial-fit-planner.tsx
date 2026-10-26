@@ -174,37 +174,27 @@ export function V2SpatialFitPlanner({
 
     // 기본 포함 vs 별도 확인 항목을 구매자 관점에서 명확히 분류
     const basicItems: string[] = [
-      "실내기 + 전용 실외기 + 리모컨 본체 세트",
-      "출고 전 냉매 정량 충진 및 고압 살균 세척",
+      "실내기 + 실외기 + 리모컨 세트 일체",
+      "출고 전 정량 냉매 충진 및 고압 살균 세척",
     ];
     const extraCheckItems: string[] = [];
 
     if (outdoorSpot === "ground") {
-      basicItems.push("바닥 거치 환경 (별도 외벽 앵글 자재비 없음)");
+      basicItems.push("바닥 거치 (별도 외벽 앵글 자재비 없음)");
     } else if (outdoorSpot === "angle") {
-      extraCheckItems.push(
-        "외벽 앵글: 기존 앵글 재사용 시 무료 / 신규 앵글 설치 시 자재비·위험수당 별도"
-      );
+      extraCheckItems.push("외벽 앵글: 신규 앵글 거치 시 자재비 별도");
     } else {
-      extraCheckItems.push(
-        "옥상·특수 거치: 옥상 배관 인양 및 고정 작업 여건 사전 확인 필요"
-      );
+      extraCheckItems.push("옥상 거치: 배관 인양 및 고정 여건 현장 확인");
     }
 
     if (pipeDistance === "short") {
-      extraCheckItems.push(
-        "기본 배관(5~8m 이내) 시공 및 벽체 타공(구멍 없는 경우 1홀 기준) 여부 확인"
-      );
+      extraCheckItems.push("기본 배관(5~8m 이내) 및 벽체 1타공 기준 확인");
     } else {
-      extraCheckItems.push(
-        "배관 연장: 기본 길이 초과분은 1m당 추가 배관비 및 냉매 보충비 발생"
-      );
+      extraCheckItems.push("배관 연장: 기본 길이 초과 시 m당 추가 배관비");
     }
 
     if (powerType === "380v") {
-      extraCheckItems.push(
-        "삼상 380V 전원: 매장 분전반(4선식 차단기) 위치 및 전원선 연결 거리 확인"
-      );
+      extraCheckItems.push("삼상 380V: 분전반 차단기 위치 및 배선 거리 확인");
     }
 
     const smsBody = `[한밭중고전자 에어컨 설치견적 문의]\n• 상품: ${
@@ -227,14 +217,13 @@ export function V2SpatialFitPlanner({
           <div className="border-b border-[#E5E2DC] pb-4">
             <span className="inline-flex items-center gap-1.5 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#D9531E]">
               <Icon d={ICON.snowflake} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
-              <span>에어컨 설치비 · 호환성 판별기</span>
+              <span>에어컨 설치 공간 시뮬레이터 · 호환성 판별기</span>
             </span>
             <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
-              내 환경에선 어떤 추가 작업이 필요할까요?
+              내 설치 환경 호환성 및 추가 작업 확인
             </h3>
             <p className="mt-1 text-hb-xs text-[#646E7E]">
-              설치하실 장소 조건을 누르시면 <strong>전원 호환 여부</strong>와{" "}
-              <strong>추가 비용 발생 항목</strong>을 바로 구분해 드립니다.
+              설치 장소 조건을 선택하시면 <strong>전원 호환 여부</strong>와 <strong>추가 비용 항목</strong>을 바로 판별합니다.
             </p>
           </div>
 
@@ -247,7 +236,7 @@ export function V2SpatialFitPlanner({
               <div className="grid grid-cols-3 gap-2">
                 {[
                   { id: "ground", label: "1층 · 베란다 바닥" },
-                  { id: "angle", label: "외벽 앵글(난간)" },
+                  { id: "angle", label: "외벽 앵글" },
                   { id: "rooftop", label: "옥상 · 원거리" },
                 ].map((opt) => (
                   <button
@@ -275,8 +264,8 @@ export function V2SpatialFitPlanner({
                 </span>
                 <div className="grid grid-cols-2 gap-1.5">
                   {[
-                    { id: "short", label: "가까움 (5~8m 이내)" },
-                    { id: "long", label: "멉니다 (연장 필요)" },
+                    { id: "short", label: "기본 (5~8m 이내)" },
+                    { id: "long", label: "먼거리 (연장 필요)" },
                   ].map((opt) => (
                     <button
                       key={opt.id}
@@ -456,10 +445,10 @@ export function V2SpatialFitPlanner({
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#D9531E]">
               <Icon d={ICON.ruler} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
-              <span>공간 · 문폭 · 운반 여건 판별기</span>
+              <span>설치 공간 시뮬레이터 · 문폭 판별기</span>
             </span>
             <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
-              우리 집에 들어가고, 추가 운반비가 들까요?
+              실내 반입 가능 여부 및 운반비 판별기
             </h3>
           </div>
 
@@ -605,23 +594,32 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 3. 구매자가 바로 이해하는 판정 요약 표 */}
-        <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 space-y-2 text-hb-xs">
-          <div className="flex items-start justify-between gap-2">
-            <span className="font-bold text-[#646E7E] shrink-0">• 반입 판정:</span>
-            <strong className="text-right font-extrabold text-[#0E1A2B]">
-              {fitsDoorEasily
-                ? `그대로 통과 가능 (최소 통과면 ${narrowestSideCm}cm)`
-                : fitsDoorTight
-                ? "냉장고 문짝(도어) 임시 분리 후 반입 가능"
-                : "출입문이 좁아 창문(사다리차) 반입 여부 확인 필요"}
-            </strong>
+        <div className="rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 space-y-2.5 text-hb-xs">
+          <div className="flex items-center justify-between gap-2">
+            <span className="font-bold text-[#646E7E] shrink-0">• 출입문 통과 판정:</span>
+            {fitsDoorEasily ? (
+              <span className="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5">
+                <Icon d={ICON.check} className="w-3 h-3 text-emerald-700" />
+                그대로 통과 가능 (통과면 {narrowestSideCm}cm)
+              </span>
+            ) : fitsDoorTight ? (
+              <span className="inline-flex items-center gap-1 rounded bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5">
+                <Icon d={ICON.wrench} className="w-3 h-3 text-amber-700" />
+                도어 임시 분리 후 반입 가능
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded bg-red-100 text-red-800 font-extrabold px-2 py-0.5">
+                <Icon d={ICON.close} className="w-3 h-3 text-red-700" />
+                창문/사다리차 사전 확인 필요
+              </span>
+            )}
           </div>
-          <div className="flex items-start justify-between gap-2 border-t border-[#E5E2DC] pt-2">
-            <span className="font-bold text-[#646E7E] shrink-0">• 비용 기준:</span>
-            <span className="text-right font-semibold text-[#3E4756] break-keep">
+          <div className="flex items-center justify-between gap-2 border-t border-[#E5E2DC] pt-2">
+            <span className="font-bold text-[#646E7E] shrink-0">• 운반 및 설치비:</span>
+            <span className="text-right font-bold text-[#0E1A2B] break-keep">
               {carryFloor === "1f_elev" && fitsDoorEasily
-                ? "1층/엘리베이터 일반 반입 및 기본 수평 설치 (사다리차 비용 없음)"
-                : "계단 층수 작업비 또는 사다리차 필요 여부에 따라 사전 협의 후 진행"}
+                ? "1층/엘리베이터 기본 운반 및 수평 설치 무료"
+                : "계단 층수 작업비 또는 사다리차 여건 사전 상담"}
             </span>
           </div>
         </div>

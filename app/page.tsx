@@ -79,21 +79,21 @@ const TRUST_SUMMARY_CARDS = [
     step: "01",
     badge: "입고 검수 및 세척",
     title: "분해 세척·작동 검수 후 출고",
-    desc: "입고된 모든 가전과 주방설비는 엔지니어가 분해 고압 세척과 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 출고합니다.",
+    desc: "엔지니어가 분해 고압 세척과 냉매·누수·시운전 테스트를 통과한 실매물만 출고합니다.",
     icon: "sparkle" as const,
   },
   {
     step: "02",
     badge: "책임 보증 약정",
     title: "계약 조건별 무상 A/S 보증",
-    desc: "품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 냉장고·세탁기 등 일반 가전 최대 4개월 무상 A/S를 약정 지원합니다. (거래 형태 및 계약 조건 기준)",
+    desc: "에어컨류 계약조건별 최대 8개월, 일반 가전 최대 4개월 무상 A/S를 약정 지원합니다.",
     icon: "shield" as const,
   },
   {
     step: "03",
     badge: "사업자 정식 증빙",
     title: "사업자 증빙 및 직배송 완비",
-    desc: "대전·세종·충청권 직배송 수평 설치는 물론 전자세금계산서·신용카드·현금영수증을 100% 정식 발행합니다.",
+    desc: "대전·충청권 직배송 설치 및 전자세금계산서·카드·현금영수증을 100% 정식 발행합니다.",
     icon: "tax" as const,
   },
 ] as const;
@@ -102,25 +102,25 @@ const SELL_STEPS = [
   {
     step: "01",
     t: "사진·정보 접수",
-    d: "사진·문자·카톡으로 제품 전면과 모델명(명판), 수거 지역을 남겨주세요.",
+    d: "제품 사진과 모델명, 수거 지역을 문자로 보내주세요.",
     icon: ICON.camera,
   },
   {
     step: "02",
     t: "빠른 견적 안내",
-    d: "외관 상태와 연식·시세를 종합 검토하여 합리적인 매입가를 신속히 안내합니다.",
+    d: "외관 상태와 연식을 검토하여 합리적 매입가를 안내합니다.",
     icon: ICON.search,
   },
   {
     step: "03",
     t: "방문 확인·수거",
-    d: "원하시는 일정에 전문 기사가 방문하여 안전하게 제품을 분리·수거합니다.",
+    d: "전문 기사가 직접 방문하여 안전하게 분리·수거합니다.",
     icon: ICON.truck,
   },
   {
     step: "04",
     t: "현장 즉시 입금",
-    d: "수거가 완료되는 즉시 지정하신 계좌로 매입 대금 전액을 현금 송금합니다.",
+    d: "수거 완료 즉시 고객 계좌로 100% 당일 송금합니다.",
     icon: ICON.wallet,
   },
 ] as const;
@@ -647,7 +647,7 @@ export default function Home() {
                   </h1>
 
                   <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.65] text-[#3E4756] break-keep">
-                    대전 중촌동 1·2층 직영 쇼룸에서 작동 상태를 직접 확인하고 구매하실 수 있으며, 처분하시는 가전·식당 설비는 방문 수거 당일 현금으로 정산해 드립니다.
+                    대전 중촌동 1·2층 직영 쇼룸 실물 확인 · 전 제품 분해 고압세척 및 무상 A/S 보증
                   </p>
 
                   {/* 듀얼 핵심 행동 독 (중첩 박스 대신 선명한 2-Track CTA 버튼 그룹) */}
@@ -728,7 +728,7 @@ export default function Home() {
                         분해 고압세척 출고
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        냉매·콤프레샤·누수 시운전 통과
+                        냉매·누수 시운전 완료
                       </p>
                     </div>
                   </div>
@@ -739,7 +739,7 @@ export default function Home() {
                         무상 A/S 책임 보증
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        에어컨 최대 8개월 · 가전 4개월
+                        에어컨 8개월·가전 4개월
                       </p>
                     </div>
                   </div>
@@ -750,7 +750,7 @@ export default function Home() {
                         직배송·세금계산서
                       </p>
                       <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        충청권 직배송 · 부가세 증빙 100%
+                        충청권 직배송·부가세 증빙
                       </p>
                     </div>
                   </div>
@@ -918,7 +918,7 @@ export default function Home() {
                   폐업 매장 일괄 정리까지
                 </h2>
                 <p className="mt-3 text-hb-sm sm:text-hb-base text-white/75 leading-relaxed break-keep">
-                  업소용 45박스 냉장고, 쇼케이스, 제빙기, 식기세척기, 중대형 냉난방기까지 예산에 맞춘 묶음 납품과 전자세금계산서 정식 발행을 원스톱으로 지원합니다.
+                  45박스 냉장고·쇼케이스·제빙기·냉난방기 맞춤 패키지 납품 및 전자세금계산서 100% 발행
                 </p>
 
                 <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -995,7 +995,7 @@ export default function Home() {
                   쓰던 가전, 사진만 보내주세요
                 </h2>
                 <p className="mt-3 text-hb-sm sm:text-hb-base text-[#3E4756] leading-relaxed break-keep">
-                  가정용 대형가전부터 식당·카페 업소용 설비까지 연식과 상태를 확인하여 합리적인 시세로 매입하며, 방문 수거 당일 현장에서 즉시 입금해 드립니다.
+                  가전·식당설비 사진을 보내주시면 시세를 확인하여 안내해 드리며, 방문 수거 당일 현장 즉시 입금해 드립니다.
                 </p>
 
                 <div className="mt-6 flex flex-col sm:flex-row lg:flex-col gap-2.5">
@@ -1075,7 +1075,7 @@ export default function Home() {
                     <strong className="font-bold text-[#0E1A2B]">
                       빠른 견적 팁:
                     </strong>{" "}
-                    제품 정면 사진 + 모델명 스티커(명판) + 수거 층수(엘리베이터 유무)를 알려주시면 가장 정확합니다.
+                    제품 정면 사진과 모델명 명판, 수거 층수를 알려주시면 신속히 안내합니다.
                   </div>
                   <a
                     href={smsHref(

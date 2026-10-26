@@ -564,15 +564,15 @@ export default async function ProductDetailPage({
               {/* 가격 하이라이트: 다크 네이비 & 오렌지 포인트의 공식 프라이스 티켓 */}
               <div className="mt-4 rounded-xl bg-[#0E1A2B] text-white p-4 sm:p-5 shadow-card border border-[#1E2F47]">
                 {/* 상단 마이크로 보증 헤더 */}
-                <div className="flex items-center justify-between pb-3 border-b border-white/15">
+                <div className="flex items-center justify-between pb-2.5 border-b border-white/15">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50] shrink-0" />
                     <span className="text-hb-xs font-bold text-[#FF8A50] truncate">
-                      SHOWROOM VERIFIED PRICE · 분해세척 및 작동검수 완료
+                      직영 쇼룸 검수 완료 · 실매물 공급가
                     </span>
                   </div>
-                  <span className="font-mono text-hb-xs font-black tracking-widest text-[#FF8A50] shrink-0 ml-2">
-                    OFFICIAL
+                  <span className="text-hb-xs font-bold text-white/60 shrink-0 ml-2">
+                    세금계산서 발행
                   </span>
                 </div>
 

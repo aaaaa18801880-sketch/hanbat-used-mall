@@ -270,7 +270,7 @@ export function V2InquirySectionWithWizard({
   const [submitting, setSubmitting] = useState(false);
 
   /* 촬영 참고 가이드 토글 및 확대 보기 상태 */
-  const [showGuide, setShowGuide] = useState(true);
+  const [showGuide, setShowGuide] = useState(false);
   const [zoomGuide, setZoomGuide] = useState(false);
   const guideInfo =
     PHOTO_GUIDE_DATA[inquiryType] || PHOTO_GUIDE_DATA["내 물건 팔기"];

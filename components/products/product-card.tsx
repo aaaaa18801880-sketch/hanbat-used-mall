@@ -58,8 +58,8 @@ export function ProductTrustMicroStrip({
       title: "분해 세척·작동 점검",
       desc:
         isHvac || isMajorAppliance
-          ? "입고 후 작동 테스트 및 고압 세척 완료"
-          : "입고 후 전문 검수 및 클리닝 점검 완료",
+          ? "입고 후 분해 고압세척 및 냉매·누수 시운전 완료"
+          : "전문 엔지니어 작동 점검 및 살균 클리닝 완료",
       highlight: null,
       icon: "sparkle" as const,
       color: "text-[#0D9488]",
@@ -68,8 +68,8 @@ export function ProductTrustMicroStrip({
     {
       step: "02",
       title: "사후 무상 A/S 보증",
-      desc: "계약 조건에 따라 보증 기간 차등 적용",
-      highlight: warrantyHighlight,
+      desc: warrantyHighlight,
+      highlight: null,
       icon: "shield" as const,
       color: "text-[#D9531E]",
       badge: "bg-[#FFF5F0] text-[#D9531E] border-[#FADCD0]",
@@ -77,7 +77,7 @@ export function ProductTrustMicroStrip({
     {
       step: "03",
       title: "세금계산서·직배송",
-      desc: "사업자 부가세 증빙 및 직영 배송·설치 지원",
+      desc: "사업자 계산서 100% 정식 발행 및 충청권 직배송",
       highlight: null,
       icon: "tax" as const,
       color: "text-[#0284C7]",
@@ -195,7 +195,7 @@ export function ProductCard({
   const specSummaryText =
     specCapsules.length > 0
       ? specCapsules.join(" · ")
-      : "분해 세척 · 작동 검수 완료";
+      : "세척·검수 완료";
 
   const cardInner = (
     <article
@@ -235,12 +235,17 @@ export function ProductCard({
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1">
+          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5 flex-wrap">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
               showNew={false}
             />
+            {product.condition_grade && (
+              <span className="inline-flex items-center rounded bg-white/95 backdrop-blur-xs px-2 py-0.5 text-hb-xs font-extrabold text-[#0E1A2B] border border-[#0E1A2B]/15 shadow-2xs">
+                {product.condition_grade.split(" ")[0]}
+              </span>
+            )}
           </div>
         )}
 
@@ -302,23 +307,19 @@ export function ProductCard({
             <span className="font-bold text-[#D9531E] truncate">
               {categoryLabel}
             </span>
-            {modelName ? (
+            {modelName && (
               <span
                 className="shrink-0 max-w-[55%] truncate font-mono text-hb-xs text-[#646E7E]"
                 title={modelName}
               >
                 {modelName}
               </span>
-            ) : product.condition_grade ? (
-              <span className="shrink-0 font-semibold text-[#646E7E]">
-                {product.condition_grade.split(" ")[0]}
-              </span>
-            ) : null}
+            )}
           </div>
 
           {/* 상품명 (2줄 말줄임 + 하단 글자 잘림 방지 여유고 및 그리드 정렬용 최소 높이) */}
           <h3
-            className={`mt-1 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-bold leading-[1.4] tracking-[-0.015em] transition-colors break-keep pb-0.5 ${
+            className={`mt-1 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-extrabold leading-[1.4] tracking-[-0.015em] transition-colors break-keep pb-0.5 ${
               sold
                 ? "text-[#646E7E]"
                 : "text-[#0E1A2B] group-hover:text-[#D9531E]"
@@ -333,7 +334,7 @@ export function ProductCard({
               {specCapsules.map((cap) => (
                 <span
                   key={cap}
-                  className="inline-block rounded bg-[#F4F2ED] px-1.5 py-0.5 text-hb-xs font-medium text-[#434B59] truncate max-w-full"
+                  className="inline-block rounded-md bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-bold text-[#0E1A2B] truncate max-w-full"
                 >
                   {cap}
                 </span>
@@ -354,11 +355,11 @@ export function ProductCard({
                 판매완료 · 유사재고 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-base sm:text-hb-lg font-extrabold tracking-tight text-[#0E1A2B] tabular-nums truncate">
+              <strong className="block text-hb-lg sm:text-hb-xl font-extrabold tracking-tight text-[#0E1A2B] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
-              <strong className="block text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+              <strong className="block text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] truncate">
                 {priceText}
               </strong>
             )}
