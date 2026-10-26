@@ -29,7 +29,8 @@
 ---
 
 ## 3. 절대 준수 가드레일 (Immutable Rules)
-1. **검증 스크립트 불변성**: 테스트 스크립트(`scripts/check-design-tokens.mjs`, `scripts/verify-*.mjs` 등)의 검증 조건을 완화하거나 수정하여 인위적으로 통과시키는 행위 엄격 금지.
+1. **검증 및 운영 인프라 스크립트 불변성 (Immutable Files)**:
+   - 정적·동적 검증 스크립트(`scripts/check-design-tokens.mjs`, `scripts/verify-*.mjs`, `scripts/test-*.mjs`) 및 운영 인프라 러너 스크립트(`scripts/run-all-verifications.mjs`, `scripts/git-checkpoint.mjs`)는 임의 수정, 검증 로직 완화 또는 우회가 엄격히 금지된 불변 자산임.
 2. **Next.js 16 / React 19 아키텍처 규칙**: [AGENTS.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/AGENTS.md)의 Next.js 필수 가이드 블록을 보존하고, App Router 서버 컴포넌트(`force-dynamic` 등)와 클라이언트 컴포넌트 분리 원칙을 준수.
 3. **디자인 시스템 및 시각 규칙**:
    - 임의 픽셀 폰트 크기(`text-[13px]` 등) 금지 (`text-hb-xs` ~ `text-hb-3xl` 토큰 필수 사용).

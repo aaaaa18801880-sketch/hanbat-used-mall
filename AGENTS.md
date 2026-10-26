@@ -35,7 +35,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 다음 사이클 작업 중 회복 불가능한 오류나 테스트 실패 발생 시, 직전 체크포인트 커밋으로 안전하게 롤백(`git reset --hard HEAD`)하여 이전 사이클의 성과를 완벽히 보존한다.
 
 ## 4. 절대 불변 안전 가드레일 (Immutable Guardrails)
-- 기존 검증 스크립트(`scripts/check-*.mjs`, `scripts/verify-*.mjs`) 로직 완화 금지.
+- 기존 검증 스크립트(`scripts/check-*.mjs`, `scripts/verify-*.mjs`) 및 핵심 운영 인프라 스크립트(`scripts/run-all-verifications.mjs`, `scripts/git-checkpoint.mjs`) 임의 수정, 검증 로직 완화 또는 우회 절대 금지 (Immutable Files).
 - Supabase RLS 정책 및 거래/문의 데이터 무결성 보존.
 - 디자인 토큰 시스템 준수: 임의 픽셀 폰트 크기(`text-[..px]`) 금지, JSX 화면 노출 텍스트 이모지 금지, Tailwind v3 규격 준수.
 
