@@ -1231,6 +1231,33 @@ export function smsHref(
   return `sms:${cleaned}?body=${encodeURIComponent(bodyText.trim())}`;
 }
 
+/**
+ * [EVO-009] 상품별 직통 SMS 상담 본문 표준 단일 출처(SSOT) 생성기
+ * - 실매물 문의 및 판매완료 유사매물 재고 문의 문구를 통일하고 링크를 포함하여 즉각적인 실물 대조 지원
+ */
+export function buildProductInquirySmsBody(product: {
+  id?: string;
+  title: string;
+  category?: string;
+  price?: number | null;
+  status?: string | null;
+  modelName?: string | null;
+}): string {
+  const sold = isProductSold(product.status);
+  const cat = normalizeProductCategory(product.category);
+  const modelPart = product.modelName ? ` (${product.modelName.trim()})` : "";
+  const pricePart =
+    !sold && hasProductPrice(product.price)
+      ? ` (가격: ${formatProductPrice(product.price, cat)})`
+      : "";
+  const linkPart = product.id ? `\n- 상품링크: ${STORE.url}/${product.id}` : "";
+
+  if (sold) {
+    return `[${STORE.name} 유사매물문의] 판매완료된 '[${cat}] ${product.title.trim()}'${modelPart}와 비슷한 스펙의 현재 구매 가능한 재고 문의드립니다.${linkPart}`;
+  }
+  return `[${STORE.name} 상품문의] [${cat}] ${product.title.trim()}${modelPart}${pricePart} 실매물 재고 및 배송·설치 견적 문의드립니다.${linkPart}`;
+}
+
 export function formatPhone(value: string): string {
   const d = value.replace(/\D/g, "").slice(0, 11);
   if (d.startsWith("02")) {

@@ -42,6 +42,7 @@
    - 다음 사이클 실패 시 직전 체크포인트 커밋으로 안전하게 회귀(`git reset --hard HEAD`)하여 이전 사이클의 성과를 완벽히 격리·보존.
 5. **도메인 단일 출처(SSOT) 준수 규칙**:
    - 매장명, 연락처, 주소, 보증 정책, 반품·교환 규정, 배송 정책 등 비즈니스 정책 문자열은 UI 및 Schema.org 메타데이터에 인라인 하드코딩하지 않고, 반드시 [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)의 `STORE` 상수 및 표준 보증 헬퍼를 참조.
+   - 상품 SMS/카카오톡 등 외부 고객 상담 본문 역시 컴포넌트별로 임의 문자열을 합성하지 않고, 반드시 [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)의 표준 헬퍼(`buildProductInquirySmsBody` 등)를 통해 상품 링크와 스펙이 포함된 단일 출처 템플릿을 생성.
 6. **통합 검증 러너 표준화 (Unified Verification Runner)**:
    - 개별 검증 스크립트의 무분별한 연속 호출로 인한 Windows 프로세스 스폰 스로틀링(`Access is denied`)을 방지하기 위해, 검증은 반드시 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`로 실행.
 7. **문서화 무결성**:

@@ -175,4 +175,41 @@
 ### 4. 획득한 지식 및 교훈 (Lessons Learned)
 - **Crawl Budget 및 AI Feed 동기화**: `sitemap.xml`에 `/llms.txt`와 `/llms-full.txt`를 명시하고 판매 중 매물과 판매 완료 매물의 `priority` 및 `changeFrequency`를 차등 배정함으로써, 검색 로봇이 품절된 과거 매물에 크롤링 자원을 낭비하지 않고 신규 실매물과 최신 LLM 요약 피드를 우선적으로 색인하도록 유도할 수 있음을 확인.
 
+---
+
+## 🚀 [Cycle 6] 2026-10-26 — 상품 직통 문자(SMS) 상담 본문 SSOT 통합 및 실물 대조 링크 자동 주입 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-009`
+- **문제 진단**:
+  1. `components/products/product-detail-gallery.tsx`와 `lib/ui.tsx`에 분산된 SMS 텍스트 조립 로직으로 인해 상품 URL 및 가격 정보가 누락되어 매장 대표가 문자를 받았을 때 고객이 어떤 상품을 보고 있는지 파악하기 위해 역질문하는 마찰 발생.
+  2. 판매완료 유사매물 재고 문의와 판매 중 실매물 문의 간의 문구가 일관되지 않고, SSOT 원칙에 어긋남.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `buildProductInquirySmsBody` 표준 단일 출처(SSOT) 헬퍼 함수 선언.
+  - 카테고리, 모델명, 가격(판매 중일 때), 그리고 매장 대표가 원터치로 실물을 확인할 수 있는 상세 링크(`${STORE.url}/${product.id}`)를 자동 주입.
+  - `smsHref` 함수를 통해 RFC 5724 표준 기반 `encodeURIComponent` 처리.
+- **[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)**:
+  - 인라인 문자열 조립을 제거하고 `buildProductInquirySmsBody` 표준 헬퍼로 교체.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - 모바일 하단 CTA 바의 `productSmsBody`를 `buildProductInquirySmsBody`로 일원화.
+- **[AGENTS.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/AGENTS.md) & [docs/evolution/PROTOCOL.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/PROTOCOL.md)**:
+  - 외부 고객 상담(SMS/카카오톡) 본문 역시 컴포넌트별 임의 작성을 금지하고 `lib/site.ts` 헬퍼를 통해 일원화하도록 SSOT 규칙 확장 명문화.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.39s) — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS (0.28s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.28s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.45s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.39s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.86s) — 0 errors
+- **7. eslint**: PASS (13.53s) — 0 errors, 0 warnings
+- **8. next build**: PASS (20.40s) — 22/22 라우트 프리렌더링 완료 (Exit Code 0)
+- **총 소요 시간**: 41.58초
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **상담 본문 맥락 보존(Context Preservation)**: 고객이 모바일에서 문자 상담을 누를 때 상품의 고유 링크가 본문에 포함되어 있으면 오프라인 매장 관리자가 고객의 화면을 직접 보지 않고도 터치 한 번으로 정확한 재고 상태와 매입 이력을 대조할 수 있어 비즈니스 전환 속도가 비약적으로 향상됨.
+
+
 

@@ -9,6 +9,7 @@ import { ProductStatusBadge } from "./product-status-badge";
 import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
 import {
   addRecentViewedProduct,
+  buildProductInquirySmsBody,
   generatePromoPostText,
   getQuoteBasket,
   isProductSold,
@@ -537,13 +538,14 @@ export function InteractiveChecklistAndCta({
   }
   const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
-  const smsBody = sold
-    ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
-        modelName ? ` (${modelName})` : ""
-      }와 비슷한 스펙의 현재 구매 가능한 재고가 있는지 문의드립니다.`
-    : `[한밭중고전자 상품문의] [${categoryLabel}] ${product.title}${
-        modelName ? ` (${modelName})` : ""
-      } 재고 및 배송·설치 견적 문의드립니다.`;
+  const smsBody = buildProductInquirySmsBody({
+    id: product.id,
+    title: product.title,
+    category: categoryLabel,
+    price: product.price,
+    status: product.status,
+    modelName,
+  });
 
   const galleryCategoryHref = `/gallery?category=${encodeURIComponent(categoryLabel)}`;
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-26T05:21:48.171Z">
+<project name="hanbat-mall" generated_at="2026-10-26T05:35:39.038Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
     <file_count>80</file_count>
   </summary>
   <files>
-    <file path="AGENTS.md" lines="42">
+    <file path="AGENTS.md" lines="43">
       <![CDATA[
 <!-- BEGIN:nextjs-agent-rules -->
 
@@ -38,6 +38,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 2. 도메인 정책 단일 출처(SSOT) 준수 규칙
 - 매장명, 대표 전화, 도로명 주소, 보증 정책(에어컨 8개월/주요가전 4개월), 반품 규정(7일 이내 기능 불량 무상교환), 배송비 정책 등 비즈니스 정책 문자열을 UI 컴포넌트나 메타데이터(Schema.org 등)에 인라인 하드코딩하는 것을 엄격히 금지한다.
 - 모든 비즈니스 정책은 반드시 `lib/site.ts`의 `STORE` 상수 및 표준 보증 헬퍼를 참조하여 작성한다.
+- 상품 SMS/카카오톡 등 외부 고객 상담 본문 역시 컴포넌트별로 임의 문자열을 합성하지 않고, 반드시 `lib/site.ts`의 표준 헬퍼(`buildProductInquirySmsBody` 등)를 통해 링크와 스펙이 포함된 단일 출처 템플릿을 생성한다.
 
 ## 3. 사이클 간 원자적 체크포인트 격리 및 롤백 경계선 (Local Checkpoint Isolation)
 - 개선 사이클이 8대 게이트를 100% 통과할 때마다 원격 push 없이 `node scripts/git-checkpoint.mjs "<cycle description>"`를 실행하여 로컬 체크포인트 커밋을 생성한다.
@@ -20001,7 +20002,7 @@ export function RecentViewedStrip({
 
 ]]>
     </file>
-    <file path="components/products/product-detail-gallery.tsx" lines="678">
+    <file path="components/products/product-detail-gallery.tsx" lines="680">
       <![CDATA[
 // 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
@@ -20014,6 +20015,7 @@ import { ProductStatusBadge } from "./product-status-badge";
 import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
 import {
   addRecentViewedProduct,
+  buildProductInquirySmsBody,
   generatePromoPostText,
   getQuoteBasket,
   isProductSold,
@@ -20542,13 +20544,14 @@ export function InteractiveChecklistAndCta({
   }
   const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
-  const smsBody = sold
-    ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
-        modelName ? ` (${modelName})` : ""
-      }와 비슷한 스펙의 현재 구매 가능한 재고가 있는지 문의드립니다.`
-    : `[한밭중고전자 상품문의] [${categoryLabel}] ${product.title}${
-        modelName ? ` (${modelName})` : ""
-      } 재고 및 배송·설치 견적 문의드립니다.`;
+  const smsBody = buildProductInquirySmsBody({
+    id: product.id,
+    title: product.title,
+    category: categoryLabel,
+    price: product.price,
+    status: product.status,
+    modelName,
+  });
 
   const galleryCategoryHref = `/gallery?category=${encodeURIComponent(categoryLabel)}`;
 
@@ -22496,7 +22499,7 @@ export function ModernApplianceIcon({
 
 ]]>
     </file>
-    <file path="docs/evolution/BACKLOG.md" lines="69">
+    <file path="docs/evolution/BACKLOG.md" lines="86">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 백로그 (Evolution Backlog)
 
@@ -22517,8 +22520,10 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **4** | `EVO-004` | 갤러리 및 서브페이지(/inquiry, /purchase) Canonical URL 및 OpenGraph 절대경로 정밀화 | [app/gallery/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/layout.tsx)<br>[app/inquiry/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/layout.tsx)<br>[app/purchase/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/layout.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 3)** |
 | **5** | `EVO-005` | AI 검색(GEO/AEO) 엔드포인트(/llms.txt, /llms-full.txt) 실시간 재고 카운트 자동 동기화 | [app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)<br>[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
 | **6** | `EVO-006` | 모바일 스티키 바 및 견적함 플로팅 캡슐 안전구역(safe-area-inset-bottom) 시각 여백 최적화 | [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
-| **7** | `EVO-007` | AI 크롤러(GPTBot, PerplexityBot 등) 맞춤 robots.txt 선언 및 sitemap.xml 우선순위 가중치 갱신 | [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)<br>[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts) | 3 | 4 | 1 | 1 | **12.0** | Backlog |
+| **7** | `EVO-007` | AI 크롤러(GPTBot, PerplexityBot 등) 맞춤 robots.txt 선언 및 sitemap.xml 우선순위 가중치 갱신 | [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)<br>[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 5)** |
 | **8** | `EVO-008` | 관리자 대시보드 30일 경과 장기 재고에 대한 원클릭 가격 인하 제안 배너 연동 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 3 | 2 | 1 | **4.5** | Backlog |
+| **9** | `EVO-009` | 카카오톡/문자 상담 클릭 시 상품 메타데이터 인코딩 및 모바일 인텐트 호환성 강화 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 6)** |
+| **10** | `EVO-010` | 관리자 상품 목록 검색 시 모델명·스펙 통합 실시간 디바운스 필터링 고도화 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | Backlog |
 
 ---
 
@@ -22567,9 +22572,24 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - `QuoteBasketFloatingBar`의 `bottom` 속성에 `env(safe-area-inset-bottom)`을 더한 동적 계산값(`bottom-[calc(64px+env(safe-area-inset-bottom))]`) 적용.
   - `SiteFooter`의 모바일 하단 여백 스페이서를 `h-[calc(62px+env(safe-area-inset-bottom))]`로 확장.
 
+### EVO-007: AI 크롤러(GPTBot, PerplexityBot 등) 맞춤 robots.txt 선언 및 sitemap.xml 우선순위 가중치 갱신
+- **문제 진단**:
+  - `Applebot-Extended`, `Amazonbot`, `cohere-ai` 등 최신 생성형 AI 크롤러의 명시적 허용 규칙 부재 및 `sitemap.xml` 내 `/llms.txt`, `/llms-full.txt` 고가치 AI 피드 엔드포인트 누락으로 AI 색인 우선순위 획득 기회 제한.
+  - 판매 완료(Sold) 상품과 실시간 판매 중 상품의 크롤링 빈도(`changeFrequency`)와 우선순위(`priority`)가 단일 수준으로 취급되어 검색 봇의 크롤링 예산(Crawl Budget) 낭비 발생.
+- **개선 방안**:
+  - [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts): `Applebot-Extended`, `Amazonbot`, `cohere-ai` 등 최신 AI 봇 명시적 허용 및 전역 경로 개방.
+  - [app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts): `/llms.txt`(priority 0.9) 및 `/llms-full.txt`(priority 0.85) 추가, 판매 중 상품(`priority 0.8`, `daily`)과 판매 완료 상품(`priority 0.4`, `monthly`)의 크롤링 가중치 차등화.
+
+### EVO-009: 카카오톡/문자 상담 클릭 시 상품 메타데이터 인코딩 및 모바일 인텐트 호환성 강화
+- **문제 진단**:
+  - `components/products/product-detail-gallery.tsx`와 `lib/ui.tsx`에 분산된 SMS 본문 생성 로직으로 인해 상품 링크 및 가격 정보가 누락되어 매장 담당자가 수신 즉시 어떤 상품인지 식별하기 어려움.
+- **개선 방안**:
+  - `lib/site.ts`에 `buildProductInquirySmsBody` 표준 단일 출처(SSOT) 헬퍼를 도입하여 상품명, 카테고리, 모델명, 표시 가격, 실물 상세 URL을 일관되게 포함.
+  - `smsHref`를 통해 RFC 5724 및 모바일 웹 인텐트 표준에 맞게 `encodeURIComponent` 처리.
+
 ]]>
     </file>
-    <file path="docs/evolution/CHANGELOG.md" lines="145">
+    <file path="docs/evolution/CHANGELOG.md" lines="216">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 변경 이력 (Evolution Changelog)
 
@@ -22714,11 +22734,82 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **AEO(Answer Engine Optimization)와 실시간 DB 결합**: 정적 LLMs 텍스트 엔드포인트에 30분 캐시(`revalidate = 1800`)와 함께 실시간 집계 DB 데이터를 제공함으로써 AI 검색 엔진이 가장 최신의 실제 재고 수량과 단일 출처(SSOT) 보증 조건을 사용자 질의에 팩트 기반으로 답변할 수 있도록 최적화함.
 - **모바일 Safe-Area 인셋 합성 공식**: 모바일 고정 바(`fixed bottom-0`)에 `pb-[env(safe-area-inset-bottom)]`가 적용되어 있을 때는 그 위의 플로팅 요소에 단순 상수 오프셋 대신 `calc(상수 + env(safe-area-inset-bottom))`을 적용해야만 기기별 인셋(0px~34px)에 상관없이 항상 일정한 시각적 간격을 유지할 수 있음을 확인.
 
+---
+
+## 🚀 [Cycle 5] 2026-10-26 — AI 크롤러 robots.txt 확장 및 sitemap.xml 우선순위 가중치 세분화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-007`
+- **문제 진단**:
+  1. `Applebot-Extended`(Apple Intelligence Siri/Safari), `Amazonbot`(Amazon AI 쇼핑 에이전트), `cohere-ai` 등 최신 생성형 AI 검색 봇에 대한 명시적 허용 규칙 부재.
+  2. `sitemap.xml`에 정작 가장 중요한 AI 피드인 `/llms.txt`와 `/llms-full.txt`가 포함되어 있지 않아 AI 봇의 빠른 크롤링 디스커버리에서 누락 위험 존재.
+  3. 실시간 판매 중 상품과 이미 판매 완료(`isProductSold`)된 상품의 크롤링 빈도(`changeFrequency`)와 우선순위(`priority`)가 단일 수준으로 관리되어 검색 엔진의 크롤링 예산(Crawl Budget)이 비효율적으로 소진됨.
+
+### 2. 코드 변경 요약
+- **[app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)**:
+  - AI 봇 명단에 `Applebot`, `Applebot-Extended`, `Amazonbot`, `cohere-ai` 추가.
+  - 전역 크롤러(`*`) 및 AI 크롤러 대상 허용 경로에 `/gallery`, `/purchase`, `/inquiry`, `/llms.txt`, `/llms-full.txt` 명시적 개방.
+- **[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts)**:
+  - `staticRoutes`에 `${baseUrl}/llms.txt` (priority 0.9, daily) 및 `${baseUrl}/llms-full.txt` (priority 0.85, daily) 엔드포인트 공식 등록.
+  - 실시간 판매 중 상품: `priority: 0.8`, `changeFrequency: "daily"`.
+  - 판매 완료 상품: `priority: 0.4`, `changeFrequency: "monthly"`.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.50s) — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS (0.26s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.31s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.28s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.28s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (2.75s) — 0 errors
+- **7. eslint**: PASS (15.07s) — 0 errors, 0 warnings
+- **8. next build**: PASS (14.21s) — 22/22 라우트 프리렌더링 완료 (Exit Code 0)
+- **총 소요 시간**: 33.66초
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **Crawl Budget 및 AI Feed 동기화**: `sitemap.xml`에 `/llms.txt`와 `/llms-full.txt`를 명시하고 판매 중 매물과 판매 완료 매물의 `priority` 및 `changeFrequency`를 차등 배정함으로써, 검색 로봇이 품절된 과거 매물에 크롤링 자원을 낭비하지 않고 신규 실매물과 최신 LLM 요약 피드를 우선적으로 색인하도록 유도할 수 있음을 확인.
+
+---
+
+## 🚀 [Cycle 6] 2026-10-26 — 상품 직통 문자(SMS) 상담 본문 SSOT 통합 및 실물 대조 링크 자동 주입 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-009`
+- **문제 진단**:
+  1. `components/products/product-detail-gallery.tsx`와 `lib/ui.tsx`에 분산된 SMS 텍스트 조립 로직으로 인해 상품 URL 및 가격 정보가 누락되어 매장 대표가 문자를 받았을 때 고객이 어떤 상품을 보고 있는지 파악하기 위해 역질문하는 마찰 발생.
+  2. 판매완료 유사매물 재고 문의와 판매 중 실매물 문의 간의 문구가 일관되지 않고, SSOT 원칙에 어긋남.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `buildProductInquirySmsBody` 표준 단일 출처(SSOT) 헬퍼 함수 선언.
+  - 카테고리, 모델명, 가격(판매 중일 때), 그리고 매장 대표가 원터치로 실물을 확인할 수 있는 상세 링크(`${STORE.url}/${product.id}`)를 자동 주입.
+  - `smsHref` 함수를 통해 RFC 5724 표준 기반 `encodeURIComponent` 처리.
+- **[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)**:
+  - 인라인 문자열 조립을 제거하고 `buildProductInquirySmsBody` 표준 헬퍼로 교체.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - 모바일 하단 CTA 바의 `productSmsBody`를 `buildProductInquirySmsBody`로 일원화.
+- **[AGENTS.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/AGENTS.md) & [docs/evolution/PROTOCOL.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/PROTOCOL.md)**:
+  - 외부 고객 상담(SMS/카카오톡) 본문 역시 컴포넌트별 임의 작성을 금지하고 `lib/site.ts` 헬퍼를 통해 일원화하도록 SSOT 규칙 확장 명문화.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.39s) — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS (0.28s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.28s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.45s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.39s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.86s) — 0 errors
+- **7. eslint**: PASS (13.53s) — 0 errors, 0 warnings
+- **8. next build**: PASS (20.40s) — 22/22 라우트 프리렌더링 완료 (Exit Code 0)
+- **총 소요 시간**: 41.58초
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **상담 본문 맥락 보존(Context Preservation)**: 고객이 모바일에서 문자 상담을 누를 때 상품의 고유 링크가 본문에 포함되어 있으면 오프라인 매장 관리자가 고객의 화면을 직접 보지 않고도 터치 한 번으로 정확한 재고 상태와 매입 이력을 대조할 수 있어 비즈니스 전환 속도가 비약적으로 향상됨.
+
+
 
 
 ]]>
     </file>
-    <file path="docs/evolution/PROTOCOL.md" lines="78">
+    <file path="docs/evolution/PROTOCOL.md" lines="79">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 프로토콜 (Autonomous Evolution Protocol)
 
@@ -22764,6 +22855,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
    - 다음 사이클 실패 시 직전 체크포인트 커밋으로 안전하게 회귀(`git reset --hard HEAD`)하여 이전 사이클의 성과를 완벽히 격리·보존.
 5. **도메인 단일 출처(SSOT) 준수 규칙**:
    - 매장명, 연락처, 주소, 보증 정책, 반품·교환 규정, 배송 정책 등 비즈니스 정책 문자열은 UI 및 Schema.org 메타데이터에 인라인 하드코딩하지 않고, 반드시 [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)의 `STORE` 상수 및 표준 보증 헬퍼를 참조.
+   - 상품 SMS/카카오톡 등 외부 고객 상담 본문 역시 컴포넌트별로 임의 문자열을 합성하지 않고, 반드시 [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)의 표준 헬퍼(`buildProductInquirySmsBody` 등)를 통해 상품 링크와 스펙이 포함된 단일 출처 템플릿을 생성.
 6. **통합 검증 러너 표준화 (Unified Verification Runner)**:
    - 개별 검증 스크립트의 무분별한 연속 호출로 인한 Windows 프로세스 스폰 스로틀링(`Access is denied`)을 방지하기 위해, 검증은 반드시 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`로 실행.
 7. **문서화 무결성**:
@@ -22800,7 +22892,7 @@ flowchart TD
 
 ]]>
     </file>
-    <file path="docs/evolution/RESEARCH.md" lines="86">
+    <file path="docs/evolution/RESEARCH.md" lines="100">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 기술 연구 (Research Reference)
 
@@ -22887,6 +22979,20 @@ flowchart TD
    - `tel:` 스키마를 사용하는 링크(`<a>`)는 텍스트만으로도 시각장애인 스크린 리더 사용자가 대상 매장 전화번호를 즉시 인지할 수 있도록 `aria-label="한밭중고전자 전화 바로 상담 연결 (042-252-8949)"` 명시.
 2. **외부 새 창 링크 알림**:
    - `target="_blank"`로 카카오톡 채팅창을 여는 링크는 시각장애인에게 새 창이 열림을 사전에 고지해야 함 (`aria-label="한밭중고전자 카카오톡 1:1 상담창 열기 (새 창)"`, `rel="noopener noreferrer"`).
+
+---
+
+## 4. IETF RFC 5724: URI Scheme for GSM Short Message Service (SMS) & 모바일 인텐트 표준
+
+### 공식 표준 출처
+- **IETF RFC 5724**: [URI Scheme for GSM Short Message Service](https://datatracker.ietf.org/doc/html/rfc5724)
+
+### 핵심 기술 요건
+1. **모바일 브라우저 크로스플랫폼 URI 인코딩**:
+   - 모바일 웹에서 기본 메시지 앱을 트리거할 때 `sms:<전화번호>?body=<URL인코딩된본문>` 표준을 준수.
+   - 한글, 줄바꿈(`\n`), 특수문자가 포함된 본문은 `encodeURIComponent`로 안전하게 인코딩하여 iOS(메시지 앱)와 Android(삼성 메시지/구글 메시지) 양대 OS에서 깨짐 없이 본문이 자동 프리필되도록 보장.
+2. **온·오프라인 단절 방지 링크 포함 (Context Preservation)**:
+   - 단말기 문자 상담 시 매장 담당자가 고객이 문의하는 특정 매물(70여 개 중고 가전)의 사진과 스펙을 실시간으로 식별할 수 있도록 상품 번호 및 공식 상세 URL(`https://hanbatmall.com/{id}`)을 본문에 포함.
 
 ]]>
     </file>
@@ -23296,7 +23402,7 @@ export async function validateServerImageFiles(
 
 ]]>
     </file>
-    <file path="lib/site.ts" lines="1855">
+    <file path="lib/site.ts" lines="1882">
       <![CDATA[
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
@@ -24531,6 +24637,33 @@ export function smsHref(
   return `sms:${cleaned}?body=${encodeURIComponent(bodyText.trim())}`;
 }
 
+/**
+ * [EVO-009] 상품별 직통 SMS 상담 본문 표준 단일 출처(SSOT) 생성기
+ * - 실매물 문의 및 판매완료 유사매물 재고 문의 문구를 통일하고 링크를 포함하여 즉각적인 실물 대조 지원
+ */
+export function buildProductInquirySmsBody(product: {
+  id?: string;
+  title: string;
+  category?: string;
+  price?: number | null;
+  status?: string | null;
+  modelName?: string | null;
+}): string {
+  const sold = isProductSold(product.status);
+  const cat = normalizeProductCategory(product.category);
+  const modelPart = product.modelName ? ` (${product.modelName.trim()})` : "";
+  const pricePart =
+    !sold && hasProductPrice(product.price)
+      ? ` (가격: ${formatProductPrice(product.price, cat)})`
+      : "";
+  const linkPart = product.id ? `\n- 상품링크: ${STORE.url}/${product.id}` : "";
+
+  if (sold) {
+    return `[${STORE.name} 유사매물문의] 판매완료된 '[${cat}] ${product.title.trim()}'${modelPart}와 비슷한 스펙의 현재 구매 가능한 재고 문의드립니다.${linkPart}`;
+  }
+  return `[${STORE.name} 상품문의] [${cat}] ${product.title.trim()}${modelPart}${pricePart} 실매물 재고 및 배송·설치 견적 문의드립니다.${linkPart}`;
+}
+
 export function formatPhone(value: string): string {
   const d = value.replace(/\D/g, "").slice(0, 11);
   if (d.startsWith("02")) {
@@ -25230,7 +25363,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1477">
+    <file path="lib/ui.tsx" lines="1479">
       <![CDATA[
 "use client";
 
@@ -25244,6 +25377,7 @@ import {
   STORE,
   telHref,
   smsHref,
+  buildProductInquirySmsBody,
   trackEvent,
   getQuoteBasket,
   removeQuoteBasketItem,
@@ -26533,13 +26667,14 @@ export function MobileCtaBar({
     const priceLabel = sold
       ? "판매완료"
       : formatProductPrice(productContext.price, productContext.category);
-    const productSmsBody = sold
-      ? `[한밭중고전자 유사매물문의] 판매완료된 '${productContext.title}'${
-          productContext.modelName ? ` (${productContext.modelName})` : ""
-        }와 비슷한 스펙의 현재 재고 문의드립니다.`
-      : `[한밭중고전자 상품문의] ${productContext.title}${
-          productContext.modelName ? ` (${productContext.modelName})` : ""
-        } 재고 및 가격 문의드립니다.`;
+    const productSmsBody = buildProductInquirySmsBody({
+      id: productContext.id,
+      title: productContext.title,
+      category: productContext.category,
+      price: productContext.price,
+      status: productContext.status,
+      modelName: productContext.modelName,
+    });
 
     return (
       <div

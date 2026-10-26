@@ -83,3 +83,17 @@
    - `tel:` 스키마를 사용하는 링크(`<a>`)는 텍스트만으로도 시각장애인 스크린 리더 사용자가 대상 매장 전화번호를 즉시 인지할 수 있도록 `aria-label="한밭중고전자 전화 바로 상담 연결 (042-252-8949)"` 명시.
 2. **외부 새 창 링크 알림**:
    - `target="_blank"`로 카카오톡 채팅창을 여는 링크는 시각장애인에게 새 창이 열림을 사전에 고지해야 함 (`aria-label="한밭중고전자 카카오톡 1:1 상담창 열기 (새 창)"`, `rel="noopener noreferrer"`).
+
+---
+
+## 4. IETF RFC 5724: URI Scheme for GSM Short Message Service (SMS) & 모바일 인텐트 표준
+
+### 공식 표준 출처
+- **IETF RFC 5724**: [URI Scheme for GSM Short Message Service](https://datatracker.ietf.org/doc/html/rfc5724)
+
+### 핵심 기술 요건
+1. **모바일 브라우저 크로스플랫폼 URI 인코딩**:
+   - 모바일 웹에서 기본 메시지 앱을 트리거할 때 `sms:<전화번호>?body=<URL인코딩된본문>` 표준을 준수.
+   - 한글, 줄바꿈(`\n`), 특수문자가 포함된 본문은 `encodeURIComponent`로 안전하게 인코딩하여 iOS(메시지 앱)와 Android(삼성 메시지/구글 메시지) 양대 OS에서 깨짐 없이 본문이 자동 프리필되도록 보장.
+2. **온·오프라인 단절 방지 링크 포함 (Context Preservation)**:
+   - 단말기 문자 상담 시 매장 담당자가 고객이 문의하는 특정 매물(70여 개 중고 가전)의 사진과 스펙을 실시간으로 식별할 수 있도록 상품 번호 및 공식 상세 URL(`https://hanbatmall.com/{id}`)을 본문에 포함.

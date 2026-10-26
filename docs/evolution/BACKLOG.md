@@ -19,7 +19,8 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **6** | `EVO-006` | 모바일 스티키 바 및 견적함 플로팅 캡슐 안전구역(safe-area-inset-bottom) 시각 여백 최적화 | [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
 | **7** | `EVO-007` | AI 크롤러(GPTBot, PerplexityBot 등) 맞춤 robots.txt 선언 및 sitemap.xml 우선순위 가중치 갱신 | [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)<br>[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 5)** |
 | **8** | `EVO-008` | 관리자 대시보드 30일 경과 장기 재고에 대한 원클릭 가격 인하 제안 배너 연동 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 3 | 2 | 1 | **4.5** | Backlog |
-| **9** | `EVO-009` | 카카오톡/문자 상담 클릭 시 상품 메타데이터 인코딩 및 모바일 인텐트 호환성 강화 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts) | 3 | 4 | 1 | 1 | **12.0** | Backlog |
+| **9** | `EVO-009` | 카카오톡/문자 상담 클릭 시 상품 메타데이터 인코딩 및 모바일 인텐트 호환성 강화 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 6)** |
+| **10** | `EVO-010` | 관리자 상품 목록 검색 시 모델명·스펙 통합 실시간 디바운스 필터링 고도화 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | Backlog |
 
 ---
 
@@ -75,3 +76,10 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **개선 방안**:
   - [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts): `Applebot-Extended`, `Amazonbot`, `cohere-ai` 등 최신 AI 봇 명시적 허용 및 전역 경로 개방.
   - [app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts): `/llms.txt`(priority 0.9) 및 `/llms-full.txt`(priority 0.85) 추가, 판매 중 상품(`priority 0.8`, `daily`)과 판매 완료 상품(`priority 0.4`, `monthly`)의 크롤링 가중치 차등화.
+
+### EVO-009: 카카오톡/문자 상담 클릭 시 상품 메타데이터 인코딩 및 모바일 인텐트 호환성 강화
+- **문제 진단**:
+  - `components/products/product-detail-gallery.tsx`와 `lib/ui.tsx`에 분산된 SMS 본문 생성 로직으로 인해 상품 링크 및 가격 정보가 누락되어 매장 담당자가 수신 즉시 어떤 상품인지 식별하기 어려움.
+- **개선 방안**:
+  - `lib/site.ts`에 `buildProductInquirySmsBody` 표준 단일 출처(SSOT) 헬퍼를 도입하여 상품명, 카테고리, 모델명, 표시 가격, 실물 상세 URL을 일관되게 포함.
+  - `smsHref`를 통해 RFC 5724 및 모바일 웹 인텐트 표준에 맞게 `encodeURIComponent` 처리.

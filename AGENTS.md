@@ -28,6 +28,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 ## 2. 도메인 정책 단일 출처(SSOT) 준수 규칙
 - 매장명, 대표 전화, 도로명 주소, 보증 정책(에어컨 8개월/주요가전 4개월), 반품 규정(7일 이내 기능 불량 무상교환), 배송비 정책 등 비즈니스 정책 문자열을 UI 컴포넌트나 메타데이터(Schema.org 등)에 인라인 하드코딩하는 것을 엄격히 금지한다.
 - 모든 비즈니스 정책은 반드시 `lib/site.ts`의 `STORE` 상수 및 표준 보증 헬퍼를 참조하여 작성한다.
+- 상품 SMS/카카오톡 등 외부 고객 상담 본문 역시 컴포넌트별로 임의 문자열을 합성하지 않고, 반드시 `lib/site.ts`의 표준 헬퍼(`buildProductInquirySmsBody` 등)를 통해 링크와 스펙이 포함된 단일 출처 템플릿을 생성한다.
 
 ## 3. 사이클 간 원자적 체크포인트 격리 및 롤백 경계선 (Local Checkpoint Isolation)
 - 개선 사이클이 8대 게이트를 100% 통과할 때마다 원격 push 없이 `node scripts/git-checkpoint.mjs "<cycle description>"`를 실행하여 로컬 체크포인트 커밋을 생성한다.
