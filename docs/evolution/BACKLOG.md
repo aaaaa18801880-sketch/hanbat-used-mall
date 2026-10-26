@@ -15,8 +15,10 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **2** | `EVO-002` | WCAG 2.2 AA 대형 상담 CTA 접근성 및 OpenGraph 절대 경로 정규화 | [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 1)** |
 | **3** | `EVO-003` | 관리자 및 고객 폼 이미지 보정/업로드 Canvas Object URL 메모리 누수 원천 차단 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx)<br>[components/inquiry/unified-inquiry-form.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/unified-inquiry-form.tsx) | 4 | 4 | 1 | 1 | **16.0** | **Completed (Cycle 2)** |
 | **4** | `EVO-004` | 갤러리 및 서브페이지(/inquiry, /purchase) Canonical URL 및 OpenGraph 절대경로 정밀화 | [app/gallery/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/layout.tsx)<br>[app/inquiry/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/layout.tsx)<br>[app/purchase/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/layout.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 3)** |
-| **5** | `EVO-005` | AI 검색(GEO/AEO) 엔드포인트(/llms.txt, /llms-full.txt) 실시간 재고 카운트 자동 동기화 | [app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts) | 3 | 4 | 2 | 1 | **6.0** | Backlog |
-| **6** | `EVO-006` | 모바일 스티키 바 및 견적함 플로팅 캡슐 안전구역(safe-area-inset-bottom) 시각 여백 최적화 | [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) | 3 | 4 | 1 | 2 | **6.0** | Backlog |
+| **5** | `EVO-005` | AI 검색(GEO/AEO) 엔드포인트(/llms.txt, /llms-full.txt) 실시간 재고 카운트 자동 동기화 | [app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)<br>[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
+| **6** | `EVO-006` | 모바일 스티키 바 및 견적함 플로팅 캡슐 안전구역(safe-area-inset-bottom) 시각 여백 최적화 | [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
+| **7** | `EVO-007` | AI 크롤러(GPTBot, PerplexityBot 등) 맞춤 robots.txt 선언 및 sitemap.xml 우선순위 가중치 갱신 | [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)<br>[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts) | 3 | 4 | 1 | 1 | **12.0** | Backlog |
+| **8** | `EVO-008` | 관리자 대시보드 30일 경과 장기 재고에 대한 원클릭 가격 인하 제안 배너 연동 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 3 | 2 | 1 | **4.5** | Backlog |
 
 ---
 
@@ -50,3 +52,17 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 ### EVO-004: 갤러리 파라미터별 Canonical 태그 및 검색 로봇 최적화
 - **문제 진단**:
   - [app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)에서 복합 필터(`?category=...&price=...`) 적용 시 중복 콘텐츠 색인 방지를 위한 대표 Canonical URL 설정 고도화.
+
+### EVO-005: AI 검색(GEO/AEO) 엔드포인트(/llms.txt, /llms-full.txt) 실시간 재고 카운트 자동 동기화
+- **문제 진단**:
+  - AI 검색 엔진(Perplexity, ChatGPT Search, Gemini Live 등)이 `/llms.txt` 및 `/llms-full.txt`를 수집할 때 매장의 정확한 품목별 잔여 재고 수량과 보증 조건을 즉시 파악하지 못하고 샘플 텍스트만 읽어갈 수 있음.
+- **개선 방안**:
+  - Supabase DB에서 판매 중 매물(`!isProductSold`) 실시간 카운트 및 카테고리별 실시간 집계를 수행하여 헤더 통계 마크다운으로 자동 주입.
+  - `STORE_MERCHANT_POLICY` SSOT를 통해 보증(에어컨 8개월/주요가전 4개월) 및 반품(7일) 기준 명시.
+
+### EVO-006: 모바일 스티키 바 및 견적함 플로팅 캡슐 안전구역(safe-area-inset-bottom) 시각 여백 최적화
+- **문제 진단**:
+  - 노치 및 홈 인디케이터가 있는 최신 스마트폰(iPhone 등)에서 `QuoteBasketFloatingBar`가 하단 고정 바와 겹치거나, `SiteFooter` 하단 텍스트가 잘리는 시각적 마찰 발생.
+- **개선 방안**:
+  - `QuoteBasketFloatingBar`의 `bottom` 속성에 `env(safe-area-inset-bottom)`을 더한 동적 계산값(`bottom-[calc(64px+env(safe-area-inset-bottom))]`) 적용.
+  - `SiteFooter`의 모바일 하단 여백 스페이서를 `h-[calc(62px+env(safe-area-inset-bottom))]`로 확장.

@@ -105,4 +105,40 @@
 - **[app/purchase/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/layout.tsx)**:
   - `canonical: `${STORE.url}/purchase`` 및 OpenGraph 절대경로 정규화.
 
+---
+
+## 🚀 [Cycle 4] 2026-10-26 — AI 검색(GEO/AEO) 실시간 피드 동기화 및 모바일 뷰포트 안전구역(Safe-Area) 최적화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-005`, `EVO-006`
+- **문제 진단**:
+  1. AI 검색 엔진(Perplexity, ChatGPT Search, Gemini Live 등)이 `/llms.txt` 및 `/llms-full.txt`를 인덱싱할 때 정적 텍스트만 읽어갈 경우 실시간 매장 재고 수량(예: 실매물 70여 대) 및 품목별 정확한 잔여 수량을 신뢰성 있게 답변하기 어려움.
+  2. 에어컨 보증(8개월) 및 주요가전 보증(4개월), 반품 규정(7일) 등의 상거래 정책이 LLM 컨텍스트 피드에 단일 출처(SSOT)로 일원화되어 있지 않음.
+  3. 아이폰 등 하단 홈 인디케이터가 있는 모바일 디바이스에서 `QuoteBasketFloatingBar`가 하단 고정 CTA 바와 겹치거나, `SiteFooter` 하단 여백 부족으로 마지막 안내문이 가려지는 시각적 마찰 발생.
+
+### 2. 코드 변경 요약
+- **[app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)**:
+  - Supabase DB에서 판매 중(`!isProductSold`) 실매물 총 대수 및 카테고리별 실시간 수량(`categoryCounts`) 집계 로직 추가.
+  - 마크다운 헤더 섹션에 총 실매물 대수 및 카테고리별 실시간 전시 현황 통계 자동 반영.
+  - `STORE_MERCHANT_POLICY` SSOT를 통한 에어컨(8개월)/주요가전(4개월) 공식 보증 명시.
+- **[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts)**:
+  - 120개 전체 실매물 카탈로그 상단에 `실시간 전시 재고 통계` 및 `공식 사후 보증 및 거래 정책(SSOT)` 섹션 주입.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `QuoteBasketFloatingBar`: `bottom-[64px]` → `bottom-[calc(64px+env(safe-area-inset-bottom))]` 동적 안전구역 계산 적용하여 모바일 바와의 겹침 원천 차단.
+  - `SiteFooter`: 모바일 하단 여백 스페이서를 `h-[54px]` → `h-[calc(62px+env(safe-area-inset-bottom))]`로 확장하여 콘텐츠 클리핑 방지.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.42s) — 디자인 토큰 100% 준수 (임의 폰트 0건, 이모지 0건)
+- **2. verify-predeploy**: PASS (0.29s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.28s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.31s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.28s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (6.54s) — 0 errors
+- **7. eslint**: PASS (59.04s) — 0 errors, 0 warnings
+- **8. next build**: PASS (39.73s) — 22/22 라우트 프리렌더링 완료 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **AEO(Answer Engine Optimization)와 실시간 DB 결합**: 정적 LLMs 텍스트 엔드포인트에 30분 캐시(`revalidate = 1800`)와 함께 실시간 집계 DB 데이터를 제공함으로써 AI 검색 엔진이 가장 최신의 실제 재고 수량과 단일 출처(SSOT) 보증 조건을 사용자 질의에 팩트 기반으로 답변할 수 있도록 최적화함.
+- **모바일 Safe-Area 인셋 합성 공식**: 모바일 고정 바(`fixed bottom-0`)에 `pb-[env(safe-area-inset-bottom)]`가 적용되어 있을 때는 그 위의 플로팅 요소에 단순 상수 오프셋 대신 `calc(상수 + env(safe-area-inset-bottom))`을 적용해야만 기기별 인셋(0px~34px)에 상관없이 항상 일정한 시각적 간격을 유지할 수 있음을 확인.
+
 

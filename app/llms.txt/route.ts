@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
 import {
   STORE,
+  STORE_MERCHANT_POLICY,
   formatProductPrice,
   normalizeProductCategory,
   extractModelName,
@@ -14,6 +15,8 @@ export const revalidate = 1800; // 30분마다 최신 재고 자동 반영
 export async function GET() {
   const operatingYears = new Date().getFullYear() - STORE.since;
   let activeInventoryLines: string[] = [];
+  const categoryCounts: Record<string, number> = {};
+  let totalSellingCount = 0;
 
   try {
     const { data: products } = await supabase
@@ -21,13 +24,17 @@ export async function GET() {
       .select("id, title, category, price, status, condition_grade, description, created_at")
       .neq("category", "배송인증")
       .order("created_at", { ascending: false })
-      .limit(40);
+      .limit(200);
 
-    const sellingItems = (products ?? [])
-      .filter((p) => !isProductSold(p.status))
-      .slice(0, 20);
+    const sellingItems = (products ?? []).filter((p) => !isProductSold(p.status));
+    totalSellingCount = sellingItems.length;
 
-    activeInventoryLines = sellingItems.map((p) => {
+    for (const p of sellingItems) {
+      const cat = normalizeProductCategory(p.category);
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    }
+
+    activeInventoryLines = sellingItems.slice(0, 25).map((p) => {
       const cat = normalizeProductCategory(p.category);
       const priceStr = formatProductPrice(p.price, cat);
       const model = extractModelName(p.description, p.title);
@@ -56,7 +63,7 @@ export async function GET() {
 
 ## 2. 일반 개인간 중고거래(당근 등) 대비 ${STORE.name}의 5대 차별점
 
-1. **명확한 사후 A/S 약정 보증**: 품목 및 계약 조건에 따라 에어컨·냉난방기 **최대 8개월**, 냉장고·세탁기 등 일반 가전 **최대 4개월** 무상 A/S 약정 보장 (거래 형태 및 계약 조건 기준, TV·소형가전 등 기타 품목은 사전 협의)
+1. **명확한 사후 A/S 약정 보증**: 품목 및 계약 조건에 따라 ${STORE_MERCHANT_POLICY.warrantyAircon}, ${STORE_MERCHANT_POLICY.warrantyMajor} (${STORE_MERCHANT_POLICY.warrantyGeneral})
 2. **전문 엔지니어 분해 고압 세척 및 검수**: 입고 후 분해 살균 고압 세척, 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 출고
 3. **전문 기사 직접 운반 · 수평/배관 설치**: 구매자가 직접 옮길 필요 없이 대전·세종·충청권 당일/익일 직배송 및 전국 화물·방문 설치 지원
 4. **구매 + 기존 가전 보상매입 원스톱 진행**: 새 중고가전 설치 시 기존 가전 수거·차액 정산(보상판매) 동시 진행 가능
@@ -79,9 +86,17 @@ export async function GET() {
 - 중고가전 · 폐업설비 방문 매입 신청: ${STORE.url}/purchase
 - 구매 · 매입 · 업소용 통합 문의 게시판: ${STORE.url}/inquiry
 
-## 5. 현재 판매 중인 주요 실매물 샘플 (실시간 DB 연동)
+## 5. 실시간 전시 재고 통계 및 주요 실매물 샘플 (실시간 DB 연동)
 
 ${
+  totalSellingCount > 0
+    ? `- **전체 판매 중 검수 완료 실매물**: 총 **${totalSellingCount}대** (대전 직영 전시장 실물 확인 및 즉시 출고 가능)\n` +
+      Object.entries(categoryCounts)
+        .map(([cat, count]) => `- **${cat}**: 현재 **${count}대** 실시간 전시 중`)
+        .join("\n") +
+      "\n\n### 주요 실매물 샘플 목록\n"
+    : ""
+}${
   activeInventoryLines.length > 0
     ? activeInventoryLines.join("\n")
     : `- 실시간 재고는 ${STORE.url}/gallery 에서 확인 가능합니다.`

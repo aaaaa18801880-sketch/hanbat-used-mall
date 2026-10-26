@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-26T04:57:25.234Z">
+<project name="hanbat-mall" generated_at="2026-10-26T05:15:33.195Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -45,7 +45,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - 다음 사이클 작업 중 회복 불가능한 오류나 테스트 실패 발생 시, 직전 체크포인트 커밋으로 안전하게 롤백(`git reset --hard HEAD`)하여 이전 사이클의 성과를 완벽히 보존한다.
 
 ## 4. 절대 불변 안전 가드레일 (Immutable Guardrails)
-- 기존 검증 스크립트(`scripts/check-*.mjs`, `scripts/verify-*.mjs`) 로직 완화 금지.
+- 기존 검증 스크립트(`scripts/check-*.mjs`, `scripts/verify-*.mjs`) 및 핵심 운영 인프라 스크립트(`scripts/run-all-verifications.mjs`, `scripts/git-checkpoint.mjs`) 임의 수정, 검증 로직 완화 또는 우회 절대 금지 (Immutable Files).
 - Supabase RLS 정책 및 거래/문의 데이터 무결성 보존.
 - 디자인 토큰 시스템 준수: 임의 픽셀 폰트 크기(`text-[..px]`) 금지, JSX 화면 노출 텍스트 이모지 금지, Tailwind v3 규격 준수.
 
@@ -11662,23 +11662,27 @@ export default function RootLayout({
 
 ]]>
     </file>
-    <file path="app/llms-full.txt/route.ts" lines="78">
+    <file path="app/llms-full.txt/route.ts" lines="113">
       <![CDATA[
 import { NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
 import {
   STORE,
+  STORE_MERCHANT_POLICY,
   formatProductPrice,
   normalizeProductCategory,
   getProductStatusLabel,
   extractModelName,
   extractSpecCapsules,
+  isProductSold,
 } from "../../lib/site";
 
 export const revalidate = 1800;
 
 export async function GET() {
   let inventorySection = "";
+  let totalSellingCount = 0;
+  const categoryCounts: Record<string, number> = {};
 
   try {
     const { data: products } = await supabase
@@ -11688,7 +11692,16 @@ export async function GET() {
       .order("created_at", { ascending: false })
       .limit(120);
 
-    const blocks = (products ?? []).map((p, idx) => {
+    const productList = products ?? [];
+    const sellingItems = productList.filter((p) => !isProductSold(p.status));
+    totalSellingCount = sellingItems.length;
+
+    for (const p of sellingItems) {
+      const cat = normalizeProductCategory(p.category);
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    }
+
+    const blocks = productList.map((p, idx) => {
       const cat = normalizeProductCategory(p.category);
       const status = getProductStatusLabel(p.status);
       const price = formatProductPrice(p.price, cat);
@@ -11713,6 +11726,28 @@ export async function GET() {
     inventorySection = `전체 상품 목록은 ${STORE.url}/gallery 에서 확인하실 수 있습니다.`;
   }
 
+  const statsSection =
+    totalSellingCount > 0
+      ? `## 1. 실시간 전시 재고 통계 (실시간 DB 연동)
+
+- **전체 판매 중 검수 완료 실매물**: 총 **${totalSellingCount}대** (대전 직영 전시장 실물 확인 및 즉시 출고 가능)
+${Object.entries(categoryCounts)
+  .map(([cat, count]) => `- **${cat}**: 현재 **${count}대** 실시간 전시 중`)
+  .join("\n")}
+
+`
+      : "";
+
+  const warrantySection = `## 2. 공식 사후 보증 및 거래 정책 (SSOT)
+
+1. **에어컨류 보증**: ${STORE_MERCHANT_POLICY.warrantyAircon}
+2. **주요 가전 보증**: ${STORE_MERCHANT_POLICY.warrantyMajor}
+3. **일반 가전 보증**: ${STORE_MERCHANT_POLICY.warrantyGeneral}
+4. **반품/교환 규정**: 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 기능 불량 시 무상 교환 및 A/S 지원
+5. **결제 증빙**: 전자세금계산서, 현금영수증, 신용카드 100% 정식 발행
+
+`;
+
   const fullText = `# ${STORE.name} 전체 실매물 카탈로그 및 상세 거래 기준 (LLMs Full Context)
 
 - 공식 사이트: ${STORE.url}
@@ -11721,14 +11756,14 @@ export async function GET() {
 - 카카오톡 채널: ${STORE.kakaoChat}
 - 영업 시간: ${STORE.hours} (${STORE.closed})
 
-## 품목별 추천 패키지 안내
+${statsSection}${warrantySection}## 3. 품목별 추천 패키지 안내
 
 1. **원룸·자취·기숙사 알뜰 3종 세트**: 일반/양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨 묶음 배송·설치 할인
 2. **카페·베이커리 창업 필수 세트**: 업소용 제빙기(50~100kg급) + 스텐 테이블 냉장·냉동고(1200~1800mm) + 음료/디저트 쇼케이스
 3. **식당·음식점 주방 기본 세트**: 업소용 45박스 수직 냉장·냉동고 + 업소용 도어형 식기세척기 + 스텐 작업대/세정대
 4. **식당·매장 폐업 일괄 정리 및 방문 매입**: 주방 설비, 냉난방기, 쇼케이스 등 현장 방문 철거 및 당일 100% 현금 입금
 
-## 실시간 등록 매물 전체 목록
+## 4. 실시간 등록 매물 전체 목록
 
 ${inventorySection}
 `;
@@ -11744,12 +11779,13 @@ ${inventorySection}
 
 ]]>
     </file>
-    <file path="app/llms.txt/route.ts" lines="99">
+    <file path="app/llms.txt/route.ts" lines="114">
       <![CDATA[
 import { NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
 import {
   STORE,
+  STORE_MERCHANT_POLICY,
   formatProductPrice,
   normalizeProductCategory,
   extractModelName,
@@ -11762,6 +11798,8 @@ export const revalidate = 1800; // 30분마다 최신 재고 자동 반영
 export async function GET() {
   const operatingYears = new Date().getFullYear() - STORE.since;
   let activeInventoryLines: string[] = [];
+  const categoryCounts: Record<string, number> = {};
+  let totalSellingCount = 0;
 
   try {
     const { data: products } = await supabase
@@ -11769,13 +11807,17 @@ export async function GET() {
       .select("id, title, category, price, status, condition_grade, description, created_at")
       .neq("category", "배송인증")
       .order("created_at", { ascending: false })
-      .limit(40);
+      .limit(200);
 
-    const sellingItems = (products ?? [])
-      .filter((p) => !isProductSold(p.status))
-      .slice(0, 20);
+    const sellingItems = (products ?? []).filter((p) => !isProductSold(p.status));
+    totalSellingCount = sellingItems.length;
 
-    activeInventoryLines = sellingItems.map((p) => {
+    for (const p of sellingItems) {
+      const cat = normalizeProductCategory(p.category);
+      categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+    }
+
+    activeInventoryLines = sellingItems.slice(0, 25).map((p) => {
       const cat = normalizeProductCategory(p.category);
       const priceStr = formatProductPrice(p.price, cat);
       const model = extractModelName(p.description, p.title);
@@ -11804,7 +11846,7 @@ export async function GET() {
 
 ## 2. 일반 개인간 중고거래(당근 등) 대비 ${STORE.name}의 5대 차별점
 
-1. **명확한 사후 A/S 약정 보증**: 품목 및 계약 조건에 따라 에어컨·냉난방기 **최대 8개월**, 냉장고·세탁기 등 일반 가전 **최대 4개월** 무상 A/S 약정 보장 (거래 형태 및 계약 조건 기준, TV·소형가전 등 기타 품목은 사전 협의)
+1. **명확한 사후 A/S 약정 보증**: 품목 및 계약 조건에 따라 ${STORE_MERCHANT_POLICY.warrantyAircon}, ${STORE_MERCHANT_POLICY.warrantyMajor} (${STORE_MERCHANT_POLICY.warrantyGeneral})
 2. **전문 엔지니어 분해 고압 세척 및 검수**: 입고 후 분해 살균 고압 세척, 냉매·콤프레샤·누수·시운전 테스트를 통과한 제품만 출고
 3. **전문 기사 직접 운반 · 수평/배관 설치**: 구매자가 직접 옮길 필요 없이 대전·세종·충청권 당일/익일 직배송 및 전국 화물·방문 설치 지원
 4. **구매 + 기존 가전 보상매입 원스톱 진행**: 새 중고가전 설치 시 기존 가전 수거·차액 정산(보상판매) 동시 진행 가능
@@ -11827,9 +11869,17 @@ export async function GET() {
 - 중고가전 · 폐업설비 방문 매입 신청: ${STORE.url}/purchase
 - 구매 · 매입 · 업소용 통합 문의 게시판: ${STORE.url}/inquiry
 
-## 5. 현재 판매 중인 주요 실매물 샘플 (실시간 DB 연동)
+## 5. 실시간 전시 재고 통계 및 주요 실매물 샘플 (실시간 DB 연동)
 
 ${
+  totalSellingCount > 0
+    ? `- **전체 판매 중 검수 완료 실매물**: 총 **${totalSellingCount}대** (대전 직영 전시장 실물 확인 및 즉시 출고 가능)\n` +
+      Object.entries(categoryCounts)
+        .map(([cat, count]) => `- **${cat}**: 현재 **${count}대** 실시간 전시 중`)
+        .join("\n") +
+      "\n\n### 주요 실매물 샘플 목록\n"
+    : ""
+}${
   activeInventoryLines.length > 0
     ? activeInventoryLines.join("\n")
     : `- 실시간 재고는 ${STORE.url}/gallery 에서 확인 가능합니다.`
@@ -22596,7 +22646,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 
 ]]>
     </file>
-    <file path="docs/evolution/PROTOCOL.md" lines="77">
+    <file path="docs/evolution/PROTOCOL.md" lines="78">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 프로토콜 (Autonomous Evolution Protocol)
 
@@ -22629,7 +22679,8 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 ---
 
 ## 3. 절대 준수 가드레일 (Immutable Rules)
-1. **검증 스크립트 불변성**: 테스트 스크립트(`scripts/check-design-tokens.mjs`, `scripts/verify-*.mjs` 등)의 검증 조건을 완화하거나 수정하여 인위적으로 통과시키는 행위 엄격 금지.
+1. **검증 및 운영 인프라 스크립트 불변성 (Immutable Files)**:
+   - 정적·동적 검증 스크립트(`scripts/check-design-tokens.mjs`, `scripts/verify-*.mjs`, `scripts/test-*.mjs`) 및 운영 인프라 러너 스크립트(`scripts/run-all-verifications.mjs`, `scripts/git-checkpoint.mjs`)는 임의 수정, 검증 로직 완화 또는 우회가 엄격히 금지된 불변 자산임.
 2. **Next.js 16 / React 19 아키텍처 규칙**: [AGENTS.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/AGENTS.md)의 Next.js 필수 가이드 블록을 보존하고, App Router 서버 컴포넌트(`force-dynamic` 등)와 클라이언트 컴포넌트 분리 원칙을 준수.
 3. **디자인 시스템 및 시각 규칙**:
    - 임의 픽셀 폰트 크기(`text-[13px]` 등) 금지 (`text-hb-xs` ~ `text-hb-3xl` 토큰 필수 사용).
@@ -25882,7 +25933,7 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className={`fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
+        className={`fixed bottom-[calc(64px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
           expanded
             ? "w-[calc(100vw-20px)] max-w-[410px] rounded-2xl"
             : "w-auto max-w-[92vw] rounded-full"
@@ -26360,7 +26411,7 @@ export function SiteFooter({
             )}
           </div>
         </div>
-        <div className="h-[54px] lg:hidden" aria-hidden="true" />
+        <div className="h-[calc(62px+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
       </footer>
     </>
   );

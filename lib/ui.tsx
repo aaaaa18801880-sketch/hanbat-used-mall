@@ -771,7 +771,7 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className={`fixed bottom-[64px] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
+        className={`fixed bottom-[calc(64px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
           expanded
             ? "w-[calc(100vw-20px)] max-w-[410px] rounded-2xl"
             : "w-auto max-w-[92vw] rounded-full"
@@ -1249,7 +1249,7 @@ export function SiteFooter({
             )}
           </div>
         </div>
-        <div className="h-[54px] lg:hidden" aria-hidden="true" />
+        <div className="h-[calc(62px+env(safe-area-inset-bottom))] lg:hidden" aria-hidden="true" />
       </footer>
     </>
   );
