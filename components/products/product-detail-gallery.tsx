@@ -562,6 +562,7 @@ export function InteractiveChecklistAndCta({
       {/* 1순위: 특대형 전화 바로 문의 버튼 (높이 64px = h-16) */}
       <a
         href={telHref(STORE.tel)}
+        aria-label={`한밭중고전자 직영 매장 전화 문의 연결 (${STORE.tel})`}
         className="w-full h-16 rounded-2xl bg-[#D9531E] hover:bg-[#C04615] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3.5 min-w-0">
@@ -591,6 +592,7 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="한밭중고전자 카카오톡 1:1 실시간 상담창 열기 (새 창)"
         className="w-full h-16 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3.5 min-w-0">

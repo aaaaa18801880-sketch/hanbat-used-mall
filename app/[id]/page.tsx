@@ -191,8 +191,15 @@ export async function generateMetadata({
       description: metaDescription,
       images:
         images.length > 0
-          ? [{ url: images[0], alt: product.title }]
-          : [{ url: "/og-image.jpg", alt: STORE.name }],
+          ? [
+              {
+                url: images[0].startsWith("http")
+                  ? images[0]
+                  : `${STORE.url}${images[0].startsWith("/") ? "" : "/"}${images[0]}`,
+                alt: product.title,
+              },
+            ]
+          : [{ url: `${STORE.url}/og-image.jpg`, alt: STORE.name }],
     },
   };
 }
@@ -377,6 +384,42 @@ export default async function ProductDetailPage({
             : "https://schema.org/InStock",
           itemCondition: "https://schema.org/UsedCondition",
           warranty: warrantySummary,
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "KR",
+            returnPolicyCategory:
+              "https://schema.org/MerchantReturnFiniteReturnWindow",
+            merchantReturnDays: 7,
+            returnMethod: "https://schema.org/ReturnInStore",
+            returnFees: "https://schema.org/FreeReturn",
+          },
+          shippingDetails: {
+            "@type": "OfferShippingDetails",
+            shippingRate: {
+              "@type": "MonetaryAmount",
+              value: 0,
+              currency: "KRW",
+            },
+            shippingDestination: {
+              "@type": "DefinedRegion",
+              addressCountry: "KR",
+            },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 1,
+                unitCode: "d",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 1,
+                maxValue: 3,
+                unitCode: "d",
+              },
+            },
+          },
           seller: {
             "@type": "ElectronicsStore",
             name: STORE.name,
