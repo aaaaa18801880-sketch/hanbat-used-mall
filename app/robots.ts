@@ -6,11 +6,11 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/llms.txt", "/llms-full.txt"],
+        allow: ["/", "/gallery", "/purchase", "/inquiry", "/llms.txt", "/llms-full.txt"],
         disallow: ["/admin", "/api/"],
       },
       {
-        // OpenAI ChatGPT Search / Perplexity / Claude / Google AI / Naver / Bing 명시적 허용
+        // OpenAI ChatGPT Search / Perplexity / Claude / Google AI / Apple Intelligence / Amazon / Naver / Bing 명시적 허용
         userAgent: [
           "OAI-SearchBot",
           "ChatGPT-User",
@@ -20,6 +20,10 @@ export default function robots(): MetadataRoute.Robots {
           "Claude-Web",
           "Google-Extended",
           "Googlebot",
+          "Applebot",
+          "Applebot-Extended",
+          "Amazonbot",
+          "cohere-ai",
           "Bingbot",
           "Yeti",
         ],

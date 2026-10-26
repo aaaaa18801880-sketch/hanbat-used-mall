@@ -22,6 +22,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/llms.txt`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/llms-full.txt`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.85,
+    },
+    {
       url: `${baseUrl}/purchase`,
       lastModified: new Date(),
       changeFrequency: "weekly",
@@ -49,12 +61,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order("created_at", { ascending: false })
       .limit(200);
 
-    const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p) => ({
-      url: `${baseUrl}/${p.id}`,
-      lastModified: p.created_at ? new Date(p.created_at) : new Date(),
-      changeFrequency: "weekly" as const,
-      priority: isProductSold(p.status) ? 0.5 : 0.8,
-    }));
+    const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p) => {
+      const sold = isProductSold(p.status);
+      return {
+        url: `${baseUrl}/${p.id}`,
+        lastModified: p.created_at ? new Date(p.created_at) : new Date(),
+        changeFrequency: sold ? ("monthly" as const) : ("daily" as const),
+        priority: sold ? 0.4 : 0.8,
+      };
+    });
 
     return [...staticRoutes, ...productRoutes];
   } catch {

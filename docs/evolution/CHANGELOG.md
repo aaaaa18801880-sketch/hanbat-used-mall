@@ -141,4 +141,38 @@
 - **AEO(Answer Engine Optimization)와 실시간 DB 결합**: 정적 LLMs 텍스트 엔드포인트에 30분 캐시(`revalidate = 1800`)와 함께 실시간 집계 DB 데이터를 제공함으로써 AI 검색 엔진이 가장 최신의 실제 재고 수량과 단일 출처(SSOT) 보증 조건을 사용자 질의에 팩트 기반으로 답변할 수 있도록 최적화함.
 - **모바일 Safe-Area 인셋 합성 공식**: 모바일 고정 바(`fixed bottom-0`)에 `pb-[env(safe-area-inset-bottom)]`가 적용되어 있을 때는 그 위의 플로팅 요소에 단순 상수 오프셋 대신 `calc(상수 + env(safe-area-inset-bottom))`을 적용해야만 기기별 인셋(0px~34px)에 상관없이 항상 일정한 시각적 간격을 유지할 수 있음을 확인.
 
+---
+
+## 🚀 [Cycle 5] 2026-10-26 — AI 크롤러 robots.txt 확장 및 sitemap.xml 우선순위 가중치 세분화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-007`
+- **문제 진단**:
+  1. `Applebot-Extended`(Apple Intelligence Siri/Safari), `Amazonbot`(Amazon AI 쇼핑 에이전트), `cohere-ai` 등 최신 생성형 AI 검색 봇에 대한 명시적 허용 규칙 부재.
+  2. `sitemap.xml`에 정작 가장 중요한 AI 피드인 `/llms.txt`와 `/llms-full.txt`가 포함되어 있지 않아 AI 봇의 빠른 크롤링 디스커버리에서 누락 위험 존재.
+  3. 실시간 판매 중 상품과 이미 판매 완료(`isProductSold`)된 상품의 크롤링 빈도(`changeFrequency`)와 우선순위(`priority`)가 단일 수준으로 관리되어 검색 엔진의 크롤링 예산(Crawl Budget)이 비효율적으로 소진됨.
+
+### 2. 코드 변경 요약
+- **[app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)**:
+  - AI 봇 명단에 `Applebot`, `Applebot-Extended`, `Amazonbot`, `cohere-ai` 추가.
+  - 전역 크롤러(`*`) 및 AI 크롤러 대상 허용 경로에 `/gallery`, `/purchase`, `/inquiry`, `/llms.txt`, `/llms-full.txt` 명시적 개방.
+- **[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts)**:
+  - `staticRoutes`에 `${baseUrl}/llms.txt` (priority 0.9, daily) 및 `${baseUrl}/llms-full.txt` (priority 0.85, daily) 엔드포인트 공식 등록.
+  - 실시간 판매 중 상품: `priority: 0.8`, `changeFrequency: "daily"`.
+  - 판매 완료 상품: `priority: 0.4`, `changeFrequency: "monthly"`.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.50s) — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS (0.26s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.31s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.28s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.28s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (2.75s) — 0 errors
+- **7. eslint**: PASS (15.07s) — 0 errors, 0 warnings
+- **8. next build**: PASS (14.21s) — 22/22 라우트 프리렌더링 완료 (Exit Code 0)
+- **총 소요 시간**: 33.66초
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **Crawl Budget 및 AI Feed 동기화**: `sitemap.xml`에 `/llms.txt`와 `/llms-full.txt`를 명시하고 판매 중 매물과 판매 완료 매물의 `priority` 및 `changeFrequency`를 차등 배정함으로써, 검색 로봇이 품절된 과거 매물에 크롤링 자원을 낭비하지 않고 신규 실매물과 최신 LLM 요약 피드를 우선적으로 색인하도록 유도할 수 있음을 확인.
+
 
