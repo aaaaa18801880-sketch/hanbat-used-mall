@@ -4,6 +4,8 @@ import Link from "next/link";
 import { supabase } from "../../lib/supabase";
 import {
   STORE,
+  STORE_MERCHANT_POLICY,
+  STORE_SHIPPING_POLICY,
   telHref,
   splitImages,
   isProductSold,
@@ -301,10 +303,10 @@ export default async function ProductDetailPage({
   const isMajorApplianceDetail =
     categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기";
   const warrantySummary = isHvacDetail
-    ? "에어컨류 계약조건별 최대 8개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
+    ? STORE_MERCHANT_POLICY.warrantyAircon
     : isMajorApplianceDetail
-    ? "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)"
-    : "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)";
+    ? STORE_MERCHANT_POLICY.warrantyMajor
+    : STORE_MERCHANT_POLICY.warrantyGeneral;
 
   const categoryFaqs = getCategoryFaqs(categoryLabel, sold);
   const createdTimestamp = product.created_at
@@ -386,36 +388,35 @@ export default async function ProductDetailPage({
           warranty: warrantySummary,
           hasMerchantReturnPolicy: {
             "@type": "MerchantReturnPolicy",
-            applicableCountry: "KR",
-            returnPolicyCategory:
-              "https://schema.org/MerchantReturnFiniteReturnWindow",
-            merchantReturnDays: 7,
-            returnMethod: "https://schema.org/ReturnInStore",
-            returnFees: "https://schema.org/FreeReturn",
+            applicableCountry: STORE_MERCHANT_POLICY.applicableCountry,
+            returnPolicyCategory: STORE_MERCHANT_POLICY.returnPolicyCategory,
+            merchantReturnDays: STORE_MERCHANT_POLICY.merchantReturnDays,
+            returnMethod: STORE_MERCHANT_POLICY.returnMethod,
+            returnFees: STORE_MERCHANT_POLICY.returnFees,
           },
           shippingDetails: {
             "@type": "OfferShippingDetails",
             shippingRate: {
               "@type": "MonetaryAmount",
-              value: 0,
-              currency: "KRW",
+              value: STORE_SHIPPING_POLICY.rate,
+              currency: STORE_SHIPPING_POLICY.currency,
             },
             shippingDestination: {
               "@type": "DefinedRegion",
-              addressCountry: "KR",
+              addressCountry: STORE_SHIPPING_POLICY.destinationCountry,
             },
             deliveryTime: {
               "@type": "ShippingDeliveryTime",
               handlingTime: {
                 "@type": "QuantitativeValue",
-                minValue: 0,
-                maxValue: 1,
+                minValue: STORE_SHIPPING_POLICY.minHandlingDays,
+                maxValue: STORE_SHIPPING_POLICY.maxHandlingDays,
                 unitCode: "d",
               },
               transitTime: {
                 "@type": "QuantitativeValue",
-                minValue: 1,
-                maxValue: 3,
+                minValue: STORE_SHIPPING_POLICY.minTransitDays,
+                maxValue: STORE_SHIPPING_POLICY.maxTransitDays,
                 unitCode: "d",
               },
             },

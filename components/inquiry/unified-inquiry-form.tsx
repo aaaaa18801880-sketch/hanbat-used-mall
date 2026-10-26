@@ -31,6 +31,7 @@ import {
   STORE,
   trackEvent,
   validateImageFiles,
+  revokeObjectUrls,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 import { AirconSetGuideBanner } from "../products/aircon-set-guide-banner";
@@ -194,6 +195,13 @@ export function UnifiedInquiryForm({
   /* 사진 첨부 및 Gemini 일괄 분석 상태 */
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
+
+  // 문의 폼 언마운트 시 메모리에 잔류하는 미리보기 Blob URL 일괄 해제
+  useEffect(() => {
+    return () => {
+      revokeObjectUrls(filePreviews);
+    };
+  }, [filePreviews]);
   const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
     null
   );
@@ -342,7 +350,7 @@ export function UnifiedInquiryForm({
   };
 
   const handleRemoveFile = (index: number) => {
-    URL.revokeObjectURL(filePreviews[index]);
+    revokeObjectUrls([filePreviews[index]]);
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
     setCachedUploadedUrls(null);
@@ -757,7 +765,7 @@ export function UnifiedInquiryForm({
   };
 
   const resetToInitial = () => {
-    filePreviews.forEach((u) => URL.revokeObjectURL(u));
+    revokeObjectUrls(filePreviews);
     setSelectedFiles([]);
     setFilePreviews([]);
     setCachedUploadedUrls(null);

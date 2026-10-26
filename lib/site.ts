@@ -29,6 +29,33 @@ export const STORE = {
   naverMapShort: "https://naver.me/F5DkWQ4z",
 } as const;
 
+/* ════════════════════════════════════════════════════════════
+   0. 공식 보증/반품/배송 정책 단일 출처 (SSOT)
+   ════════════════════════════════════════════════════════════ */
+export const STORE_MERCHANT_POLICY = {
+  applicableCountry: "KR",
+  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+  merchantReturnDays: 7,
+  returnMethod: "https://schema.org/ReturnInStore",
+  returnFees: "https://schema.org/FreeReturn",
+  warrantyAircon:
+    "에어컨류 계약조건별 최대 8개월 무상 보증 (사전 협의 및 계약서 명시 기준)",
+  warrantyMajor:
+    "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)",
+  warrantyGeneral:
+    "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)",
+} as const;
+
+export const STORE_SHIPPING_POLICY = {
+  currency: "KRW",
+  rate: 0,
+  destinationCountry: "KR",
+  minHandlingDays: 0,
+  maxHandlingDays: 1,
+  minTransitDays: 1,
+  maxTransitDays: 3,
+} as const;
+
 export const STORAGE_BUCKETS = {
   inquiries: "inquiries",
   legacyProductImages: "product-images",
@@ -1332,10 +1359,15 @@ export function compressImage(
         }
         ctx.drawImage(img, 0, 0, width, height);
         canvas.toBlob(
-          (blob) =>
-            blob
-              ? resolve(blob)
-              : reject(new Error("이미지 압축에 실패했습니다.")),
+          (blob) => {
+            canvas.width = 0;
+            canvas.height = 0;
+            if (blob) {
+              resolve(blob);
+            } else {
+              reject(new Error("이미지 압축에 실패했습니다."));
+            }
+          },
           "image/jpeg",
           quality
         );
@@ -1410,6 +1442,8 @@ export function enhanceImageFile(
 
         canvas.toBlob(
           (blob) => {
+            canvas.width = 0;
+            canvas.height = 0;
             if (!blob) {
               resolve(file);
               return;
@@ -1440,6 +1474,25 @@ export function rotateImageFile(
   quality = 0.92
 ): Promise<File> {
   return enhanceImageFile(file, { degrees, quality });
+}
+
+/**
+ * [메모리 누수 원천 차단]
+ * 임시 생성된 Blob/Object URL을 안전하게 해제하여 브라우저 메모리 점유 누적 방지
+ */
+export function revokeObjectUrls(
+  urls?: Array<string | null | undefined> | null
+): void {
+  if (typeof window === "undefined" || !window.URL || !urls) return;
+  for (const u of urls) {
+    if (u && typeof u === "string" && u.startsWith("blob:")) {
+      try {
+        URL.revokeObjectURL(u);
+      } catch {
+        // ignore
+      }
+    }
+  }
 }
 
 /* ════════════════════════════════════════════════════════════

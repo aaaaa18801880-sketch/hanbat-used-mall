@@ -35,10 +35,15 @@
    - 임의 픽셀 폰트 크기(`text-[13px]` 등) 금지 (`text-hb-xs` ~ `text-hb-3xl` 토큰 필수 사용).
    - JSX 노출 텍스트에 유니코드 이모지 절대 사용 금지 (`<Icon d={ICON.xxx} />` 전용).
    - Tailwind v3 미지원 클래스(`p-4.5`, `h-4.5`, `outline-hidden`, `/12`, `/8` 등) 사용 금지.
-4. **Git 안전성**:
-   - 사용자의 명시적 지시 없이 `origin/main`으로 `git push` 금지.
-   - 로컬 작업 트리는 항상 검증 완료 후 깔끔하게 유지.
-5. **문서화 무결성**:
+4. **Git 안전성 및 원자적 체크포인트 규칙**:
+   - 사용자의 명시적 지시 없이 `origin/main`으로 `git push` 절대 금지.
+   - 각 사이클 통과 시마다 `node scripts/git-checkpoint.mjs "<cycle description>"`를 실행하여 로컬 체크포인트 커밋을 의무적으로 생성.
+   - 다음 사이클 실패 시 직전 체크포인트 커밋으로 안전하게 회귀(`git reset --hard HEAD`)하여 이전 사이클의 성과를 완벽히 격리·보존.
+5. **도메인 단일 출처(SSOT) 준수 규칙**:
+   - 매장명, 연락처, 주소, 보증 정책, 반품·교환 규정, 배송 정책 등 비즈니스 정책 문자열은 UI 및 Schema.org 메타데이터에 인라인 하드코딩하지 않고, 반드시 [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)의 `STORE` 상수 및 표준 보증 헬퍼를 참조.
+6. **통합 검증 러너 표준화 (Unified Verification Runner)**:
+   - 개별 검증 스크립트의 무분별한 연속 호출로 인한 Windows 프로세스 스폰 스로틀링(`Access is denied`)을 방지하기 위해, 검증은 반드시 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`로 실행.
+7. **문서화 무결성**:
    - 모든 파일 경로는 클릭 가능한 GitHub 스타일 마크다운 링크(`[파일명](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/...)`)로 작성.
 
 ---
@@ -47,24 +52,25 @@
 
 ```mermaid
 flowchart TD
-    S1["1. 감지 및 병목 분석 (Sense)<br>코드 검사, SEO/성능/접근성 결함 발견"] --> S2["2. 외부 검증 지식 연구 (Research)<br>공식 표준 문서(Next.js, Schema.org 등) 대조"]
+    S1["1. 감지 및 병목 분석 (Sense)<br>코드 검사, SEO/성능/접근성/메모리 결함 식별"] --> S2["2. 외부 검증 지식 연구 (Research)<br>공식 표준 문서(Next.js, Schema.org, WCAG 등) 대조"]
     S2 --> S3["3. 백로그 가치 평가 및 계획 (Plan)<br>영향도·빈도·비용·위험도 매트릭스 채점"]
-    S3 --> S4["4. 최소 침습 코드 구현 (Execute)<br>정밀한 단일 목적 코드 수정"]
-    S4 --> S5["5. 8대 게이트 독립 검증 (Verify)<br>정적 검증 5종 + 타입검사 + 린트 + 빌드"]
-    S5 --> S6["6. 지식 및 산출물 영구 동기화 (Persist)<br>CHANGELOG 기록 및 아르곤_디자인.xml 갱신"]
+    S3 --> S4["4. 최소 침습 코드 구현 (Execute)<br>정밀한 단일 목적 코드 수정 (SSOT 원칙 준수)"]
+    S4 --> S5["5. 8대 게이트 통합 검증 (Verify)<br>node scripts/run-all-verifications.mjs 실행"]
+    S5 --> S6["6. 지식 동기화 및 로컬 체크포인트 (Persist)<br>CHANGELOG 기록, XML 갱신, git-checkpoint 커밋"]
 ```
 
 ### 단계별 실행 규칙:
 - **Phase 1: Sense (관찰)**: 현재 소스 코드([app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx), [components/](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/), [lib/](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/))의 구조적 병목 식별.
 - **Phase 2: Research (연구)**: Google Search Central 가이드, Schema.org 스펙, W3C WCAG 표준 대조 후 [docs/evolution/RESEARCH.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/RESEARCH.md)에 출처 기록.
 - **Phase 3: Plan (계획)**: 우선순위 점수 $\text{Priority Score} = \frac{\text{Impact} \times \text{Frequency}}{\text{Cost} \times \text{Risk}}$ 기준 [docs/evolution/BACKLOG.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/BACKLOG.md)에 등록.
-- **Phase 4: Execute (구현)**: 의도하지 않은 사이드 이펙트를 차단하는 외과수술적(surgical) 최소 수정.
-- **Phase 5: Verify (검증)**: 8대 게이트 테스트를 순차 실행하여 전 항목 100% 통과 확인.
-- **Phase 6: Persist (영구화)**: [docs/evolution/CHANGELOG.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/CHANGELOG.md)에 검증 로그 기록, `node scripts/build-codebase-xml.mjs` 실행으로 `아르곤_디자인.xml` 동기화.
+- **Phase 4: Execute (구현)**: 의도하지 않은 사이드 이펙트를 차단하는 외과수술적(surgical) 최소 수정 및 SSOT 준수.
+- **Phase 5: Verify (검증)**: `node scripts/run-all-verifications.mjs`를 실행하여 8대 전 게이트 100% 통과 확인.
+- **Phase 6: Persist (영구화)**: [docs/evolution/CHANGELOG.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/CHANGELOG.md) 기록, `node scripts/build-codebase-xml.mjs` 실행으로 `아르곤_디자인.xml` 동기화, `node scripts/git-checkpoint.mjs` 실행으로 로컬 체크포인트 커밋 격리.
 
 ---
 
 ## 5. 세션 종료 및 인수인계 조건
-1. 8대 게이트 검증 스크립트가 100% 정상 종료(Exit code 0) 상태여야 함.
-2. `git status` 상에 미해결 충돌이나 불필요한 임시 파일이 남아있지 않아야 함.
-3. [docs/evolution/](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/) 디렉터리 내 4대 문서(`PROTOCOL.md`, `RESEARCH.md`, `BACKLOG.md`, `CHANGELOG.md`)가 최신 상태로 갱신되어 다음 세션에서 즉시 이어서 진화할 수 있어야 함.
+1. 8대 게이트 검증 스크립트(`node scripts/run-all-verifications.mjs`)가 100% 정상 종료(Exit code 0) 상태여야 함.
+2. 로컬 브랜치에 직전 통과 사이클의 체크포인트 커밋이 생성되어 있어 언제든 롤백 가능해야 함.
+3. 원격 저장소(`origin/main`)로의 미승인 push가 없어야 함.
+4. [docs/evolution/](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/) 디렉터리 내 4대 문서(`PROTOCOL.md`, `RESEARCH.md`, `BACKLOG.md`, `CHANGELOG.md`)가 최신 상태로 갱신되어 다음 세션에서 즉시 이어서 진화할 수 있어야 함.

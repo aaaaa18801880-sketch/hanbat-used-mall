@@ -62,3 +62,47 @@
 - `EVO-003`: 관리자 대량 상품 등록 및 이미지 보정 세션 시 Canvas Object URL 명시적 해제(`URL.revokeObjectURL`) 가드레일 추가.
 - `EVO-004`: 갤러리 파라미터별(`?category=...&price=...`) 정규화된 Canonical URL 태그 정밀화.
 
+---
+
+## 🚀 [Cycle 2] 2026-10-26 — Canvas 및 Blob Object URL 메모리 누수 원천 차단 및 SSOT 정책 바인딩 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-003`
+- **문제 진단**:
+  1. 관리자 상품 등록 및 AI 보정(`enhanceImageFile`, `rotateImageFile`) 및 고객 문의 폼에서 이미지 파일을 다룰 때 생성되는 `URL.createObjectURL`이 컴포넌트 언마운트 시 명시적으로 해제되지 않아, 장시간 업로드 세션 시 브라우저 탭 메모리 누적 위험 존재.
+  2. Canvas 변환 시 고해상도 백버퍼가 V8/GPU 메모리에 잔류하는 문제.
+  3. Cycle 1에서 도입된 반품·배송 정책이 인라인 객체로 존재하여 매장 공통 SSOT(`STORE`)와의 바인딩 필요성 대두.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `STORE_MERCHANT_POLICY` 및 `STORE_SHIPPING_POLICY` 단일 출처(SSOT) 상수 선언.
+  - `revokeObjectUrls` 메모리 해제 안전 유틸리티 추가.
+  - `compressImage` 및 `enhanceImageFile`의 `canvas.toBlob` 직후 `canvas.width = 0; canvas.height = 0;` 명시적 버퍼 반환 처리.
+- **[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx)**:
+  - 컴포넌트 언마운트 시 `prodPreviews` 및 `delivPreviews` 일괄 `revokeObjectUrls` 호출 이펙트 추가.
+  - `removeProdFile`, `resetProductForm`, `handleSaveDeliveryCase` 시 일원화된 해제 헬퍼 적용.
+- **[components/inquiry/unified-inquiry-form.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/unified-inquiry-form.tsx)**:
+  - 문의 폼 언마운트 시 `filePreviews` 일괄 해제 이펙트 추가.
+- **[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)**:
+  - Schema.org의 `hasMerchantReturnPolicy` 및 `shippingDetails`, `warrantySummary`를 `lib/site.ts`의 SSOT 상수와 직결.
+
+---
+
+## 🚀 [Cycle 3] 2026-10-26 — 갤러리 및 서브페이지(/inquiry, /purchase) Canonical URL 정규화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-004`
+- **문제 진단**:
+  1. `app/gallery/layout.tsx`, `app/inquiry/layout.tsx`, `app/purchase/layout.tsx`에서 `alternates.canonical`이 상대 경로(`"/gallery"`, `"/inquiry"`, `"/purchase"`)로 설정되어 있어 Google Search Central 권장 규격(Absolute Canonical URI) 위배.
+  2. OpenGraph `images` 또한 상대 경로(`"/og-image.jpg"`)로 전달되어 소셜 공유 시 썸네일 파싱 실패 위험.
+
+### 2. 코드 변경 요약
+- **[app/gallery/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/layout.tsx)**:
+  - `canonical: `${STORE.url}/gallery`` 절대경로 정규화.
+  - `openGraph.images[0].url: `${STORE.url}/og-image.jpg`` 절대경로 정규화.
+- **[app/inquiry/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/layout.tsx)**:
+  - `canonical: `${STORE.url}/inquiry`` 및 OpenGraph 절대경로 정규화.
+- **[app/purchase/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/layout.tsx)**:
+  - `canonical: `${STORE.url}/purchase`` 및 OpenGraph 절대경로 정규화.
+
+

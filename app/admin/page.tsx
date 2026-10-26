@@ -34,6 +34,7 @@ import {
   getDaysSinceCreated,
   type NotificationDispatchResult,
   telHref,
+  revokeObjectUrls,
 } from "../../lib/site";
 
 import { Icon, ICON, SafeImg } from "../../lib/ui";
@@ -215,6 +216,14 @@ export default function IntegratedAdminDashboard() {
     });
     return () => sub.subscription.unsubscribe();
   }, [fetchAllAdminData]);
+
+  // 관리자 컴포넌트 언마운트 시 메모리에 잔류하는 모든 Blob Object URL 일괄 해제
+  useEffect(() => {
+    return () => {
+      revokeObjectUrls(prodPreviews);
+      revokeObjectUrls(delivPreviews);
+    };
+  }, [prodPreviews, delivPreviews]);
 
   /* ───── 기본 운영 지표 계산 ───── */
   const metrics = useMemo(() => {
@@ -559,7 +568,7 @@ export default function IntegratedAdminDashboard() {
   };
 
   const removeProdFile = (index: number) => {
-    URL.revokeObjectURL(prodPreviews[index]);
+    revokeObjectUrls([prodPreviews[index]]);
     setProdFiles((prev) => prev.filter((_, i) => i !== index));
     setProdPreviews((prev) => prev.filter((_, i) => i !== index));
   };
@@ -753,7 +762,7 @@ export default function IntegratedAdminDashboard() {
   };
 
   const resetProductForm = () => {
-    prodPreviews.forEach((u) => URL.revokeObjectURL(u));
+    revokeObjectUrls(prodPreviews);
     adminUserRotatedRef.current.clear();
     setEditingProductId(null);
     setEditingExistingImages([]);
@@ -1039,7 +1048,7 @@ export default function IntegratedAdminDashboard() {
       });
       if (error) throw error;
 
-      delivPreviews.forEach((u) => URL.revokeObjectURL(u));
+      revokeObjectUrls(delivPreviews);
       setDelivTitle("");
       setDelivFiles([]);
       setDelivPreviews([]);
