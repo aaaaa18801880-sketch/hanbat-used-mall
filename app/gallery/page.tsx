@@ -30,6 +30,7 @@ import {
   formatProductPrice,
   extractModelName,
   extractSpecCapsules,
+  matchesSearchQuery,
   trackEvent,
   addRecentViewedProduct,
 } from "../../lib/site";
@@ -1238,16 +1239,8 @@ export default function GalleryPage() {
       }
 
       if (q) {
-        const titleText = (p.title || "").toLowerCase();
-        const modelText = (
-          extractModelName(p.description, p.title) || ""
-        ).toLowerCase();
-        const descText = (p.description || "").toLowerCase();
-        if (
-          !titleText.includes(q) &&
-          !modelText.includes(q) &&
-          !descText.includes(q)
-        ) {
+        const modelText = extractModelName(p.description, p.title) || "";
+        if (!matchesSearchQuery(q, p.title, modelText, p.description)) {
           return false;
         }
       }

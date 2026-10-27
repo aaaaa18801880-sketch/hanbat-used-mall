@@ -13,7 +13,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 # 한밭중고전자(hanbat-mall) 엔지니어링 에이전트 자율 진화 수칙
 
 ## 1. 8대 게이트 통합 검증 표준 절차 (Unified Verification Runner)
-- Windows 환경의 자식 프로세스 연속 생성 권한 제한(`Access is denied`)을 방지하기 위해 개별 검증 스크립트를 연속 수동 호출하지 않는다.
+- Windows 환경의 자식 프로세스 연속 생성 권한 제한(`Access is denied`)을 방지하기 위해 개별 검증 스크립트를 연속 수동 호출하지 않으며, 명령 실행 전후 최소 4~6초의 쿨다운 인터벌을 유지한다.
 - 모든 코드 변경 후에는 반드시 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`를 실행한다.
 - 게이트 순서는 빠른 실패(Fast-Fail) 구조로 유지된다:
   1. `check-design-tokens.mjs` (0.4s)

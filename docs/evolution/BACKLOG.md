@@ -18,10 +18,12 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **5** | `EVO-005` | AI 검색(GEO/AEO) 엔드포인트(/llms.txt, /llms-full.txt) 실시간 재고 카운트 자동 동기화 | [app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)<br>[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
 | **6** | `EVO-006` | 모바일 스티키 바 및 견적함 플로팅 캡슐 안전구역(safe-area-inset-bottom) 시각 여백 최적화 | [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 4)** |
 | **7** | `EVO-007` | AI 크롤러(GPTBot, PerplexityBot 등) 맞춤 robots.txt 선언 및 sitemap.xml 우선순위 가중치 갱신 | [app/robots.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/robots.ts)<br>[app/sitemap.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/sitemap.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 5)** |
-| **8** | `EVO-008` | 관리자 대시보드 30일 경과 장기 재고에 대한 원클릭 가격 인하 제안 배너 연동 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 3 | 2 | 1 | **4.5** | Backlog |
+| **8** | `EVO-008` | 관리자 대시보드 30일 경과 장기 재고에 대한 원클릭 가격 인하 제안 배너 연동 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 3 | 2 | 1 | **4.5** | **Completed (Cycle 8)** |
 | **9** | `EVO-009` | 카카오톡/문자 상담 클릭 시 상품 메타데이터 인코딩 및 모바일 인텐트 호환성 강화 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 6)** |
-| **10** | `EVO-010` | 관리자 상품 목록 검색 시 모델명·스펙 통합 실시간 디바운스 필터링 고도화 | [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | Backlog |
+| **10** | `EVO-010` | 다중 키워드(토큰 분할) 검색 엔진 고도화 및 관리자 ID/모델명 통합 필터링 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 8)** |
 | **11** | `EVO-011` | 인지 부하 제로(Zero Cognitive Overload) & 프리미엄 쇼룸 UX/UI 전면 고도화 | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[components/products/v2-visual-inspection-viewer.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/v2-visual-inspection-viewer.tsx)<br>[components/products/v2-spatial-fit-planner.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/v2-spatial-fit-planner.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)<br>[components/inquiry/v2-wizard-quick-inquiry.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/v2-wizard-quick-inquiry.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 7)** |
+| **12** | `EVO-012` | 방문자 위치 기반 충청권(대전·세종·청주·천안) 빠른 당일/익일 배송 가능 여부 1초 조회 인포그래픽 위젯 | [components/home/delivery-region-checker.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/delivery-region-checker.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | Pending |
+| **13** | `EVO-013` | 고객 리뷰·설치사례 이미지 슬라이더에 터치 스와이프 제스처 및 인디케이터 반응성 고도화 | [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | Pending |
 
 ---
 
@@ -94,3 +96,19 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - 상품 카드 플로팅 등급 배지, 2x2 컴팩트 보조 액션 그리드, 1줄 품질 검수 인증서 스타일 리포트, 공간 시뮬레이터 직관화, 갤러리/문의 마찰 제거 완료.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 Next.js 16 빌드 성공.
+
+### EVO-008: 관리자 대시보드 30일 경과 장기 재고에 대한 원클릭 가격 인하 제안 배너 연동
+- **문제 진단**:
+  - 관리자 대시보드에서 30일 이상 미판매 장기 재고를 선별하기 위해 셀렉트박스 옵션을 찾아 수동 전환해야 하는 번거로움이 존재함.
+- **개선 방안**:
+  - 재고 목록 상단에 `metrics.staleSellingProducts` 기반 경고 배너 및 원클릭 '장기 재고 모아보기' 버튼을 노출하여 빠른 회전율 제고 지원.
+
+### EVO-010: 다중 키워드(토큰 분할) 검색 엔진 고도화 및 관리자 ID/모델명 통합 필터링
+- **문제 진단**:
+  - [app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) 및 [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx)에서 복수 단어로 구성된 검색어(예: "LG 오브제", "스탠드 18평") 입력 시 단순 단일 문자열 포함 검사(`includes`)로 인해 단어가 떨어져 있으면 0건으로 오판정되는 치명적 검색 결함 발생.
+  - 관리자 페이지에서 고객 문의 문자나 텔레그램 알림의 상품 고유 ID(UUID)로 검색할 경우 상품이 조회되지 않는 업무 마찰 존재.
+- **개선 방안**:
+  - [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)에 표준 다중 토큰 매처인 `matchesSearchQuery` 헬퍼 함수 구축.
+  - 갤러리와 관리자 목록 전체에 다중 키워드 AND 매칭 및 상품 ID, 제목, 모델명, 본문 일괄 교차 검색 적용.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 다중 토큰 검색 정상 동작 확인.

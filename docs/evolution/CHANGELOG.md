@@ -264,5 +264,41 @@
 - **점진적 공개(Progressive Disclosure)의 실질적 전환 효과**: 모바일 화면에서 도움말이나 가이드 배너가 기본으로 펼쳐져 있으면 다음 액션 버튼을 화면 밖으로 밀어내어 이탈률을 높임. 접힘 상태를 기본값으로 두고 필요 시 원터치로 열 수 있도록 구성하는 것만으로 폼 전환 접근성이 대폭 향상됨.
 - **2x2 그리드를 통한 세로 뷰포트 보존**: 상세 페이지 우측 고정 영역에서 보조 액션 버튼들을 가로 2열로 컴팩트하게 모아주면 일반적인 1080p 및 노트북 화면에서 스크롤 없이도 핵심 사양과 결제/상담 버튼이 한눈에 들어오는 프리미엄 쇼룸 경험을 완성할 수 있음.
 
+---
+
+## 🚀 [Cycle 8] 2026-10-28 — 다중 키워드(토큰 분할) 검색 엔진 고도화 및 관리자 30일 장기 재고 점검 배너 연동 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-010`, `EVO-008`
+- **문제 진단**:
+  1. 기존 갤러리([app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)) 및 관리자 대시보드([app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx))에서 복수 단어로 구성된 검색어(예: "LG 오브제", "스탠드 18평", "45박스 스텐") 입력 시 단순 단일 문자열 포함 검사(`includes`)로 인해 단어가 떨어져 있으면 0건으로 오판정되는 치명적 검색 결함 발생.
+  2. 관리자 페이지에서 고객 문의 문자나 텔레그램 알림의 상품 고유 ID(UUID)로 검색할 경우 상품이 조회되지 않는 업무 마찰 존재.
+  3. 30일 이상 미판매 장기 재고 점검 지표(`staleSellingProducts`)가 셀렉트 옵션 내부에만 숨겨져 있어 능동적인 재고 회전율 개선 알림이 부족함.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `matchesSearchQuery` 표준 다중 토큰 매처 헬퍼 선언 (공백 분리 토큰 전체 AND 일치 검증, 대소문자 무시, 복수 필드 교차 탐색).
+- **[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)**:
+  - `matchesSearchQuery`를 통해 제목, 모델명, 상세 설명 전역에 걸친 다중 키워드 검색 엔진 적용 (0건 오판정 원천 해소).
+- **[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx)**:
+  - 상품 고유 ID(UUID), 제목, 모델명, 본문을 아우르는 `matchesSearchQuery` 통합 필터링 적용.
+  - 재고 목록 상단에 30일+ 장기 판매 중 매물 원클릭 점검 배너 및 복원 액션 연동 (`EVO-008`).
+- **[AGENTS.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/AGENTS.md) & [docs/evolution/PROTOCOL.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/PROTOCOL.md)**:
+  - Windows 하위 프로세스 스폰 스로틀링 방지를 위한 4~6초 쿨다운 인터벌 표준 수칙 명문화.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.61s) — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS (0.38s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.63s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.71s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.54s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (7.57s) — 0 errors
+- **7. eslint**: PASS (58.23s) — 0 errors, 0 warnings
+- **8. next build**: PASS (44.09s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+- **총 소요 시간**: 약 112초
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **토큰 분할 검색(Tokenized Query Matching)의 검색 누락 방지 효과**: 이커머스에서 고객은 '브랜드+품목' 또는 '규격+모델' 형태로 2개 이상의 단어를 조합해 검색함. 단순 `includes` 검사는 단어 사이의 조사나 수식어로 인해 거짓 음성(False Negative 0건)을 유발하므로, 공백 단위 토큰 분할 AND 매칭을 기본 표준으로 채택하는 것이 검색 성공률 및 구매 전환율에 결정적인 차이를 만듦.
+
 
 

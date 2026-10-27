@@ -32,6 +32,7 @@ import {
   generatePromoPostText,
   parseStructuredInquiryDescription,
   getDaysSinceCreated,
+  matchesSearchQuery,
   type NotificationDispatchResult,
   telHref,
   revokeObjectUrls,
@@ -301,7 +302,6 @@ export default function IntegratedAdminDashboard() {
 
   /* ───── 상품 필터링 ───── */
   const filteredProducts = useMemo(() => {
-    const q = prodKeyword.trim().toLowerCase();
     return products.filter((p) => {
       const cat = normalizeProductCategory(p.category);
       const stat = normalizeProductStatus(p.status);
@@ -314,9 +314,19 @@ export default function IntegratedAdminDashboard() {
       } else if (prodStatusFilter !== "전체" && stat !== prodStatusFilter) {
         return false;
       }
-      if (q) {
-        const hay = `${p.title || ""} ${p.description || ""}`.toLowerCase();
-        if (!hay.includes(q)) return false;
+      if (prodKeyword) {
+        const modelName = extractModelName(p.description, p.title) || "";
+        if (
+          !matchesSearchQuery(
+            prodKeyword,
+            p.id,
+            p.title,
+            modelName,
+            p.description
+          )
+        ) {
+          return false;
+        }
       }
       return true;
     });
@@ -2133,6 +2143,41 @@ export default function IntegratedAdminDashboard() {
                   />
                 </div>
               </div>
+
+              {metrics.staleSellingProducts > 0 && prodStatusFilter !== "stale30" && (
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-[12.5px] text-amber-900">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-amber-800">
+                      ⚡ 30일 이상 등록된 장기 판매 중 매물이 {metrics.staleSellingProducts}건 있습니다.
+                    </span>
+                    <span className="text-amber-700 hidden sm:inline">
+                      가격 인하 또는 당근마켓/블로그 홍보를 권장합니다.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setProdStatusFilter("stale30")}
+                    className="rounded bg-amber-700 px-2.5 py-1 text-[11.5px] font-bold text-white hover:bg-amber-800 transition-colors shrink-0"
+                  >
+                    장기 재고 모아보기
+                  </button>
+                </div>
+              )}
+
+              {prodStatusFilter === "stale30" && (
+                <div className="flex items-center justify-between rounded-lg border border-amber-400 bg-amber-100 px-3.5 py-2 text-[12.5px] text-amber-900">
+                  <span className="font-bold">
+                    ⚡ 30일+ 장기 판매 중 점검 모드 ({filteredProducts.length}건 표시 중)
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setProdStatusFilter("전체")}
+                    className="text-[12px] font-bold text-amber-900 underline hover:text-black"
+                  >
+                    전체 상태 보기
+                  </button>
+                </div>
+              )}
 
               <div className="space-y-2.5 max-h-[720px] overflow-y-auto pr-1">
                 {filteredProducts.map((product) => {

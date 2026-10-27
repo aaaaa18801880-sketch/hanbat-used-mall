@@ -283,6 +283,30 @@ export function extractSpecCapsules(
   return tags;
 }
 
+/**
+ * [EVO-010] 다중 검색어(토큰 분할) 지원 표준 검색 매칭 헬퍼
+ * - 공백으로 분리된 모든 검색어 토큰이 대상 텍스트 중 하나 이상에 포함되어야 일치(AND 조건)로 판정합니다.
+ * - 대소문자 무시, 공백 무시, null/undefined 안전 처리
+ * - 예: 'LG 오브제' 입력 시 제목, 모델명, 본문 중 분산되어 있어도 정확히 매칭
+ */
+export function matchesSearchQuery(
+  rawQuery: string | null | undefined,
+  ...fields: (string | number | null | undefined)[]
+): boolean {
+  if (!rawQuery) return true;
+  const q = rawQuery.trim().toLowerCase();
+  if (!q) return true;
+
+  const tokens = q.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return true;
+
+  const combinedHay = fields
+    .map((f) => (f !== null && f !== undefined ? String(f).toLowerCase() : ""))
+    .join(" ");
+
+  return tokens.every((token) => combinedHay.includes(token));
+}
+
 export function parseProductDescription(description?: string | null): {
   summary: string[];
   features: string[];
