@@ -3,7 +3,13 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import {
+  STORE,
+  smsHref,
+  buildQuoteBasketSmsBody,
+  copyQuoteBasketText,
+  trackEvent,
   clearRecentViewedProducts,
   extractModelName,
   extractSpecCapsules,
@@ -434,20 +440,50 @@ export function ProductCompareModal({
           <p className="text-hb-xs text-[#646E7E]">
             ※ 표기된 사양 외에 설치 공간·전원·배관 호환 여부는 묶음 문의로 남겨주시면 정확히 안내해 드립니다.
           </p>
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex flex-wrap items-center gap-2 ml-auto">
             <button
               type="button"
               onClick={onClose}
-              className="hb-btn-outline h-10 px-4 text-hb-sm"
+              className="hb-btn-outline h-10 px-3.5 text-hb-sm"
             >
               닫기
+            </button>
+            <a
+              href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(compareItems))}
+              onClick={() => {
+                trackEvent("click_quote_compare_sms", {
+                  count: compareItems.length,
+                });
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#D7D2C8] bg-white px-3.5 h-10 text-hb-sm font-bold text-[#0E1A2B] hover:bg-[#FAF9F7] transition-colors"
+            >
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+              <span>문자 묶음 문의</span>
+            </a>
+            <button
+              type="button"
+              onClick={async () => {
+                trackEvent("click_quote_compare_kakao", {
+                  count: compareItems.length,
+                });
+                await copyQuoteBasketText(compareItems);
+                toast.success(
+                  "비교 매물 목록이 복사되었습니다! 카카오톡 상담창에 붙여넣기(Ctrl+V) 해주세요.",
+                  { duration: 4000 }
+                );
+                window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#FEE500] px-3.5 h-10 text-hb-sm font-bold text-[#191600] hover:bg-[#F2D900] transition-colors"
+            >
+              <Icon d={ICON.chat} className="w-4 h-4" />
+              <span>카톡 묶음 상담</span>
             </button>
             <Link
               href="/inquiry?write=1&bundle=1"
               onClick={onClose}
-              className="hb-btn-accent h-10 px-5 text-hb-sm"
+              className="hb-btn-accent h-10 px-4 text-hb-sm whitespace-nowrap"
             >
-              <span>이 구성으로 일괄 견적 문의</span>
+              <span>온라인 문의</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
             </Link>
           </div>

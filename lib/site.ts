@@ -1177,7 +1177,11 @@ export type AnalyticsEventName =
   | "begin_buyback_inquiry"
   | "submit_inquiry_success"
   | "filter_gallery"
-  | "click_situation_preset";
+  | "click_situation_preset"
+  | "click_quote_compare_sms"
+  | "click_quote_compare_kakao"
+  | "click_quote_basket_sms"
+  | "click_quote_basket_kakao";
 
 const FORBIDDEN_PII_KEYS = new Set([
   "name",
@@ -1280,6 +1284,73 @@ export function buildProductInquirySmsBody(product: {
     return `[${STORE.name} 유사매물문의] 판매완료된 '[${cat}] ${product.title.trim()}'${modelPart}와 비슷한 스펙의 현재 구매 가능한 재고 문의드립니다.${linkPart}`;
   }
   return `[${STORE.name} 상품문의] [${cat}] ${product.title.trim()}${modelPart}${pricePart} 실매물 재고 및 배송·설치 견적 문의드립니다.${linkPart}`;
+}
+
+/**
+ * [EVO-014] 견적함(Quote Basket) 관심 매물 묶음 문자(SMS) 표준 본문 생성기 (SSOT)
+ */
+export function buildQuoteBasketSmsBody(items: QuoteBasketItem[]): string {
+  if (!items || items.length === 0) {
+    return `[${STORE.name} 묶음견적문의] 관심 매물 견적 상담 문의드립니다.`;
+  }
+
+  const totalUnits = items.reduce(
+    (acc, it) => acc + (it.quantity && it.quantity > 0 ? it.quantity : 1),
+    0
+  );
+
+  let totalKnownPrice = 0;
+  let pricedCount = 0;
+
+  const itemLines = items.map((item, idx) => {
+    const cat = normalizeProductCategory(item.category);
+    const qty = item.quantity && item.quantity > 0 ? item.quantity : 1;
+    const sold = isProductSold(item.status);
+    if (!sold && hasProductPrice(item.price)) {
+      totalKnownPrice += Number(item.price) * qty;
+      pricedCount += 1;
+    }
+    const unitPrice = sold
+      ? "판매완료(유사재고확인)"
+      : formatProductPrice(item.price, cat);
+    const model = item.modelName ? ` (${item.modelName.trim()})` : "";
+    const shortId = item.id ? ` [#${String(item.id).slice(0, 6)}]` : "";
+    return `${idx + 1}. [${cat}] ${item.title.trim()}${model} × ${qty}대 (${unitPrice})${shortId}`;
+  });
+
+  const priceSummary =
+    pricedCount > 0
+      ? `\n• 표시가격 합계: 약 ${totalKnownPrice.toLocaleString()}원 (세트 할인·배송 조건 협의)`
+      : "";
+
+  return [
+    `[${STORE.name} 묶음견적문의] 총 ${items.length}종 (${totalUnits}대)`,
+    ...itemLines,
+    priceSummary,
+    "• 배송·설치 희망지역: ",
+    "실물 사진 및 세트 견적 확인 부탁드립니다.",
+    `- 매장링크: ${STORE.url}/gallery`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+/**
+ * [EVO-014] 견적함 묶음 텍스트 클립보드 복사 헬퍼 (카카오톡 및 PC 문자 전송 지원)
+ */
+export async function copyQuoteBasketText(
+  items: QuoteBasketItem[]
+): Promise<boolean> {
+  const text = buildQuoteBasketSmsBody(items);
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
 }
 
 export function formatPhone(value: string): string {

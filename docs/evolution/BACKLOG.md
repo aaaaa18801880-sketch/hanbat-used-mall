@@ -23,7 +23,8 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **10** | `EVO-010` | 다중 키워드(토큰 분할) 검색 엔진 고도화 및 관리자 ID/모델명 통합 필터링 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 8)** |
 | **11** | `EVO-011` | 인지 부하 제로(Zero Cognitive Overload) & 프리미엄 쇼룸 UX/UI 전면 고도화 | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[components/products/v2-visual-inspection-viewer.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/v2-visual-inspection-viewer.tsx)<br>[components/products/v2-spatial-fit-planner.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/v2-spatial-fit-planner.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)<br>[components/inquiry/v2-wizard-quick-inquiry.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/v2-wizard-quick-inquiry.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 7)** |
 | **12** | `EVO-012` | 방문자 위치 기반 충청권(대전·세종·청주·천안) 빠른 당일/익일 배송 가능 여부 1초 조회 인포그래픽 위젯 | [components/home/delivery-region-checker.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/delivery-region-checker.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | Pending |
-| **13** | `EVO-013` | 고객 리뷰·설치사례 이미지 슬라이더에 터치 스와이프 제스처 및 인디케이터 반응성 고도화 | [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | Pending |
+| **13** | `EVO-013` | 고객 리뷰·설치사례 이미지 슬라이더에 터치 스와이프 제스처 및 인디케이터 반응성 고도화 | [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | **Completed (Cycle 9)** |
+| **14** | `EVO-014` | 관심 매물 견적함(Quote Basket) 묶음 견적 1초 카카오톡 & 문자(SMS) 원클릭 전송 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 9)** |
 
 ---
 
@@ -112,3 +113,25 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - 갤러리와 관리자 목록 전체에 다중 키워드 AND 매칭 및 상품 ID, 제목, 모델명, 본문 일괄 교차 검색 적용.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 다중 토큰 검색 정상 동작 확인.
+
+### EVO-013: 고객 리뷰·설치사례 이미지 슬라이더에 터치 스와이프 제스처 및 인디케이터 반응성 고도화
+- **문제 진단**:
+  - 모바일 화면에서 현장 설치 사례가 2열 세로 그리드로 나열되어 세로 스크롤을 과도하게 차지하고 탐색 피로도가 높음.
+  - 가정용 가전(냉장고·세탁기·에어컨)과 식당·상가용 업소용 기기가 혼재되어 있어 특정 목적의 고객이 원하는 시공 사례를 즉시 찾기 어려움.
+- **개선 방안**:
+  - [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx)에 '전체 현장', '가정용', '상가·식당' 3개 분류 탭 도입.
+  - 모바일 전용 수평 터치 스와이프(`snap-x snap-mandatory scrollbar-none`) 컨테이너 및 좌우 스크롤 힌트 인디케이터 구축.
+  - 데스크톱에서는 3열 프리미엄 쇼룸 그리드로 매끄럽게 반응형 전환.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 모바일 스와이프/탭 동작 확인.
+
+### EVO-014: 관심 매물 견적함(Quote Basket) 묶음 견적 1초 카카오톡 & 문자(SMS) 원클릭 전송
+- **문제 진단**:
+  - 고객이 관심 매물을 견적함에 여러 대 담은 후 하단 바에서 '견적함 문의'를 누르면 오직 온라인 웹 폼(`/inquiry`)으로만 이동함.
+  - 40~60대 소상공인 및 임대인은 온라인 폼 작성보다 카카오톡이나 문자(SMS)로 한 번에 담아둔 매물 목록과 실물 사진, 세트 할인을 문의하기를 선호함.
+- **개선 방안**:
+  - [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)에 `buildQuoteBasketSmsBody` 및 `copyQuoteBasketText` 단일 출처(SSOT) 헬퍼 구축.
+  - [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)의 `QuoteBasketFloatingBar`에 원터치 `[문자 묶음 전송]` 및 `[카톡 묶음 상담]`(클립보드 자동 복사 및 채팅창 연결) 연동.
+  - [components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) 하단에도 문자/카톡 묶음 견적 액션 바 일괄 적용.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 SMS/카톡 데이터 포맷 정합성 확인.

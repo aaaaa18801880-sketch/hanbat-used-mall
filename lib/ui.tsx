@@ -11,6 +11,8 @@ import {
   telHref,
   smsHref,
   buildProductInquirySmsBody,
+  buildQuoteBasketSmsBody,
+  copyQuoteBasketText,
   trackEvent,
   getQuoteBasket,
   removeQuoteBasketItem,
@@ -860,6 +862,36 @@ export function QuoteBasketFloatingBar() {
                 </div>
               );
             })}
+
+            {/* [EVO-014] 묶음 견적 즉시 상담 액션 바 */}
+            <div className="pt-2 border-t border-white/10 grid grid-cols-2 gap-2">
+              <a
+                href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
+                onClick={() => {
+                  trackEvent("click_quote_basket_sms", { count: items.length });
+                }}
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-white/20 transition-colors"
+              >
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                <span>문자 묶음 전송</span>
+              </a>
+              <button
+                type="button"
+                onClick={async () => {
+                  trackEvent("click_quote_basket_kakao", { count: items.length });
+                  await copyQuoteBasketText(items);
+                  toast.success(
+                    "견적함 목록이 복사되었습니다! 카카오톡 상담창에 붙여넣기(Ctrl+V) 해주세요.",
+                    { duration: 4000 }
+                  );
+                  window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+                }}
+                className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FEE500] px-2.5 py-2 text-hb-xs font-bold text-[#191600] hover:bg-[#F2D900] transition-colors"
+              >
+                <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                <span>카톡 묶음 상담</span>
+              </button>
+            </div>
           </div>
         )}
 
@@ -893,11 +925,37 @@ export function QuoteBasketFloatingBar() {
                 비교({Math.min(3, items.length)})
               </button>
             )}
+            <a
+              href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
+              onClick={() => {
+                trackEvent("click_quote_basket_sms", { count: items.length });
+              }}
+              aria-label="문자로 묶음 견적 문의"
+              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap"
+            >
+              <span>문자전송</span>
+            </a>
+            <button
+              type="button"
+              onClick={async () => {
+                trackEvent("click_quote_basket_kakao", { count: items.length });
+                await copyQuoteBasketText(items);
+                toast.success(
+                  "견적함 목록이 복사되었습니다! 카톡 대화창에 붙여넣기 해주세요.",
+                  { duration: 3500 }
+                );
+                window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+              }}
+              aria-label="카카오톡으로 묶음 견적 문의"
+              className="grid h-9 w-9 place-items-center rounded-lg bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] shrink-0"
+            >
+              <Icon d={ICON.chat} className="w-4 h-4" />
+            </button>
             <Link
               href="/inquiry?write=1&bundle=1"
               className="hb-btn-accent h-9 px-3 text-hb-xs shrink-0 whitespace-nowrap"
             >
-              <span>견적함 문의</span>
+              <span>온라인 문의</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
             </Link>
           </div>

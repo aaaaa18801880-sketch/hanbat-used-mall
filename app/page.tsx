@@ -218,6 +218,9 @@ export default function Home() {
   /* UI 인터랙션 상태 (FAQ 기본 닫힘) */
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [reviewFilter, setReviewFilter] = useState<
+    "all" | "home" | "commercial"
+  >("all");
   const [lightbox, setLightbox] = useState<{
     review: Review;
     index: number;
@@ -353,7 +356,26 @@ export default function Home() {
     return map;
   }, [activeProducts, featuredProducts]);
 
-  const shownReviews = showAllReviews ? reviews : reviews.slice(0, 6);
+  const filteredReviews = useMemo(() => {
+    if (reviewFilter === "all") return reviews;
+    if (reviewFilter === "commercial") {
+      return reviews.filter((r) =>
+        /업소|식당|카페|쇼케이스|테이블|제빙기|반찬|싱크|작업대|상가|사무실/i.test(
+          r.title || ""
+        )
+      );
+    }
+    return reviews.filter(
+      (r) =>
+        !/업소|식당|카페|쇼케이스|테이블|제빙기|반찬|싱크|작업대/i.test(
+          r.title || ""
+        )
+    );
+  }, [reviews, reviewFilter]);
+
+  const shownReviews = showAllReviews
+    ? filteredReviews
+    : filteredReviews.slice(0, 6);
 
   const openInquiry = useCallback(
     (type?: InquiryTypeValue, productTitle?: string) => {
@@ -1126,6 +1148,62 @@ export default function Home() {
               </div>
             </div>
 
+            {/* [EVO-013] 시공 유형 분류 탭 */}
+            {reviews.length > 0 && (
+              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+                <div
+                  role="tablist"
+                  aria-label="시공 현장 분류"
+                  className="inline-flex rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-1"
+                >
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={reviewFilter === "all"}
+                    onClick={() => setReviewFilter("all")}
+                    className={`rounded-md px-3.5 py-1.5 text-hb-xs font-bold transition-colors ${
+                      reviewFilter === "all"
+                        ? "bg-[#0E1A2B] text-white shadow-2xs"
+                        : "text-[#3E4756] hover:text-[#0E1A2B]"
+                    }`}
+                  >
+                    전체 현장 ({reviews.length})
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={reviewFilter === "home"}
+                    onClick={() => setReviewFilter("home")}
+                    className={`rounded-md px-3.5 py-1.5 text-hb-xs font-bold transition-colors ${
+                      reviewFilter === "home"
+                        ? "bg-[#0E1A2B] text-white shadow-2xs"
+                        : "text-[#3E4756] hover:text-[#0E1A2B]"
+                    }`}
+                  >
+                    가정용 (냉장고·세탁기·에어컨)
+                  </button>
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={reviewFilter === "commercial"}
+                    onClick={() => setReviewFilter("commercial")}
+                    className={`rounded-md px-3.5 py-1.5 text-hb-xs font-bold transition-colors ${
+                      reviewFilter === "commercial"
+                        ? "bg-[#0E1A2B] text-white shadow-2xs"
+                        : "text-[#3E4756] hover:text-[#0E1A2B]"
+                    }`}
+                  >
+                    상가·식당 (업소용·냉난방)
+                  </button>
+                </div>
+
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-hb-xs font-medium text-[#646E7E]">
+                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  전 매물 직영 2인 1조 수평설치 및 시운전 완료
+                </span>
+              </div>
+            )}
+
             {reviewsLoading ? (
               <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
                 {Array.from({ length: 6 }).map((_, i) => (
@@ -1156,13 +1234,13 @@ export default function Home() {
               </div>
             ) : (
               <>
-                <ul className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-3">
+                <ul className="mt-6 flex gap-3.5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
                   {shownReviews.map((r) => {
                     const imgs = splitImages(r.image_url);
                     return (
                       <li
                         key={r.id}
-                        className="group relative overflow-hidden rounded-lg border border-[#E5E2DC] bg-white hover:border-[#0E1A2B] transition-colors"
+                        className="group relative flex w-[78vw] max-w-[320px] shrink-0 snap-start flex-col overflow-hidden rounded-lg border border-[#E5E2DC] bg-white hover:border-[#0E1A2B] transition-colors sm:w-auto sm:max-w-none sm:shrink"
                       >
                         <button
                           type="button"
@@ -1202,7 +1280,12 @@ export default function Home() {
                     );
                   })}
                 </ul>
-                {reviews.length > 6 && (
+                <div className="mt-2 flex sm:hidden items-center justify-center gap-1.5 text-hb-xs text-[#858076]">
+                  <Icon d={ICON.left} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <span>좌우로 밀어서 현장 사진을 확인하세요 ({shownReviews.length}건)</span>
+                  <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#D9531E]" />
+                </div>
+                {filteredReviews.length > 6 && (
                   <div className="mt-8 text-center">
                     <button
                       type="button"
@@ -1211,7 +1294,7 @@ export default function Home() {
                     >
                       {showAllReviews
                         ? "현장 사진 접기"
-                        : `현장 사진 ${reviews.length - 6}건 더 보기`}
+                        : `현장 사진 ${filteredReviews.length - 6}건 더 보기`}
                       <Icon
                         d={ICON.down}
                         className={`h-4 w-4 transition-transform ${

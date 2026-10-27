@@ -300,5 +300,41 @@
 ### 4. 획득한 지식 및 교훈 (Lessons Learned)
 - **토큰 분할 검색(Tokenized Query Matching)의 검색 누락 방지 효과**: 이커머스에서 고객은 '브랜드+품목' 또는 '규격+모델' 형태로 2개 이상의 단어를 조합해 검색함. 단순 `includes` 검사는 단어 사이의 조사나 수식어로 인해 거짓 음성(False Negative 0건)을 유발하므로, 공백 단위 토큰 분할 AND 매칭을 기본 표준으로 채택하는 것이 검색 성공률 및 구매 전환율에 결정적인 차이를 만듦.
 
+---
+
+## 🚀 [Cycle 9] 2026-10-28 — 견적함(Quote Basket) 묶음 견적 1초 카톡·문자 전송 및 배송·설치 시공 사례 모바일 스와이프 제스처 고도화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-014`, `EVO-013`
+- **문제 진단**:
+  1. 고객이 견적함(`QuoteBasket`)에 복수 매물을 담은 후 상담을 진행하려 할 때, 오직 온라인 웹 폼(`/inquiry`)으로만 이동하여 긴 양식을 입력해야 하는 마찰로 인해 40~60대 사업자 및 모바일 고객의 상당수가 이탈함.
+  2. 메인 페이지의 배송·설치 현장 기록(`reviews-section`)이 모바일에서 긴 세로 그리드로 나열되어 뷰포트를 과도하게 차지하고, 가정용 가전과 상가·업소용 설비가 혼재되어 탐색 피로도가 높음.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `buildQuoteBasketSmsBody`: 견적함에 담긴 매물 목록, 모델명, 수량, 표시 단가/합계, 상세 링크가 정갈하게 포함된 표준 묶음 상담 본문 생성기(SSOT) 구현.
+  - `copyQuoteBasketText`: 카카오톡 상담 및 PC 환경 전송을 위한 원클릭 클립보드 복사 헬퍼 구현.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `QuoteBasketFloatingBar`: 펼침 목록 및 컴팩트 바 양쪽에 `[문자 묶음 전송]`(스마트폰 기본 메시지 앱 직결) 및 `[카톡 묶음 상담]`(목록 자동 복사 후 채널 채팅창 열기) 원터치 액션 연동.
+- **[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx)**:
+  - 매물 비교 모달 하단 액션 바에도 문자 및 카카오톡 묶음 상담 버튼 일괄 적용.
+- **[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx)**:
+  - `#reviews-section`: '전체 현장', '가정용 (냉장고·세탁기·에어컨)', '상가·식당 (업소용·냉난방)' 3개 분류 탭 도입.
+  - 모바일 터치 스와이프 제스처(`snap-x snap-mandatory scrollbar-none`) 및 좌우 스크롤 힌트 인디케이터 적용, 데스크톱에서는 3열 그리드로 유려한 반응형 전환.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS — 0 errors
+- **7. eslint**: PASS — 0 errors, 0 warnings
+- **8. next build**: PASS — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **견적함의 옴니채널 연결(Omni-channel Checkout) 효과**: 온라인 웹 사이트에서 장바구니/견적함은 보통 결제나 웹 폼으로만 연결되지만, 중고 가전/설비 시장에서는 '카카오톡 1:1 채팅'이나 '문자 메시지'가 실제 구매 전환이 가장 빈번히 일어나는 채널임. 클립보드 복사와 스마트폰 메시지 앱 URL 스킴(`sms:`)을 통해 1초 만에 견적 리스트를 담아 전송할 수 있게 만듦으로써 상담 전환의 실질적 마찰을 완전히 제거할 수 있음.
+- **모바일 스와이프(Snap Scrolling)를 통한 뷰포트 압축**: 시공 사진을 모바일에서 세로로 길게 나열하면 다른 핵심 정보(보증, 오프라인 매장 안내)로의 도달률이 급감함. `snap-x` 기반의 가로 스와이프로 뷰포트를 컴팩트하게 유지하면서도 원하는 사용자는 얼마든지 넘겨볼 수 있게 설계하는 것이 인지 부하 제로 원칙에 가장 부합함.
+
 
 
