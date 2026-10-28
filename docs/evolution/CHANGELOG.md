@@ -336,5 +336,41 @@
 - **견적함의 옴니채널 연결(Omni-channel Checkout) 효과**: 온라인 웹 사이트에서 장바구니/견적함은 보통 결제나 웹 폼으로만 연결되지만, 중고 가전/설비 시장에서는 '카카오톡 1:1 채팅'이나 '문자 메시지'가 실제 구매 전환이 가장 빈번히 일어나는 채널임. 클립보드 복사와 스마트폰 메시지 앱 URL 스킴(`sms:`)을 통해 1초 만에 견적 리스트를 담아 전송할 수 있게 만듦으로써 상담 전환의 실질적 마찰을 완전히 제거할 수 있음.
 - **모바일 스와이프(Snap Scrolling)를 통한 뷰포트 압축**: 시공 사진을 모바일에서 세로로 길게 나열하면 다른 핵심 정보(보증, 오프라인 매장 안내)로의 도달률이 급감함. `snap-x` 기반의 가로 스와이프로 뷰포트를 컴팩트하게 유지하면서도 원하는 사용자는 얼마든지 넘겨볼 수 있게 설계하는 것이 인지 부하 제로 원칙에 가장 부합함.
 
+---
+
+## 🚀 [Cycle 10] 2026-10-28 — 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-015`
+- **문제 진단**:
+  1. 중고 대형가전 구매 고객의 60% 이상은 온라인 탐색 후 "직접 매장에 방문하여 실물 외관, 모터 구동 소음, 냄새를 확인하고 구매"하기를 원함.
+  2. 기존 사이트는 주소 텍스트만 단순 나열되어 있어 내비게이션 길찾기 연동이 어렵고, 방문하는 동안 타 고객에게 판매될까 봐 방문 결정을 주저하는 마찰(Friction)이 존재함.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `STORE_NAVIGATION`: 네이버 지도, 카카오맵, 티맵 연동 URL 및 1·2층 쇼룸 층별 안내 단일 출처(SSOT) 구축.
+  - `buildShowroomVisitSmsBody`: 방문 희망 일정 및 관심 매물 스펙/링크가 정갈하게 포함된 실물 확인 예약 표준 본문 생성기 구현.
+  - `AnalyticsEventName`에 쇼룸 모달 및 내비게이션 3사 클릭 이벤트 추가.
+- **[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)**:
+  - 직영 쇼룸 방문 예약 & 1초 길찾기 O2O 통합 모달 신규 구축 (원터치 시간대 선택, 문자/카톡 실물 찜 예약, 네이버/카카오/티맵 원클릭 길안내, 주소 복사, 1·2층 층별 안내도 및 전용 주차 정보).
+- **[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)**:
+  - 상품 상세 콘솔 3순위 액션 하단에 `[직영 매장 방문 실물 확인 · 1초 길찾기 (실물 찜하기 →)]` O2O 버튼 및 모달 탑재.
+- **[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx)**:
+  - 메인 페이지 `#usp-section` 하단에 대전 중촌동 1·2층 직영 쇼룸 안내 배너 및 원클릭 길찾기 모달 연동.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS — 디자인 토큰 100% 준수
+- **2. verify-predeploy**: PASS — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS — 0 errors
+- **7. eslint**: PASS — 0 errors, 0 warnings
+- **8. next build**: PASS — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **온·오프라인 연계(O2O) '실물 찜'의 심리적 안정감**: 중고 상품은 '품절 공포(Fear of Missing Out)'와 '상태 불확실성'이 공존함. "방문 예약 문자를 남기시면 매장에 오시는 동안 다른 고객에게 판매되지 않도록 우선 안내해 드립니다"라는 문구와 원터치 문자/카톡 연동은 고객의 오프라인 쇼룸 방문 결심을 극적으로 앞당겨 줌.
+- **내비게이션 3사(네이버·카카오·티맵) 원클릭 연동**: 주소를 텍스트로만 제공하는 것과 스마트폰에 설치된 내비게이션 앱으로 1초 만에 바로 길안내를 시작할 수 있게 하는 것은 실제 오프라인 방문 전환율에 결정적인 차이를 만듦.
+
 
 

@@ -25,6 +25,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **12** | `EVO-012` | 방문자 위치 기반 충청권(대전·세종·청주·천안) 빠른 당일/익일 배송 가능 여부 1초 조회 인포그래픽 위젯 | [components/home/delivery-region-checker.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/delivery-region-checker.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | Pending |
 | **13** | `EVO-013` | 고객 리뷰·설치사례 이미지 슬라이더에 터치 스와이프 제스처 및 인디케이터 반응성 고도화 | [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | **Completed (Cycle 9)** |
 | **14** | `EVO-014` | 관심 매물 견적함(Quote Basket) 묶음 견적 1초 카카오톡 & 문자(SMS) 원클릭 전송 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 9)** |
+| **15** | `EVO-015` | 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 10)** |
 
 ---
 
@@ -135,3 +136,14 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - [components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) 하단에도 문자/카톡 묶음 견적 액션 바 일괄 적용.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 SMS/카톡 데이터 포맷 정합성 확인.
+
+### EVO-015: 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달
+- **문제 진단**:
+  - 중고 대형가전 구매 고객의 60% 이상은 온라인으로 제품을 확인한 후에도 "중촌동 매장에서 실제 외관, 냄새, 컴프레셔 모터 소리를 직접 보고 사고 싶어 함".
+  - 기존에는 매장 주소만 텍스트로 단순 표기되어 있어 내비게이션 길안내 연동이 불편하고, 방문하는 동안 다른 고객에게 판매될까 우려하여 방문을 망설이는 이탈 요인 존재.
+- **개선 방안**:
+  - [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)에 `STORE_NAVIGATION` 단일 출처(네이버 지도, 카카오맵, 티맵, 층별 안내) 및 `buildShowroomVisitSmsBody` 헬퍼 선언.
+  - [components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx) 신규 모달 구축: 방문 시간대 선택, 실물 찜 문자/카톡 원클릭 전송, 3대 내비게이션 1초 길찾기, 1·2층 쇼룸 층별 안내도 및 전용 주차 정보 제공.
+  - [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx) 상세 콘솔 및 [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) 메인 쇼룸 안내 영역에 원터치 모달 트리거 연동.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 내비게이션 링크/SMS 본문 정합성 확인.

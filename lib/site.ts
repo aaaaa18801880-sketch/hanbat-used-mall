@@ -1181,7 +1181,14 @@ export type AnalyticsEventName =
   | "click_quote_compare_sms"
   | "click_quote_compare_kakao"
   | "click_quote_basket_sms"
-  | "click_quote_basket_kakao";
+  | "click_quote_basket_kakao"
+  | "open_showroom_modal"
+  | "click_nav_naver"
+  | "click_nav_kakao"
+  | "click_nav_tmap"
+  | "click_copy_address"
+  | "send_showroom_visit_sms"
+  | "send_showroom_visit_kakao";
 
 const FORBIDDEN_PII_KEYS = new Set([
   "name",
@@ -1351,6 +1358,72 @@ export async function copyQuoteBasketText(
     }
   }
   return false;
+}
+
+/**
+ * [EVO-015] 오프라인 직영 쇼룸 길찾기 및 층별 안내 단일 출처 (SSOT)
+ */
+export const STORE_NAVIGATION = {
+  naverMap: STORE.naverMap,
+  kakaoMap: `https://map.kakao.com/link/search/${encodeURIComponent(STORE.name)}`,
+  tmapUrl: `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(
+    STORE.name + " " + STORE.roadAddress
+  )}`,
+  roadAddress: STORE.roadAddress,
+  jibunAddress: STORE.jibunAddress,
+  addressNote: STORE.addressNote,
+  parking: STORE.parking,
+  hours: STORE.hours,
+  closed: STORE.closed,
+  floorGuide: [
+    {
+      floor: "1층",
+      title: "가정용 대형·소형 가전 쇼룸",
+      items: "냉장고 · 김치냉장고 · 세탁기 · 건조기 · 전자레인지/밥솥",
+      badge: "가정용 중심",
+    },
+    {
+      floor: "2층",
+      title: "에어컨/냉난방기 & 업소용 주방설비",
+      items: "스탠드/벽걸이 에어컨 · 45박스/테이블 냉장고 · 제빙기 · 쇼케이스",
+      badge: "사업자·냉난방",
+    },
+  ],
+} as const;
+
+/**
+ * [EVO-015] 쇼룸 방문 예약 & 실물 찜 문자(SMS) 표준 본문 생성기 (SSOT)
+ */
+export function buildShowroomVisitSmsBody(options?: {
+  product?: {
+    id?: string;
+    title: string;
+    category?: string;
+    modelName?: string | null;
+    price?: number | null;
+  };
+  visitTime?: string;
+}): string {
+  const visitTimeStr = options?.visitTime || "오늘 오후";
+  if (!options?.product) {
+    return `[${STORE.name} 매장방문안내] 실물 확인차 [${visitTimeStr}] 직영 쇼룸(${STORE.roadAddress})에 방문하고자 합니다. 매장 앞 주차 및 영업 일정 확인 부탁드립니다.`;
+  }
+
+  const { product } = options;
+  const cat = normalizeProductCategory(product.category);
+  const modelPart = product.modelName ? ` (${product.modelName.trim()})` : "";
+  const shortId = product.id ? ` [#${String(product.id).slice(0, 6)}]` : "";
+  const linkPart = product.id ? `\n- 매물링크: ${STORE.url}/${product.id}` : "";
+
+  return [
+    `[${STORE.name} 실물확인 방문예약]`,
+    `• 관심매물: [${cat}] ${product.title.trim()}${modelPart}${shortId}`,
+    `• 방문희망시간: ${visitTimeStr}`,
+    `실물 확인 및 전원 시운전 준비 부탁드립니다.`,
+    linkPart,
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 export function formatPhone(value: string): string {

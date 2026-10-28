@@ -50,6 +50,7 @@ import {
 import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
 import { ModernApplianceIcon } from "../components/ui/modern-icons";
 import { AiRecommendationGuideSection } from "../components/home/ai-recommendation-guide-section";
+import { ShowroomVisitModal } from "../components/showroom/showroom-visit-modal";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -227,6 +228,7 @@ export default function Home() {
   } | null>(null);
   const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [airconModalOpen, setAirconModalOpen] = useState(false);
+  const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   /* 관리자 모달 상태 */
   const [loginOpen, setLoginOpen] = useState(false);
@@ -1341,6 +1343,32 @@ export default function Home() {
                 ))}
               </div>
             </div>
+
+            {/* [EVO-015] 오프라인 1·2층 직영 쇼룸 안내 & 원클릭 길찾기 모달 트리거 */}
+            <div className="mt-8 rounded-2xl border border-[#E5E2DC] bg-[#FAF9F7] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <span className="text-hb-xs font-bold text-[#D9531E] uppercase tracking-wide">
+                  OFFLINE 1·2F SHOWROOM
+                </span>
+                <h3 className="mt-0.5 text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B]">
+                  대전 중촌동 1·2층 직영 쇼룸에서 실물을 직접 확인하세요
+                </h3>
+                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#3E4756]">
+                  {STORE.roadAddress} · 매장 앞 전용 주차 무료 · 실물 전원 시운전 가능
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  trackEvent("open_showroom_modal", { location: "home_usp" });
+                  setVisitModalOpen(true);
+                }}
+                className="hb-btn-primary h-11 px-5 text-hb-xs sm:text-hb-sm shrink-0 font-bold justify-center"
+              >
+                <Icon d={ICON.pin} className="w-4 h-4 text-[#FF8A50]" />
+                <span>쇼룸 방문 길찾기 · 실물 찜</span>
+              </button>
+            </div>
           </div>
         </section>
 
@@ -1868,6 +1896,14 @@ export default function Home() {
         <AirconGuideModal
           open={airconModalOpen}
           onClose={() => setAirconModalOpen(false)}
+        />
+      )}
+
+      {/* ── [EVO-015] 쇼룸 방문 길찾기 & 실물 확인 모달 ── */}
+      {visitModalOpen && (
+        <ShowroomVisitModal
+          open={visitModalOpen}
+          onClose={() => setVisitModalOpen(false)}
         />
       )}
 

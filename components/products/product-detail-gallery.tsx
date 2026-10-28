@@ -6,6 +6,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import { Icon, ICON, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
+import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
 import {
   addRecentViewedProduct,
@@ -553,6 +554,7 @@ export function InteractiveChecklistAndCta({
   });
 
   const galleryCategoryHref = `/gallery?category=${encodeURIComponent(categoryLabel)}`;
+  const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   return (
     <div className="mt-5 pt-4 border-t border-[#E5E2DC] space-y-3">
@@ -664,6 +666,42 @@ export function InteractiveChecklistAndCta({
           }}
         />
       </div>
+
+      {/* 4순위: [EVO-015] 직영 매장 방문 실물 확인 & 1초 내비 길찾기 (O2O) */}
+      <button
+        type="button"
+        onClick={() => {
+          trackEvent("open_showroom_modal", {
+            productId: String(product.id),
+            category: categoryLabel,
+          });
+          setVisitModalOpen(true);
+        }}
+        className="w-full h-11 rounded-xl border border-[#D7D2C8] bg-[#FAF9F7] hover:bg-[#F0EDE7] text-[#0E1A2B] flex items-center justify-between px-4 transition-colors font-bold text-hb-xs sm:text-hb-sm cursor-pointer shadow-2xs"
+      >
+        <div className="flex items-center gap-2 min-w-0">
+          <Icon d={ICON.pin} className="w-4 h-4 text-[#D9531E] shrink-0" />
+          <span className="truncate">직영 매장 방문 실물 확인 · 1초 길찾기</span>
+        </div>
+        <span className="text-hb-xs font-semibold text-[#D9531E] shrink-0 ml-1">
+          실물 찜하기 →
+        </span>
+      </button>
+
+      {visitModalOpen && (
+        <ShowroomVisitModal
+          open={visitModalOpen}
+          onClose={() => setVisitModalOpen(false)}
+          product={{
+            id: String(product.id),
+            title: product.title,
+            category: categoryLabel,
+            price: product.price,
+            modelName,
+            imageUrl: firstImageUrl,
+          }}
+        />
+      )}
     </div>
   );
 }
