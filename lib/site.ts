@@ -1582,6 +1582,27 @@ export interface ImageEnhanceOptions {
 }
 
 /**
+ * [EVO-016] 상품 사진 업로드 시 기본 자동 적용되는 '쇼룸 스튜디오 톤' 프리셋 (SSOT)
+ * - 관리자가 톤업 버튼을 누르지 않아도 업로드 즉시 매장 조명 보정이 적용됩니다.
+ */
+export const PRODUCT_IMAGE_TONE_PRESET = {
+  brightness: 1.2,
+  contrast: 1.09,
+  saturate: 1.06,
+  quality: 0.93,
+} as const satisfies ImageEnhanceOptions;
+
+/**
+ * [EVO-016] 기본 톤업 위에 한 단계 더 밝게 보정하는 2차 톤업 프리셋 (원터치 스파클 버튼)
+ */
+export const PRODUCT_IMAGE_TONE_EXTRA = {
+  brightness: 1.12,
+  contrast: 1.04,
+  saturate: 1.02,
+  quality: 0.93,
+} as const satisfies ImageEnhanceOptions;
+
+/**
  * [스마트 쇼룸 리터칭 엔진]
  * 이미지 File을 캔버스를 통해 회전 및 스튜디오 광도·대비·선명화 필터를 적용하여
  * 추가 API 비용 없이 무손실 고화질 쇼룸 사진으로 변환

@@ -26,6 +26,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **13** | `EVO-013` | 고객 리뷰·설치사례 이미지 슬라이더에 터치 스와이프 제스처 및 인디케이터 반응성 고도화 | [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 3 | 4 | 1 | 1 | **12.0** | **Completed (Cycle 9)** |
 | **14** | `EVO-014` | 관심 매물 견적함(Quote Basket) 묶음 견적 1초 카카오톡 & 문자(SMS) 원클릭 전송 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 9)** |
 | **15** | `EVO-015` | 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 10)** |
+| **16** | `EVO-016` | 상품 사진 업로드 시 쇼룸 스튜디오 톤업(밝기 +20%) 기본 자동 적용 및 2차 원터치 톤업 프리셋 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 11)** |
 
 ---
 
@@ -147,3 +148,15 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx) 상세 콘솔 및 [app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) 메인 쇼룸 안내 영역에 원터치 모달 트리거 연동.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 내비게이션 링크/SMS 본문 정합성 확인.
+
+### EVO-016: 상품 사진 업로드 시 쇼룸 스튜디오 톤업(밝기 +20%) 기본 자동 적용 및 2차 원터치 톤업 프리셋
+- **문제 진단**:
+  - 기존에는 관리자가 [사진 업로드] 후 썸네일의 스파클(톤업) 버튼을 직접 눌러야만 밝기가 보정되었고, AI 분석이 반환한 광도 보정값에만 의존하여 업로드 결과의 밝기가 매번 달라짐.
+  - 매장 실내 조명에서 촬영한 중고 가전 사진은 색온도가 누렇게 치우치고 어둡게 나와, 상품 상세·갤러리의 쇼룸 프리미엄 톤이 균일하지 않았음.
+- **개선 방안**:
+  - [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)에 `PRODUCT_IMAGE_TONE_PRESET`(밝기 1.20 · 대비 1.09 · 채도 1.06) 및 `PRODUCT_IMAGE_TONE_EXTRA`(2차 톤업) 표준 프리셋(SSOT) 선언.
+  - [app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx): 사진 선택 즉시 `enhanceImageFile`로 스튜디오 톤업을 **자동 적용**(톤업 버튼 불필요)하고, 자동 적용 안내 문구 및 토스트 노출.
+  - AI 분석 단계는 톤업이 이미 적용된 상태를 감안하여 중복 밝기 보정 없이 **방향(회전) 교정만** 수행하도록 정리(과보정 원천 차단).
+  - 썸네일 스파클 버튼은 "한 단계 더 밝게(+12%)" 2차 보정으로 역할 재정의.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 업로드 자동 톤업 동작 확인.

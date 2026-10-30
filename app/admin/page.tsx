@@ -25,6 +25,8 @@ import {
   compressImage,
   rotateImageFile,
   enhanceImageFile,
+  PRODUCT_IMAGE_TONE_PRESET,
+  PRODUCT_IMAGE_TONE_EXTRA,
   sanitizeOldManufactureYear,
   validateImageFiles,
   extractModelName,
@@ -570,7 +572,7 @@ export default function IntegratedAdminDashboard() {
       });
       if (!isAuto) {
         adminUserRotatedRef.current.add(index);
-        toast.success(`${index + 1}번 사진이 스튜디오 조명(광도·대비) 보정되었습니다.`);
+        toast.success(`${index + 1}번 사진을 한 단계 더 밝게 보정했습니다.`);
       }
     } catch {
       if (!isAuto) toast.error("사진 보정에 실패했습니다.");
@@ -679,55 +681,30 @@ export default function IntegratedAdminDashboard() {
         data.imageRotations.length > 0
       ) {
         let rotatedCount = 0;
-        let enhancedLightCount = 0;
 
         for (const r of data.imageRotations as Array<{
           index?: unknown;
           rotate?: unknown;
-          brightness?: unknown;
-          contrast?: unknown;
         }>) {
           const idx = typeof r.index === "number" ? r.index - 1 : -1;
           const deg = typeof r.rotate === "number" ? r.rotate : 0;
-          const brightness = typeof r.brightness === "number" ? r.brightness : 1.0;
-          const contrast = typeof r.contrast === "number" ? r.contrast : 1.0;
 
           if (
             idx >= 0 &&
             idx < filesToAnalyze.length &&
             !adminUserRotatedRef.current.has(idx)
           ) {
-            const needsRotate = deg > 0 && deg < 360;
-            const needsLight = brightness > 1.02 || contrast > 1.02;
-
-            if (needsRotate || needsLight) {
-              await enhanceProdFile(
-                idx,
-                {
-                  degrees: needsRotate ? deg : 0,
-                  brightness: needsLight ? brightness : 1.0,
-                  contrast: needsLight ? contrast : 1.0,
-                  saturate: needsLight ? 1.04 : 1.0,
-                },
-                true
-              );
-              if (needsRotate) rotatedCount++;
-              if (needsLight) enhancedLightCount++;
+            // [EVO-016] 톤업은 업로드 시 자동 적용되므로 AI는 방향 교정만 수행
+            if (deg > 0 && deg < 360) {
+              await enhanceProdFile(idx, { degrees: deg }, true);
+              rotatedCount++;
             }
           }
         }
 
-        if (rotatedCount > 0 && enhancedLightCount > 0) {
-          toast.success(
-            "AI가 사진 방향과 스튜디오 조명(광도·대비)을 자동 최적화했습니다."
-          );
-        } else if (rotatedCount > 0) {
+        if (rotatedCount > 0) {
           toast.success(
             "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다."
-          );
-        } else if (enhancedLightCount > 0) {
-          toast.success(
-            "AI가 실내 조명을 보정하여 화사한 쇼룸 스튜디오 톤으로 최적화했습니다."
           );
         }
       }
@@ -745,7 +722,9 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
-  const handleProductFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProductFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
     e.target.value = "";
@@ -759,14 +738,28 @@ export default function IntegratedAdminDashboard() {
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
-    const merged = [...prodFiles, ...ok];
-    setProdFiles(merged);
+    // [EVO-016] 업로드 즉시 쇼룸 스튜디오 톤업 자동 적용 (톤업 버튼을 누르지 않아도 기본 진행)
+    const toned = await Promise.all(
+      ok.map(async (f) => {
+        try {
+          return await enhanceImageFile(f, PRODUCT_IMAGE_TONE_PRESET);
+        } catch {
+          return f;
+        }
+      })
+    );
+
+    setProdFiles((prev) => [...prev, ...toned]);
     setProdPreviews((prev) => [
       ...prev,
-      ...ok.map((f) => URL.createObjectURL(f)),
+      ...toned.map((f) => URL.createObjectURL(f)),
     ]);
+    toast.success(
+      `사진 ${toned.length}장에 쇼룸 스튜디오 톤업(밝기 +20%)을 자동 적용했습니다.`
+    );
 
     if (prodFiles.length === 0 && ok.length > 0 && !editingProductId) {
+      // AI 판독은 보정 전 원본 기준으로 수행 (방향·밝기 판단 정확도 유지)
       runGeminiProductAnalysis(ok);
     }
   };
@@ -1832,6 +1825,10 @@ export default function IntegratedAdminDashboard() {
                     onChange={handleProductFileChange}
                     className="w-full text-[12px]"
                   />
+                  <p className="mt-1 text-[11px] font-semibold text-[#646E7E]">
+                    업로드 즉시 쇼룸 스튜디오 톤업(밝기 +20%·대비 +9%)이 자동 적용됩니다.
+                    더 밝게 하고 싶은 사진은 썸네일의 스파클 버튼을 눌러 한 단계 더 올릴 수 있습니다.
+                  </p>
 
                   {analyzingProduct && (
                     <p className="mt-2 rounded bg-[#FFF5F0] p-2.5 text-[12px] font-bold text-[#D9531E] animate-pulse">
@@ -1879,12 +1876,11 @@ export default function IntegratedAdminDashboard() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => {
-                                enhanceProdFile(index, { brightness: 1.14, contrast: 1.08, saturate: 1.04 });
-                                toast.success("스튜디오 화사한 조명 톤으로 보정되었습니다.");
-                              }}
-                              title="스튜디오 조명 톤업 (밝기+14%, 대비+8%)"
-                              aria-label="스튜디오 조명 톤업"
+                              onClick={() =>
+                                enhanceProdFile(index, PRODUCT_IMAGE_TONE_EXTRA)
+                              }
+                              title="한 단계 더 밝게 (밝기 +12%, 대비 +4%)"
+                              aria-label="한 단계 더 밝게 보정"
                               className="absolute bottom-1 right-8 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E] transition-colors"
                             >
                               <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#FF8A50]" />
