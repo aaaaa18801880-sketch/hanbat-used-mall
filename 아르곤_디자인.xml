@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-31T11:34:10.172Z">
+<project name="hanbat-mall" generated_at="2026-10-31T11:41:33.211Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>86</file_count>
+    <file_count>87</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="43">
@@ -12050,9 +12050,1532 @@ export default function NotFoundPage() {
 
 ]]>
     </file>
-    <file path="app/page.tsx" lines="2181">
+    <file path="app/page.tsx" lines="44">
       <![CDATA[
 // 파일 경로: app/page.tsx
+import { supabase } from "../lib/supabase";
+import { isProductSold } from "../lib/site";
+import Home, { type Review } from "../components/home/home-page-client";
+import type { ProductItem } from "../components/products/product-card";
+
+export const revalidate = 300;
+
+export default async function Page() {
+  const [productsResult, reviewsResult] = await Promise.all([
+    supabase
+      .from("products")
+      .select("*")
+      .neq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(300),
+    supabase
+      .from("products")
+      .select("id, title, image_url, created_at")
+      .eq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(24),
+  ]);
+
+  let initialProducts: ProductItem[] | null = null;
+  if (!productsResult.error) {
+    const rows = (productsResult.data ?? []) as ProductItem[];
+    rows.sort((a, b) => {
+      const soldA = isProductSold(a.status) ? 1 : 0;
+      const soldB = isProductSold(b.status) ? 1 : 0;
+      return soldA - soldB;
+    });
+    initialProducts = rows;
+  }
+
+  const initialReviews: Review[] | null = reviewsResult.error
+    ? null
+    : ((reviewsResult.data ?? []) as Review[]);
+
+  return (
+    <Home initialProducts={initialProducts} initialReviews={initialReviews} />
+  );
+}
+
+]]>
+    </file>
+    <file path="app/privacy/page.tsx" lines="148">
+      <![CDATA[
+// 파일 경로: app/privacy/page.tsx
+import type { Metadata } from "next";
+import Link from "next/link";
+import { STORE, telHref } from "../../lib/site";
+import { SiteHeader, SiteFooter, MobileCtaBar } from "../../lib/ui";
+
+export const metadata: Metadata = {
+  title: "개인정보처리방침",
+  description: `${STORE.name} 홈페이지의 고객 상담 및 매입 견적 신청 관련 개인정보 수집·이용 및 보호 방침 안내입니다.`,
+  alternates: {
+    canonical: "/privacy",
+  },
+};
+
+export default function PrivacyPage() {
+  return (
+    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
+      <SiteHeader />
+
+      <main className="hb-container py-10 sm:py-14 flex-1">
+        <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E2DC] bg-white p-6 sm:p-10 shadow-card">
+          <p className="hb-eyebrow">Privacy Policy</p>
+          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#0E1A2B] pb-5 border-b border-[#E5E2DC]">
+            개인정보처리방침
+          </h1>
+
+          <div className="mt-6 space-y-7 text-hb-sm leading-relaxed text-[#3E4756]">
+            <p>
+              <strong className="text-[#0E1A2B]">{STORE.name}</strong>(이하
+              &ldquo;회사&rdquo;)는 개인정보보호법 등 관련 법령에 따라 이용자의
+              개인정보를 보호하고, 이와 관련한 고충을 신속하고 원활하게 처리할 수
+              있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.
+            </p>
+
+            <section className="space-y-2">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+                1. 개인정보의 수집 및 이용 목적
+              </h2>
+              <p>회사는 다음의 목적을 위하여 최소한의 개인정보를 처리합니다.</p>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>
+                  중고가전 및 업소용 기기 구매 상담, 재고 확인, 배송·설치 견적 안내
+                </li>
+                <li>
+                  고객 보유 가전·주방기기의 방문 매입 견적 산정 및 수거 일정 조율
+                </li>
+                <li>
+                  문의게시판 비밀글 본인 확인, 진행 상태 조회 및 관리자 답변 안내
+                </li>
+              </ul>
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+                2. 수집하는 개인정보의 항목
+              </h2>
+              <ul className="list-disc pl-5 space-y-1">
+                <li>
+                  <strong className="text-[#0E1A2B]">필수항목:</strong> 성함(또는
+                  상호명), 연락처(전화번호), 게시글 조회용 비밀번호(암호화 해시
+                  저장), 문의 제목 및 상세 내용
+                </li>
+                <li>
+                  <strong className="text-[#0E1A2B]">선택항목:</strong> 제품
+                  카테고리, 모델명, 외관·작동 상태 등급, 방문 수거 또는 배송 희망
+                  지역, 제품 첨부 사진
+                </li>
+              </ul>
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+                3. 개인정보의 보유 및 이용기간
+              </h2>
+              <p>
+                회사는 원칙적으로 개인정보 수집 및 이용 목적이 달성된 후에는 해당
+                정보를 지체 없이 파기합니다. 또한 이용자는 문의게시판에서 본인이
+                설정한 비밀번호를 통해 언제든지 직접 게시글과 첨부 정보를 삭제할 수
+                있습니다. 단, 관계법령에 의해 보존할 필요가 있는 경우 법령이 정한
+                기간 동안 보관합니다.
+              </p>
+              <ul className="list-disc pl-5 space-y-1 text-hb-xs">
+                <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
+                <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
+                <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
+              </ul>
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+                4. 개인정보의 제3자 제공 및 안전성 확보 조치
+              </h2>
+              <p>
+                회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않으며,
+                문의게시판 공개 목록에서는 작성자 성함을 마스킹 처리하고 연락처와
+                본문을 비공개로 보호합니다. 조회용 비밀번호는 서버에서 단방향
+                암호화(scrypt 해시)하여 저장합니다.
+              </p>
+            </section>
+
+            <section className="space-y-2">
+              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+                5. 개인정보 보호책임자 안내
+              </h2>
+              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-hb-xs space-y-1">
+                <p>
+                  • <strong className="text-[#0E1A2B]">상호:</strong> {STORE.name}{" "}
+                  (대표: {STORE.ceo})
+                </p>
+                <p>
+                  •{" "}
+                  <strong className="text-[#0E1A2B]">
+                    개인정보 보호책임자:
+                  </strong>{" "}
+                  {STORE.privacyOfficer}
+                </p>
+                <p>
+                  • <strong className="text-[#0E1A2B]">대표 전화:</strong>{" "}
+                  <a
+                    href={telHref(STORE.tel)}
+                    className="font-bold text-[#0E1A2B] underline underline-offset-4"
+                  >
+                    {STORE.tel}
+                  </a>
+                </p>
+                <p>
+                  • <strong className="text-[#0E1A2B]">사업장 주소:</strong>{" "}
+                  {STORE.roadAddress} (지번: {STORE.jibunAddress}, {STORE.addressNote})
+                </p>
+              </div>
+            </section>
+
+            <div className="pt-5 border-t border-[#E5E2DC] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#646E7E]">
+              <span>시행일자: 2026년 1월 1일</span>
+              <Link href="/" className="hb-btn-primary h-10 px-5 text-hb-xs">
+                홈으로 돌아가기
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <SiteFooter />
+      <MobileCtaBar />
+    </div>
+  );
+}
+
+]]>
+    </file>
+    <file path="app/purchase/layout.tsx" lines="38">
+      <![CDATA[
+// 파일 경로: app/purchase/layout.tsx
+import type { Metadata } from "next";
+import { STORE } from "../../lib/site";
+
+export const metadata: Metadata = {
+  title:
+    "중고가전 · 식당/카페 폐업설비 방문 매입 신청 (수거 당일 100% 현금정산)",
+  description:
+    "[사진 전송 간편 견적 · 현장 즉시 입금] 가정 이사·원룸 퇴실 가전 처분부터 식당·카페·사무실 폐업 주방기기 및 냉난방기 일괄 철거·매입까지, 대전·세종·충청권 직접 방문 수거 후 당일 현금으로 정산해 드립니다.",
+  alternates: {
+    canonical: `${STORE.url}/purchase`,
+  },
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: `${STORE.url}/purchase`,
+    siteName: STORE.name,
+    title: `중고가전 · 업소용 주방설비 방문 매입 신청 (당일 현금 입금) | ${STORE.name}`,
+    description:
+      "전면 사진과 모델명만 보내주시면 빠르게 매입 견적을 안내해 드립니다. 약속된 일정에 방문 수거 후 즉시 송금.",
+    images: [
+      {
+        url: `${STORE.url}/og-image.jpg`,
+        width: 1200,
+        height: 630,
+        alt: STORE.name,
+      },
+    ],
+  },
+};
+
+export default function PurchaseLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <>{children}</>;
+}
+]]>
+    </file>
+    <file path="app/purchase/page.tsx" lines="263">
+      <![CDATA[
+"use client";
+
+import React, { useState } from "react";
+import { STORE, telHref } from "../../lib/site";
+import {
+  SiteHeader,
+  SiteFooter,
+  MobileCtaBar,
+  Modal,
+  SafeImg,
+  Icon,
+  ICON,
+} from "../../lib/ui";
+import { ModernApplianceIcon } from "../../components/ui/modern-icons";
+import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
+
+const BUYBACK_STEPS = [
+  {
+    step: "01단계",
+    num: "01",
+    title: "사진 · 모델명 접수",
+    desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
+    icon: "sell" as const,
+  },
+  {
+    step: "02단계",
+    num: "02",
+    title: "예상 견적 및 일정 조율",
+    desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
+    icon: "closure" as const,
+  },
+  {
+    step: "03단계",
+    num: "03",
+    title: "방문 수거 · 현장 즉시 정산",
+    desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
+    icon: "shield" as const,
+  },
+] as const;
+
+export default function PurchasePage() {
+  const [guideOpen, setGuideOpen] = useState(false);
+
+  return (
+    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
+      <SiteHeader />
+
+      {/* 상단 매입 전용 헤더 */}
+      <section className="bg-white border-b border-[#E5E2DC]">
+        <div className="hb-container py-8 sm:py-11">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div>
+              <span className="hb-eyebrow">가전 · 업소용 주방설비 방문 매입</span>
+              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-extrabold tracking-[-0.03em] leading-[1.2] text-[#0E1A2B]">
+                중고 가전 · 업소용 주방기기 매입 신청
+              </h1>
+              <p className="mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base text-[#3F4856] leading-relaxed break-keep [text-wrap:pretty]">
+                가정 이사·가전 교체부터 식당·카페·사무실 폐업 및 이전 대량 정리까지,
+                <br className="hidden sm:inline" /> 사진과 품목 정보를 남겨주시면 확인 후 방문 수거 및 현장 즉시 정산을 도와드립니다.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-hb-xs font-bold text-[#0E1A2B]">
+                가정용 · 업소용 전 품목
+              </span>
+              <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-hb-xs font-bold text-[#0E1A2B]">
+                전문 기사 직접 철거·수거
+              </span>
+              <span className="rounded-lg border border-[#FADCD0] bg-[#FFF6F2] px-3.5 py-2 text-hb-xs font-bold text-[#B5431A]">
+                현장 즉시 정산
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
+        {/* 3단계 매입 진행 프로세스 요약 바 (Tactile Bento 카드) */}
+        <section
+          aria-label="방문 매입 진행 절차"
+          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
+        >
+          {BUYBACK_STEPS.map((item) => (
+            <div
+              key={item.step}
+              className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
+            >
+              <ModernApplianceIcon
+                name={item.icon}
+                className="w-11 h-11 sm:w-12 sm:h-12 shrink-0"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#B5431A]">
+                    {item.step}
+                  </span>
+                </div>
+                <h2 className="mt-0.5 text-hb-base sm:text-hb-lg font-bold text-[#0E1A2B]">
+                  {item.title}
+                </h2>
+                <p className="mt-1.5 text-hb-sm text-[#3F4856] leading-relaxed break-keep">
+                  {item.desc}
+                </p>
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
+          {/* 좌측 8컬럼: 통합 매입 신청 폼 */}
+          <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-7 shadow-card lg:col-span-8">
+            <div className="mb-5 pb-4 border-b border-[#EFECE6] flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B]">
+                  온라인 매입 견적 신청서
+                </h2>
+                <p className="mt-1 text-hb-sm text-[#596273]">
+                  사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 최고가 견적과 수거 일정을 빠르게 안내해 드립니다.
+                </p>
+              </div>
+              <span className="rounded-md bg-[#FAF9F7] border border-[#E6E3DC] px-3 py-1 text-hb-xs font-bold text-[#0E1A2B]">
+                개인정보 보호 비밀글 자동 적용
+              </span>
+            </div>
+
+            <V2InquirySectionWithWizard
+              defaultType="내 물건 팔기"
+              fixedType="내 물건 팔기"
+              hideTypeSelector={true}
+              variant="embedded"
+            />
+          </div>
+
+          {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}
+          <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
+            <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 shadow-card">
+              <span className="hb-eyebrow">급매 · 폐업 직통 상담</span>
+              <h2 className="mt-1.5 text-hb-lg font-extrabold text-[#0E1A2B]">
+                급매 · 폐업 일괄 정리 직통 상담
+              </h2>
+              <p className="mt-2 text-hb-sm text-[#3E4856] leading-relaxed break-keep">
+                품목이 많거나 빠른 방문 수거가 필요하신 경우, 전화 또는 카카오톡으로 사진을 보내주시면 가장 빠르게 견적을 안내해 드립니다.
+              </p>
+
+              <div className="mt-4 rounded-lg bg-[#FAF9F7] border border-[#E6E3DC] p-3.5 space-y-2 text-hb-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[#596273]">매장 대표전화</span>
+                  <a
+                    href={telHref(STORE.tel)}
+                    className="font-extrabold text-[#0E1A2B] hover:text-[#B5431A] tabular-nums"
+                  >
+                    {STORE.tel}
+                  </a>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-[#596273]">매입/수거 직통</span>
+                  <a
+                    href={telHref(STORE.mobile)}
+                    className="font-extrabold text-[#B5431A] hover:underline tabular-nums"
+                  >
+                    {STORE.mobile}
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-4 space-y-2">
+                <a
+                  href={telHref(STORE.tel)}
+                  className="hb-btn-accent h-11 w-full text-hb-sm"
+                >
+                  <Icon d={ICON.phone} className="h-4 w-4" />
+                  <span>전화 매입 상담 ({STORE.tel})</span>
+                </a>
+                <a
+                  href={STORE.kakaoChat}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hb-btn-kakao h-11 w-full text-hb-sm"
+                >
+                  <Icon d={ICON.chat} className="h-4 w-4" />
+                  <span>카카오톡으로 사진 보내기</span>
+                </a>
+              </div>
+            </div>
+
+            {/* 공식 매입 안내문 원본 보기 카드 (크롭 없이 object-contain) */}
+            <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 shadow-card">
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <div>
+                  <span className="text-hb-xs font-bold text-[#B5431A]">
+                    공식 매입 기준 안내문
+                  </span>
+                  <h3 className="text-hb-sm font-extrabold text-[#0E1A2B]">
+                    한밭중고전자 매입 기준 안내문
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setGuideOpen(true)}
+                  className="rounded-md border border-[#D8D3C8] bg-[#FAF9F7] px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                >
+                  크게 보기
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setGuideOpen(true)}
+                className="group relative block w-full overflow-hidden rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] p-2.5 text-left"
+              >
+                <div className="aspect-[4/3] w-full overflow-hidden flex items-center justify-center bg-white rounded">
+                  <SafeImg
+                    src="/매입 안내문.png"
+                    alt="한밭중고전자 공식 매입 안내문"
+                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
+                  />
+                </div>
+                <p className="mt-2 text-center text-hb-xs font-semibold text-[#596273] group-hover:text-[#0E1A2B]">
+                  클릭하여 매입 가능 품목 및 체크사항 크게 보기
+                </p>
+              </button>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      {guideOpen && (
+        <Modal
+          label="한밭중고전자 공식 매입 안내문"
+          onClose={() => setGuideOpen(false)}
+          panelClassName="max-w-2xl"
+        >
+          <div className="overflow-hidden rounded-xl border border-[#E6E3DC] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E6E3DC] px-5 py-3.5 bg-[#0E1A2B] text-white">
+              <h3 className="text-hb-base font-bold">
+                한밭중고전자 공식 매입 안내문
+              </h3>
+              <button
+                type="button"
+                onClick={() => setGuideOpen(false)}
+                aria-label="닫기"
+                className="rounded p-1 text-white/80 hover:bg-white/10 hover:text-white"
+              >
+                <Icon d={ICON.close} className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[82vh] overflow-y-auto bg-[#FAF9F7] p-4 sm:p-6 flex justify-center">
+              <SafeImg
+                src="/매입 안내문.png"
+                alt="한밭중고전자 공식 매입 안내문 원본"
+                className="max-h-[74vh] w-auto object-contain rounded-lg border border-[#E6E3DC] bg-white"
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      <SiteFooter />
+      <MobileCtaBar />
+    </div>
+  );
+}
+
+]]>
+    </file>
+    <file path="app/robots.ts" lines="38">
+      <![CDATA[
+import { MetadataRoute } from "next";
+import { STORE } from "../lib/site";
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [
+      {
+        userAgent: "*",
+        allow: ["/", "/gallery", "/purchase", "/inquiry", "/llms.txt", "/llms-full.txt"],
+        disallow: ["/admin", "/api/"],
+      },
+      {
+        // OpenAI ChatGPT Search / Perplexity / Claude / Google AI / Apple Intelligence / Amazon / Naver / Bing 명시적 허용
+        userAgent: [
+          "OAI-SearchBot",
+          "ChatGPT-User",
+          "GPTBot",
+          "PerplexityBot",
+          "ClaudeBot",
+          "Claude-Web",
+          "Google-Extended",
+          "Googlebot",
+          "Applebot",
+          "Applebot-Extended",
+          "Amazonbot",
+          "cohere-ai",
+          "Bingbot",
+          "Yeti",
+        ],
+        allow: ["/", "/gallery", "/purchase", "/inquiry", "/llms.txt", "/llms-full.txt"],
+        disallow: ["/admin", "/api/"],
+      },
+    ],
+    sitemap: `${STORE.url}/sitemap.xml`,
+    host: STORE.url,
+  };
+}
+
+]]>
+    </file>
+    <file path="app/sitemap.ts" lines="79">
+      <![CDATA[
+// 파일 경로: app/sitemap.ts
+import { MetadataRoute } from "next";
+import { supabase } from "../lib/supabase";
+import { STORE, isProductSold } from "../lib/site";
+
+export const revalidate = 3600; // 1시간마다 sitemap.xml 자동 갱신
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = STORE.url;
+
+  const staticRoutes: MetadataRoute.Sitemap = [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
+    },
+    {
+      url: `${baseUrl}/gallery`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/llms.txt`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/llms-full.txt`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/purchase`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/inquiry`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+  ];
+
+  try {
+    const { data: products } = await supabase
+      .from("products")
+      .select("id, created_at, category, status")
+      .neq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p) => {
+      const sold = isProductSold(p.status);
+      return {
+        url: `${baseUrl}/${p.id}`,
+        lastModified: p.created_at ? new Date(p.created_at) : new Date(),
+        changeFrequency: sold ? ("monthly" as const) : ("daily" as const),
+        priority: sold ? 0.4 : 0.8,
+      };
+    });
+
+    return [...staticRoutes, ...productRoutes];
+  } catch {
+    return staticRoutes;
+  }
+}
+
+]]>
+    </file>
+    <file path="CLAUDE.md" lines="2">
+      <![CDATA[
+@AGENTS.md
+
+]]>
+    </file>
+    <file path="components/gallery/gallery-initial-data.tsx" lines="25">
+      <![CDATA[
+"use client";
+
+import { createContext, useContext, type ReactNode } from "react";
+import type { ProductItem } from "../products/product-card";
+
+const GalleryInitialDataContext = createContext<ProductItem[] | null>(null);
+
+export function GalleryInitialDataProvider({
+  products,
+  children,
+}: {
+  products: ProductItem[];
+  children: ReactNode;
+}) {
+  return (
+    <GalleryInitialDataContext.Provider value={products}>
+      {children}
+    </GalleryInitialDataContext.Provider>
+  );
+}
+
+export function useGalleryInitialProducts(): ProductItem[] | null {
+  return useContext(GalleryInitialDataContext);
+}
+
+]]>
+    </file>
+    <file path="components/home/ai-recommendation-guide-section.tsx" lines="230">
+      <![CDATA[
+import React from "react";
+import Link from "next/link";
+import { STORE, telHref } from "../../lib/site";
+import { SectionHeading, Icon, ICON } from "../../lib/ui";
+
+const COMPARISON_ROWS = [
+  {
+    criteria: "고장 시 무상 A/S 보증",
+    personal: "보증 없음 (고장 시 구매자 전액 부담)",
+    hanbat: "최대 8개월(에어컨)·4개월(가전) 무상 A/S 약정보증",
+  },
+  {
+    criteria: "위생 및 작동 점검",
+    personal: "겉면 단순 청소 (내부 곰팡이·냉매 미확인)",
+    hanbat: "엔지니어 분해 고압세척 및 냉매·누수 시운전 완료",
+  },
+  {
+    criteria: "운반 · 수평 · 배관 설치",
+    personal: "직접 용달 섭외 및 운반·설치비 전액 부담",
+    hanbat: "기사 직접 운반 및 수평·급배수 원스톱 설치 지원",
+  },
+  {
+    criteria: "결제 수단 및 증빙",
+    personal: "개인 송금만 가능 (사업자 비용처리 불가)",
+    hanbat: "신용카드·현금영수증·전자세금계산서 100% 발행",
+  },
+  {
+    criteria: "기존 가전 처분 (보상매입)",
+    personal: "폐기물 스티커 구매 후 별도 개별 배출",
+    hanbat: "배송 당일 기존 가전 동시 수거 및 매입가 차감 정산",
+  },
+] as const;
+
+const SITUATION_GUIDES = [
+  {
+    code: "SOLUTION 01",
+    badge: "가정 · 원룸 · 자취 추천",
+    title: "원룸 입주 · 신혼 · 가전 단품 구매",
+    recommend: "소형~양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨",
+    reason:
+      "3종 가전 동시 직배송·수평 설치 지원 및 분해 고압세척 완료로 입주 즉시 사용 가능합니다.",
+    ctaLabel: "가정용 실매물 보러가기",
+    href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
+  },
+  {
+    code: "SOLUTION 02",
+    badge: "식당 · 카페 창업 추천",
+    title: "업소용 냉장 · 쇼케이스 · 주방 패키지",
+    recommend:
+      "45박스 수직냉장고 + 테이블냉장고 + 제빙기 + 쇼케이스 + 식기세척기",
+    reason:
+      "신품 대비 설비 비용 대폭 절감 및 전자세금계산서 100% 발행으로 부가세 환급을 지원합니다.",
+    ctaLabel: "업소용 설비 보러가기",
+    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
+  },
+  {
+    code: "SOLUTION 03",
+    badge: "이사 · 매장 폐업 추천",
+    title: "가정 가전 처분 · 식당/카페 폐업 일괄 매입",
+    recommend: "전면 사진 + 명판 스티커 전송 → 방문 수거 당일 100% 현금 입금",
+    reason:
+      "단품부터 매장 전체 집기까지 원하시는 날짜에 전문 기사 방문 수거 및 현장 즉시 당일 입금해 드립니다.",
+    ctaLabel: "무료 방문 매입 신청하기",
+    href: "/purchase",
+  },
+] as const;
+
+export function AiRecommendationGuideSection() {
+  return (
+    <section
+      id="buying-guide-section"
+      aria-labelledby="buying-guide-title"
+      className="border-b border-[#E5E2DC] bg-[#FAF9F7] py-14 sm:py-20"
+    >
+      <div className="hb-container space-y-12">
+        {/* 1. 개인 직거래 vs 한밭중고전자 비교 테이블 */}
+        <div>
+          <SectionHeading
+            title={
+              <span id="buying-guide-title">
+                일반 개인 중고거래 vs {STORE.name} 직영 매장 비교
+              </span>
+            }
+            desc={
+              <>
+                중고가전과 업소용 설비는 구매 가격만큼이나 &lsquo;내부 세척&rsquo;, &lsquo;운반·설치&rsquo;, &lsquo;사후 A/S 보증&rsquo;이 중요합니다.
+                <br className="hidden sm:inline" /> 구매 전 아래 5가지 비교 기준을 꼭 확인해 보세요.
+              </>
+            }
+          />
+
+          <div className="mt-7 overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-hb-xs sm:text-hb-sm">
+                <thead>
+                  <tr className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
+                    <th
+                      scope="col"
+                      className="py-3.5 px-4 sm:px-6 font-bold w-[24%] min-w-[130px]"
+                    >
+                      비교 항목
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 px-4 sm:px-6 font-semibold text-white/60 bg-[#0E1A2B]/90 w-[34%] min-w-[200px]"
+                    >
+                      <span className="inline-block px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-hb-xs mb-1 font-normal">
+                        위험 · 주의
+                      </span>
+                      <p>일반 개인간 중고거래 (직거래 앱 등)</p>
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-3.5 px-4 sm:px-6 font-extrabold text-white bg-gradient-to-r from-[#16263D] to-[#1E3452] border-t-2 border-[#D9531E] w-[42%] min-w-[240px]"
+                    >
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#B5431A] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
+                          <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
+                          OFFICIAL GUARANTEE
+                        </span>
+                      </div>
+                      <p className="text-white text-hb-sm">
+                        {STORE.name} (SINCE {STORE.since} 직영 쇼룸)
+                      </p>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E5E2DC]">
+                  {COMPARISON_ROWS.map((row) => (
+                    <tr
+                      key={row.criteria}
+                      className="hover:bg-[#FAF9F7] transition-colors"
+                    >
+                      <th
+                        scope="row"
+                        className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FAF9F7]/60"
+                      >
+                        {row.criteria}
+                      </th>
+                      <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] bg-[#FAF9F7]/40 leading-relaxed">
+                        {row.personal}
+                      </td>
+                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF9F6] border-l-2 border-l-[#D9531E] leading-relaxed">
+                        <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
+                          <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#B5431A] shrink-0" />
+                          <span>{row.hanbat}</span>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. 상황별 맞춤 추천 가이드 3열 */}
+        <div>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+            <div>
+              <h3 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+                고객 상황별 가장 많이 찾는 맞춤 솔루션
+              </h3>
+              <p className="mt-1 text-hb-sm text-[#3E4756]">
+                대전 중구 중촌동 1·2층 직영 매장에서 실물을 직접 확인하시거나
+                전화·카톡으로 즉시 재고 안내를 받으실 수 있습니다.
+              </p>
+            </div>
+            <a
+              href={telHref(STORE.tel)}
+              className="text-hb-xs sm:text-hb-sm font-extrabold text-[#B5431A] hover:underline tabular-nums shrink-0 whitespace-nowrap"
+            >
+              직통 상담: {STORE.tel} / {STORE.mobile}
+            </a>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-3">
+            {SITUATION_GUIDES.map((g) => (
+              <article
+                key={g.title}
+                className="group flex flex-col justify-between rounded-xl border border-[#E5E2DC] border-t-4 border-t-[#0E1A2B] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] hover:border-t-4 transition-all hover:shadow-card"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-hb-xs font-black text-[#B5431A] tracking-wider">
+                      {g.code}
+                    </span>
+                    <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#B5431A]">
+                      {g.badge}
+                    </span>
+                  </div>
+                  <h4 className="mt-2.5 text-hb-lg font-bold text-[#0E1A2B]">
+                    {g.title}
+                  </h4>
+                  <dl className="mt-3 space-y-2 text-hb-xs sm:text-hb-sm">
+                    <div className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-3 py-2">
+                      <dt className="text-hb-xs font-bold text-[#646E7E]">
+                        주요 구성 품목
+                      </dt>
+                      <dd className="mt-0.5 font-bold text-[#0E1A2B]">
+                        {g.recommend}
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="sr-only">추천 사유</dt>
+                      <dd className="text-[#3E4756] leading-[1.6] break-keep pt-1 text-hb-xs sm:text-hb-sm">
+                        {g.reason}
+                      </dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
+                  <Link
+                    href={g.href}
+                    className="flex w-full items-center justify-between rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:bg-[#0E1A2B] group-hover:text-white group-hover:border-[#0E1A2B] transition-colors"
+                  >
+                    <span>{g.ctaLabel}</span>
+                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#B5431A] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/home/category-pictogram-bar.tsx" lines="367">
+      <![CDATA[
+// 파일 경로: components/home/category-pictogram-bar.tsx
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import {
+  trackEvent,
+  triggerQuickInquiry,
+  type InquiryTypeValue,
+} from "../../lib/site";
+import { Icon, ICON } from "../../lib/ui";
+import {
+  ModernApplianceIcon,
+  type ModernIconType,
+} from "../ui/modern-icons";
+
+export type PictogramKey =
+  | "all"
+  | "aircon"
+  | "fridge"
+  | "washer"
+  | "small"
+  | "bizFridge"
+  | "showcase"
+  | "kitchen";
+
+export interface ShowroomCategoryItem {
+  key: PictogramKey;
+  label: string;
+  subLabel: string;
+  icon: ModernIconType;
+  imageSrc: string;
+  href: string;
+  filterCategory: string;
+  filterKeyword?: string;
+  group: "all" | "home" | "biz";
+}
+
+export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
+  {
+    key: "all",
+    label: "전체 실매물",
+    subLabel: "전 품목 보기",
+    icon: "all",
+    imageSrc: "/illustrations/picto-fridge.jpg",
+    href: "/gallery",
+    filterCategory: "전체",
+    group: "all",
+  },
+  {
+    key: "aircon",
+    label: "에어컨·냉난방",
+    subLabel: "벽걸이·스탠드·천장형",
+    icon: "aircon",
+    imageSrc: "/illustrations/picto-aircon.jpg",
+    href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
+    filterCategory: "에어컨/냉난방기",
+    group: "home",
+  },
+  {
+    key: "fridge",
+    label: "냉장고·김치냉장",
+    subLabel: "양문형·4도어·일반",
+    icon: "fridge",
+    imageSrc: "/illustrations/picto-fridge.jpg",
+    href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
+    filterCategory: "냉장고",
+    group: "home",
+  },
+  {
+    key: "washer",
+    label: "세탁기·건조기",
+    subLabel: "드럼·통돌이·워시타워",
+    icon: "washer",
+    imageSrc: "/illustrations/picto-washer.jpg",
+    href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
+    filterCategory: "세탁기/건조기",
+    group: "home",
+  },
+  {
+    key: "small",
+    label: "TV·소형가전",
+    subLabel: "TV·전자레인지·기타",
+    icon: "small",
+    imageSrc: "/illustrations/picto-small.jpg",
+    href: "/gallery?category=%EA%B8%B0%ED%83%80",
+    filterCategory: "기타",
+    group: "home",
+  },
+  {
+    key: "bizFridge",
+    label: "업소용 냉장고",
+    subLabel: "25·45박스·테이블냉장",
+    icon: "biz-fridge",
+    imageSrc: "/illustrations/picto-biz-fridge.jpg",
+    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
+    filterCategory: "업소용기기",
+    filterKeyword: "냉장",
+    group: "biz",
+  },
+  {
+    key: "showcase",
+    label: "음료·주류 쇼케이스",
+    subLabel: "음료·주류·제과",
+    icon: "showcase",
+    imageSrc: "/illustrations/picto-showcase.jpg",
+    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
+    filterCategory: "업소용기기",
+    filterKeyword: "쇼케이스",
+    group: "biz",
+  },
+  {
+    key: "kitchen",
+    label: "제빙기·주방설비",
+    subLabel: "제빙기·세척기·작업대",
+    icon: "kitchen",
+    imageSrc: "/illustrations/picto-kitchen.jpg",
+    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
+    filterCategory: "업소용기기",
+    group: "biz",
+  },
+];
+
+const ACTION_BENTO_ITEMS: ReadonlyArray<{
+  label: string;
+  sub: string;
+  icon: ModernIconType;
+  inquiryType?: InquiryTypeValue;
+  scrollTarget?: string;
+}> = [
+  {
+    label: "가전 방문매입",
+    sub: "당일 수거·현금 입금",
+    icon: "sell",
+    inquiryType: "내 물건 팔기",
+  },
+  {
+    label: "식당·카페 폐업정리",
+    sub: "주방설비 일괄 매입·철거",
+    icon: "closure",
+    inquiryType: "대량·업소용 상담",
+  },
+  {
+    label: "창업 패키지 상담",
+    sub: "업종별 맞춤 설비 견적",
+    icon: "startup",
+    inquiryType: "대량·업소용 상담",
+  },
+  {
+    label: "출고·설치 사례",
+    sub: "실제 현장 납품 기록",
+    icon: "shield",
+    scrollTarget: "reviews-section",
+  },
+];
+
+export function CategoryPictogramBar({
+  selectedKey = "all",
+  onSelectCategory,
+  categoryCounts,
+  onSelectInquiry,
+}: {
+  selectedKey?: PictogramKey;
+  onSelectCategory?: (item: ShowroomCategoryItem) => void;
+  categoryCounts?: Partial<Record<PictogramKey, number>>;
+  onSelectInquiry?: (type: InquiryTypeValue) => void;
+}) {
+  const allItem = SHOWROOM_CATEGORIES[0];
+
+  const handleCategoryClick = (item: ShowroomCategoryItem) => {
+    trackEvent("filter_gallery", {
+      category: item.label,
+      location: "top_pictogram_bar",
+    });
+    if (onSelectCategory) {
+      onSelectCategory(item);
+      if (typeof document !== "undefined") {
+        document
+          .getElementById("featured-products-section")
+          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+  };
+
+  const handleActionClick = (action: (typeof ACTION_BENTO_ITEMS)[number]) => {
+    if (action.inquiryType) {
+      trackEvent("begin_buyback_inquiry", {
+        location: "category_pictogram_bar",
+      });
+      if (onSelectInquiry) {
+        onSelectInquiry(action.inquiryType);
+      } else {
+        triggerQuickInquiry({ type: action.inquiryType });
+      }
+      return;
+    }
+    if (action.scrollTarget && typeof document !== "undefined") {
+      document
+        .getElementById(action.scrollTarget)
+        ?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <section
+      id="category-section"
+      aria-label="취급 품목 및 주요 서비스 바로가기"
+      className="border-b border-[#E5E2DC] bg-white py-5 sm:py-7"
+    >
+      <div className="hb-container">
+        {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-[#ECE9E2]">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-block h-3.5 w-1 rounded-full bg-[#B5431A]"
+              aria-hidden="true"
+            />
+            <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] tracking-tight">
+              품목별 쇼룸 카탈로그
+            </h2>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleCategoryClick(allItem)}
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-extrabold transition-all cursor-pointer ${
+                selectedKey === "all"
+                  ? "bg-[#0E1A2B] text-white shadow-2xs"
+                  : "border border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+              }`}
+            >
+              <span>전체 실매물</span>
+              {typeof categoryCounts?.all === "number" && (
+                <span className="text-[#FF8A50] tabular-nums">
+                  {categoryCounts.all}대
+                </span>
+              )}
+            </button>
+            <Link
+              href="/gallery"
+              className="inline-flex items-center gap-1 rounded-full border border-[#E5E2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:text-[#B5431A] transition-colors"
+            >
+              <span>갤러리 전체보기</span>
+              <Icon d={ICON.right} className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 */}
+        <div className="space-y-3">
+          {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
+          <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-3.5 shadow-card">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
+              {SHOWROOM_CATEGORIES.map((item) => {
+                const isSelected = selectedKey === item.key;
+                const count = categoryCounts?.[item.key];
+                const isBiz = item.group === "biz";
+
+                return (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => handleCategoryClick(item)}
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2 sm:py-3 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
+                        : isBiz
+                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
+                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
+                    }`}
+                  >
+                    {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
+                    {isBiz ? (
+                      <span
+                        className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                          isSelected
+                            ? "bg-white/20 text-[#FF8A50]"
+                            : "bg-[#B5431A]/10 text-[#B5431A]"
+                        }`}
+                      >
+                        B2B
+                      </span>
+                    ) : (
+                      <span className="h-4" aria-hidden="true" />
+                    )}
+
+                    <ModernApplianceIcon
+                      name={item.icon}
+                      dark={isSelected}
+                      className="w-10 h-10 sm:w-11 sm:h-11"
+                    />
+
+                    <div className="min-w-0 w-full">
+                      <strong
+                        className={`block text-hb-xs sm:text-hb-sm font-extrabold truncate ${
+                          isSelected
+                            ? "text-white"
+                            : "text-[#0E1A2B] group-hover:text-[#B5431A]"
+                        }`}
+                      >
+                        {item.label}
+                      </strong>
+                      <span
+                        className={`mt-0.5 block text-hb-xs font-medium truncate ${
+                          isSelected
+                            ? "text-[#FF8A50]"
+                            : isBiz
+                            ? "text-[#B5431A] font-bold"
+                            : "text-[#646E7E]"
+                        }`}
+                      >
+                        {typeof count === "number"
+                          ? `${count}대 전시`
+                          : item.subLabel}
+                      </span>
+                    </div>
+
+                    {/* 선택 시 하단 오렌지 인디케이터 바 */}
+                    {isSelected && (
+                      <span
+                        className="h-1 w-8 rounded-full bg-[#FF8A50] mt-0.5"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2단: 슬림 인라인 퀵 캡슐 바 (Single-row Quick Action Strip) */}
+          <div className="pt-1 grid grid-cols-2 lg:grid-cols-4 gap-2">
+            {ACTION_BENTO_ITEMS.map((item) => (
+              <button
+                key={item.label}
+                type="button"
+                onClick={() => handleActionClick(item)}
+                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-xs transition-all cursor-pointer text-left"
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <ModernApplianceIcon
+                    name={item.icon}
+                    className="w-5 h-5 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <span className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#B5431A] transition-colors truncate">
+                      {item.label}
+                    </span>
+                    <span className="hidden sm:block text-hb-xs text-[#646E7E] truncate">
+                      {item.sub}
+                    </span>
+                  </div>
+                </div>
+                <Icon
+                  d={ICON.right}
+                  className="w-3.5 h-3.5 text-[#6E675C] group-hover:text-[#B5431A] group-hover:translate-x-0.5 transition-all shrink-0"
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/home/featured-products-section.tsx" lines="245">
+      <![CDATA[
+// 파일 경로: components/home/featured-products-section.tsx
+"use client";
+
+import React, { useMemo, useState } from "react";
+import Link from "next/link";
+import {
+  isProductSold,
+  normalizeProductCategory,
+  STORE,
+  telHref,
+} from "../../lib/site";
+import { Icon, ICON } from "../../lib/ui";
+import {
+  ProductCard,
+  type ProductItem,
+} from "../products/product-card";
+import type { ShowroomCategoryItem } from "./category-pictogram-bar";
+
+const INITIAL_DISPLAY_LIMIT = 8;
+
+export function FeaturedProductsSection({
+  products,
+  loading,
+  error,
+  onRetry,
+  selectedCategory,
+  onResetCategory,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onInquireProduct,
+}: {
+  products: ProductItem[];
+  loading: boolean;
+  error: boolean;
+  onRetry: () => void;
+  selectedCategory?: ShowroomCategoryItem;
+  onResetCategory?: () => void;
+  onInquireProduct?: (productTitle: string) => void;
+}) {
+  const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
+
+  const filteredProducts = useMemo(() => {
+    const active = products.filter((p) => !isProductSold(p.status));
+    const source = active.length > 0 ? active : products;
+
+    if (!selectedCategory || selectedCategory.key === "all") {
+      return source;
+    }
+
+    return source.filter((p) => {
+      const cat = normalizeProductCategory(p.category);
+      if (cat !== selectedCategory.filterCategory) return false;
+      if (selectedCategory.filterKeyword) {
+        const hay = `${p.title} ${p.description || ""}`.toLowerCase();
+        return hay.includes(selectedCategory.filterKeyword.toLowerCase());
+      }
+      return true;
+    });
+  }, [products, selectedCategory]);
+
+  const displayedProducts = useMemo(
+    () => filteredProducts.slice(0, visibleCount),
+    [filteredProducts, visibleCount]
+  );
+
+  const totalSellingCount = useMemo(
+    () => products.filter((p) => !isProductSold(p.status)).length,
+    [products]
+  );
+
+  const activeCategoryTitle =
+    selectedCategory && selectedCategory.key !== "all"
+      ? `${selectedCategory.label} 전시 매물`
+      : "실시간 쇼룸 전시 매물";
+
+  const galleryHref = selectedCategory?.href || "/gallery";
+
+  return (
+    <section
+      id="featured-products-section"
+      aria-labelledby="featured-heading"
+      className="border-b border-[#E5E2DC] bg-white py-10 sm:py-14 lg:py-16"
+    >
+      <div className="hb-container">
+        {/* 에디토리얼 쇼룸 헤더 바 */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b-2 border-[#0E1A2B]">
+          <div>
+            <div className="flex items-center gap-2 text-hb-xs font-bold text-[#B5431A]">
+              <span>LIVE SHOWROOM INVENTORY</span>
+              <span>·</span>
+              <span className="text-[#0E1A2B] tabular-nums">
+                현재 구매 가능 총 {totalSellingCount}대
+              </span>
+            </div>
+            <div className="mt-1.5 flex flex-wrap items-baseline gap-3">
+              <h2
+                id="featured-heading"
+                className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B]"
+              >
+                {activeCategoryTitle}
+              </h2>
+              <span className="text-hb-sm font-bold text-[#646E7E] tabular-nums">
+                ({filteredProducts.length}건)
+              </span>
+              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisibleCount(INITIAL_DISPLAY_LIMIT);
+                    onResetCategory();
+                  }}
+                  className="text-hb-xs font-bold text-[#B5431A] underline underline-offset-4 cursor-pointer"
+                >
+                  전체 품목으로 복귀
+                </button>
+              )}
+            </div>
+            <p className="mt-1 text-hb-sm text-[#3E4756]">
+              대전 중촌동 1·2층 직영 매장에서 분해 고압세척과 시운전 검수를 마친 실매물입니다.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href={galleryHref}
+              className="hb-btn-primary h-11 px-5 text-hb-sm"
+            >
+              <span>상세 필터 · 전체 매물 보기</span>
+              <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
+            </Link>
+          </div>
+        </div>
+
+        {/* 로딩 스켈레톤 상태 */}
+        {loading ? (
+          <div
+            className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
+            aria-hidden="true"
+          >
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div
+                key={idx}
+                className="overflow-hidden rounded-lg border border-[#E5E2DC] bg-white animate-pulse"
+              >
+                <div className="aspect-[4/3] bg-[#F0EDE7]" />
+                <div className="p-4 space-y-3">
+                  <div className="h-3 w-1/3 rounded bg-[#F0EDE7]" />
+                  <div className="h-5 w-4/5 rounded bg-[#F0EDE7]" />
+                  <div className="h-6 w-1/2 rounded bg-[#F0EDE7] pt-2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="mt-8 border-y border-[#E5E2DC] bg-[#FAF9F7] p-8 sm:p-10 text-center">
+            <p className="text-hb-base font-bold text-[#0E1A2B]">
+              실시간 상품 목록을 불러오지 못했습니다.
+            </p>
+            <p className="mt-1.5 text-hb-sm text-[#646E7E]">
+              네트워크 상태를 확인하시거나 잠시 후 다시 시도해 주세요.
+            </p>
+            <button
+              type="button"
+              onClick={onRetry}
+              className="hb-btn-primary mt-5 h-11 px-5 text-hb-sm"
+            >
+              다시 불러오기
+            </button>
+          </div>
+        ) : displayedProducts.length === 0 ? (
+          <div className="mt-8 flex flex-col items-start justify-between gap-6 border-y border-[#E5E2DC] bg-[#FAF9F7] p-6 sm:p-8 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-hb-lg font-bold text-[#0E1A2B]">
+                선택하신 분류의 온라인 등록 매물을 준비 중입니다.
+              </p>
+              <p className="mt-1 text-hb-sm text-[#3E4756]">
+                매장에는 온라인에 미처 올리지 못한 가전과 주방설비가 상시 준비되어 있습니다. 찾으시는 품목을 말씀해 주시면 즉시 재고를 확인해 드립니다.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2.5 shrink-0">
+              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
+                <button
+                  type="button"
+                  onClick={onResetCategory}
+                  className="hb-btn-outline h-11 px-4 text-hb-sm"
+                >
+                  전체 매물 보기
+                </button>
+              )}
+              <a
+                href={telHref(STORE.tel)}
+                className="hb-btn-primary h-11 px-5 text-hb-sm"
+              >
+                <Icon d={ICON.phone} className="w-4 h-4" /> 전화로 재고 확인
+              </a>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch">
+              {displayedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* 하단 더보기 및 전체 갤러리 이동 바 */}
+            <div className="mt-9 pt-6 border-t border-[#ECE9E2] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-hb-xs sm:text-hb-sm text-[#646E7E]">
+                표시 중:{" "}
+                <strong className="font-bold text-[#0E1A2B] tabular-nums">
+                  {displayedProducts.length}
+                </strong>{" "}
+                / 전체{" "}
+                <strong className="font-bold text-[#0E1A2B] tabular-nums">
+                  {filteredProducts.length}
+                </strong>
+                건 · 가격대 필터와 모델명 검색은 전체 갤러리에서 지원합니다.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                {filteredProducts.length > visibleCount && (
+                  <button
+                    type="button"
+                    onClick={() => setVisibleCount((prev) => prev + 8)}
+                    className="hb-btn-outline h-11 px-5 text-hb-sm font-bold cursor-pointer"
+                  >
+                    <span>이 화면에서 매물 더보기 (+8)</span>
+                    <Icon d={ICON.down} className="w-4 h-4" />
+                  </button>
+                )}
+                <Link
+                  href={galleryHref}
+                  className="hb-btn-primary h-11 px-6 text-hb-sm font-bold"
+                >
+                  <span>전체 판매 제품 갤러리 ({totalSellingCount}대)</span>
+                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
+                </Link>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+]]>
+    </file>
+    <file path="components/home/home-page-client.tsx" lines="2199">
+      <![CDATA[
+// 파일 경로: components/home/home-page-client.tsx
 "use client";
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
@@ -12062,8 +13585,8 @@ import {
   supabase,
   isAuthorizedAdminUser,
   getAdminAuthHeaders,
-} from "../lib/supabase";
-import { serializeJsonLd } from "../lib/json-ld";
+} from "../../lib/supabase";
+import { serializeJsonLd } from "../../lib/json-ld";
 import {
   Icon,
   ICON,
@@ -12074,7 +13597,7 @@ import {
   SiteFooter,
   MobileCtaBar,
   SectionHeading,
-} from "../lib/ui";
+} from "../../lib/ui";
 import {
   STORE,
   telHref,
@@ -12093,26 +13616,26 @@ import {
   trackEvent,
   type InquiryTypeValue,
   triggerQuickInquiry,
-} from "../lib/site";
-import { type ProductItem } from "../components/products/product-card";
-import { FeaturedProductsSection } from "../components/home/featured-products-section";
+} from "../../lib/site";
+import { type ProductItem } from "../products/product-card";
+import { FeaturedProductsSection } from "./featured-products-section";
 import {
   CategoryPictogramBar,
   SHOWROOM_CATEGORIES,
   type ShowroomCategoryItem,
   type PictogramKey,
-} from "../components/home/category-pictogram-bar";
-import { AirconGuideModal } from "../components/products/aircon-set-guide-banner";
-import { ModernApplianceIcon } from "../components/ui/modern-icons";
-import { AiRecommendationGuideSection } from "../components/home/ai-recommendation-guide-section";
-import { ShowroomVisitModal } from "../components/showroom/showroom-visit-modal";
+} from "./category-pictogram-bar";
+import { AirconGuideModal } from "../products/aircon-set-guide-banner";
+import { ModernApplianceIcon } from "../ui/modern-icons";
+import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
+import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
    ════════════════════════════════════════════════════════════ */
 const OPERATING_YEARS = new Date().getFullYear() - STORE.since;
 
-type Review = {
+export type Review = {
   id: string | number;
   title: string | null;
   image_url: string | null;
@@ -12255,10 +13778,20 @@ const shortDate = (iso: string) => {
 /* ════════════════════════════════════════════════════════════
    2. 메인 페이지 컴포넌트 (Modern Appliance Showroom 아키텍처)
    ════════════════════════════════════════════════════════════ */
-export default function Home() {
-  /* 실시간 판매 매물 상태 */
-  const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
+export default function Home({
+  initialProducts,
+  initialReviews,
+}: {
+  initialProducts: ProductItem[] | null;
+  initialReviews: Review[] | null;
+}) {
+  /* 실시간 판매 매물 상태 (서버 초기값이 있으면 즉시 렌더링) */
+  const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>(
+    initialProducts ?? []
+  );
+  const [productsLoading, setProductsLoading] = useState(
+    initialProducts === null
+  );
   const [productsError, setProductsError] = useState(false);
 
   /* 카테고리 탐색 선택 상태 */
@@ -12266,8 +13799,10 @@ export default function Home() {
     useState<ShowroomCategoryItem>(SHOWROOM_CATEGORIES[0]);
 
   /* 배송·설치 사례 및 최근 문의 상태 */
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviews, setReviews] = useState<Review[]>(initialReviews ?? []);
+  const [reviewsLoading, setReviewsLoading] = useState(
+    initialReviews === null
+  );
   const [recent, setRecent] = useState<InquiryRow[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -12363,8 +13898,8 @@ export default function Home() {
 
   useEffect(() => {
     queueMicrotask(() => {
-      void loadFeaturedProducts();
-      void loadReviews();
+      if (initialProducts === null) void loadFeaturedProducts();
+      if (initialReviews === null) void loadReviews();
       void loadRecent();
     });
     supabase.auth
@@ -12376,7 +13911,13 @@ export default function Home() {
       setIsAdmin(isAuthorizedAdminUser(session?.user))
     );
     return () => sub.subscription.unsubscribe();
-  }, [loadFeaturedProducts, loadReviews, loadRecent]);
+  }, [
+    initialProducts,
+    initialReviews,
+    loadFeaturedProducts,
+    loadReviews,
+    loadRecent,
+  ]);
 
   const activeProducts = useMemo(
     () => featuredProducts.filter((p) => !isProductSold(p.status)),
@@ -14230,1481 +15771,6 @@ export default function Home() {
         </Modal>
       )}
     </div>
-  );
-}
-
-]]>
-    </file>
-    <file path="app/privacy/page.tsx" lines="148">
-      <![CDATA[
-// 파일 경로: app/privacy/page.tsx
-import type { Metadata } from "next";
-import Link from "next/link";
-import { STORE, telHref } from "../../lib/site";
-import { SiteHeader, SiteFooter, MobileCtaBar } from "../../lib/ui";
-
-export const metadata: Metadata = {
-  title: "개인정보처리방침",
-  description: `${STORE.name} 홈페이지의 고객 상담 및 매입 견적 신청 관련 개인정보 수집·이용 및 보호 방침 안내입니다.`,
-  alternates: {
-    canonical: "/privacy",
-  },
-};
-
-export default function PrivacyPage() {
-  return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
-      <SiteHeader />
-
-      <main className="hb-container py-10 sm:py-14 flex-1">
-        <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E2DC] bg-white p-6 sm:p-10 shadow-card">
-          <p className="hb-eyebrow">Privacy Policy</p>
-          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#0E1A2B] pb-5 border-b border-[#E5E2DC]">
-            개인정보처리방침
-          </h1>
-
-          <div className="mt-6 space-y-7 text-hb-sm leading-relaxed text-[#3E4756]">
-            <p>
-              <strong className="text-[#0E1A2B]">{STORE.name}</strong>(이하
-              &ldquo;회사&rdquo;)는 개인정보보호법 등 관련 법령에 따라 이용자의
-              개인정보를 보호하고, 이와 관련한 고충을 신속하고 원활하게 처리할 수
-              있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.
-            </p>
-
-            <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-                1. 개인정보의 수집 및 이용 목적
-              </h2>
-              <p>회사는 다음의 목적을 위하여 최소한의 개인정보를 처리합니다.</p>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>
-                  중고가전 및 업소용 기기 구매 상담, 재고 확인, 배송·설치 견적 안내
-                </li>
-                <li>
-                  고객 보유 가전·주방기기의 방문 매입 견적 산정 및 수거 일정 조율
-                </li>
-                <li>
-                  문의게시판 비밀글 본인 확인, 진행 상태 조회 및 관리자 답변 안내
-                </li>
-              </ul>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-                2. 수집하는 개인정보의 항목
-              </h2>
-              <ul className="list-disc pl-5 space-y-1">
-                <li>
-                  <strong className="text-[#0E1A2B]">필수항목:</strong> 성함(또는
-                  상호명), 연락처(전화번호), 게시글 조회용 비밀번호(암호화 해시
-                  저장), 문의 제목 및 상세 내용
-                </li>
-                <li>
-                  <strong className="text-[#0E1A2B]">선택항목:</strong> 제품
-                  카테고리, 모델명, 외관·작동 상태 등급, 방문 수거 또는 배송 희망
-                  지역, 제품 첨부 사진
-                </li>
-              </ul>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-                3. 개인정보의 보유 및 이용기간
-              </h2>
-              <p>
-                회사는 원칙적으로 개인정보 수집 및 이용 목적이 달성된 후에는 해당
-                정보를 지체 없이 파기합니다. 또한 이용자는 문의게시판에서 본인이
-                설정한 비밀번호를 통해 언제든지 직접 게시글과 첨부 정보를 삭제할 수
-                있습니다. 단, 관계법령에 의해 보존할 필요가 있는 경우 법령이 정한
-                기간 동안 보관합니다.
-              </p>
-              <ul className="list-disc pl-5 space-y-1 text-hb-xs">
-                <li>계약 또는 청약철회 등에 관한 기록: 5년</li>
-                <li>대금결제 및 재화 등의 공급에 관한 기록: 5년</li>
-                <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년</li>
-              </ul>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-                4. 개인정보의 제3자 제공 및 안전성 확보 조치
-              </h2>
-              <p>
-                회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않으며,
-                문의게시판 공개 목록에서는 작성자 성함을 마스킹 처리하고 연락처와
-                본문을 비공개로 보호합니다. 조회용 비밀번호는 서버에서 단방향
-                암호화(scrypt 해시)하여 저장합니다.
-              </p>
-            </section>
-
-            <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
-                5. 개인정보 보호책임자 안내
-              </h2>
-              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-hb-xs space-y-1">
-                <p>
-                  • <strong className="text-[#0E1A2B]">상호:</strong> {STORE.name}{" "}
-                  (대표: {STORE.ceo})
-                </p>
-                <p>
-                  •{" "}
-                  <strong className="text-[#0E1A2B]">
-                    개인정보 보호책임자:
-                  </strong>{" "}
-                  {STORE.privacyOfficer}
-                </p>
-                <p>
-                  • <strong className="text-[#0E1A2B]">대표 전화:</strong>{" "}
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="font-bold text-[#0E1A2B] underline underline-offset-4"
-                  >
-                    {STORE.tel}
-                  </a>
-                </p>
-                <p>
-                  • <strong className="text-[#0E1A2B]">사업장 주소:</strong>{" "}
-                  {STORE.roadAddress} (지번: {STORE.jibunAddress}, {STORE.addressNote})
-                </p>
-              </div>
-            </section>
-
-            <div className="pt-5 border-t border-[#E5E2DC] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#646E7E]">
-              <span>시행일자: 2026년 1월 1일</span>
-              <Link href="/" className="hb-btn-primary h-10 px-5 text-hb-xs">
-                홈으로 돌아가기
-              </Link>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <SiteFooter />
-      <MobileCtaBar />
-    </div>
-  );
-}
-
-]]>
-    </file>
-    <file path="app/purchase/layout.tsx" lines="38">
-      <![CDATA[
-// 파일 경로: app/purchase/layout.tsx
-import type { Metadata } from "next";
-import { STORE } from "../../lib/site";
-
-export const metadata: Metadata = {
-  title:
-    "중고가전 · 식당/카페 폐업설비 방문 매입 신청 (수거 당일 100% 현금정산)",
-  description:
-    "[사진 전송 간편 견적 · 현장 즉시 입금] 가정 이사·원룸 퇴실 가전 처분부터 식당·카페·사무실 폐업 주방기기 및 냉난방기 일괄 철거·매입까지, 대전·세종·충청권 직접 방문 수거 후 당일 현금으로 정산해 드립니다.",
-  alternates: {
-    canonical: `${STORE.url}/purchase`,
-  },
-  openGraph: {
-    type: "website",
-    locale: "ko_KR",
-    url: `${STORE.url}/purchase`,
-    siteName: STORE.name,
-    title: `중고가전 · 업소용 주방설비 방문 매입 신청 (당일 현금 입금) | ${STORE.name}`,
-    description:
-      "전면 사진과 모델명만 보내주시면 빠르게 매입 견적을 안내해 드립니다. 약속된 일정에 방문 수거 후 즉시 송금.",
-    images: [
-      {
-        url: `${STORE.url}/og-image.jpg`,
-        width: 1200,
-        height: 630,
-        alt: STORE.name,
-      },
-    ],
-  },
-};
-
-export default function PurchaseLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <>{children}</>;
-}
-]]>
-    </file>
-    <file path="app/purchase/page.tsx" lines="263">
-      <![CDATA[
-"use client";
-
-import React, { useState } from "react";
-import { STORE, telHref } from "../../lib/site";
-import {
-  SiteHeader,
-  SiteFooter,
-  MobileCtaBar,
-  Modal,
-  SafeImg,
-  Icon,
-  ICON,
-} from "../../lib/ui";
-import { ModernApplianceIcon } from "../../components/ui/modern-icons";
-import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
-
-const BUYBACK_STEPS = [
-  {
-    step: "01단계",
-    num: "01",
-    title: "사진 · 모델명 접수",
-    desc: "전면 사진과 모델명·제조년월 스티커 사진을 첨부해 온라인 또는 카톡으로 접수합니다.",
-    icon: "sell" as const,
-  },
-  {
-    step: "02단계",
-    num: "02",
-    title: "예상 견적 및 일정 조율",
-    desc: "담당자가 연식과 외관 상태를 확인한 뒤 매입 가능 여부와 방문 일정을 안내해 드립니다.",
-    icon: "closure" as const,
-  },
-  {
-    step: "03단계",
-    num: "03",
-    title: "방문 수거 · 현장 즉시 정산",
-    desc: "약속된 일정에 전문 기사가 직접 방문하여 안전하게 분리·수거 후 현장에서 즉시 정산합니다.",
-    icon: "shield" as const,
-  },
-] as const;
-
-export default function PurchasePage() {
-  const [guideOpen, setGuideOpen] = useState(false);
-
-  return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
-      <SiteHeader />
-
-      {/* 상단 매입 전용 헤더 */}
-      <section className="bg-white border-b border-[#E5E2DC]">
-        <div className="hb-container py-8 sm:py-11">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div>
-              <span className="hb-eyebrow">가전 · 업소용 주방설비 방문 매입</span>
-              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-extrabold tracking-[-0.03em] leading-[1.2] text-[#0E1A2B]">
-                중고 가전 · 업소용 주방기기 매입 신청
-              </h1>
-              <p className="mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base text-[#3F4856] leading-relaxed break-keep [text-wrap:pretty]">
-                가정 이사·가전 교체부터 식당·카페·사무실 폐업 및 이전 대량 정리까지,
-                <br className="hidden sm:inline" /> 사진과 품목 정보를 남겨주시면 확인 후 방문 수거 및 현장 즉시 정산을 도와드립니다.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-hb-xs font-bold text-[#0E1A2B]">
-                가정용 · 업소용 전 품목
-              </span>
-              <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-hb-xs font-bold text-[#0E1A2B]">
-                전문 기사 직접 철거·수거
-              </span>
-              <span className="rounded-lg border border-[#FADCD0] bg-[#FFF6F2] px-3.5 py-2 text-hb-xs font-bold text-[#B5431A]">
-                현장 즉시 정산
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 (Tactile Bento 카드) */}
-        <section
-          aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
-        >
-          {BUYBACK_STEPS.map((item) => (
-            <div
-              key={item.step}
-              className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
-            >
-              <ModernApplianceIcon
-                name={item.icon}
-                className="w-11 h-11 sm:w-12 sm:h-12 shrink-0"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#B5431A]">
-                    {item.step}
-                  </span>
-                </div>
-                <h2 className="mt-0.5 text-hb-base sm:text-hb-lg font-bold text-[#0E1A2B]">
-                  {item.title}
-                </h2>
-                <p className="mt-1.5 text-hb-sm text-[#3F4856] leading-relaxed break-keep">
-                  {item.desc}
-                </p>
-              </div>
-            </div>
-          ))}
-        </section>
-
-        <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
-          {/* 좌측 8컬럼: 통합 매입 신청 폼 */}
-          <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-7 shadow-card lg:col-span-8">
-            <div className="mb-5 pb-4 border-b border-[#EFECE6] flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <h2 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B]">
-                  온라인 매입 견적 신청서
-                </h2>
-                <p className="mt-1 text-hb-sm text-[#596273]">
-                  사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 최고가 견적과 수거 일정을 빠르게 안내해 드립니다.
-                </p>
-              </div>
-              <span className="rounded-md bg-[#FAF9F7] border border-[#E6E3DC] px-3 py-1 text-hb-xs font-bold text-[#0E1A2B]">
-                개인정보 보호 비밀글 자동 적용
-              </span>
-            </div>
-
-            <V2InquirySectionWithWizard
-              defaultType="내 물건 팔기"
-              fixedType="내 물건 팔기"
-              hideTypeSelector={true}
-              variant="embedded"
-            />
-          </div>
-
-          {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}
-          <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
-            <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 shadow-card">
-              <span className="hb-eyebrow">급매 · 폐업 직통 상담</span>
-              <h2 className="mt-1.5 text-hb-lg font-extrabold text-[#0E1A2B]">
-                급매 · 폐업 일괄 정리 직통 상담
-              </h2>
-              <p className="mt-2 text-hb-sm text-[#3E4856] leading-relaxed break-keep">
-                품목이 많거나 빠른 방문 수거가 필요하신 경우, 전화 또는 카카오톡으로 사진을 보내주시면 가장 빠르게 견적을 안내해 드립니다.
-              </p>
-
-              <div className="mt-4 rounded-lg bg-[#FAF9F7] border border-[#E6E3DC] p-3.5 space-y-2 text-hb-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#596273]">매장 대표전화</span>
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="font-extrabold text-[#0E1A2B] hover:text-[#B5431A] tabular-nums"
-                  >
-                    {STORE.tel}
-                  </a>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#596273]">매입/수거 직통</span>
-                  <a
-                    href={telHref(STORE.mobile)}
-                    className="font-extrabold text-[#B5431A] hover:underline tabular-nums"
-                  >
-                    {STORE.mobile}
-                  </a>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <a
-                  href={telHref(STORE.tel)}
-                  className="hb-btn-accent h-11 w-full text-hb-sm"
-                >
-                  <Icon d={ICON.phone} className="h-4 w-4" />
-                  <span>전화 매입 상담 ({STORE.tel})</span>
-                </a>
-                <a
-                  href={STORE.kakaoChat}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 w-full text-hb-sm"
-                >
-                  <Icon d={ICON.chat} className="h-4 w-4" />
-                  <span>카카오톡으로 사진 보내기</span>
-                </a>
-              </div>
-            </div>
-
-            {/* 공식 매입 안내문 원본 보기 카드 (크롭 없이 object-contain) */}
-            <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 shadow-card">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div>
-                  <span className="text-hb-xs font-bold text-[#B5431A]">
-                    공식 매입 기준 안내문
-                  </span>
-                  <h3 className="text-hb-sm font-extrabold text-[#0E1A2B]">
-                    한밭중고전자 매입 기준 안내문
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setGuideOpen(true)}
-                  className="rounded-md border border-[#D8D3C8] bg-[#FAF9F7] px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
-                >
-                  크게 보기
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => setGuideOpen(true)}
-                className="group relative block w-full overflow-hidden rounded-lg border border-[#E6E3DC] bg-[#FAF9F7] p-2.5 text-left"
-              >
-                <div className="aspect-[4/3] w-full overflow-hidden flex items-center justify-center bg-white rounded">
-                  <SafeImg
-                    src="/매입 안내문.png"
-                    alt="한밭중고전자 공식 매입 안내문"
-                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                </div>
-                <p className="mt-2 text-center text-hb-xs font-semibold text-[#596273] group-hover:text-[#0E1A2B]">
-                  클릭하여 매입 가능 품목 및 체크사항 크게 보기
-                </p>
-              </button>
-            </div>
-          </aside>
-        </div>
-      </main>
-
-      {guideOpen && (
-        <Modal
-          label="한밭중고전자 공식 매입 안내문"
-          onClose={() => setGuideOpen(false)}
-          panelClassName="max-w-2xl"
-        >
-          <div className="overflow-hidden rounded-xl border border-[#E6E3DC] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E6E3DC] px-5 py-3.5 bg-[#0E1A2B] text-white">
-              <h3 className="text-hb-base font-bold">
-                한밭중고전자 공식 매입 안내문
-              </h3>
-              <button
-                type="button"
-                onClick={() => setGuideOpen(false)}
-                aria-label="닫기"
-                className="rounded p-1 text-white/80 hover:bg-white/10 hover:text-white"
-              >
-                <Icon d={ICON.close} className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="max-h-[82vh] overflow-y-auto bg-[#FAF9F7] p-4 sm:p-6 flex justify-center">
-              <SafeImg
-                src="/매입 안내문.png"
-                alt="한밭중고전자 공식 매입 안내문 원본"
-                className="max-h-[74vh] w-auto object-contain rounded-lg border border-[#E6E3DC] bg-white"
-              />
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      <SiteFooter />
-      <MobileCtaBar />
-    </div>
-  );
-}
-
-]]>
-    </file>
-    <file path="app/robots.ts" lines="38">
-      <![CDATA[
-import { MetadataRoute } from "next";
-import { STORE } from "../lib/site";
-
-export default function robots(): MetadataRoute.Robots {
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: ["/", "/gallery", "/purchase", "/inquiry", "/llms.txt", "/llms-full.txt"],
-        disallow: ["/admin", "/api/"],
-      },
-      {
-        // OpenAI ChatGPT Search / Perplexity / Claude / Google AI / Apple Intelligence / Amazon / Naver / Bing 명시적 허용
-        userAgent: [
-          "OAI-SearchBot",
-          "ChatGPT-User",
-          "GPTBot",
-          "PerplexityBot",
-          "ClaudeBot",
-          "Claude-Web",
-          "Google-Extended",
-          "Googlebot",
-          "Applebot",
-          "Applebot-Extended",
-          "Amazonbot",
-          "cohere-ai",
-          "Bingbot",
-          "Yeti",
-        ],
-        allow: ["/", "/gallery", "/purchase", "/inquiry", "/llms.txt", "/llms-full.txt"],
-        disallow: ["/admin", "/api/"],
-      },
-    ],
-    sitemap: `${STORE.url}/sitemap.xml`,
-    host: STORE.url,
-  };
-}
-
-]]>
-    </file>
-    <file path="app/sitemap.ts" lines="79">
-      <![CDATA[
-// 파일 경로: app/sitemap.ts
-import { MetadataRoute } from "next";
-import { supabase } from "../lib/supabase";
-import { STORE, isProductSold } from "../lib/site";
-
-export const revalidate = 3600; // 1시간마다 sitemap.xml 자동 갱신
-
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = STORE.url;
-
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/gallery`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/llms.txt`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/llms-full.txt`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.85,
-    },
-    {
-      url: `${baseUrl}/purchase`,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 0.85,
-    },
-    {
-      url: `${baseUrl}/inquiry`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.3,
-    },
-  ];
-
-  try {
-    const { data: products } = await supabase
-      .from("products")
-      .select("id, created_at, category, status")
-      .neq("category", "배송인증")
-      .order("created_at", { ascending: false })
-      .limit(200);
-
-    const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p) => {
-      const sold = isProductSold(p.status);
-      return {
-        url: `${baseUrl}/${p.id}`,
-        lastModified: p.created_at ? new Date(p.created_at) : new Date(),
-        changeFrequency: sold ? ("monthly" as const) : ("daily" as const),
-        priority: sold ? 0.4 : 0.8,
-      };
-    });
-
-    return [...staticRoutes, ...productRoutes];
-  } catch {
-    return staticRoutes;
-  }
-}
-
-]]>
-    </file>
-    <file path="CLAUDE.md" lines="2">
-      <![CDATA[
-@AGENTS.md
-
-]]>
-    </file>
-    <file path="components/gallery/gallery-initial-data.tsx" lines="25">
-      <![CDATA[
-"use client";
-
-import { createContext, useContext, type ReactNode } from "react";
-import type { ProductItem } from "../products/product-card";
-
-const GalleryInitialDataContext = createContext<ProductItem[] | null>(null);
-
-export function GalleryInitialDataProvider({
-  products,
-  children,
-}: {
-  products: ProductItem[];
-  children: ReactNode;
-}) {
-  return (
-    <GalleryInitialDataContext.Provider value={products}>
-      {children}
-    </GalleryInitialDataContext.Provider>
-  );
-}
-
-export function useGalleryInitialProducts(): ProductItem[] | null {
-  return useContext(GalleryInitialDataContext);
-}
-
-]]>
-    </file>
-    <file path="components/home/ai-recommendation-guide-section.tsx" lines="230">
-      <![CDATA[
-import React from "react";
-import Link from "next/link";
-import { STORE, telHref } from "../../lib/site";
-import { SectionHeading, Icon, ICON } from "../../lib/ui";
-
-const COMPARISON_ROWS = [
-  {
-    criteria: "고장 시 무상 A/S 보증",
-    personal: "보증 없음 (고장 시 구매자 전액 부담)",
-    hanbat: "최대 8개월(에어컨)·4개월(가전) 무상 A/S 약정보증",
-  },
-  {
-    criteria: "위생 및 작동 점검",
-    personal: "겉면 단순 청소 (내부 곰팡이·냉매 미확인)",
-    hanbat: "엔지니어 분해 고압세척 및 냉매·누수 시운전 완료",
-  },
-  {
-    criteria: "운반 · 수평 · 배관 설치",
-    personal: "직접 용달 섭외 및 운반·설치비 전액 부담",
-    hanbat: "기사 직접 운반 및 수평·급배수 원스톱 설치 지원",
-  },
-  {
-    criteria: "결제 수단 및 증빙",
-    personal: "개인 송금만 가능 (사업자 비용처리 불가)",
-    hanbat: "신용카드·현금영수증·전자세금계산서 100% 발행",
-  },
-  {
-    criteria: "기존 가전 처분 (보상매입)",
-    personal: "폐기물 스티커 구매 후 별도 개별 배출",
-    hanbat: "배송 당일 기존 가전 동시 수거 및 매입가 차감 정산",
-  },
-] as const;
-
-const SITUATION_GUIDES = [
-  {
-    code: "SOLUTION 01",
-    badge: "가정 · 원룸 · 자취 추천",
-    title: "원룸 입주 · 신혼 · 가전 단품 구매",
-    recommend: "소형~양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨",
-    reason:
-      "3종 가전 동시 직배송·수평 설치 지원 및 분해 고압세척 완료로 입주 즉시 사용 가능합니다.",
-    ctaLabel: "가정용 실매물 보러가기",
-    href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
-  },
-  {
-    code: "SOLUTION 02",
-    badge: "식당 · 카페 창업 추천",
-    title: "업소용 냉장 · 쇼케이스 · 주방 패키지",
-    recommend:
-      "45박스 수직냉장고 + 테이블냉장고 + 제빙기 + 쇼케이스 + 식기세척기",
-    reason:
-      "신품 대비 설비 비용 대폭 절감 및 전자세금계산서 100% 발행으로 부가세 환급을 지원합니다.",
-    ctaLabel: "업소용 설비 보러가기",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
-  },
-  {
-    code: "SOLUTION 03",
-    badge: "이사 · 매장 폐업 추천",
-    title: "가정 가전 처분 · 식당/카페 폐업 일괄 매입",
-    recommend: "전면 사진 + 명판 스티커 전송 → 방문 수거 당일 100% 현금 입금",
-    reason:
-      "단품부터 매장 전체 집기까지 원하시는 날짜에 전문 기사 방문 수거 및 현장 즉시 당일 입금해 드립니다.",
-    ctaLabel: "무료 방문 매입 신청하기",
-    href: "/purchase",
-  },
-] as const;
-
-export function AiRecommendationGuideSection() {
-  return (
-    <section
-      id="buying-guide-section"
-      aria-labelledby="buying-guide-title"
-      className="border-b border-[#E5E2DC] bg-[#FAF9F7] py-14 sm:py-20"
-    >
-      <div className="hb-container space-y-12">
-        {/* 1. 개인 직거래 vs 한밭중고전자 비교 테이블 */}
-        <div>
-          <SectionHeading
-            title={
-              <span id="buying-guide-title">
-                일반 개인 중고거래 vs {STORE.name} 직영 매장 비교
-              </span>
-            }
-            desc={
-              <>
-                중고가전과 업소용 설비는 구매 가격만큼이나 &lsquo;내부 세척&rsquo;, &lsquo;운반·설치&rsquo;, &lsquo;사후 A/S 보증&rsquo;이 중요합니다.
-                <br className="hidden sm:inline" /> 구매 전 아래 5가지 비교 기준을 꼭 확인해 보세요.
-              </>
-            }
-          />
-
-          <div className="mt-7 overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-hb-xs sm:text-hb-sm">
-                <thead>
-                  <tr className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
-                    <th
-                      scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-bold w-[24%] min-w-[130px]"
-                    >
-                      비교 항목
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-semibold text-white/60 bg-[#0E1A2B]/90 w-[34%] min-w-[200px]"
-                    >
-                      <span className="inline-block px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-hb-xs mb-1 font-normal">
-                        위험 · 주의
-                      </span>
-                      <p>일반 개인간 중고거래 (직거래 앱 등)</p>
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-extrabold text-white bg-gradient-to-r from-[#16263D] to-[#1E3452] border-t-2 border-[#D9531E] w-[42%] min-w-[240px]"
-                    >
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="inline-flex items-center gap-1 rounded bg-[#B5431A] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
-                          <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
-                          OFFICIAL GUARANTEE
-                        </span>
-                      </div>
-                      <p className="text-white text-hb-sm">
-                        {STORE.name} (SINCE {STORE.since} 직영 쇼룸)
-                      </p>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E5E2DC]">
-                  {COMPARISON_ROWS.map((row) => (
-                    <tr
-                      key={row.criteria}
-                      className="hover:bg-[#FAF9F7] transition-colors"
-                    >
-                      <th
-                        scope="row"
-                        className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FAF9F7]/60"
-                      >
-                        {row.criteria}
-                      </th>
-                      <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] bg-[#FAF9F7]/40 leading-relaxed">
-                        {row.personal}
-                      </td>
-                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF9F6] border-l-2 border-l-[#D9531E] leading-relaxed">
-                        <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
-                          <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#B5431A] shrink-0" />
-                          <span>{row.hanbat}</span>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
-        {/* 2. 상황별 맞춤 추천 가이드 3열 */}
-        <div>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
-            <div>
-              <h3 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
-                고객 상황별 가장 많이 찾는 맞춤 솔루션
-              </h3>
-              <p className="mt-1 text-hb-sm text-[#3E4756]">
-                대전 중구 중촌동 1·2층 직영 매장에서 실물을 직접 확인하시거나
-                전화·카톡으로 즉시 재고 안내를 받으실 수 있습니다.
-              </p>
-            </div>
-            <a
-              href={telHref(STORE.tel)}
-              className="text-hb-xs sm:text-hb-sm font-extrabold text-[#B5431A] hover:underline tabular-nums shrink-0 whitespace-nowrap"
-            >
-              직통 상담: {STORE.tel} / {STORE.mobile}
-            </a>
-          </div>
-
-          <div className="grid gap-4 lg:grid-cols-3">
-            {SITUATION_GUIDES.map((g) => (
-              <article
-                key={g.title}
-                className="group flex flex-col justify-between rounded-xl border border-[#E5E2DC] border-t-4 border-t-[#0E1A2B] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] hover:border-t-4 transition-all hover:shadow-card"
-              >
-                <div>
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-hb-xs font-black text-[#B5431A] tracking-wider">
-                      {g.code}
-                    </span>
-                    <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#B5431A]">
-                      {g.badge}
-                    </span>
-                  </div>
-                  <h4 className="mt-2.5 text-hb-lg font-bold text-[#0E1A2B]">
-                    {g.title}
-                  </h4>
-                  <dl className="mt-3 space-y-2 text-hb-xs sm:text-hb-sm">
-                    <div className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-3 py-2">
-                      <dt className="text-hb-xs font-bold text-[#646E7E]">
-                        주요 구성 품목
-                      </dt>
-                      <dd className="mt-0.5 font-bold text-[#0E1A2B]">
-                        {g.recommend}
-                      </dd>
-                    </div>
-                    <div>
-                      <dt className="sr-only">추천 사유</dt>
-                      <dd className="text-[#3E4756] leading-[1.6] break-keep pt-1 text-hb-xs sm:text-hb-sm">
-                        {g.reason}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-
-                <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
-                  <Link
-                    href={g.href}
-                    className="flex w-full items-center justify-between rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:bg-[#0E1A2B] group-hover:text-white group-hover:border-[#0E1A2B] transition-colors"
-                  >
-                    <span>{g.ctaLabel}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#B5431A] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-]]>
-    </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="367">
-      <![CDATA[
-// 파일 경로: components/home/category-pictogram-bar.tsx
-"use client";
-
-import React from "react";
-import Link from "next/link";
-import {
-  trackEvent,
-  triggerQuickInquiry,
-  type InquiryTypeValue,
-} from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
-import {
-  ModernApplianceIcon,
-  type ModernIconType,
-} from "../ui/modern-icons";
-
-export type PictogramKey =
-  | "all"
-  | "aircon"
-  | "fridge"
-  | "washer"
-  | "small"
-  | "bizFridge"
-  | "showcase"
-  | "kitchen";
-
-export interface ShowroomCategoryItem {
-  key: PictogramKey;
-  label: string;
-  subLabel: string;
-  icon: ModernIconType;
-  imageSrc: string;
-  href: string;
-  filterCategory: string;
-  filterKeyword?: string;
-  group: "all" | "home" | "biz";
-}
-
-export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
-  {
-    key: "all",
-    label: "전체 실매물",
-    subLabel: "전 품목 보기",
-    icon: "all",
-    imageSrc: "/illustrations/picto-fridge.jpg",
-    href: "/gallery",
-    filterCategory: "전체",
-    group: "all",
-  },
-  {
-    key: "aircon",
-    label: "에어컨·냉난방",
-    subLabel: "벽걸이·스탠드·천장형",
-    icon: "aircon",
-    imageSrc: "/illustrations/picto-aircon.jpg",
-    href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
-    filterCategory: "에어컨/냉난방기",
-    group: "home",
-  },
-  {
-    key: "fridge",
-    label: "냉장고·김치냉장",
-    subLabel: "양문형·4도어·일반",
-    icon: "fridge",
-    imageSrc: "/illustrations/picto-fridge.jpg",
-    href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
-    filterCategory: "냉장고",
-    group: "home",
-  },
-  {
-    key: "washer",
-    label: "세탁기·건조기",
-    subLabel: "드럼·통돌이·워시타워",
-    icon: "washer",
-    imageSrc: "/illustrations/picto-washer.jpg",
-    href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
-    filterCategory: "세탁기/건조기",
-    group: "home",
-  },
-  {
-    key: "small",
-    label: "TV·소형가전",
-    subLabel: "TV·전자레인지·기타",
-    icon: "small",
-    imageSrc: "/illustrations/picto-small.jpg",
-    href: "/gallery?category=%EA%B8%B0%ED%83%80",
-    filterCategory: "기타",
-    group: "home",
-  },
-  {
-    key: "bizFridge",
-    label: "업소용 냉장고",
-    subLabel: "25·45박스·테이블냉장",
-    icon: "biz-fridge",
-    imageSrc: "/illustrations/picto-biz-fridge.jpg",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
-    filterCategory: "업소용기기",
-    filterKeyword: "냉장",
-    group: "biz",
-  },
-  {
-    key: "showcase",
-    label: "음료·주류 쇼케이스",
-    subLabel: "음료·주류·제과",
-    icon: "showcase",
-    imageSrc: "/illustrations/picto-showcase.jpg",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
-    filterCategory: "업소용기기",
-    filterKeyword: "쇼케이스",
-    group: "biz",
-  },
-  {
-    key: "kitchen",
-    label: "제빙기·주방설비",
-    subLabel: "제빙기·세척기·작업대",
-    icon: "kitchen",
-    imageSrc: "/illustrations/picto-kitchen.jpg",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
-    filterCategory: "업소용기기",
-    group: "biz",
-  },
-];
-
-const ACTION_BENTO_ITEMS: ReadonlyArray<{
-  label: string;
-  sub: string;
-  icon: ModernIconType;
-  inquiryType?: InquiryTypeValue;
-  scrollTarget?: string;
-}> = [
-  {
-    label: "가전 방문매입",
-    sub: "당일 수거·현금 입금",
-    icon: "sell",
-    inquiryType: "내 물건 팔기",
-  },
-  {
-    label: "식당·카페 폐업정리",
-    sub: "주방설비 일괄 매입·철거",
-    icon: "closure",
-    inquiryType: "대량·업소용 상담",
-  },
-  {
-    label: "창업 패키지 상담",
-    sub: "업종별 맞춤 설비 견적",
-    icon: "startup",
-    inquiryType: "대량·업소용 상담",
-  },
-  {
-    label: "출고·설치 사례",
-    sub: "실제 현장 납품 기록",
-    icon: "shield",
-    scrollTarget: "reviews-section",
-  },
-];
-
-export function CategoryPictogramBar({
-  selectedKey = "all",
-  onSelectCategory,
-  categoryCounts,
-  onSelectInquiry,
-}: {
-  selectedKey?: PictogramKey;
-  onSelectCategory?: (item: ShowroomCategoryItem) => void;
-  categoryCounts?: Partial<Record<PictogramKey, number>>;
-  onSelectInquiry?: (type: InquiryTypeValue) => void;
-}) {
-  const allItem = SHOWROOM_CATEGORIES[0];
-
-  const handleCategoryClick = (item: ShowroomCategoryItem) => {
-    trackEvent("filter_gallery", {
-      category: item.label,
-      location: "top_pictogram_bar",
-    });
-    if (onSelectCategory) {
-      onSelectCategory(item);
-      if (typeof document !== "undefined") {
-        document
-          .getElementById("featured-products-section")
-          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
-    }
-  };
-
-  const handleActionClick = (action: (typeof ACTION_BENTO_ITEMS)[number]) => {
-    if (action.inquiryType) {
-      trackEvent("begin_buyback_inquiry", {
-        location: "category_pictogram_bar",
-      });
-      if (onSelectInquiry) {
-        onSelectInquiry(action.inquiryType);
-      } else {
-        triggerQuickInquiry({ type: action.inquiryType });
-      }
-      return;
-    }
-    if (action.scrollTarget && typeof document !== "undefined") {
-      document
-        .getElementById(action.scrollTarget)
-        ?.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  return (
-    <section
-      id="category-section"
-      aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="border-b border-[#E5E2DC] bg-white py-5 sm:py-7"
-    >
-      <div className="hb-container">
-        {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-[#ECE9E2]">
-          <div className="flex items-center gap-2">
-            <span
-              className="inline-block h-3.5 w-1 rounded-full bg-[#B5431A]"
-              aria-hidden="true"
-            />
-            <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] tracking-tight">
-              품목별 쇼룸 카탈로그
-            </h2>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => handleCategoryClick(allItem)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-extrabold transition-all cursor-pointer ${
-                selectedKey === "all"
-                  ? "bg-[#0E1A2B] text-white shadow-2xs"
-                  : "border border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
-              }`}
-            >
-              <span>전체 실매물</span>
-              {typeof categoryCounts?.all === "number" && (
-                <span className="text-[#FF8A50] tabular-nums">
-                  {categoryCounts.all}대
-                </span>
-              )}
-            </button>
-            <Link
-              href="/gallery"
-              className="inline-flex items-center gap-1 rounded-full border border-[#E5E2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:text-[#B5431A] transition-colors"
-            >
-              <span>갤러리 전체보기</span>
-              <Icon d={ICON.right} className="w-3.5 h-3.5" />
-            </Link>
-          </div>
-        </div>
-
-        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 */}
-        <div className="space-y-3">
-          {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
-          <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-3.5 shadow-card">
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
-              {SHOWROOM_CATEGORIES.map((item) => {
-                const isSelected = selectedKey === item.key;
-                const count = categoryCounts?.[item.key];
-                const isBiz = item.group === "biz";
-
-                return (
-                  <button
-                    key={item.key}
-                    type="button"
-                    onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2 sm:py-3 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
-                      isSelected
-                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
-                        : isBiz
-                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
-                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
-                    }`}
-                  >
-                    {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
-                    {isBiz ? (
-                      <span
-                        className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
-                          isSelected
-                            ? "bg-white/20 text-[#FF8A50]"
-                            : "bg-[#B5431A]/10 text-[#B5431A]"
-                        }`}
-                      >
-                        B2B
-                      </span>
-                    ) : (
-                      <span className="h-4" aria-hidden="true" />
-                    )}
-
-                    <ModernApplianceIcon
-                      name={item.icon}
-                      dark={isSelected}
-                      className="w-10 h-10 sm:w-11 sm:h-11"
-                    />
-
-                    <div className="min-w-0 w-full">
-                      <strong
-                        className={`block text-hb-xs sm:text-hb-sm font-extrabold truncate ${
-                          isSelected
-                            ? "text-white"
-                            : "text-[#0E1A2B] group-hover:text-[#B5431A]"
-                        }`}
-                      >
-                        {item.label}
-                      </strong>
-                      <span
-                        className={`mt-0.5 block text-hb-xs font-medium truncate ${
-                          isSelected
-                            ? "text-[#FF8A50]"
-                            : isBiz
-                            ? "text-[#B5431A] font-bold"
-                            : "text-[#646E7E]"
-                        }`}
-                      >
-                        {typeof count === "number"
-                          ? `${count}대 전시`
-                          : item.subLabel}
-                      </span>
-                    </div>
-
-                    {/* 선택 시 하단 오렌지 인디케이터 바 */}
-                    {isSelected && (
-                      <span
-                        className="h-1 w-8 rounded-full bg-[#FF8A50] mt-0.5"
-                        aria-hidden="true"
-                      />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* 2단: 슬림 인라인 퀵 캡슐 바 (Single-row Quick Action Strip) */}
-          <div className="pt-1 grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {ACTION_BENTO_ITEMS.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => handleActionClick(item)}
-                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-xs transition-all cursor-pointer text-left"
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <ModernApplianceIcon
-                    name={item.icon}
-                    className="w-5 h-5 shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#B5431A] transition-colors truncate">
-                      {item.label}
-                    </span>
-                    <span className="hidden sm:block text-hb-xs text-[#646E7E] truncate">
-                      {item.sub}
-                    </span>
-                  </div>
-                </div>
-                <Icon
-                  d={ICON.right}
-                  className="w-3.5 h-3.5 text-[#6E675C] group-hover:text-[#B5431A] group-hover:translate-x-0.5 transition-all shrink-0"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-]]>
-    </file>
-    <file path="components/home/featured-products-section.tsx" lines="245">
-      <![CDATA[
-// 파일 경로: components/home/featured-products-section.tsx
-"use client";
-
-import React, { useMemo, useState } from "react";
-import Link from "next/link";
-import {
-  isProductSold,
-  normalizeProductCategory,
-  STORE,
-  telHref,
-} from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
-import {
-  ProductCard,
-  type ProductItem,
-} from "../products/product-card";
-import type { ShowroomCategoryItem } from "./category-pictogram-bar";
-
-const INITIAL_DISPLAY_LIMIT = 8;
-
-export function FeaturedProductsSection({
-  products,
-  loading,
-  error,
-  onRetry,
-  selectedCategory,
-  onResetCategory,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onInquireProduct,
-}: {
-  products: ProductItem[];
-  loading: boolean;
-  error: boolean;
-  onRetry: () => void;
-  selectedCategory?: ShowroomCategoryItem;
-  onResetCategory?: () => void;
-  onInquireProduct?: (productTitle: string) => void;
-}) {
-  const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
-
-  const filteredProducts = useMemo(() => {
-    const active = products.filter((p) => !isProductSold(p.status));
-    const source = active.length > 0 ? active : products;
-
-    if (!selectedCategory || selectedCategory.key === "all") {
-      return source;
-    }
-
-    return source.filter((p) => {
-      const cat = normalizeProductCategory(p.category);
-      if (cat !== selectedCategory.filterCategory) return false;
-      if (selectedCategory.filterKeyword) {
-        const hay = `${p.title} ${p.description || ""}`.toLowerCase();
-        return hay.includes(selectedCategory.filterKeyword.toLowerCase());
-      }
-      return true;
-    });
-  }, [products, selectedCategory]);
-
-  const displayedProducts = useMemo(
-    () => filteredProducts.slice(0, visibleCount),
-    [filteredProducts, visibleCount]
-  );
-
-  const totalSellingCount = useMemo(
-    () => products.filter((p) => !isProductSold(p.status)).length,
-    [products]
-  );
-
-  const activeCategoryTitle =
-    selectedCategory && selectedCategory.key !== "all"
-      ? `${selectedCategory.label} 전시 매물`
-      : "실시간 쇼룸 전시 매물";
-
-  const galleryHref = selectedCategory?.href || "/gallery";
-
-  return (
-    <section
-      id="featured-products-section"
-      aria-labelledby="featured-heading"
-      className="border-b border-[#E5E2DC] bg-white py-10 sm:py-14 lg:py-16"
-    >
-      <div className="hb-container">
-        {/* 에디토리얼 쇼룸 헤더 바 */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b-2 border-[#0E1A2B]">
-          <div>
-            <div className="flex items-center gap-2 text-hb-xs font-bold text-[#B5431A]">
-              <span>LIVE SHOWROOM INVENTORY</span>
-              <span>·</span>
-              <span className="text-[#0E1A2B] tabular-nums">
-                현재 구매 가능 총 {totalSellingCount}대
-              </span>
-            </div>
-            <div className="mt-1.5 flex flex-wrap items-baseline gap-3">
-              <h2
-                id="featured-heading"
-                className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B]"
-              >
-                {activeCategoryTitle}
-              </h2>
-              <span className="text-hb-sm font-bold text-[#646E7E] tabular-nums">
-                ({filteredProducts.length}건)
-              </span>
-              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVisibleCount(INITIAL_DISPLAY_LIMIT);
-                    onResetCategory();
-                  }}
-                  className="text-hb-xs font-bold text-[#B5431A] underline underline-offset-4 cursor-pointer"
-                >
-                  전체 품목으로 복귀
-                </button>
-              )}
-            </div>
-            <p className="mt-1 text-hb-sm text-[#3E4756]">
-              대전 중촌동 1·2층 직영 매장에서 분해 고압세척과 시운전 검수를 마친 실매물입니다.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href={galleryHref}
-              className="hb-btn-primary h-11 px-5 text-hb-sm"
-            >
-              <span>상세 필터 · 전체 매물 보기</span>
-              <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
-            </Link>
-          </div>
-        </div>
-
-        {/* 로딩 스켈레톤 상태 */}
-        {loading ? (
-          <div
-            className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
-            aria-hidden="true"
-          >
-            {Array.from({ length: 8 }).map((_, idx) => (
-              <div
-                key={idx}
-                className="overflow-hidden rounded-lg border border-[#E5E2DC] bg-white animate-pulse"
-              >
-                <div className="aspect-[4/3] bg-[#F0EDE7]" />
-                <div className="p-4 space-y-3">
-                  <div className="h-3 w-1/3 rounded bg-[#F0EDE7]" />
-                  <div className="h-5 w-4/5 rounded bg-[#F0EDE7]" />
-                  <div className="h-6 w-1/2 rounded bg-[#F0EDE7] pt-2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : error ? (
-          <div className="mt-8 border-y border-[#E5E2DC] bg-[#FAF9F7] p-8 sm:p-10 text-center">
-            <p className="text-hb-base font-bold text-[#0E1A2B]">
-              실시간 상품 목록을 불러오지 못했습니다.
-            </p>
-            <p className="mt-1.5 text-hb-sm text-[#646E7E]">
-              네트워크 상태를 확인하시거나 잠시 후 다시 시도해 주세요.
-            </p>
-            <button
-              type="button"
-              onClick={onRetry}
-              className="hb-btn-primary mt-5 h-11 px-5 text-hb-sm"
-            >
-              다시 불러오기
-            </button>
-          </div>
-        ) : displayedProducts.length === 0 ? (
-          <div className="mt-8 flex flex-col items-start justify-between gap-6 border-y border-[#E5E2DC] bg-[#FAF9F7] p-6 sm:p-8 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-hb-lg font-bold text-[#0E1A2B]">
-                선택하신 분류의 온라인 등록 매물을 준비 중입니다.
-              </p>
-              <p className="mt-1 text-hb-sm text-[#3E4756]">
-                매장에는 온라인에 미처 올리지 못한 가전과 주방설비가 상시 준비되어 있습니다. 찾으시는 품목을 말씀해 주시면 즉시 재고를 확인해 드립니다.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2.5 shrink-0">
-              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
-                <button
-                  type="button"
-                  onClick={onResetCategory}
-                  className="hb-btn-outline h-11 px-4 text-hb-sm"
-                >
-                  전체 매물 보기
-                </button>
-              )}
-              <a
-                href={telHref(STORE.tel)}
-                className="hb-btn-primary h-11 px-5 text-hb-sm"
-              >
-                <Icon d={ICON.phone} className="w-4 h-4" /> 전화로 재고 확인
-              </a>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch">
-              {displayedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-
-            {/* 하단 더보기 및 전체 갤러리 이동 바 */}
-            <div className="mt-9 pt-6 border-t border-[#ECE9E2] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-hb-xs sm:text-hb-sm text-[#646E7E]">
-                표시 중:{" "}
-                <strong className="font-bold text-[#0E1A2B] tabular-nums">
-                  {displayedProducts.length}
-                </strong>{" "}
-                / 전체{" "}
-                <strong className="font-bold text-[#0E1A2B] tabular-nums">
-                  {filteredProducts.length}
-                </strong>
-                건 · 가격대 필터와 모델명 검색은 전체 갤러리에서 지원합니다.
-              </p>
-
-              <div className="flex flex-wrap items-center gap-2.5">
-                {filteredProducts.length > visibleCount && (
-                  <button
-                    type="button"
-                    onClick={() => setVisibleCount((prev) => prev + 8)}
-                    className="hb-btn-outline h-11 px-5 text-hb-sm font-bold cursor-pointer"
-                  >
-                    <span>이 화면에서 매물 더보기 (+8)</span>
-                    <Icon d={ICON.down} className="w-4 h-4" />
-                  </button>
-                )}
-                <Link
-                  href={galleryHref}
-                  className="hb-btn-primary h-11 px-6 text-hb-sm font-bold"
-                >
-                  <span>전체 판매 제품 갤러리 ({totalSellingCount}대)</span>
-                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
-                </Link>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </section>
   );
 }
 
@@ -28280,7 +28346,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ]]>
     </file>
-    <file path="scripts/check-design-tokens.mjs" lines="107">
+    <file path="scripts/check-design-tokens.mjs" lines="108">
       <![CDATA[
 // 파일 경로: scripts/check-design-tokens.mjs
 // 실행: node scripts/check-design-tokens.mjs
@@ -28290,6 +28356,7 @@ import path from "node:path";
 const ROOT = process.cwd();
 const SCOPED = [
   "app/page.tsx",
+  "components/home/home-page-client.tsx",
   "app/gallery/page.tsx",
   "app/[id]/page.tsx",
   "app/inquiry/page.tsx",
@@ -30206,11 +30273,11 @@ function runVerification() {
   );
   console.log("✓ [PASS] 5. 관리자 대시보드 장기 판매중 재고 점검(30일+) 건수 지표 및 옵션 연계 확인");
 
-  const pageCode = read("app/page.tsx");
+  const pageCode = read("components/home/home-page-client.tsx");
   assert.ok(
     pageCode.includes("설치사례 참고문의") &&
       pageCode.includes("판매 중인 실매물 보기"),
-    "app/page.tsx 라이트박스에 실매물 갤러리 및 설치 사례 견적 문의 브릿지가 연결되어야 합니다."
+    "components/home/home-page-client.tsx 라이트박스에 실매물 갤러리 및 설치 사례 견적 문의 브릿지가 연결되어야 합니다."
   );
   console.log("✓ [PASS] 6. 메인 배송·설치 현장 라이트박스 ↔ 실매물 갤러리 & 맞춤 견적 브릿지 확인");
 

@@ -63,11 +63,11 @@ function runVerification() {
   );
   console.log("✓ [PASS] 5. 관리자 대시보드 장기 판매중 재고 점검(30일+) 건수 지표 및 옵션 연계 확인");
 
-  const pageCode = read("app/page.tsx");
+  const pageCode = read("components/home/home-page-client.tsx");
   assert.ok(
     pageCode.includes("설치사례 참고문의") &&
       pageCode.includes("판매 중인 실매물 보기"),
-    "app/page.tsx 라이트박스에 실매물 갤러리 및 설치 사례 견적 문의 브릿지가 연결되어야 합니다."
+    "components/home/home-page-client.tsx 라이트박스에 실매물 갤러리 및 설치 사례 견적 문의 브릿지가 연결되어야 합니다."
   );
   console.log("✓ [PASS] 6. 메인 배송·설치 현장 라이트박스 ↔ 실매물 갤러리 & 맞춤 견적 브릿지 확인");
 

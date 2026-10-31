@@ -6,6 +6,7 @@ import path from "node:path";
 const ROOT = process.cwd();
 const SCOPED = [
   "app/page.tsx",
+  "components/home/home-page-client.tsx",
   "app/gallery/page.tsx",
   "app/[id]/page.tsx",
   "app/inquiry/page.tsx",
