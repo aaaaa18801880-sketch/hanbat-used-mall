@@ -175,8 +175,18 @@ BEGIN
   FOR pol IN
     SELECT policyname FROM pg_policies
     WHERE schemaname = 'storage' AND tablename = 'objects'
-      AND (coalesce(qual, '') ILIKE '%inquiries%' OR coalesce(with_check, '') ILIKE '%inquiries%')
-      AND policyname NOT IN ('storage_insert_staff_product_photos', 'storage_delete_staff')
+      AND (
+        coalesce(qual, '') ILIKE '%inquiries%' OR
+        coalesce(with_check, '') ILIKE '%inquiries%' OR
+        coalesce(qual, '') ILIKE '%product-images%' OR
+        coalesce(with_check, '') ILIKE '%product-images%'
+      )
+      AND policyname NOT IN (
+        'storage_insert_staff_product_photos',
+        'storage_delete_staff',
+        'storage_insert_inquiry_attachments_public',
+        'storage_select_inquiry_attachments_staff'
+      )
   LOOP
     EXECUTE format('DROP POLICY IF EXISTS %I ON storage.objects', pol.policyname);
   END LOOP;
