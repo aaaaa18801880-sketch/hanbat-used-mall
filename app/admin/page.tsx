@@ -1088,7 +1088,7 @@ export default function IntegratedAdminDashboard() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-[14px] font-semibold text-[#4B5260]">
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-hb-sm font-semibold text-[#4B5260]">
         관리자 권한을 확인하고 있습니다...
       </div>
     );
@@ -1099,13 +1099,13 @@ export default function IntegratedAdminDashboard() {
       <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
         <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E2DC] w-full max-w-sm">
           <div className="text-center mb-6">
-            <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-[10.5px] font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
+            <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
               Admin Console
             </span>
-            <h1 className="mt-2 text-[21px] font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+            <h1 className="mt-2 text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
               한밭중고전자 통합 관리자
             </h1>
-            <p className="mt-1 text-[13px] text-[#6B7280]">
+            <p className="mt-1 text-hb-sm text-[#6B7280]">
               인가된 관리자 계정으로 로그인해야 접근할 수 있습니다.
             </p>
           </div>
@@ -1135,7 +1135,7 @@ export default function IntegratedAdminDashboard() {
             <button
               type="submit"
               disabled={loggingIn}
-              className="hb-btn-primary h-12 w-full text-[14.5px]"
+              className="hb-btn-primary h-12 w-full text-hb-sm"
             >
               {loggingIn ? "인증 확인 중..." : "관리자 로그인"}
             </button>
@@ -1143,7 +1143,7 @@ export default function IntegratedAdminDashboard() {
           <div className="mt-5 pt-4 border-t border-[#EEEBE5] text-center">
             <Link
               href="/"
-              className="text-[12.5px] font-semibold text-[#6B7280] hover:text-[#0E1A2B] underline underline-offset-4"
+              className="text-hb-xs font-semibold text-[#6B7280] hover:text-[#0E1A2B] underline underline-offset-4"
             >
               ← 고객용 홈 화면으로 돌아가기
             </Link>
@@ -1160,14 +1160,14 @@ export default function IntegratedAdminDashboard() {
         <div className="hb-container py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded-sm bg-[#D9531E] px-2 py-0.5 text-[10.5px] font-extrabold tracking-wider">
+              <span className="rounded-sm bg-[#B5431A] px-2 py-0.5 text-hb-xs font-extrabold tracking-wider">
                 ADMIN
               </span>
-              <h1 className="text-[17px] sm:text-[20px] font-extrabold tracking-[-0.02em]">
+              <h1 className="text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.02em]">
                 한밭중고전자 통합 운영 대시보드
               </h1>
             </div>
-            <p className="text-[11.5px] text-white/65 mt-0.5 font-mono">
+            <p className="text-hb-xs text-white/65 mt-0.5 font-mono">
               접속 계정: {adminUserEmail}
             </p>
           </div>
@@ -1177,26 +1177,26 @@ export default function IntegratedAdminDashboard() {
               type="button"
               onClick={fetchAllAdminData}
               disabled={loadingData}
-              className="rounded border border-white/20 bg-white/10 px-2.5 sm:px-3 py-1.5 text-[12px] font-bold hover:bg-white/20 transition-colors"
+              className="rounded border border-white/20 bg-white/10 px-2.5 sm:px-3 py-1.5 text-hb-xs font-bold hover:bg-white/20 transition-colors"
             >
               {loadingData ? "갱신 중..." : "↻ 데이터 새로고침"}
             </button>
             <Link
               href="/gallery"
-              className="hidden sm:inline-flex rounded border border-white/20 bg-white/10 px-3 py-1.5 text-[12px] font-semibold hover:bg-white/20 transition-colors"
+              className="hidden sm:inline-flex rounded border border-white/20 bg-white/10 px-3 py-1.5 text-hb-xs font-semibold hover:bg-white/20 transition-colors"
             >
               갤러리 관리
             </Link>
             <Link
               href="/"
-              className="rounded border border-white/20 bg-white/10 px-2.5 sm:px-3 py-1.5 text-[12px] font-semibold hover:bg-white/20 transition-colors"
+              className="rounded border border-white/20 bg-white/10 px-2.5 sm:px-3 py-1.5 text-hb-xs font-semibold hover:bg-white/20 transition-colors"
             >
               사이트 보기
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded bg-red-600/90 px-2.5 sm:px-3 py-1.5 text-[12px] font-bold text-white hover:bg-red-700 transition-colors ml-1"
+              className="rounded bg-red-600/90 px-2.5 sm:px-3 py-1.5 text-hb-xs font-bold text-white hover:bg-red-700 transition-colors ml-1"
             >
               로그아웃
             </button>
@@ -1245,7 +1245,7 @@ export default function IntegratedAdminDashboard() {
                 key={t.id}
                 type="button"
                 onClick={() => setActiveTab(t.id)}
-                className={`px-3.5 sm:px-4 py-2.5 text-[12.5px] sm:text-[13px] font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
+                className={`px-3.5 sm:px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
                   active
                     ? "bg-[#FAF9F7] text-[#0E1A2B]"
                     : "text-white/75 hover:text-white hover:bg-white/10"
@@ -1254,9 +1254,9 @@ export default function IntegratedAdminDashboard() {
                 <span>{t.label}</span>
                 {t.badge !== null && (
                   <span
-                    className={`rounded-full px-1.5 py-0.5 text-[11px] font-extrabold tabular-nums ${
+                    className={`rounded-full px-1.5 py-0.5 text-hb-xs font-extrabold tabular-nums ${
                       t.highlight
-                        ? "bg-[#D9531E] text-white"
+                        ? "bg-[#B5431A] text-white"
                         : active
                         ? "bg-[#0E1A2B]/10 text-[#0E1A2B]"
                         : "bg-white/15 text-white/85"
@@ -1286,12 +1286,12 @@ export default function IntegratedAdminDashboard() {
             className="text-left rounded-xl border border-[#FADCD0] bg-[#FFF5F0] p-4 hover:border-[#D9531E] transition-colors shadow-2xs"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-[11.5px] sm:text-[12px] font-bold text-[#B5431A]">
+              <span className="text-hb-xs sm:text-hb-xs font-bold text-[#B5431A]">
                 우선 확인 필요 (접수·검토중)
               </span>
-              <span className="h-2 w-2 rounded-full bg-[#D9531E]" />
+              <span className="h-2 w-2 rounded-full bg-[#B5431A]" />
             </div>
-            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#D9531E] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#B5431A] tabular-nums">
               {metrics.priorityCount}건
             </p>
           </button>
@@ -1304,12 +1304,12 @@ export default function IntegratedAdminDashboard() {
             }}
             className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
-            <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
+            <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               전체 문의 · 매입 신청
             </span>
-            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#0E1A2B] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#0E1A2B] tabular-nums">
               {metrics.totalInquiries}건{" "}
-              <span className="text-[12px] sm:text-[13px] font-semibold text-[#6B7280]">
+              <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#6B7280]">
                 (매입 {metrics.buybackCount})
               </span>
             </p>
@@ -1320,12 +1320,12 @@ export default function IntegratedAdminDashboard() {
             onClick={() => setActiveTab("products")}
             className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
-            <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
+            <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               현재 판매중 / 예약중 재고
             </span>
-            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#0E1A2B] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#0E1A2B] tabular-nums">
               {metrics.sellingProducts}건{" "}
-              <span className="text-[12px] sm:text-[13px] font-semibold text-amber-700">
+              <span className="text-hb-xs sm:text-hb-sm font-semibold text-amber-700">
                 (예약 {metrics.reservedProducts})
               </span>
             </p>
@@ -1336,12 +1336,12 @@ export default function IntegratedAdminDashboard() {
             onClick={() => setActiveTab("delivery")}
             className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
-            <span className="text-[11.5px] sm:text-[12px] font-bold text-[#6B7280] block">
+            <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               판매완료 / 배송사례
             </span>
-            <p className="mt-1.5 text-[24px] sm:text-[28px] font-extrabold text-[#4B5260] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#4B5260] tabular-nums">
               {metrics.soldProducts}건{" "}
-              <span className="text-[12px] sm:text-[13px] font-semibold text-[#6B7280]">
+              <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#6B7280]">
                 (사례 {metrics.deliveryCount})
               </span>
             </p>
@@ -1353,10 +1353,10 @@ export default function IntegratedAdminDashboard() {
           <section className="rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 shadow-2xs space-y-5">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E5E2DC] pb-4">
               <div>
-                <h2 className="text-[17px] sm:text-[18px] font-extrabold text-[#0E1A2B]">
+                <h2 className="text-hb-lg sm:text-hb-lg font-extrabold text-[#0E1A2B]">
                   고객 문의 및 매입 신청 통합 관리
                 </h2>
-                <p className="mt-0.5 text-[12.5px] sm:text-[13px] text-[#6B7280]">
+                <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#6B7280]">
                   신규 접수 건을 우선 확인하고, 진행 상태를 명시적으로 선택하여 변경하거나 답변을 등록하세요.
                 </p>
               </div>
@@ -1365,11 +1365,11 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqStatusFilter}
                   onChange={(e) => setInqStatusFilter(e.target.value)}
-                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-[12.5px] sm:text-[13px] font-bold text-[#0E1A2B]"
+                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]"
                 >
-                  <option value="priority">⚡ 미처리 신규(접수·검토중)만</option>
+                  <option value="priority">미처리 신규(접수·검토중)만</option>
                   <option value="전체">전체 상태 보기</option>
-                  <option value="notice">📢 등록된 공지사항만 보기</option>
+                  <option value="notice">등록된 공지사항만 보기</option>
                   {INQUIRY_ADMIN_STATUS_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label} 상태만
@@ -1380,7 +1380,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqTypeFilter}
                   onChange={(e) => setInqTypeFilter(e.target.value)}
-                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-[12.5px] sm:text-[13px] font-semibold text-[#4B5260]"
+                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#4B5260]"
                 >
                   <option value="전체">모든 문의 유형</option>
                   <option value="내 물건 팔기">내 물건 팔기 (매입)</option>
@@ -1394,13 +1394,13 @@ export default function IntegratedAdminDashboard() {
                   value={inqKeyword}
                   onChange={(e) => setInqKeyword(e.target.value)}
                   placeholder="고객명·연락처·제목 검색"
-                  className="h-9 flex-1 sm:flex-none rounded border border-[#DDD9D1] px-3 text-[12.5px] sm:text-[13px]"
+                  className="h-9 flex-1 sm:flex-none rounded border border-[#DDD9D1] px-3 text-hb-xs sm:text-hb-sm"
                 />
               </div>
             </div>
 
             {filteredInquiries.length === 0 ? (
-              <div className="py-12 text-center text-[14px] text-[#8A8478]">
+              <div className="py-12 text-center text-hb-sm text-[#6E675C]">
                 해당 조건에 맞는 문의/매입 신청 내역이 없습니다.
               </div>
             ) : (
@@ -1423,40 +1423,40 @@ export default function IntegratedAdminDashboard() {
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             {isPriority && !req.is_notice && (
-                              <span className="rounded-sm bg-[#D9531E] px-2 py-0.5 text-[11px] font-bold text-white">
+                              <span className="rounded-sm bg-[#B5431A] px-2 py-0.5 text-hb-xs font-bold text-white">
                                 우선 확인
                               </span>
                             )}
-                            <span className="rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-[11px] font-bold text-white">
+                            <span className="rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-bold text-white">
                               {req.is_notice ? "공지" : req.status || "접수"}
                             </span>
-                            <span className="rounded-sm bg-[#F2F0EC] px-2 py-0.5 text-[11.5px] font-bold text-[#4B5260]">
+                            <span className="rounded-sm bg-[#F2F0EC] px-2 py-0.5 text-hb-xs font-bold text-[#4B5260]">
                               {req.is_notice ? "공지사항" : req.inquiry_type || "문의"}
                             </span>
-                            <span className="text-[11.5px] sm:text-[12px] text-[#8A8478] tabular-nums">
+                            <span className="text-hb-xs sm:text-hb-xs text-[#6E675C] tabular-nums">
                               {new Date(req.created_at).toLocaleString("ko-KR")}
                             </span>
                           </div>
 
-                          <h3 className="text-[15.5px] sm:text-[16px] font-bold text-[#0E1A2B] pt-1">
+                          <h3 className="text-hb-base sm:text-hb-base font-bold text-[#0E1A2B] pt-1">
                             {req.category}
                           </h3>
 
-                          <p className="text-[13px] sm:text-[13.5px] text-[#4B5260] flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <p className="text-hb-sm sm:text-hb-sm text-[#4B5260] flex flex-wrap items-center gap-x-3 gap-y-1">
                             <span>
                               접수자: <strong className="text-[#0E1A2B]">{req.name}</strong>
                             </span>
                             {req.phone && (
                               <a
                                 href={telHref(req.phone)}
-                                className="font-bold text-[#D9531E] underline tabular-nums"
+                                className="font-bold text-[#B5431A] underline tabular-nums"
                               >
-                                📞 {req.phone}
+                                {req.phone}
                               </a>
                             )}
                             {req.region && (
                               <span className="text-[#6B7280]">
-                                📍 지역: {req.region}
+                                지역: {req.region}
                               </span>
                             )}
                           </p>
@@ -1465,7 +1465,7 @@ export default function IntegratedAdminDashboard() {
                         <div className="flex flex-wrap items-center gap-2 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-[#F2EFE9]">
                           {!req.is_notice && (
                             <>
-                              <label className="text-[12px] font-bold text-[#6B7280]">
+                              <label className="text-hb-xs font-bold text-[#6B7280]">
                                 상태:
                               </label>
                               <select
@@ -1478,7 +1478,7 @@ export default function IntegratedAdminDashboard() {
                                     e.target.value
                                   )
                                 }
-                                className="h-9 rounded border border-[#0E1A2B] bg-white px-2.5 text-[12.5px] font-bold text-[#0E1A2B]"
+                                className="h-9 rounded border border-[#0E1A2B] bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B]"
                               >
                                 {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
                                   <option key={opt.value} value={opt.value}>
@@ -1495,7 +1495,7 @@ export default function IntegratedAdminDashboard() {
                                   );
                                   setReplyDraft(req.admin_reply || "");
                                 }}
-                                className="h-9 rounded bg-[#0E1A2B] px-3 text-[12px] font-bold text-white hover:bg-[#1C2D47]"
+                                className="h-9 rounded bg-[#0E1A2B] px-3 text-hb-xs font-bold text-white hover:bg-[#1C2D47]"
                               >
                                 {req.admin_reply ? "답변 수정" : "답변 작성"}
                               </button>
@@ -1504,18 +1504,18 @@ export default function IntegratedAdminDashboard() {
                                 type="button"
                                 disabled={busyActionId === `notify-telegram-${req.id}`}
                                 onClick={() => handleManualNotificationDispatch("telegram", req)}
-                                className="h-9 rounded border border-[#0E1A2B]/30 bg-white px-2.5 text-[12px] font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
+                                className="h-9 rounded border border-[#0E1A2B]/30 bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
                                 title="텔레그램 알림 수동 재전송"
                               >
-                                ✈️ 텔레그램
+                                텔레그램
                               </button>
                               <button
                                 type="button"
                                 disabled
-                                className="h-9 rounded border border-gray-200 bg-gray-100 px-2.5 text-[12px] font-semibold text-gray-400 cursor-not-allowed opacity-75"
+                                className="h-9 rounded border border-gray-200 bg-gray-100 px-2.5 text-hb-xs font-semibold text-gray-400 cursor-not-allowed opacity-75"
                                 title="알림톡은 대행사 API 연동 준비 중입니다 (텔레그램 알림 활성)"
                               >
-                                💬 알림톡 연동 준비중
+                                알림톡 연동 준비중
                               </button>
                             </>
                           )}
@@ -1526,7 +1526,7 @@ export default function IntegratedAdminDashboard() {
                             onClick={() =>
                               handleDeleteInquiry(req.id, req.category)
                             }
-                            className="h-9 rounded border border-red-200 bg-red-50 px-2.5 text-[12px] font-bold text-red-600 hover:bg-red-100 ml-auto md:ml-1"
+                            className="h-9 rounded border border-red-200 bg-red-50 px-2.5 text-hb-xs font-bold text-red-600 hover:bg-red-100 ml-auto md:ml-1"
                           >
                             삭제
                           </button>
@@ -1540,7 +1540,7 @@ export default function IntegratedAdminDashboard() {
                           );
                           if (!parsed.isStructured) {
                             return (
-                              <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                              <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
                                 {req.description}
                               </div>
                             );
@@ -1549,9 +1549,9 @@ export default function IntegratedAdminDashboard() {
                             <div className="mt-3 space-y-2.5">
                               {(parsed.structuredLines.length > 0 ||
                                 parsed.bulkItems.length > 0) && (
-                                <div className="rounded-md border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3.5 text-[13px] space-y-2">
-                                  <strong className="text-[12px] font-extrabold text-[#0E1A2B] block">
-                                    📋 고객 확인 상담 조건 ({req.inquiry_type})
+                                <div className="rounded-md border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3.5 text-hb-sm space-y-2">
+                                  <strong className="text-hb-xs font-extrabold text-[#0E1A2B] block">
+                                    고객 확인 상담 조건 ({req.inquiry_type})
                                   </strong>
                                   {parsed.structuredLines.length > 0 && (
                                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
@@ -1574,10 +1574,10 @@ export default function IntegratedAdminDashboard() {
                                   )}
                                   {parsed.bulkItems.length > 0 && (
                                     <div className="pt-1.5 border-t border-[#E4E0D8]">
-                                      <span className="text-[11.5px] font-bold text-[#D9531E] block mb-1">
-                                        📦 요청 장비 및 희망 수량 목록
+                                      <span className="text-hb-xs font-bold text-[#B5431A] block mb-1">
+                                        요청 장비 및 희망 수량 목록
                                       </span>
-                                      <ul className="space-y-1 text-[12.5px] font-medium text-[#0E1A2B]">
+                                      <ul className="space-y-1 text-hb-xs font-medium text-[#0E1A2B]">
                                         {parsed.bulkItems.map((it, idx) => (
                                           <li
                                             key={idx}
@@ -1593,9 +1593,9 @@ export default function IntegratedAdminDashboard() {
                               )}
 
                               {parsed.customerContent && (
-                                <div className="rounded bg-[#FAF9F7] p-3.5 text-[13.5px] text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
-                                  <span className="block text-[11px] font-bold text-[#6B7280] mb-1">
-                                    ✍️ 고객 작성 본문
+                                <div className="rounded bg-[#FAF9F7] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                                  <span className="block text-hb-xs font-bold text-[#6B7280] mb-1">
+                                    고객 작성 본문
                                   </span>
                                   {parsed.customerContent}
                                 </div>
@@ -1603,9 +1603,9 @@ export default function IntegratedAdminDashboard() {
 
                               {(parsed.aiSummaryLines.length > 0 ||
                                 parsed.missingAndQuestions.length > 0) && (
-                                <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-[12px] text-amber-950 space-y-1">
+                                <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-hb-xs text-amber-950 space-y-1">
                                   <strong className="block text-amber-900">
-                                    🤖 AI 사진 판독 참고 요약 (고객 확정 사실과 구분하여 확인하세요)
+                                    AI 사진 판독 참고 요약 (고객 확정 사실과 구분하여 확인하세요)
                                   </strong>
                                   {parsed.aiSummaryLines.map((line, idx) => (
                                     <p key={idx}>• {line}</p>
@@ -1615,7 +1615,7 @@ export default function IntegratedAdminDashboard() {
                                       key={idx}
                                       className="font-semibold text-[#B5431A]"
                                     >
-                                      ⚠️ {q}
+                                      {q}
                                     </p>
                                   ))}
                                 </div>
@@ -1646,7 +1646,7 @@ export default function IntegratedAdminDashboard() {
                       )}
 
                       {req.admin_reply && activeReplyId !== req.id && (
-                        <div className="mt-3 rounded border border-[#FADCD0] bg-[#FFF5F0] p-3 text-[13px] text-[#4B5260]">
+                        <div className="mt-3 rounded border border-[#FADCD0] bg-[#FFF5F0] p-3 text-hb-sm text-[#4B5260]">
                           <strong className="text-[#B5431A] block mb-1">
                             등록된 관리자 답변:
                           </strong>
@@ -1657,7 +1657,7 @@ export default function IntegratedAdminDashboard() {
                       {activeReplyId === req.id && (
                         <div className="mt-3 space-y-2 border-t border-[#EEEBE5] pt-3">
                           <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-[11.5px] font-bold text-[#6B7280] mr-1">
+                            <span className="text-hb-xs font-bold text-[#6B7280] mr-1">
                               빠른 답변 템플릿:
                             </span>
                             {ADMIN_REPLY_TEMPLATES.map((tpl) => (
@@ -1665,7 +1665,7 @@ export default function IntegratedAdminDashboard() {
                                 key={tpl.label}
                                 type="button"
                                 onClick={() => setReplyDraft(tpl.text)}
-                                className="rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1 text-[11.5px] font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                                className="rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
                               >
                                 + {tpl.label}
                               </button>
@@ -1676,13 +1676,13 @@ export default function IntegratedAdminDashboard() {
                             value={replyDraft}
                             onChange={(e) => setReplyDraft(e.target.value)}
                             placeholder="고객에게 안내할 답변 내용을 입력하세요."
-                            className="hb-input text-[13.5px]"
+                            className="hb-input text-hb-sm"
                           />
                           <div className="flex justify-end gap-2">
                             <button
                               type="button"
                               onClick={() => setActiveReplyId(null)}
-                              className="hb-btn-outline h-9 px-4 text-[12.5px]"
+                              className="hb-btn-outline h-9 px-4 text-hb-xs"
                             >
                               취소
                             </button>
@@ -1690,7 +1690,7 @@ export default function IntegratedAdminDashboard() {
                               type="button"
                               disabled={busyActionId === `inq-reply-${req.id}`}
                               onClick={() => handleSaveInquiryReply(req.id)}
-                              className="hb-btn-primary h-9 px-5 text-[12.5px]"
+                              className="hb-btn-primary h-9 px-5 text-hb-xs"
                             >
                               답변 저장 및 답변완료 처리
                             </button>
@@ -1699,7 +1699,7 @@ export default function IntegratedAdminDashboard() {
                       )}
 
                       {tgLog && (
-                        <div className="mt-2 text-[12px] text-[#6B7280]">
+                        <div className="mt-2 text-hb-xs text-[#6B7280]">
                           최근 텔레그램 발송 상태:{" "}
                           <strong>{tgLog.statusLabel}</strong> — {tgLog.message}
                         </div>
@@ -1717,21 +1717,21 @@ export default function IntegratedAdminDashboard() {
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <div className="flex items-center justify-between">
-                <h2 className="text-[17px] font-bold text-[#0E1A2B]">
+                <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                   {editingProductId ? "상품 정보 수정" : "신규 상품 등록 (AI 보조)"}
                 </h2>
                 {editingProductId && (
                   <button
                     type="button"
                     onClick={resetProductForm}
-                    className="text-[12px] font-bold text-[#D9531E] underline"
+                    className="text-hb-xs font-bold text-[#B5431A] underline"
                   >
                     신규 등록으로 전환
                   </button>
                 )}
               </div>
 
-              <form onSubmit={handleSaveProduct} className="space-y-4 text-[13.5px]">
+              <form onSubmit={handleSaveProduct} className="space-y-4 text-hb-sm">
                 {/* 수정 모드 시 기존 사진 관리 UI */}
                 {editingProductId && editingExistingImages.length > 0 && (
                   <div>
@@ -1739,7 +1739,7 @@ export default function IntegratedAdminDashboard() {
                       <span className="hb-label">
                         기존 등록 사진 ({editingExistingImages.length}장)
                       </span>
-                      <span className="text-[11px] font-semibold text-[#D9531E]">
+                      <span className="text-hb-xs font-semibold text-[#B5431A]">
                         1번 사진이 대표 이미지입니다
                       </span>
                     </div>
@@ -1755,7 +1755,7 @@ export default function IntegratedAdminDashboard() {
                             className="h-full w-full object-cover"
                           />
                           {idx === 0 ? (
-                            <span className="absolute left-1 top-1 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                            <span className="absolute left-1 top-1 rounded-sm bg-[#B5431A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                               대표
                             </span>
                           ) : (
@@ -1768,7 +1768,7 @@ export default function IntegratedAdminDashboard() {
                                   return [picked, ...next];
                                 })
                               }
-                              className="absolute left-1 top-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-[#D9531E]"
+                              className="absolute left-1 top-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#B5431A]"
                             >
                               대표 지정
                             </button>
@@ -1795,7 +1795,7 @@ export default function IntegratedAdminDashboard() {
                   <label className="hb-label">
                     {editingProductId ? "추가할 상품 사진" : "상품 사진 (최대 3장)"}
                   </label>
-                  <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E4E0D8] bg-[#FAF9F7] p-2.5 text-[12px]">
+                  <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E4E0D8] bg-[#FAF9F7] p-2.5 text-hb-xs">
                     <label className="flex items-center gap-2 font-semibold text-[#0E1A2B] cursor-pointer">
                       <input
                         type="checkbox"
@@ -1810,7 +1810,7 @@ export default function IntegratedAdminDashboard() {
                         type="button"
                         disabled={analyzingProduct}
                         onClick={() => runGeminiProductAnalysis(prodFiles)}
-                        className="font-bold text-[#D9531E] underline"
+                        className="font-bold text-[#B5431A] underline"
                       >
                         AI 재분석
                       </button>
@@ -1823,15 +1823,15 @@ export default function IntegratedAdminDashboard() {
                     multiple
                     disabled={analyzingProduct}
                     onChange={handleProductFileChange}
-                    className="w-full text-[12px]"
+                    className="w-full text-hb-xs"
                   />
-                  <p className="mt-1 text-[11px] font-semibold text-[#646E7E]">
+                  <p className="mt-1 text-hb-xs font-semibold text-[#646E7E]">
                     업로드 즉시 쇼룸 스튜디오 톤업(밝기 +20%·대비 +9%)이 자동 적용됩니다.
                     더 밝게 하고 싶은 사진은 썸네일의 스파클 버튼을 눌러 한 단계 더 올릴 수 있습니다.
                   </p>
 
                   {analyzingProduct && (
-                    <p className="mt-2 rounded bg-[#FFF5F0] p-2.5 text-[12px] font-bold text-[#D9531E] animate-pulse">
+                    <p className="mt-2 rounded bg-[#FFF5F0] p-2.5 text-hb-xs font-bold text-[#B5431A] animate-pulse">
                       AI가 사진 판독 및 사양 초안을 작성 중입니다...
                     </p>
                   )}
@@ -1852,7 +1852,7 @@ export default function IntegratedAdminDashboard() {
                             />
                             {editingExistingImages.length === 0 &&
                             index === 0 ? (
-                              <span className="absolute top-1 left-1 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                              <span className="absolute top-1 left-1 rounded-sm bg-[#B5431A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                                 대표
                               </span>
                             ) : (
@@ -1860,7 +1860,7 @@ export default function IntegratedAdminDashboard() {
                                 <button
                                   type="button"
                                   onClick={() => makePrimaryProdFile(index)}
-                                  className="absolute top-1 left-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-[10px] font-bold text-white hover:bg-[#D9531E]"
+                                  className="absolute top-1 left-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#B5431A]"
                                 >
                                   대표 지정
                                 </button>
@@ -1881,7 +1881,7 @@ export default function IntegratedAdminDashboard() {
                               }
                               title="한 단계 더 밝게 (밝기 +12%, 대비 +4%)"
                               aria-label="한 단계 더 밝게 보정"
-                              className="absolute bottom-1 right-8 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E] transition-colors"
+                              className="absolute bottom-1 right-8 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#B5431A] transition-colors"
                             >
                               <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#FF8A50]" />
                             </button>
@@ -1890,12 +1890,12 @@ export default function IntegratedAdminDashboard() {
                               onClick={() => rotateProdFile(index, 90)}
                               title="시계방향 90도 회전"
                               aria-label="시계방향 90도 회전"
-                              className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E]"
+                              className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#B5431A]"
                             >
                               <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-[10.5px] font-bold text-[#4B5260]">
+                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-hb-xs font-bold text-[#4B5260]">
                             <button
                               type="button"
                               disabled={index === 0}
@@ -1923,7 +1923,7 @@ export default function IntegratedAdminDashboard() {
                 {(aiPhotoObserved.length > 0 ||
                   aiSearchSpecs.length > 0 ||
                   aiWarnings.length > 0) && (
-                  <div className="rounded border border-[#E4E0D8] bg-[#FAF9F7] p-3 text-[12px] space-y-2">
+                  <div className="rounded border border-[#E4E0D8] bg-[#FAF9F7] p-3 text-hb-xs space-y-2">
                     {aiPhotoObserved.length > 0 && (
                       <div>
                         <strong className="text-[#0E1A2B]">
@@ -1945,7 +1945,7 @@ export default function IntegratedAdminDashboard() {
                           <button
                             type="button"
                             onClick={appendSearchSpecsToAdminDesc}
-                            className="text-[11px] font-bold text-[#D9531E] underline"
+                            className="text-hb-xs font-bold text-[#B5431A] underline"
                           >
                             + 설명란에 반영
                           </button>
@@ -1959,12 +1959,12 @@ export default function IntegratedAdminDashboard() {
                     )}
                     {aiSourceNote && (
                       <p className="text-[#B5431A] font-semibold">
-                        ℹ️ {aiSourceNote}
+                        {aiSourceNote}
                       </p>
                     )}
                     {aiWarnings.length > 0 && (
                       <div className="rounded bg-amber-50 border border-amber-200 p-2 text-amber-900">
-                        <strong>⚠️ 담당자 확인 필요 항목:</strong>
+                        <strong>담당자 확인 필요 항목:</strong>
                         <ul className="list-disc pl-4">
                           {aiWarnings.map((w, i) => (
                             <li key={i}>{w}</li>
@@ -1973,7 +1973,7 @@ export default function IntegratedAdminDashboard() {
                       </div>
                     )}
                     {aiSources.length > 0 && (
-                      <div className="text-[11px]">
+                      <div className="text-hb-xs">
                         근거 출처:{" "}
                         {aiSources.map((u, i) => (
                           <a
@@ -1997,7 +1997,7 @@ export default function IntegratedAdminDashboard() {
                     <select
                       value={prodCategory}
                       onChange={(e) => setProdCategory(e.target.value)}
-                      className="hb-input mt-1 py-2 text-[13px] font-semibold"
+                      className="hb-input mt-1 py-2 text-hb-sm font-semibold"
                     >
                       {PRODUCT_CATEGORIES.map((c) => (
                         <option key={c} value={c}>
@@ -2011,7 +2011,7 @@ export default function IntegratedAdminDashboard() {
                     <select
                       value={prodStatus}
                       onChange={(e) => setProdStatus(e.target.value)}
-                      className="hb-input mt-1 py-2 text-[13px] font-semibold"
+                      className="hb-input mt-1 py-2 text-hb-sm font-semibold"
                     >
                       {PRODUCT_STATUS_LIST.map((s) => (
                         <option key={s} value={s}>
@@ -2041,7 +2041,7 @@ export default function IntegratedAdminDashboard() {
                       type="text"
                       value={prodModel}
                       onChange={(e) => setProdModel(e.target.value)}
-                      className="hb-input mt-1 py-2 font-mono text-[13px]"
+                      className="hb-input mt-1 py-2 font-mono text-hb-sm"
                     />
                   </div>
                   <div>
@@ -2060,7 +2060,7 @@ export default function IntegratedAdminDashboard() {
                   <select
                     value={prodGrade}
                     onChange={(e) => setProdGrade(e.target.value)}
-                    className="hb-input mt-1 py-2 text-[13px] font-semibold"
+                    className="hb-input mt-1 py-2 text-hb-sm font-semibold"
                   >
                     {PRODUCT_CONDITION_GRADES.map((g) => (
                       <option key={g} value={g}>
@@ -2078,14 +2078,14 @@ export default function IntegratedAdminDashboard() {
                     rows={6}
                     value={prodDesc}
                     onChange={(e) => setProdDesc(e.target.value)}
-                    className="hb-input mt-1 font-mono text-[12.5px]"
+                    className="hb-input mt-1 font-mono text-hb-xs"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={savingProduct || analyzingProduct}
-                  className="hb-btn-primary h-11 w-full text-[14px]"
+                  className="hb-btn-primary h-11 w-full text-hb-sm"
                 >
                   {savingProduct
                     ? "저장 처리 중..."
@@ -2099,14 +2099,14 @@ export default function IntegratedAdminDashboard() {
             {/* 우측: 등록된 상품 목록 및 명시적 상태 변경 */}
             <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
-                <h2 className="text-[17px] font-bold text-[#0E1A2B]">
+                <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                   재고 목록 ({filteredProducts.length}건)
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   <select
                     value={prodCategoryFilter}
                     onChange={(e) => setProdCategoryFilter(e.target.value)}
-                    className="h-9 rounded border border-[#DDD9D1] px-2 text-[12.5px]"
+                    className="h-9 rounded border border-[#DDD9D1] px-2 text-hb-xs"
                   >
                     <option value="전체">전체 카테고리</option>
                     {PRODUCT_CATEGORIES.map((c) => (
@@ -2118,7 +2118,7 @@ export default function IntegratedAdminDashboard() {
                   <select
                     value={prodStatusFilter}
                     onChange={(e) => setProdStatusFilter(e.target.value)}
-                    className="h-9 rounded border border-[#DDD9D1] px-2 text-[12.5px]"
+                    className="h-9 rounded border border-[#DDD9D1] px-2 text-hb-xs"
                   >
                     <option value="전체">전체 상태</option>
                     {PRODUCT_STATUS_LIST.map((s) => (
@@ -2127,7 +2127,7 @@ export default function IntegratedAdminDashboard() {
                       </option>
                     ))}
                     <option value="stale30">
-                      ⚡ 30일+ 장기 판매중 점검 ({metrics.staleSellingProducts}건)
+                      30일+ 장기 판매중 점검 ({metrics.staleSellingProducts}건)
                     </option>
                   </select>
                   <input
@@ -2135,16 +2135,16 @@ export default function IntegratedAdminDashboard() {
                     value={prodKeyword}
                     onChange={(e) => setProdKeyword(e.target.value)}
                     placeholder="상품명·사양 검색"
-                    className="h-9 rounded border border-[#DDD9D1] px-2.5 text-[12.5px]"
+                    className="h-9 rounded border border-[#DDD9D1] px-2.5 text-hb-xs"
                   />
                 </div>
               </div>
 
               {metrics.staleSellingProducts > 0 && prodStatusFilter !== "stale30" && (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-[12.5px] text-amber-900">
+                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-hb-xs text-amber-900">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-amber-800">
-                      ⚡ 30일 이상 등록된 장기 판매 중 매물이 {metrics.staleSellingProducts}건 있습니다.
+                      30일 이상 등록된 장기 판매 중 매물이 {metrics.staleSellingProducts}건 있습니다.
                     </span>
                     <span className="text-amber-700 hidden sm:inline">
                       가격 인하 또는 당근마켓/블로그 홍보를 권장합니다.
@@ -2153,7 +2153,7 @@ export default function IntegratedAdminDashboard() {
                   <button
                     type="button"
                     onClick={() => setProdStatusFilter("stale30")}
-                    className="rounded bg-amber-700 px-2.5 py-1 text-[11.5px] font-bold text-white hover:bg-amber-800 transition-colors shrink-0"
+                    className="rounded bg-amber-700 px-2.5 py-1 text-hb-xs font-bold text-white hover:bg-amber-800 transition-colors shrink-0"
                   >
                     장기 재고 모아보기
                   </button>
@@ -2161,14 +2161,14 @@ export default function IntegratedAdminDashboard() {
               )}
 
               {prodStatusFilter === "stale30" && (
-                <div className="flex items-center justify-between rounded-lg border border-amber-400 bg-amber-100 px-3.5 py-2 text-[12.5px] text-amber-900">
+                <div className="flex items-center justify-between rounded-lg border border-amber-400 bg-amber-100 px-3.5 py-2 text-hb-xs text-amber-900">
                   <span className="font-bold">
-                    ⚡ 30일+ 장기 판매 중 점검 모드 ({filteredProducts.length}건 표시 중)
+                    30일+ 장기 판매 중 점검 모드 ({filteredProducts.length}건 표시 중)
                   </span>
                   <button
                     type="button"
                     onClick={() => setProdStatusFilter("전체")}
-                    className="text-[12px] font-bold text-amber-900 underline hover:text-black"
+                    className="text-hb-xs font-bold text-amber-900 underline hover:text-black"
                   >
                     전체 상태 보기
                   </button>
@@ -2196,20 +2196,20 @@ export default function IntegratedAdminDashboard() {
                         </div>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-1.5">
-                            <span className="text-[11px] font-bold text-[#6B7280]">
+                            <span className="text-hb-xs font-bold text-[#6B7280]">
                               {catLabel} · 조회 {product.views || 0}
                             </span>
                             {statValue === "판매중" &&
                               getDaysSinceCreated(product.created_at) >= 30 && (
-                                <span className="rounded bg-amber-50 border border-amber-300 px-1.5 py-0.5 text-[10.5px] font-bold text-amber-800">
+                                <span className="rounded bg-amber-50 border border-amber-300 px-1.5 py-0.5 text-hb-xs font-bold text-amber-800">
                                   등록 +{getDaysSinceCreated(product.created_at)}일 · 재고점검 권장
                                 </span>
                               )}
                           </div>
-                          <h3 className="truncate text-[14px] font-bold text-[#0E1A2B]">
+                          <h3 className="truncate text-hb-sm font-bold text-[#0E1A2B]">
                             {product.title}
                           </h3>
-                          <p className="text-[13px] font-bold text-[#D9531E]">
+                          <p className="text-hb-sm font-bold text-[#B5431A]">
                             {formatProductPrice(product.price, catLabel)}
                           </p>
                         </div>
@@ -2230,10 +2230,10 @@ export default function IntegratedAdminDashboard() {
                               toast.error("복사에 실패했습니다.");
                             }
                           }}
-                          className="h-9 rounded border border-[#FADCD0] bg-[#FFF5F0] px-2.5 text-[12px] font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors"
+                          className="h-9 rounded border border-[#FADCD0] bg-[#FFF5F0] px-2.5 text-hb-xs font-bold text-[#B5431A] hover:bg-[#B5431A] hover:text-white transition-colors"
                           title="당근마켓·네이버카페·블로그 업로드용 홍보 원고 복사"
                         >
-                          📋 홍보글 복사
+                          홍보글 복사
                         </button>
                         <select
                           aria-label={`${product.title} 판매 상태 선택`}
@@ -2245,7 +2245,7 @@ export default function IntegratedAdminDashboard() {
                               e.target.value
                             )
                           }
-                          className="h-9 rounded border border-[#DDD9D1] bg-white px-2 text-[12px] font-bold text-[#0E1A2B]"
+                          className="h-9 rounded border border-[#DDD9D1] bg-white px-2 text-hb-xs font-bold text-[#0E1A2B]"
                         >
                           {PRODUCT_STATUS_LIST.map((s) => (
                             <option key={s} value={s}>
@@ -2256,7 +2256,7 @@ export default function IntegratedAdminDashboard() {
                         <button
                           type="button"
                           onClick={() => startEditProduct(product)}
-                          className="h-9 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-3 text-[12px] font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                          className="h-9 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-3 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                         >
                           편집
                         </button>
@@ -2264,7 +2264,7 @@ export default function IntegratedAdminDashboard() {
                           type="button"
                           disabled={busyActionId === `prod-del-${product.id}`}
                           onClick={() => handleDeleteProduct(product)}
-                          className="h-9 rounded border border-red-200 bg-red-50 px-3 text-[12px] font-bold text-red-600 hover:bg-red-100"
+                          className="h-9 rounded border border-red-200 bg-red-50 px-3 text-hb-xs font-bold text-red-600 hover:bg-red-100"
                         >
                           삭제
                         </button>
@@ -2281,10 +2281,10 @@ export default function IntegratedAdminDashboard() {
         {activeTab === "delivery" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
             <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
-              <h2 className="text-[17px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 배송·설치 현장 사례 등록 (AI 제목 보조)
               </h2>
-              <p className="text-[12.5px] text-[#6B7280]">
+              <p className="text-hb-xs text-[#6B7280]">
                 사진에서 확인되는 제품 유형과 설치 상황에 근거해 제목 초안을 생성합니다. 확인 후 수정하여 게시하세요.
               </p>
 
@@ -2297,21 +2297,21 @@ export default function IntegratedAdminDashboard() {
                     multiple
                     disabled={analyzingDelivery}
                     onChange={handleDeliveryFilesChange}
-                    className="mt-1 w-full text-[12px]"
+                    className="mt-1 w-full text-hb-xs"
                   />
                 </div>
 
                 {(delivObserved.length > 0 || delivReviewNotes.length > 0) && (
-                  <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-[12px] space-y-1.5">
+                  <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs space-y-1.5">
                     {delivObserved.length > 0 && (
                       <p>
-                        <strong>📷 판독된 요소:</strong>{" "}
+                        <strong>판독된 요소:</strong>{" "}
                         {delivObserved.join(", ")}
                       </p>
                     )}
                     {delivReviewNotes.map((n, i) => (
                       <p key={i} className="text-amber-800 font-semibold">
-                        ⚠️ {n}
+                        {n}
                       </p>
                     ))}
                   </div>
@@ -2334,7 +2334,7 @@ export default function IntegratedAdminDashboard() {
                 <button
                   type="submit"
                   disabled={savingDelivery || analyzingDelivery}
-                  className="hb-btn-primary h-11 w-full text-[14px]"
+                  className="hb-btn-primary h-11 w-full text-hb-sm"
                 >
                   {savingDelivery ? "등록 중..." : "제목 확인 완료 및 게시하기"}
                 </button>
@@ -2342,7 +2342,7 @@ export default function IntegratedAdminDashboard() {
             </section>
 
             <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
-              <h2 className="text-[17px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 등록된 배송·설치 사례 ({deliveryCases.length}건)
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -2361,10 +2361,10 @@ export default function IntegratedAdminDashboard() {
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[13.5px] font-bold text-[#0E1A2B]">
+                        <p className="truncate text-hb-sm font-bold text-[#0E1A2B]">
                           {item.title}
                         </p>
-                        <p className="text-[11.5px] text-[#8A8478]">
+                        <p className="text-hb-xs text-[#6E675C]">
                           {new Date(item.created_at).toLocaleDateString("ko-KR")}
                         </p>
                       </div>
@@ -2373,7 +2373,7 @@ export default function IntegratedAdminDashboard() {
                         onClick={() =>
                           handleDeleteDeliveryCase(item.id, item.title)
                         }
-                        className="rounded border border-red-200 bg-red-50 px-2.5 py-1 text-[11.5px] font-bold text-red-600"
+                        className="rounded border border-red-200 bg-red-50 px-2.5 py-1 text-hb-xs font-bold text-red-600"
                       >
                         삭제
                       </button>
@@ -2389,10 +2389,10 @@ export default function IntegratedAdminDashboard() {
         {activeTab === "notifications" && (
           <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
             <div>
-              <h2 className="text-[18px] font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 외부 알림(Telegram / 알림톡) 발송 상태 관리 및 재시도
               </h2>
-              <p className="mt-1 text-[13px] text-[#6B7280]">
+              <p className="mt-1 text-hb-sm text-[#6B7280]">
                 환경변수 미설정이나 외부 서버 오류 시 거짓 성공으로 표시하지 않고,{" "}
                 <strong>
                   [발송 대기 / 발송 성공 / 설정 미완료 / 외부 서비스 오류 / 재시도 필요]
@@ -2402,7 +2402,7 @@ export default function IntegratedAdminDashboard() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-[13.5px] border-t border-[#E5E2DC]">
+              <table className="w-full text-left text-hb-sm border-t border-[#E5E2DC]">
                 <thead className="bg-[#FAF9F7] text-[#6B7280] border-b border-[#E5E2DC]">
                   <tr>
                     <th className="py-3 px-4">접수일시 / 고객명</th>
@@ -2423,12 +2423,12 @@ export default function IntegratedAdminDashboard() {
                         <tr key={inq.id}>
                           <td className="py-3 px-4">
                             <strong className="text-[#0E1A2B]">{inq.name}</strong>
-                            <span className="block text-[11.5px] text-[#8A8478]">
+                            <span className="block text-hb-xs text-[#6E675C]">
                               {new Date(inq.created_at).toLocaleDateString("ko-KR")}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="text-[11.5px] font-bold text-[#D9531E] block">
+                            <span className="text-hb-xs font-bold text-[#B5431A] block">
                               {inq.inquiry_type}
                             </span>
                             <span className="truncate block max-w-xs">
@@ -2439,7 +2439,7 @@ export default function IntegratedAdminDashboard() {
                             {tg ? (
                               <div>
                                 <span
-                                  className={`inline-block rounded px-2 py-0.5 text-[11px] font-bold ${
+                                  className={`inline-block rounded px-2 py-0.5 text-hb-xs font-bold ${
                                     tg.sent
                                       ? "bg-emerald-100 text-emerald-800"
                                       : "bg-amber-100 text-amber-900"
@@ -2447,12 +2447,12 @@ export default function IntegratedAdminDashboard() {
                                 >
                                   {tg.statusLabel}
                                 </span>
-                                <p className="mt-1 text-[11.5px] text-[#6B7280]">
+                                <p className="mt-1 text-hb-xs text-[#6B7280]">
                                   {tg.message}
                                 </p>
                               </div>
                             ) : (
-                              <span className="text-[12px] text-[#8A8478]">
+                              <span className="text-hb-xs text-[#6E675C]">
                                 발송 대기 / 이력 미조회
                               </span>
                             )}
@@ -2460,15 +2460,15 @@ export default function IntegratedAdminDashboard() {
                           <td className="py-3 px-4">
                             {alim ? (
                               <div>
-                                <span className="inline-block rounded bg-neutral-200 px-2 py-0.5 text-[11px] font-bold text-neutral-700">
+                                <span className="inline-block rounded bg-neutral-200 px-2 py-0.5 text-hb-xs font-bold text-neutral-700">
                                   {alim.statusLabel}
                                 </span>
-                                <p className="mt-1 text-[11.5px] text-[#6B7280]">
+                                <p className="mt-1 text-hb-xs text-[#6B7280]">
                                   {alim.message}
                                 </p>
                               </div>
                             ) : (
-                              <span className="inline-block rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                              <span className="inline-block rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-hb-xs font-bold text-amber-800">
                                 연동 준비중 (Telegram 활성)
                               </span>
                             )}
@@ -2480,7 +2480,7 @@ export default function IntegratedAdminDashboard() {
                               onClick={() =>
                                 handleManualNotificationDispatch("telegram", inq)
                               }
-                              className="rounded bg-[#0E1A2B] px-3 py-1.5 text-[12px] font-bold text-white hover:bg-[#1C2D47] disabled:opacity-50"
+                              className="rounded bg-[#0E1A2B] px-3 py-1.5 text-hb-xs font-bold text-white hover:bg-[#1C2D47] disabled:opacity-50"
                             >
                               Telegram 재발송
                             </button>
@@ -2490,7 +2490,7 @@ export default function IntegratedAdminDashboard() {
                               onClick={() =>
                                 handleManualNotificationDispatch("alimtalk", inq)
                               }
-                              className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-[12px] font-bold text-[#4B5260] hover:bg-[#FAF9F7] disabled:opacity-50"
+                              className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4B5260] hover:bg-[#FAF9F7] disabled:opacity-50"
                             >
                               알림톡 상태 점검
                             </button>
