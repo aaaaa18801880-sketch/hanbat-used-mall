@@ -1,5 +1,6 @@
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -118,6 +119,15 @@ function getCategoryChecklistConfig(category: ProductCategoryValue): {
   };
 }
 
+const getProductById = cache(async (id: string) => {
+  const { data: product, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+  return { product, error };
+});
+
 export async function generateMetadata({
   params,
 }: {
@@ -125,13 +135,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
 
-  const { data: product } = await supabase
-    .from("products")
-    .select(
-      "id, title, category, description, image_url, price, status, condition_grade"
-    )
-    .eq("id", id)
-    .single();
+  const { product } = await getProductById(id);
 
   if (!product || product.category === "배송인증") {
     return {
@@ -214,11 +218,7 @@ export default async function ProductDetailPage({
 }) {
   const { id } = await params;
 
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { product, error } = await getProductById(id);
 
   if (error || !product || product.category === "배송인증") {
     notFound();
@@ -441,14 +441,14 @@ export default async function ProductDetailPage({
               <Icon d={ICON.left} className="h-4 w-4" />
               <span>전체 제품 갤러리</span>
             </Link>
-            <span className="text-[#D8D3C8]">/</span>
+            <span className="text-[#6E675C]" aria-hidden="true">/</span>
             <Link
               href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
               className="hover:text-[#0E1A2B] underline underline-offset-4 shrink-0"
             >
               {categoryLabel}
             </Link>
-            <span className="hidden md:inline text-[#D8D3C8]">/</span>
+            <span className="hidden md:inline text-[#6E675C]" aria-hidden="true">/</span>
             <span className="hidden md:inline truncate max-w-[280px] text-[#596273] font-medium">
               {product.title}
             </span>

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-31T10:09:46.880Z">
+<project name="hanbat-mall" generated_at="2026-10-31T11:34:10.172Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>85</file_count>
+    <file_count>86</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="43">
@@ -95,6 +95,7 @@ export default function ProductNotFound() {
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
+import { cache } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
@@ -213,6 +214,15 @@ function getCategoryChecklistConfig(category: ProductCategoryValue): {
   };
 }
 
+const getProductById = cache(async (id: string) => {
+  const { data: product, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("id", id)
+    .single();
+  return { product, error };
+});
+
 export async function generateMetadata({
   params,
 }: {
@@ -220,13 +230,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
 
-  const { data: product } = await supabase
-    .from("products")
-    .select(
-      "id, title, category, description, image_url, price, status, condition_grade"
-    )
-    .eq("id", id)
-    .single();
+  const { product } = await getProductById(id);
 
   if (!product || product.category === "배송인증") {
     return {
@@ -309,11 +313,7 @@ export default async function ProductDetailPage({
 }) {
   const { id } = await params;
 
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", id)
-    .single();
+  const { product, error } = await getProductById(id);
 
   if (error || !product || product.category === "배송인증") {
     notFound();
@@ -536,14 +536,14 @@ export default async function ProductDetailPage({
               <Icon d={ICON.left} className="h-4 w-4" />
               <span>전체 제품 갤러리</span>
             </Link>
-            <span className="text-[#D8D3C8]">/</span>
+            <span className="text-[#6E675C]" aria-hidden="true">/</span>
             <Link
               href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
               className="hover:text-[#0E1A2B] underline underline-offset-4 shrink-0"
             >
               {categoryLabel}
             </Link>
-            <span className="hidden md:inline text-[#D8D3C8]">/</span>
+            <span className="hidden md:inline text-[#6E675C]" aria-hidden="true">/</span>
             <span className="hidden md:inline truncate max-w-[280px] text-[#596273] font-medium">
               {product.title}
             </span>
@@ -1983,15 +1983,15 @@ export default function IntegratedAdminDashboard() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-hb-sm font-semibold text-[#4B5260]">
+      <main className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-hb-sm font-semibold text-[#4B5260]">
         관리자 권한을 확인하고 있습니다...
-      </div>
+      </main>
     );
   }
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
+      <main className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
         <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E2DC] w-full max-w-sm">
           <div className="text-center mb-6">
             <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
@@ -2044,7 +2044,7 @@ export default function IntegratedAdminDashboard() {
             </Link>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -2940,7 +2940,7 @@ export default function IntegratedAdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="hb-label">가격 (원, 비우면 상담)</label>
+                    <label className="hb-label">가격 (원, 비우면 가격 문의)</label>
                     <input
                       type="number"
                       value={prodPrice}
@@ -5549,7 +5549,7 @@ export async function DELETE(
 }
 ]]>
     </file>
-    <file path="app/api/inquiries/route.ts" lines="372">
+    <file path="app/api/inquiries/route.ts" lines="374">
       <![CDATA[
 // 파일 경로: app/api/inquiries/route.ts
 import { NextRequest, NextResponse } from "next/server";
@@ -5651,7 +5651,9 @@ export async function GET(req: NextRequest) {
     const supabase = createServerSupabaseClient(adminCheck.accessToken);
     const { data, error } = await supabase
       .from("purchase_requests")
-      .select("*")
+      .select(
+        "id, name, phone, inquiry_type, category, model, condition_grade, region, description, images, image_url, is_notice, status, admin_reply, created_at"
+      )
       .order("created_at", { ascending: false })
       .limit(effectiveLimit);
 
@@ -6415,17 +6417,22 @@ export default function GlobalErrorPage({
 
 ]]>
     </file>
-    <file path="app/gallery/layout.tsx" lines="38">
+    <file path="app/gallery/layout.tsx" lines="54">
       <![CDATA[
 // 파일 경로: app/gallery/layout.tsx
 import type { Metadata } from "next";
 import { STORE } from "../../lib/site";
+import { supabase } from "../../lib/supabase";
+import { GalleryInitialDataProvider } from "../../components/gallery/gallery-initial-data";
+import type { ProductItem } from "../../components/products/product-card";
+
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title:
-    "실시간 판매 제품 갤러리 (가격공개 · 무상A/S 최대 8개월) — 중고가전·업소용 주방기기",
+    "실시간 판매 제품 갤러리 (가격 문의 · 무상A/S 최대 8개월) — 중고가전·업소용 주방기기",
   description:
-    "[분해 세척 · 작동 점검 완료 실매물] 대전 한밭중고전자 직영 매장에서 판매 중인 에어컨·냉난방기(최대 8개월), 냉장고, 세탁기(최대 4개월), TV 및 업소용 설비 등 계약 조건별 보증 실시간 재고와 가격을 확인하세요.",
+    "[분해 세척 · 작동 점검 완료 실매물] 대전 한밭중고전자 직영 매장에서 판매 중인 에어컨·냉난방기(최대 8개월), 냉장고, 세탁기(최대 4개월), TV 및 업소용 설비 등 계약 조건별 보증 실시간 재고를 확인하고 가격은 전화·카톡으로 문의하세요.",
   alternates: {
     canonical: `${STORE.url}/gallery`,
   },
@@ -6434,7 +6441,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: `${STORE.url}/gallery`,
     siteName: STORE.name,
-    title: `실시간 판매 제품 갤러리 (무상A/S 보증 · 실매물 가격공개) | ${STORE.name}`,
+    title: `실시간 판매 제품 갤러리 (무상A/S 보증 · 실매물 가격 문의) | ${STORE.name}`,
     description:
       "가정용 중고가전부터 식당·카페 업소용 설비까지 분해 세척·검수 완료 실매물 갤러리. 전자세금계산서 100% 발행.",
     images: [
@@ -6448,16 +6455,27 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GalleryLayout({
+export default async function GalleryLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  const { data } = await supabase
+    .from("products")
+    .select("*")
+    .neq("category", "배송인증")
+    .order("created_at", { ascending: false })
+    .limit(400);
+
+  return (
+    <GalleryInitialDataProvider products={(data ?? []) as ProductItem[]}>
+      {children}
+    </GalleryInitialDataProvider>
+  );
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="3056">
+    <file path="app/gallery/page.tsx" lines="3072">
       <![CDATA[
 "use client";
 
@@ -6522,6 +6540,7 @@ import {
   removeProductImagesFromStorage,
   compressAndUploadProductImages,
 } from "../../lib/product-ops";
+import { useGalleryInitialProducts } from "../../components/gallery/gallery-initial-data";
 
 type PriceRangeOption = "all" | "under30" | "30to70" | "70to150" | "over150";
 
@@ -7420,8 +7439,9 @@ function ProductDetailModal({
             <button
               type="button"
               onClick={() => setIsZoomOpen(false)}
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white"
+              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               aria-label="닫기"
+              autoFocus
             >
               <Icon d={ICON.close} className="w-6 h-6" />
             </button>
@@ -7475,8 +7495,11 @@ function ProductDetailModal({
    메인 갤러리 페이지 컴포넌트
    ════════════════════════════════════════════════════════════ */
 export default function GalleryPage() {
-  const [products, setProducts] = useState<ProductItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const initialProducts = useGalleryInitialProducts();
+  const [products, setProducts] = useState<ProductItem[]>(
+    () => initialProducts ?? []
+  );
+  const [isLoading, setIsLoading] = useState(() => initialProducts === null);
   const [loadError, setLoadError] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -7530,8 +7553,8 @@ export default function GalleryPage() {
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
   const [foundSources, setFoundSources] = useState<string[]>([]);
 
-  const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
+  const fetchProducts = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true);
     setLoadError(false);
     try {
       const { data, error } = await supabase
@@ -7544,9 +7567,9 @@ export default function GalleryPage() {
       setProducts((data ?? []) as ProductItem[]);
     } catch (err) {
       console.error("제품 목록 조회 실패:", err);
-      setLoadError(true);
+      if (!silent) setLoadError(true);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, []);
 
@@ -7610,10 +7633,16 @@ export default function GalleryPage() {
     );
 
     queueMicrotask(() => {
-      void fetchProducts();
+      void fetchProducts(initialProducts !== null);
     });
     return () => authListener.subscription.unsubscribe();
-  }, [fetchProducts]);
+  }, [fetchProducts, initialProducts]);
+
+  const hasPricedProducts = useMemo(
+    () => products.some((p) => hasProductPrice(p.price)),
+    [products]
+  );
+  const effectivePriceRange = hasPricedProducts ? priceRange : "all";
 
   /* 필터 상태 변경 시 URL 쿼리 파라미터 동기화 (새로고침 시 유지) */
   useEffect(() => {
@@ -7644,14 +7673,14 @@ export default function GalleryPage() {
       url.searchParams.delete("status");
     }
 
-    if (priceRange !== "all") {
+    if (hasPricedProducts && priceRange !== "all") {
       url.searchParams.set("price", priceRange);
     } else {
       url.searchParams.delete("price");
     }
 
     window.history.replaceState(null, "", url.toString());
-  }, [activeCategory, search, sort, statusFilter, priceRange]);
+  }, [activeCategory, search, sort, statusFilter, priceRange, hasPricedProducts]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
   const categoryCounts = useMemo(() => {
@@ -7682,21 +7711,22 @@ export default function GalleryPage() {
       if (statusFilter === "reserved" && !reserved) return false;
       if (statusFilter === "sold" && !sold) return false;
 
-      if (priceRange !== "all") {
+      if (effectivePriceRange !== "all") {
         if (!hasProductPrice(p.price)) return false;
         const priceVal = Number(p.price);
-        if (priceRange === "under30" && priceVal > 300000) return false;
+        if (effectivePriceRange === "under30" && priceVal > 300000) return false;
         if (
-          priceRange === "30to70" &&
+          effectivePriceRange === "30to70" &&
           (priceVal < 300000 || priceVal > 700000)
         )
           return false;
         if (
-          priceRange === "70to150" &&
+          effectivePriceRange === "70to150" &&
           (priceVal < 700000 || priceVal > 1500000)
         )
           return false;
-        if (priceRange === "over150" && priceVal < 1500000) return false;
+        if (effectivePriceRange === "over150" && priceVal < 1500000)
+          return false;
       }
 
       if (q) {
@@ -7731,7 +7761,7 @@ export default function GalleryPage() {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
-  }, [products, activeCategory, statusFilter, priceRange, search, sort]);
+  }, [products, activeCategory, statusFilter, effectivePriceRange, search, sort]);
 
   const displayedProducts = useMemo(
     () => filteredProducts.slice(0, visibleLimit),
@@ -8449,7 +8479,7 @@ export default function GalleryPage() {
                   판매 제품 갤러리
                 </h1>
                 <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-white/70 truncate">
-                  분해 세척과 작동 검수를 마친 실매물입니다. 미등록 재고는 전화·카톡 문의 가능합니다.
+                  분해 세척과 작동 검수를 마친 실매물입니다. 가격은 전화·카톡으로 문의해 주세요. 미등록 재고도 확인해 드립니다.
                 </p>
               </div>
             </div>
@@ -8493,7 +8523,7 @@ export default function GalleryPage() {
                 className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
-                  priceRange !== "all" ||
+                  (hasPricedProducts && priceRange !== "all") ||
                   sort !== "latest"
                     ? "border-[#FF8A50] bg-[#B5431A] text-white"
                     : "border-white/25 bg-white/10 text-white hover:bg-white/20"
@@ -8585,30 +8615,32 @@ export default function GalleryPage() {
                 <option value="sold">판매완료</option>
               </select>
 
-              <select
-                value={priceRange}
-                onChange={(e) => {
-                  const nextPrice = e.target.value as PriceRangeOption;
-                  setPriceRange(nextPrice);
-                  setVisibleLimit(PAGE_STEP);
-                  trackEvent("filter_gallery", {
-                    category: activeCategory,
-                    price_range: nextPrice,
-                  });
-                }}
-                aria-label="가격대 범위 필터"
-                className={`h-9 px-2.5 rounded-md border text-hb-xs font-bold focus:border-[#0E1A2B] focus:outline-none ${
-                  priceRange !== "all"
-                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A]"
-                    : "border-[#D8D3C8] bg-white text-[#0E1A2B]"
-                }`}
-              >
-                {PRICE_RANGE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              {hasPricedProducts && (
+                <select
+                  value={priceRange}
+                  onChange={(e) => {
+                    const nextPrice = e.target.value as PriceRangeOption;
+                    setPriceRange(nextPrice);
+                    setVisibleLimit(PAGE_STEP);
+                    trackEvent("filter_gallery", {
+                      category: activeCategory,
+                      price_range: nextPrice,
+                    });
+                  }}
+                  aria-label="가격대 범위 필터"
+                  className={`h-9 px-2.5 rounded-md border text-hb-xs font-bold focus:border-[#0E1A2B] focus:outline-none ${
+                    priceRange !== "all"
+                      ? "border-[#B5431A] bg-[#FFF5F0] text-[#B5431A]"
+                      : "border-[#D8D3C8] bg-white text-[#0E1A2B]"
+                  }`}
+                >
+                  {PRICE_RANGE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              )}
 
               <select
                 value={sort}
@@ -8687,22 +8719,24 @@ export default function GalleryPage() {
                   <option value="sold">판매완료</option>
                 </select>
 
-                <select
-                  value={priceRange}
-                  onChange={(e) => {
-                    const nextPrice = e.target.value as PriceRangeOption;
-                    setPriceRange(nextPrice);
-                    setVisibleLimit(PAGE_STEP);
-                  }}
-                  aria-label="모바일 가격대 필터"
-                  className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
-                >
-                  {PRICE_RANGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                {hasPricedProducts && (
+                  <select
+                    value={priceRange}
+                    onChange={(e) => {
+                      const nextPrice = e.target.value as PriceRangeOption;
+                      setPriceRange(nextPrice);
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    aria-label="모바일 가격대 필터"
+                    className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
+                  >
+                    {PRICE_RANGE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
 
                 <select
                   value={sort}
@@ -8776,7 +8810,7 @@ export default function GalleryPage() {
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
-              priceRange !== "all" ||
+              (hasPricedProducts && priceRange !== "all") ||
               sort !== "latest") && (
               <button
                 type="button"
@@ -8839,7 +8873,7 @@ export default function GalleryPage() {
             </p>
             <button
               type="button"
-              onClick={fetchProducts}
+              onClick={() => void fetchProducts()}
               className="hb-btn-primary mt-5 h-10 px-5 text-hb-sm"
             >
               다시 불러오기
@@ -9882,7 +9916,7 @@ export default function InquiryLayout({
 }
 ]]>
     </file>
-    <file path="app/inquiry/page.tsx" lines="1491">
+    <file path="app/inquiry/page.tsx" lines="1509">
       <![CDATA[
 "use client";
 
@@ -10072,6 +10106,7 @@ export default function InquiryBoardPage() {
   }, []);
 
   useEffect(() => {
+    let firstAuthEvent = true;
     const checkSession = async () => {
       const {
         data: { session },
@@ -10082,6 +10117,11 @@ export default function InquiryBoardPage() {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_e, session) => {
         setIsAdmin(isAuthorizedAdminUser(session?.user));
+        // 최초 인증 이벤트는 아래 초기 로드와 중복되므로 건너뜁니다.
+        if (firstAuthEvent) {
+          firstAuthEvent = false;
+          return;
+        }
         void loadData();
       }
     );
@@ -11320,9 +11360,21 @@ export default function InquiryBoardPage() {
 
       {enlargedImage && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="첨부 이미지 확대 보기"
           onClick={() => setEnlargedImage(null)}
           className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
         >
+          <button
+            type="button"
+            onClick={() => setEnlargedImage(null)}
+            aria-label="확대 이미지 닫기"
+            autoFocus
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <Icon d={ICON.close} className="w-6 h-6" />
+          </button>
           <SafeImg
             src={enlargedImage}
             alt="확대 이미지"
@@ -11413,7 +11465,7 @@ export const metadata: Metadata = {
     template: `%s | ${STORE.name}`,
   },
   description:
-    "[실매물 가격공개 · 무상A/S 최대 8개월] 1997년 개업 대전 중촌동 1·2층 직영 쇼룸. 분해 고압 세척을 마친 중고 냉장고·세탁기·에어컨·업소용 45박스 냉장고·제빙기·쇼케이스 판매 및 이사·폐업 당일 현금 방문매입. (세금계산서 100% 발행)",
+    "[실매물 가격 문의 · 무상A/S 최대 8개월] 1997년 개업 대전 중촌동 1·2층 직영 쇼룸. 분해 고압 세척을 마친 중고 냉장고·세탁기·에어컨·업소용 45박스 냉장고·제빙기·쇼케이스 판매 및 이사·폐업 당일 현금 방문매입. (세금계산서 100% 발행)",
   keywords: [
     "대전 중고가전",
     "대전 중고가전 매입",
@@ -12667,7 +12719,7 @@ export default function Home() {
                     id="hero-title"
                     className="mt-3 hb-fluid-h1 text-[#0E1A2B] break-keep"
                   >
-                    가정용 가전부터 업소용 주방설비까지,
+                    가정용 가전부터 업소용 주방설비까지,{" "}
                     <br />
                     <span className="text-[#B5431A]">분해 세척·검수를 마친</span>{" "}
                     실매물만 출고합니다
@@ -14772,6 +14824,35 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     <file path="CLAUDE.md" lines="2">
       <![CDATA[
 @AGENTS.md
+
+]]>
+    </file>
+    <file path="components/gallery/gallery-initial-data.tsx" lines="25">
+      <![CDATA[
+"use client";
+
+import { createContext, useContext, type ReactNode } from "react";
+import type { ProductItem } from "../products/product-card";
+
+const GalleryInitialDataContext = createContext<ProductItem[] | null>(null);
+
+export function GalleryInitialDataProvider({
+  products,
+  children,
+}: {
+  products: ProductItem[];
+  children: ReactNode;
+}) {
+  return (
+    <GalleryInitialDataContext.Provider value={products}>
+      {children}
+    </GalleryInitialDataContext.Provider>
+  );
+}
+
+export function useGalleryInitialProducts(): ProductItem[] | null {
+  return useContext(GalleryInitialDataContext);
+}
 
 ]]>
     </file>
@@ -17776,7 +17857,7 @@ export function UnifiedInquiryForm({
 }
 ]]>
     </file>
-    <file path="components/inquiry/v2-wizard-quick-inquiry.tsx" lines="1093">
+    <file path="components/inquiry/v2-wizard-quick-inquiry.tsx" lines="1097">
       <![CDATA[
 // 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
 "use client";
@@ -17945,9 +18026,9 @@ export function V2InquirySectionWithWizard({
   const initialType = fixedType || defaultType;
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(initialType);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    linkedProduct?.category || PRODUCT_CATEGORIES[0],
-  ]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    linkedProduct?.category ? [linkedProduct.category] : []
+  );
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [region, setRegion] = useState("");
   const initialMemo = linkedProduct?.productTitle
@@ -18057,12 +18138,16 @@ export function V2InquirySectionWithWizard({
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat)
-        ? prev.length > 1
-          ? prev.filter((c) => c !== cat)
-          : prev
-        : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
+  };
+
+  const goToPhotoStep = () => {
+    if (selectedCategories.length === 0) {
+      toast.error("처분하실 품목을 1개 이상 선택해 주세요.");
+      return;
+    }
+    setStep(2);
   };
 
   const toggleChip = (chip: string) => {
@@ -18454,7 +18539,7 @@ export function V2InquirySectionWithWizard({
             <div className="pt-2 flex justify-end border-t border-[#E5E2DC]">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={goToPhotoStep}
                 className="hb-btn-primary h-11 px-7 text-hb-sm w-full sm:w-auto"
               >
                 <span>다음 단계 (사진 첨부)</span>
@@ -18873,7 +18958,7 @@ export function V2InquirySectionWithWizard({
 
 ]]>
     </file>
-    <file path="components/products/aircon-set-guide-banner.tsx" lines="278">
+    <file path="components/products/aircon-set-guide-banner.tsx" lines="277">
       <![CDATA[
 "use client";
 
@@ -19011,7 +19096,6 @@ export function AirconSetGuideBanner({
           type="button"
           onClick={() => setIsModalOpen(true)}
           className="group relative mt-3.5 block w-full overflow-hidden rounded-lg border border-[#E5E2DC] bg-white cursor-pointer transition-all hover:border-[#0E1A2B]"
-          aria-label="에어컨/냉난방기 세트 구성 안내문 원본 크게 보기"
         >
           <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F4F2ED]">
             <SafeImg
@@ -19155,7 +19239,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="431">
+    <file path="components/products/product-card.tsx" lines="432">
       <![CDATA[
 // 파일 경로: components/products/product-card.tsx
 "use client";
@@ -19519,7 +19603,8 @@ export function ProductCard({
               </strong>
             ) : (
               <strong className="block text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] truncate">
-                {priceText}
+                <span className="sm:hidden">견적 상담</span>
+                <span className="hidden sm:inline">{priceText}</span>
               </strong>
             )}
           </div>
@@ -19530,9 +19615,9 @@ export function ProductCard({
               onClick={handleToggleBasket}
               aria-pressed={inBasket}
               title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
-              aria-label={`${product.title} ${
-                inBasket ? "견적함에서 제외" : "견적함에 담기"
-              }`}
+              aria-label={`${inBasket ? "담김" : "견적함"} - ${
+                product.title
+              } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
               className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
                 inBasket
                   ? "bg-[#0E1A2B] text-white"
@@ -20201,7 +20286,7 @@ export function RecentViewedStrip({
 
 ]]>
     </file>
-    <file path="components/products/product-detail-gallery.tsx" lines="708">
+    <file path="components/products/product-detail-gallery.tsx" lines="716">
       <![CDATA[
 // 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
@@ -20343,11 +20428,7 @@ export function ProductDetailGallery({
         </div>
 
         {/* 메인 프리뷰 영역: 시원시원한 대형 뷰 (스튜디오 백드롭 적용) */}
-        <div
-          onClick={() => displayImages[0] && setIsZoomOpen(true)}
-          className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-1 sm:p-2 overflow-hidden cursor-zoom-in group select-none"
-          title="클릭하여 원본 비율 전체화면으로 확대"
-        >
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-1 sm:p-2 overflow-hidden group select-none">
           <SafeImg
             key={displayImages[idx]}
             src={displayImages[idx]}
@@ -20357,6 +20438,19 @@ export function ProductDetailGallery({
               sold ? "grayscale opacity-75" : ""
             }`}
           />
+
+          {displayImages[0] && (
+            <button
+              type="button"
+              onClick={() => setIsZoomOpen(true)}
+              aria-label="상품 사진 크게 보기"
+              aria-haspopup="dialog"
+              title="클릭하여 원본 비율 전체화면으로 확대"
+              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B5431A]"
+            >
+              <span className="sr-only">상품 사진 크게 보기</span>
+            </button>
+          )}
 
           <div className="absolute top-3.5 left-3.5 z-10">
             <ProductStatusBadge status={status} createdAt={createdAt} />
@@ -20448,7 +20542,8 @@ export function ProductDetailGallery({
               type="button"
               onClick={() => setIsZoomOpen(false)}
               aria-label="확대 창 닫기"
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white"
+              autoFocus
+              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <Icon d={ICON.close} className="w-6 h-6" />
             </button>
@@ -20776,7 +20871,6 @@ export function InteractiveChecklistAndCta({
       {/* 1순위: 직영 매장 전화 문의 버튼 (h-14) */}
       <a
         href={telHref(STORE.tel)}
-        aria-label={`한밭중고전자 직영 매장 전화 문의 연결 (${STORE.tel})`}
         className="w-full h-14 rounded-2xl bg-[#B5431A] hover:bg-[#C04615] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -20786,11 +20880,11 @@ export function InteractiveChecklistAndCta({
           <div className="text-left min-w-0">
             <div className="text-hb-base font-extrabold leading-tight text-white flex items-center gap-1.5 truncate">
               <span>{sold ? "유사 매물 전화 문의" : "전화 바로 문의하기"}</span>
-              <span className="text-hb-xs font-bold text-[#FFD2C0]">
+              <span className="text-hb-xs font-bold text-white">
                 ({STORE.tel})
               </span>
             </div>
-            <p className="text-hb-xs text-white/85 font-medium leading-none mt-1 truncate">
+            <p className="text-hb-xs text-white/90 font-medium leading-none mt-1 truncate">
               실시간 재고 확인 · 빠른 방문/배송 상담 (터치 즉시 연결)
             </p>
           </div>
@@ -20806,7 +20900,6 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="한밭중고전자 카카오톡 1:1 실시간 상담창 열기 (새 창)"
         className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -27426,7 +27519,7 @@ export function QuoteBasketFloatingBar() {
               onClick={() => {
                 trackEvent("click_quote_basket_sms", { count: items.length });
               }}
-              aria-label="문자로 묶음 견적 문의"
+              aria-label="문자전송 - 문자로 묶음 견적 문의"
               className="hidden sm:inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap"
             >
               <span>문자전송</span>
@@ -28134,7 +28227,7 @@ module.exports = {
 }
 ]]>
     </file>
-    <file path="README.md" lines="37">
+    <file path="README.md" lines="49">
       <![CDATA[
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
@@ -28153,6 +28246,18 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 로컬 환경 변수
+
+`.env.example`을 복사해 `.env.local`을 만들고 값을 채웁니다. `.env.local`은 커밋하지 않습니다.
+
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`: 공개 Supabase 연결
+- `SUPABASE_SERVICE_ROLE_KEY`: **서버 전용**. RLS 적용 후 관리자 API, 고객 문의 조회, 비공개 첨부 사진 서명 URL 발급에 필요합니다. 이 키가 없으면 로컬 문의 게시판에는 공지만 표시됩니다.
+- `GEMINI_API_KEY`: AI 상품·문의 분석
+- `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`: 신규 문의 알림
+- `ALIMTALK_API_KEY`, `ALIMTALK_USER_ID`: 알림톡 연동 준비용
+
+`SUPABASE_SERVICE_ROLE_KEY`는 절대 `NEXT_PUBLIC_` 접두사를 붙이거나 클라이언트 컴포넌트에서 사용하지 마세요.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 

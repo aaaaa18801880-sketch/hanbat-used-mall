@@ -665,7 +665,7 @@ export default function Home() {
                     id="hero-title"
                     className="mt-3 hb-fluid-h1 text-[#0E1A2B] break-keep"
                   >
-                    가정용 가전부터 업소용 주방설비까지,
+                    가정용 가전부터 업소용 주방설비까지,{" "}
                     <br />
                     <span className="text-[#B5431A]">분해 세척·검수를 마친</span>{" "}
                     실매물만 출고합니다

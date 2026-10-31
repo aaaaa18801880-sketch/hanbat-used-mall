@@ -98,7 +98,9 @@ export async function GET(req: NextRequest) {
     const supabase = createServerSupabaseClient(adminCheck.accessToken);
     const { data, error } = await supabase
       .from("purchase_requests")
-      .select("*")
+      .select(
+        "id, name, phone, inquiry_type, category, model, condition_grade, region, description, images, image_url, is_notice, status, admin_reply, created_at"
+      )
       .order("created_at", { ascending: false })
       .limit(effectiveLimit);
 

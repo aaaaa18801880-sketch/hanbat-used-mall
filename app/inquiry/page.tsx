@@ -186,6 +186,7 @@ export default function InquiryBoardPage() {
   }, []);
 
   useEffect(() => {
+    let firstAuthEvent = true;
     const checkSession = async () => {
       const {
         data: { session },
@@ -196,6 +197,11 @@ export default function InquiryBoardPage() {
     const { data: authListener } = supabase.auth.onAuthStateChange(
       (_e, session) => {
         setIsAdmin(isAuthorizedAdminUser(session?.user));
+        // 최초 인증 이벤트는 아래 초기 로드와 중복되므로 건너뜁니다.
+        if (firstAuthEvent) {
+          firstAuthEvent = false;
+          return;
+        }
         void loadData();
       }
     );
@@ -1434,9 +1440,21 @@ export default function InquiryBoardPage() {
 
       {enlargedImage && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="첨부 이미지 확대 보기"
           onClick={() => setEnlargedImage(null)}
           className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
         >
+          <button
+            type="button"
+            onClick={() => setEnlargedImage(null)}
+            aria-label="확대 이미지 닫기"
+            autoFocus
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          >
+            <Icon d={ICON.close} className="w-6 h-6" />
+          </button>
           <SafeImg
             src={enlargedImage}
             alt="확대 이미지"

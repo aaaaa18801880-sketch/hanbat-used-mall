@@ -930,7 +930,7 @@ export function QuoteBasketFloatingBar() {
               onClick={() => {
                 trackEvent("click_quote_basket_sms", { count: items.length });
               }}
-              aria-label="문자로 묶음 견적 문의"
+              aria-label="문자전송 - 문자로 묶음 견적 문의"
               className="hidden sm:inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap"
             >
               <span>문자전송</span>

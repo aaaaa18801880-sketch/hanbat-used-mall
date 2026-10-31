@@ -134,7 +134,6 @@ export function AirconSetGuideBanner({
           type="button"
           onClick={() => setIsModalOpen(true)}
           className="group relative mt-3.5 block w-full overflow-hidden rounded-lg border border-[#E5E2DC] bg-white cursor-pointer transition-all hover:border-[#0E1A2B]"
-          aria-label="에어컨/냉난방기 세트 구성 안내문 원본 크게 보기"
         >
           <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F4F2ED]">
             <SafeImg

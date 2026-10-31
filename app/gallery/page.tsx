@@ -61,6 +61,7 @@ import {
   removeProductImagesFromStorage,
   compressAndUploadProductImages,
 } from "../../lib/product-ops";
+import { useGalleryInitialProducts } from "../../components/gallery/gallery-initial-data";
 
 type PriceRangeOption = "all" | "under30" | "30to70" | "70to150" | "over150";
 
@@ -959,8 +960,9 @@ function ProductDetailModal({
             <button
               type="button"
               onClick={() => setIsZoomOpen(false)}
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white"
+              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               aria-label="닫기"
+              autoFocus
             >
               <Icon d={ICON.close} className="w-6 h-6" />
             </button>
@@ -1014,8 +1016,11 @@ function ProductDetailModal({
    메인 갤러리 페이지 컴포넌트
    ════════════════════════════════════════════════════════════ */
 export default function GalleryPage() {
-  const [products, setProducts] = useState<ProductItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const initialProducts = useGalleryInitialProducts();
+  const [products, setProducts] = useState<ProductItem[]>(
+    () => initialProducts ?? []
+  );
+  const [isLoading, setIsLoading] = useState(() => initialProducts === null);
   const [loadError, setLoadError] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -1069,8 +1074,8 @@ export default function GalleryPage() {
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
   const [foundSources, setFoundSources] = useState<string[]>([]);
 
-  const fetchProducts = useCallback(async () => {
-    setIsLoading(true);
+  const fetchProducts = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true);
     setLoadError(false);
     try {
       const { data, error } = await supabase
@@ -1083,9 +1088,9 @@ export default function GalleryPage() {
       setProducts((data ?? []) as ProductItem[]);
     } catch (err) {
       console.error("제품 목록 조회 실패:", err);
-      setLoadError(true);
+      if (!silent) setLoadError(true);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, []);
 
@@ -1149,10 +1154,16 @@ export default function GalleryPage() {
     );
 
     queueMicrotask(() => {
-      void fetchProducts();
+      void fetchProducts(initialProducts !== null);
     });
     return () => authListener.subscription.unsubscribe();
-  }, [fetchProducts]);
+  }, [fetchProducts, initialProducts]);
+
+  const hasPricedProducts = useMemo(
+    () => products.some((p) => hasProductPrice(p.price)),
+    [products]
+  );
+  const effectivePriceRange = hasPricedProducts ? priceRange : "all";
 
   /* 필터 상태 변경 시 URL 쿼리 파라미터 동기화 (새로고침 시 유지) */
   useEffect(() => {
@@ -1183,14 +1194,14 @@ export default function GalleryPage() {
       url.searchParams.delete("status");
     }
 
-    if (priceRange !== "all") {
+    if (hasPricedProducts && priceRange !== "all") {
       url.searchParams.set("price", priceRange);
     } else {
       url.searchParams.delete("price");
     }
 
     window.history.replaceState(null, "", url.toString());
-  }, [activeCategory, search, sort, statusFilter, priceRange]);
+  }, [activeCategory, search, sort, statusFilter, priceRange, hasPricedProducts]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
   const categoryCounts = useMemo(() => {
@@ -1221,21 +1232,22 @@ export default function GalleryPage() {
       if (statusFilter === "reserved" && !reserved) return false;
       if (statusFilter === "sold" && !sold) return false;
 
-      if (priceRange !== "all") {
+      if (effectivePriceRange !== "all") {
         if (!hasProductPrice(p.price)) return false;
         const priceVal = Number(p.price);
-        if (priceRange === "under30" && priceVal > 300000) return false;
+        if (effectivePriceRange === "under30" && priceVal > 300000) return false;
         if (
-          priceRange === "30to70" &&
+          effectivePriceRange === "30to70" &&
           (priceVal < 300000 || priceVal > 700000)
         )
           return false;
         if (
-          priceRange === "70to150" &&
+          effectivePriceRange === "70to150" &&
           (priceVal < 700000 || priceVal > 1500000)
         )
           return false;
-        if (priceRange === "over150" && priceVal < 1500000) return false;
+        if (effectivePriceRange === "over150" && priceVal < 1500000)
+          return false;
       }
 
       if (q) {
@@ -1270,7 +1282,7 @@ export default function GalleryPage() {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       );
     });
-  }, [products, activeCategory, statusFilter, priceRange, search, sort]);
+  }, [products, activeCategory, statusFilter, effectivePriceRange, search, sort]);
 
   const displayedProducts = useMemo(
     () => filteredProducts.slice(0, visibleLimit),
@@ -1988,7 +2000,7 @@ export default function GalleryPage() {
                   판매 제품 갤러리
                 </h1>
                 <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-white/70 truncate">
-                  분해 세척과 작동 검수를 마친 실매물입니다. 미등록 재고는 전화·카톡 문의 가능합니다.
+                  분해 세척과 작동 검수를 마친 실매물입니다. 가격은 전화·카톡으로 문의해 주세요. 미등록 재고도 확인해 드립니다.
                 </p>
               </div>
             </div>
@@ -2032,7 +2044,7 @@ export default function GalleryPage() {
                 className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
-                  priceRange !== "all" ||
+                  (hasPricedProducts && priceRange !== "all") ||
                   sort !== "latest"
                     ? "border-[#FF8A50] bg-[#B5431A] text-white"
                     : "border-white/25 bg-white/10 text-white hover:bg-white/20"
@@ -2124,30 +2136,32 @@ export default function GalleryPage() {
                 <option value="sold">판매완료</option>
               </select>
 
-              <select
-                value={priceRange}
-                onChange={(e) => {
-                  const nextPrice = e.target.value as PriceRangeOption;
-                  setPriceRange(nextPrice);
-                  setVisibleLimit(PAGE_STEP);
-                  trackEvent("filter_gallery", {
-                    category: activeCategory,
-                    price_range: nextPrice,
-                  });
-                }}
-                aria-label="가격대 범위 필터"
-                className={`h-9 px-2.5 rounded-md border text-hb-xs font-bold focus:border-[#0E1A2B] focus:outline-none ${
-                  priceRange !== "all"
-                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A]"
-                    : "border-[#D8D3C8] bg-white text-[#0E1A2B]"
-                }`}
-              >
-                {PRICE_RANGE_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
+              {hasPricedProducts && (
+                <select
+                  value={priceRange}
+                  onChange={(e) => {
+                    const nextPrice = e.target.value as PriceRangeOption;
+                    setPriceRange(nextPrice);
+                    setVisibleLimit(PAGE_STEP);
+                    trackEvent("filter_gallery", {
+                      category: activeCategory,
+                      price_range: nextPrice,
+                    });
+                  }}
+                  aria-label="가격대 범위 필터"
+                  className={`h-9 px-2.5 rounded-md border text-hb-xs font-bold focus:border-[#0E1A2B] focus:outline-none ${
+                    priceRange !== "all"
+                      ? "border-[#B5431A] bg-[#FFF5F0] text-[#B5431A]"
+                      : "border-[#D8D3C8] bg-white text-[#0E1A2B]"
+                  }`}
+                >
+                  {PRICE_RANGE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              )}
 
               <select
                 value={sort}
@@ -2226,22 +2240,24 @@ export default function GalleryPage() {
                   <option value="sold">판매완료</option>
                 </select>
 
-                <select
-                  value={priceRange}
-                  onChange={(e) => {
-                    const nextPrice = e.target.value as PriceRangeOption;
-                    setPriceRange(nextPrice);
-                    setVisibleLimit(PAGE_STEP);
-                  }}
-                  aria-label="모바일 가격대 필터"
-                  className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
-                >
-                  {PRICE_RANGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                {hasPricedProducts && (
+                  <select
+                    value={priceRange}
+                    onChange={(e) => {
+                      const nextPrice = e.target.value as PriceRangeOption;
+                      setPriceRange(nextPrice);
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    aria-label="모바일 가격대 필터"
+                    className="h-8 px-2 rounded border border-[#D8D3C8] bg-white text-hb-xs font-bold text-[#0E1A2B]"
+                  >
+                    {PRICE_RANGE_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
 
                 <select
                   value={sort}
@@ -2315,7 +2331,7 @@ export default function GalleryPage() {
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
-              priceRange !== "all" ||
+              (hasPricedProducts && priceRange !== "all") ||
               sort !== "latest") && (
               <button
                 type="button"
@@ -2378,7 +2394,7 @@ export default function GalleryPage() {
             </p>
             <button
               type="button"
-              onClick={fetchProducts}
+              onClick={() => void fetchProducts()}
               className="hb-btn-primary mt-5 h-10 px-5 text-hb-sm"
             >
               다시 불러오기

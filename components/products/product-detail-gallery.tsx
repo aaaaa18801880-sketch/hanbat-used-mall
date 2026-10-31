@@ -138,11 +138,7 @@ export function ProductDetailGallery({
         </div>
 
         {/* 메인 프리뷰 영역: 시원시원한 대형 뷰 (스튜디오 백드롭 적용) */}
-        <div
-          onClick={() => displayImages[0] && setIsZoomOpen(true)}
-          className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-1 sm:p-2 overflow-hidden cursor-zoom-in group select-none"
-          title="클릭하여 원본 비율 전체화면으로 확대"
-        >
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-1 sm:p-2 overflow-hidden group select-none">
           <SafeImg
             key={displayImages[idx]}
             src={displayImages[idx]}
@@ -152,6 +148,19 @@ export function ProductDetailGallery({
               sold ? "grayscale opacity-75" : ""
             }`}
           />
+
+          {displayImages[0] && (
+            <button
+              type="button"
+              onClick={() => setIsZoomOpen(true)}
+              aria-label="상품 사진 크게 보기"
+              aria-haspopup="dialog"
+              title="클릭하여 원본 비율 전체화면으로 확대"
+              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B5431A]"
+            >
+              <span className="sr-only">상품 사진 크게 보기</span>
+            </button>
+          )}
 
           <div className="absolute top-3.5 left-3.5 z-10">
             <ProductStatusBadge status={status} createdAt={createdAt} />
@@ -243,7 +252,8 @@ export function ProductDetailGallery({
               type="button"
               onClick={() => setIsZoomOpen(false)}
               aria-label="확대 창 닫기"
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white"
+              autoFocus
+              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               <Icon d={ICON.close} className="w-6 h-6" />
             </button>
@@ -571,7 +581,6 @@ export function InteractiveChecklistAndCta({
       {/* 1순위: 직영 매장 전화 문의 버튼 (h-14) */}
       <a
         href={telHref(STORE.tel)}
-        aria-label={`한밭중고전자 직영 매장 전화 문의 연결 (${STORE.tel})`}
         className="w-full h-14 rounded-2xl bg-[#B5431A] hover:bg-[#C04615] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -581,11 +590,11 @@ export function InteractiveChecklistAndCta({
           <div className="text-left min-w-0">
             <div className="text-hb-base font-extrabold leading-tight text-white flex items-center gap-1.5 truncate">
               <span>{sold ? "유사 매물 전화 문의" : "전화 바로 문의하기"}</span>
-              <span className="text-hb-xs font-bold text-[#FFD2C0]">
+              <span className="text-hb-xs font-bold text-white">
                 ({STORE.tel})
               </span>
             </div>
-            <p className="text-hb-xs text-white/85 font-medium leading-none mt-1 truncate">
+            <p className="text-hb-xs text-white/90 font-medium leading-none mt-1 truncate">
               실시간 재고 확인 · 빠른 방문/배송 상담 (터치 즉시 연결)
             </p>
           </div>
@@ -601,7 +610,6 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="한밭중고전자 카카오톡 1:1 실시간 상담창 열기 (새 창)"
         className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">

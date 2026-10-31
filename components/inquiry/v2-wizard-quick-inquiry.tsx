@@ -165,9 +165,9 @@ export function V2InquirySectionWithWizard({
   const initialType = fixedType || defaultType;
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(initialType);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([
-    linkedProduct?.category || PRODUCT_CATEGORIES[0],
-  ]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    linkedProduct?.category ? [linkedProduct.category] : []
+  );
   const [selectedChips, setSelectedChips] = useState<string[]>([]);
   const [region, setRegion] = useState("");
   const initialMemo = linkedProduct?.productTitle
@@ -277,12 +277,16 @@ export function V2InquirySectionWithWizard({
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories((prev) =>
-      prev.includes(cat)
-        ? prev.length > 1
-          ? prev.filter((c) => c !== cat)
-          : prev
-        : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
+  };
+
+  const goToPhotoStep = () => {
+    if (selectedCategories.length === 0) {
+      toast.error("처분하실 품목을 1개 이상 선택해 주세요.");
+      return;
+    }
+    setStep(2);
   };
 
   const toggleChip = (chip: string) => {
@@ -674,7 +678,7 @@ export function V2InquirySectionWithWizard({
             <div className="pt-2 flex justify-end border-t border-[#E5E2DC]">
               <button
                 type="button"
-                onClick={() => setStep(2)}
+                onClick={goToPhotoStep}
                 className="hb-btn-primary h-11 px-7 text-hb-sm w-full sm:w-auto"
               >
                 <span>다음 단계 (사진 첨부)</span>

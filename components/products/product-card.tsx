@@ -360,7 +360,8 @@ export function ProductCard({
               </strong>
             ) : (
               <strong className="block text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] truncate">
-                {priceText}
+                <span className="sm:hidden">견적 상담</span>
+                <span className="hidden sm:inline">{priceText}</span>
               </strong>
             )}
           </div>
@@ -371,9 +372,9 @@ export function ProductCard({
               onClick={handleToggleBasket}
               aria-pressed={inBasket}
               title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
-              aria-label={`${product.title} ${
-                inBasket ? "견적함에서 제외" : "견적함에 담기"
-              }`}
+              aria-label={`${inBasket ? "담김" : "견적함"} - ${
+                product.title
+              } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
               className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
                 inBasket
                   ? "bg-[#0E1A2B] text-white"

@@ -1088,15 +1088,15 @@ export default function IntegratedAdminDashboard() {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-hb-sm font-semibold text-[#4B5260]">
+      <main className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-hb-sm font-semibold text-[#4B5260]">
         관리자 권한을 확인하고 있습니다...
-      </div>
+      </main>
     );
   }
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
+      <main className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
         <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E2DC] w-full max-w-sm">
           <div className="text-center mb-6">
             <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
@@ -1149,7 +1149,7 @@ export default function IntegratedAdminDashboard() {
             </Link>
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -2045,7 +2045,7 @@ export default function IntegratedAdminDashboard() {
                     />
                   </div>
                   <div>
-                    <label className="hb-label">가격 (원, 비우면 상담)</label>
+                    <label className="hb-label">가격 (원, 비우면 가격 문의)</label>
                     <input
                       type="number"
                       value={prodPrice}
