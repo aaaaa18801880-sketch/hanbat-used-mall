@@ -128,9 +128,9 @@ export function ShowroomVisitModal({
           {/* 1. 실물 찜 대상 상품 요약 (선택된 상품이 있는 경우) */}
           {product && (
             <div className="rounded-xl border border-[#FADCD0] bg-[#FFF5F0] p-3.5 sm:p-4">
-              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#FADCD0]/60 text-hb-xs font-bold text-[#D9531E]">
+              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#FADCD0]/60 text-hb-xs font-bold text-[#B5431A]">
                 <span>실물 확인 예약 대상 매물</span>
-                <span className="rounded bg-[#D9531E] px-1.5 py-0.5 text-white">
+                <span className="rounded bg-[#B5431A] px-1.5 py-0.5 text-white">
                   방문 전 실물 찜
                 </span>
               </div>
@@ -151,7 +151,7 @@ export function ShowroomVisitModal({
                   <h3 className="truncate text-hb-sm font-extrabold text-[#0E1A2B]">
                     {product.title}
                   </h3>
-                  <span className="text-hb-sm font-bold text-[#D9531E] tabular-nums">
+                  <span className="text-hb-sm font-bold text-[#B5431A] tabular-nums">
                     {priceDisplay}
                   </span>
                 </div>
@@ -175,13 +175,13 @@ export function ShowroomVisitModal({
                   onClick={() => setSelectedTime(opt)}
                   className={`flex items-center justify-between rounded-lg border p-2.5 text-hb-xs sm:text-hb-sm font-bold transition-all text-left ${
                     selectedTime === opt
-                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] shadow-2xs"
+                      ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A] shadow-2xs"
                       : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
                   }`}
                 >
                   <span className="truncate">{opt}</span>
                   {selectedTime === opt && (
-                    <Icon d={ICON.check} className="w-4 h-4 shrink-0 text-[#D9531E]" />
+                    <Icon d={ICON.check} className="w-4 h-4 shrink-0 text-[#B5431A]" />
                   )}
                 </button>
               ))}
@@ -221,7 +221,7 @@ export function ShowroomVisitModal({
               <button
                 type="button"
                 onClick={handleCopyAddress}
-                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#D9531E] hover:underline"
+                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#B5431A] hover:underline"
               >
                 <Icon d={ICON.copy} className="w-3.5 h-3.5" />
                 <span>도로명 주소 복사</span>
@@ -243,7 +243,7 @@ export function ShowroomVisitModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackEvent("click_nav_naver")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#03C75A]/30 bg-[#03C75A]/10 hover:bg-[#03C75A]/20 px-2 py-2.5 text-hb-xs font-bold text-[#03C75A] transition-colors"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#03C75A]/30 bg-[#027A3B]/10 hover:bg-[#027A3B]/20 px-2 py-2.5 text-hb-xs font-bold text-[#027A3B] transition-colors"
               >
                 <span>네이버 지도</span>
                 <Icon d={ICON.external} className="w-3 h-3" />
@@ -297,7 +297,7 @@ export function ShowroomVisitModal({
 
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E5E2DC] pt-3 text-hb-xs text-[#3E4756]">
               <div className="flex items-center gap-1.5 font-bold text-[#0E1A2B]">
-                <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#B5431A]" />
                 <span>{STORE_NAVIGATION.parking}</span>
               </div>
               <div className="text-[#646E7E]">

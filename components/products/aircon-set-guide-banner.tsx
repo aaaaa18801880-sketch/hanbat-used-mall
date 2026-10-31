@@ -29,7 +29,7 @@ export function AirconSetGuideBanner({
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="inline-block rounded bg-[#FFF5F0] border border-[#FED7AA] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                  <span className="inline-block rounded bg-[#FFF5F0] border border-[#FED7AA] px-2 py-0.5 text-hb-xs font-bold text-[#B5431A]">
                     구매 전 확인
                   </span>
                   <span className="text-hb-xs font-bold text-[#434B59]">
@@ -51,7 +51,7 @@ export function AirconSetGuideBanner({
                 onClick={() => setIsModalOpen(true)}
                 className="hb-btn-outline h-10 px-3.5 text-hb-xs cursor-pointer"
               >
-                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#B5431A]" />
                 <span>안내문 크게 보기</span>
               </button>
               <a
@@ -91,7 +91,7 @@ export function AirconSetGuideBanner({
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="text-hb-xs font-bold text-[#D9531E] underline shrink-0 hover:text-[#BF4415]"
+            className="text-hb-xs font-bold text-[#B5431A] underline shrink-0 hover:text-[#BF4415]"
           >
             안내문 보기
           </button>
@@ -112,7 +112,7 @@ export function AirconSetGuideBanner({
       >
         <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E5E2DC]">
           <div className="flex items-center gap-2">
-            <span className="rounded bg-[#FFF5F0] border border-[#FED7AA] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+            <span className="rounded bg-[#FFF5F0] border border-[#FED7AA] px-2 py-0.5 text-hb-xs font-bold text-[#B5431A]">
               구매 전 확인
             </span>
             <span className="text-hb-xs font-bold text-[#0E1A2B]">
@@ -122,9 +122,9 @@ export function AirconSetGuideBanner({
           <button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0E1A2B] hover:text-[#D9531E] hover:underline"
+            className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0E1A2B] hover:text-[#B5431A] hover:underline"
           >
-            <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#D9531E]" />
+            <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#B5431A]" />
             <span>크게 보기</span>
           </button>
         </div>
@@ -160,7 +160,7 @@ export function AirconSetGuideBanner({
             </p>
           </div>
           <div className="rounded-lg border border-[#E5E2DC] bg-white p-2.5">
-            <span className="font-bold text-[#D9531E] block mb-0.5">
+            <span className="font-bold text-[#B5431A] block mb-0.5">
               실외기 단독 구매 불가
             </span>
             <p className="text-hb-xs text-[#434B59] leading-snug">
@@ -206,7 +206,7 @@ export function AirconGuideModal({
         {/* 모달 헤더 */}
         <div className="flex items-center justify-between border-b border-[#E5E2DC] bg-[#0E1A2B] px-5 py-4 text-white">
           <div className="flex items-center gap-2.5">
-            <div className="grid h-7 w-7 place-items-center rounded bg-[#D9531E] text-white">
+            <div className="grid h-7 w-7 place-items-center rounded bg-[#B5431A] text-white">
               <Icon d={ICON.check} className="w-4 h-4" />
             </div>
             <div>

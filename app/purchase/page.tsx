@@ -67,7 +67,7 @@ export default function PurchasePage() {
               <span className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] px-3.5 py-2 text-hb-xs font-bold text-[#0E1A2B]">
                 전문 기사 직접 철거·수거
               </span>
-              <span className="rounded-lg border border-[#FADCD0] bg-[#FFF6F2] px-3.5 py-2 text-hb-xs font-bold text-[#D9531E]">
+              <span className="rounded-lg border border-[#FADCD0] bg-[#FFF6F2] px-3.5 py-2 text-hb-xs font-bold text-[#B5431A]">
                 현장 즉시 정산
               </span>
             </div>
@@ -92,7 +92,7 @@ export default function PurchasePage() {
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#D9531E]">
+                  <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#B5431A]">
                     {item.step}
                   </span>
                 </div>
@@ -115,7 +115,7 @@ export default function PurchasePage() {
                 <h2 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B]">
                   온라인 매입 견적 신청서
                 </h2>
-                <p className="mt-1 text-hb-sm text-[#667085]">
+                <p className="mt-1 text-hb-sm text-[#596273]">
                   사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 최고가 견적과 수거 일정을 빠르게 안내해 드립니다.
                 </p>
               </div>
@@ -145,19 +145,19 @@ export default function PurchasePage() {
 
               <div className="mt-4 rounded-lg bg-[#FAF9F7] border border-[#E6E3DC] p-3.5 space-y-2 text-hb-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#667085]">매장 대표전화</span>
+                  <span className="font-semibold text-[#596273]">매장 대표전화</span>
                   <a
                     href={telHref(STORE.tel)}
-                    className="font-extrabold text-[#0E1A2B] hover:text-[#D9531E] tabular-nums"
+                    className="font-extrabold text-[#0E1A2B] hover:text-[#B5431A] tabular-nums"
                   >
                     {STORE.tel}
                   </a>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#667085]">매입/수거 직통</span>
+                  <span className="font-semibold text-[#596273]">매입/수거 직통</span>
                   <a
                     href={telHref(STORE.mobile)}
-                    className="font-extrabold text-[#D9531E] hover:underline tabular-nums"
+                    className="font-extrabold text-[#B5431A] hover:underline tabular-nums"
                   >
                     {STORE.mobile}
                   </a>
@@ -188,7 +188,7 @@ export default function PurchasePage() {
             <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 shadow-card">
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div>
-                  <span className="text-hb-xs font-bold text-[#D9531E]">
+                  <span className="text-hb-xs font-bold text-[#B5431A]">
                     공식 매입 기준 안내문
                   </span>
                   <h3 className="text-hb-sm font-extrabold text-[#0E1A2B]">
@@ -215,7 +215,7 @@ export default function PurchasePage() {
                     className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                   />
                 </div>
-                <p className="mt-2 text-center text-hb-xs font-semibold text-[#667085] group-hover:text-[#0E1A2B]">
+                <p className="mt-2 text-center text-hb-xs font-semibold text-[#596273] group-hover:text-[#0E1A2B]">
                   클릭하여 매입 가능 품목 및 체크사항 크게 보기
                 </p>
               </button>

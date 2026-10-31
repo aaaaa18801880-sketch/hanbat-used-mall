@@ -147,7 +147,7 @@ export function ProductCompareModal({
                           설치 공간 가로폭 참고:
                         </strong>{" "}
                         치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
-                        <strong className="text-[#D9531E] font-extrabold tabular-nums">
+                        <strong className="text-[#B5431A] font-extrabold tabular-nums">
                           {totalWidthMm.toLocaleString()}mm (
                           {(totalWidthMm / 1000).toFixed(2)}m)
                         </strong>
@@ -195,7 +195,7 @@ export function ProductCompareModal({
                             <Link
                               href={`/${item.id}`}
                               onClick={onClose}
-                              className="font-bold text-[#0E1A2B] hover:text-[#D9531E] line-clamp-2 leading-snug"
+                              className="font-bold text-[#0E1A2B] hover:text-[#B5431A] line-clamp-2 leading-snug"
                             >
                               {item.title}
                             </Link>
@@ -232,7 +232,7 @@ export function ProductCompareModal({
                       return (
                         <td
                           key={item.id}
-                          className="p-3 font-extrabold text-hb-base text-[#D9531E] border-l border-[#E5E2DC] tabular-nums"
+                          className="p-3 font-extrabold text-hb-base text-[#B5431A] border-l border-[#E5E2DC] tabular-nums"
                         >
                           {sold
                             ? "판매완료 (유사재고 문의)"
@@ -320,7 +320,7 @@ export function ProductCompareModal({
                               {model}
                             </span>
                           ) : (
-                            <span className="text-[#858076]">
+                            <span className="text-[#6E675C]">
                               정보 없음 (상세 문의)
                             </span>
                           )}
@@ -337,7 +337,7 @@ export function ProductCompareModal({
                     {compareItems.map((item) => (
                       <td key={item.id} className="p-3 border-l border-[#E5E2DC]">
                         {item.conditionGrade ? (
-                          <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                          <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 text-hb-xs font-bold text-[#B5431A]">
                             {item.conditionGrade}
                           </span>
                         ) : (
@@ -377,7 +377,7 @@ export function ProductCompareModal({
                               ))}
                             </div>
                           ) : (
-                            <span className="text-[#858076]">
+                            <span className="text-[#6E675C]">
                               정보 없음 (상세 문의)
                             </span>
                           )}
@@ -400,7 +400,7 @@ export function ProductCompareModal({
                             className="p-3 border-l border-[#E5E2DC] text-[#0E1A2B]"
                           >
                             {val || (
-                              <span className="text-[#858076]">
+                              <span className="text-[#6E675C]">
                                 정보 없음 (상세 문의)
                               </span>
                             )}
@@ -457,7 +457,7 @@ export function ProductCompareModal({
               }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-[#D7D2C8] bg-white px-3.5 h-10 text-hb-sm font-bold text-[#0E1A2B] hover:bg-[#FAF9F7] transition-colors"
             >
-              <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#B5431A]" />
               <span>문자 묶음 문의</span>
             </a>
             <button
@@ -529,7 +529,7 @@ export function RecentViewedStrip({
     >
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#D9531E]" />
+          <span className="h-2 w-2 rounded-full bg-[#B5431A]" />
           <h2 className="text-hb-base font-extrabold text-[#0E1A2B]">
             최근 본 매물 ({items.length})
           </h2>
@@ -540,7 +540,7 @@ export function RecentViewedStrip({
         <button
           type="button"
           onClick={() => clearRecentViewedProducts()}
-          className="text-hb-xs font-semibold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-2"
+          className="inline-flex min-h-6 items-center text-hb-xs font-semibold text-[#646E7E] hover:text-[#0E1A2B] underline underline-offset-2"
         >
           기록 비우기
         </button>
@@ -561,7 +561,7 @@ export function RecentViewedStrip({
                   removeRecentViewedProduct(item.id);
                 }}
                 aria-label={`${item.title} 최근 본 목록에서 삭제`}
-                className="absolute right-1.5 top-1.5 z-10 grid h-5 w-5 place-items-center rounded-full bg-black/60 text-white hover:bg-red-600"
+                className="absolute right-1.5 top-1.5 z-10 grid h-6 w-6 place-items-center rounded-full bg-black/60 text-white hover:bg-red-600"
               >
                 <Icon d={ICON.close} className="w-3 h-3" />
               </button>
@@ -586,7 +586,7 @@ export function RecentViewedStrip({
                     <span className="block text-hb-xs font-semibold text-[#646E7E] truncate">
                       {item.category}
                     </span>
-                    <p className="mt-0.5 line-clamp-1 text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#D9531E]">
+                    <p className="mt-0.5 line-clamp-1 text-hb-xs font-bold text-[#0E1A2B] group-hover:text-[#B5431A]">
                       {item.title}
                     </p>
                   </div>

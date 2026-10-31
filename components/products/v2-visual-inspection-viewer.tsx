@@ -129,8 +129,8 @@ function getInspectionBadgeStyle(badge: string) {
   }
   if (badge.includes("보증") || badge.includes("무상")) {
     return {
-      wrap: "bg-[#FFF5F0] border-[#FADCD0] text-[#D9531E]",
-      icon: "text-[#D9531E]",
+      wrap: "bg-[#FFF5F0] border-[#FADCD0] text-[#B5431A]",
+      icon: "text-[#B5431A]",
     };
   }
   if (
@@ -174,7 +174,7 @@ export function V2VisualInspectionViewer({
               <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white">
                 한밭중고전자 4대 부위별 정밀 검수 리포트
               </span>
-              <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#D9531E]">
+              <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#B5431A]">
                 {catLabel}
               </span>
             </div>
@@ -190,7 +190,7 @@ export function V2VisualInspectionViewer({
             <span className="block text-hb-xs font-semibold text-[#B5431A]">
               본 매물 등급 · 보증
             </span>
-            <strong className="text-hb-sm font-extrabold text-[#D9531E]">
+            <strong className="text-hb-sm font-extrabold text-[#B5431A]">
               {displayGrade} · {warrantyText}
             </strong>
           </div>
@@ -221,7 +221,7 @@ export function V2VisualInspectionViewer({
                     </span>
                   </div>
 
-                  <p className="text-hb-xs font-bold text-[#D9531E] leading-snug break-keep">
+                  <p className="text-hb-xs font-bold text-[#B5431A] leading-snug break-keep">
                     {item.question}
                   </p>
                   <h4 className="mt-1 text-hb-sm font-extrabold text-[#0E1A2B] leading-snug break-keep">
@@ -239,7 +239,7 @@ export function V2VisualInspectionViewer({
 
       {/* 하단 쇼룸 실물 확인 안내 */}
       <div className="rounded-xl bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 flex items-center gap-2.5 text-hb-xs text-[#3E4756]">
-        <Icon d={ICON.pin} className="w-4 h-4 text-[#D9531E] shrink-0" />
+        <Icon d={ICON.pin} className="w-4 h-4 text-[#B5431A] shrink-0" />
         <span className="break-keep">
           <strong>대전 중촌동 1·2층 직영 매장 상시 개방:</strong> 사진만으로 결정하기 망설여지신다면 매장에 오셔서 직접 전원을 켜보고 선택하셔도 됩니다.
         </span>

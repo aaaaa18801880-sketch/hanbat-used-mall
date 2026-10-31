@@ -34,7 +34,7 @@ export default function NotFoundPage() {
             빠른 재고 문의:{" "}
             <a
               href={telHref(STORE.tel)}
-              className="font-bold text-[#0E1A2B] underline underline-offset-4 hover:text-[#D9531E]"
+              className="font-bold text-[#0E1A2B] underline underline-offset-4 hover:text-[#B5431A]"
             >
               {STORE.tel}
             </a>

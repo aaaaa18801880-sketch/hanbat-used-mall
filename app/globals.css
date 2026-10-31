@@ -159,7 +159,7 @@ body {
   }
 
   .hb-eyebrow {
-    @apply inline-flex items-center gap-2 text-hb-xs font-bold tracking-[-0.01em] text-[#D9531E];
+    @apply inline-flex items-center gap-2 text-hb-xs font-bold tracking-[-0.01em] text-[#B5431A];
   }
 
   .hb-chip {
@@ -167,7 +167,7 @@ body {
   }
 
   .hb-input {
-    @apply w-full h-11 rounded-lg border border-[#CFCAC0] bg-white px-3.5 text-hb-sm sm:text-hb-base text-[#0E1A2B] placeholder:text-[#858076] transition-colors duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#858076];
+    @apply w-full h-11 rounded-lg border border-[#CFCAC0] bg-white px-3.5 text-hb-sm sm:text-hb-base text-[#0E1A2B] placeholder:text-[#6E675C] transition-colors duration-150 focus:border-[#0E1A2B] focus:outline-none focus:ring-2 focus:ring-[#0E1A2B] focus:ring-opacity-10 disabled:bg-[#F7F6F3] disabled:text-[#6E675C];
   }
 
   /* Clean Retail Button Tokens — Restrained & Trustworthy */
@@ -198,14 +198,14 @@ body {
 
   .hb-btn-accent {
     @apply hb-btn text-white focus-visible:ring-[#D9531E];
-    background-image: linear-gradient(135deg, #f06429 0%, #d04814 100%);
+    background-image: linear-gradient(135deg, #c2410c 0%, #b5431a 100%);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.28),
       0 4px 12px -2px rgba(217, 83, 30, 0.32);
   }
 
   .hb-btn-accent:hover {
-    background-image: linear-gradient(135deg, #e0561c 0%, #b83c0e 100%);
+    background-image: linear-gradient(135deg, #b5431a 0%, #9a3412 100%);
   }
 
   /* 2. 히어로 섹션용 소프트 앰비언트 메쉬 그라데이션 (웜 피치 + 쿨 시안 미스트) */

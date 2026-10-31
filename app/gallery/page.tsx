@@ -437,13 +437,13 @@ function ProductDetailModal({
                     createdAt={product.created_at}
                   />
                   {product.condition_grade && (
-                    <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                    <span className="rounded-lg border border-[#FADCD0] bg-[#FFF5F0] px-2 py-0.5 text-hb-xs font-bold text-[#B5431A]">
                       {product.condition_grade}
                     </span>
                   )}
                 </>
               ) : (
-                <span className="text-hb-xs font-bold text-[#D9531E] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-lg">
+                <span className="text-hb-xs font-bold text-[#B5431A] bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 rounded-lg">
                   상품 정보 및 사진 편집 모드
                 </span>
               )}
@@ -584,7 +584,7 @@ function ProductDetailModal({
                       <span className="hb-label">
                         등록된 사진 관리 ({editExistingImages.length + editNewFiles.length}/{MAX_PHOTOS}장)
                       </span>
-                      <span className="text-hb-xs font-semibold text-[#D9531E]">
+                      <span className="text-hb-xs font-semibold text-[#B5431A]">
                         맨 앞(1번) 사진이 대표 이미지입니다
                       </span>
                     </div>
@@ -602,14 +602,14 @@ function ProductDetailModal({
                               className="h-full w-full object-cover"
                             />
                             {i === 0 ? (
-                              <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#D9531E] px-1.5 py-0.5 text-hb-xs font-bold text-white">
+                              <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#B5431A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                                 대표
                               </span>
                             ) : (
                               <button
                                 type="button"
                                 onClick={() => makePrimaryExistingImage(i)}
-                                className="absolute left-1.5 top-1.5 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#D9531E]"
+                                className="absolute left-1.5 top-1.5 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#B5431A]"
                               >
                                 대표 지정
                               </button>
@@ -671,7 +671,7 @@ function ProductDetailModal({
                             onClick={() => rotateNewEditFile(i, 90)}
                             title="시계방향 90도 회전"
                             aria-label="시계방향 90도 회전"
-                            className="absolute bottom-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#D9531E] shadow-sm transition-colors"
+                            className="absolute bottom-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#B5431A] shadow-sm transition-colors"
                           >
                             <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                           </button>
@@ -814,13 +814,13 @@ function ProductDetailModal({
                           판매완료
                         </p>
                       ) : hasProductPrice(product.price) ? (
-                        <p className="text-hb-2xl font-bold tracking-tight text-[#D9531E] tabular-nums">
+                        <p className="text-hb-2xl font-bold tracking-tight text-[#B5431A] tabular-nums">
                           {formatProductPrice(product.price, categoryLabel)}
                         </p>
                       ) : (
                         <a
                           href={telHref(STORE.tel)}
-                          className="inline-flex items-center gap-2 text-hb-xl font-bold text-[#D9531E] hover:text-[#BF4715]"
+                          className="inline-flex items-center gap-2 text-hb-xl font-bold text-[#B5431A] hover:text-[#BF4715]"
                         >
                           <span className="underline underline-offset-4">
                             {formatProductPrice(product.price, categoryLabel)}
@@ -918,7 +918,7 @@ function ProductDetailModal({
                   )}
                   className="hb-btn-outline h-11 text-hb-sm"
                 >
-                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#B5431A]" />
                   <span>문자 문의</span>
                 </a>
                 <a
@@ -934,7 +934,7 @@ function ProductDetailModal({
                   href={inquiryHref}
                   className="hb-btn-outline h-11 text-hb-sm"
                 >
-                  <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#D9531E]" />
+                  <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#B5431A]" />
                   <span>{sold ? "유사매물 문의" : "온라인 문의"}</span>
                 </Link>
               </div>
@@ -1972,7 +1972,7 @@ export default function GalleryPage() {
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#FF8A50]">
                 <span>LIVE SHOWROOM CATALOG</span>
-                <span className="text-white/30">·</span>
+                <span className="text-white/30" aria-hidden="true">·</span>
                 <span className="text-white/80">
                   대전 중촌동 1·2층 직영 매장 실매물
                 </span>
@@ -2034,7 +2034,7 @@ export default function GalleryPage() {
                   statusFilter !== "all" ||
                   priceRange !== "all" ||
                   sort !== "latest"
-                    ? "border-[#FF8A50] bg-[#D9531E] text-white"
+                    ? "border-[#FF8A50] bg-[#B5431A] text-white"
                     : "border-white/25 bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
@@ -2082,7 +2082,7 @@ export default function GalleryPage() {
                     {cat}
                     <span
                       className={`ml-1.5 text-hb-xs tabular-nums ${
-                        active ? "text-[#FF8A50]" : "text-[#667085]"
+                        active ? "text-[#FF8A50]" : "text-[#596273]"
                       }`}
                     >
                       {categoryCounts[cat] || 0}
@@ -2138,7 +2138,7 @@ export default function GalleryPage() {
                 aria-label="가격대 범위 필터"
                 className={`h-9 px-2.5 rounded-md border text-hb-xs font-bold focus:border-[#0E1A2B] focus:outline-none ${
                   priceRange !== "all"
-                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A]"
                     : "border-[#D8D3C8] bg-white text-[#0E1A2B]"
                 }`}
               >
@@ -2198,7 +2198,7 @@ export default function GalleryPage() {
                       }}
                       className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E] font-bold"
+                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A] font-bold"
                           : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
                       }`}
                       title={preset.desc}
@@ -2300,9 +2300,9 @@ export default function GalleryPage() {
                       setSearch(preset.keyword);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-semibold transition-colors cursor-pointer ${
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 min-h-6 text-hb-xs font-semibold transition-colors cursor-pointer ${
                       active
-                        ? "bg-[#D9531E] text-white"
+                        ? "bg-[#B5431A] text-white"
                         : "text-[#646E7E] hover:bg-[#F4F3EF] hover:text-[#0E1A2B]"
                     }`}
                   >
@@ -2320,7 +2320,7 @@ export default function GalleryPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-4 hover:text-[#BF4715] ml-1"
+                className="text-hb-xs font-bold text-[#B5431A] underline underline-offset-4 hover:text-[#BF4715] ml-1"
               >
                 초기화
               </button>
@@ -2337,7 +2337,7 @@ export default function GalleryPage() {
                 }}
                 className={`px-3 py-1 rounded text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
                   isSelectMode
-                    ? "bg-[#D9531E] text-white border-[#D9531E]"
+                    ? "bg-[#B5431A] text-white border-[#D9531E]"
                     : "bg-white text-[#0E1A2B] border-[#D8D3C8] hover:bg-[#FAF9F7]"
                 }`}
               >
@@ -2373,7 +2373,7 @@ export default function GalleryPage() {
             <p className="text-[#0E1A2B] text-hb-lg font-bold">
               상품 목록을 불러오지 못했습니다.
             </p>
-            <p className="mt-1 text-hb-sm text-[#667085]">
+            <p className="mt-1 text-hb-sm text-[#596273]">
               네트워크 연결을 확인하신 후 다시 시도해 주세요.
             </p>
             <button
@@ -2391,7 +2391,7 @@ export default function GalleryPage() {
                 ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
                 : "선택하신 필터 조건에 맞는 상품이 없습니다."}
             </p>
-            <p className="mt-1.5 text-[#667085] text-hb-sm max-w-lg mx-auto break-keep">
+            <p className="mt-1.5 text-[#596273] text-hb-sm max-w-lg mx-auto break-keep">
               중촌동 직영 매장에는 온라인에 미처 올리지 못한 대기 매물이 많습니다. 찾으시는 품목을 바로 문의해 주시면 창고 재고를 즉시 확인해 드립니다.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-2.5">
@@ -2441,6 +2441,7 @@ export default function GalleryPage() {
           </div>
         ) : (
           <>
+            <h2 className="sr-only">판매 제품 목록</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
               {displayedProducts.map((product) => (
                 <ProductCard
@@ -2611,8 +2612,8 @@ export default function GalleryPage() {
                   판매 상품 등록
                 </h2>
                 {isAnalyzing && (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-hb-xs font-bold bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0] animate-pulse">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#D9531E] animate-ping" />
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-hb-xs font-bold bg-[#FFF5F0] text-[#B5431A] border border-[#FADCD0] animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#B5431A] animate-ping" />
                     AI 작성 중
                   </span>
                 )}
@@ -2639,7 +2640,7 @@ export default function GalleryPage() {
                   <label className="hb-label">
                     상품 사진 첨부 (최대 {MAX_PHOTOS}장) *
                   </label>
-                  <span className="text-hb-xs font-bold text-[#D9531E]">
+                  <span className="text-hb-xs font-bold text-[#B5431A]">
                     1번 사진이 대표 이미지로 노출됩니다
                   </span>
                 </div>
@@ -2659,7 +2660,7 @@ export default function GalleryPage() {
                       type="button"
                       disabled={isAnalyzing}
                       onClick={() => analyzeImageWithAI(productFiles)}
-                      className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-2 disabled:opacity-50"
+                      className="text-hb-xs font-bold text-[#B5431A] underline underline-offset-2 disabled:opacity-50"
                     >
                       AI 재분석
                     </button>
@@ -2676,8 +2677,8 @@ export default function GalleryPage() {
                 />
 
                 {isAnalyzing && (
-                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF5F0] border border-[#FADCD0] rounded text-[#D9531E] text-hb-xs font-semibold animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-[#D9531E] animate-ping" />
+                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF5F0] border border-[#FADCD0] rounded text-[#B5431A] text-hb-xs font-semibold animate-pulse">
+                    <span className="w-2 h-2 rounded-full bg-[#B5431A] animate-ping" />
                     AI가 사진 속 명판과 제품 사양을 분석하고 있습니다...
                   </div>
                 )}
@@ -2697,14 +2698,14 @@ export default function GalleryPage() {
                             className="w-full h-full object-cover"
                           />
                           {index === 0 ? (
-                            <span className="absolute top-1.5 left-1.5 bg-[#D9531E] text-white text-hb-xs font-bold px-1.5 py-0.5 rounded-sm">
+                            <span className="absolute top-1.5 left-1.5 bg-[#B5431A] text-white text-hb-xs font-bold px-1.5 py-0.5 rounded-sm">
                               대표
                             </span>
                           ) : (
                             <button
                               type="button"
                               onClick={() => makePrimaryUploadFile(index)}
-                              className="absolute top-1.5 left-1.5 bg-[#0E1A2B]/85 text-white text-hb-xs font-bold px-1.5 py-0.5 rounded-sm hover:bg-[#D9531E]"
+                              className="absolute top-1.5 left-1.5 bg-[#0E1A2B]/85 text-white text-hb-xs font-bold px-1.5 py-0.5 rounded-sm hover:bg-[#B5431A]"
                             >
                               대표 지정
                             </button>
@@ -2725,7 +2726,7 @@ export default function GalleryPage() {
                             }}
                             title="스튜디오 조명 톤업 (밝기+14%, 대비+8%)"
                             aria-label="스튜디오 조명 톤업"
-                            className="absolute bottom-1.5 right-8 bg-black/75 hover:bg-[#D9531E] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
+                            className="absolute bottom-1.5 right-8 bg-black/75 hover:bg-[#B5431A] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
                           >
                             <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#FF8A50]" />
                           </button>
@@ -2735,7 +2736,7 @@ export default function GalleryPage() {
                             onClick={() => rotateUploadFile(index, 90)}
                             title="시계방향 90도 회전"
                             aria-label="시계방향 90도 회전"
-                            className="absolute bottom-1.5 right-1.5 bg-black/75 hover:bg-[#D9531E] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
+                            className="absolute bottom-1.5 right-1.5 bg-black/75 hover:bg-[#B5431A] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
                           >
                             <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                           </button>
@@ -2744,10 +2745,10 @@ export default function GalleryPage() {
                           <button
                             type="button"
                             onClick={() => rotateUploadFile(index, 90)}
-                            className="w-full py-1.5 flex items-center justify-center gap-1.5 text-[#0E1A2B] hover:text-[#D9531E] hover:bg-[#FFF5F0] border-b border-[#E4E0D8] transition-colors"
+                            className="w-full py-1.5 flex items-center justify-center gap-1.5 text-[#0E1A2B] hover:text-[#B5431A] hover:bg-[#FFF5F0] border-b border-[#E4E0D8] transition-colors"
                             title="사진을 시계 방향으로 90도 회전합니다"
                           >
-                            <Icon d={ICON.rotate} className="w-3.5 h-3.5 text-[#D9531E]" />
+                            <Icon d={ICON.rotate} className="w-3.5 h-3.5 text-[#B5431A]" />
                             <span>90° 회전</span>
                           </button>
                           <div className="grid grid-cols-2 divide-x divide-[#E4E0D8]">
@@ -2802,7 +2803,7 @@ export default function GalleryPage() {
                         <button
                           type="button"
                           onClick={appendSearchSpecsToDescription}
-                          className="text-hb-xs font-bold text-[#D9531E] underline"
+                          className="text-hb-xs font-bold text-[#B5431A] underline"
                         >
                           + 설명란에 반영
                         </button>

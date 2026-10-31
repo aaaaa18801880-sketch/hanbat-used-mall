@@ -109,7 +109,12 @@ const notificationDedupCache = new Map<string, number>();
 
 export function getClientIp(req: NextRequest | Request): string {
   const forwarded = req.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
+  if (forwarded) {
+    // 마지막 값은 신뢰 프록시가 덧붙인 실제 접속 IP이고, 앞쪽 값은 클라이언트가 임의로 넣을 수 있습니다.
+    const hops = forwarded.split(",").map((ip) => ip.trim()).filter(Boolean);
+    const clientIp = hops[hops.length - 1];
+    if (clientIp) return clientIp;
+  }
   return req.headers.get("x-real-ip") || "unknown-ip";
 }
 

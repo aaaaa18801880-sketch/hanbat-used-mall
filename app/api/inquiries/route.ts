@@ -16,6 +16,10 @@ import {
   hashInquiryPassword,
   verifyAdminRequest,
 } from "../../../lib/server-security";
+import {
+  sanitizeInquiryImageUrls,
+  signInquiryImageLists,
+} from "../../../lib/inquiry-attachments";
 
 export const runtime = "nodejs";
 
@@ -107,6 +111,8 @@ export async function GET(req: NextRequest) {
     }
 
     const rows = data ?? [];
+    const rawImageLists = rows.map((row) => extractInquiryImages(row));
+    const imageLists = await signInquiryImageLists(supabase, rawImageLists);
 
     const sanitized = rows.map(
       (row: {
@@ -125,8 +131,9 @@ export async function GET(req: NextRequest) {
         status?: string | null;
         admin_reply?: string | null;
         created_at?: string | null;
-      }) => {
-        const normalizedImages = extractInquiryImages(row);
+      }, index) => {
+        const rawImages = rawImageLists[index];
+        const normalizedImages = imageLists[index];
         const isNotice = Boolean(row.is_notice);
         const rawTitle =
           row.category ||
@@ -146,7 +153,7 @@ export async function GET(req: NextRequest) {
             region: row.region || null,
             description: row.description || "",
             images: normalizedImages,
-            has_images: normalizedImages.length > 0,
+            has_images: rawImages.length > 0,
             is_notice: isNotice,
             status: row.status || "접수",
             admin_reply: row.admin_reply || null,
@@ -167,7 +174,7 @@ export async function GET(req: NextRequest) {
           category: rawTitle,
           description: isNotice ? row.description || "" : null,
           images: isNotice ? normalizedImages : [],
-          has_images: normalizedImages.length > 0,
+          has_images: rawImages.length > 0,
           is_notice: isNotice,
           status: row.status || (isNotice ? "공지" : "접수"),
           admin_reply: null,
@@ -285,14 +292,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const images = Array.isArray(body.images)
-      ? body.images
-          .filter(
-            (u: unknown): u is string =>
-              typeof u === "string" && /^https?:\/\//i.test(u)
-          )
-          .slice(0, 5)
-      : [];
+    const images = sanitizeInquiryImageUrls(body.images);
 
     const hashedPassword = isNotice
       ? hashInquiryPassword(rawPassword || "0000")

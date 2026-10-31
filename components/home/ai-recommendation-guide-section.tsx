@@ -114,7 +114,7 @@ export function AiRecommendationGuideSection() {
                       className="py-3.5 px-4 sm:px-6 font-extrabold text-white bg-gradient-to-r from-[#16263D] to-[#1E3452] border-t-2 border-[#D9531E] w-[42%] min-w-[240px]"
                     >
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="inline-flex items-center gap-1 rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
+                        <span className="inline-flex items-center gap-1 rounded bg-[#B5431A] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
                           <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
                           OFFICIAL GUARANTEE
                         </span>
@@ -142,7 +142,7 @@ export function AiRecommendationGuideSection() {
                       </td>
                       <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF9F6] border-l-2 border-l-[#D9531E] leading-relaxed">
                         <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
-                          <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
+                          <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#B5431A] shrink-0" />
                           <span>{row.hanbat}</span>
                         </span>
                       </td>
@@ -168,7 +168,7 @@ export function AiRecommendationGuideSection() {
             </div>
             <a
               href={telHref(STORE.tel)}
-              className="text-hb-xs sm:text-hb-sm font-extrabold text-[#D9531E] hover:underline tabular-nums shrink-0 whitespace-nowrap"
+              className="text-hb-xs sm:text-hb-sm font-extrabold text-[#B5431A] hover:underline tabular-nums shrink-0 whitespace-nowrap"
             >
               직통 상담: {STORE.tel} / {STORE.mobile}
             </a>
@@ -182,10 +182,10 @@ export function AiRecommendationGuideSection() {
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-hb-xs font-black text-[#D9531E] tracking-wider">
+                    <span className="font-mono text-hb-xs font-black text-[#B5431A] tracking-wider">
                       {g.code}
                     </span>
-                    <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                    <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#B5431A]">
                       {g.badge}
                     </span>
                   </div>
@@ -216,7 +216,7 @@ export function AiRecommendationGuideSection() {
                     className="flex w-full items-center justify-between rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:bg-[#0E1A2B] group-hover:text-white group-hover:border-[#0E1A2B] transition-colors"
                   >
                     <span>{g.ctaLabel}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#D9531E] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#B5431A] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                   </Link>
                 </div>
               </article>

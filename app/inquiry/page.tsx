@@ -602,8 +602,8 @@ export default function InquiryBoardPage() {
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="hb-eyebrow">구매 · 매입 · 업소용 상담 게시판</span>
-                <span className="text-hb-xs text-[#D8D3C8]">|</span>
-                <span className="text-hb-xs font-semibold text-[#667085]">
+                <span className="text-hb-xs text-[#D8D3C8]" aria-hidden="true">|</span>
+                <span className="text-hb-xs font-semibold text-[#596273]">
                   비밀번호 보호 안전 열람
                 </span>
               </div>
@@ -629,7 +629,7 @@ export default function InquiryBoardPage() {
                 href={telHref(STORE.tel)}
                 className="hb-btn-outline h-11 px-4 text-hb-sm tabular-nums"
               >
-                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#B5431A]" />
                 <span>전화 {STORE.tel}</span>
               </a>
             </div>
@@ -666,7 +666,7 @@ export default function InquiryBoardPage() {
                   {tab}
                   <span
                     className={`ml-1.5 text-hb-xs tabular-nums ${
-                      active ? "text-[#FF8A50]" : "text-[#667085]"
+                      active ? "text-[#FF8A50]" : "text-[#596273]"
                     }`}
                   >
                     {tabCounts[tab] || 0}
@@ -689,7 +689,7 @@ export default function InquiryBoardPage() {
                 aria-label="제목 검색"
                 className="h-10 w-full md:w-[230px] rounded-lg border border-[#D8D3C8] bg-white px-3 pl-9 pr-8 text-hb-sm text-[#0E1A2B] placeholder:text-[#8A8478] focus:border-[#0E1A2B] focus:outline-none"
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#667085] pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#596273] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
               </span>
               {keyword.trim() !== "" && (
@@ -721,7 +721,7 @@ export default function InquiryBoardPage() {
         {/* 데스크톱 테이블 */}
         <div className="hidden md:block overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
           <table className="w-full text-hb-sm text-center text-[#0E1A2B]">
-            <thead className="bg-[#FAF9F7] text-[#667085] text-hb-xs font-bold border-b border-[#E5E2DC]">
+            <thead className="bg-[#FAF9F7] text-[#596273] text-hb-xs font-bold border-b border-[#E5E2DC]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
                 <th className="w-32">구분</th>
@@ -750,7 +750,7 @@ export default function InquiryBoardPage() {
                         className="bg-[#FFF5F0] hover:bg-[#FDECE4] transition-colors h-14 cursor-pointer"
                       >
                         <td>
-                          <span className="bg-[#D9531E] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
+                          <span className="bg-[#B5431A] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
                             공지
                           </span>
                         </td>
@@ -763,13 +763,13 @@ export default function InquiryBoardPage() {
                           <div className="flex items-center gap-2">
                             <Icon
                               d={ICON.bell}
-                              className="w-4 h-4 text-[#D9531E] shrink-0"
+                              className="w-4 h-4 text-[#B5431A] shrink-0"
                             />
                             <span className="truncate">{notice.category}</span>
                             {hasImages(notice) && (
                               <Icon
                                 d={ICON.image}
-                                className="w-4 h-4 text-[#D9531E] shrink-0"
+                                className="w-4 h-4 text-[#B5431A] shrink-0"
                               />
                             )}
                           </div>
@@ -777,10 +777,10 @@ export default function InquiryBoardPage() {
                         <td>
                           <StatusBadge status={null} notice />
                         </td>
-                        <td className="font-bold text-[#D9531E]">
+                        <td className="font-bold text-[#B5431A]">
                           {notice.name}
                         </td>
-                        <td className="text-[#667085] tabular-nums">
+                        <td className="text-[#596273] tabular-nums">
                           {formatDate(notice.created_at)}
                         </td>
                       </tr>
@@ -791,7 +791,7 @@ export default function InquiryBoardPage() {
                       onClick={() => handleItemClick(item)}
                       className="hover:bg-[#FAF9F7] transition-colors h-14 cursor-pointer"
                     >
-                      <td className="text-[#667085] tabular-nums">
+                      <td className="text-[#596273] tabular-nums">
                         {filteredList.length -
                           ((safePage - 1) * ITEMS_PER_PAGE + index)}
                       </td>
@@ -809,14 +809,14 @@ export default function InquiryBoardPage() {
                           {!isAdmin && (
                             <Icon
                               d={ICON.lock}
-                              className="w-3.5 h-3.5 text-[#667085] shrink-0"
+                              className="w-3.5 h-3.5 text-[#596273] shrink-0"
                             />
                           )}
                           <span className="truncate">{rowTitle(item)}</span>
                           {hasImages(item) && (
                             <Icon
                               d={ICON.image}
-                              className="w-4 h-4 text-[#667085] shrink-0"
+                              className="w-4 h-4 text-[#596273] shrink-0"
                             />
                           )}
                         </div>
@@ -827,7 +827,7 @@ export default function InquiryBoardPage() {
                       <td className="text-[#3E4856] font-medium">
                         {item.masked_name || maskName(item.name)}
                       </td>
-                      <td className="text-[#667085] text-hb-xs tabular-nums">
+                      <td className="text-[#596273] text-hb-xs tabular-nums">
                         {formatDate(item.created_at)}
                       </td>
                     </tr>
@@ -858,17 +858,17 @@ export default function InquiryBoardPage() {
                       className="w-full text-left bg-[#FFF5F0] border border-[#FADCD0] rounded-xl p-4 hover:bg-[#FDECE4] transition-colors"
                     >
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="bg-[#D9531E] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
+                        <span className="bg-[#B5431A] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
                           공지사항
                         </span>
-                        <span className="text-hb-xs text-[#667085] tabular-nums">
+                        <span className="text-hb-xs text-[#596273] tabular-nums">
                           {formatDate(notice.created_at)}
                         </span>
                       </div>
                       <p className="font-bold text-[#0E1A2B] text-hb-base line-clamp-2 flex items-center gap-1.5">
                         <Icon
                           d={ICON.bell}
-                          className="w-4 h-4 text-[#D9531E] shrink-0"
+                          className="w-4 h-4 text-[#B5431A] shrink-0"
                         />
                         <span>{notice.category}</span>
                       </p>
@@ -896,18 +896,18 @@ export default function InquiryBoardPage() {
                       {!isAdmin && (
                         <Icon
                           d={ICON.lock}
-                          className="w-3.5 h-3.5 text-[#667085] shrink-0"
+                          className="w-3.5 h-3.5 text-[#596273] shrink-0"
                         />
                       )}
                       <span>{rowTitle(item)}</span>
                       {hasImages(item) && (
                         <Icon
                           d={ICON.image}
-                          className="w-4 h-4 text-[#667085] shrink-0"
+                          className="w-4 h-4 text-[#596273] shrink-0"
                         />
                       )}
                     </p>
-                    <div className="mt-2.5 pt-2 border-t border-[#EFECE6] flex items-center justify-between text-hb-xs text-[#667085]">
+                    <div className="mt-2.5 pt-2 border-t border-[#EFECE6] flex items-center justify-between text-hb-xs text-[#596273]">
                       <span className="font-medium text-[#3E4856]">
                         {item.masked_name || maskName(item.name)}
                       </span>
@@ -948,7 +948,7 @@ export default function InquiryBoardPage() {
                   ? "검색 조건에 맞는 문의글이 없습니다."
                   : "아직 등록된 문의 내역이 없습니다."}
               </p>
-              <p className="text-[#667085]">
+              <p className="text-[#596273]">
                 궁금하신 점이나 매입 견적 문의를 남겨주시면 빠르게 안내해 드립니다.
               </p>
               <button
@@ -1159,7 +1159,7 @@ export default function InquiryBoardPage() {
                   )}
                   <span>
                     진행상태:{" "}
-                    <strong className="text-[#D9531E]">
+                    <strong className="text-[#B5431A]">
                       {selectedItem.status || "접수"}
                     </strong>
                   </span>
@@ -1203,7 +1203,7 @@ export default function InquiryBoardPage() {
                           )}
                           {parsed.bulkItems.length > 0 && (
                             <div className="pt-2 border-t border-[#E5E2DC]">
-                              <span className="text-hb-xs font-bold text-[#D9531E] block mb-1">
+                              <span className="text-hb-xs font-bold text-[#B5431A] block mb-1">
                                 요청 장비 및 수량
                               </span>
                               <ul className="space-y-1 text-hb-xs font-medium text-[#0E1A2B]">

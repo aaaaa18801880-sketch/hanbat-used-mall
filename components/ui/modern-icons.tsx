@@ -52,7 +52,7 @@ export function ModernApplianceIcon({
     ? (dark ? "bg-[#38BDF8]/25" : "bg-[#0284C7]/15")
     : isTealType
     ? (dark ? "bg-[#2DD4BF]/25" : "bg-[#0D9488]/15")
-    : (dark ? "bg-[#FF8A50]/25" : "bg-[#D9531E]/15");
+    : (dark ? "bg-[#FF8A50]/25" : "bg-[#B5431A]/15");
 
   return (
     <div

@@ -15,6 +15,7 @@ import {
   verifyAdminRequest,
   verifyInquiryPassword,
 } from "../../../../lib/server-security";
+import { signInquiryImageLists } from "../../../../lib/inquiry-attachments";
 
 export const runtime = "nodejs";
 
@@ -70,7 +71,9 @@ export async function POST(
       }
     }
 
-    const images = extractInquiryImages(row);
+    const [images] = await signInquiryImageLists(supabase, [
+      extractInquiryImages(row),
+    ]);
 
     return NextResponse.json({
       inquiry: {
@@ -281,8 +284,11 @@ export async function DELETE(
     try {
       const attachedImages = extractInquiryImages(existing);
       if (attachedImages.length > 0) {
-        const { inquiries: inqFiles, productImages: prodFiles } =
-          extractStorageFilesByBucket(attachedImages);
+        const {
+          inquiries: inqFiles,
+          productImages: prodFiles,
+          attachments: attachmentFiles,
+        } = extractStorageFilesByBucket(attachedImages);
         if (inqFiles.length > 0) {
           await supabase.storage
             .from(STORAGE_BUCKETS.inquiries)
@@ -292,6 +298,11 @@ export async function DELETE(
           await supabase.storage
             .from(STORAGE_BUCKETS.legacyProductImages)
             .remove(prodFiles);
+        }
+        if (attachmentFiles.length > 0) {
+          await supabase.storage
+            .from(STORAGE_BUCKETS.inquiryAttachments)
+            .remove(attachmentFiles);
         }
       }
     } catch (storageErr) {

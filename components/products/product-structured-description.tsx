@@ -71,7 +71,7 @@ export function ProductStructuredDescription({
       {parsed.summary.length > 0 && (
         <div className={isCompact ? "" : "py-4"}>
           <h3 className="text-hb-sm font-bold text-[#0E1A2B] mb-2 flex items-center gap-1.5">
-            <Icon d={ICON.check} className="h-4 w-4 text-[#D9531E]" />
+            <Icon d={ICON.check} className="h-4 w-4 text-[#B5431A]" />
             <span>한눈에 보는 제품 요약</span>
           </h3>
           <div className="space-y-1 text-hb-sm leading-relaxed text-[#2D333F]">
@@ -129,7 +129,7 @@ export function ProductStructuredDescription({
               <ul className="space-y-1.5 text-hb-sm leading-relaxed text-[#3E4756]">
                 {parsed.features.map((f, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <span className="text-[#D9531E] font-extrabold">·</span>
+                    <span className="text-[#B5431A] font-extrabold">·</span>
                     <span>{f}</span>
                   </li>
                 ))}
@@ -178,7 +178,7 @@ export function ProductStructuredDescription({
                 <p key={i} className="flex items-start gap-1.5">
                   <Icon
                     d={ICON.chat}
-                    className="w-4 h-4 text-[#D9531E] shrink-0 mt-0.5"
+                    className="w-4 h-4 text-[#B5431A] shrink-0 mt-0.5"
                   />
                   <span>{cg}</span>
                 </p>

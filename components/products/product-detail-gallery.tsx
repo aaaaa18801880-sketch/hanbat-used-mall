@@ -127,7 +127,7 @@ export function ProductDetailGallery({
         {/* 상단 쇼룸 이미지 뷰어 바 */}
         <div className="bg-[#0E1A2B] text-white px-4 py-2.5 flex items-center justify-between gap-2 text-hb-xs">
           <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#D9531E]" />
+            <span className="inline-block w-2 h-2 rounded-full bg-[#B5431A]" />
             <span className="font-bold tracking-wider uppercase text-white/90">
               SHOWROOM STUDIO PHOTO
             </span>
@@ -318,7 +318,7 @@ export function CopyProductLinkButton({
       className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#3E4856] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors shadow-2xs"
       title={`${productTitle} 링크 복사`}
     >
-      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
+      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#B5431A]" />
       <span>상품 링크 복사</span>
     </button>
   );
@@ -370,7 +370,7 @@ export function QuoteBasketButton({
 
   const defaultClasses = `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-colors w-full ${
     inBasket
-      ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
+      ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A]"
       : "border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
   }`;
 
@@ -384,7 +384,7 @@ export function QuoteBasketButton({
       <Icon
         d={inBasket ? ICON.check : ICON.plus}
         className={`w-4 h-4 shrink-0 ${
-          inBasket ? "text-[#D9531E]" : "text-[#0E1A2B]"
+          inBasket ? "text-[#B5431A]" : "text-[#0E1A2B]"
         }`}
       />
       <span className="truncate">
@@ -465,7 +465,7 @@ export function CopyPromoPostButton({
         }
         title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
       >
-        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#D9531E]" />
+        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#B5431A]" />
         <span>홍보글 양식 복사 (관리자)</span>
       </button>
     </div>
@@ -560,7 +560,7 @@ export function InteractiveChecklistAndCta({
     <div className="mt-5 pt-4 border-t border-[#E5E2DC] space-y-3">
       {sold && (
         <div className="rounded-xl border border-[#FADCD0] bg-[#FFF5F0] p-3 text-hb-xs text-[#B5431A] font-semibold leading-snug flex items-center gap-2">
-          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#D9531E]" />
+          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#B5431A]" />
           <span>
             이 매물은 판매 완료되었으나 직영 매장에{" "}
             <strong className="underline">동일·유사 스펙 대기 매물</strong>이 있습니다.
@@ -572,7 +572,7 @@ export function InteractiveChecklistAndCta({
       <a
         href={telHref(STORE.tel)}
         aria-label={`한밭중고전자 직영 매장 전화 문의 연결 (${STORE.tel})`}
-        className="w-full h-14 rounded-2xl bg-[#D9531E] hover:bg-[#C04615] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
+        className="w-full h-14 rounded-2xl bg-[#B5431A] hover:bg-[#C04615] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -629,7 +629,7 @@ export function InteractiveChecklistAndCta({
           href={smsHref(STORE.mobile, smsBody)}
           className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold"
         >
-          <Icon d={ICON.chat} className="h-4 w-4 text-[#D9531E] shrink-0" />
+          <Icon d={ICON.chat} className="h-4 w-4 text-[#B5431A] shrink-0" />
           <span className="truncate">문자(SMS) 문의</span>
         </a>
 
@@ -680,10 +680,10 @@ export function InteractiveChecklistAndCta({
         className="w-full h-11 rounded-xl border border-[#D7D2C8] bg-[#FAF9F7] hover:bg-[#F0EDE7] text-[#0E1A2B] flex items-center justify-between px-4 transition-colors font-bold text-hb-xs sm:text-hb-sm cursor-pointer shadow-2xs"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <Icon d={ICON.pin} className="w-4 h-4 text-[#D9531E] shrink-0" />
+          <Icon d={ICON.pin} className="w-4 h-4 text-[#B5431A] shrink-0" />
           <span className="truncate">직영 매장 방문 실물 확인 · 1초 길찾기</span>
         </div>
-        <span className="text-hb-xs font-semibold text-[#D9531E] shrink-0 ml-1">
+        <span className="text-hb-xs font-semibold text-[#B5431A] shrink-0 ml-1">
           실물 찜하기 →
         </span>
       </button>

@@ -136,7 +136,7 @@ export function DuotoneIcon({
   const toneClasses = {
     navy: "bg-[#0E1A2B]/10 text-[#0E1A2B] border border-[#0E1A2B]/15 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
     orange:
-      "bg-[#D9531E]/10 text-[#D9531E] border border-[#D9531E]/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
+      "bg-[#B5431A]/10 text-[#B5431A] border border-[#D9531E]/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
     emerald:
       "bg-emerald-500/10 text-emerald-700 border border-emerald-500/20 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.7)]",
     kakao:
@@ -254,7 +254,7 @@ export function SafeImg({
         aria-label={alt || "상품 이미지 준비 중"}
         className={`flex flex-col items-center justify-center gap-1 bg-[#F0EDE7] text-[#646E7E] text-hb-xs font-medium select-none ${className}`}
       >
-        <Icon d={ICON.image} className="w-5 h-5 text-[#858076]/70" />
+        <Icon d={ICON.image} className="w-5 h-5 text-[#6E675C]/70" />
         <span>이미지 준비 중</span>
       </div>
     );
@@ -296,7 +296,7 @@ export function SectionHeading({
       {eyebrow && (
         <p
           className={`mb-2 text-hb-xs font-semibold tracking-[-0.01em] ${
-            dark ? "text-[#FF8A50]" : "text-[#D9531E]"
+            dark ? "text-[#FF8A50]" : "text-[#B5431A]"
           }`}
         >
           {eyebrow}
@@ -534,8 +534,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   aria-current={isActive ? "page" : undefined}
                   className={`relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] ${
                     isActive
-                      ? "text-[#D9531E] bg-[#FFF5F0] font-bold"
-                      : "text-[#0E1A2B] hover:text-[#D9531E] hover:bg-[#FAF9F7]"
+                      ? "text-[#B5431A] bg-[#FFF5F0] font-bold"
+                      : "text-[#0E1A2B] hover:text-[#B5431A] hover:bg-[#FAF9F7]"
                   }`}
                 >
                   {item.label}
@@ -549,12 +549,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 h-10 text-hb-xs font-bold text-[#D9531E] hover:bg-[#D9531E] hover:text-white transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#D9531E] bg-[#FFF5F0] px-3 h-10 text-hb-xs font-bold text-[#B5431A] hover:bg-[#B5431A] hover:text-white transition-colors whitespace-nowrap"
                 title="담아둔 관심 매물 견적함 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-hb-xs font-bold text-white tabular-nums">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#B5431A] px-1 text-hb-xs font-bold text-white tabular-nums">
                   {basketCount}
                 </span>
               </Link>
@@ -568,7 +568,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               className="hidden md:inline-flex items-center gap-1.5 rounded-lg border border-[#CFCAC0] bg-[#FAF9F7] px-3.5 h-10 text-hb-sm font-semibold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors whitespace-nowrap tabular-nums"
               aria-label={`전화 상담 ${STORE.tel}`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#B5431A]" />
               <span>전화 상담</span>
               <span className="hidden xl:inline text-[#3E4756] font-bold">
                 {STORE.tel}
@@ -583,7 +583,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                 trackEvent("click_kakao_consult", { location: "site_header" })
               }
               className="hidden sm:inline-flex hb-btn-kakao h-10 px-3.5 text-hb-sm whitespace-nowrap"
-              aria-label="카카오톡 채널 상담 열기"
+              aria-label="카톡 상담 (카카오톡 채널 열기)"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
               <span>카톡 상담</span>
@@ -654,14 +654,14 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                         onClick={() => setMenuOpen(false)}
                         className={`flex items-center justify-between py-3.5 text-hb-base font-bold transition-colors ${
                           isActive
-                            ? "text-[#D9531E]"
-                            : "text-[#0E1A2B] hover:text-[#D9531E]"
+                            ? "text-[#B5431A]"
+                            : "text-[#0E1A2B] hover:text-[#B5431A]"
                         }`}
                       >
                         <span>{item.label}</span>
                         <Icon
                           d={ICON.right}
-                          className="w-4 h-4 text-[#858076]"
+                          className="w-4 h-4 text-[#6E675C]"
                         />
                       </Link>
                     </li>
@@ -685,7 +685,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                     <span className="truncate">{cat.label}</span>
                     <Icon
                       d={ICON.right}
-                      className="w-3.5 h-3.5 text-[#D9531E] shrink-0"
+                      className="w-3.5 h-3.5 text-[#B5431A] shrink-0"
                     />
                   </Link>
                 ))}
@@ -901,7 +901,7 @@ export function QuoteBasketFloatingBar() {
             onClick={() => setExpanded((v) => !v)}
             className="flex min-w-0 items-center gap-2 text-left text-hb-sm font-bold text-white hover:text-[#FF8A50]"
           >
-            <span className="inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[#D9531E] px-1.5 text-hb-xs font-bold text-white tabular-nums">
+            <span className="inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[#B5431A] px-1.5 text-hb-xs font-bold text-white tabular-nums">
               {items.length}
             </span>
             <span className="truncate">
@@ -1018,9 +1018,9 @@ export function FloatingQuickWing() {
             })
           }
           title={`대표전화 ${STORE.tel}`}
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-t-xl text-[#0E1A2B] hover:bg-[#FAF9F7] hover:text-[#D9531E] transition-colors"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-t-xl text-[#0E1A2B] hover:bg-[#FAF9F7] hover:text-[#B5431A] transition-colors"
         >
-          <Icon d={ICON.phone} className="w-4 h-4 text-[#D9531E]" />
+          <Icon d={ICON.phone} className="w-4 h-4 text-[#B5431A]" />
           <span className="text-hb-xs font-bold leading-none">전화</span>
         </a>
 
@@ -1034,7 +1034,7 @@ export function FloatingQuickWing() {
             })
           }
           title="카카오톡 상담"
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#0E1A2B] hover:bg-[#FAF9F7] hover:text-[#D9531E] transition-colors"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#0E1A2B] hover:bg-[#FAF9F7] hover:text-[#B5431A] transition-colors"
         >
           <span className="grid h-5 w-5 place-items-center rounded-md bg-[#FEE500] text-[#191600]">
             <Icon d={ICON.chat} className="w-3.5 h-3.5" />
@@ -1046,12 +1046,12 @@ export function FloatingQuickWing() {
           type="button"
           onClick={() => handleInquiryClick("구매 문의")}
           title="견적 문의"
-          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#0E1A2B] hover:bg-[#FFF5F0] hover:text-[#D9531E] transition-colors"
+          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#0E1A2B] hover:bg-[#FFF5F0] hover:text-[#B5431A] transition-colors"
         >
-          <Icon d={ICON.pen} className="w-4 h-4 text-[#D9531E]" />
+          <Icon d={ICON.pen} className="w-4 h-4 text-[#B5431A]" />
           <span className="text-hb-xs font-bold leading-none">견적</span>
           {basketCount > 0 && (
-            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#D9531E] px-1 text-hb-xs font-bold text-white tabular-nums">
+            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#B5431A] px-1 text-hb-xs font-bold text-white tabular-nums">
               {basketCount}
             </span>
           )}
@@ -1093,7 +1093,7 @@ export function SiteFooter({
             <div className="lg:col-span-5 space-y-4">
               <div className="flex items-center gap-3">
                 <HanbatBrandLogo dark size="compact" />
-                <span className="rounded bg-[#D9531E]/20 border border-[#D9531E]/40 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
+                <span className="rounded bg-[#B5431A]/20 border border-[#D9531E]/40 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
                   {STORE.since}년 개업
                 </span>
               </div>
@@ -1124,7 +1124,7 @@ export function SiteFooter({
                         location: "site_footer_mobile",
                       })
                     }
-                    className="text-hb-sm font-semibold text-white/80 hover:text-white transition-colors"
+                    className="inline-flex min-h-6 items-center text-hb-sm font-semibold text-white/80 hover:text-white transition-colors"
                   >
                     직통 {STORE.mobile}
                   </a>
@@ -1175,7 +1175,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=에어컨/냉난방기"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       에어컨 · 냉난방기
                     </Link>
@@ -1183,7 +1183,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=냉장고"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       냉장고 · 김치냉장고
                     </Link>
@@ -1191,7 +1191,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=세탁기/건조기"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       세탁기 · 건조기
                     </Link>
@@ -1199,7 +1199,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=업소용기기"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       업소용 냉장 · 주방기기
                     </Link>
@@ -1207,7 +1207,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery?category=기타"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       주방 · 생활 소형가전
                     </Link>
@@ -1223,7 +1223,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/gallery"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       실시간 판매 제품 갤러리
                     </Link>
@@ -1231,7 +1231,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/purchase"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       중고가전 방문 매입 신청
                     </Link>
@@ -1239,7 +1239,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/#reviews-section"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       배송 · 설치 현장 사례
                     </Link>
@@ -1247,7 +1247,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/inquiry"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       견적 문의 · 매입 게시판
                     </Link>
@@ -1255,7 +1255,7 @@ export function SiteFooter({
                   <li>
                     <Link
                       href="/privacy"
-                      className="hover:text-white transition-colors"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       개인정보처리방침
                     </Link>
@@ -1301,7 +1301,7 @@ export function SiteFooter({
               <button
                 type="button"
                 onClick={onAdminClick}
-                className="text-hb-xs text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end shrink-0"
+                className="inline-flex min-h-6 items-center text-hb-xs text-white/55 hover:text-white underline underline-offset-4 transition-colors self-start sm:self-end shrink-0"
               >
                 {isAdmin ? "관리자 로그아웃" : "관리자 로그인"}
               </button>
@@ -1409,7 +1409,7 @@ export function MobileCtaBar({
                 <Icon
                   d={inBasket ? ICON.check : ICON.plus}
                   className={`h-3.5 w-3.5 ${
-                    inBasket ? "text-[#FF8A50]" : "text-[#D9531E]"
+                    inBasket ? "text-[#FF8A50]" : "text-[#B5431A]"
                   }`}
                 />
                 <span>{inBasket ? "담김" : "견적함"}</span>
@@ -1440,7 +1440,7 @@ export function MobileCtaBar({
               aria-label="전화 상담"
               className="grid h-10 w-10 place-items-center rounded-lg border border-[#D7D2C8] bg-[#FAF9F7] text-[#0E1A2B]"
             >
-              <Icon d={ICON.phone} className="h-4 w-4 text-[#D9531E]" />
+              <Icon d={ICON.phone} className="h-4 w-4 text-[#B5431A]" />
             </a>
             <a
               href={smsHref(STORE.mobile, productSmsBody)}
@@ -1494,7 +1494,7 @@ export function MobileCtaBar({
           }
           className="flex items-center justify-center gap-1.5 rounded-lg border border-[#D7D2C8] bg-[#FAF9F7] text-hb-xs font-bold text-[#0E1A2B] active:bg-[#F0EDE7] whitespace-nowrap"
         >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#D9531E]" />
+          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#B5431A]" />
           <span>전화상담</span>
         </a>
         <a

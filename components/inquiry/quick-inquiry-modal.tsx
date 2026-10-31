@@ -62,7 +62,7 @@ export function QuickInquiryModal() {
         <div className="bg-[#0E1A2B] text-white p-4 sm:p-5 flex items-start justify-between gap-3 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
+              <span className="rounded bg-[#B5431A] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
                 직영 매장 직통
               </span>
               <span className="text-hb-xs font-medium text-white/70">

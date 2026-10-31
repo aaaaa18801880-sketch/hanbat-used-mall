@@ -84,7 +84,7 @@ export function FeaturedProductsSection({
         {/* 에디토리얼 쇼룸 헤더 바 */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b-2 border-[#0E1A2B]">
           <div>
-            <div className="flex items-center gap-2 text-hb-xs font-bold text-[#D9531E]">
+            <div className="flex items-center gap-2 text-hb-xs font-bold text-[#B5431A]">
               <span>LIVE SHOWROOM INVENTORY</span>
               <span>·</span>
               <span className="text-[#0E1A2B] tabular-nums">
@@ -108,7 +108,7 @@ export function FeaturedProductsSection({
                     setVisibleCount(INITIAL_DISPLAY_LIMIT);
                     onResetCategory();
                   }}
-                  className="text-hb-xs font-bold text-[#D9531E] underline underline-offset-4 cursor-pointer"
+                  className="text-hb-xs font-bold text-[#B5431A] underline underline-offset-4 cursor-pointer"
                 >
                   전체 품목으로 복귀
                 </button>

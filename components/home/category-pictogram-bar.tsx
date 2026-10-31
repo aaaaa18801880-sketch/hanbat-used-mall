@@ -212,7 +212,7 @@ export function CategoryPictogramBar({
         <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-[#ECE9E2]">
           <div className="flex items-center gap-2">
             <span
-              className="inline-block h-3.5 w-1 rounded-full bg-[#D9531E]"
+              className="inline-block h-3.5 w-1 rounded-full bg-[#B5431A]"
               aria-hidden="true"
             />
             <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] tracking-tight">
@@ -239,7 +239,7 @@ export function CategoryPictogramBar({
             </button>
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1 rounded-full border border-[#E5E2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:text-[#D9531E] transition-colors"
+              className="inline-flex items-center gap-1 rounded-full border border-[#E5E2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:text-[#B5431A] transition-colors"
             >
               <span>갤러리 전체보기</span>
               <Icon d={ICON.right} className="w-3.5 h-3.5" />
@@ -276,7 +276,7 @@ export function CategoryPictogramBar({
                         className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
                           isSelected
                             ? "bg-white/20 text-[#FF8A50]"
-                            : "bg-[#D9531E]/10 text-[#D9531E]"
+                            : "bg-[#B5431A]/10 text-[#B5431A]"
                         }`}
                       >
                         B2B
@@ -296,7 +296,7 @@ export function CategoryPictogramBar({
                         className={`block text-hb-xs sm:text-hb-sm font-extrabold truncate ${
                           isSelected
                             ? "text-white"
-                            : "text-[#0E1A2B] group-hover:text-[#D9531E]"
+                            : "text-[#0E1A2B] group-hover:text-[#B5431A]"
                         }`}
                       >
                         {item.label}
@@ -306,7 +306,7 @@ export function CategoryPictogramBar({
                           isSelected
                             ? "text-[#FF8A50]"
                             : isBiz
-                            ? "text-[#D9531E] font-bold"
+                            ? "text-[#B5431A] font-bold"
                             : "text-[#646E7E]"
                         }`}
                       >
@@ -344,7 +344,7 @@ export function CategoryPictogramBar({
                     className="w-5 h-5 shrink-0"
                   />
                   <div className="min-w-0">
-                    <span className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#D9531E] transition-colors truncate">
+                    <span className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#B5431A] transition-colors truncate">
                       {item.label}
                     </span>
                     <span className="hidden sm:block text-hb-xs text-[#646E7E] truncate">
@@ -354,7 +354,7 @@ export function CategoryPictogramBar({
                 </div>
                 <Icon
                   d={ICON.right}
-                  className="w-3.5 h-3.5 text-[#858076] group-hover:text-[#D9531E] group-hover:translate-x-0.5 transition-all shrink-0"
+                  className="w-3.5 h-3.5 text-[#6E675C] group-hover:text-[#B5431A] group-hover:translate-x-0.5 transition-all shrink-0"
                 />
               </button>
             ))}

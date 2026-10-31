@@ -1,12 +1,13 @@
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
+import { serializeJsonLd } from "../../lib/json-ld";
 import {
   STORE,
   STORE_MERCHANT_POLICY,
   STORE_SHIPPING_POLICY,
-  telHref,
   splitImages,
   isProductSold,
   getProductStatusLabel,
@@ -134,7 +135,7 @@ export async function generateMetadata({
 
   if (!product || product.category === "배송인증") {
     return {
-      title: `상품을 찾을 수 없습니다 | ${STORE.name}`,
+      title: "상품을 찾을 수 없습니다",
       robots: { index: false, follow: false },
     };
   }
@@ -220,38 +221,7 @@ export default async function ProductDetailPage({
     .single();
 
   if (error || !product || product.category === "배송인증") {
-    return (
-      <div className="min-h-screen bg-[#FAF9F7] flex flex-col font-sans text-[#0E1A2B]">
-        <SiteHeader />
-        <main className="flex-1 flex items-center justify-center p-5">
-          <div className="bg-white p-8 sm:p-10 rounded-xl shadow-card border border-[#E5E2DC] text-center max-w-md w-full">
-            <p className="hb-eyebrow justify-center">Inventory Notice</p>
-            <h1 className="mt-2 text-hb-xl font-bold text-[#0E1A2B]">
-              찾으시는 상품 정보가 없습니다.
-            </h1>
-            <p className="mt-2.5 text-hb-sm leading-relaxed text-[#3E4756]">
-              이미 판매가 완료되어 목록에서 내려갔거나 주소가 변경된 상품입니다. 판매 갤러리에서 현재 구매 가능한 다른 매물을 확인해 보세요.
-            </p>
-            <div className="mt-6 flex flex-col sm:flex-row gap-2.5 justify-center">
-              <Link
-                href="/gallery"
-                className="hb-btn-primary h-11 px-6 text-hb-sm"
-              >
-                판매 제품 갤러리로 이동
-              </Link>
-              <a
-                href={telHref(STORE.tel)}
-                className="hb-btn-outline h-11 px-5 text-hb-sm"
-              >
-                전화로 유사 매물 문의
-              </a>
-            </div>
-          </div>
-        </main>
-        <SiteFooter />
-        <MobileCtaBar />
-      </div>
-    );
+    notFound();
   }
 
   const images = splitImages(product.image_url);
@@ -452,7 +422,7 @@ export default async function ProductDetailPage({
     <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
       />
 
       <SiteHeader />
@@ -466,7 +436,7 @@ export default async function ProductDetailPage({
           <div className="flex flex-wrap items-center gap-2 text-hb-sm font-bold text-[#3E4856] min-w-0">
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1.5 text-[#0E1A2B] hover:text-[#D9531E] transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 text-[#0E1A2B] hover:text-[#B5431A] transition-colors shrink-0"
             >
               <Icon d={ICON.left} className="h-4 w-4" />
               <span>전체 제품 갤러리</span>
@@ -479,7 +449,7 @@ export default async function ProductDetailPage({
               {categoryLabel}
             </Link>
             <span className="hidden md:inline text-[#D8D3C8]">/</span>
-            <span className="hidden md:inline truncate max-w-[280px] text-[#667085] font-medium">
+            <span className="hidden md:inline truncate max-w-[280px] text-[#596273] font-medium">
               {product.title}
             </span>
           </div>
@@ -543,7 +513,7 @@ export default async function ProductDetailPage({
                   className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
                     sold
                       ? "bg-[#E5E2DC] text-[#646E7E]"
-                      : "bg-[#D9531E]/10 text-[#D9531E]"
+                      : "bg-[#B5431A]/10 text-[#B5431A]"
                   }`}
                 >
                   {statusLabel}
@@ -625,7 +595,7 @@ export default async function ProductDetailPage({
                   <dd className="font-semibold text-[#0E1A2B] text-right flex items-center justify-end gap-1.5">
                     {product.condition_grade ? (
                       <>
-                        <span className="inline-flex items-center rounded bg-[#D9531E]/10 px-1.5 py-0.5 text-hb-xs font-bold text-[#D9531E]">
+                        <span className="inline-flex items-center rounded bg-[#B5431A]/10 px-1.5 py-0.5 text-hb-xs font-bold text-[#B5431A]">
                           {product.condition_grade}
                         </span>
                         <span>작동 점검 및 세척 완료</span>
@@ -731,7 +701,7 @@ export default async function ProductDetailPage({
               </div>
               <Link
                 href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                className="text-hb-sm font-bold text-[#0E1A2B] hover:text-[#D9531E] underline underline-offset-4"
+                className="text-hb-sm font-bold text-[#0E1A2B] hover:text-[#B5431A] underline underline-offset-4"
               >
                 {categoryLabel} 전체 보기 →
               </Link>
@@ -767,7 +737,7 @@ export default async function ProductDetailPage({
             {categoryFaqs.map((faq) => (
               <div key={faq.q} className="py-4">
                 <dt className="flex items-start gap-2 text-hb-base font-bold text-[#0E1A2B]">
-                  <span className="text-[#D9531E] font-extrabold">Q.</span>
+                  <span className="text-[#B5431A] font-extrabold">Q.</span>
                   <span>{faq.q}</span>
                 </dt>
                 <dd className="mt-1.5 pl-6 text-hb-sm leading-relaxed text-[#3E4756] break-keep">

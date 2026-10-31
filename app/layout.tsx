@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
 import { STORE } from "../lib/site";
+import { serializeJsonLd } from "../lib/json-ld";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
@@ -282,18 +283,18 @@ export default function RootLayout({
         />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd) }}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
+            __html: serializeJsonLd(organizationJsonLd),
           }}
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(localBusinessJsonLd),
+            __html: serializeJsonLd(localBusinessJsonLd),
           }}
         />
         <Script

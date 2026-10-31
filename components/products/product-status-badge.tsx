@@ -37,7 +37,7 @@ export function ProductStatusBadge({
         {label}
       </span>
       {isFresh && (
-        <span className="inline-block rounded bg-[#D9531E] px-2 py-0.5 text-hb-xs font-bold tracking-wide text-white shadow-2xs">
+        <span className="inline-block rounded bg-[#B5431A] px-2 py-0.5 text-hb-xs font-bold tracking-wide text-white shadow-2xs">
           NEW
         </span>
       )}

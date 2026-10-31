@@ -699,6 +699,14 @@ export function sanitizeAnalysisResponse(
 
 export async function POST(req: NextRequest) {
   try {
+    const origin = req.headers.get("origin");
+    if (origin && origin !== new URL(req.url).origin) {
+      return NextResponse.json(
+        { error: "허용되지 않은 요청 출처입니다." },
+        { status: 403 }
+      );
+    }
+
     const ip = getClientIp(req);
     const rate = checkRateLimit(`analyze_inquiry:${ip}`, 8, 60 * 1000);
     if (!rate.allowed) {

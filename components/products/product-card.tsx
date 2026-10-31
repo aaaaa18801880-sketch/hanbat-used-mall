@@ -71,8 +71,8 @@ export function ProductTrustMicroStrip({
       desc: warrantyHighlight,
       highlight: null,
       icon: "shield" as const,
-      color: "text-[#D9531E]",
-      badge: "bg-[#FFF5F0] text-[#D9531E] border-[#FADCD0]",
+      color: "text-[#B5431A]",
+      badge: "bg-[#FFF5F0] text-[#B5431A] border-[#FADCD0]",
     },
     {
       step: "03",
@@ -228,7 +228,7 @@ export function ProductCard({
           <div
             className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded border transition-colors ${
               isSelected
-                ? "border-[#D9531E] bg-[#D9531E] text-white"
+                ? "border-[#D9531E] bg-[#B5431A] text-white"
                 : "border-[#858076] bg-white/95 text-transparent"
             }`}
           >
@@ -268,7 +268,7 @@ export function ProductCard({
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
-              className="w-3 h-3 text-[#D9531E]"
+              className="w-3 h-3 text-[#B5431A]"
             />
             <span>{isAdmin ? "수정" : "미리보기"}</span>
           </button>
@@ -304,7 +304,7 @@ export function ProductCard({
         <div>
           {/* 상단 메타: 카테고리 + 모델명 */}
           <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="font-bold text-[#D9531E] truncate">
+            <span className="font-bold text-[#B5431A] truncate">
               {categoryLabel}
             </span>
             {modelName && (
@@ -322,7 +322,7 @@ export function ProductCard({
             className={`mt-1 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-extrabold leading-[1.4] tracking-[-0.015em] transition-colors break-keep pb-0.5 ${
               sold
                 ? "text-[#646E7E]"
-                : "text-[#0E1A2B] group-hover:text-[#D9531E]"
+                : "text-[#0E1A2B] group-hover:text-[#B5431A]"
             }`}
           >
             {product.title}

@@ -109,10 +109,8 @@ async function runPhase4RegressionTests() {
     });
     const alimBody = await alimRes.json().catch(() => ({}));
     check(
-      "7. 알림톡 설정 누락 시 거짓 성공(success: true) 대신 NOT_CONFIGURED(501) 반환",
-      alimRes.status === 501 &&
-        alimBody.success === false &&
-        alimBody.status === "NOT_CONFIGURED"
+      "7. 알림톡 무인증 호출 차단 (관리자 인증 선행, 401 Unauthorized)",
+      alimRes.status === 401 && alimBody.success === false
     );
 
     const tgForceRes = await fetch(`${BASE_URL}/api/telegram`, {

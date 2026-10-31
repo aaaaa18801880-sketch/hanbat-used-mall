@@ -48,7 +48,7 @@ export default function GlobalErrorPage({
             전화 상담 연결:{" "}
             <a
               href={telHref(STORE.tel)}
-              className="font-bold text-[#D9531E] underline underline-offset-4"
+              className="font-bold text-[#B5431A] underline underline-offset-4"
             >
               {STORE.tel}
             </a>

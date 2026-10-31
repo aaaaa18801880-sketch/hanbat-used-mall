@@ -56,8 +56,10 @@ export const STORE_SHIPPING_POLICY = {
   maxTransitDays: 3,
 } as const;
 
+// inquiries: 상품·공지 사진(공개), inquiry-attachments: 고객 첨부 사진(비공개, 서명 URL로만 제공)
 export const STORAGE_BUCKETS = {
   inquiries: "inquiries",
+  inquiryAttachments: "inquiry-attachments",
   legacyProductImages: "product-images",
 } as const;
 
@@ -544,12 +546,21 @@ export function sanitizeOldManufactureYear<
 export function extractStorageFilesByBucket(imageUrls: string[]): {
   inquiries: string[];
   productImages: string[];
+  attachments: string[];
 } {
   const inquiries: string[] = [];
   const productImages: string[] = [];
+  const attachments: string[] = [];
 
   for (const url of imageUrls) {
     if (!url) continue;
+    const attachMatch = url.match(
+      /\/storage\/v1\/object\/public\/inquiry-attachments\/([^?#]+)/
+    );
+    if (attachMatch && attachMatch[1]) {
+      attachments.push(decodeURIComponent(attachMatch[1]));
+      continue;
+    }
     const inqMatch = url.match(
       /\/storage\/v1\/object\/public\/inquiries\/([^?#]+)/
     );
@@ -565,7 +576,7 @@ export function extractStorageFilesByBucket(imageUrls: string[]): {
     }
   }
 
-  return { inquiries, productImages };
+  return { inquiries, productImages, attachments };
 }
 
 /* ════════════════════════════════════════════════════════════
@@ -1078,7 +1089,7 @@ export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
     value: INQUIRY_STATUS.RECEIVED,
     label: "접수",
     desc: "신규 접수되어 확인 대기 중인 상태",
-    badgeClass: "bg-[#FFF5F0] text-[#D9531E] border border-[#FADCD0]",
+    badgeClass: "bg-[#FFF5F0] text-[#B5431A] border border-[#FADCD0]",
   },
   {
     value: INQUIRY_STATUS.REVIEWING,
