@@ -441,5 +441,33 @@
 - **카테고리 선택과 신뢰 배너의 연결 효과**: 단순 상품 나열 그리드 상단에 해당 품목만의 세척·시운전·보증 기준을 동적으로 명시해 주면, 고객이 품목을 바꿀 때마다 "이 매장은 이 가전을 어떻게 검수하는가"에 대한 확신을 갖게 됨.
 - **SSOT 기반 정책 템플릿의 가치**: 카테고리별 품질 보증 브리프를 작성할 때도 `lib/site.ts`의 상수를 직접 참조하여 매장 정책 변경 시 단 한 곳의 수정으로 UI 전역에 무결하게 반영되는 구조를 유지함.
 
+---
 
+## 🚀 [Cycle 13] 2026-11-01 — 상품 카드 2.5D 마이크로 뎁스 및 스튜디오 메탈릭 스펙큘러 라이팅 (완료)
 
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-018`
+- **문제 진단**:
+  1. 실측하지 않은 가공의 엔지니어링 계측치(PSI, dB 등)는 매장 운영 현실과 맞지 않으므로 전면 배제.
+  2. 평면적인 제품 카드를 오프라인 플래그십 쇼룸 쇼윈도에서 실물을 조망하는 듯한 고급스러운 2.5D 입체감과 메탈릭 반사광으로 업그레이드할 순수 시각 효과 요구.
+
+### 2. 코드 변경 요약
+- **[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)**:
+  - 마우스 좌표 추적 시 React 리렌더링 없이 DOM 스타일에 CSS 변수(`--mouse-x`, `--mouse-y`, `--rx`, `--ry`)를 직접 갱신하는 60fps GPU 가속 설계.
+  - 부드러운 최대 ±3.5도 2.5D 마이크로 틸트(`perspective(1000px) rotateX/Y translateZ(3px)`) 및 `willChange` 최적화.
+  - 마우스 커서 위치에 연동되는 은은한 원형 메탈릭 스펙큘러 하이라이트(`radial-gradient` + `mix-blend-soft-light`) 전면 오버레이.
+  - 내부 사진 프레임에 스튜디오 메탈릭 림 라이트(`ring-white/20 group-hover:ring-white/40`) 부여.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.26s) — 디자인 토큰 및 Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.17s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.20s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.17s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.15s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (2.33s) — 0 errors
+- **7. eslint**: PASS (14.62s) — 0 errors, 0 warnings
+- **8. next build**: PASS (9.83s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **순수 시각 효과와 실측 데이터의 명확한 경계**: 매장에서 실제로 측정하지 않는 지표는 절대 추가하지 않고, 오직 CSS/GPU 가속 기반의 2.5D 마이크로 뎁스와 빛 반사 효과만으로 쇼룸 제품의 프리미엄 질감을 극대화함.
+- **CSS 변수를 활용한 60fps 인터랙션**: 상품 목록이 수십 개에 달하는 갤러리/홈 환경에서 마우스 이벤트마다 `setState`를 호출하면 불필요한 전체 리렌더링이 발생함. DOM `style.setProperty`로 CSS 변수만 직접 갱신함으로써 브라우저 컴포지터 레이어에서 부드러운 60fps 하드웨어 가속을 완벽히 달성함.

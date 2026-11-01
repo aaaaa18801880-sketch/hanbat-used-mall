@@ -28,6 +28,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **15** | `EVO-015` | 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 10)** |
 | **16** | `EVO-016` | 상품 사진 업로드 시 쇼룸 스튜디오 톤업(밝기 +20%) 기본 자동 적용 및 2차 원터치 톤업 프리셋 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 11)** |
 | **17** | `EVO-017` | 플래그십 쇼룸 히어로 현대화(Option A) 및 원터치 옴니 쇼룸 카탈로그 일체화(Option B) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 12)** |
+| **18** | `EVO-018` | 상품 카드 2.5D 마이크로 뎁스 틸트 및 스튜디오 메탈릭 스펙큘러 라이팅(순수 시각 효과) | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 13)** |
 
 ---
 
@@ -169,5 +170,17 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **개선 방안**:
   - [Option A] `components/home/home-page-client.tsx`: 히어로 상단 라이브 인디케이터 모바일 지원 확대, 2-Track 핵심 CTA(실매물 확인하기 vs 쓰던 가전 팔기) 시각 위계 정돈, 하단 3대 쇼룸 출고 원칙 아키텍처 박스 적용.
   - [Option B] `components/home/category-pictogram-bar.tsx` 및 `components/home/featured-products-section.tsx`: 카테고리 선택부와 실매물 그리드 간의 간격과 톤을 매끄럽게 결합하고, 선택된 카테고리별 전문 품질 보증 기준(에어컨 8개월/주요가전 4개월, 분해세척, 상업용 설비 등) 안내 배너 동적 연동.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+
+### EVO-018: 상품 카드 2.5D 마이크로 뎁스 틸트 및 스튜디오 메탈릭 스펙큘러 라이팅(순수 시각 효과)
+- **문제 진단**:
+  - 실측하지 않은 계측치나 수치 다이얼(엔지니어링 게이지)은 사용자 및 매장 현실과 부합하지 않아 철회됨.
+  - 가전제품 실매물 카드가 2차원 평면으로 단순 나열되어 있어, 오프라인 쇼룸 쇼윈도에서 실물을 바라보는 듯한 입체감과 쇼룸 스튜디오 조명 느낌을 시각적으로 구현할 필요성 제기.
+- **개선 방안**:
+  - [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)에 무(無) React 리렌더링 방식의 CSS 변수(`--mouse-x`, `--mouse-y`, `--rx`, `--ry`) 직접 주입 아키텍처 적용.
+  - 마우스 호버 및 무브 시 최대 ±3.5도의 미세 2.5D 퍼스펙티브 틸트(`perspective(1000px) rotateX/Y translateZ(3px)`) 구현.
+  - 커서 위치를 추적하는 은은한 방사형 스튜디오 메탈릭 스펙큘러 반사광(`mix-blend-soft-light`) 오버레이 연동.
+  - 내부 사진 액자에 `ring-white/20 group-hover:ring-white/40` 메탈릭 림 라이트 헤어라인 부여.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.

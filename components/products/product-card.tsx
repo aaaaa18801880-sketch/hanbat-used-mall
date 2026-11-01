@@ -1,7 +1,7 @@
 // 파일 경로: components/products/product-card.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -192,6 +192,41 @@ export function ProductCard({
     }
   };
 
+  const cardRef = useRef<HTMLElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
+    const el = cardRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    // 부드러운 2.5D 마이크로 틸트 각도 (최대 ±3.5도)
+    const rotateX = ((y - centerY) / centerY) * -3.5;
+    const rotateY = ((x - centerX) / centerX) * 3.5;
+
+    el.style.setProperty("--mouse-x", `${x}px`);
+    el.style.setProperty("--mouse-y", `${y}px`);
+    el.style.setProperty("--rx", `${rotateX.toFixed(2)}deg`);
+    el.style.setProperty("--ry", `${rotateY.toFixed(2)}deg`);
+  };
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    const el = cardRef.current;
+    if (!el) return;
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--ry", "0deg");
+    el.style.setProperty("--mouse-x", "50%");
+    el.style.setProperty("--mouse-y", "50%");
+  };
+
   const specSummaryText =
     specCapsules.length > 0
       ? specCapsules.join(" · ")
@@ -199,12 +234,35 @@ export function ProductCard({
 
   const cardInner = (
     <article
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: isHovered
+          ? "perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(3px)"
+          : "perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px)",
+        transition: isHovered
+          ? "transform 0.08s ease-out"
+          : "transform 0.35s ease-out, box-shadow 0.35s ease-out",
+        transformStyle: "preserve-3d",
+        willChange: isHovered ? "transform" : "auto",
+      }}
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
         isSelected
           ? "ring-2 ring-[#D9531E] bg-[#FFFDFB] shadow-card-hover"
           : "hb-surface-card hover:border-[#0E1A2B]/40 hover:shadow-card-hover"
       }`}
     >
+      {/* 2.5D 스튜디오 메탈릭 스펙큘러 라이팅 오버레이 (카드 전면 빛 반사) */}
+      <div
+        className="pointer-events-none absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-soft-light"
+        style={{
+          background: `radial-gradient(circle 220px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.12) 50%, transparent 80%)`,
+        }}
+        aria-hidden="true"
+      />
+
       {/* 1. 시원시원한 대형 풀블리드 사진 (스튜디오 조명 백드롭 & 내부 액자 링) */}
       <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.05]">
         <SafeImg
@@ -213,6 +271,12 @@ export function ProductCard({
           className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
             sold ? "grayscale opacity-65" : ""
           }`}
+        />
+
+        {/* 스튜디오 메탈릭 림 라이트 헤어라인 */}
+        <div
+          className="pointer-events-none absolute inset-0 z-10 ring-1 ring-inset ring-white/20 group-hover:ring-white/40 transition-all duration-300"
+          aria-hidden="true"
         />
 
         {sold && (
