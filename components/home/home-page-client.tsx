@@ -639,9 +639,9 @@ export default function Home({
           className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero hb-arch-grid"
         >
           {/* 상단 직영 쇼룸 상태 스트립 */}
-          <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
+          <div className="border-b border-[#0E1A2B]/20 bg-[#0E1A2B] text-white">
             <div className="hb-container py-2 flex flex-wrap items-center justify-between gap-2 text-hb-xs">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF8A50] opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF8A50]" />
@@ -649,18 +649,23 @@ export default function Home({
                 <span className="font-bold text-white truncate">
                   SINCE {STORE.since} · 대전 중촌동 1·2층 직영 쇼룸 ({OPERATING_YEARS}년 운영)
                 </span>
+                {sellingCount > 0 && (
+                  <span className="inline-flex sm:hidden items-center rounded-full bg-white/10 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                    실매물 {sellingCount}대
+                  </span>
+                )}
               </div>
               <div className="hidden sm:flex items-center gap-4 text-white/80 tabular-nums">
                 <span className="inline-flex items-center gap-1.5">
                   <Icon d={ICON.clock} className="w-3.5 h-3.5 text-white/60" />
                   <span>영업시간: {STORE.hours}</span>
                 </span>
-                <span>·</span>
+                <span className="text-white/40">·</span>
                 <span className="inline-flex items-center gap-1.5">
                   <Icon d={ICON.building} className="w-3.5 h-3.5 text-white/60" />
                   <span>매장 앞 전용 주차 완비</span>
                 </span>
-                <span>·</span>
+                <span className="text-white/40">·</span>
                 <strong className="inline-flex items-center gap-1 text-[#FF8A50]">
                   <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50]" />
                   <span>현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시</span>
@@ -671,39 +676,38 @@ export default function Home({
 
           <div className="hb-container py-8 sm:py-12 lg:py-14">
             <div className="grid items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 무테두리 3대 기준 스트립 */}
+              {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 3대 출고 원칙 레저 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#D9531E]/25 bg-[#FFF5F0]/90 px-3.5 py-1 text-hb-xs font-extrabold text-[#B5431A] shadow-2xs">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B5431A]" />
-                    <span>HANBAT APPLIANCE &amp; COMMERCIAL SHOWROOM</span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B5431A] animate-pulse" />
+                    <span className="tracking-wide">대전 직영 플래그십 쇼룸 · 오프라인 실물 매장</span>
                   </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-3 hb-fluid-h1 text-[#0E1A2B] break-keep"
+                    className="mt-3.5 hb-fluid-h1 text-[#0E1A2B] tracking-tight break-keep font-extrabold"
                   >
                     가정용 가전부터 업소용 주방설비까지,{" "}
-                    <br />
-                    <span className="text-[#B5431A]">분해 세척·검수를 마친</span>{" "}
-                    실매물만 출고합니다
+                    <br className="hidden sm:inline" />
+                    <span className="text-[#B5431A]">분해 고압세척·시운전 검수</span>를 마친 실매물만 출고합니다
                   </h1>
 
-                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.65] text-[#3E4756] break-keep">
-                    대전 중촌동 1·2층 직영 쇼룸 실물 확인 · 전 제품 분해 고압세척 및 무상 A/S 보증
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#3E4756] break-keep">
+                    대전 중구 중촌동 1·2층 직영 쇼룸 상시 개방 · 전 품목 성능 점검필 및 안심 무상 A/S 보증
                   </p>
 
-                  {/* 듀얼 핵심 행동 독 (중첩 박스 대신 선명한 2-Track CTA 버튼 그룹) */}
+                  {/* 듀얼 핵심 행동 독 (선명한 2-Track CTA 버튼 그룹) */}
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
                     <Link
                       href="/gallery"
-                      className="group flex items-center justify-between rounded-lg bg-[#0E1A2B] px-5 py-4 text-white shadow-card hover:bg-[#182942] transition-colors"
+                      className="group relative flex items-center justify-between rounded-xl bg-[#0E1A2B] px-5 py-4 text-white shadow-card hover:bg-[#182942] hover:shadow-card-hover transition-all duration-200"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-[#FF8A50]">
                           세척·검수 완료 · 무상 A/S
                         </span>
-                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white">
+                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white tracking-tight">
                           실매물 확인하기{" "}
                           {sellingCount > 0 && (
                             <span className="text-hb-sm font-bold text-white/80 tabular-nums">
@@ -712,7 +716,7 @@ export default function Home({
                           )}
                         </strong>
                       </div>
-                      <span className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#B5431A] transition-colors">
+                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#B5431A] group-hover:translate-x-0.5 transition-all">
                         <Icon d={ICON.arrow} className="w-4 h-4" />
                       </span>
                     </Link>
@@ -725,17 +729,17 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group flex items-center justify-between rounded-lg bg-[#B5431A] px-5 py-4 text-left text-white shadow-card hover:bg-[#C04615] transition-colors cursor-pointer"
+                      className="group relative flex items-center justify-between rounded-xl bg-[#B5431A] px-5 py-4 text-left text-white shadow-card hover:bg-[#C04615] hover:shadow-card-hover transition-all duration-200 cursor-pointer"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-white/90">
                           방문 수거 · 당일 현금 정산
                         </span>
-                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white">
+                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white tracking-tight">
                           쓰던 가전 팔기
                         </strong>
                       </div>
-                      <span className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/15 text-white group-hover:translate-x-0.5 transition-transform">
+                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/15 text-white group-hover:translate-x-0.5 transition-transform">
                         <Icon d={ICON.arrow} className="w-4 h-4" />
                       </span>
                     </button>
@@ -762,39 +766,41 @@ export default function Home({
                   </div>
                 </div>
 
-                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (ModernApplianceIcon 결합) */}
-                <div className="mt-6 pt-4 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
-                  <div className="min-w-0 flex items-start gap-2.5">
-                    <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                        분해 고압세척 출고
-                      </p>
-                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        냉매·누수 시운전 완료
-                      </p>
+                {/* 하단 3대 쇼룸 출고 원칙 레저 (ModernApplianceIcon 결합 아키텍처 박스) */}
+                <div className="mt-7 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]/95 p-4 sm:p-5 shadow-2xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 sm:divide-x sm:divide-[#E5E2DC]">
+                    <div className="min-w-0 flex items-start gap-3">
+                      <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                          분해 고압세척 출고
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#434B59] break-keep">
+                          냉매·누수 시운전 검수 완료
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                        무상 A/S 책임 보증
-                      </p>
-                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        에어컨 8개월·가전 4개월
-                      </p>
+                    <div className="min-w-0 sm:pl-4 flex items-start gap-3">
+                      <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                          무상 A/S 책임 보증
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#434B59] break-keep">
+                          에어컨 8개월·가전 4개월 보증
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                        직배송·세금계산서
-                      </p>
-                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        충청권 직배송·부가세 증빙
-                      </p>
+                    <div className="min-w-0 sm:pl-4 flex items-start gap-3">
+                      <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                          직배송·세금계산서
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#434B59] break-keep">
+                          충청권 직배송·부가세 증빙
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -867,7 +873,7 @@ export default function Home({
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group relative block min-w-0 rounded-xl border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#D9531E] hover:shadow-md transition-all duration-200"
+                            className="group relative block min-w-0 rounded-xl border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#D9531E] hover:shadow-card-hover transition-all duration-200"
                           >
                             <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.06]">
                               <SafeImg
@@ -876,7 +882,7 @@ export default function Home({
                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
                               {/* 포디움 번호 태그 */}
-                              <div className="absolute top-1.5 left-1.5 z-10 rounded bg-[#0E1A2B]/85 backdrop-blur-xs border border-white/20 px-1.5 py-0.5">
+                              <div className="absolute top-1.5 left-1.5 z-10 rounded bg-[#0E1A2B]/90 backdrop-blur-xs border border-white/20 px-1.5 py-0.5">
                                 <span className="font-mono text-hb-xs font-black text-[#FF8A50] tracking-wider leading-none">
                                   {podiumNum}
                                 </span>

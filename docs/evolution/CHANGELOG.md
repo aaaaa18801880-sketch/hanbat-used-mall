@@ -404,5 +404,42 @@
 - **이중 보정 방지 설계**: 자동 밝기 보정과 AI 판독 기반 보정이 겹치면 과보정(하이라이트 날림)이 발생함. 톤업 책임을 업로드 단계로 일원화하고 AI는 방향 교정만 담당하도록 역할을 분리해야 안전함.
 - **내비게이션 3사(네이버·카카오·티맵) 원클릭 연동**: 주소를 텍스트로만 제공하는 것과 스마트폰에 설치된 내비게이션 앱으로 1초 만에 바로 길안내를 시작할 수 있게 하는 것은 실제 오프라인 방문 전환율에 결정적인 차이를 만듦.
 
+---
+
+## 🚀 [Cycle 12] 2026-11-01 — 플래그십 쇼룸 히어로 현대화 및 원터치 옴니 카탈로그 일체화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-017`
+- **문제 진단**:
+  1. 첫 방문 고객 관점에서 히어로 영역에 수많은 지표와 링크가 밀집되어 인지 부하가 높았음.
+  2. 카테고리 픽토그램 선택과 하단 실매물 전시 그리드가 시각적으로 분리되어 있어 카테고리 전환 시 해당 품목의 품질 보증 기준을 즉각 인지하기 어려웠음.
+
+### 2. 코드 변경 요약
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - 상단 직영 쇼룸 라이브 인디케이터 스트립의 모바일 실시간 매물 카운트 배지 지원 확대.
+  - 2-Track 핵심 CTA(`실매물 확인하기` vs `쓰던 가전 팔기`) 카드 그림자 및 호버 마이크로 인터랙션 정돈.
+  - 하단 3대 쇼룸 출고 원칙(분해 고압세척, 무상 A/S 보증, 직배송/세금계산서)을 아키텍처 박스로 감싸 시각적 신뢰도 극대화.
+  - 우측 직영 쇼룸 라이브 뷰 3종 포디움 카드 호버 깊이감 고도화.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 히어로와 카탈로그 사이의 여백 및 배경 톤을 일체화하여 매끄러운 스크롤 흐름 구축.
+  - 활성 카테고리 탭의 테라코타 링 및 마이크로 인디케이터 시각 효과 고도화.
+- **[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx)**:
+  - 선택된 카테고리(에어컨, 냉장고, 세탁기, 소형가전, 업소용 등)에 맞춘 **동적 품질 보증 & 검수 기준 배너** 신설.
+  - 단일 출처(`STORE`, `STORE_MERCHANT_POLICY`) 정책에 기반한 무상 A/S(에어컨 8개월/주요가전 4개월) 및 분해세척 원칙 100% 동기화.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.48s) — 디자인 토큰 및 Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.38s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.32s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.33s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.58s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.94s) — 0 errors
+- **7. eslint**: PASS (25.34s) — 0 errors, 0 warnings
+- **8. next build**: PASS (26.37s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **카테고리 선택과 신뢰 배너의 연결 효과**: 단순 상품 나열 그리드 상단에 해당 품목만의 세척·시운전·보증 기준을 동적으로 명시해 주면, 고객이 품목을 바꿀 때마다 "이 매장은 이 가전을 어떻게 검수하는가"에 대한 확신을 갖게 됨.
+- **SSOT 기반 정책 템플릿의 가치**: 카테고리별 품질 보증 브리프를 작성할 때도 `lib/site.ts`의 상수를 직접 참조하여 매장 정책 변경 시 단 한 곳의 수정으로 UI 전역에 무결하게 반영되는 구조를 유지함.
+
 
 

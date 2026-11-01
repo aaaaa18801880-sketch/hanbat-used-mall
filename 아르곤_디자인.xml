@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-10-31T11:41:33.211Z">
+<project name="hanbat-mall" generated_at="2026-11-01T13:44:11.765Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -13162,7 +13162,7 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="border-b border-[#E5E2DC] bg-white py-5 sm:py-7"
+      className="border-b border-[#E5E2DC] bg-[#FAF9F7]/60 py-5 sm:py-6"
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
@@ -13221,10 +13221,10 @@ export function CategoryPictogramBar({
                     onClick={() => handleCategoryClick(item)}
                     className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2 sm:py-3 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card-hover -translate-y-0.5 ring-2 ring-[#B5431A]/30"
                         : isBiz
-                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
-                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
+                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-card-hover hover:-translate-y-0.5"
+                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-card-hover hover:-translate-y-0.5"
                     }`}
                   >
                     {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
@@ -13293,7 +13293,7 @@ export function CategoryPictogramBar({
                 key={item.label}
                 type="button"
                 onClick={() => handleActionClick(item)}
-                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-xs transition-all cursor-pointer text-left"
+                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-card-hover transition-all cursor-pointer text-left"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <ModernApplianceIcon
@@ -13324,7 +13324,7 @@ export function CategoryPictogramBar({
 
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="245">
+    <file path="components/home/featured-products-section.tsx" lines="377">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -13335,6 +13335,7 @@ import {
   isProductSold,
   normalizeProductCategory,
   STORE,
+  STORE_MERCHANT_POLICY,
   telHref,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
@@ -13343,6 +13344,100 @@ import {
   type ProductItem,
 } from "../products/product-card";
 import type { ShowroomCategoryItem } from "./category-pictogram-bar";
+import {
+  ModernApplianceIcon,
+  type ModernIconType,
+} from "../ui/modern-icons";
+
+interface CategoryQualityFact {
+  badge: string;
+  headline: string;
+  points: [string, string, string];
+  icon: ModernIconType;
+}
+
+const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
+  aircon: {
+    badge: "에어컨·냉난방기 출고 기준",
+    headline: "완전 분해 고압 살균세척 · 실외기 콤프레셔 및 냉매 100% 압력 테스트",
+    points: [
+      "분해 고압세척 및 열교환기 핀 살균 완료",
+      "냉매 가스 누설 진공 시험 및 압축기 시운전",
+      "에어컨 계약조건별 최대 8개월 무상 A/S 보증",
+    ],
+    icon: "aircon",
+  },
+  fridge: {
+    badge: "냉장고·김치냉장고 출고 기준",
+    headline: "내부 선반·도어패킹 고온 스팀 클리닝 · 콤프레셔 냉각 사이클 시운전",
+    points: [
+      "선반·야채칸 분해 세척 및 탈취 소독 완료",
+      "콤프레셔 냉각 사이클 48시간 온도 측정 시험",
+      "주요 가전 계약조건별 최대 4개월 무상 A/S 보증",
+    ],
+    icon: "fridge",
+  },
+  washer: {
+    badge: "세탁기·건조기 출고 기준",
+    headline: "세탁조 분해 세척 및 찌꺼기 완벽 제거 · 고속 탈수 진동 밸런스 검수",
+    points: [
+      "세탁조 전면 분해 살균 및 내부 잔여물 세척",
+      "고속 탈수 진동 밸런스 및 급수/배수 누수 시험",
+      "주요 가전 계약조건별 최대 4개월 무상 A/S 보증",
+    ],
+    icon: "washer",
+  },
+  small: {
+    badge: "TV·소형가전 출고 기준",
+    headline: "화면 무결점 점검 · 포트 입출력 및 전원 안정성 정밀 테스트",
+    points: [
+      "화면 패널 잔상 및 백라이트 균일도 검수",
+      "HDMI/음향 단자 및 리모컨 수신 정밀 점검",
+      `기능 불량 시 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 무상 교환·환불 보장`,
+    ],
+    icon: "small",
+  },
+  bizFridge: {
+    badge: "업소용 냉장설비 출고 기준",
+    headline: "상업용 고출력 콤프레셔 압력 측정 · 디지털 온도센서 캘리브레이션",
+    points: [
+      "상업용 콤프레셔 냉각 성능 및 가스 충전 완비",
+      "즉시 식당 영업 투입 가능한 청결 소독 상태",
+      "사업자 세금계산서 100% 정식 발행 및 직배송",
+    ],
+    icon: "biz-fridge",
+  },
+  showcase: {
+    badge: "쇼케이스 출고 기준",
+    headline: "도어 유리 결로 방지 열선 점검 · 음료/주류 보관 최적 온도 테스트",
+    points: [
+      "도어 유리 열선 및 LED 내부 조명 전체 점검",
+      "급속 냉각 사이클 및 서리 발생 방지 시험",
+      "식당·카페 매장 맞춤 배송 및 자리 배치",
+    ],
+    icon: "showcase",
+  },
+  kitchen: {
+    badge: "제빙기·주방설비 출고 기준",
+    headline: "얼음 생성 사이클 측정 · 급수 전자밸브 및 배수 펌프 정밀 검수",
+    points: [
+      "제빙 노즐 스팀 살균 및 얼음 생산량 검증",
+      "스테인리스 주방설비 연마 및 세척 완료",
+      "창업 일괄 납품 및 사업자 세금계산서 발행",
+    ],
+    icon: "kitchen",
+  },
+  all: {
+    badge: "직영 쇼룸 안심 출고 기준",
+    headline: "전문 엔지니어 1:1 정밀 성능 점검 및 분해 고압세척을 마친 실매물",
+    points: [
+      "전 제품 입고 즉시 분해 고압세척 및 작동 점검",
+      "품목별 무상 A/S 책임 보증 (에어컨 8개월 / 주요가전 4개월)",
+      "대전·충청권 전문 엔지니어 직배송 및 현장 안착",
+    ],
+    icon: "shield",
+  },
+};
 
 const INITIAL_DISPLAY_LIMIT = 8;
 
@@ -13402,6 +13497,10 @@ export function FeaturedProductsSection({
 
   const galleryHref = selectedCategory?.href || "/gallery";
 
+  const currentCategoryKey = selectedCategory?.key || "all";
+  const categoryFact =
+    CATEGORY_QUALITY_FACTS[currentCategoryKey] || CATEGORY_QUALITY_FACTS.all;
+
   return (
     <section
       id="featured-products-section"
@@ -13457,6 +13556,39 @@ export function FeaturedProductsSection({
             </Link>
           </div>
         </div>
+
+        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 */}
+        {!loading && !error && (
+          <div className="mt-6 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 sm:p-4 shadow-2xs">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <ModernApplianceIcon
+                  name={categoryFact.icon}
+                  className="w-7 h-7 sm:w-8 sm:h-8 shrink-0"
+                />
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block rounded bg-[#0E1A2B] px-2 py-0.5 text-hb-xs font-bold text-white shrink-0">
+                      {categoryFact.badge}
+                    </span>
+                    <strong className="text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] truncate">
+                      {categoryFact.headline}
+                    </strong>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-hb-xs text-[#434B59] border-t md:border-t-0 md:border-l border-[#E5E2DC] pt-2 md:pt-0 md:pl-4 shrink-0">
+                {categoryFact.points.map((pt) => (
+                  <span key={pt} className="inline-flex items-center gap-1.5 font-medium">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#B5431A] shrink-0" />
+                    <span>{pt}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
@@ -13573,7 +13705,7 @@ export function FeaturedProductsSection({
 
 ]]>
     </file>
-    <file path="components/home/home-page-client.tsx" lines="2199">
+    <file path="components/home/home-page-client.tsx" lines="2205">
       <![CDATA[
 // 파일 경로: components/home/home-page-client.tsx
 "use client";
@@ -14216,9 +14348,9 @@ export default function Home({
           className="relative w-full border-b border-[#E5E2DC] hb-ambient-hero hb-arch-grid"
         >
           {/* 상단 직영 쇼룸 상태 스트립 */}
-          <div className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
+          <div className="border-b border-[#0E1A2B]/20 bg-[#0E1A2B] text-white">
             <div className="hb-container py-2 flex flex-wrap items-center justify-between gap-2 text-hb-xs">
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF8A50] opacity-75" />
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF8A50]" />
@@ -14226,18 +14358,23 @@ export default function Home({
                 <span className="font-bold text-white truncate">
                   SINCE {STORE.since} · 대전 중촌동 1·2층 직영 쇼룸 ({OPERATING_YEARS}년 운영)
                 </span>
+                {sellingCount > 0 && (
+                  <span className="inline-flex sm:hidden items-center rounded-full bg-white/10 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                    실매물 {sellingCount}대
+                  </span>
+                )}
               </div>
               <div className="hidden sm:flex items-center gap-4 text-white/80 tabular-nums">
                 <span className="inline-flex items-center gap-1.5">
                   <Icon d={ICON.clock} className="w-3.5 h-3.5 text-white/60" />
                   <span>영업시간: {STORE.hours}</span>
                 </span>
-                <span>·</span>
+                <span className="text-white/40">·</span>
                 <span className="inline-flex items-center gap-1.5">
                   <Icon d={ICON.building} className="w-3.5 h-3.5 text-white/60" />
                   <span>매장 앞 전용 주차 완비</span>
                 </span>
-                <span>·</span>
+                <span className="text-white/40">·</span>
                 <strong className="inline-flex items-center gap-1 text-[#FF8A50]">
                   <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50]" />
                   <span>현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시</span>
@@ -14248,39 +14385,38 @@ export default function Home({
 
           <div className="hb-container py-8 sm:py-12 lg:py-14">
             <div className="grid items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 무테두리 3대 기준 스트립 */}
+              {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 3대 출고 원칙 레저 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
                   <div className="inline-flex items-center gap-2 rounded-full border border-[#D9531E]/25 bg-[#FFF5F0]/90 px-3.5 py-1 text-hb-xs font-extrabold text-[#B5431A] shadow-2xs">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B5431A]" />
-                    <span>HANBAT APPLIANCE &amp; COMMERCIAL SHOWROOM</span>
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#B5431A] animate-pulse" />
+                    <span className="tracking-wide">대전 직영 플래그십 쇼룸 · 오프라인 실물 매장</span>
                   </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-3 hb-fluid-h1 text-[#0E1A2B] break-keep"
+                    className="mt-3.5 hb-fluid-h1 text-[#0E1A2B] tracking-tight break-keep font-extrabold"
                   >
                     가정용 가전부터 업소용 주방설비까지,{" "}
-                    <br />
-                    <span className="text-[#B5431A]">분해 세척·검수를 마친</span>{" "}
-                    실매물만 출고합니다
+                    <br className="hidden sm:inline" />
+                    <span className="text-[#B5431A]">분해 고압세척·시운전 검수</span>를 마친 실매물만 출고합니다
                   </h1>
 
-                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.65] text-[#3E4756] break-keep">
-                    대전 중촌동 1·2층 직영 쇼룸 실물 확인 · 전 제품 분해 고압세척 및 무상 A/S 보증
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#3E4756] break-keep">
+                    대전 중구 중촌동 1·2층 직영 쇼룸 상시 개방 · 전 품목 성능 점검필 및 안심 무상 A/S 보증
                   </p>
 
-                  {/* 듀얼 핵심 행동 독 (중첩 박스 대신 선명한 2-Track CTA 버튼 그룹) */}
+                  {/* 듀얼 핵심 행동 독 (선명한 2-Track CTA 버튼 그룹) */}
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
                     <Link
                       href="/gallery"
-                      className="group flex items-center justify-between rounded-lg bg-[#0E1A2B] px-5 py-4 text-white shadow-card hover:bg-[#182942] transition-colors"
+                      className="group relative flex items-center justify-between rounded-xl bg-[#0E1A2B] px-5 py-4 text-white shadow-card hover:bg-[#182942] hover:shadow-card-hover transition-all duration-200"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-[#FF8A50]">
                           세척·검수 완료 · 무상 A/S
                         </span>
-                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white">
+                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white tracking-tight">
                           실매물 확인하기{" "}
                           {sellingCount > 0 && (
                             <span className="text-hb-sm font-bold text-white/80 tabular-nums">
@@ -14289,7 +14425,7 @@ export default function Home({
                           )}
                         </strong>
                       </div>
-                      <span className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#B5431A] transition-colors">
+                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#B5431A] group-hover:translate-x-0.5 transition-all">
                         <Icon d={ICON.arrow} className="w-4 h-4" />
                       </span>
                     </Link>
@@ -14302,17 +14438,17 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group flex items-center justify-between rounded-lg bg-[#B5431A] px-5 py-4 text-left text-white shadow-card hover:bg-[#C04615] transition-colors cursor-pointer"
+                      className="group relative flex items-center justify-between rounded-xl bg-[#B5431A] px-5 py-4 text-left text-white shadow-card hover:bg-[#C04615] hover:shadow-card-hover transition-all duration-200 cursor-pointer"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-white/90">
                           방문 수거 · 당일 현금 정산
                         </span>
-                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white">
+                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white tracking-tight">
                           쓰던 가전 팔기
                         </strong>
                       </div>
-                      <span className="ml-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-black/15 text-white group-hover:translate-x-0.5 transition-transform">
+                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-black/15 text-white group-hover:translate-x-0.5 transition-transform">
                         <Icon d={ICON.arrow} className="w-4 h-4" />
                       </span>
                     </button>
@@ -14339,39 +14475,41 @@ export default function Home({
                   </div>
                 </div>
 
-                {/* 하단 무테두리 3대 쇼룸 원칙 레저 (ModernApplianceIcon 결합) */}
-                <div className="mt-6 pt-4 border-t-2 border-[#0E1A2B] grid grid-cols-3 gap-3 sm:gap-6">
-                  <div className="min-w-0 flex items-start gap-2.5">
-                    <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                        분해 고압세척 출고
-                      </p>
-                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        냉매·누수 시운전 완료
-                      </p>
+                {/* 하단 3대 쇼룸 출고 원칙 레저 (ModernApplianceIcon 결합 아키텍처 박스) */}
+                <div className="mt-7 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]/95 p-4 sm:p-5 shadow-2xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4 sm:divide-x sm:divide-[#E5E2DC]">
+                    <div className="min-w-0 flex items-start gap-3">
+                      <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                          분해 고압세척 출고
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#434B59] break-keep">
+                          냉매·누수 시운전 검수 완료
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                        무상 A/S 책임 보증
-                      </p>
-                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        에어컨 8개월·가전 4개월
-                      </p>
+                    <div className="min-w-0 sm:pl-4 flex items-start gap-3">
+                      <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                          무상 A/S 책임 보증
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#434B59] break-keep">
+                          에어컨 8개월·가전 4개월 보증
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="min-w-0 border-l border-[#D8D3C8] pl-3 sm:pl-5 flex items-start gap-2.5">
-                    <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
-                        직배송·세금계산서
-                      </p>
-                      <p className="mt-0.5 hidden sm:block text-hb-xs text-[#434B59]">
-                        충청권 직배송·부가세 증빙
-                      </p>
+                    <div className="min-w-0 sm:pl-4 flex items-start gap-3">
+                      <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#0E1A2B] truncate">
+                          직배송·세금계산서
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#434B59] break-keep">
+                          충청권 직배송·부가세 증빙
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -14444,7 +14582,7 @@ export default function Home({
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group relative block min-w-0 rounded-xl border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#D9531E] hover:shadow-md transition-all duration-200"
+                            className="group relative block min-w-0 rounded-xl border border-[#E5E2DC] bg-white overflow-hidden hover:border-[#D9531E] hover:shadow-card-hover transition-all duration-200"
                           >
                             <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.06]">
                               <SafeImg
@@ -14453,7 +14591,7 @@ export default function Home({
                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
                               {/* 포디움 번호 태그 */}
-                              <div className="absolute top-1.5 left-1.5 z-10 rounded bg-[#0E1A2B]/85 backdrop-blur-xs border border-white/20 px-1.5 py-0.5">
+                              <div className="absolute top-1.5 left-1.5 z-10 rounded bg-[#0E1A2B]/90 backdrop-blur-xs border border-white/20 px-1.5 py-0.5">
                                 <span className="font-mono text-hb-xs font-black text-[#FF8A50] tracking-wider leading-none">
                                   {podiumNum}
                                 </span>
@@ -23214,7 +23352,7 @@ export function ModernApplianceIcon({
 
 ]]>
     </file>
-    <file path="docs/evolution/BACKLOG.md" lines="163">
+    <file path="docs/evolution/BACKLOG.md" lines="174">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 백로그 (Evolution Backlog)
 
@@ -23245,6 +23383,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **14** | `EVO-014` | 관심 매물 견적함(Quote Basket) 묶음 견적 1초 카카오톡 & 문자(SMS) 원클릭 전송 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 9)** |
 | **15** | `EVO-015` | 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 10)** |
 | **16** | `EVO-016` | 상품 사진 업로드 시 쇼룸 스튜디오 톤업(밝기 +20%) 기본 자동 적용 및 2차 원터치 톤업 프리셋 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 11)** |
+| **17** | `EVO-017` | 플래그십 쇼룸 히어로 현대화(Option A) 및 원터치 옴니 쇼룸 카탈로그 일체화(Option B) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 12)** |
 
 ---
 
@@ -23379,9 +23518,19 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 업로드 자동 톤업 동작 확인.
 
+### EVO-017: 플래그십 쇼룸 히어로 현대화 및 원터치 옴니 쇼룸 카탈로그 일체화
+- **문제 진단**:
+  - 첫 방문 고객 관점에서 메인 히어로 영역의 정보 밀도가 과밀하여 시선 분산 발생.
+  - 카테고리 픽토그램 선택과 하단 실매물 전시 그리드 간의 유기적 품질 보증 연동이 부재하여 카테고리 전환 시 제품별 검수 신뢰 기준 파악이 어려움.
+- **개선 방안**:
+  - [Option A] `components/home/home-page-client.tsx`: 히어로 상단 라이브 인디케이터 모바일 지원 확대, 2-Track 핵심 CTA(실매물 확인하기 vs 쓰던 가전 팔기) 시각 위계 정돈, 하단 3대 쇼룸 출고 원칙 아키텍처 박스 적용.
+  - [Option B] `components/home/category-pictogram-bar.tsx` 및 `components/home/featured-products-section.tsx`: 카테고리 선택부와 실매물 그리드 간의 간격과 톤을 매끄럽게 결합하고, 선택된 카테고리별 전문 품질 보증 기준(에어컨 8개월/주요가전 4개월, 분해세척, 상업용 설비 등) 안내 배너 동적 연동.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+
 ]]>
     </file>
-    <file path="docs/evolution/CHANGELOG.md" lines="409">
+    <file path="docs/evolution/CHANGELOG.md" lines="446">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 변경 이력 (Evolution Changelog)
 
@@ -23788,6 +23937,43 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **보정은 '기본값'이어야 실제로 지켜짐**: 관리자가 매번 버튼을 눌러야 하는 보정은 결국 누락됨. 업로드라는 단일 진입점에서 결정적으로 적용하고, 추가 조정만 수동 버튼으로 남기는 구조가 사진 톤의 일관성을 지키는 유일한 방법임.
 - **이중 보정 방지 설계**: 자동 밝기 보정과 AI 판독 기반 보정이 겹치면 과보정(하이라이트 날림)이 발생함. 톤업 책임을 업로드 단계로 일원화하고 AI는 방향 교정만 담당하도록 역할을 분리해야 안전함.
 - **내비게이션 3사(네이버·카카오·티맵) 원클릭 연동**: 주소를 텍스트로만 제공하는 것과 스마트폰에 설치된 내비게이션 앱으로 1초 만에 바로 길안내를 시작할 수 있게 하는 것은 실제 오프라인 방문 전환율에 결정적인 차이를 만듦.
+
+---
+
+## 🚀 [Cycle 12] 2026-11-01 — 플래그십 쇼룸 히어로 현대화 및 원터치 옴니 카탈로그 일체화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-017`
+- **문제 진단**:
+  1. 첫 방문 고객 관점에서 히어로 영역에 수많은 지표와 링크가 밀집되어 인지 부하가 높았음.
+  2. 카테고리 픽토그램 선택과 하단 실매물 전시 그리드가 시각적으로 분리되어 있어 카테고리 전환 시 해당 품목의 품질 보증 기준을 즉각 인지하기 어려웠음.
+
+### 2. 코드 변경 요약
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - 상단 직영 쇼룸 라이브 인디케이터 스트립의 모바일 실시간 매물 카운트 배지 지원 확대.
+  - 2-Track 핵심 CTA(`실매물 확인하기` vs `쓰던 가전 팔기`) 카드 그림자 및 호버 마이크로 인터랙션 정돈.
+  - 하단 3대 쇼룸 출고 원칙(분해 고압세척, 무상 A/S 보증, 직배송/세금계산서)을 아키텍처 박스로 감싸 시각적 신뢰도 극대화.
+  - 우측 직영 쇼룸 라이브 뷰 3종 포디움 카드 호버 깊이감 고도화.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 히어로와 카탈로그 사이의 여백 및 배경 톤을 일체화하여 매끄러운 스크롤 흐름 구축.
+  - 활성 카테고리 탭의 테라코타 링 및 마이크로 인디케이터 시각 효과 고도화.
+- **[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx)**:
+  - 선택된 카테고리(에어컨, 냉장고, 세탁기, 소형가전, 업소용 등)에 맞춘 **동적 품질 보증 & 검수 기준 배너** 신설.
+  - 단일 출처(`STORE`, `STORE_MERCHANT_POLICY`) 정책에 기반한 무상 A/S(에어컨 8개월/주요가전 4개월) 및 분해세척 원칙 100% 동기화.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.48s) — 디자인 토큰 및 Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.38s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.32s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.33s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.58s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.94s) — 0 errors
+- **7. eslint**: PASS (25.34s) — 0 errors, 0 warnings
+- **8. next build**: PASS (26.37s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **카테고리 선택과 신뢰 배너의 연결 효과**: 단순 상품 나열 그리드 상단에 해당 품목만의 세척·시운전·보증 기준을 동적으로 명시해 주면, 고객이 품목을 바꿀 때마다 "이 매장은 이 가전을 어떻게 검수하는가"에 대한 확신을 갖게 됨.
+- **SSOT 기반 정책 템플릿의 가치**: 카테고리별 품질 보증 브리프를 작성할 때도 `lib/site.ts`의 상수를 직접 참조하여 매장 정책 변경 시 단 한 곳의 수정으로 UI 전역에 무결하게 반영되는 구조를 유지함.
 
 
 

@@ -205,7 +205,7 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="border-b border-[#E5E2DC] bg-white py-5 sm:py-7"
+      className="border-b border-[#E5E2DC] bg-[#FAF9F7]/60 py-5 sm:py-6"
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
@@ -264,10 +264,10 @@ export function CategoryPictogramBar({
                     onClick={() => handleCategoryClick(item)}
                     className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2 sm:py-3 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card -translate-y-0.5 ring-2 ring-[#D9531E]/20"
+                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card-hover -translate-y-0.5 ring-2 ring-[#B5431A]/30"
                         : isBiz
-                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
-                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-md hover:-translate-y-0.5"
+                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-card-hover hover:-translate-y-0.5"
+                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-card-hover hover:-translate-y-0.5"
                     }`}
                   >
                     {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
@@ -336,7 +336,7 @@ export function CategoryPictogramBar({
                 key={item.label}
                 type="button"
                 onClick={() => handleActionClick(item)}
-                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-xs transition-all cursor-pointer text-left"
+                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-card-hover transition-all cursor-pointer text-left"
               >
                 <div className="flex items-center gap-2.5 min-w-0">
                   <ModernApplianceIcon

@@ -27,6 +27,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **14** | `EVO-014` | 관심 매물 견적함(Quote Basket) 묶음 견적 1초 카카오톡 & 문자(SMS) 원클릭 전송 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 9)** |
 | **15** | `EVO-015` | 오프라인 매장 방문 길찾기(티맵·카카오맵·네이버지도) & 실물 확인 방문 예약(Showroom Visit & Hold) O2O 통합 모달 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 10)** |
 | **16** | `EVO-016` | 상품 사진 업로드 시 쇼룸 스튜디오 톤업(밝기 +20%) 기본 자동 적용 및 2차 원터치 톤업 프리셋 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 11)** |
+| **17** | `EVO-017` | 플래그십 쇼룸 히어로 현대화(Option A) 및 원터치 옴니 쇼룸 카탈로그 일체화(Option B) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 12)** |
 
 ---
 
@@ -160,3 +161,13 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - 썸네일 스파클 버튼은 "한 단계 더 밝게(+12%)" 2차 보정으로 역할 재정의.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 및 업로드 자동 톤업 동작 확인.
+
+### EVO-017: 플래그십 쇼룸 히어로 현대화 및 원터치 옴니 쇼룸 카탈로그 일체화
+- **문제 진단**:
+  - 첫 방문 고객 관점에서 메인 히어로 영역의 정보 밀도가 과밀하여 시선 분산 발생.
+  - 카테고리 픽토그램 선택과 하단 실매물 전시 그리드 간의 유기적 품질 보증 연동이 부재하여 카테고리 전환 시 제품별 검수 신뢰 기준 파악이 어려움.
+- **개선 방안**:
+  - [Option A] `components/home/home-page-client.tsx`: 히어로 상단 라이브 인디케이터 모바일 지원 확대, 2-Track 핵심 CTA(실매물 확인하기 vs 쓰던 가전 팔기) 시각 위계 정돈, 하단 3대 쇼룸 출고 원칙 아키텍처 박스 적용.
+  - [Option B] `components/home/category-pictogram-bar.tsx` 및 `components/home/featured-products-section.tsx`: 카테고리 선택부와 실매물 그리드 간의 간격과 톤을 매끄럽게 결합하고, 선택된 카테고리별 전문 품질 보증 기준(에어컨 8개월/주요가전 4개월, 분해세척, 상업용 설비 등) 안내 배너 동적 연동.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
