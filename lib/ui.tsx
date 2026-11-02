@@ -1006,9 +1006,9 @@ export function FloatingQuickWing() {
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-4 top-1/2 -translate-y-1/2 z-40 hidden min-[1440px]:flex flex-col items-center select-none"
+      className="fixed right-5 top-1/2 -translate-y-1/2 z-40 hidden min-[1440px]:flex flex-col items-center select-none"
     >
-      <div className="w-16 rounded-2xl hb-glass p-1.5 shadow-floating flex flex-col items-center divide-y divide-[#E5E8EB]">
+      <div className="w-[58px] rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)] p-1.5 flex flex-col items-center gap-1">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
@@ -1017,7 +1017,7 @@ export function FloatingQuickWing() {
             })
           }
           title={`대표전화 ${STORE.tel}`}
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-t-xl text-[#191F28] hover:bg-[#F9FAFB] hover:text-[#F05600] transition-colors"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#191F28] hover:bg-[#F2F4F6] hover:text-[#F05600] transition-all duration-150 active:scale-95"
         >
           <Icon d={ICON.phone} className="w-4 h-4 text-[#F05600]" />
           <span className="text-hb-xs font-bold leading-none">전화</span>
@@ -1033,9 +1033,9 @@ export function FloatingQuickWing() {
             })
           }
           title="카카오톡 상담"
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#191F28] hover:bg-[#F9FAFB] hover:text-[#F05600] transition-colors"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#191F28] hover:bg-[#F2F4F6] hover:text-[#F05600] transition-all duration-150 active:scale-95"
         >
-          <span className="grid h-5 w-5 place-items-center rounded-md bg-[#FEE500] text-[#191600]">
+          <span className="grid h-5 w-5 place-items-center rounded-lg bg-[#FEE500] text-[#191600]">
             <Icon d={ICON.chat} className="w-3.5 h-3.5" />
           </span>
           <span className="text-hb-xs font-bold leading-none">카톡</span>
@@ -1045,25 +1045,27 @@ export function FloatingQuickWing() {
           type="button"
           onClick={() => handleInquiryClick("구매 문의")}
           title="견적 문의"
-          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 text-[#191F28] hover:bg-[#FFF4EE] hover:text-[#F05600] transition-colors"
+          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#191F28] hover:bg-[#FFF4EE] hover:text-[#F05600] transition-all duration-150 active:scale-95 cursor-pointer"
         >
           <Icon d={ICON.pen} className="w-4 h-4 text-[#F05600]" />
           <span className="text-hb-xs font-bold leading-none">견적</span>
           {basketCount > 0 && (
-            <span className="absolute right-1.5 top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#F05600] px-1 text-hb-xs font-bold text-white tabular-nums">
+            <span className="absolute right-1 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#F05600] px-1 text-hb-xs font-bold text-white tabular-nums">
               {basketCount}
             </span>
           )}
         </button>
 
+        <div className="w-8 h-[1px] bg-[#E5E8EB] my-0.5" aria-hidden="true" />
+
         <button
           type="button"
           onClick={scrollToTop}
           title="맨 위로 이동"
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-b-xl text-[#6B7684] hover:bg-[#F9FAFB] hover:text-[#191F28] transition-colors"
+          className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#6B7684] hover:bg-[#F2F4F6] hover:text-[#191F28] transition-all duration-150 active:scale-95 cursor-pointer"
         >
-          <Icon d={ICON.up} className="w-4 h-4" />
-          <span className="text-hb-xs font-semibold leading-none">맨 위</span>
+          <Icon d={ICON.up} className="w-3.5 h-3.5" />
+          <span className="text-hb-xs font-semibold leading-none">위로</span>
         </button>
       </div>
     </aside>

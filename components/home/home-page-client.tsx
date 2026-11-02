@@ -1012,34 +1012,57 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (8열): 토스 스타일 깔끔한 4단계 스텝 시트 (3중 번호·아이콘 중복 제거) */}
+              {/* 우측 (8열): 01→04 직관적 타임라인 연결형 4단계 스텝 카드 */}
               <div className="lg:col-span-8 min-w-0">
                 <ol className="relative grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  {SELL_STEPS.map((s, i) => (
-                    <li
-                      key={s.t}
-                      className="relative flex items-start gap-3.5 rounded-2xl bg-white p-5 shadow-card"
-                    >
-                      <DuotoneIcon
-                        d={s.icon}
-                        tone={i === 3 ? "orange" : "navy"}
-                        size="sm"
-                      />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-1.5 py-0.5 font-mono text-hb-xs font-bold text-[#F05600]">
-                            {s.step}
-                          </span>
-                          <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#191F28]">
-                            {s.t}
-                          </h3>
+                  {SELL_STEPS.map((s, i) => {
+                    const isLast = i === SELL_STEPS.length - 1;
+                    return (
+                      <li
+                        key={s.t}
+                        className={`relative flex items-start gap-3.5 rounded-2xl p-5 sm:p-6 transition-all duration-200 overflow-hidden ${
+                          isLast
+                            ? "bg-[#FFF9F5] border border-[#FFD8C2] shadow-card hover:border-[#F05600]"
+                            : "bg-white border border-[#E5E8EB] shadow-card hover:border-[#D1D6DB]"
+                        }`}
+                      >
+                        {/* 배경 은은한 대형 스텝 번호 워터마크 */}
+                        <span
+                          className={`absolute right-3.5 top-2 select-none font-mono text-hb-3xl sm:text-hb-4xl font-extrabold tracking-tighter tabular-nums pointer-events-none transition-colors ${
+                            isLast ? "text-[#F05600]/10" : "text-[#191F28]/[0.06]"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {s.step}
+                        </span>
+
+                        <DuotoneIcon
+                          d={s.icon}
+                          tone={isLast ? "orange" : "navy"}
+                          size="sm"
+                        />
+                        <div className="min-w-0 flex-1 relative z-10">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`inline-flex items-center rounded-md px-2 py-0.5 font-mono text-hb-xs font-bold tabular-nums ${
+                                isLast
+                                  ? "bg-[#F05600] text-white"
+                                  : "bg-[#F2F4F6] text-[#4E5968]"
+                              }`}
+                            >
+                              STEP {s.step}
+                            </span>
+                            <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#191F28]">
+                              {s.t}
+                            </h3>
+                          </div>
+                          <p className="mt-2 text-hb-sm leading-relaxed text-[#4E5968] break-keep">
+                            {s.d}
+                          </p>
                         </div>
-                        <p className="mt-1.5 text-hb-sm leading-relaxed text-[#4E5968] break-keep">
-                          {s.d}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
+                      </li>
+                    );
+                  })}
                 </ol>
 
                 {/* 하단 매입 팁 요약 스트립 */}
