@@ -877,7 +877,7 @@ export function UnifiedInquiryForm({
       {!isNotice && !hideTypeSelector && !fixedType ? (
         <div>
           <div className="flex items-center justify-between gap-2 mb-2.5">
-            <span className="text-hb-base font-extrabold text-[#191F28]">
+            <span className="text-hb-base font-bold text-[#191F28]">
               1. 원하시는 상담 유형을 선택해 주세요
             </span>
             <a
@@ -888,7 +888,7 @@ export function UnifiedInquiryForm({
                   inquiry_type: inquiryType,
                 })
               }
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#FF6F0F] bg-[#FFF4EE] px-3 py-1.5 text-hb-sm font-extrabold text-[#F05600] hover:bg-[#F05600] hover:text-white transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#FF6F0F] bg-[#FFF4EE] px-3 py-1.5 text-hb-sm font-bold text-[#F05600] hover:bg-[#F05600] hover:text-white transition-colors"
               title={`직통 휴대폰(${STORE.mobile}) 문자로 사진 바로 보내기`}
             >
               <Icon d={ICON.chat} className="h-4 w-4" />
@@ -983,7 +983,7 @@ export function UnifiedInquiryForm({
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#F05600] text-hb-xs font-bold text-white">
                 {basketItems.length}
               </span>
-              <strong className="text-hb-base font-extrabold text-[#191F28]">
+              <strong className="text-hb-base font-bold text-[#191F28]">
                 견적함에 담아둔 관심 상품 {basketItems.length}건
               </strong>
             </div>
@@ -1012,7 +1012,7 @@ export function UnifiedInquiryForm({
                   <span className="font-bold text-[#191F28]">
                     {item.title}
                   </span>
-                  <span className="text-[#F05600] font-extrabold">
+                  <span className="text-[#F05600] font-bold">
                     ({formatProductPrice(item.price, item.category)})
                   </span>
                   {/* 수량 조절 버튼 */}
@@ -1184,7 +1184,7 @@ export function UnifiedInquiryForm({
                 className="text-hb-xs font-bold text-[#F05600] hover:text-[#F05600] underline underline-offset-2 inline-flex items-center gap-1"
               >
                 <span>{showPhotoGuide ? "촬영 가이드 접기" : "권장 촬영 가이드 보기"}</span>
-                <span className="rounded bg-[#FFF0EB] border border-[#FFD8C2] px-1.5 py-0.5 text-hb-xs font-extrabold text-[#F05600]">
+                <span className="rounded bg-[#FFF0EB] border border-[#FFD8C2] px-1.5 py-0.5 text-hb-xs font-bold text-[#F05600]">
                   AI 가이드
                 </span>
               </button>
@@ -1499,7 +1499,7 @@ export function UnifiedInquiryForm({
                 <button
                   type="button"
                   onClick={() => addBulkEquipmentRow("")}
-                  className="text-hb-sm font-extrabold text-[#F05600] underline"
+                  className="text-hb-sm font-bold text-[#F05600] underline"
                 >
                   + 장비 줄 추가
                 </button>
@@ -1936,7 +1936,7 @@ export function UnifiedInquiryForm({
               <Link
                 href="/privacy"
                 target="_blank"
-                className="font-extrabold text-[#191F28] underline underline-offset-2"
+                className="font-bold text-[#191F28] underline underline-offset-2"
               >
                 개인정보 수집·이용
               </Link>
@@ -1976,7 +1976,7 @@ export function UnifiedInquiryForm({
             disabled={isBusy}
             className={`${
               isSell || isNotice ? "hb-btn-accent" : "hb-btn-primary"
-            } h-12 sm:h-[52px] px-7 text-hb-base font-extrabold shadow-card whitespace-nowrap cursor-pointer ${
+            } h-12 sm:h-[52px] px-7 text-hb-base font-bold shadow-card whitespace-nowrap cursor-pointer ${
               isNotice
                 ? onCancel
                   ? "sm:col-span-9"

@@ -63,7 +63,7 @@ export function ProductStructuredDescription({
         <div className="pb-4 border-b border-[#F2F4F6] flex flex-wrap items-center justify-between gap-2">
           <div>
             <span className="hb-eyebrow">SHOWROOM SPECIFICATION</span>
-            <h2 className="mt-1.5 text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.02em] text-[#191F28]">
+            <h2 className="mt-1.5 text-hb-lg sm:text-hb-xl font-bold tracking-[-0.02em] text-[#191F28]">
               상세 규격 · 제품 특징 · 검수 소견서
             </h2>
           </div>
@@ -83,7 +83,7 @@ export function ProductStructuredDescription({
               : "rounded-2xl bg-[#F9FAFB] border border-[#E5E8EB]/80 p-4 sm:p-5"
           }
         >
-          <h3 className="text-hb-sm font-extrabold text-[#191F28] mb-2 flex items-center gap-2">
+          <h3 className="text-hb-sm font-bold text-[#191F28] mb-2 flex items-center gap-2">
             <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FFF4EE] text-[#FF6F0F]">
               <Icon d={ICON.check} className="h-3.5 w-3.5" />
             </span>
@@ -102,7 +102,7 @@ export function ProductStructuredDescription({
       {/* 2. 주요 규격 및 사양 (토스 TDS 2열 벤토 스펙 타일) */}
       {parsed.specs.length > 0 && (
         <div>
-          <h3 className="text-hb-sm font-extrabold text-[#191F28] mb-3">
+          <h3 className="text-hb-sm font-bold text-[#191F28] mb-3">
             주요 규격 및 사양
           </h3>
           <dl
@@ -140,7 +140,7 @@ export function ProductStructuredDescription({
         >
           {parsed.features.length > 0 && (
             <div className="rounded-2xl bg-[#F9FAFB] border border-[#E5E8EB]/70 p-4 sm:p-5">
-              <h3 className="text-hb-sm font-extrabold text-[#191F28] mb-2.5">
+              <h3 className="text-hb-sm font-bold text-[#191F28] mb-2.5">
                 제품 핵심 특징
               </h3>
               <ul className="space-y-2 text-hb-sm leading-relaxed text-[#4E5968]">
@@ -156,7 +156,7 @@ export function ProductStructuredDescription({
 
           {parsed.inspectionAndAs.length > 0 && (
             <div className="rounded-2xl bg-[#E8FAF0]/50 border border-[#00C471]/20 p-4 sm:p-5">
-              <h3 className="text-hb-sm font-extrabold text-[#191F28] mb-2.5">
+              <h3 className="text-hb-sm font-bold text-[#191F28] mb-2.5">
                 점검 및 보증 안내
               </h3>
               <ul className="space-y-2 text-hb-sm leading-relaxed text-[#4E5968]">
@@ -180,7 +180,7 @@ export function ProductStructuredDescription({
         <div className="space-y-3">
           {parsed.checkPoints.length > 0 && (
             <div className="rounded-2xl bg-[#FFF4EE]/75 border border-[#FF6F0F]/20 px-4 py-3.5 text-hb-sm text-[#4E5968]">
-              <strong className="block font-extrabold text-[#F05600] mb-1">
+              <strong className="block font-bold text-[#F05600] mb-1">
                 구매 및 설치 전 확인사항
               </strong>
               <div className="space-y-1">

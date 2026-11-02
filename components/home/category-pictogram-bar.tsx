@@ -215,7 +215,7 @@ export function CategoryPictogramBar({
               className="inline-block h-4 w-1.5 rounded-full bg-[#FF6F0F]"
               aria-hidden="true"
             />
-            <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#191F28] tracking-[-0.02em]">
+            <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#191F28] tracking-[-0.02em]">
               품목별 쇼룸 카탈로그
             </h2>
           </div>
@@ -224,7 +224,7 @@ export function CategoryPictogramBar({
             <button
               type="button"
               onClick={() => handleCategoryClick(allItem)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-extrabold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-all cursor-pointer ${
                 selectedKey === "all"
                   ? "bg-[#191F28] text-white shadow-xs"
                   : "bg-[#F2F4F6] text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28]"
@@ -271,7 +271,7 @@ export function CategoryPictogramBar({
                     {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
                     {isBiz ? (
                       <span
-                        className={`text-hb-xs font-extrabold px-2 py-0.5 rounded-full leading-none ${
+                        className={`text-hb-xs font-bold px-2 py-0.5 rounded-full leading-none ${
                           isSelected
                             ? "bg-white/15 text-[#FF8A50]"
                             : "bg-[#E8F3FF] text-[#3182F6]"
@@ -291,7 +291,7 @@ export function CategoryPictogramBar({
 
                     <div className="min-w-0 w-full">
                       <strong
-                        className={`block text-hb-xs sm:text-hb-sm font-extrabold tracking-[-0.015em] truncate ${
+                        className={`block text-hb-xs sm:text-hb-sm font-bold tracking-[-0.015em] truncate ${
                           isSelected
                             ? "text-white"
                             : "text-[#191F28] group-hover:text-[#F05600]"
@@ -342,7 +342,7 @@ export function CategoryPictogramBar({
                     className="w-6 h-6 shrink-0"
                   />
                   <div className="min-w-0">
-                    <span className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#191F28] group-hover:text-[#F05600] transition-colors truncate">
+                    <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#191F28] group-hover:text-[#F05600] transition-colors truncate">
                       {item.label}
                     </span>
                     <span className="hidden sm:block text-hb-xs text-[#6B7684] truncate">

@@ -97,13 +97,13 @@ export function ProductTrustMicroStrip({
             className="flex flex-col justify-between rounded-xl bg-white px-4 py-3.5 shadow-2xs"
           >
             <div>
-              <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.015em] text-[#191F28]">
+              <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#191F28]">
                 <ModernApplianceIcon
                   name={item.icon}
                   className="w-8 h-8 sm:w-9 sm:h-9 shrink-0"
                 />
                 <span
-                  className={`inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-extrabold ${item.badge}`}
+                  className={`inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold ${item.badge}`}
                 >
                   {item.step}
                 </span>
@@ -313,7 +313,7 @@ export function ProductCard({
               showNew={false}
             />
             {product.condition_grade && (
-              <span className="inline-flex items-center rounded-full bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-hb-xs font-extrabold text-[#191F28] shadow-xs">
+              <span className="inline-flex items-center rounded-full bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-hb-xs font-semibold text-[#191F28] shadow-xs">
                 {product.condition_grade.split(" ")[0]}
               </span>
             )}
@@ -375,12 +375,12 @@ export function ProductCard({
         <div>
           {/* 상단 메타: 소프트 코랄 카테고리 칩 + 모델명 */}
           <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-2 py-0.5 font-bold text-[#F05600] truncate">
+            <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-2 py-0.5 font-semibold text-[#F05600] truncate">
               {categoryLabel}
             </span>
             {modelName && (
               <span
-                className="shrink-0 max-w-[52%] truncate font-mono text-hb-xs text-[#8B95A1]"
+                className="shrink-0 max-w-[52%] truncate font-mono text-hb-xs font-medium text-[#8B95A1]"
                 title={modelName}
               >
                 {modelName}
@@ -388,9 +388,9 @@ export function ProductCard({
             )}
           </div>
 
-          {/* 상품명 */}
+          {/* 상품명 (600 SemiBold로 가격 700 Bold와 선명한 대비 형성) */}
           <h3
-            className={`mt-2 line-clamp-2 text-hb-sm sm:text-hb-base font-bold leading-[1.4] tracking-[-0.02em] transition-colors break-keep ${
+            className={`mt-2 line-clamp-2 text-hb-sm sm:text-hb-base font-semibold leading-[1.42] transition-colors break-keep ${
               sold
                 ? "text-[#8B95A1]"
                 : "text-[#191F28] group-hover:text-[#F05600]"
@@ -399,18 +399,18 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          {/* 가격 (당근·카카오 스타일: 제목 바로 아래 가장 크고 선명하게 배치) */}
+          {/* 가격 (당근·카카오 스타일: 제목 바로 아래 700 Bold로 선명하게 강조) */}
           <div className="mt-2 flex items-baseline justify-between gap-2 min-w-0">
             {sold ? (
-              <span className="text-hb-sm font-bold text-[#8B95A1] truncate block">
+              <span className="text-hb-sm font-semibold text-[#8B95A1] truncate block">
                 판매완료 · 유사매물 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.03em] text-[#191F28] tabular-nums truncate">
+              <strong className="block text-hb-lg sm:text-hb-xl font-bold text-[#191F28] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
-              <strong className="block text-hb-base sm:text-hb-lg font-extrabold text-[#191F28] truncate">
+              <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#191F28] truncate">
                 <span className="sm:hidden">견적 상담</span>
                 <span className="hidden sm:inline">{priceText}</span>
               </strong>
@@ -418,14 +418,14 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* 하단: 핵심 스펙 칩(최대 2개) + 원터치 견적 담기 */}
+        {/* 하단: 핵심 스펙 칩(최대 2개, 500 Medium) + 원터치 견적 담기(600 SemiBold) */}
         <div className="mt-3 flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             {specCapsules.length > 0 ? (
               specCapsules.map((cap) => (
                 <span
                   key={cap}
-                  className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-1 text-hb-xs font-semibold text-[#4E5968] truncate"
+                  className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-1 text-hb-xs font-medium text-[#4E5968] truncate"
                 >
                   {cap}
                 </span>
@@ -446,7 +446,7 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-bold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-semibold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
                   ? "bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]/30"
                   : "bg-[#F2F4F6] text-[#191F28] hover:bg-[#191F28] hover:text-white"

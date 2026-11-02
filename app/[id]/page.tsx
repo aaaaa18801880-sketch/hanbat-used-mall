@@ -527,7 +527,7 @@ export default async function ProductDetailPage({
               </div>
 
               {/* 2. 상품명 */}
-              <h1 className="mt-3 text-hb-xl sm:text-hb-2xl font-extrabold leading-[1.3] tracking-[-0.025em] text-[#191F28] break-keep">
+              <h1 className="mt-3 text-hb-xl sm:text-hb-2xl font-bold leading-[1.3] tracking-[-0.025em] text-[#191F28] break-keep">
                 {product.title}
               </h1>
 
@@ -535,15 +535,15 @@ export default async function ProductDetailPage({
               <div className="mt-4 pt-4 border-t border-[#F2F4F6] flex flex-wrap items-baseline justify-between gap-3">
                 <div>
                   {sold ? (
-                    <span className="text-hb-xl sm:text-hb-2xl font-extrabold text-[#8B95A1]">
+                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#8B95A1]">
                       판매완료 · 유사 매물 상담 가능
                     </span>
                   ) : priced ? (
-                    <span className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#191F28] tabular-nums tracking-[-0.03em]">
+                    <span className="text-hb-2xl sm:text-hb-3xl font-bold text-[#191F28] tabular-nums tracking-[-0.03em]">
                       {priceDisplay}
                     </span>
                   ) : (
-                    <span className="text-hb-xl sm:text-hb-2xl font-extrabold text-[#F05600]">
+                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#F05600]">
                       {priceDisplay}
                     </span>
                   )}
@@ -717,7 +717,7 @@ export default async function ProductDetailPage({
             {categoryFaqs.map((faq) => (
               <div key={faq.q} className="rounded-2xl border border-[#E5E8EB] bg-white p-5 shadow-2xs">
                 <dt className="flex items-start gap-2 text-hb-base font-bold text-[#191F28]">
-                  <span className="text-[#F05600] font-extrabold">Q.</span>
+                  <span className="text-[#F05600] font-bold">Q.</span>
                   <span>{faq.q}</span>
                 </dt>
                 <dd className="mt-1.5 pl-6 text-hb-sm leading-relaxed text-[#4E5968] break-keep">

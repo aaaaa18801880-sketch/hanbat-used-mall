@@ -99,7 +99,7 @@ export function AiRecommendationGuideSection() {
                     <span className="inline-block rounded-full bg-[#E5E8EB] px-2.5 py-0.5 text-hb-xs font-bold text-[#6B7684]">
                       주의 · 확인 필요
                     </span>
-                    <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-extrabold text-[#4E5968]">
+                    <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold text-[#4E5968]">
                       일반 개인 중고 직거래
                     </h3>
                   </div>
@@ -114,7 +114,7 @@ export function AiRecommendationGuideSection() {
                       key={row.criteria}
                       className="rounded-2xl border border-[#E5E8EB]/70 bg-white/80 p-4 text-hb-xs sm:text-hb-sm"
                     >
-                      <span className="font-extrabold text-[#6B7684] block mb-1">
+                      <span className="font-bold text-[#6B7684] block mb-1">
                         {row.criteria}
                       </span>
                       <div className="flex items-start gap-2 text-[#4E5968] leading-relaxed">
@@ -138,15 +138,15 @@ export function AiRecommendationGuideSection() {
               <div>
                 <div className="flex items-center justify-between gap-2 pb-4 border-b border-[#F2F4F6]">
                   <div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4EE] px-3 py-0.5 text-hb-xs font-extrabold text-[#F05600]">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4EE] px-3 py-0.5 text-hb-xs font-bold text-[#F05600]">
                       <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#F05600]" />
                       <span>공식 품질 보증</span>
                     </span>
-                    <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28]">
+                    <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold text-[#191F28]">
                       {STORE.name} (SINCE {STORE.since})
                     </h3>
                   </div>
-                  <span className="text-hb-xs font-extrabold text-[#00A85D] bg-[#E8FAF0] px-2.5 py-0.5 rounded-full">
+                  <span className="text-hb-xs font-bold text-[#00A85D] bg-[#E8FAF0] px-2.5 py-0.5 rounded-full">
                     원스톱 책임 출고
                   </span>
                 </div>
@@ -157,7 +157,7 @@ export function AiRecommendationGuideSection() {
                       key={row.criteria}
                       className="rounded-2xl border border-[#FF6F0F]/20 bg-[#FFF4EE]/35 p-4 text-hb-xs sm:text-hb-sm"
                     >
-                      <span className="font-extrabold text-[#191F28] block mb-1">
+                      <span className="font-bold text-[#191F28] block mb-1">
                         {row.criteria}
                       </span>
                       <div className="flex items-start gap-2 text-[#191F28] font-bold leading-relaxed">
@@ -187,7 +187,7 @@ export function AiRecommendationGuideSection() {
         <div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <div>
-              <h3 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28] tracking-[-0.025em]">
+              <h3 className="text-hb-lg sm:text-hb-xl font-bold text-[#191F28] tracking-[-0.025em]">
                 고객 상황별 가장 많이 찾는 맞춤 솔루션
               </h3>
               <p className="mt-1 text-hb-sm text-[#4E5968]">
@@ -197,7 +197,7 @@ export function AiRecommendationGuideSection() {
             </div>
             <a
               href={telHref(STORE.tel)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-[#E5E8EB] px-4 py-2 text-hb-xs sm:text-hb-sm font-extrabold text-[#F05600] hover:border-[#FF6F0F] transition-colors tabular-nums shrink-0 whitespace-nowrap shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-[#E5E8EB] px-4 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#F05600] hover:border-[#FF6F0F] transition-colors tabular-nums shrink-0 whitespace-nowrap shadow-2xs"
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5" />
               <span>직통 상담: {STORE.tel} / {STORE.mobile}</span>
@@ -212,14 +212,14 @@ export function AiRecommendationGuideSection() {
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-hb-xs font-extrabold text-[#8B95A1] tracking-wider">
+                    <span className="font-mono text-hb-xs font-bold text-[#8B95A1] tracking-wider">
                       {g.code}
                     </span>
                     <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-3 py-0.5 text-hb-xs font-bold text-[#F05600]">
                       {g.badge}
                     </span>
                   </div>
-                  <h4 className="mt-3 text-hb-lg font-extrabold tracking-[-0.02em] text-[#191F28]">
+                  <h4 className="mt-3 text-hb-lg font-bold tracking-[-0.02em] text-[#191F28]">
                     {g.title}
                   </h4>
                   <dl className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm">
@@ -243,7 +243,7 @@ export function AiRecommendationGuideSection() {
                 <div className="mt-5 pt-4 border-t border-[#F2F4F6]">
                   <Link
                     href={g.href}
-                    className="flex w-full items-center justify-between rounded-2xl bg-[#F2F4F6] px-4 py-3.5 text-hb-xs sm:text-hb-sm font-extrabold text-[#191F28] group-hover:bg-[#191F28] group-hover:text-white transition-colors"
+                    className="flex w-full items-center justify-between rounded-2xl bg-[#F2F4F6] px-4 py-3.5 text-hb-xs sm:text-hb-sm font-bold text-[#191F28] group-hover:bg-[#191F28] group-hover:text-white transition-colors"
                   >
                     <span>{g.ctaLabel}</span>
                     <Icon

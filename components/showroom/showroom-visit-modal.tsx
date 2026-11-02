@@ -108,7 +108,7 @@ export function ShowroomVisitModal({
               <span className="text-hb-xs font-bold text-[#FF8A50]">
                 대전 중촌동 1·2층 직영 쇼룸
               </span>
-              <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-white">
+              <h2 className="text-hb-base sm:text-hb-lg font-bold text-white">
                 매장 방문 실물 확인 &amp; 1초 길찾기
               </h2>
             </div>
@@ -148,7 +148,7 @@ export function ShowroomVisitModal({
                   <span className="text-hb-xs font-bold text-[#6B7684]">
                     [{cat}] {product.modelName ? `모델명: ${product.modelName}` : ""}
                   </span>
-                  <h3 className="truncate text-hb-sm font-extrabold text-[#191F28]">
+                  <h3 className="truncate text-hb-sm font-bold text-[#191F28]">
                     {product.title}
                   </h3>
                   <span className="text-hb-sm font-bold text-[#F05600] tabular-nums">
@@ -229,7 +229,7 @@ export function ShowroomVisitModal({
             </div>
 
             <div>
-              <p className="text-hb-sm font-extrabold text-[#191F28]">
+              <p className="text-hb-sm font-bold text-[#191F28]">
                 {STORE_NAVIGATION.roadAddress}
               </p>
               <p className="text-hb-xs text-[#6B7684] mt-0.5">

@@ -613,7 +613,7 @@ export default function InquiryBoardPage() {
                   비밀번호 보호 안전 열람
                 </span>
               </div>
-              <h1 className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#191F28] tracking-[-0.03em] leading-[1.2]">
+              <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#191F28] tracking-[-0.03em] leading-[1.2]">
                 고객 문의 · 매입 신청 게시판
               </h1>
               <p className="mt-2.5 text-hb-base text-[#4E5968] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
@@ -1189,7 +1189,7 @@ export default function InquiryBoardPage() {
                       {(parsed.structuredLines.length > 0 ||
                         parsed.bulkItems.length > 0) && (
                         <div className="rounded-md border border-[#191F28]/15 bg-[#F8FAFC] p-4 text-hb-sm space-y-2">
-                          <strong className="text-hb-xs font-extrabold text-[#191F28] block">
+                          <strong className="text-hb-xs font-bold text-[#191F28] block">
                             상담 확인 조건 (
                             {getInquiryTypeLabel(selectedItem.inquiry_type)})
                           </strong>

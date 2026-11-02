@@ -582,7 +582,7 @@ export function InteractiveChecklistAndCta({
             <Icon d={ICON.phone} className="w-5 h-5 text-white" />
           </div>
           <div className="text-left min-w-0">
-            <div className="text-hb-base font-extrabold leading-tight text-white flex items-center gap-1.5 truncate">
+            <div className="text-hb-base font-bold leading-tight text-white flex items-center gap-1.5 truncate">
               <span>{sold ? "유사 매물 전화 문의" : "전화 바로 문의하기"}</span>
               <span className="text-hb-xs font-bold text-white">
                 ({STORE.tel})
@@ -611,7 +611,7 @@ export function InteractiveChecklistAndCta({
             <Icon d={ICON.chat} className="w-5 h-5 text-[#191600]" />
           </div>
           <div className="text-left min-w-0">
-            <div className="text-hb-base font-extrabold leading-tight text-[#191600] truncate">
+            <div className="text-hb-base font-bold leading-tight text-[#191600] truncate">
               {sold ? "카톡으로 유사 매물 찾기" : "카카오톡 1:1 상담하기"}
             </div>
             <p className="text-hb-xs text-[#191600]/80 font-medium leading-none mt-1 truncate">
@@ -686,7 +686,7 @@ export function InteractiveChecklistAndCta({
             <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#F05600] shrink-0" />
             <span className="truncate">대전 중촌동 직영 매장 실물 확인 · 1초 길찾기</span>
           </div>
-          <span className="text-hb-xs font-extrabold text-[#F05600] shrink-0 ml-1">
+          <span className="text-hb-xs font-bold text-[#F05600] shrink-0 ml-1">
             실물 찜 →
           </span>
         </button>

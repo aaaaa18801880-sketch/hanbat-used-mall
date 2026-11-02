@@ -194,7 +194,7 @@ export function FeaturedProductsSection({
             <div className="mt-2.5 flex flex-wrap items-baseline gap-2.5">
               <h2
                 id="featured-heading"
-                className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-[-0.03em] text-[#191F28]"
+                className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] text-[#191F28]"
               >
                 {activeCategoryTitle}
               </h2>

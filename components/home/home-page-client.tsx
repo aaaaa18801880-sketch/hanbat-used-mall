@@ -655,14 +655,14 @@ export default function Home({
               {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 3대 출고 원칙 레저 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6F0F]/25 bg-[#FFF4EE]/90 px-3.5 py-1 text-hb-xs font-extrabold text-[#F05600] shadow-2xs">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6F0F]/25 bg-[#FFF4EE]/90 px-3.5 py-1 text-hb-xs font-bold text-[#F05600] shadow-2xs">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F05600] animate-pulse" />
                     <span className="tracking-wide">대전 직영 플래그십 쇼룸 · 오프라인 실물 매장</span>
                   </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-3.5 hb-fluid-h1 text-[#191F28] tracking-tight break-keep font-extrabold"
+                    className="mt-3.5 hb-fluid-h1 text-[#191F28] tracking-tight break-keep font-bold"
                   >
                     가정용 가전부터 업소용 주방설비까지,{" "}
                     <br className="hidden sm:inline" />
@@ -683,7 +683,7 @@ export default function Home({
                         <span className="block text-hb-xs font-bold text-[#FF8A50]">
                           세척·검수 완료 · 무상 A/S
                         </span>
-                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white tracking-tight">
+                        <strong className="mt-0.5 block text-hb-lg font-bold text-white tracking-tight">
                           실매물 확인하기{" "}
                           {sellingCount > 0 && (
                             <span className="text-hb-sm font-bold text-white/80 tabular-nums">
@@ -711,7 +711,7 @@ export default function Home({
                         <span className="block text-hb-xs font-bold text-white/90">
                           방문 수거 · 당일 현금 정산
                         </span>
-                        <strong className="mt-0.5 block text-hb-lg font-extrabold text-white tracking-tight">
+                        <strong className="mt-0.5 block text-hb-lg font-bold text-white tracking-tight">
                           쓰던 가전 팔기
                         </strong>
                       </div>
@@ -748,7 +748,7 @@ export default function Home({
                     <div className="min-w-0 flex items-start gap-3">
                       <ModernApplianceIcon name="sparkle" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#191F28] truncate">
+                        <p className="text-hb-sm sm:text-hb-base font-bold text-[#191F28] truncate">
                           분해 고압세척 출고
                         </p>
                         <p className="mt-0.5 text-hb-xs text-[#4E5968] break-keep">
@@ -759,7 +759,7 @@ export default function Home({
                     <div className="min-w-0 sm:pl-4 flex items-start gap-3">
                       <ModernApplianceIcon name="shield" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#191F28] truncate">
+                        <p className="text-hb-sm sm:text-hb-base font-bold text-[#191F28] truncate">
                           무상 A/S 책임 보증
                         </p>
                         <p className="mt-0.5 text-hb-xs text-[#4E5968] break-keep">
@@ -770,7 +770,7 @@ export default function Home({
                     <div className="min-w-0 sm:pl-4 flex items-start gap-3">
                       <ModernApplianceIcon name="tax" className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-hb-sm sm:text-hb-base font-extrabold text-[#191F28] truncate">
+                        <p className="text-hb-sm sm:text-hb-base font-bold text-[#191F28] truncate">
                           직배송·세금계산서
                         </p>
                         <p className="mt-0.5 text-hb-xs text-[#4E5968] break-keep">
@@ -793,7 +793,7 @@ export default function Home({
                   />
 
                   {/* 좌상단 애플 프로스티드 글래스 플로팅 배지 */}
-                  <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-extrabold text-[#191F28] shadow-xs">
+                  <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#191F28] shadow-xs">
                     <span className="inline-block w-2 h-2 rounded-full bg-[#00C471]" />
                     <span>1·2층 직영 쇼룸 상시 개방</span>
                   </div>
@@ -818,7 +818,7 @@ export default function Home({
                   <div className="flex items-center justify-between px-1 pb-2">
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-3.5 rounded-full bg-[#FF6F0F]" />
-                      <span className="text-hb-xs font-extrabold text-[#191F28]">
+                      <span className="text-hb-xs font-bold text-[#191F28]">
                         방금 입고된 실매물 미리보기
                       </span>
                     </div>
@@ -852,7 +852,7 @@ export default function Home({
                               <p className="truncate text-hb-xs font-bold text-[#191F28] group-hover:text-[#F05600] transition-colors">
                                 {item.title}
                               </p>
-                              <span className="mt-0.5 block truncate text-hb-xs font-extrabold text-[#191F28] tabular-nums">
+                              <span className="mt-0.5 block truncate text-hb-xs font-bold text-[#191F28] tabular-nums">
                                 {formatProductPrice(item.price, cat)}
                               </span>
                             </div>
@@ -913,12 +913,12 @@ export default function Home({
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
               {/* 좌측 (5열): 업소용 핵심 메시지 & 전용 CTA */}
               <div className="lg:col-span-5 min-w-0">
-                <span className="inline-block rounded-full bg-[#FF6F0F] px-3 py-1 text-hb-xs font-extrabold text-white tracking-wide">
+                <span className="inline-block rounded-full bg-[#FF6F0F] px-3 py-1 text-hb-xs font-bold text-white tracking-wide">
                   식당·카페 창업 & 업소용 설비
                 </span>
                 <h2
                   id="business-title"
-                  className="mt-3.5 text-hb-2xl sm:text-hb-3xl font-extrabold text-white tracking-tight leading-[1.25] break-keep"
+                  className="mt-3.5 text-hb-2xl sm:text-hb-3xl font-bold text-white tracking-tight leading-[1.25] break-keep"
                 >
                   식당·카페 창업 설비 도입부터
                   <br />
@@ -968,7 +968,7 @@ export default function Home({
                           className="w-4 h-4 text-white/40 group-hover:text-[#FF8A50] group-hover:translate-x-1 transition-all"
                         />
                       </div>
-                      <h3 className="mt-2 text-hb-lg font-extrabold text-white group-hover:text-[#FF8A50] transition-colors">
+                      <h3 className="mt-2 text-hb-lg font-bold text-white group-hover:text-[#FF8A50] transition-colors">
                         {cell.title}
                       </h3>
                       <p className="mt-1.5 text-hb-xs sm:text-hb-sm text-white/70 leading-relaxed break-keep">
@@ -997,7 +997,7 @@ export default function Home({
                 <span className="hb-eyebrow">당일 방문 매입 · 현금 정산</span>
                 <h2
                   id="sell-title"
-                  className="mt-2 text-hb-2xl sm:text-hb-3xl font-extrabold text-[#191F28] tracking-tight leading-[1.25] break-keep"
+                  className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#191F28] tracking-tight leading-[1.25] break-keep"
                 >
                   쓰던 가전, 사진만 보내주세요
                 </h2>
@@ -1058,10 +1058,10 @@ export default function Home({
                       />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-1.5 py-0.5 font-mono text-hb-xs font-extrabold text-[#F05600]">
+                          <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-1.5 py-0.5 font-mono text-hb-xs font-bold text-[#F05600]">
                             {s.step}
                           </span>
-                          <h3 className="text-hb-base sm:text-hb-lg font-extrabold text-[#191F28]">
+                          <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#191F28]">
                             {s.t}
                           </h3>
                         </div>
@@ -1292,10 +1292,10 @@ export default function Home({
             {/* [EVO-015] 오프라인 1·2층 직영 쇼룸 안내 & 원클릭 길찾기 (중복 보증 박스 제거 후 단일 토스 콜아웃 카드화) */}
             <div className="mt-10 rounded-3xl bg-[#F2F4F6]/80 p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <span className="inline-flex items-center rounded-full bg-white px-3 py-0.5 text-hb-xs font-extrabold text-[#F05600] shadow-2xs">
+                <span className="inline-flex items-center rounded-full bg-white px-3 py-0.5 text-hb-xs font-bold text-[#F05600] shadow-2xs">
                   오프라인 1·2층 직영 매장
                 </span>
-                <h3 className="mt-2 text-hb-base sm:text-hb-lg font-extrabold text-[#191F28]">
+                <h3 className="mt-2 text-hb-base sm:text-hb-lg font-bold text-[#191F28]">
                   대전 중촌동 1·2층 직영 쇼룸에서 실물을 직접 확인하세요
                 </h3>
                 <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968]">
@@ -1365,7 +1365,7 @@ export default function Home({
                         className="flex w-full items-center justify-between gap-4 py-4 sm:py-5 text-left cursor-pointer"
                       >
                         <div className="flex items-start gap-3 min-w-0">
-                          <span className="mt-0.5 font-mono text-hb-sm font-extrabold text-[#F05600] shrink-0">
+                          <span className="mt-0.5 font-mono text-hb-sm font-bold text-[#F05600] shrink-0">
                             Q0{i + 1}.
                           </span>
                           <div className="min-w-0">
@@ -1469,7 +1469,7 @@ export default function Home({
                   </p>
                   <a
                     href={telHref(STORE.tel)}
-                    className="mt-2 block text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-white hover:text-[#FF8A50] tabular-nums"
+                    className="mt-2 block text-hb-2xl sm:text-hb-3xl font-bold tracking-tight text-white hover:text-[#FF8A50] tabular-nums"
                   >
                     {STORE.tel}
                   </a>
@@ -1554,7 +1554,7 @@ export default function Home({
                 <div className="rounded-3xl border border-[#E5E8EB] bg-[#F9FAFB] p-5 sm:p-6 flex-1 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between pb-3 border-b border-[#E5E8EB]">
-                      <h3 className="text-hb-base font-extrabold text-[#191F28]">
+                      <h3 className="text-hb-base font-bold text-[#191F28]">
                         최근 접수된 문의 현황
                       </h3>
                       <Link
@@ -1664,7 +1664,7 @@ export default function Home({
                       </div>
                       <h3
                         id="location-title"
-                        className="mt-1 text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28] break-keep"
+                        className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#191F28] break-keep"
                       >
                         {STORE.roadAddress}
                       </h3>

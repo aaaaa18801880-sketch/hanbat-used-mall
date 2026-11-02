@@ -99,7 +99,7 @@ export function ProductCompareModal({
             <span className="text-hb-xs font-bold text-[#FF8A50]">
               실매물 스펙 · 조건 한눈에 비교
             </span>
-            <h2 className="text-hb-lg font-extrabold">
+            <h2 className="text-hb-lg font-bold">
               선택한 매물 비교 ({compareItems.length}건)
             </h2>
           </div>
@@ -147,7 +147,7 @@ export function ProductCompareModal({
                           설치 공간 가로폭 참고:
                         </strong>{" "}
                         치수가 확인된 {widths.length}종 매물의 가로폭 합계는 약{" "}
-                        <strong className="text-[#F05600] font-extrabold tabular-nums">
+                        <strong className="text-[#F05600] font-bold tabular-nums">
                           {totalWidthMm.toLocaleString()}mm (
                           {(totalWidthMm / 1000).toFixed(2)}m)
                         </strong>
@@ -232,7 +232,7 @@ export function ProductCompareModal({
                       return (
                         <td
                           key={item.id}
-                          className="p-3 font-extrabold text-hb-base text-[#F05600] border-l border-[#E5E8EB] tabular-nums"
+                          className="p-3 font-bold text-hb-base text-[#F05600] border-l border-[#E5E8EB] tabular-nums"
                         >
                           {sold
                             ? "판매완료 (유사재고 문의)"
@@ -530,7 +530,7 @@ export function RecentViewedStrip({
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
           <span className="h-2 w-2 rounded-full bg-[#F05600]" />
-          <h2 className="text-hb-base font-extrabold text-[#191F28]">
+          <h2 className="text-hb-base font-bold text-[#191F28]">
             최근 본 매물 ({items.length})
           </h2>
           <span className="hidden sm:inline text-hb-xs text-[#6B7684]">
@@ -590,7 +590,7 @@ export function RecentViewedStrip({
                       {item.title}
                     </p>
                   </div>
-                  <strong className="mt-1.5 block text-hb-sm font-extrabold text-[#191F28] tabular-nums">
+                  <strong className="mt-1.5 block text-hb-sm font-bold text-[#191F28] tabular-nums">
                     {sold
                       ? "판매완료"
                       : formatProductPrice(item.price, item.category)}

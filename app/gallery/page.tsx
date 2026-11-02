@@ -1991,14 +1991,14 @@ export default function GalleryPage() {
                   대전 중촌동 1·2층 직영 매장 실매물
                 </span>
                 {!isLoading && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8FAF0] px-2.5 py-0.5 text-hb-xs font-extrabold text-[#00A85D] tabular-nums">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8FAF0] px-2.5 py-0.5 text-hb-xs font-bold text-[#00A85D] tabular-nums">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#00C471]" />
                     구매 가능 {sellingCount}건
                   </span>
                 )}
               </div>
               <div className="mt-2 flex flex-wrap items-baseline gap-3">
-                <h1 className="text-hb-xl sm:text-hb-2xl font-extrabold text-[#191F28] tracking-[-0.028em]">
+                <h1 className="text-hb-xl sm:text-hb-2xl font-bold text-[#191F28] tracking-[-0.028em]">
                   판매 제품 갤러리
                 </h1>
                 <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-[#6B7684] truncate">
@@ -2288,7 +2288,7 @@ export default function GalleryPage() {
               ) : (
                 <>
                   전시 매물{" "}
-                  <strong className="text-[#191F28] font-extrabold tabular-nums">
+                  <strong className="text-[#191F28] font-bold tabular-nums">
                     {filteredProducts.length}
                   </strong>
                   건
@@ -2404,7 +2404,7 @@ export default function GalleryPage() {
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC] shadow-2xs">
-            <p className="text-[#191F28] text-hb-lg font-extrabold">
+            <p className="text-[#191F28] text-hb-lg font-bold">
               {search.trim()
                 ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
                 : "선택하신 필터 조건에 맞는 상품이 없습니다."}
@@ -2496,7 +2496,7 @@ export default function GalleryPage() {
         <div className="mt-12 rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div>
             <span className="hb-eyebrow">미등록 매장 재고 문의</span>
-            <h2 className="mt-1.5 text-hb-lg font-extrabold text-[#191F28]">
+            <h2 className="mt-1.5 text-hb-lg font-bold text-[#191F28]">
               찾으시는 모델이나 용량·수량이 목록에 없으신가요?
             </h2>
             <p className="mt-1 text-hb-sm text-[#4E5968] leading-relaxed break-keep">

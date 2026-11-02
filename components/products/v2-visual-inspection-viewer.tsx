@@ -178,7 +178,7 @@ export function V2VisualInspectionViewer({
                 {catLabel}
               </span>
             </div>
-            <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28] tracking-tight">
+            <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-bold text-[#191F28] tracking-tight">
               실물 출고 전 4대 핵심 품질 검수 기준
             </h3>
             <p className="mt-1 text-hb-xs text-[#6B7684]">
@@ -190,7 +190,7 @@ export function V2VisualInspectionViewer({
             <span className="block text-hb-xs font-semibold text-[#F05600]">
               본 매물 등급 · 보증
             </span>
-            <strong className="text-hb-sm font-extrabold text-[#F05600]">
+            <strong className="text-hb-sm font-bold text-[#F05600]">
               {displayGrade} · {warrantyText}
             </strong>
           </div>
@@ -207,7 +207,7 @@ export function V2VisualInspectionViewer({
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-extrabold text-white">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-bold text-white">
                       {item.no}
                     </span>
                     <span
@@ -224,7 +224,7 @@ export function V2VisualInspectionViewer({
                   <p className="text-hb-xs font-bold text-[#F05600] leading-snug break-keep">
                     {item.question}
                   </p>
-                  <h4 className="mt-1 text-hb-sm font-extrabold text-[#191F28] leading-snug break-keep">
+                  <h4 className="mt-1 text-hb-sm font-bold text-[#191F28] leading-snug break-keep">
                     {item.answerTitle}
                   </h4>
                   <p className="mt-1.5 text-hb-xs leading-relaxed text-[#4E5968] break-keep">

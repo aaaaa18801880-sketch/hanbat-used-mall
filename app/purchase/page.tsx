@@ -51,7 +51,7 @@ export default function PurchasePage() {
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
               <span className="hb-eyebrow">가전 · 업소용 주방설비 방문 매입</span>
-              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-extrabold tracking-[-0.03em] leading-[1.2] text-[#191F28]">
+              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] leading-[1.2] text-[#191F28]">
                 중고 가전 · 업소용 주방기기 매입 신청
               </h1>
               <p className="mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base text-[#3F4856] leading-relaxed break-keep [text-wrap:pretty]">
@@ -92,7 +92,7 @@ export default function PurchasePage() {
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-hb-xs font-extrabold tracking-[0.06em] text-[#F05600]">
+                  <span className="text-hb-xs font-bold tracking-[0.06em] text-[#F05600]">
                     {item.step}
                   </span>
                 </div>
@@ -112,7 +112,7 @@ export default function PurchasePage() {
           <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-7 shadow-card lg:col-span-8">
             <div className="mb-5 pb-4 border-b border-[#EFECE6] flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28]">
+                <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#191F28]">
                   온라인 매입 견적 신청서
                 </h2>
                 <p className="mt-1 text-hb-sm text-[#6B7684]">
@@ -136,7 +136,7 @@ export default function PurchasePage() {
           <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
             <div className="rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 shadow-card">
               <span className="hb-eyebrow">급매 · 폐업 직통 상담</span>
-              <h2 className="mt-1.5 text-hb-lg font-extrabold text-[#191F28]">
+              <h2 className="mt-1.5 text-hb-lg font-bold text-[#191F28]">
                 급매 · 폐업 일괄 정리 직통 상담
               </h2>
               <p className="mt-2 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
@@ -148,7 +148,7 @@ export default function PurchasePage() {
                   <span className="font-semibold text-[#6B7684]">매장 대표전화</span>
                   <a
                     href={telHref(STORE.tel)}
-                    className="font-extrabold text-[#191F28] hover:text-[#F05600] tabular-nums"
+                    className="font-bold text-[#191F28] hover:text-[#F05600] tabular-nums"
                   >
                     {STORE.tel}
                   </a>
@@ -157,7 +157,7 @@ export default function PurchasePage() {
                   <span className="font-semibold text-[#6B7684]">매입/수거 직통</span>
                   <a
                     href={telHref(STORE.mobile)}
-                    className="font-extrabold text-[#F05600] hover:underline tabular-nums"
+                    className="font-bold text-[#F05600] hover:underline tabular-nums"
                   >
                     {STORE.mobile}
                   </a>
@@ -191,7 +191,7 @@ export default function PurchasePage() {
                   <span className="text-hb-xs font-bold text-[#F05600]">
                     공식 매입 기준 안내문
                   </span>
-                  <h3 className="text-hb-sm font-extrabold text-[#191F28]">
+                  <h3 className="text-hb-sm font-bold text-[#191F28]">
                     한밭중고전자 매입 기준 안내문
                   </h3>
                 </div>

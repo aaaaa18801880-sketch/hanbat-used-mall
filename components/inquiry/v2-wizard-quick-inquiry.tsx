@@ -516,7 +516,7 @@ export function V2InquirySectionWithWizard({
       >
         {/* 모던 스텝퍼(Stepper) UI */}
         <div className="space-y-3 pb-2 border-b border-[#E5E8EB]">
-          <div className="flex items-center justify-between text-hb-xs font-extrabold">
+          <div className="flex items-center justify-between text-hb-xs font-bold">
             <span className="text-[#F05600]">{step}단계 / 3단계</span>
             <span className="text-[#6B7684]">
               {step === 1
@@ -630,7 +630,7 @@ export function V2InquirySectionWithWizard({
                           setInquiryType(t);
                           setSelectedChips([]);
                         }}
-                        className={`h-12 rounded-xl border px-3 text-hb-sm font-extrabold transition-all cursor-pointer ${
+                        className={`h-12 rounded-xl border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                           active
                             ? "border-[#191F28] bg-[#191F28] text-white shadow-2xs"
                             : "border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28] hover:border-[#191F28]"
@@ -840,7 +840,7 @@ export function V2InquirySectionWithWizard({
                           key={g.step}
                           className="flex items-start gap-2 rounded-lg bg-white p-2.5 border border-[#E5E8EB]"
                         >
-                          <span className="shrink-0 rounded bg-[#191F28] px-1.5 py-0.5 text-hb-xs font-extrabold text-white">
+                          <span className="shrink-0 rounded bg-[#191F28] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                             {g.step}
                           </span>
                           <div className="min-w-0 flex-1">
@@ -1040,7 +1040,7 @@ export function V2InquirySectionWithWizard({
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="hb-btn-accent h-11 px-7 text-hb-sm font-extrabold"
+                  className="hb-btn-accent h-11 px-7 text-hb-sm font-bold"
                 >
                   {submitting
                     ? "접수 중..."

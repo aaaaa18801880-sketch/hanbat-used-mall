@@ -26,7 +26,7 @@ export function ProductStatusBadge({
   return (
     <div className={`inline-flex flex-wrap items-center gap-1.5 ${className}`}>
       <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-hb-xs font-bold tracking-tight backdrop-blur-md shadow-xs ${
+        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-hb-xs font-semibold backdrop-blur-md shadow-xs ${
           sold
             ? "bg-[#4E5968]/90 text-white"
             : reserved
@@ -44,7 +44,7 @@ export function ProductStatusBadge({
         <span>{label}</span>
       </span>
       {isFresh && (
-        <span className="inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#FF6F0F]/30 px-2 py-0.5 text-hb-xs font-extrabold tracking-tight text-[#F05600] shadow-2xs">
+        <span className="inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#FF6F0F]/30 px-2 py-0.5 text-hb-xs font-bold text-[#F05600] shadow-2xs">
           NEW
         </span>
       )}

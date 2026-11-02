@@ -211,7 +211,7 @@ export function HanbatBrandLogo({
       </svg>
       <span className="flex flex-col justify-center">
         <span
-          className={`font-extrabold tracking-[-0.03em] leading-none ${
+          className={`font-bold tracking-[-0.03em] leading-none ${
             size === "compact"
               ? "text-hb-lg"
               : "text-hb-lg sm:text-hb-xl"
@@ -1113,7 +1113,7 @@ export function SiteFooter({
                         location: "site_footer",
                       })
                     }
-                    className="text-hb-xl font-extrabold text-white hover:text-[#FF8A50] transition-colors"
+                    className="text-hb-xl font-bold text-white hover:text-[#FF8A50] transition-colors"
                   >
                     {STORE.tel}
                   </a>
@@ -1420,7 +1420,7 @@ export function MobileCtaBar({
                 {productContext.category}
               </span>
               <strong
-                className={`block truncate text-hb-sm font-extrabold leading-tight tabular-nums ${
+                className={`block truncate text-hb-sm font-bold leading-tight tabular-nums ${
                   sold ? "text-[#6B7684]" : "text-[#191F28]"
                 }`}
               >
