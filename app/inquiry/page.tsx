@@ -693,7 +693,7 @@ export default function InquiryBoardPage() {
                 }}
                 placeholder="제목·품목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-full md:w-[230px] rounded-lg border border-[#E5E8EB] bg-white px-3 pl-9 pr-8 text-hb-sm text-[#191F28] placeholder:text-[#8A8478] focus:border-[#191F28] focus:outline-none"
+                className="h-10 w-full md:w-[230px] rounded-lg border border-[#E5E8EB] bg-white px-3 pl-9 pr-8 text-hb-sm text-[#191F28] placeholder:text-[#8B95A1] focus:border-[#191F28] focus:outline-none"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7684] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
@@ -706,7 +706,7 @@ export default function InquiryBoardPage() {
                     setCurrentPage(1);
                   }}
                   aria-label="검색어 지우기"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8A8478] hover:text-[#191F28]"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#191F28]"
                 >
                   <Icon d={ICON.close} className="w-3.5 h-3.5" />
                 </button>
@@ -737,12 +737,12 @@ export default function InquiryBoardPage() {
                 <th className="w-28">등록일</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#EFECE6]">
+            <tbody className="divide-y divide-[#F2F4F6]">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={`sk-${i}`} className="h-14 animate-pulse">
                     <td colSpan={6} className="px-5">
-                      <div className="h-4 bg-[#EFECE6] rounded w-full" />
+                      <div className="h-4 bg-[#F2F4F6] rounded w-full" />
                     </td>
                   </tr>
                 ))
@@ -913,7 +913,7 @@ export default function InquiryBoardPage() {
                         />
                       )}
                     </p>
-                    <div className="mt-2.5 pt-2 border-t border-[#EFECE6] flex items-center justify-between text-hb-xs text-[#6B7684]">
+                    <div className="mt-2.5 pt-2 border-t border-[#F2F4F6] flex items-center justify-between text-hb-xs text-[#6B7684]">
                       <span className="font-medium text-[#4E5968]">
                         {item.masked_name || maskName(item.name)}
                       </span>
@@ -930,7 +930,7 @@ export default function InquiryBoardPage() {
 
         {/* 에러 및 빈 목록 상태 안내 */}
         {!isLoading && loadError && (
-          <div className="mt-6 py-14 text-center bg-white rounded-xl border border-[#E6E3DC]">
+          <div className="mt-6 py-14 text-center bg-white rounded-2xl border border-[#E5E8EB]">
             <p className="text-[#191F28] font-bold mb-4">
               문의 목록을 불러오지 못했습니다.
             </p>
@@ -948,7 +948,7 @@ export default function InquiryBoardPage() {
           !loadError &&
           currentItems.length === 0 &&
           (!showNotices || noticeList.length === 0) && (
-            <div className="mt-6 py-16 text-center bg-white rounded-xl border border-[#E6E3DC] text-hb-sm">
+            <div className="mt-6 py-16 text-center bg-white rounded-2xl border border-[#E5E8EB] text-hb-sm">
               <p className="text-[#191F28] font-bold mb-1 text-hb-base">
                 {keyword.trim()
                   ? "검색 조건에 맞는 문의글이 없습니다."
@@ -977,13 +977,13 @@ export default function InquiryBoardPage() {
               onClick={() => goPage(Math.max(safePage - 1, 1))}
               disabled={safePage === 1}
               aria-label="이전 페이지"
-              className="w-9 h-9 flex items-center justify-center rounded border border-[#DDD9D1] bg-white text-[#4B5260] disabled:opacity-30"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E5E8EB] bg-white text-[#4E5968] disabled:opacity-30"
             >
               <Icon d={ICON.left} className="w-4 h-4" />
             </button>
             {pageWindow(safePage, totalPages).map((p, i) =>
               p === "…" ? (
-                <span key={`e${i}`} className="w-6 text-center text-[#8A8478]">
+                <span key={`e${i}`} className="w-6 text-center text-[#8B95A1]">
                   …
                 </span>
               ) : (
@@ -991,10 +991,10 @@ export default function InquiryBoardPage() {
                   key={p}
                   type="button"
                   onClick={() => goPage(p)}
-                  className={`w-9 h-9 rounded text-hb-sm font-semibold ${
+                  className={`w-9 h-9 rounded-lg text-hb-sm font-semibold ${
                     safePage === p
                       ? "bg-[#191F28] text-white"
-                      : "border border-[#DDD9D1] bg-white text-[#4B5260]"
+                      : "border border-[#E5E8EB] bg-white text-[#4E5968]"
                   }`}
                 >
                   {p}
@@ -1006,7 +1006,7 @@ export default function InquiryBoardPage() {
               onClick={() => goPage(Math.min(safePage + 1, totalPages))}
               disabled={safePage === totalPages}
               aria-label="다음 페이지"
-              className="w-9 h-9 flex items-center justify-center rounded border border-[#DDD9D1] bg-white text-[#4B5260] disabled:opacity-30"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E5E8EB] bg-white text-[#4E5968] disabled:opacity-30"
             >
               <Icon d={ICON.right} className="w-4 h-4" />
             </button>
@@ -1139,7 +1139,7 @@ export default function InquiryBoardPage() {
             </div>
 
             <div className="p-6 overflow-y-auto space-y-5 text-hb-base">
-              <div className="border-b border-[#E4E0D8] pb-4">
+              <div className="border-b border-[#F2F4F6] pb-4">
                 <h2 className="text-hb-xl font-bold text-[#191F28] mb-2">
                   {selectedItem.category}
                 </h2>
@@ -1216,7 +1216,7 @@ export default function InquiryBoardPage() {
                                 {parsed.bulkItems.map((it, idx) => (
                                   <li
                                     key={idx}
-                                    className="bg-white px-2.5 py-1 rounded border border-[#E4E0D8]"
+                                    className="bg-white px-2.5 py-1 rounded border border-[#E5E8EB]"
                                   >
                                     • {it}
                                   </li>
@@ -1267,7 +1267,7 @@ export default function InquiryBoardPage() {
                       key={imgUrl + idx}
                       type="button"
                       onClick={() => setEnlargedImage(imgUrl)}
-                      className="aspect-square rounded overflow-hidden border border-[#E4E0D8] bg-[#EFECE6]"
+                      className="aspect-square rounded-lg overflow-hidden border border-[#E5E8EB] bg-[#F2F4F6]"
                     >
                       <SafeImg
                         src={imgUrl}
@@ -1291,7 +1291,7 @@ export default function InquiryBoardPage() {
               )}
 
               {!selectedItem.is_notice && isAdmin && (
-                <div className="bg-[#F9FAFB] rounded-md p-4 border border-[#E4E0D8] space-y-3">
+                <div className="bg-[#F9FAFB] rounded-md p-4 border border-[#E5E8EB] space-y-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <label className="text-hb-sm font-bold text-[#191F28]">
                       진행 상태 명시적 변경
@@ -1301,7 +1301,7 @@ export default function InquiryBoardPage() {
                       onChange={(e) =>
                         handleStatusUpdate(selectedItem.id, e.target.value)
                       }
-                      className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-hb-sm font-bold text-[#191F28]"
+                      className="rounded border border-[#E5E8EB] bg-white px-3 py-1.5 text-hb-sm font-bold text-[#191F28]"
                     >
                       {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -1321,7 +1321,7 @@ export default function InquiryBoardPage() {
                         key={tpl.label}
                         type="button"
                         onClick={() => setReplyContent(tpl.text)}
-                        className="rounded border border-[#DDD9D1] bg-white px-2.5 py-1 text-hb-xs font-semibold text-[#191F28] hover:border-[#191F28]"
+                        className="rounded border border-[#E5E8EB] bg-white px-2.5 py-1 text-hb-xs font-semibold text-[#191F28] hover:border-[#191F28]"
                       >
                         + {tpl.label}
                       </button>
