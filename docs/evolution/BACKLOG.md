@@ -30,6 +30,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **17** | `EVO-017` | 플래그십 쇼룸 히어로 현대화(Option A) 및 원터치 옴니 쇼룸 카탈로그 일체화(Option B) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 12)** |
 | **18** | `EVO-018` | 상품 카드 2.5D 마이크로 뎁스 틸트 및 스튜디오 메탈릭 스펙큘러 라이팅(순수 시각 효과) | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 13)** |
 | **19** | `EVO-019` | 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편 | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[tailwind.config.js](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/tailwind.config.js)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[components/products/product-structured-description.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-structured-description.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 14)** |
+| **20** | `EVO-020` | 대기업(애플·토스·카카오·당근) 벤치마크 5대 주안점 심화 폴리싱 (De-boxing 2단계·0.5초 스캔 위계·한글 마이크로카피·BuyBox 독 통합) | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 15)** |
 
 ---
 
@@ -186,6 +187,18 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
 
+### EVO-020: 대기업(애플·토스·카카오·당근) 벤치마크 5대 주안점 심화 폴리싱
+- **문제 진단**:
+  - 컬러와 곡률 개편 이후에도 화면 곳곳에 ① 박스 안에 중첩된 박스(3중 번호/아이콘, 중복된 3대 보증 섹션), ② 사진 위를 누르는 영문 헤더 바(`SHOWROOM LIVE VIEW`, `SHOWROOM STUDIO PHOTO`), ③ 상품 카드 내부 수평 구분선, ④ 영문 장식 아이브로우(`FIELD ARCHIVE`, `CUSTOMER GUIDE` 등), ⑤ 상세페이지 우측 7개 버튼 박스 난립이 남아 있었음.
+- **개선 방안**:
+  - **1. De-boxing 2단계 & 중복 제거**: 매입 스텝 카드의 3중 번호·아이콘 중복을 단일 토스 스텝 배지로 통합하고, 리뷰 섹션 하단의 중복 3열 보증 박스를 제거.
+  - **2. 애플 스토어식 풀블리드 쇼케이스**: 히어로 우측 쇼케이스 및 상세 갤러리 상단 영문 바를 제거하고 반투명 글래스 플로팅 배지 + 소프트 벤토 트레이로 개편.
+  - **3. 당근·카카오식 0.5초 스캔 상품 카드 위계**: 카드 내부 수평선을 제거하고 `제목 → 대형 가격 → 핵심 스펙 칩(최대 2개) + 담기 버튼`으로 위계 재편.
+  - **4. 한글 중심 직관적 마이크로카피**: 전 섹션의 영문 장식 아이브로우를 직관적인 한글 캡슐 배지로 전면 교체.
+  - **5. 상세 BuyBox 원카드 소프트 액션 독**: 상세페이지 우측의 다크 네이비 가격 박스를 클린 타이포그래피로 전환하고, 보조 버튼 5개를 단일 토스 소프트 독(`bg-[#F2F4F6] rounded-2xl p-1.5`)으로 통합.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+
 ### EVO-019: 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편
 - **문제 진단**:
   - 기존 한밭중고전자 UI는 웜 베이지/알라바스터(`#FAF9F7`, `#F7F6F3`, `#E5E2DC`) 배경과 건축적 그리드 실선(`hb-arch-grid`), 상단 검은색 굵은 테두리(`border-t-2`, `border-t-4`), 테두리 있는 박스형 테이블 위주로 구성되어 있어 현대적인 한국 모바일 앱(토스, 당근마켓)이나 애플 스토어 같은 산뜻하고 직관적인 '떼깔'이 부족했음.
@@ -194,5 +207,17 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
     1. **Color & Surface**: 누런 웜 베이지를 전면 걷어내고 **Pure White (`#FFFFFF`) & Cool Gray (`#F2F4F6`, `#F9FAFB`)** 서피스 레이어링, **Toss Charcoal (`#191F28`)** 타이포그래피, **SEED Coral Orange (`#FF6F0F` / `#F05600`)** 브랜드 포인트, **Toss Blue (`#3182F6`)** 및 **Toss Mint (`#00C471`)** 시맨틱 토큰으로 전면 교체.
     2. **De-boxing & Squircle Curvature**: 불필요한 1px 격자 테두리와 상단 굵은 검은 줄(`border-t-2`)을 제거하고, `rounded-2xl` / `rounded-3xl` 스쿼클 곡률과 보더리스 소프트 칩(`bg-[#F2F4F6]`)으로 시각적 피로도 제로화.
     3. **전 화면 일괄 개편**: 글로벌 토큰(`globals.css`, `tailwind.config.js`), 헤더/다이나믹 아일랜드 견적 바(`lib/ui.tsx`), 상품 카드(`product-card.tsx`), AI 스펙·검수 리포트(`product-structured-description.tsx`), 메인 홈 쇼룸(`home-page-client.tsx`, `category-pictogram-bar.tsx`, `featured-products-section.tsx`), 상품 상세(`app/[id]/page.tsx`, `product-detail-gallery.tsx`), 갤러리 검색(`app/gallery/page.tsx`) 등 20개 핵심 UI 파일 일괄 개편.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+
+### EVO-020: 대기업(애플·토스·카카오·당근) 벤치마크 5대 주안점 심화 폴리싱
+- **문제 진단**:
+  - 컬러와 곡률 개편 이후에도 화면 곳곳에 ① 박스 안에 중첩된 박스(3중 번호/아이콘, 중복된 3대 보증 섹션), ② 사진 위를 누르는 영문 헤더 바(`SHOWROOM LIVE VIEW`, `SHOWROOM STUDIO PHOTO`), ③ 상품 카드 내부 수평 구분선, ④ 영문 장식 아이브로우(`FIELD ARCHIVE`, `CUSTOMER GUIDE` 등), ⑤ 상세페이지 우측 7개 버튼 박스 난립이 남아 있었음.
+- **개선 방안**:
+  - **1. De-boxing 2단계 & 중복 제거**: 매입 스텝 카드의 3중 번호·아이콘 중복을 단일 토스 스텝 배지로 통합하고, 리뷰 섹션 하단의 중복 3열 보증 박스를 제거.
+  - **2. 애플 스토어식 풀블리드 쇼케이스**: 히어로 우측 쇼케이스 및 상세 갤러리 상단 영문 바를 제거하고 반투명 글래스 플로팅 배지 + 소프트 벤토 트레이로 개편.
+  - **3. 당근·카카오식 0.5초 스캔 상품 카드 위계**: 카드 내부 수평선을 제거하고 `제목 → 대형 가격 → 핵심 스펙 칩(최대 2개) + 담기 버튼`으로 위계 재편.
+  - **4. 한글 중심 직관적 마이크로카피**: 전 섹션의 영문 장식 아이브로우를 직관적인 한글 캡슐 배지로 전면 교체.
+  - **5. 상세 BuyBox 원카드 소프트 액션 독**: 상세페이지 우측의 다크 네이비 가격 박스를 클린 타이포그래피로 전환하고, 보조 버튼 5개를 단일 토스 소프트 독(`bg-[#F2F4F6] rounded-2xl p-1.5`)으로 통합.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.

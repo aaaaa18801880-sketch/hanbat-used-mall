@@ -124,21 +124,8 @@ export function ProductDetailGallery({
   return (
     <>
       <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E5E8EB] bg-white shadow-card">
-        {/* 상단 쇼룸 이미지 뷰어 바 (토스/애플 클린 헤더) */}
-        <div className="bg-white border-b border-[#F2F4F6] px-5 py-3 flex items-center justify-between gap-2 text-hb-xs">
-          <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#FF6F0F]" />
-            <span className="font-extrabold tracking-wider uppercase text-[#191F28]">
-              SHOWROOM STUDIO PHOTO
-            </span>
-          </div>
-          <span className="rounded-full bg-[#F2F4F6] px-2.5 py-0.5 text-[#4E5968] font-bold tabular-nums">
-            실물 촬영 사진 {idx + 1} / {displayImages.length}
-          </span>
-        </div>
-
-        {/* 메인 프리뷰 영역: 시원시원한 대형 뷰 (스튜디오 백드롭 적용) */}
-        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-1 sm:p-2 overflow-hidden group select-none">
+        {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (상단 영문 바 제거) */}
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none">
           <SafeImg
             key={displayImages[idx]}
             src={displayImages[idx]}
@@ -162,22 +149,29 @@ export function ProductDetailGallery({
             </button>
           )}
 
-          <div className="absolute top-3.5 left-3.5 z-10">
+          <div className="absolute top-4 left-4 z-10">
             <ProductStatusBadge status={status} createdAt={createdAt} />
           </div>
 
           {sold && (
             <div className="absolute inset-0 flex items-center justify-center bg-[#191F28]/45">
-              <span className="px-5 py-2 rounded bg-[#191F28]/90 text-white text-hb-sm font-bold tracking-[0.2em] border border-white/20">
+              <span className="px-5 py-2 rounded-full bg-[#191F28]/90 text-white text-hb-sm font-bold tracking-[0.15em] border border-white/20">
                 판매완료
               </span>
             </div>
           )}
 
           {displayImages[0] && (
-            <div className="absolute top-3.5 right-3.5 bg-white/90 backdrop-blur-md text-[#191F28] shadow-xs text-hb-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
-              <Icon d={ICON.search} className="w-3.5 h-3.5" />
-              <span>원본 확대</span>
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-[#191F28] shadow-xs text-hb-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
+              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#F05600]" />
+              <span>크게 보기</span>
+            </div>
+          )}
+
+          {/* 우하단 애플/당근 스타일 반투명 사진 순서 캡슐 */}
+          {displayImages.length > 0 && (
+            <div className="absolute bottom-3.5 right-4 z-10 rounded-full bg-[#191F28]/75 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-white tabular-nums pointer-events-none">
+              {idx + 1} / {displayImages.length}
             </div>
           )}
 
@@ -631,70 +625,72 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 3순위: 2x2 컴팩트 보조 액션 그리드 */}
-      <div className="grid grid-cols-2 gap-2 pt-1">
-        <a
-          href={smsHref(STORE.mobile, smsBody)}
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold"
-        >
-          <Icon d={ICON.chat} className="h-4 w-4 text-[#F05600] shrink-0" />
-          <span className="truncate">문자(SMS) 문의</span>
-        </a>
+      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (테두리 박스 난립 제거) */}
+      <div className="rounded-2xl bg-[#F2F4F6] p-1.5 space-y-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+          <a
+            href={smsHref(STORE.mobile, smsBody)}
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+          >
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#F05600] shrink-0" />
+            <span className="truncate">문자 문의</span>
+          </a>
 
-        <Link
-          href={inquiryHref}
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#191F28]"
-        >
-          <Icon d={ICON.pen} className="h-4 w-4 text-[#191F28] shrink-0" />
-          <span className="truncate">온라인 견적서</span>
-        </Link>
+          <Link
+            href={inquiryHref}
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+          >
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#3182F6] shrink-0" />
+            <span className="truncate">온라인 견적</span>
+          </Link>
 
-        <Link
-          href={galleryCategoryHref}
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#191F28]"
-        >
-          <Icon d={ICON.grid} className="h-4 w-4 text-[#191F28] shrink-0" />
-          <span className="truncate">다른 실매물 더보기</span>
-        </Link>
+          <QuoteBasketButton
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            compact
+            item={{
+              id: String(product.id),
+              title: product.title,
+              category: categoryLabel,
+              price: product.price,
+              status: product.status,
+              conditionGrade: product.condition_grade,
+              description: product.description || "",
+              modelName,
+              imageUrl: firstImageUrl,
+              quantity: 1,
+            }}
+          />
 
-        <QuoteBasketButton
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#191F28]"
-          compact
-          item={{
-            id: String(product.id),
-            title: product.title,
-            category: categoryLabel,
-            price: product.price,
-            status: product.status,
-            conditionGrade: product.condition_grade,
-            description: product.description || "",
-            modelName,
-            imageUrl: firstImageUrl,
-            quantity: 1,
-          }}
-        />
-      </div>
-
-      {/* 4순위: [EVO-015] 직영 매장 방문 실물 확인 & 1초 내비 길찾기 (O2O) */}
-      <button
-        type="button"
-        onClick={() => {
-          trackEvent("open_showroom_modal", {
-            productId: String(product.id),
-            category: categoryLabel,
-          });
-          setVisitModalOpen(true);
-        }}
-        className="w-full h-11 rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] hover:bg-[#F2F4F6] text-[#191F28] flex items-center justify-between px-4 transition-colors font-bold text-hb-xs sm:text-hb-sm cursor-pointer shadow-2xs"
-      >
-        <div className="flex items-center gap-2 min-w-0">
-          <Icon d={ICON.pin} className="w-4 h-4 text-[#F05600] shrink-0" />
-          <span className="truncate">직영 매장 방문 실물 확인 · 1초 길찾기</span>
+          <Link
+            href={galleryCategoryHref}
+            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+          >
+            <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#00A85D] shrink-0" />
+            <span className="truncate">유사 매물</span>
+          </Link>
         </div>
-        <span className="text-hb-xs font-semibold text-[#F05600] shrink-0 ml-1">
-          실물 찜하기 →
-        </span>
-      </button>
+
+        {/* 4순위: [EVO-015] 직영 매장 방문 실물 확인 & 1초 내비 길찾기 (독 하단 소프트 바) */}
+        <button
+          type="button"
+          onClick={() => {
+            trackEvent("open_showroom_modal", {
+              productId: String(product.id),
+              category: categoryLabel,
+            });
+            setVisitModalOpen(true);
+          }}
+          className="w-full h-10 rounded-xl bg-white/80 hover:bg-white text-[#191F28] flex items-center justify-between px-3.5 transition-colors font-bold text-hb-xs cursor-pointer"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#F05600] shrink-0" />
+            <span className="truncate">대전 중촌동 직영 매장 실물 확인 · 1초 길찾기</span>
+          </div>
+          <span className="text-hb-xs font-extrabold text-[#F05600] shrink-0 ml-1">
+            실물 찜 →
+          </span>
+        </button>
+      </div>
 
       {visitModalOpen && (
         <ShowroomVisitModal

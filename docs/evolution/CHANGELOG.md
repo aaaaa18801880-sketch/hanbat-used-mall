@@ -509,3 +509,40 @@
 ### 4. 획득한 지식 및 교훈 (Lessons Learned)
 - **De-boxing(탈박스화)과 서피스 명도 대비의 힘**: 테두리(`border`)로 영역을 쪼개는 대신 `#F2F4F6`(쿨그레이 배경) 위에 `#FFFFFF`(순백색 카드)를 얹고 카드 내부 칩을 보더리스 `#F2F4F6`로 처리하면, 정보 밀도가 높은 중고 가전 스펙 시트도 토스나 애플 스토어처럼 시선이 편안하고 정돈된 인상을 준다.
 - **가전 사진과 쿨그레이 스튜디오 배경의 조화**: 백색가전·메탈가전 사진은 따뜻한 노란빛 베이지 배경보다 쿨 실버/화이트 스튜디오 배경(`#F2F4F6` ~ `#FFFFFF`) 위에 놓였을 때 가장 깨끗하고 신품에 가까운 시각적 신뢰감을 형성한다.
+
+---
+
+## 🚀 [Cycle 15] 2026-11-02 — 대기업(애플·토스·카카오·당근) 벤치마크 5대 주안점 심화 폴리싱 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-020`
+- **문제 진단**:
+  1. 토스·애플·카카오·당근의 실제 프로덕트 화면과 비교했을 때, 사진 상단을 가로막는 영문 뷰파인더 바(`SHOWROOM LIVE VIEW`, `SHOWROOM STUDIO PHOTO`), 섹션마다 붙어 있는 영문 대문자 장식(`FIELD ARCHIVE`, `WHY HANBAT SHOWROOM` 등), 상품 카드 내부의 가로 구분선, 상세페이지 BuyBox의 다크 박스와 7개 버튼 나열 등 시각적 군더더기를 걷어낼 필요성 확인.
+
+### 2. 코드 변경 요약 (5대 주안점 일괄 반영)
+- **주안점 1 — 박스 중첩 제거 및 `ListRow`화 ([components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx))**:
+  - 매입 절차(`SELL_STEPS`)의 3중 중복(검은 원형 번호 + 듀오톤 아이콘 + `STEP 01` 텍스트)을 정리하여 듀오톤 아이콘 + 소프트 코랄 번호 배지(`01`~`04`)로 단순화.
+  - 히어로 하단과 중복되던 리뷰 섹션 하단의 3열 보증 요약 카드(`TRUST_SUMMARY_CARDS`)를 제거하여 스크롤 피로도 절감.
+- **주안점 2 — 애플 스토어식 풀블리드 쇼케이스 프레임 ([components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx), [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx))**:
+  - 히어로 우측 쇼케이스와 상세 갤러리 상단의 영문 헤더 바를 제거하여 사진이 카드 상단 끝까지 시원하게 차오르도록 개편하고, 반투명 프로스티드 글래스 플로팅 배지 및 소프트 벤토 트레이 적용.
+- **주안점 3 — 당근·카카오 선물하기식 0.5초 스캔 상품 카드 ([components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx))**:
+  - 카드 내부 수평선(`border-t`)을 제거하고, `상품명 → 대형 가격 → 핵심 스펙 칩(최대 2개) & 담기 버튼` 순으로 0.5초 스캔 위계 확립.
+- **주안점 4 — 한글 중심 직관적 마이크로카피 ([components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx), [components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx), [components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx))**:
+  - `FIELD ARCHIVE`, `CUSTOMER GUIDE`, `SHOWROOM & CONTACT`, `WHY HANBAT SHOWROOM`, `OFFICIAL GUARANTEE`, `LIVE SHOWROOM`, `B2B · 01~04`, `SOLUTION 01~03` 등 영문 장식을 직관적인 한글 배지로 전면 교체.
+- **주안점 5 — 상세 BuyBox 클린 가격 시트 & 원카드 소프트 액션 독 ([app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx), [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx))**:
+  - 상세 우측 콘솔의 다크 네이비 가격 박스를 걷어내고 대형 차콜 타이포그래피 + 민트 검수 배지 + 토스 `ListRow` 스펙 시트로 개편.
+  - 5개의 보조 액션 버튼을 단일 토스 소프트 액션 독(`rounded-2xl bg-[#F2F4F6] p-1.5`)으로 통합.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.30s) — 임의 픽셀 폰트 0건, 이모지 0건, Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.19s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.18s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.17s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.18s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.25s) — 0 errors
+- **7. eslint**: PASS (13.10s) — 0 errors, 0 warnings
+- **8. next build**: PASS (13.08s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **여백과 근접성(Law of Proximity)이 구분선을 대체한다**: 카드 내부의 수평선(`border-t`)이나 사진 상단의 상태바를 제거하면 오히려 사진과 가격이라는 핵심 정보의 집중도가 비약적으로 상승한다.
+- **모국어 마이크로카피의 직관성**: 토스·당근·카카오처럼 장식용 영문 캡션을 덜어내고 즉각 읽히는 한글 배지로 통일하면 전 연령대 방문자에게 훨씬 친근하고 신뢰감 있는 브랜드 인상을 전달한다.

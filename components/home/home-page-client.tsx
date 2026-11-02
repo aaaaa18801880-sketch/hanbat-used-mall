@@ -76,30 +76,6 @@ type InquiryRow = {
   created_at: string;
 };
 
-const TRUST_SUMMARY_CARDS = [
-  {
-    step: "01",
-    badge: "입고 검수 및 세척",
-    title: "분해 세척·작동 검수 후 출고",
-    desc: "엔지니어가 분해 고압 세척과 냉매·누수·시운전 테스트를 통과한 실매물만 출고합니다.",
-    icon: "sparkle" as const,
-  },
-  {
-    step: "02",
-    badge: "책임 보증 약정",
-    title: "계약 조건별 무상 A/S 보증",
-    desc: "에어컨류 계약조건별 최대 8개월, 일반 가전 최대 4개월 무상 A/S를 약정 지원합니다.",
-    icon: "shield" as const,
-  },
-  {
-    step: "03",
-    badge: "사업자 정식 증빙",
-    title: "사업자 증빙 및 직배송 완비",
-    desc: "대전·충청권 직배송 설치 및 전자세금계산서·카드·현금영수증을 100% 정식 발행합니다.",
-    icon: "tax" as const,
-  },
-] as const;
-
 const SELL_STEPS = [
   {
     step: "01",
@@ -129,28 +105,28 @@ const SELL_STEPS = [
 
 const COMMERCIAL_EQUIP_MATRIX = [
   {
-    code: "B2B · 01",
+    code: "냉장 · 냉동 설비",
     title: "업소용 냉장 · 냉동 설비",
     items: "45박스 · 25박스 수직냉장/냉동 · 테이블냉장고 · 반찬냉장고 · 급속냉동고",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
     icon: "biz-fridge" as const,
   },
   {
-    code: "B2B · 02",
+    code: "쇼케이스 설비",
     title: "음료 · 제과 · 주류 쇼케이스",
     items: "음료/주류 직냉식·간냉식 쇼케이스 · 제과/케이크 쇼케이스 · 오픈 쇼케이스",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
     icon: "showcase" as const,
   },
   {
-    code: "B2B · 03",
+    code: "제빙기 · 주방집기",
     title: "제빙기 · 세척기 · 스텐 주방",
     items: "업소용 제빙기 · 식기세척기 · 스텐 작업대 · 싱크대 · 가스레인지 · 육수통",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
     icon: "kitchen" as const,
   },
   {
-    code: "B2B · 04",
+    code: "냉난방 · 폐업정리",
     title: "중대형 냉난방 · 폐업 일괄정리",
     items: "상가·사무실 중대형 스탠드/천장형 냉난방기 · 폐업 매장 집기 방문 일괄매입",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
@@ -806,20 +782,8 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 오프라인 직영 쇼룸 비주얼 + 실시간 입고 실매물 3종 독 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E8EB] bg-white/95 backdrop-blur-md shadow-card hb-pedestal-card">
-                {/* 다크 네이비 뷰파인더 바 */}
-                <div className="bg-[#191F28] px-3.5 py-2 flex items-center justify-between text-white border-b border-white/10">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#FF8A50] animate-pulse" />
-                    <span className="font-mono text-hb-xs font-extrabold tracking-wider text-white">
-                      SHOWROOM LIVE VIEW · 1·2층 직영 전시장
-                    </span>
-                  </div>
-                  <span className="text-hb-xs text-[#FF8A50] font-bold">
-                    실시간 직영 쇼룸
-                  </span>
-                </div>
+              {/* 우측 (5열): 애플 스토어식 풀블리드 쇼룸 비주얼 + 토스 벤토 트레이 */}
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-3xl overflow-hidden border border-[#E5E8EB] bg-white shadow-card hb-pedestal-card">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#191F28]">
                   <SafeImg
                     src="/main-bg2.png"
@@ -828,31 +792,34 @@ export default function Home({
                     className="h-full w-full object-cover object-center"
                   />
 
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#191F28]/95 via-[#191F28]/70 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
+                  {/* 좌상단 애플 프로스티드 글래스 플로팅 배지 */}
+                  <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-extrabold text-[#191F28] shadow-xs">
+                    <span className="inline-block w-2 h-2 rounded-full bg-[#00C471]" />
+                    <span>1·2층 직영 쇼룸 상시 개방</span>
+                  </div>
+
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#191F28]/90 via-[#191F28]/55 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
                     <div className="min-w-0">
-                      <span className="text-hb-xs font-bold text-[#FF8A50]">
-                        대전 중구 중촌동 1·2층 대형 직영 매장
-                      </span>
                       <p className="text-hb-xs sm:text-hb-sm font-bold text-white truncate">
                         {STORE.roadAddress} ({STORE.addressNote})
                       </p>
                     </div>
                     <a
                       href="#location-section"
-                      className="shrink-0 rounded bg-white/15 hover:bg-white/25 px-2.5 py-1 text-hb-xs font-bold text-white backdrop-blur-xs"
+                      className="shrink-0 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-hb-xs font-bold text-white backdrop-blur-md transition-colors"
                     >
-                      오시는 길
+                      오시는 길 →
                     </a>
                   </div>
                 </div>
 
-                {/* 첫 화면에서 즉시 확인하는 실시간 매장 전시 가전 미니 쇼케이스 (프레스티지 포디움) */}
-                <div className="p-3.5 sm:p-4 bg-white flex-1 flex flex-col justify-between">
-                  <div className="flex items-center justify-between pb-2.5 border-b border-[#F2F4F6]">
+                {/* 첫 화면에서 즉시 확인하는 실시간 매장 전시 가전 미니 쇼케이스 (토스 소프트 벤토 트레이) */}
+                <div className="p-3.5 sm:p-4 bg-[#F9FAFB] flex-1 flex flex-col justify-between">
+                  <div className="flex items-center justify-between px-1 pb-2">
                     <div className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-3.5 rounded-full bg-[#F05600]" />
+                      <span className="w-1.5 h-3.5 rounded-full bg-[#FF6F0F]" />
                       <span className="text-hb-xs font-extrabold text-[#191F28]">
-                        방금 입고된 쇼룸 실매물 미리보기
+                        방금 입고된 실매물 미리보기
                       </span>
                     </div>
                     <Link
@@ -864,50 +831,41 @@ export default function Home({
                   </div>
 
                   {heroPreviewProducts.length > 0 ? (
-                    <div className="mt-2.5 grid grid-cols-3 gap-2 sm:gap-2.5">
-                      {heroPreviewProducts.map((item, idx) => {
+                    <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+                      {heroPreviewProducts.map((item) => {
                         const thumb = splitImages(item.image_url)[0];
                         const cat = normalizeProductCategory(item.category);
-                        const podiumNum = String(idx + 1).padStart(2, "0");
                         return (
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group relative block min-w-0 rounded-2xl border border-[#E5E8EB] bg-white overflow-hidden hover:border-[#FF6F0F] hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200"
+                            className="group relative block min-w-0 rounded-2xl bg-white p-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-card transition-all duration-200"
                           >
-                            <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#191F28]/[0.06]">
+                            <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden hb-studio-backdrop">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}
                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
-                              {/* 포디움 번호 태그 */}
-                              <div className="absolute top-1.5 left-1.5 z-10 rounded bg-[#191F28]/90 backdrop-blur-xs border border-white/20 px-1.5 py-0.5">
-                                <span className="font-mono text-hb-xs font-black text-[#FF8A50] tracking-wider leading-none">
-                                  {podiumNum}
-                                </span>
-                              </div>
                             </div>
-                            <div className="p-2 sm:p-2.5 bg-gradient-to-b from-white to-[#F9FAFB]">
+                            <div className="px-1 pt-2 pb-0.5">
                               <p className="truncate text-hb-xs font-bold text-[#191F28] group-hover:text-[#F05600] transition-colors">
                                 {item.title}
                               </p>
-                              <div className="mt-1 flex items-baseline justify-between gap-1">
-                                <span className="truncate text-hb-xs font-extrabold text-[#F05600] tabular-nums">
-                                  {formatProductPrice(item.price, cat)}
-                                </span>
-                              </div>
+                              <span className="mt-0.5 block truncate text-hb-xs font-extrabold text-[#191F28] tabular-nums">
+                                {formatProductPrice(item.price, cat)}
+                              </span>
                             </div>
                           </Link>
                         );
                       })}
                     </div>
                   ) : (
-                    <div className="mt-2.5 grid grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-3 gap-2.5">
                       {Array.from({ length: 3 }).map((_, idx) => (
                         <div
                           key={idx}
-                          className="h-24 rounded bg-[#F2F4F6] animate-pulse"
+                          className="h-24 rounded-2xl bg-[#F2F4F6] animate-pulse"
                         />
                       ))}
                     </div>
@@ -955,8 +913,8 @@ export default function Home({
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
               {/* 좌측 (5열): 업소용 핵심 메시지 & 전용 CTA */}
               <div className="lg:col-span-5 min-w-0">
-                <span className="inline-block rounded bg-[#F05600] px-2.5 py-1 text-hb-xs font-extrabold text-white tracking-wider">
-                  COMMERCIAL KITCHEN & B2B SOLUTION
+                <span className="inline-block rounded-full bg-[#FF6F0F] px-3 py-1 text-hb-xs font-extrabold text-white tracking-wide">
+                  식당·카페 창업 & 업소용 설비
                 </span>
                 <h2
                   id="business-title"
@@ -1036,7 +994,7 @@ export default function Home({
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
               {/* 좌측 (4열): 매입 핵심 안내 및 직접 행동 버튼 */}
               <div className="lg:col-span-4 min-w-0">
-                <span className="hb-eyebrow">DIRECT VISIT BUYBACK</span>
+                <span className="hb-eyebrow">당일 방문 매입 · 현금 정산</span>
                 <h2
                   id="sell-title"
                   className="mt-2 text-hb-2xl sm:text-hb-3xl font-extrabold text-[#191F28] tracking-tight leading-[1.25] break-keep"
@@ -1085,31 +1043,28 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (8열): 번호가 연결되는 4단계 매입 절차 타임라인 (카드 박스 나열 배제) */}
+              {/* 우측 (8열): 토스 스타일 깔끔한 4단계 스텝 시트 (3중 번호·아이콘 중복 제거) */}
               <div className="lg:col-span-8 min-w-0">
-                <ol className="relative grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <ol className="relative grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {SELL_STEPS.map((s, i) => (
                     <li
                       key={s.t}
-                      className="relative flex items-start gap-4 rounded-2xl border border-[#E5E8EB] bg-white p-5 shadow-2xs"
+                      className="relative flex items-start gap-3.5 rounded-2xl bg-white p-5 shadow-card"
                     >
-                      <div className="flex flex-col items-center gap-2 shrink-0">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#191F28] font-mono text-hb-sm font-extrabold text-[#FF8A50]">
-                          {s.step}
-                        </span>
-                        <DuotoneIcon
-                          d={s.icon}
-                          tone={i === 3 ? "orange" : "navy"}
-                          size="sm"
-                        />
-                      </div>
+                      <DuotoneIcon
+                        d={s.icon}
+                        tone={i === 3 ? "orange" : "navy"}
+                        size="sm"
+                      />
                       <div className="min-w-0">
-                        <span className="text-hb-xs font-bold text-[#F05600]">
-                          STEP 0{i + 1}
-                        </span>
-                        <h3 className="mt-0.5 text-hb-lg font-extrabold text-[#191F28]">
-                          {s.t}
-                        </h3>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-1.5 py-0.5 font-mono text-hb-xs font-extrabold text-[#F05600]">
+                            {s.step}
+                          </span>
+                          <h3 className="text-hb-base sm:text-hb-lg font-extrabold text-[#191F28]">
+                            {s.t}
+                          </h3>
+                        </div>
                         <p className="mt-1.5 text-hb-sm leading-relaxed text-[#4E5968] break-keep">
                           {s.d}
                         </p>
@@ -1150,9 +1105,9 @@ export default function Home({
           aria-labelledby="review-title"
         >
           <div className="hb-container">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b border-[#E5E8EB]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b border-[#F2F4F6]">
               <SectionHeading
-                eyebrow="FIELD ARCHIVE"
+                eyebrow="직영 시공 기록"
                 title={<span id="review-title">직영 배송 · 설치 현장 기록</span>}
                 desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송하고 설치한 실제 현장 사진입니다."
               />
@@ -1334,48 +1289,13 @@ export default function Home({
               </>
             )}
 
-            {/* 3열 핵심 보증 요약 레저 (#usp-section — 박스형 카드 대신 수평선과 타이포 위계 활용) */}
-            <div
-              id="usp-section"
-              className="mt-12 pt-8 border-t border-[#F2F4F6]"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {TRUST_SUMMARY_CARDS.map((card) => (
-                  <div
-                    key={card.title}
-                    className="flex flex-col justify-between rounded-2xl bg-[#F9FAFB] border border-[#E5E8EB]/80 p-5 sm:p-6"
-                  >
-                    <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono text-hb-base font-extrabold text-[#F05600]">
-                            {card.step}
-                          </span>
-                          <span className="text-hb-xs font-bold text-[#6B7684] uppercase">
-                            {card.badge}
-                          </span>
-                        </div>
-                        <ModernApplianceIcon name={card.icon} className="w-8 h-8 shrink-0" />
-                      </div>
-                      <h3 className="mt-2 text-hb-lg font-extrabold text-[#191F28]">
-                        {card.title}
-                      </h3>
-                      <p className="mt-2 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
-                        {card.desc}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* [EVO-015] 오프라인 1·2층 직영 쇼룸 안내 & 원클릭 길찾기 모달 트리거 */}
-            <div className="mt-8 rounded-2xl border border-[#E5E8EB] bg-[#F9FAFB] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* [EVO-015] 오프라인 1·2층 직영 쇼룸 안내 & 원클릭 길찾기 (중복 보증 박스 제거 후 단일 토스 콜아웃 카드화) */}
+            <div className="mt-10 rounded-3xl bg-[#F2F4F6]/80 p-5 sm:p-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <span className="text-hb-xs font-bold text-[#F05600] uppercase tracking-wide">
-                  OFFLINE 1·2F SHOWROOM
+                <span className="inline-flex items-center rounded-full bg-white px-3 py-0.5 text-hb-xs font-extrabold text-[#F05600] shadow-2xs">
+                  오프라인 1·2층 직영 매장
                 </span>
-                <h3 className="mt-0.5 text-hb-base sm:text-hb-lg font-extrabold text-[#191F28]">
+                <h3 className="mt-2 text-hb-base sm:text-hb-lg font-extrabold text-[#191F28]">
                   대전 중촌동 1·2층 직영 쇼룸에서 실물을 직접 확인하세요
                 </h3>
                 <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968]">
@@ -1413,7 +1333,7 @@ export default function Home({
           <div className="hb-container grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
             <div className="lg:col-span-4 min-w-0">
               <SectionHeading
-                eyebrow="CUSTOMER GUIDE"
+                eyebrow="궁금하신 점"
                 title={<span id="faq-title">자주 묻는 질문 (FAQ)</span>}
                 desc="A/S 보증 기간, 보상판매 차액 정산, 설치 비용 등 상담 전 가장 많이 물어보시는 핵심 질문입니다."
               />
@@ -1532,7 +1452,7 @@ export default function Home({
         >
           <div className="hb-container">
             <SectionHeading
-              eyebrow="SHOWROOM & CONTACT"
+              eyebrow="상담 및 매장 위치"
               title={<span id="cta-title">상담 연결 및 오프라인 매장 안내</span>}
               desc="전화·카톡·문자로 바로 연결하시거나 대전 중촌동 직영 쇼룸에 방문해 실물을 확인하실 수 있습니다."
             />

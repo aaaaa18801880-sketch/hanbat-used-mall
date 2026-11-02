@@ -153,7 +153,7 @@ export function ProductCard({
   const specCapsules = extractSpecCapsules(
     product.title,
     product.description,
-    3
+    2
   );
 
   const [inBasket, setInBasket] = useState(false);
@@ -370,7 +370,7 @@ export function ProductCard({
         )}
       </div>
 
-      {/* 2. 토스(TDS) & 당근(SEED) 스타일 무테두리 클린 정보 영역 */}
+      {/* 2. 당근(SEED) · 카카오 선물하기 · 토스쇼핑 스타일 0.5초 스캔 위계 (내부 구분선 제거) */}
       <div className="flex flex-1 flex-col justify-between p-4 sm:p-5 bg-white">
         <div>
           {/* 상단 메타: 소프트 코랄 카테고리 칩 + 모델명 */}
@@ -390,7 +390,7 @@ export function ProductCard({
 
           {/* 상품명 */}
           <h3
-            className={`mt-2 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-bold leading-[1.42] tracking-[-0.02em] transition-colors break-keep pb-0.5 ${
+            className={`mt-2 line-clamp-2 text-hb-sm sm:text-hb-base font-bold leading-[1.4] tracking-[-0.02em] transition-colors break-keep ${
               sold
                 ? "text-[#8B95A1]"
                 : "text-[#191F28] group-hover:text-[#F05600]"
@@ -399,34 +399,14 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          {/* 사양 요약 (토스 스타일 무테두리 쿨그레이 소프트 칩) */}
-          {specCapsules.length > 0 ? (
-            <div className="mt-2 flex flex-wrap gap-1.5 overflow-hidden">
-              {specCapsules.map((cap) => (
-                <span
-                  key={cap}
-                  className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-0.5 text-hb-xs font-semibold text-[#4E5968] truncate max-w-full"
-                >
-                  {cap}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="mt-2 truncate text-hb-xs font-medium text-[#8B95A1]">
-              {specSummaryText}
-            </p>
-          )}
-        </div>
-
-        {/* 하단: 가격 강조 + 토스 스타일 알약형 견적함 버튼 */}
-        <div className="mt-3.5 pt-3 border-t border-[#F2F4F6] flex items-center justify-between gap-2 min-w-0">
-          <div className="min-w-0 flex-1">
+          {/* 가격 (당근·카카오 스타일: 제목 바로 아래 가장 크고 선명하게 배치) */}
+          <div className="mt-2 flex items-baseline justify-between gap-2 min-w-0">
             {sold ? (
               <span className="text-hb-sm font-bold text-[#8B95A1] truncate block">
-                판매완료 · 유사재고 문의
+                판매완료 · 유사매물 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.025em] text-[#191F28] tabular-nums truncate">
+              <strong className="block text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.03em] text-[#191F28] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
@@ -434,6 +414,26 @@ export function ProductCard({
                 <span className="sm:hidden">견적 상담</span>
                 <span className="hidden sm:inline">{priceText}</span>
               </strong>
+            )}
+          </div>
+        </div>
+
+        {/* 하단: 핵심 스펙 칩(최대 2개) + 원터치 견적 담기 */}
+        <div className="mt-3 flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+            {specCapsules.length > 0 ? (
+              specCapsules.map((cap) => (
+                <span
+                  key={cap}
+                  className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-1 text-hb-xs font-semibold text-[#4E5968] truncate"
+                >
+                  {cap}
+                </span>
+              ))
+            ) : (
+              <span className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-1 text-hb-xs font-medium text-[#6B7684] truncate">
+                {specSummaryText}
+              </span>
             )}
           </div>
 
@@ -446,7 +446,7 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-hb-xs font-bold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-bold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
                   ? "bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]/30"
                   : "bg-[#F2F4F6] text-[#191F28] hover:bg-[#191F28] hover:text-white"
@@ -458,11 +458,11 @@ export function ProductCard({
                   inBasket ? "text-[#FF6F0F]" : "currentColor"
                 }`}
               />
-              <span>{inBasket ? "담김" : "견적함"}</span>
+              <span>{inBasket ? "담김" : "담기"}</span>
             </button>
           ) : (
             <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#8B95A1] group-hover:text-[#191F28] transition-colors">
-              <span>보기</span>
+              <span>상세</span>
               <Icon d={ICON.right} className="h-3.5 w-3.5" />
             </span>
           )}

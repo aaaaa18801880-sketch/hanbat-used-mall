@@ -527,59 +527,39 @@ export default async function ProductDetailPage({
               </div>
 
               {/* 2. 상품명 */}
-              <h1 className="mt-2.5 text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] tracking-[-0.025em] text-[#191F28] break-keep">
+              <h1 className="mt-3 text-hb-xl sm:text-hb-2xl font-extrabold leading-[1.3] tracking-[-0.025em] text-[#191F28] break-keep">
                 {product.title}
               </h1>
 
-              {/* 가격 하이라이트: 다크 네이비 & 오렌지 포인트의 공식 프라이스 티켓 */}
-              <div className="mt-4 rounded-2xl bg-[#191F28] text-white p-5 shadow-card">
-                {/* 상단 마이크로 보증 헤더 */}
-                <div className="flex items-center justify-between pb-2.5 border-b border-white/15">
-                  <div className="flex items-center gap-1.5 min-w-0">
-                    <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50] shrink-0" />
-                    <span className="text-hb-xs font-bold text-[#FF8A50] truncate">
-                      직영 쇼룸 검수 완료 · 실매물 공급가
-                    </span>
-                  </div>
-                  <span className="text-hb-xs font-bold text-white/60 shrink-0 ml-2">
-                    세금계산서 발행
-                  </span>
-                </div>
-
-                {/* 하단 공급가 및 타이포그래피 */}
-                <div className="mt-3.5 flex items-baseline justify-between gap-3">
-                  <div className="min-w-0">
-                    <span className="block text-hb-xs font-bold text-white/70">
-                      쇼룸 실매물 공급가
-                    </span>
-                    <span className="text-hb-xs text-white/50">
-                      부가세 증빙 100% · 현금영수증 발행
-                    </span>
-                  </div>
+              {/* 가격 하이라이트: 토스/애플 스토어 스타일 클린 대형 타이포그래피 + 소프트 보증 배지 */}
+              <div className="mt-4 pt-4 border-t border-[#F2F4F6] flex flex-wrap items-baseline justify-between gap-3">
+                <div>
                   {sold ? (
-                    <span className="text-hb-lg sm:text-hb-xl font-bold text-slate-400">
-                      판매완료 (유사 매물 문의 가능)
+                    <span className="text-hb-xl sm:text-hb-2xl font-extrabold text-[#8B95A1]">
+                      판매완료 · 유사 매물 상담 가능
                     </span>
                   ) : priced ? (
-                    <span className="text-hb-2xl sm:text-hb-3xl font-extrabold text-white tabular-nums tracking-tight">
+                    <span className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#191F28] tabular-nums tracking-[-0.03em]">
                       {priceDisplay}
                     </span>
                   ) : (
-                    <div className="text-right">
-                      <span className="text-hb-lg sm:text-hb-xl font-extrabold text-[#FF8A50]">
-                        {priceDisplay}
-                      </span>
-                      <p className="text-hb-xs text-white/60">
-                        설치 환경·배관·수량별 맞춤 견적
-                      </p>
-                    </div>
+                    <span className="text-hb-xl sm:text-hb-2xl font-extrabold text-[#F05600]">
+                      {priceDisplay}
+                    </span>
                   )}
+                  <p className="mt-1 text-hb-xs font-medium text-[#6B7684]">
+                    세금계산서 · 현금영수증 · 카드결제 지원
+                  </p>
                 </div>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8FAF0] px-3 py-1 text-hb-xs font-bold text-[#00A85D]">
+                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#00A85D]" />
+                  <span>세척·시운전 검수 완료</span>
+                </span>
               </div>
 
-              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 */}
-              <dl className="mt-4 rounded-2xl bg-[#F9FAFB] border border-[#E5E8EB]/80 px-4 py-1.5 divide-y divide-[#E5E8EB]/70 text-hb-xs sm:text-hb-sm">
-                <div className="flex items-center justify-between gap-3 py-2">
+              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 (토스 ListRow 시트) */}
+              <dl className="mt-4 rounded-2xl bg-[#F2F4F6]/80 px-4 py-2 divide-y divide-[#E5E8EB]/60 text-hb-xs sm:text-hb-sm">
+                <div className="flex items-center justify-between gap-3 py-2.5">
                   <dt className="font-semibold text-[#6B7684] shrink-0">
                     모델명 / 코드
                   </dt>
@@ -588,47 +568,47 @@ export default async function ProductDetailPage({
                   </dd>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 py-2">
+                <div className="flex items-center justify-between gap-3 py-2.5">
                   <dt className="font-semibold text-[#6B7684] shrink-0">
                     외관 · 상태 등급
                   </dt>
                   <dd className="font-semibold text-[#191F28] text-right flex items-center justify-end gap-1.5">
                     {product.condition_grade ? (
                       <>
-                        <span className="inline-flex items-center rounded bg-[#F05600]/10 px-1.5 py-0.5 text-hb-xs font-bold text-[#F05600]">
+                        <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-2 py-0.5 text-hb-xs font-bold text-[#F05600]">
                           {product.condition_grade}
                         </span>
-                        <span>작동 점검 및 세척 완료</span>
+                        <span>작동 점검 완료</span>
                       </>
                     ) : (
-                      <span>작동 점검·세척 완료 (실물 확인 가능)</span>
+                      <span>작동 점검·세척 완료</span>
                     )}
                   </dd>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 py-2">
+                <div className="flex items-center justify-between gap-3 py-2.5">
                   <dt className="font-semibold text-[#6B7684] shrink-0">
                     검수 · 보증 기준
                   </dt>
                   <dd className="font-semibold text-[#191F28] text-right">
                     {isHvacDetail
-                      ? "세척·점검 완료 (계약별 최대 8개월)"
+                      ? "무상 A/S 최대 8개월 보증"
                       : isMajorApplianceDetail
-                      ? "세척·점검 완료 (계약별 최대 4개월)"
-                      : "작동 점검 완료 (품목·계약별 협의)"}
+                      ? "무상 A/S 최대 4개월 보증"
+                      : "작동 점검 완료 (계약별 보증)"}
                   </dd>
                 </div>
 
                 {specCapsules.length > 0 && (
-                  <div className="flex items-center justify-between gap-3 py-2">
+                  <div className="flex items-center justify-between gap-3 py-2.5">
                     <dt className="font-semibold text-[#6B7684] shrink-0">
                       핵심 스펙 요약
                     </dt>
-                    <dd className="flex flex-wrap justify-end gap-1">
+                    <dd className="flex flex-wrap justify-end gap-1.5">
                       {specCapsules.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded bg-[#F9FAFB] border border-[#E5E8EB] px-2 py-0.5 text-hb-xs font-bold text-[#191F28]"
+                          className="rounded-lg bg-white px-2.5 py-0.5 text-hb-xs font-bold text-[#191F28] shadow-2xs"
                         >
                           {tag}
                         </span>

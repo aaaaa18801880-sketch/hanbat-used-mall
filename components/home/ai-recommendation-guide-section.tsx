@@ -33,7 +33,7 @@ const COMPARISON_ROWS = [
 
 const SITUATION_GUIDES = [
   {
-    code: "SOLUTION 01",
+    code: "맞춤 추천 01",
     badge: "가정 · 원룸 · 자취 추천",
     title: "원룸 입주 · 신혼 · 가전 단품 구매",
     recommend: "소형~양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨",
@@ -43,7 +43,7 @@ const SITUATION_GUIDES = [
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
   },
   {
-    code: "SOLUTION 02",
+    code: "맞춤 추천 02",
     badge: "식당 · 카페 창업 추천",
     title: "업소용 냉장 · 쇼케이스 · 주방 패키지",
     recommend:
@@ -54,7 +54,7 @@ const SITUATION_GUIDES = [
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
   },
   {
-    code: "SOLUTION 03",
+    code: "맞춤 추천 03",
     badge: "이사 · 매장 폐업 추천",
     title: "가정 가전 처분 · 식당/카페 폐업 일괄 매입",
     recommend: "전면 사진 + 명판 스티커 전송 → 방문 수거 당일 100% 현금 입금",
@@ -76,7 +76,7 @@ export function AiRecommendationGuideSection() {
         {/* 1. 개인 직거래 vs 한밭중고전자 비교 테이블 (토스/애플 클린 매트릭스) */}
         <div>
           <SectionHeading
-            eyebrow="WHY HANBAT SHOWROOM"
+            eyebrow="직영 쇼룸 안심 비교"
             title={
               <span id="buying-guide-title">
                 일반 개인 중고거래 vs {STORE.name} 직영 매장 비교
@@ -117,7 +117,7 @@ export function AiRecommendationGuideSection() {
                       <div className="flex items-center gap-1.5 mb-1">
                         <span className="inline-flex items-center gap-1 rounded-full bg-[#FF6F0F] px-2.5 py-0.5 text-hb-xs font-extrabold text-white tracking-wide">
                           <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
-                          OFFICIAL GUARANTEE
+                          직영 품질 보증
                         </span>
                       </div>
                       <p className="text-white text-hb-sm">

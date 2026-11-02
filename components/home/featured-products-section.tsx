@@ -185,7 +185,7 @@ export function FeaturedProductsSection({
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#F05600]">
               <span className="h-1.5 w-1.5 rounded-full bg-[#FF6F0F]" />
-              <span>LIVE SHOWROOM</span>
+              <span>실시간 직영 쇼룸</span>
               <span>·</span>
               <span className="text-[#191F28] tabular-nums">
                 현재 구매 가능 총 {totalSellingCount}대
