@@ -177,28 +177,29 @@ export function FeaturedProductsSection({
     <section
       id="featured-products-section"
       aria-labelledby="featured-heading"
-      className="border-b border-[#E5E2DC] bg-white py-10 sm:py-14 lg:py-16"
+      className="border-b border-[#E5E8EB] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
     >
       <div className="hb-container">
-        {/* 에디토리얼 쇼룸 헤더 바 */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b-2 border-[#0E1A2B]">
+        {/* 토스/애플 스타일 클린 카탈로그 헤더 */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-5 border-b border-[#F2F4F6]">
           <div>
-            <div className="flex items-center gap-2 text-hb-xs font-bold text-[#B5431A]">
-              <span>LIVE SHOWROOM INVENTORY</span>
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#F05600]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#FF6F0F]" />
+              <span>LIVE SHOWROOM</span>
               <span>·</span>
-              <span className="text-[#0E1A2B] tabular-nums">
+              <span className="text-[#191F28] tabular-nums">
                 현재 구매 가능 총 {totalSellingCount}대
               </span>
             </div>
-            <div className="mt-1.5 flex flex-wrap items-baseline gap-3">
+            <div className="mt-2.5 flex flex-wrap items-baseline gap-2.5">
               <h2
                 id="featured-heading"
-                className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-tight text-[#0E1A2B]"
+                className="text-hb-2xl sm:text-hb-3xl font-extrabold tracking-[-0.03em] text-[#191F28]"
               >
                 {activeCategoryTitle}
               </h2>
-              <span className="text-hb-sm font-bold text-[#646E7E] tabular-nums">
-                ({filteredProducts.length}건)
+              <span className="text-hb-base font-bold text-[#8B95A1] tabular-nums">
+                {filteredProducts.length}건
               </span>
               {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
                 <button
@@ -207,13 +208,13 @@ export function FeaturedProductsSection({
                     setVisibleCount(INITIAL_DISPLAY_LIMIT);
                     onResetCategory();
                   }}
-                  className="text-hb-xs font-bold text-[#B5431A] underline underline-offset-4 cursor-pointer"
+                  className="ml-1 rounded-full bg-[#F2F4F6] px-3 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28] transition-colors cursor-pointer"
                 >
-                  전체 품목으로 복귀
+                  전체 품목 보기
                 </button>
               )}
             </div>
-            <p className="mt-1 text-hb-sm text-[#3E4756]">
+            <p className="mt-1.5 text-hb-sm text-[#4E5968]">
               대전 중촌동 1·2층 직영 매장에서 분해 고압세척과 시운전 검수를 마친 실매물입니다.
             </p>
           </div>
@@ -229,31 +230,39 @@ export function FeaturedProductsSection({
           </div>
         </div>
 
-        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 */}
+        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 (토스 스타일 소프트 콜아웃) */}
         {!loading && !error && (
-          <div className="mt-6 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] p-3.5 sm:p-4 shadow-2xs">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+          <div className="mt-5 rounded-2xl bg-[#F2F4F6]/80 p-4 sm:p-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
               <div className="flex items-center gap-3 min-w-0">
-                <ModernApplianceIcon
-                  name={categoryFact.icon}
-                  className="w-7 h-7 sm:w-8 sm:h-8 shrink-0"
-                />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-2xs">
+                  <ModernApplianceIcon
+                    name={categoryFact.icon}
+                    className="w-7 h-7"
+                  />
+                </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-block rounded bg-[#0E1A2B] px-2 py-0.5 text-hb-xs font-bold text-white shrink-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-[#191F28] px-2.5 py-0.5 text-hb-xs font-bold text-white shrink-0">
                       {categoryFact.badge}
                     </span>
-                    <strong className="text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] truncate">
+                    <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#191F28] break-keep">
                       {categoryFact.headline}
                     </strong>
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-hb-xs text-[#434B59] border-t md:border-t-0 md:border-l border-[#E5E2DC] pt-2 md:pt-0 md:pl-4 shrink-0">
+              <div className="flex flex-wrap items-center gap-2 text-hb-xs text-[#4E5968] shrink-0">
                 {categoryFact.points.map((pt) => (
-                  <span key={pt} className="inline-flex items-center gap-1.5 font-medium">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#B5431A] shrink-0" />
+                  <span
+                    key={pt}
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 font-semibold text-[#191F28] shadow-2xs"
+                  >
+                    <Icon
+                      d={ICON.check}
+                      className="w-3.5 h-3.5 text-[#00A85D] shrink-0"
+                    />
                     <span>{pt}</span>
                   </span>
                 ))}
@@ -265,29 +274,29 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-8 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
+            className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
             aria-hidden="true"
           >
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={idx}
-                className="overflow-hidden rounded-lg border border-[#E5E2DC] bg-white animate-pulse"
+                className="overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white animate-pulse"
               >
-                <div className="aspect-[4/3] bg-[#F0EDE7]" />
+                <div className="aspect-[4/3] bg-[#F2F4F6]" />
                 <div className="p-4 space-y-3">
-                  <div className="h-3 w-1/3 rounded bg-[#F0EDE7]" />
-                  <div className="h-5 w-4/5 rounded bg-[#F0EDE7]" />
-                  <div className="h-6 w-1/2 rounded bg-[#F0EDE7] pt-2" />
+                  <div className="h-3 w-1/3 rounded-full bg-[#F2F4F6]" />
+                  <div className="h-5 w-4/5 rounded-lg bg-[#F2F4F6]" />
+                  <div className="h-6 w-1/2 rounded-lg bg-[#F2F4F6] pt-2" />
                 </div>
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="mt-8 border-y border-[#E5E2DC] bg-[#FAF9F7] p-8 sm:p-10 text-center">
-            <p className="text-hb-base font-bold text-[#0E1A2B]">
+          <div className="mt-7 rounded-3xl bg-[#F9FAFB] border border-[#E5E8EB] p-8 sm:p-10 text-center">
+            <p className="text-hb-base font-bold text-[#191F28]">
               실시간 상품 목록을 불러오지 못했습니다.
             </p>
-            <p className="mt-1.5 text-hb-sm text-[#646E7E]">
+            <p className="mt-1.5 text-hb-sm text-[#6B7684]">
               네트워크 상태를 확인하시거나 잠시 후 다시 시도해 주세요.
             </p>
             <button
@@ -299,12 +308,12 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : displayedProducts.length === 0 ? (
-          <div className="mt-8 flex flex-col items-start justify-between gap-6 border-y border-[#E5E2DC] bg-[#FAF9F7] p-6 sm:p-8 sm:flex-row sm:items-center">
+          <div className="mt-7 flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#F9FAFB] border border-[#E5E8EB] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
-              <p className="text-hb-lg font-bold text-[#0E1A2B]">
+              <p className="text-hb-lg font-bold text-[#191F28]">
                 선택하신 분류의 온라인 등록 매물을 준비 중입니다.
               </p>
-              <p className="mt-1 text-hb-sm text-[#3E4756]">
+              <p className="mt-1 text-hb-sm text-[#4E5968]">
                 매장에는 온라인에 미처 올리지 못한 가전과 주방설비가 상시 준비되어 있습니다. 찾으시는 품목을 말씀해 주시면 즉시 재고를 확인해 드립니다.
               </p>
             </div>
@@ -335,14 +344,14 @@ export function FeaturedProductsSection({
             </div>
 
             {/* 하단 더보기 및 전체 갤러리 이동 바 */}
-            <div className="mt-9 pt-6 border-t border-[#ECE9E2] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-hb-xs sm:text-hb-sm text-[#646E7E]">
+            <div className="mt-10 pt-6 border-t border-[#F2F4F6] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-hb-xs sm:text-hb-sm text-[#6B7684]">
                 표시 중:{" "}
-                <strong className="font-bold text-[#0E1A2B] tabular-nums">
+                <strong className="font-bold text-[#191F28] tabular-nums">
                   {displayedProducts.length}
                 </strong>{" "}
                 / 전체{" "}
-                <strong className="font-bold text-[#0E1A2B] tabular-nums">
+                <strong className="font-bold text-[#191F28] tabular-nums">
                   {filteredProducts.length}
                 </strong>
                 건 · 가격대 필터와 모델명 검색은 전체 갤러리에서 지원합니다.

@@ -123,17 +123,17 @@ export function ProductDetailGallery({
 
   return (
     <>
-      <div className="flex flex-col rounded-xl overflow-hidden border border-[#E5E2DC] bg-white shadow-card">
-        {/* 상단 쇼룸 이미지 뷰어 바 */}
-        <div className="bg-[#0E1A2B] text-white px-4 py-2.5 flex items-center justify-between gap-2 text-hb-xs">
+      <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E5E8EB] bg-white shadow-card">
+        {/* 상단 쇼룸 이미지 뷰어 바 (토스/애플 클린 헤더) */}
+        <div className="bg-white border-b border-[#F2F4F6] px-5 py-3 flex items-center justify-between gap-2 text-hb-xs">
           <div className="flex items-center gap-2">
-            <span className="inline-block w-2 h-2 rounded-full bg-[#B5431A]" />
-            <span className="font-bold tracking-wider uppercase text-white/90">
+            <span className="inline-block w-2 h-2 rounded-full bg-[#FF6F0F]" />
+            <span className="font-extrabold tracking-wider uppercase text-[#191F28]">
               SHOWROOM STUDIO PHOTO
             </span>
           </div>
-          <span className="text-white/75 font-medium tabular-nums">
-            실물 촬영 사진 ({idx + 1} / {displayImages.length})
+          <span className="rounded-full bg-[#F2F4F6] px-2.5 py-0.5 text-[#4E5968] font-bold tabular-nums">
+            실물 촬영 사진 {idx + 1} / {displayImages.length}
           </span>
         </div>
 
@@ -156,7 +156,7 @@ export function ProductDetailGallery({
               aria-label="상품 사진 크게 보기"
               aria-haspopup="dialog"
               title="클릭하여 원본 비율 전체화면으로 확대"
-              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B5431A]"
+              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#F05600]"
             >
               <span className="sr-only">상품 사진 크게 보기</span>
             </button>
@@ -167,15 +167,15 @@ export function ProductDetailGallery({
           </div>
 
           {sold && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/45">
-              <span className="px-5 py-2 rounded bg-[#0E1A2B]/90 text-white text-hb-sm font-bold tracking-[0.2em] border border-white/20">
+            <div className="absolute inset-0 flex items-center justify-center bg-[#191F28]/45">
+              <span className="px-5 py-2 rounded bg-[#191F28]/90 text-white text-hb-sm font-bold tracking-[0.2em] border border-white/20">
                 판매완료
               </span>
             </div>
           )}
 
           {displayImages[0] && (
-            <div className="absolute top-3.5 right-3.5 bg-[#0E1A2B]/75 text-white text-hb-xs font-semibold px-3 py-1 rounded-md flex items-center gap-1.5 pointer-events-none">
+            <div className="absolute top-3.5 right-3.5 bg-white/90 backdrop-blur-md text-[#191F28] shadow-xs text-hb-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
               <Icon d={ICON.search} className="w-3.5 h-3.5" />
               <span>원본 확대</span>
             </div>
@@ -190,7 +190,7 @@ export function ProductDetailGallery({
                   go(-1);
                 }}
                 aria-label="이전 사진"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#191F28] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
               >
                 <Icon d={ICON.left} className="w-5 h-5" />
               </button>
@@ -201,7 +201,7 @@ export function ProductDetailGallery({
                   go(1);
                 }}
                 aria-label="다음 사진"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#0E1A2B] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#191F28] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
               >
                 <Icon d={ICON.right} className="w-5 h-5" />
               </button>
@@ -211,17 +211,17 @@ export function ProductDetailGallery({
 
         {/* 썸네일 스트립 */}
         {displayImages.length > 1 && (
-          <div className="flex gap-2.5 p-3 sm:px-5 bg-white border-t border-[#E5E2DC] overflow-x-auto">
+          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#F2F4F6] overflow-x-auto">
             {displayImages.map((img, i) => (
               <button
                 key={img + i}
                 type="button"
                 onClick={() => setIdx(i)}
                 aria-label={`${i + 1}번 사진 선택`}
-                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-[#F5F4F0] border transition-all ${
+                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F2F4F6] border transition-all ${
                   i === idx
-                    ? "border-[#D9531E] ring-2 ring-[#D9531E]/35"
-                    : "border-[#E5E2DC] opacity-65 hover:opacity-100"
+                    ? "border-[#FF6F0F] ring-2 ring-[#FF6F0F]/35"
+                    : "border-[#E5E8EB] opacity-65 hover:opacity-100"
                 }`}
               >
                 <SafeImg
@@ -325,10 +325,10 @@ export function CopyProductLinkButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#3E4856] hover:border-[#0E1A2B] hover:text-[#0E1A2B] transition-colors shadow-2xs"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4E5968] hover:border-[#191F28] hover:text-[#191F28] transition-colors shadow-2xs"
       title={`${productTitle} 링크 복사`}
     >
-      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#B5431A]" />
+      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#F05600]" />
       <span>상품 링크 복사</span>
     </button>
   );
@@ -380,8 +380,8 @@ export function QuoteBasketButton({
 
   const defaultClasses = `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-colors w-full ${
     inBasket
-      ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A]"
-      : "border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+      ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
+      : "border-[#D1D6DB] bg-[#F9FAFB] text-[#191F28] hover:border-[#191F28]"
   }`;
 
   return (
@@ -394,7 +394,7 @@ export function QuoteBasketButton({
       <Icon
         d={inBasket ? ICON.check : ICON.plus}
         className={`w-4 h-4 shrink-0 ${
-          inBasket ? "text-[#B5431A]" : "text-[#0E1A2B]"
+          inBasket ? "text-[#F05600]" : "text-[#191F28]"
         }`}
       />
       <span className="truncate">
@@ -460,10 +460,10 @@ export function CopyPromoPostButton({
     <div className="inline-flex items-center gap-1.5">
       <Link
         href={`/admin?search=${encodeURIComponent(product.id)}`}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors shadow-2xs"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-3 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28] hover:bg-white transition-colors shadow-2xs"
         title="관리자 페이지에서 이 상품 정보 수정하기"
       >
-        <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#0E1A2B]" />
+        <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#191F28]" />
         <span>상품 수정 (관리자)</span>
       </Link>
       <button
@@ -471,11 +471,11 @@ export function CopyPromoPostButton({
         onClick={handleCopyPromo}
         className={
           className ||
-          "inline-flex items-center gap-1.5 rounded-lg border border-[#D8D3C8] bg-[#FAF9F7] px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:bg-white transition-colors shadow-2xs"
+          "inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-3 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28] hover:bg-white transition-colors shadow-2xs"
         }
         title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
       >
-        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#B5431A]" />
+        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#F05600]" />
         <span>홍보글 양식 복사 (관리자)</span>
       </button>
     </div>
@@ -567,10 +567,10 @@ export function InteractiveChecklistAndCta({
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   return (
-    <div className="mt-5 pt-4 border-t border-[#E5E2DC] space-y-3">
+    <div className="mt-5 pt-4 border-t border-[#E5E8EB] space-y-3">
       {sold && (
-        <div className="rounded-xl border border-[#FADCD0] bg-[#FFF5F0] p-3 text-hb-xs text-[#B5431A] font-semibold leading-snug flex items-center gap-2">
-          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#B5431A]" />
+        <div className="rounded-xl border border-[#FFD8C2] bg-[#FFF4EE] p-3 text-hb-xs text-[#F05600] font-semibold leading-snug flex items-center gap-2">
+          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#F05600]" />
           <span>
             이 매물은 판매 완료되었으나 직영 매장에{" "}
             <strong className="underline">동일·유사 스펙 대기 매물</strong>이 있습니다.
@@ -581,7 +581,7 @@ export function InteractiveChecklistAndCta({
       {/* 1순위: 직영 매장 전화 문의 버튼 (h-14) */}
       <a
         href={telHref(STORE.tel)}
-        className="w-full h-14 rounded-2xl bg-[#B5431A] hover:bg-[#C04615] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
+        className="w-full h-14 rounded-2xl bg-[#F05600] hover:bg-[#E55A00] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -637,28 +637,28 @@ export function InteractiveChecklistAndCta({
           href={smsHref(STORE.mobile, smsBody)}
           className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold"
         >
-          <Icon d={ICON.chat} className="h-4 w-4 text-[#B5431A] shrink-0" />
+          <Icon d={ICON.chat} className="h-4 w-4 text-[#F05600] shrink-0" />
           <span className="truncate">문자(SMS) 문의</span>
         </a>
 
         <Link
           href={inquiryHref}
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#0E1A2B]"
+          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#191F28]"
         >
-          <Icon d={ICON.pen} className="h-4 w-4 text-[#0E1A2B] shrink-0" />
+          <Icon d={ICON.pen} className="h-4 w-4 text-[#191F28] shrink-0" />
           <span className="truncate">온라인 견적서</span>
         </Link>
 
         <Link
           href={galleryCategoryHref}
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#0E1A2B]"
+          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#191F28]"
         >
-          <Icon d={ICON.grid} className="h-4 w-4 text-[#0E1A2B] shrink-0" />
+          <Icon d={ICON.grid} className="h-4 w-4 text-[#191F28] shrink-0" />
           <span className="truncate">다른 실매물 더보기</span>
         </Link>
 
         <QuoteBasketButton
-          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#0E1A2B]"
+          className="hb-btn-outline h-11 px-3 text-hb-xs justify-center font-bold border-[#CBD5E1] hover:border-[#191F28]"
           compact
           item={{
             id: String(product.id),
@@ -685,13 +685,13 @@ export function InteractiveChecklistAndCta({
           });
           setVisitModalOpen(true);
         }}
-        className="w-full h-11 rounded-xl border border-[#D7D2C8] bg-[#FAF9F7] hover:bg-[#F0EDE7] text-[#0E1A2B] flex items-center justify-between px-4 transition-colors font-bold text-hb-xs sm:text-hb-sm cursor-pointer shadow-2xs"
+        className="w-full h-11 rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] hover:bg-[#F2F4F6] text-[#191F28] flex items-center justify-between px-4 transition-colors font-bold text-hb-xs sm:text-hb-sm cursor-pointer shadow-2xs"
       >
         <div className="flex items-center gap-2 min-w-0">
-          <Icon d={ICON.pin} className="w-4 h-4 text-[#B5431A] shrink-0" />
+          <Icon d={ICON.pin} className="w-4 h-4 text-[#F05600] shrink-0" />
           <span className="truncate">직영 매장 방문 실물 확인 · 1초 길찾기</span>
         </div>
-        <span className="text-hb-xs font-semibold text-[#B5431A] shrink-0 ml-1">
+        <span className="text-hb-xs font-semibold text-[#F05600] shrink-0 ml-1">
           실물 찜하기 →
         </span>
       </button>

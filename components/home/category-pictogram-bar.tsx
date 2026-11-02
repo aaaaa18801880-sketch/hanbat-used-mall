@@ -53,7 +53,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     subLabel: "벽걸이·스탠드·천장형",
     icon: "aircon",
     imageSrc: "/illustrations/picto-aircon.jpg",
-    href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
+    href: "/gallery?category=%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     filterCategory: "에어컨/냉난방기",
     group: "home",
   },
@@ -205,17 +205,17 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="border-b border-[#E5E2DC] bg-[#FAF9F7]/60 py-5 sm:py-6"
+      className="bg-white pt-6 pb-2 sm:pt-8"
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-[#ECE9E2]">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2.5">
             <span
-              className="inline-block h-3.5 w-1 rounded-full bg-[#B5431A]"
+              className="inline-block h-4 w-1.5 rounded-full bg-[#FF6F0F]"
               aria-hidden="true"
             />
-            <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] tracking-tight">
+            <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#191F28] tracking-[-0.02em]">
               품목별 쇼룸 카탈로그
             </h2>
           </div>
@@ -226,8 +226,8 @@ export function CategoryPictogramBar({
               onClick={() => handleCategoryClick(allItem)}
               className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-extrabold transition-all cursor-pointer ${
                 selectedKey === "all"
-                  ? "bg-[#0E1A2B] text-white shadow-2xs"
-                  : "border border-[#CFCAC0] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+                  ? "bg-[#191F28] text-white shadow-xs"
+                  : "bg-[#F2F4F6] text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28]"
               }`}
             >
               <span>전체 실매물</span>
@@ -239,7 +239,7 @@ export function CategoryPictogramBar({
             </button>
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1 rounded-full border border-[#E5E2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B] hover:text-[#B5431A] transition-colors"
+              className="inline-flex items-center gap-1 rounded-full bg-[#F2F4F6] px-3.5 py-1.5 text-hb-xs font-bold text-[#191F28] hover:bg-[#E5E8EB] transition-colors"
             >
               <span>갤러리 전체보기</span>
               <Icon d={ICON.right} className="w-3.5 h-3.5" />
@@ -247,11 +247,11 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 */}
+        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 (토스/당근 스타일 스쿼클 그리드) */}
         <div className="space-y-3">
           {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
-          <div className="rounded-2xl border border-[#E5E2DC] bg-white p-3 sm:p-3.5 shadow-card">
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-3">
+          <div className="rounded-3xl bg-[#F2F4F6]/80 p-2.5 sm:p-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
                 const count = categoryCounts?.[item.key];
@@ -262,21 +262,19 @@ export function CategoryPictogramBar({
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl border p-2 sm:py-3 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-2xl p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
                       isSelected
-                        ? "bg-[#0E1A2B] text-white border-[#0E1A2B] shadow-card-hover -translate-y-0.5 ring-2 ring-[#B5431A]/30"
-                        : isBiz
-                        ? "bg-[#F8FAFC] border-[#CBD5E1] text-[#0E1A2B] hover:border-[#0E1A2B] hover:shadow-card-hover hover:-translate-y-0.5"
-                        : "border-[#E5E2DC] bg-white text-[#0E1A2B] shadow-2xs hover:border-[#0E1A2B] hover:shadow-card-hover hover:-translate-y-0.5"
+                        ? "bg-[#191F28] text-white shadow-card-hover -translate-y-0.5 ring-2 ring-[#FF6F0F]/40"
+                        : "bg-white text-[#191F28] shadow-2xs hover:shadow-card hover:-translate-y-0.5"
                     }`}
                   >
                     {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
                     {isBiz ? (
                       <span
-                        className={`text-hb-xs font-extrabold px-1.5 py-0.5 rounded leading-none ${
+                        className={`text-hb-xs font-extrabold px-2 py-0.5 rounded-full leading-none ${
                           isSelected
-                            ? "bg-white/20 text-[#FF8A50]"
-                            : "bg-[#B5431A]/10 text-[#B5431A]"
+                            ? "bg-white/15 text-[#FF8A50]"
+                            : "bg-[#E8F3FF] text-[#3182F6]"
                         }`}
                       >
                         B2B
@@ -293,21 +291,21 @@ export function CategoryPictogramBar({
 
                     <div className="min-w-0 w-full">
                       <strong
-                        className={`block text-hb-xs sm:text-hb-sm font-extrabold truncate ${
+                        className={`block text-hb-xs sm:text-hb-sm font-extrabold tracking-[-0.015em] truncate ${
                           isSelected
                             ? "text-white"
-                            : "text-[#0E1A2B] group-hover:text-[#B5431A]"
+                            : "text-[#191F28] group-hover:text-[#F05600]"
                         }`}
                       >
                         {item.label}
                       </strong>
                       <span
-                        className={`mt-0.5 block text-hb-xs font-medium truncate ${
+                        className={`mt-0.5 block text-hb-xs font-semibold truncate ${
                           isSelected
                             ? "text-[#FF8A50]"
                             : isBiz
-                            ? "text-[#B5431A] font-bold"
-                            : "text-[#646E7E]"
+                            ? "text-[#3182F6]"
+                            : "text-[#8B95A1]"
                         }`}
                       >
                         {typeof count === "number"
@@ -319,7 +317,7 @@ export function CategoryPictogramBar({
                     {/* 선택 시 하단 오렌지 인디케이터 바 */}
                     {isSelected && (
                       <span
-                        className="h-1 w-8 rounded-full bg-[#FF8A50] mt-0.5"
+                        className="h-1 w-7 rounded-full bg-[#FF6F0F] mt-0.5"
                         aria-hidden="true"
                       />
                     )}
@@ -329,33 +327,35 @@ export function CategoryPictogramBar({
             </div>
           </div>
 
-          {/* 2단: 슬림 인라인 퀵 캡슐 바 (Single-row Quick Action Strip) */}
-          <div className="pt-1 grid grid-cols-2 lg:grid-cols-4 gap-2">
+          {/* 2단: 토스 스타일 소프트 서피스 퀵 액션 스트립 */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
             {ACTION_BENTO_ITEMS.map((item) => (
               <button
                 key={item.label}
                 type="button"
                 onClick={() => handleActionClick(item)}
-                className="group flex items-center justify-between gap-2 py-2 px-3 sm:px-3.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F7] hover:bg-white hover:border-[#D9531E] hover:shadow-card-hover transition-all cursor-pointer text-left"
+                className="group flex items-center justify-between gap-2.5 py-3 px-4 rounded-2xl bg-[#F9FAFB] border border-[#E5E8EB]/80 hover:bg-white hover:border-[#D1D6DB] hover:shadow-card transition-all cursor-pointer text-left"
               >
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
                   <ModernApplianceIcon
                     name={item.icon}
-                    className="w-5 h-5 shrink-0"
+                    className="w-6 h-6 shrink-0"
                   />
                   <div className="min-w-0">
-                    <span className="block text-hb-xs font-extrabold text-[#0E1A2B] group-hover:text-[#B5431A] transition-colors truncate">
+                    <span className="block text-hb-xs sm:text-hb-sm font-extrabold text-[#191F28] group-hover:text-[#F05600] transition-colors truncate">
                       {item.label}
                     </span>
-                    <span className="hidden sm:block text-hb-xs text-[#646E7E] truncate">
+                    <span className="hidden sm:block text-hb-xs text-[#6B7684] truncate">
                       {item.sub}
                     </span>
                   </div>
                 </div>
-                <Icon
-                  d={ICON.right}
-                  className="w-3.5 h-3.5 text-[#6E675C] group-hover:text-[#B5431A] group-hover:translate-x-0.5 transition-all shrink-0"
-                />
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#8B95A1] shadow-2xs group-hover:bg-[#FFF4EE] group-hover:text-[#FF6F0F] transition-colors">
+                  <Icon
+                    d={ICON.right}
+                    className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"
+                  />
+                </span>
               </button>
             ))}
           </div>

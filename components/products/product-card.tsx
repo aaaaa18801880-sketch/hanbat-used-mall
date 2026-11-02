@@ -62,8 +62,8 @@ export function ProductTrustMicroStrip({
           : "전문 엔지니어 작동 점검 및 살균 클리닝 완료",
       highlight: null,
       icon: "sparkle" as const,
-      color: "text-[#0D9488]",
-      badge: "bg-[#F0FDFA] text-[#0F766E] border-[#CCFBF1]",
+      color: "text-[#00A85D]",
+      badge: "bg-[#E8FAF0] text-[#00A85D]",
     },
     {
       step: "02",
@@ -71,8 +71,8 @@ export function ProductTrustMicroStrip({
       desc: warrantyHighlight,
       highlight: null,
       icon: "shield" as const,
-      color: "text-[#B5431A]",
-      badge: "bg-[#FFF5F0] text-[#B5431A] border-[#FADCD0]",
+      color: "text-[#F05600]",
+      badge: "bg-[#FFF4EE] text-[#F05600]",
     },
     {
       step: "03",
@@ -80,36 +80,43 @@ export function ProductTrustMicroStrip({
       desc: "사업자 계산서 100% 정식 발행 및 충청권 직배송",
       highlight: null,
       icon: "tax" as const,
-      color: "text-[#0284C7]",
-      badge: "bg-[#F0F9FF] text-[#0369A1] border-[#BAE6FD]",
+      color: "text-[#3182F6]",
+      badge: "bg-[#E8F3FF] text-[#3182F6]",
     },
   ] as const;
 
   return (
     <section
       aria-label="한밭중고전자 핵심 거래 보증 안내"
-      className={`border-y border-[#E5E2DC] bg-[#FAF9F7] ${className}`}
+      className={`rounded-2xl bg-[#F2F4F6] p-1.5 ${className}`}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E5E2DC]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
         {items.map((item) => (
           <div
             key={item.title}
-            className="flex flex-col justify-between px-4 py-3.5"
+            className="flex flex-col justify-between rounded-xl bg-white px-4 py-3.5 shadow-2xs"
           >
             <div>
-              <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] text-[#0E1A2B]">
-                <ModernApplianceIcon name={item.icon} className="w-8 h-8 sm:w-9 sm:h-9 shrink-0" />
-                <span className={`font-mono text-hb-xs font-extrabold ${item.color}`}>
+              <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.015em] text-[#191F28]">
+                <ModernApplianceIcon
+                  name={item.icon}
+                  className="w-8 h-8 sm:w-9 sm:h-9 shrink-0"
+                />
+                <span
+                  className={`inline-flex items-center rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-extrabold ${item.badge}`}
+                >
                   {item.step}
                 </span>
                 <span className="truncate">{item.title}</span>
               </div>
-              <p className="mt-1.5 text-hb-xs leading-[1.45] text-[#434B59] break-keep">
+              <p className="mt-1.5 text-hb-xs leading-[1.5] text-[#4E5968] break-keep">
                 {item.desc}
               </p>
             </div>
             {item.highlight && (
-              <span className={`mt-1 inline-block text-hb-xs font-semibold ${item.color} break-keep`}>
+              <span
+                className={`mt-1 inline-block text-hb-xs font-semibold ${item.color} break-keep`}
+              >
                 · {item.highlight}
               </span>
             )}
@@ -248,10 +255,10 @@ export function ProductCard({
         transformStyle: "preserve-3d",
         willChange: isHovered ? "transform" : "auto",
       }}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl bg-white transition-all duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white transition-all duration-200 ${
         isSelected
-          ? "ring-2 ring-[#D9531E] bg-[#FFFDFB] shadow-card-hover"
-          : "hb-surface-card hover:border-[#0E1A2B]/40 hover:shadow-card-hover"
+          ? "ring-2 ring-[#FF6F0F] bg-[#FFFDFB] shadow-card-hover"
+          : "hb-surface-card"
       }`}
     >
       {/* 2.5D 스튜디오 메탈릭 스펙큘러 라이팅 오버레이 (카드 전면 빛 반사) */}
@@ -263,8 +270,8 @@ export function ProductCard({
         aria-hidden="true"
       />
 
-      {/* 1. 시원시원한 대형 풀블리드 사진 (스튜디오 조명 백드롭 & 내부 액자 링) */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop ring-1 ring-inset ring-[#0E1A2B]/[0.05]">
+      {/* 1. 쿨 화이트 스튜디오 조명 백드롭 & 사진 프레임 */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop">
         <SafeImg
           src={images[0]}
           alt={product.title}
@@ -275,38 +282,38 @@ export function ProductCard({
 
         {/* 스튜디오 메탈릭 림 라이트 헤어라인 */}
         <div
-          className="pointer-events-none absolute inset-0 z-10 ring-1 ring-inset ring-white/20 group-hover:ring-white/40 transition-all duration-300"
+          className="pointer-events-none absolute inset-0 z-10 ring-1 ring-inset ring-black/[0.04] group-hover:ring-white/40 transition-all duration-300"
           aria-hidden="true"
         />
 
         {sold && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#0E1A2B]/45">
-            <span className="rounded bg-[#0E1A2B]/95 px-3.5 py-1.5 text-hb-xs font-bold tracking-widest text-white">
+          <div className="absolute inset-0 flex items-center justify-center bg-[#191F28]/45 backdrop-blur-[1px]">
+            <span className="rounded-full bg-[#191F28]/95 px-4 py-1.5 text-hb-xs font-bold tracking-wider text-white shadow-xs">
               판매완료
             </span>
           </div>
         )}
 
-        {/* 좌상단 판매 상태 배지 & 외관 상태 등급 */}
+        {/* 좌상단 판매 상태 배지 & 외관 상태 등급 (애플/토스 프로스티드 글래스 필) */}
         {isSelectMode ? (
           <div
-            className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded border transition-colors ${
+            className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
               isSelected
-                ? "border-[#D9531E] bg-[#B5431A] text-white"
-                : "border-[#858076] bg-white/95 text-transparent"
+                ? "border-[#FF6F0F] bg-[#FF6F0F] text-white"
+                : "border-[#D1D6DB] bg-white/95 text-transparent"
             }`}
           >
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-2.5 top-2.5 z-10 flex items-center gap-1.5 flex-wrap">
+          <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 flex-wrap">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
               showNew={false}
             />
             {product.condition_grade && (
-              <span className="inline-flex items-center rounded bg-white/95 backdrop-blur-xs px-2 py-0.5 text-hb-xs font-extrabold text-[#0E1A2B] border border-[#0E1A2B]/15 shadow-2xs">
+              <span className="inline-flex items-center rounded-full bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-hb-xs font-extrabold text-[#191F28] shadow-xs">
                 {product.condition_grade.split(" ")[0]}
               </span>
             )}
@@ -324,7 +331,7 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className={`absolute bottom-2.5 left-2.5 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md border border-[#0E1A2B]/15 px-2.5 py-1 text-hb-xs font-bold text-[#0E1A2B] shadow-xs hover:bg-[#0E1A2B] hover:text-white transition-colors cursor-pointer active:scale-95 ${
+            className={`absolute bottom-3 left-3 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#191F28] shadow-xs hover:bg-[#191F28] hover:text-white transition-all cursor-pointer active:scale-95 ${
               isAdmin
                 ? "inline-flex"
                 : "hidden sm:inline-flex opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200"
@@ -332,7 +339,7 @@ export function ProductCard({
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
-              className="w-3 h-3 text-[#B5431A]"
+              className="w-3 h-3 text-[#FF6F0F]"
             />
             <span>{isAdmin ? "수정" : "미리보기"}</span>
           </button>
@@ -340,7 +347,7 @@ export function ProductCard({
 
         {/* 우하단 다중 사진 수량 표시 */}
         {!sold && images.length > 1 && (
-          <span className="pointer-events-none absolute bottom-2 right-2 z-10 inline-flex items-center gap-1 rounded bg-[#0E1A2B]/75 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-xs">
+          <span className="pointer-events-none absolute bottom-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[#191F28]/75 px-2.5 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-md">
             <Icon d={ICON.image} className="w-3 h-3 text-white/80" />
             +{images.length - 1}
           </span>
@@ -356,24 +363,24 @@ export function ProductCard({
             }}
             title="상품 삭제"
             aria-label={`${product.title} 삭제`}
-            className="absolute right-2.5 top-2.5 z-20 flex h-7 w-7 items-center justify-center rounded border border-red-200 bg-white/95 text-red-600 shadow hover:bg-red-50 transition-colors"
+            className="absolute right-3 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-xs hover:bg-red-50 transition-colors"
           >
             <Icon d={ICON.close} className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      {/* 2. 쇼룸 에디토리얼 정보 영역 (불필요한 중첩 박스 제거 · 가격과 제품명 중심) */}
-      <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-4 bg-white border-t border-[#ECE9E2]">
+      {/* 2. 토스(TDS) & 당근(SEED) 스타일 무테두리 클린 정보 영역 */}
+      <div className="flex flex-1 flex-col justify-between p-4 sm:p-5 bg-white">
         <div>
-          {/* 상단 메타: 카테고리 + 모델명 */}
+          {/* 상단 메타: 소프트 코랄 카테고리 칩 + 모델명 */}
           <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="font-bold text-[#B5431A] truncate">
+            <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-2 py-0.5 font-bold text-[#F05600] truncate">
               {categoryLabel}
             </span>
             {modelName && (
               <span
-                className="shrink-0 max-w-[55%] truncate font-mono text-hb-xs text-[#646E7E]"
+                className="shrink-0 max-w-[52%] truncate font-mono text-hb-xs text-[#8B95A1]"
                 title={modelName}
               >
                 {modelName}
@@ -381,49 +388,49 @@ export function ProductCard({
             )}
           </div>
 
-          {/* 상품명 (2줄 말줄임 + 하단 글자 잘림 방지 여유고 및 그리드 정렬용 최소 높이) */}
+          {/* 상품명 */}
           <h3
-            className={`mt-1 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-extrabold leading-[1.4] tracking-[-0.015em] transition-colors break-keep pb-0.5 ${
+            className={`mt-2 line-clamp-2 min-h-[2.85rem] sm:min-h-[3.25rem] text-hb-sm sm:text-hb-base font-bold leading-[1.42] tracking-[-0.02em] transition-colors break-keep pb-0.5 ${
               sold
-                ? "text-[#646E7E]"
-                : "text-[#0E1A2B] group-hover:text-[#B5431A]"
+                ? "text-[#8B95A1]"
+                : "text-[#191F28] group-hover:text-[#F05600]"
             }`}
           >
             {product.title}
           </h3>
 
-          {/* 사양 요약 (모바일/데스크톱 마이크로 스펙 칩) */}
+          {/* 사양 요약 (토스 스타일 무테두리 쿨그레이 소프트 칩) */}
           {specCapsules.length > 0 ? (
-            <div className="mt-1.5 flex flex-wrap gap-1 overflow-hidden">
+            <div className="mt-2 flex flex-wrap gap-1.5 overflow-hidden">
               {specCapsules.map((cap) => (
                 <span
                   key={cap}
-                  className="inline-block rounded-md bg-[#FAF9F7] border border-[#E5E2DC] px-2 py-0.5 text-hb-xs font-bold text-[#0E1A2B] truncate max-w-full"
+                  className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-0.5 text-hb-xs font-semibold text-[#4E5968] truncate max-w-full"
                 >
                   {cap}
                 </span>
               ))}
             </div>
           ) : (
-            <p className="mt-1.5 truncate text-hb-xs font-medium text-[#646E7E]">
+            <p className="mt-2 truncate text-hb-xs font-medium text-[#8B95A1]">
               {specSummaryText}
             </p>
           )}
         </div>
 
-        {/* 하단: 가격 강조 + 견적함 액션 */}
-        <div className="mt-3 pt-2.5 border-t border-[#ECE9E2] flex items-center justify-between gap-2 min-w-0">
+        {/* 하단: 가격 강조 + 토스 스타일 알약형 견적함 버튼 */}
+        <div className="mt-3.5 pt-3 border-t border-[#F2F4F6] flex items-center justify-between gap-2 min-w-0">
           <div className="min-w-0 flex-1">
             {sold ? (
-              <span className="text-hb-sm font-bold text-[#646E7E] truncate block">
+              <span className="text-hb-sm font-bold text-[#8B95A1] truncate block">
                 판매완료 · 유사재고 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-lg sm:text-hb-xl font-extrabold tracking-tight text-[#0E1A2B] tabular-nums truncate">
+              <strong className="block text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.025em] text-[#191F28] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
-              <strong className="block text-hb-base sm:text-hb-lg font-extrabold text-[#0E1A2B] truncate">
+              <strong className="block text-hb-base sm:text-hb-lg font-extrabold text-[#191F28] truncate">
                 <span className="sm:hidden">견적 상담</span>
                 <span className="hidden sm:inline">{priceText}</span>
               </strong>
@@ -439,22 +446,22 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-all duration-150 active:scale-[0.98] cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-hb-xs font-bold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
-                  ? "bg-[#0E1A2B] text-white"
-                  : "bg-[#F4F3EF] text-[#0E1A2B] hover:bg-[#0E1A2B] hover:text-white"
+                  ? "bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]/30"
+                  : "bg-[#F2F4F6] text-[#191F28] hover:bg-[#191F28] hover:text-white"
               }`}
             >
               <Icon
                 d={inBasket ? ICON.check : ICON.plus}
                 className={`h-3 w-3 ${
-                  inBasket ? "text-[#FF8A50]" : "currentColor"
+                  inBasket ? "text-[#FF6F0F]" : "currentColor"
                 }`}
               />
               <span>{inBasket ? "담김" : "견적함"}</span>
             </button>
           ) : (
-            <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#646E7E] group-hover:text-[#0E1A2B] transition-colors">
+            <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#8B95A1] group-hover:text-[#191F28] transition-colors">
               <span>보기</span>
               <Icon d={ICON.right} className="h-3.5 w-3.5" />
             </span>
@@ -477,7 +484,7 @@ export function ProductCard({
             onSelect(product);
           }
         }}
-        className="block h-full w-full min-w-0 cursor-pointer text-left rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B]"
+        className="block h-full w-full min-w-0 cursor-pointer text-left rounded-2xl sm:rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28]"
       >
         {cardInner}
       </div>
@@ -487,7 +494,7 @@ export function ProductCard({
   return (
     <Link
       href={`/${product.id}`}
-      className="block h-full min-w-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B]"
+      className="block h-full min-w-0 rounded-2xl sm:rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28]"
     >
       {cardInner}
     </Link>

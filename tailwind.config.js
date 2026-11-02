@@ -55,15 +55,15 @@ module.exports = {
         },
       },
       boxShadow: {
-        "2xs": "0 1px 2px 0 rgb(14 26 43 / 0.03)",
-        xs: "0 1px 3px 0 rgb(14 26 43 / 0.05)",
-        card: "0 4px 20px -2px rgba(14, 26, 43, 0.05), 0 1px 3px 0 rgba(14, 26, 43, 0.03), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
+        "2xs": "0 1px 2px 0 rgba(25, 31, 40, 0.03)",
+        xs: "0 2px 6px -1px rgba(25, 31, 40, 0.04)",
+        card: "0 4px 24px -4px rgba(25, 31, 40, 0.05), 0 1px 3px 0 rgba(25, 31, 40, 0.02)",
         "card-hover":
-          "0 16px 36px -6px rgba(14, 26, 43, 0.11), 0 4px 12px -2px rgba(14, 26, 43, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9)",
+          "0 16px 36px -8px rgba(25, 31, 40, 0.1), 0 4px 12px -2px rgba(25, 31, 40, 0.04)",
         floating:
-          "0 20px 44px -8px rgba(14, 26, 43, 0.26), 0 4px 12px -2px rgba(14, 26, 43, 0.12)",
+          "0 20px 44px -10px rgba(25, 31, 40, 0.24), 0 4px 14px -2px rgba(25, 31, 40, 0.1)",
         "glass-sm":
-          "0 4px 16px -2px rgba(14, 26, 43, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.7)",
+          "0 4px 20px -4px rgba(25, 31, 40, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
       },
       backdropBlur: {
         xs: "2px",

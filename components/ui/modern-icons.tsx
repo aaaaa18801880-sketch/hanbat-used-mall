@@ -40,19 +40,19 @@ export function ModernApplianceIcon({
   const isCyanType = name === "aircon" || name === "fridge" || name === "showcase";
   const isTealType = name === "washer" || name === "kitchen" || name === "sparkle" || name === "shield";
 
-  const primaryStroke = dark ? "#FFFFFF" : "#0E1A2B";
+  const primaryStroke = dark ? "#FFFFFF" : "#191F28";
   const secondaryFill = dark ? "rgba(255,255,255,0.14)" : "#F1F4F9";
   const accentColor = isCyanType
-    ? (dark ? "#38BDF8" : "#0284C7")
+    ? (dark ? "#64A8FF" : "#3182F6")
     : isTealType
-    ? (dark ? "#2DD4BF" : "#0D9488")
-    : (dark ? "#FF8A50" : "#D9531E");
+    ? (dark ? "#34D399" : "#00C471")
+    : (dark ? "#FF8A50" : "#FF6F0F");
 
   const glowClass = isCyanType
-    ? (dark ? "bg-[#38BDF8]/25" : "bg-[#0284C7]/15")
+    ? (dark ? "bg-[#64A8FF]/25" : "bg-[#3182F6]/15")
     : isTealType
-    ? (dark ? "bg-[#2DD4BF]/25" : "bg-[#0D9488]/15")
-    : (dark ? "bg-[#FF8A50]/25" : "bg-[#B5431A]/15");
+    ? (dark ? "bg-[#34D399]/25" : "bg-[#00C471]/15")
+    : (dark ? "bg-[#FF8A50]/25" : "bg-[#F05600]/15");
 
   return (
     <div
@@ -80,7 +80,7 @@ export function ModernApplianceIcon({
             gradientUnits="userSpaceOnUse"
           >
             <stop stopColor={dark ? "#2A4365" : "#1E324F"} />
-            <stop offset="1" stopColor={dark ? "#16263D" : "#0E1A2B"} />
+            <stop offset="1" stopColor={dark ? "#1E2530" : "#191F28"} />
           </linearGradient>
           <linearGradient
             id={`orangeGrad-${uid}`}
@@ -91,7 +91,7 @@ export function ModernApplianceIcon({
             gradientUnits="userSpaceOnUse"
           >
             <stop stopColor="#FF8A50" />
-            <stop offset="1" stopColor="#D9531E" />
+            <stop offset="1" stopColor="#FF6F0F" />
           </linearGradient>
           {/* 아이스 시안 → 오션 블루 (냉각·냉기 계열: 에어컨, 냉장고, 쇼케이스) */}
           <linearGradient
@@ -102,8 +102,8 @@ export function ModernApplianceIcon({
             y2="38"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#38BDF8" />
-            <stop offset="1" stopColor="#0284C7" />
+            <stop stopColor="#64A8FF" />
+            <stop offset="1" stopColor="#3182F6" />
           </linearGradient>
           {/* 클린 민트 → 에메랄드 틸 (고압 살균·세척·보증 계열: 세탁기, 주방설비, 스파클, 쉴드) */}
           <linearGradient
@@ -114,8 +114,8 @@ export function ModernApplianceIcon({
             y2="38"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#2DD4BF" />
-            <stop offset="1" stopColor="#0D9488" />
+            <stop stopColor="#34D399" />
+            <stop offset="1" stopColor="#00C471" />
           </linearGradient>
           <linearGradient
             id={`glassGrad-${uid}`}

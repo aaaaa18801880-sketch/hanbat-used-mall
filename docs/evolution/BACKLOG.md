@@ -29,6 +29,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **16** | `EVO-016` | 상품 사진 업로드 시 쇼룸 스튜디오 톤업(밝기 +20%) 기본 자동 적용 및 2차 원터치 톤업 프리셋 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 11)** |
 | **17** | `EVO-017` | 플래그십 쇼룸 히어로 현대화(Option A) 및 원터치 옴니 쇼룸 카탈로그 일체화(Option B) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 12)** |
 | **18** | `EVO-018` | 상품 카드 2.5D 마이크로 뎁스 틸트 및 스튜디오 메탈릭 스펙큘러 라이팅(순수 시각 효과) | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 13)** |
+| **19** | `EVO-019` | 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편 | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[tailwind.config.js](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/tailwind.config.js)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[components/products/product-structured-description.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-structured-description.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 14)** |
 
 ---
 
@@ -182,5 +183,16 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - 마우스 호버 및 무브 시 최대 ±3.5도의 미세 2.5D 퍼스펙티브 틸트(`perspective(1000px) rotateX/Y translateZ(3px)`) 구현.
   - 커서 위치를 추적하는 은은한 방사형 스튜디오 메탈릭 스펙큘러 반사광(`mix-blend-soft-light`) 오버레이 연동.
   - 내부 사진 액자에 `ring-white/20 group-hover:ring-white/40` 메탈릭 림 라이트 헤어라인 부여.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+
+### EVO-019: 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편
+- **문제 진단**:
+  - 기존 한밭중고전자 UI는 웜 베이지/알라바스터(`#FAF9F7`, `#F7F6F3`, `#E5E2DC`) 배경과 건축적 그리드 실선(`hb-arch-grid`), 상단 검은색 굵은 테두리(`border-t-2`, `border-t-4`), 테두리 있는 박스형 테이블 위주로 구성되어 있어 현대적인 한국 모바일 앱(토스, 당근마켓)이나 애플 스토어 같은 산뜻하고 직관적인 '떼깔'이 부족했음.
+- **개선 방안**:
+  - **SEED Design + Toss TDS + Apple HIG 3대 디자인 언어 결합**:
+    1. **Color & Surface**: 누런 웜 베이지를 전면 걷어내고 **Pure White (`#FFFFFF`) & Cool Gray (`#F2F4F6`, `#F9FAFB`)** 서피스 레이어링, **Toss Charcoal (`#191F28`)** 타이포그래피, **SEED Coral Orange (`#FF6F0F` / `#F05600`)** 브랜드 포인트, **Toss Blue (`#3182F6`)** 및 **Toss Mint (`#00C471`)** 시맨틱 토큰으로 전면 교체.
+    2. **De-boxing & Squircle Curvature**: 불필요한 1px 격자 테두리와 상단 굵은 검은 줄(`border-t-2`)을 제거하고, `rounded-2xl` / `rounded-3xl` 스쿼클 곡률과 보더리스 소프트 칩(`bg-[#F2F4F6]`)으로 시각적 피로도 제로화.
+    3. **전 화면 일괄 개편**: 글로벌 토큰(`globals.css`, `tailwind.config.js`), 헤더/다이나믹 아일랜드 견적 바(`lib/ui.tsx`), 상품 카드(`product-card.tsx`), AI 스펙·검수 리포트(`product-structured-description.tsx`), 메인 홈 쇼룸(`home-page-client.tsx`, `category-pictogram-bar.tsx`, `featured-products-section.tsx`), 상품 상세(`app/[id]/page.tsx`, `product-detail-gallery.tsx`), 갤러리 검색(`app/gallery/page.tsx`) 등 20개 핵심 UI 파일 일괄 개편.
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.

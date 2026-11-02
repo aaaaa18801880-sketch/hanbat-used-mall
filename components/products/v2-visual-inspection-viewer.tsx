@@ -129,8 +129,8 @@ function getInspectionBadgeStyle(badge: string) {
   }
   if (badge.includes("보증") || badge.includes("무상")) {
     return {
-      wrap: "bg-[#FFF5F0] border-[#FADCD0] text-[#B5431A]",
-      icon: "text-[#B5431A]",
+      wrap: "bg-[#FFF4EE] border-[#FFD8C2] text-[#F05600]",
+      icon: "text-[#F05600]",
     };
   }
   if (
@@ -165,32 +165,32 @@ export function V2VisualInspectionViewer({
       : "최대 4개월 무상보증";
 
   return (
-    <div className="flex h-full flex-col justify-between rounded-2xl border border-[#E5E2DC] bg-white p-5 sm:p-6 shadow-2xs space-y-5">
+    <div className="flex h-full flex-col justify-between rounded-2xl border border-[#E5E8EB] bg-white p-5 sm:p-6 shadow-2xs space-y-5">
       <div className="space-y-4">
         {/* 상단 헤더 */}
-        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#E5E2DC] pb-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#E5E8EB] pb-4">
           <div>
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white">
+              <span className="rounded-md bg-[#191F28] px-2.5 py-1 text-hb-xs font-bold text-white">
                 한밭중고전자 4대 부위별 정밀 검수 리포트
               </span>
-              <span className="rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-1 text-hb-xs font-bold text-[#B5431A]">
+              <span className="rounded-md bg-[#FFF4EE] border border-[#FFD8C2] px-2.5 py-1 text-hb-xs font-bold text-[#F05600]">
                 {catLabel}
               </span>
             </div>
-            <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-tight">
+            <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28] tracking-tight">
               실물 출고 전 4대 핵심 품질 검수 기준
             </h3>
-            <p className="mt-1 text-hb-xs text-[#646E7E]">
+            <p className="mt-1 text-hb-xs text-[#6B7684]">
               입고 후 분해 고압세척 · 부하 시운전 · 무상 A/S 책임 보증 기준을 확인하세요.
             </p>
           </div>
 
-          <div className="rounded-xl border border-[#FADCD0] bg-[#FFF5F0] px-3.5 py-2 text-right shrink-0">
-            <span className="block text-hb-xs font-semibold text-[#B5431A]">
+          <div className="rounded-xl border border-[#FFD8C2] bg-[#FFF4EE] px-3.5 py-2 text-right shrink-0">
+            <span className="block text-hb-xs font-semibold text-[#F05600]">
               본 매물 등급 · 보증
             </span>
-            <strong className="text-hb-sm font-extrabold text-[#B5431A]">
+            <strong className="text-hb-sm font-extrabold text-[#F05600]">
               {displayGrade} · {warrantyText}
             </strong>
           </div>
@@ -203,11 +203,11 @@ export function V2VisualInspectionViewer({
             return (
               <div
                 key={item.no}
-                className="flex flex-col justify-between rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]/75 p-4 hover:border-[#0E1A2B] hover:bg-white transition-colors"
+                className="flex flex-col justify-between rounded-xl border border-[#E5E8EB] bg-[#F9FAFB]/75 p-4 hover:border-[#191F28] hover:bg-white transition-colors"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#0E1A2B] text-hb-xs font-extrabold text-white">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-extrabold text-white">
                       {item.no}
                     </span>
                     <span
@@ -221,13 +221,13 @@ export function V2VisualInspectionViewer({
                     </span>
                   </div>
 
-                  <p className="text-hb-xs font-bold text-[#B5431A] leading-snug break-keep">
+                  <p className="text-hb-xs font-bold text-[#F05600] leading-snug break-keep">
                     {item.question}
                   </p>
-                  <h4 className="mt-1 text-hb-sm font-extrabold text-[#0E1A2B] leading-snug break-keep">
+                  <h4 className="mt-1 text-hb-sm font-extrabold text-[#191F28] leading-snug break-keep">
                     {item.answerTitle}
                   </h4>
-                  <p className="mt-1.5 text-hb-xs leading-relaxed text-[#3E4756] break-keep">
+                  <p className="mt-1.5 text-hb-xs leading-relaxed text-[#4E5968] break-keep">
                     {item.desc}
                   </p>
                 </div>
@@ -238,8 +238,8 @@ export function V2VisualInspectionViewer({
       </div>
 
       {/* 하단 쇼룸 실물 확인 안내 */}
-      <div className="rounded-xl bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 flex items-center gap-2.5 text-hb-xs text-[#3E4756]">
-        <Icon d={ICON.pin} className="w-4 h-4 text-[#B5431A] shrink-0" />
+      <div className="rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] px-4 py-3 flex items-center gap-2.5 text-hb-xs text-[#4E5968]">
+        <Icon d={ICON.pin} className="w-4 h-4 text-[#F05600] shrink-0" />
         <span className="break-keep">
           <strong>대전 중촌동 1·2층 직영 매장 상시 개방:</strong> 사진만으로 결정하기 망설여지신다면 매장에 오셔서 직접 전원을 켜보고 선택하셔도 됩니다.
         </span>

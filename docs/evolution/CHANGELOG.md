@@ -471,3 +471,41 @@
 ### 4. 획득한 지식 및 교훈 (Lessons Learned)
 - **순수 시각 효과와 실측 데이터의 명확한 경계**: 매장에서 실제로 측정하지 않는 지표는 절대 추가하지 않고, 오직 CSS/GPU 가속 기반의 2.5D 마이크로 뎁스와 빛 반사 효과만으로 쇼룸 제품의 프리미엄 질감을 극대화함.
 - **CSS 변수를 활용한 60fps 인터랙션**: 상품 목록이 수십 개에 달하는 갤러리/홈 환경에서 마우스 이벤트마다 `setState`를 호출하면 불필요한 전체 리렌더링이 발생함. DOM `style.setProperty`로 CSS 변수만 직접 갱신함으로써 브라우저 컴포지터 레이어에서 부드러운 60fps 하드웨어 가속을 완벽히 달성함.
+
+---
+
+## 🚀 [Cycle 14] 2026-11-02 — 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-019`
+- **문제 진단**:
+  1. 기존 웜 베이지(`#FAF9F7`, `#F7F6F3`, `#E5E2DC`) 톤과 건축적 격자선(`hb-arch-grid`), 상단 검은색 두꺼운 보더(`border-t-2 border-[#141413]`)는 클래식한 인쇄물 느낌은 주었으나, 토스(TDS)·애플(HIG)·당근(SEED Design)처럼 첫눈에 깨끗하고 세련된 디지털 프로덕트 감성('떼깔')을 주기에는 한계가 있었음.
+  2. 상품 카드 내부와 상세페이지의 스펙 표가 모두 각진 테두리(`border`)로 쪼개져 있어 모바일/데스크톱에서 시각적 복잡도가 높았음.
+
+### 2. 코드 변경 요약 (총 20개 파일 전면 개편)
+- **[app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css) & [tailwind.config.js](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/tailwind.config.js)**:
+  - 웜 베이지 컬러를 전면 제거하고 **Pure White (`#FFFFFF`) & Cool Gray (`#F2F4F6`, `#F9FAFB`, `#E5E8EB`)** 서피스, **Toss Charcoal (`#191F28`)** 인크, **SEED Coral (`#FF6F0F` / `#F05600`)** 액센트, **Toss Blue (`#3182F6`)**, **Toss Mint (`#00C471`)** 시맨틱 토큰으로 전면 교체.
+  - `.hb-surface-card`, `.hb-bento-card`, `.hb-pedestal-card`, `.hb-input`, `.hb-btn-primary`, `.hb-studio-backdrop`을 스쿼클 곡률(`20px`~`24px`)과 멀티레이어 앰비언트 섀도우, 스프링 물리 트랜지션(`cubic-bezier(0.22, 1, 0.36, 1)`)으로 재설계.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) & [components/ui/modern-icons.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/ui/modern-icons.tsx)**:
+  - `HanbatBrandLogo` 스쿼클(`rx="11"`) 및 코랄 포인트 적용, `SectionHeading` 캡슐 아이브로우 배지 적용, `SiteHeader` 애플 반투명 글래스(`backdrop-blur-2xl bg-white/85`) 및 토스 스타일 보더리스 네비게이션 버튼 적용, `QuoteBasketFloatingBar` 애플 다이나믹 아일랜드 다크 글래스 캡슐(`rounded-full bg-[#191F28]/95`) 적용.
+- **[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx) & [components/products/product-status-badge.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-status-badge.tsx)**:
+  - `rounded-2xl sm:rounded-3xl` 스쿼클 카드 + 2.5D 마이크로 틸트/메탈릭 반사광 유지.
+  - 반투명 글래스 상태 배지(에메랄드/코랄 라이브 도트), SEED 코랄 소프트 카테고리 칩(`bg-[#FFF4EE] text-[#F05600]`), 보더리스 토스 스펙 칩(`bg-[#F2F4F6] text-[#4E5968]`), 스프링 반응형 견적 담기 버튼 적용.
+- **[components/products/product-structured-description.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-structured-description.tsx)**:
+  - 기존 검은 줄 표 형태에서 벗어나 **토스 TDS / 애플 리포트 카드 스타일**(`rounded-3xl`, 소프트 콜아웃 요약 박스, 2열 벤토 스펙 타일 `bg-[#F2F4F6]/80 rounded-xl`, 핵심 특장점 & 민트 세척·검수 인증 트윈 카드)로 전면 재구축.
+- **홈 쇼룸·상세·갤러리·문의·매입 전 화면**:
+  - [components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx), [components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx), [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx), [app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx), [components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx), [components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx), [app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) 등 전 화면을 쿨그레이 & 화이트 레이어링과 스쿼클 벤토 카드로 통일.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.29s) — 임의 픽셀 폰트 0건, 이모지 0건, Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.17s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.19s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.18s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.17s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (6.31s) — 0 errors
+- **7. eslint**: PASS (24.82s) — 0 errors, 0 warnings
+- **8. next build**: PASS (22.28s) — 22/22 정적/동적 라우트 빌드 성공 (Exit Code 0)
+
+### 4. 획득한 지식 및 교훈 (Lessons Learned)
+- **De-boxing(탈박스화)과 서피스 명도 대비의 힘**: 테두리(`border`)로 영역을 쪼개는 대신 `#F2F4F6`(쿨그레이 배경) 위에 `#FFFFFF`(순백색 카드)를 얹고 카드 내부 칩을 보더리스 `#F2F4F6`로 처리하면, 정보 밀도가 높은 중고 가전 스펙 시트도 토스나 애플 스토어처럼 시선이 편안하고 정돈된 인상을 준다.
+- **가전 사진과 쿨그레이 스튜디오 배경의 조화**: 백색가전·메탈가전 사진은 따뜻한 노란빛 베이지 배경보다 쿨 실버/화이트 스튜디오 배경(`#F2F4F6` ~ `#FFFFFF`) 위에 놓였을 때 가장 깨끗하고 신품에 가까운 시각적 신뢰감을 형성한다.

@@ -70,12 +70,13 @@ export function AiRecommendationGuideSection() {
     <section
       id="buying-guide-section"
       aria-labelledby="buying-guide-title"
-      className="border-b border-[#E5E2DC] bg-[#FAF9F7] py-14 sm:py-20"
+      className="border-b border-[#E5E8EB] bg-[#F9FAFB] py-14 sm:py-20"
     >
       <div className="hb-container space-y-12">
-        {/* 1. 개인 직거래 vs 한밭중고전자 비교 테이블 */}
+        {/* 1. 개인 직거래 vs 한밭중고전자 비교 테이블 (토스/애플 클린 매트릭스) */}
         <div>
           <SectionHeading
+            eyebrow="WHY HANBAT SHOWROOM"
             title={
               <span id="buying-guide-title">
                 일반 개인 중고거래 vs {STORE.name} 직영 매장 비교
@@ -89,32 +90,32 @@ export function AiRecommendationGuideSection() {
             }
           />
 
-          <div className="mt-7 overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-card">
+          <div className="mt-7 overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white shadow-card">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-hb-xs sm:text-hb-sm">
                 <thead>
-                  <tr className="border-b border-[#E5E2DC] bg-[#0E1A2B] text-white">
+                  <tr className="border-b border-[#E5E8EB] bg-[#F2F4F6]/80 text-[#191F28]">
                     <th
                       scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-bold w-[24%] min-w-[130px]"
+                      className="py-4 px-5 sm:px-6 font-extrabold w-[24%] min-w-[130px] text-[#4E5968]"
                     >
                       비교 항목
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-semibold text-white/60 bg-[#0E1A2B]/90 w-[34%] min-w-[200px]"
+                      className="py-4 px-5 sm:px-6 font-semibold text-[#6B7684] w-[34%] min-w-[200px]"
                     >
-                      <span className="inline-block px-1.5 py-0.5 rounded bg-white/10 text-white/70 text-hb-xs mb-1 font-normal">
+                      <span className="inline-block px-2 py-0.5 rounded-full bg-[#E5E8EB] text-[#4E5968] text-hb-xs mb-1 font-bold">
                         위험 · 주의
                       </span>
                       <p>일반 개인간 중고거래 (직거래 앱 등)</p>
                     </th>
                     <th
                       scope="col"
-                      className="py-3.5 px-4 sm:px-6 font-extrabold text-white bg-gradient-to-r from-[#16263D] to-[#1E3452] border-t-2 border-[#D9531E] w-[42%] min-w-[240px]"
+                      className="py-4 px-5 sm:px-6 font-extrabold text-white bg-[#191F28] w-[42%] min-w-[240px]"
                     >
                       <div className="flex items-center gap-1.5 mb-1">
-                        <span className="inline-flex items-center gap-1 rounded bg-[#B5431A] px-2 py-0.5 text-hb-xs font-black text-white tracking-wider">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#FF6F0F] px-2.5 py-0.5 text-hb-xs font-extrabold text-white tracking-wide">
                           <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
                           OFFICIAL GUARANTEE
                         </span>
@@ -125,24 +126,26 @@ export function AiRecommendationGuideSection() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E2DC]">
+                <tbody className="divide-y divide-[#F2F4F6]">
                   {COMPARISON_ROWS.map((row) => (
                     <tr
                       key={row.criteria}
-                      className="hover:bg-[#FAF9F7] transition-colors"
+                      className="hover:bg-[#F9FAFB] transition-colors"
                     >
                       <th
                         scope="row"
-                        className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FAF9F7]/60"
+                        className="py-4 px-5 sm:px-6 font-bold text-[#191F28]"
                       >
                         {row.criteria}
                       </th>
-                      <td className="py-3.5 px-4 sm:px-6 text-[#646E7E] bg-[#FAF9F7]/40 leading-relaxed">
+                      <td className="py-4 px-5 sm:px-6 text-[#6B7684] leading-relaxed">
                         {row.personal}
                       </td>
-                      <td className="py-3.5 px-4 sm:px-6 font-bold text-[#0E1A2B] bg-[#FFF9F6] border-l-2 border-l-[#D9531E] leading-relaxed">
-                        <span className="inline-flex items-center gap-1.5 text-[#0E1A2B]">
-                          <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#B5431A] shrink-0" />
+                      <td className="py-4 px-5 sm:px-6 font-bold text-[#191F28] bg-[#FFF4EE]/45 leading-relaxed">
+                        <span className="inline-flex items-center gap-2 text-[#191F28]">
+                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF4EE] text-[#FF6F0F]">
+                            <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                          </span>
                           <span>{row.hanbat}</span>
                         </span>
                       </td>
@@ -154,23 +157,24 @@ export function AiRecommendationGuideSection() {
           </div>
         </div>
 
-        {/* 2. 상황별 맞춤 추천 가이드 3열 */}
+        {/* 2. 상황별 맞춤 추천 가이드 3열 (토스/애플 벤토 카드) */}
         <div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <div>
-              <h3 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+              <h3 className="text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28] tracking-[-0.025em]">
                 고객 상황별 가장 많이 찾는 맞춤 솔루션
               </h3>
-              <p className="mt-1 text-hb-sm text-[#3E4756]">
+              <p className="mt-1 text-hb-sm text-[#4E5968]">
                 대전 중구 중촌동 1·2층 직영 매장에서 실물을 직접 확인하시거나
                 전화·카톡으로 즉시 재고 안내를 받으실 수 있습니다.
               </p>
             </div>
             <a
               href={telHref(STORE.tel)}
-              className="text-hb-xs sm:text-hb-sm font-extrabold text-[#B5431A] hover:underline tabular-nums shrink-0 whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-[#E5E8EB] px-4 py-2 text-hb-xs sm:text-hb-sm font-extrabold text-[#F05600] hover:border-[#FF6F0F] transition-colors tabular-nums shrink-0 whitespace-nowrap shadow-2xs"
             >
-              직통 상담: {STORE.tel} / {STORE.mobile}
+              <Icon d={ICON.phone} className="w-3.5 h-3.5" />
+              <span>직통 상담: {STORE.tel} / {STORE.mobile}</span>
             </a>
           </div>
 
@@ -178,45 +182,48 @@ export function AiRecommendationGuideSection() {
             {SITUATION_GUIDES.map((g) => (
               <article
                 key={g.title}
-                className="group flex flex-col justify-between rounded-xl border border-[#E5E2DC] border-t-4 border-t-[#0E1A2B] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#0E1A2B] hover:border-t-4 transition-all hover:shadow-card"
+                className="group flex flex-col justify-between rounded-3xl border border-[#E5E8EB] bg-white p-6 shadow-card hover:-translate-y-0.5 hover:border-[#D1D6DB] transition-all duration-200 hover:shadow-card-hover"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-hb-xs font-black text-[#B5431A] tracking-wider">
+                    <span className="font-mono text-hb-xs font-extrabold text-[#8B95A1] tracking-wider">
                       {g.code}
                     </span>
-                    <span className="inline-block rounded bg-[#FFF5F0] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs font-bold text-[#B5431A]">
+                    <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-3 py-0.5 text-hb-xs font-bold text-[#F05600]">
                       {g.badge}
                     </span>
                   </div>
-                  <h4 className="mt-2.5 text-hb-lg font-bold text-[#0E1A2B]">
+                  <h4 className="mt-3 text-hb-lg font-extrabold tracking-[-0.02em] text-[#191F28]">
                     {g.title}
                   </h4>
-                  <dl className="mt-3 space-y-2 text-hb-xs sm:text-hb-sm">
-                    <div className="rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-3 py-2">
-                      <dt className="text-hb-xs font-bold text-[#646E7E]">
+                  <dl className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm">
+                    <div className="rounded-2xl bg-[#F2F4F6]/80 px-4 py-3">
+                      <dt className="text-hb-xs font-bold text-[#6B7684]">
                         주요 구성 품목
                       </dt>
-                      <dd className="mt-0.5 font-bold text-[#0E1A2B]">
+                      <dd className="mt-1 font-bold text-[#191F28]">
                         {g.recommend}
                       </dd>
                     </div>
                     <div>
                       <dt className="sr-only">추천 사유</dt>
-                      <dd className="text-[#3E4756] leading-[1.6] break-keep pt-1 text-hb-xs sm:text-hb-sm">
+                      <dd className="text-[#4E5968] leading-[1.6] break-keep pt-1 text-hb-xs sm:text-hb-sm">
                         {g.reason}
                       </dd>
                     </div>
                   </dl>
                 </div>
 
-                <div className="mt-5 pt-3.5 border-t border-[#E5E2DC]">
+                <div className="mt-5 pt-4 border-t border-[#F2F4F6]">
                   <Link
                     href={g.href}
-                    className="flex w-full items-center justify-between rounded-lg bg-[#FAF9F7] border border-[#E5E2DC] px-4 py-3 text-hb-xs sm:text-hb-sm font-extrabold text-[#0E1A2B] group-hover:bg-[#0E1A2B] group-hover:text-white group-hover:border-[#0E1A2B] transition-colors"
+                    className="flex w-full items-center justify-between rounded-2xl bg-[#F2F4F6] px-4 py-3.5 text-hb-xs sm:text-hb-sm font-extrabold text-[#191F28] group-hover:bg-[#191F28] group-hover:text-white transition-colors"
                   >
                     <span>{g.ctaLabel}</span>
-                    <Icon d={ICON.arrow} className="w-4 h-4 text-[#B5431A] group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                    <Icon
+                      d={ICON.arrow}
+                      className="w-4 h-4 text-[#FF6F0F] group-hover:text-white group-hover:translate-x-0.5 transition-all"
+                    />
                   </Link>
                 </div>
               </article>

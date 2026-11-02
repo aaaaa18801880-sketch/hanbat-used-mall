@@ -511,14 +511,14 @@ export function V2InquirySectionWithWizard({
         className={
           variant === "embedded"
             ? "space-y-5"
-            : "rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
+            : "rounded-xl border border-[#E5E8EB] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
         }
       >
         {/* 모던 스텝퍼(Stepper) UI */}
-        <div className="space-y-3 pb-2 border-b border-[#E5E2DC]">
+        <div className="space-y-3 pb-2 border-b border-[#E5E8EB]">
           <div className="flex items-center justify-between text-hb-xs font-extrabold">
-            <span className="text-[#B5431A]">{step}단계 / 3단계</span>
-            <span className="text-[#646E7E]">
+            <span className="text-[#F05600]">{step}단계 / 3단계</span>
+            <span className="text-[#6B7684]">
               {step === 1
                 ? isSell
                   ? "처분하실 품목을 선택해 주세요"
@@ -543,19 +543,19 @@ export function V2InquirySectionWithWizard({
                   key={s.num}
                   className={`flex items-center gap-2 rounded-lg p-2 transition-all ${
                     isCurrent
-                      ? "bg-[#0E1A2B] text-white"
+                      ? "bg-[#191F28] text-white"
                       : isPast
-                      ? "bg-[#FFF5F0] text-[#B5431A] border border-[#FED7AA]"
-                      : "bg-[#F7F5F0] text-[#6E675C]"
+                      ? "bg-[#FFF4EE] text-[#F05600] border border-[#FED7AA]"
+                      : "bg-[#F7F5F0] text-[#8B95A1]"
                   }`}
                 >
                   <span
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold ${
                       isCurrent
-                        ? "bg-[#FF8A50] text-[#0E1A2B]"
+                        ? "bg-[#FF8A50] text-[#191F28]"
                         : isPast
-                        ? "bg-[#B5431A] text-white"
-                        : "bg-[#E5E2DC] text-[#646E7E]"
+                        ? "bg-[#F05600] text-white"
+                        : "bg-[#E5E8EB] text-[#6B7684]"
                     }`}
                   >
                     {isPast ? (
@@ -572,10 +572,10 @@ export function V2InquirySectionWithWizard({
             })}
           </div>
 
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F0EDE7]">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F2F4F6]">
             <div
               style={{ width: `${(step / 3) * 100}%` }}
-              className="h-full bg-[#0E1A2B] transition-all duration-300"
+              className="h-full bg-[#191F28] transition-all duration-300"
             />
           </div>
         </div>
@@ -632,8 +632,8 @@ export function V2InquirySectionWithWizard({
                         }}
                         className={`h-12 rounded-xl border px-3 text-hb-sm font-extrabold transition-all cursor-pointer ${
                           active
-                            ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
-                            : "border-[#E5E2DC] bg-[#FAF9F7] text-[#0E1A2B] hover:border-[#0E1A2B]"
+                            ? "border-[#191F28] bg-[#191F28] text-white shadow-2xs"
+                            : "border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28] hover:border-[#191F28]"
                         }`}
                       >
                         {t === "내 물건 팔기" ? "가전 팔기(방문매입)" : t}
@@ -660,8 +660,8 @@ export function V2InquirySectionWithWizard({
                       onClick={() => toggleCategory(cat)}
                       className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A] ring-1 ring-[#D9531E]"
-                          : "border-[#E5E2DC] bg-white text-[#3E4756] hover:border-[#0E1A2B]"
+                          ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]"
+                          : "border-[#E5E8EB] bg-white text-[#4E5968] hover:border-[#191F28]"
                       }`}
                     >
                       <span>{cat}</span>
@@ -675,7 +675,7 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end border-t border-[#E5E2DC]">
+            <div className="pt-2 flex justify-end border-t border-[#E5E8EB]">
               <button
                 type="button"
                 onClick={goToPhotoStep}
@@ -699,7 +699,7 @@ export function V2InquirySectionWithWizard({
                     ? "2. 제품 사진 첨부 (선택, 최대 3장)"
                     : "3. 제품 사진 첨부 (선택, 최대 3장)"}
                 </span>
-                <span className="text-hb-xs text-[#646E7E]">
+                <span className="text-hb-xs text-[#6B7684]">
                   {selectedFiles.length} / {MAX_PHOTOS}장
                 </span>
               </div>
@@ -708,7 +708,7 @@ export function V2InquirySectionWithWizard({
                 {filePreviews.map((src, i) => (
                   <div
                     key={src}
-                    className="relative aspect-square w-20 sm:w-24 overflow-hidden rounded-lg border border-[#E5E2DC] bg-[#F0EDE7] shrink-0"
+                    className="relative aspect-square w-20 sm:w-24 overflow-hidden rounded-lg border border-[#E5E8EB] bg-[#F2F4F6] shrink-0"
                   >
                     <SafeImg
                       src={src}
@@ -727,8 +727,8 @@ export function V2InquirySectionWithWizard({
                 ))}
 
                 {selectedFiles.length < MAX_PHOTOS && (
-                  <label className="flex aspect-square w-20 sm:w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#D7D2C8] bg-[#FAF9F7] text-hb-xs font-semibold text-[#596273] hover:border-[#D9531E] hover:text-[#B5431A] transition-colors shrink-0">
-                    <Icon d={ICON.camera} className="w-5 h-5 text-[#6E675C]" />
+                  <label className="flex aspect-square w-20 sm:w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#E5E8EB] bg-[#F9FAFB] text-hb-xs font-semibold text-[#6B7684] hover:border-[#FF6F0F] hover:text-[#F05600] transition-colors shrink-0">
+                    <Icon d={ICON.camera} className="w-5 h-5 text-[#8B95A1]" />
                     <span className="mt-1">+ 사진 추가</span>
                     <input
                       type="file"
@@ -781,17 +781,17 @@ export function V2InquirySectionWithWizard({
                 </div>
               )}
 
-              <p className="mt-2 text-hb-xs text-[#646E7E]">
+              <p className="mt-2 text-hb-xs text-[#6B7684]">
                 제품 전면 또는 모델명 명판 스티커 사진을 첨부하시면 가장 신속하고 정확한 견적을 받으실 수 있습니다. (생략 가능)
               </p>
 
               {/* 권장 촬영 참고 사진 가이드 (실제 예시 그래픽 + 3단계 요약 카드 + 라이트박스 확대) */}
-              <div className="mt-3 overflow-hidden rounded-xl border border-[#E5E2DC] bg-[#FAF9F7]">
-                <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border-b border-[#E5E2DC]">
-                  <div className="flex items-center gap-1.5 text-hb-xs font-bold text-[#0E1A2B]">
-                    <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#B5431A]" />
+              <div className="mt-3 overflow-hidden rounded-xl border border-[#E5E8EB] bg-[#F9FAFB]">
+                <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border-b border-[#E5E8EB]">
+                  <div className="flex items-center gap-1.5 text-hb-xs font-bold text-[#191F28]">
+                    <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#F05600]" />
                     <span>권장 촬영 참고 사진</span>
-                    <span className="text-[#6E675C] font-normal hidden sm:inline">
+                    <span className="text-[#8B95A1] font-normal hidden sm:inline">
                       · {guideInfo.subtitle}
                     </span>
                   </div>
@@ -799,14 +799,14 @@ export function V2InquirySectionWithWizard({
                     <button
                       type="button"
                       onClick={() => setZoomGuide(true)}
-                      className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                      className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
                     >
                       크게 보기
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowGuide((prev) => !prev)}
-                      className="rounded p-1 text-[#646E7E] hover:text-[#0E1A2B]"
+                      className="rounded p-1 text-[#6B7684] hover:text-[#191F28]"
                       aria-label={showGuide ? "가이드 접기" : "가이드 펼치기"}
                     >
                       <Icon
@@ -823,7 +823,7 @@ export function V2InquirySectionWithWizard({
                     <button
                       type="button"
                       onClick={() => setZoomGuide(true)}
-                      className="group relative block w-full overflow-hidden bg-white text-left focus:outline-none cursor-zoom-in border-b border-[#E5E2DC]"
+                      className="group relative block w-full overflow-hidden bg-white text-left focus:outline-none cursor-zoom-in border-b border-[#E5E8EB]"
                       aria-label="권장 촬영 예시 사진 원본 크게 보기"
                     >
                       <SafeImg
@@ -834,20 +834,20 @@ export function V2InquirySectionWithWizard({
                     </button>
 
                     {/* 3단계 촬영 포인트 안내 카드 */}
-                    <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-3 bg-[#FAF9F7] text-hb-xs">
+                    <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-3 bg-[#F9FAFB] text-hb-xs">
                       {guideInfo.steps.map((g) => (
                         <li
                           key={g.step}
-                          className="flex items-start gap-2 rounded-lg bg-white p-2.5 border border-[#E5E2DC]"
+                          className="flex items-start gap-2 rounded-lg bg-white p-2.5 border border-[#E5E8EB]"
                         >
-                          <span className="shrink-0 rounded bg-[#0E1A2B] px-1.5 py-0.5 text-hb-xs font-extrabold text-white">
+                          <span className="shrink-0 rounded bg-[#191F28] px-1.5 py-0.5 text-hb-xs font-extrabold text-white">
                             {g.step}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <strong className="font-bold text-[#0E1A2B] block">
+                            <strong className="font-bold text-[#191F28] block">
                               {g.title}
                             </strong>
-                            <span className="text-[#646E7E] leading-relaxed block mt-0.5">
+                            <span className="text-[#6B7684] leading-relaxed block mt-0.5">
                               {g.desc}
                             </span>
                           </div>
@@ -857,7 +857,7 @@ export function V2InquirySectionWithWizard({
 
                     {/* 하단 팁 */}
                     <div className="px-3 pb-3 pt-0">
-                      <p className="rounded-lg bg-white p-2.5 border border-[#E5E2DC] text-hb-xs text-[#4B5260] leading-relaxed">
+                      <p className="rounded-lg bg-white p-2.5 border border-[#E5E8EB] text-hb-xs text-[#4B5260] leading-relaxed">
                         {guideInfo.tip}
                       </p>
                     </div>
@@ -866,7 +866,7 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E5E2DC]">
+            <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E5E8EB]">
               <button
                 type="button"
                 onClick={() => setStep(1)}
@@ -889,9 +889,9 @@ export function V2InquirySectionWithWizard({
         {/* STEP 3: 현장 조건 + 지역/메모 + 연락처 입력 및 완료 */}
         {step === 3 && (
           <div className="space-y-4">
-            <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs text-[#3E4756] flex flex-wrap items-center justify-between gap-1.5">
+            <div className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs text-[#4E5968] flex flex-wrap items-center justify-between gap-1.5">
               <div>
-                <strong className="text-[#0E1A2B]">선택 요약:</strong> [{inquiryType}] {selectedCategories.join(", ")}
+                <strong className="text-[#191F28]">선택 요약:</strong> [{inquiryType}] {selectedCategories.join(", ")}
                 {selectedFiles.length > 0
                   ? ` · 사진 ${selectedFiles.length}장 첨부됨`
                   : " · 사진 미첨부"}
@@ -899,7 +899,7 @@ export function V2InquirySectionWithWizard({
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="text-hb-xs text-[#646E7E] underline hover:text-[#0E1A2B]"
+                className="text-hb-xs text-[#6B7684] underline hover:text-[#191F28]"
               >
                 사진 수정
               </button>
@@ -922,8 +922,8 @@ export function V2InquirySectionWithWizard({
                       onClick={() => toggleChip(chip)}
                       className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
                         active
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#B5431A] ring-1 ring-[#D9531E]"
-                          : "border-[#E5E2DC] bg-[#FAF9F7] text-[#3E4756] hover:border-[#0E1A2B]"
+                          ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]"
+                          : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
                       }`}
                     >
                       <Icon
@@ -966,11 +966,11 @@ export function V2InquirySectionWithWizard({
             </div>
 
             {/* 3. 연락처 및 신청자 정보 */}
-            <div className="pt-2 border-t border-[#E5E2DC] space-y-2">
+            <div className="pt-2 border-t border-[#E5E8EB] space-y-2">
               <span className="hb-label">3. 신청자 정보 및 연락처 *</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="hb-label text-[#646E7E]">성함 / 상호명 *</label>
+                  <label className="hb-label text-[#6B7684]">성함 / 상호명 *</label>
                   <input
                     type="text"
                     required
@@ -981,7 +981,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[#646E7E]">연락처 *</label>
+                  <label className="hb-label text-[#6B7684]">연락처 *</label>
                   <input
                     type="tel"
                     required
@@ -992,7 +992,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[#646E7E]">조회 비밀번호(4자+) *</label>
+                  <label className="hb-label text-[#6B7684]">조회 비밀번호(4자+) *</label>
                   <input
                     type="password"
                     required
@@ -1010,12 +1010,12 @@ export function V2InquirySectionWithWizard({
                 type="checkbox"
                 checked={agreed}
                 onChange={(e) => setAgreed(e.target.checked)}
-                className="h-4 w-4 rounded border-[#CFCAC0] accent-[#0E1A2B]"
+                className="h-4 w-4 rounded border-[#D1D6DB] accent-[#191F28]"
               />
               <span>상담 안내를 위한 개인정보 수집·이용에 동의합니다.</span>
             </label>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E5E2DC]">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E5E8EB]">
               <button
                 type="button"
                 onClick={() => setStep(2)}
@@ -1034,7 +1034,7 @@ export function V2InquirySectionWithWizard({
                   )}
                   className="hb-btn-outline h-11 px-4 text-hb-sm"
                 >
-                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#B5431A]" />
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#F05600]" />
                   <span>문자로 바로 전송</span>
                 </a>
                 <button
@@ -1061,10 +1061,10 @@ export function V2InquirySectionWithWizard({
           panelClassName="max-w-3xl w-full"
           overlayClassName="z-[70]"
         >
-          <div className="overflow-hidden rounded-xl border border-[#E5E2DC] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E5E2DC] px-5 py-3.5 bg-[#0E1A2B] text-white">
+          <div className="overflow-hidden rounded-xl border border-[#E5E8EB] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E5E8EB] px-5 py-3.5 bg-[#191F28] text-white">
               <div className="flex items-center gap-2">
-                <Icon d={ICON.camera} className="w-4 h-4 text-[#B5431A]" />
+                <Icon d={ICON.camera} className="w-4 h-4 text-[#F05600]" />
                 <h3 className="text-hb-sm font-bold text-white">
                   권장 촬영 참고 사진 가이드
                 </h3>
@@ -1078,13 +1078,13 @@ export function V2InquirySectionWithWizard({
                 <Icon d={ICON.close} className="h-5 w-5" />
               </button>
             </div>
-            <div className="max-h-[80vh] overflow-y-auto bg-[#FAF9F7] p-4 flex flex-col items-center gap-3">
+            <div className="max-h-[80vh] overflow-y-auto bg-[#F9FAFB] p-4 flex flex-col items-center gap-3">
               <SafeImg
                 src={guideInfo.image}
                 alt="권장 촬영 참고 사진 가이드 원본"
-                className="max-h-[65vh] w-auto object-contain rounded-lg border border-[#E5E2DC] bg-white shadow-xs"
+                className="max-h-[65vh] w-auto object-contain rounded-lg border border-[#E5E8EB] bg-white shadow-xs"
               />
-              <p className="text-hb-xs text-[#646E7E] text-center max-w-lg leading-relaxed">
+              <p className="text-hb-xs text-[#6B7684] text-center max-w-lg leading-relaxed">
                 {guideInfo.tip}
               </p>
             </div>
