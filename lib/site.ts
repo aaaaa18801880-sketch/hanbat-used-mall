@@ -1386,20 +1386,6 @@ export const STORE_NAVIGATION = {
   parking: STORE.parking,
   hours: STORE.hours,
   closed: STORE.closed,
-  floorGuide: [
-    {
-      floor: "1층",
-      title: "가정용 대형·소형 가전 쇼룸",
-      items: "냉장고 · 김치냉장고 · 세탁기 · 건조기 · 전자레인지/밥솥",
-      badge: "가정용 중심",
-    },
-    {
-      floor: "2층",
-      title: "에어컨/냉난방기 & 업소용 주방설비",
-      items: "스탠드/벽걸이 에어컨 · 45박스/테이블 냉장고 · 제빙기 · 쇼케이스",
-      badge: "사업자·냉난방",
-    },
-  ],
 } as const;
 
 /**

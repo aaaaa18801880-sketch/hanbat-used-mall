@@ -271,38 +271,14 @@ export function ShowroomVisitModal({
             </div>
           </div>
 
-          {/* 5. 1층 / 2층 쇼룸 층별 안내 & 주차 */}
-          <div className="rounded-xl border border-[#E5E8EB] bg-white p-4 space-y-3">
-            <span className="text-hb-xs font-bold text-[#6B7684]">
-              쇼룸 층별 안내 &amp; 방문 편의
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-hb-xs">
-              {STORE_NAVIGATION.floorGuide.map((f) => (
-                <div
-                  key={f.floor}
-                  className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-2.5"
-                >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="font-extrabold text-[#191F28] text-hb-sm">
-                      {f.floor} · {f.title}
-                    </span>
-                    <span className="rounded bg-white border border-[#E5E8EB] px-1.5 py-0.5 text-hb-xs font-semibold text-[#6B7684]">
-                      {f.badge}
-                    </span>
-                  </div>
-                  <p className="text-[#6B7684] leading-relaxed">{f.items}</p>
-                </div>
-              ))}
+          {/* 5. 매장 방문 편의 & 주차 안내 (실제 매장 배치와 다른 층별 구분 박스 제거) */}
+          <div className="rounded-2xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#4E5968]">
+            <div className="flex items-center gap-1.5 font-bold text-[#191F28]">
+              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#F05600]" />
+              <span>{STORE_NAVIGATION.parking}</span>
             </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E5E8EB] pt-3 text-hb-xs text-[#4E5968]">
-              <div className="flex items-center gap-1.5 font-bold text-[#191F28]">
-                <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#F05600]" />
-                <span>{STORE_NAVIGATION.parking}</span>
-              </div>
-              <div className="text-[#6B7684]">
-                <span>영업시간: {STORE_NAVIGATION.hours} ({STORE_NAVIGATION.closed})</span>
-              </div>
+            <div className="text-[#6B7684]">
+              <span>영업시간: {STORE_NAVIGATION.hours} ({STORE_NAVIGATION.closed})</span>
             </div>
           </div>
         </div>

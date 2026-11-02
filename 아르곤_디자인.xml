@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-11-02T09:28:56.909Z">
+<project name="hanbat-mall" generated_at="2026-11-02T09:38:36.040Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -22382,7 +22382,7 @@ export function V2VisualInspectionViewer({
 
 ]]>
     </file>
-    <file path="components/showroom/showroom-visit-modal.tsx" lines="327">
+    <file path="components/showroom/showroom-visit-modal.tsx" lines="303">
       <![CDATA[
 // 파일 경로: components/showroom/showroom-visit-modal.tsx
 "use client";
@@ -22657,38 +22657,14 @@ export function ShowroomVisitModal({
             </div>
           </div>
 
-          {/* 5. 1층 / 2층 쇼룸 층별 안내 & 주차 */}
-          <div className="rounded-xl border border-[#E5E8EB] bg-white p-4 space-y-3">
-            <span className="text-hb-xs font-bold text-[#6B7684]">
-              쇼룸 층별 안내 &amp; 방문 편의
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-hb-xs">
-              {STORE_NAVIGATION.floorGuide.map((f) => (
-                <div
-                  key={f.floor}
-                  className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-2.5"
-                >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="font-extrabold text-[#191F28] text-hb-sm">
-                      {f.floor} · {f.title}
-                    </span>
-                    <span className="rounded bg-white border border-[#E5E8EB] px-1.5 py-0.5 text-hb-xs font-semibold text-[#6B7684]">
-                      {f.badge}
-                    </span>
-                  </div>
-                  <p className="text-[#6B7684] leading-relaxed">{f.items}</p>
-                </div>
-              ))}
+          {/* 5. 매장 방문 편의 & 주차 안내 (실제 매장 배치와 다른 층별 구분 박스 제거) */}
+          <div className="rounded-2xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#4E5968]">
+            <div className="flex items-center gap-1.5 font-bold text-[#191F28]">
+              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#F05600]" />
+              <span>{STORE_NAVIGATION.parking}</span>
             </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-[#E5E8EB] pt-3 text-hb-xs text-[#4E5968]">
-              <div className="flex items-center gap-1.5 font-bold text-[#191F28]">
-                <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#F05600]" />
-                <span>{STORE_NAVIGATION.parking}</span>
-              </div>
-              <div className="text-[#6B7684]">
-                <span>영업시간: {STORE_NAVIGATION.hours} ({STORE_NAVIGATION.closed})</span>
-              </div>
+            <div className="text-[#6B7684]">
+              <span>영업시간: {STORE_NAVIGATION.hours} ({STORE_NAVIGATION.closed})</span>
             </div>
           </div>
         </div>
@@ -24827,7 +24803,7 @@ export async function validateServerImageFiles(
 
 ]]>
     </file>
-    <file path="lib/site.ts" lines="2082">
+    <file path="lib/site.ts" lines="2068">
       <![CDATA[
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
@@ -26217,20 +26193,6 @@ export const STORE_NAVIGATION = {
   parking: STORE.parking,
   hours: STORE.hours,
   closed: STORE.closed,
-  floorGuide: [
-    {
-      floor: "1층",
-      title: "가정용 대형·소형 가전 쇼룸",
-      items: "냉장고 · 김치냉장고 · 세탁기 · 건조기 · 전자레인지/밥솥",
-      badge: "가정용 중심",
-    },
-    {
-      floor: "2층",
-      title: "에어컨/냉난방기 & 업소용 주방설비",
-      items: "스탠드/벽걸이 에어컨 · 45박스/테이블 냉장고 · 제빙기 · 쇼케이스",
-      badge: "사업자·냉난방",
-    },
-  ],
 } as const;
 
 /**
