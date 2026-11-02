@@ -774,14 +774,14 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className={`fixed bottom-[calc(64px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
+        className={`fixed bottom-[calc(58px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
           expanded
-            ? "w-[calc(100vw-20px)] max-w-[410px] rounded-2xl"
-            : "w-auto max-w-[92vw] rounded-full"
+            ? "w-[calc(100vw-20px)] max-w-[400px] rounded-2xl"
+            : "w-auto max-w-[94vw] rounded-full"
         }`}
       >
         {expanded && (
-          <div className="border-b border-white/15 p-3.5 max-h-[270px] overflow-y-auto space-y-2 bg-[#191F28] rounded-t-2xl">
+          <div className="border-b border-white/15 p-3.5 max-h-[260px] overflow-y-auto space-y-2 bg-[#191F28] rounded-t-2xl">
             <div className="flex items-center justify-between text-hb-xs text-white/75 pb-1">
               <span className="font-semibold">
                 담아둔 관심 매물 ({items.length}종 · 총 {totalUnits}대)
@@ -895,18 +895,18 @@ export function QuoteBasketFloatingBar() {
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 px-3.5 py-2.5">
+        <div className="flex items-center justify-between gap-2 px-3 py-1.5">
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="flex min-w-0 items-center gap-2 text-left text-hb-sm font-bold text-white hover:text-[#FF8A50]"
+            className="flex min-w-0 items-center gap-1.5 text-left text-hb-xs sm:text-hb-sm font-semibold text-white hover:text-[#FF8A50]"
           >
-            <span className="inline-flex h-6 min-w-[24px] shrink-0 items-center justify-center rounded-full bg-[#F05600] px-1.5 text-hb-xs font-bold text-white tabular-nums">
+            <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#F05600] px-1.5 text-hb-xs font-bold text-white tabular-nums">
               {items.length}
             </span>
             <span className="truncate">
               견적함 ({totalUnits}대){" "}
-              <span className="text-hb-xs font-normal text-white/70">
+              <span className="hidden sm:inline text-hb-xs font-normal text-white/70">
                 {expanded ? "접기" : "수량·목록"}
               </span>
             </span>
@@ -920,7 +920,7 @@ export function QuoteBasketFloatingBar() {
                   trackEvent("compare_products", { count: items.length });
                   setCompareOpen(true);
                 }}
-                className="rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap"
+                className="rounded-full border border-white/25 bg-white/10 px-2.5 h-8 text-hb-xs font-semibold text-white hover:bg-white/20 whitespace-nowrap"
               >
                 비교({Math.min(3, items.length)})
               </button>
@@ -931,7 +931,7 @@ export function QuoteBasketFloatingBar() {
                 trackEvent("click_quote_basket_sms", { count: items.length });
               }}
               aria-label="문자전송 - 문자로 묶음 견적 문의"
-              className="hidden sm:inline-flex items-center justify-center rounded-lg border border-white/25 bg-white/10 px-2.5 h-9 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap"
+              className="hidden sm:inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 h-8 text-hb-xs font-semibold text-white hover:bg-white/20 whitespace-nowrap"
             >
               <span>문자전송</span>
             </a>
@@ -947,16 +947,15 @@ export function QuoteBasketFloatingBar() {
                 window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
               }}
               aria-label="카카오톡으로 묶음 견적 문의"
-              className="grid h-9 w-9 place-items-center rounded-lg bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] shrink-0"
+              className="grid h-8 w-8 place-items-center rounded-full bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] shrink-0"
             >
-              <Icon d={ICON.chat} className="w-4 h-4" />
+              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
             </button>
             <Link
               href="/inquiry?write=1&bundle=1"
-              className="hb-btn-accent h-9 px-3 text-hb-xs shrink-0 whitespace-nowrap"
+              className="hb-btn-accent h-8 px-3 text-hb-xs rounded-full shrink-0 whitespace-nowrap"
             >
-              <span>온라인 문의</span>
-              <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+              <span>견적 문의</span>
             </Link>
           </div>
         </div>
@@ -1087,25 +1086,22 @@ export function SiteFooter({
       <FloatingQuickWing />
       <QuickInquiryModal />
       <footer className="relative bg-[#191F28] text-white/80 mt-auto border-t border-[#242C38]">
-        <div className="hb-container py-12 sm:py-16">
-          <div className="grid gap-10 lg:grid-cols-12 pb-10 border-b border-white/10">
-            {/* 브랜드 및 직통 고객센터 영역 */}
-            <div className="lg:col-span-5 space-y-4">
+        <div className="hb-container py-10 sm:py-14">
+          <div className="grid gap-8 lg:grid-cols-12 pb-8 border-b border-white/10">
+            {/* 브랜드 및 직통 고객센터 영역 (타이포그래피 중심 절제형) */}
+            <div className="lg:col-span-5 space-y-3.5">
               <div className="flex items-center gap-3">
                 <HanbatBrandLogo dark size="compact" />
                 <span className="rounded bg-[#F05600]/20 border border-[#FF6F0F]/40 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
                   {STORE.since}년 개업
                 </span>
               </div>
-              <p className="max-w-md text-hb-sm leading-[1.7] text-white/75 break-keep">
-                가정용 중고가전(에어컨·냉난방기·냉장고·세탁기·건조기)부터 식당·카페 업소용 냉장·주방 설비까지 직접 분해·고압세척 및 작동 검수를 마친 정직한 상품만 출고합니다.
+              <p className="max-w-md text-hb-sm leading-[1.7] text-white/70 break-keep">
+                가정용 중고가전부터 식당·카페 업소용 설비까지 직접 분해·고압세척 및 시운전 작동 검수를 마친 정직한 매물만 출고합니다.
               </p>
 
-              <div className="rounded-xl border border-white/15 bg-white/[0.04] backdrop-blur-xs p-4 sm:p-5 max-w-md shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
-                <p className="text-hb-xs font-bold text-[#FF8A50]">
-                  고객상담 및 방문 매입 직통 센터
-                </p>
-                <div className="mt-1.5 flex flex-wrap items-baseline gap-x-4 gap-y-1 tabular-nums">
+              <div className="pt-2 text-hb-xs space-y-1">
+                <div className="flex flex-wrap items-baseline gap-3">
                   <a
                     href={telHref(STORE.tel)}
                     onClick={() =>
@@ -1113,7 +1109,7 @@ export function SiteFooter({
                         location: "site_footer",
                       })
                     }
-                    className="text-hb-xl font-bold text-white hover:text-[#FF8A50] transition-colors"
+                    className="text-hb-xl font-bold text-white hover:text-[#FF8A50] transition-colors tabular-nums"
                   >
                     {STORE.tel}
                   </a>
@@ -1124,26 +1120,26 @@ export function SiteFooter({
                         location: "site_footer_mobile",
                       })
                     }
-                    className="inline-flex min-h-6 items-center text-hb-sm font-semibold text-white/80 hover:text-white transition-colors"
+                    className="text-hb-sm font-semibold text-white/80 hover:text-white transition-colors tabular-nums"
                   >
                     직통 {STORE.mobile}
                   </a>
                 </div>
-                <p className="mt-1 text-hb-xs text-white/65">
-                  영업시간 {STORE.hours} · {STORE.closed} · 세금계산서 즉시 발행
+                <p className="text-white/55">
+                  영업시간 {STORE.hours} · {STORE.closed} · 세금계산서 발행
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <div className="flex flex-wrap items-center gap-2 pt-1">
                 <a
                   href={telHref(STORE.tel)}
                   onClick={() =>
                     trackEvent("click_tel_consult", { location: "site_footer" })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/15 px-3.5 py-2.5 text-hb-xs font-bold text-white transition-colors tabular-nums"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-white/10 hover:bg-white/15 px-3 py-1.5 text-hb-xs font-semibold text-white transition-colors tabular-nums"
                 >
                   <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                  전화 상담 연결
+                  전화 연결
                 </a>
                 <a
                   href={STORE.kakaoChat}
@@ -1154,10 +1150,10 @@ export function SiteFooter({
                       location: "site_footer",
                     })
                   }
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#FEE500] hover:bg-[#F2D900] px-3.5 py-2.5 text-hb-xs font-bold text-[#191600] transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#FEE500] hover:bg-[#F2D900] px-3 py-1.5 text-hb-xs font-semibold text-[#191600] transition-colors"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                  카카오톡 실시간 상담
+                  카톡 상담
                 </a>
               </div>
             </div>

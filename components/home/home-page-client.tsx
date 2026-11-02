@@ -1412,7 +1412,7 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [S8] 상담 연결 및 오프라인 직영 쇼룸 안내 (#inquiry-section + #location-section)
+            [S8] 오프라인 직영 쇼룸 및 실시간 상담 안내 (#inquiry-section + #location-section)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="inquiry-section"
@@ -1421,108 +1421,125 @@ export default function Home({
         >
           <div className="hb-container">
             <SectionHeading
-              eyebrow="상담 및 매장 위치"
-              title={<span id="cta-title">상담 연결 및 오프라인 매장 안내</span>}
-              desc="전화·카톡·문자로 바로 연결하시거나 대전 중촌동 직영 쇼룸에 방문해 실물을 확인하실 수 있습니다."
+              eyebrow="오프라인 매장 및 상담"
+              title={<span id="cta-title">오프라인 매장 오시는 길 및 실시간 문의</span>}
+              desc="대전 중촌동 매장에 방문해 실물을 직접 확인하시거나 전화·카톡·온라인 게시판으로 편하게 문의해 주세요."
             />
 
-            <div className="mt-8 grid gap-8 lg:grid-cols-12 items-stretch">
-              {/* 좌측 (5열): 직통 연락처 콘솔 + 최근 문의 현황 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col gap-6 justify-between">
-                <div className="rounded-2xl hb-dark-mesh p-6 text-white shadow-card">
-                  <span className="inline-block rounded bg-[#F05600] px-2.5 py-0.5 text-hb-xs font-bold text-white">
-                    직통 고객센터
-                  </span>
-                  <p className="mt-2.5 text-hb-sm text-white/80">
-                    구매·매입·업소용 견적 모두 빠르게 안내해 드립니다
-                  </p>
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="mt-2 block text-hb-2xl sm:text-hb-3xl font-bold tracking-tight text-white hover:text-[#FF8A50] tabular-nums"
-                  >
-                    {STORE.tel}
-                  </a>
-                  <a
-                    href={telHref(STORE.mobile)}
-                    className="mt-0.5 block text-hb-base font-semibold text-white/85 hover:text-[#FF8A50] tabular-nums"
-                  >
-                    직통 휴대전화: {STORE.mobile}
-                  </a>
-                  <p className="mt-2 text-hb-xs text-white/65">
-                    영업시간 {STORE.hours} · {STORE.closed}
-                  </p>
+            <div className="mt-8 grid gap-6 lg:grid-cols-12 items-stretch">
+              {/* 좌측 (7열): 오프라인 매장 지도 및 주소·편의시설 일체형 카드 (#location-section) */}
+              <div
+                id="location-section"
+                aria-labelledby="location-title"
+                className="lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white shadow-card"
+              >
+                <div className="relative h-[240px] sm:h-[280px] w-full bg-[#F2F4F6]">
+                  <iframe
+                    title="한밭중고전자 매장 위치 지도"
+                    src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 h-full w-full border-0"
+                    allowFullScreen
+                  />
+                </div>
 
-                  {/* 2×2 직통 액션 그리드 */}
-                  <div className="mt-5 grid grid-cols-2 gap-2.5">
-                    <a
-                      href={telHref(STORE.tel)}
-                      onClick={() =>
-                        trackEvent("click_tel_consult", {
-                          location: "inquiry_aside",
-                        })
-                      }
-                      className="hb-btn bg-white/10 hover:bg-white/20 text-white h-11 text-hb-sm"
-                    >
-                      <Icon
-                        d={ICON.phone}
-                        className="w-4 h-4 text-[#FF8A50]"
-                      />
-                      <span>전화 상담</span>
-                    </a>
-                    <a
-                      href={STORE.kakaoChat}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() =>
-                        trackEvent("click_kakao_consult", {
-                          location: "inquiry_aside",
-                        })
-                      }
-                      className="hb-btn-kakao h-11 text-hb-sm"
-                    >
-                      <Icon d={ICON.chat} className="w-4 h-4" />
-                      <span>카톡 상담</span>
-                    </a>
-                    <a
-                      href={smsHref(
-                        STORE.mobile,
-                        "[한밭중고전자 문의] 품목/지역/사진을 보내주시면 빠르게 견적을 안내해 드립니다."
-                      )}
-                      onClick={() =>
-                        trackEvent("click_sms_consult", {
-                          location: "inquiry_aside",
-                        })
-                      }
-                      className="hb-btn bg-white/10 hover:bg-white/20 text-white h-11 text-hb-sm"
-                    >
-                      <Icon d={ICON.chat} className="w-4 h-4 text-[#FF8A50]" />
-                      <span>문자 보내기</span>
-                    </a>
+                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between border-t border-[#E5E8EB] bg-white space-y-4">
+                  {/* 상단 주소 및 주소 복사 */}
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="text-hb-xs font-bold text-[#F05600]">
+                        대전 중촌동 오프라인 매장
+                      </span>
+                      <h3
+                        id="location-title"
+                        className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#191F28] break-keep"
+                      >
+                        {STORE.roadAddress}
+                      </h3>
+                      <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#4E5968]">
+                        지번: {STORE.jibunAddress} ({STORE.addressNote}) · 영업시간 {STORE.hours} ({STORE.closed})
+                      </p>
+                    </div>
+
                     <button
                       type="button"
-                      onClick={() => openInquiry("구매 문의")}
-                      className="hb-btn-accent h-11 text-hb-sm font-bold cursor-pointer"
+                      onClick={handleCopyAddress}
+                      className="hb-btn-outline h-9 px-3 text-hb-xs shrink-0 self-start"
                     >
-                      <Icon d={ICON.pen} className="w-4 h-4" />
-                      <span>견적 문의</span>
+                      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#F05600]" />
+                      <span>주소 복사</span>
                     </button>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between text-hb-xs">
-                    <span className="text-white/70">사진 첨부 및 게시판 작성</span>
-                    <Link
-                      href="/inquiry?write=1"
-                      className="font-bold text-[#FF8A50] hover:underline"
+                  {/* 쇼룸 방문 3대 핵심 안내 */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-3 border-t border-[#F2F4F6]">
+                    <div className="rounded-2xl bg-[#F9FAFB] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#191F28]">
+                        <DuotoneIcon d={ICON.pin} tone="orange" size="sm" />
+                        <span>전용 주차장 완비</span>
+                      </div>
+                      <p className="mt-1 text-[#6B7684] leading-relaxed">
+                        매장 정면 8대 주차 · 1톤 화물차 진입 수월
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-[#F9FAFB] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#191F28]">
+                        <DuotoneIcon d={ICON.wrench} tone="navy" size="sm" />
+                        <span>현장 실물 점검</span>
+                      </div>
+                      <p className="mt-1 text-[#6B7684] leading-relaxed">
+                        작동 상태 직접 확인 후 당일 상차·수령 가능
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl bg-[#F9FAFB] p-3 text-hb-xs">
+                      <div className="flex items-center gap-2 font-bold text-[#191F28]">
+                        <DuotoneIcon d={ICON.building} tone="emerald" size="sm" />
+                        <span>오시는 길 랜드마크</span>
+                      </div>
+                      <p className="mt-1 text-[#6B7684] leading-relaxed">
+                        중촌고가교 밑 대전천변 · 버스정류장 도보 2분
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 길찾기 및 전화 안내 버튼 */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-2">
+                    <a
+                      href={STORE.naverMap}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hb-btn bg-[#027A3B] text-white hover:bg-[#026A33] h-11 text-hb-xs sm:text-hb-sm font-bold"
                     >
-                      온라인 문의 글쓰기 →
-                    </Link>
+                      네이버 지도 길찾기
+                    </a>
+                    <a
+                      href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hb-btn-kakao h-11 text-hb-xs sm:text-hb-sm font-bold"
+                    >
+                      카카오맵 길찾기
+                    </a>
+                    <a
+                      href={telHref(STORE.tel)}
+                      className="hb-btn-outline h-11 text-hb-xs sm:text-hb-sm font-bold col-span-2 sm:col-span-1"
+                    >
+                      <Icon d={ICON.phone} className="w-4 h-4 text-[#F05600]" />
+                      <span>전화 길안내</span>
+                    </a>
                   </div>
                 </div>
+              </div>
 
-                {/* 최근 접수된 문의 현황 (경계선 리스트) */}
-                <div className="rounded-3xl border border-[#E5E8EB] bg-[#F9FAFB] p-5 sm:p-6 flex-1 flex flex-col justify-between">
+              {/* 우측 (5열): 실시간 접수 문의 현황 + 밝은 톤 빠른 상담 도크 */}
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-3xl bg-[#F2F4F6] p-5 sm:p-6 gap-5">
+                {/* 상단: 최근 접수된 문의 현황 */}
+                <div className="rounded-2xl bg-white p-5 flex-1 flex flex-col justify-between shadow-2xs">
                   <div>
-                    <div className="flex items-center justify-between pb-3 border-b border-[#E5E8EB]">
+                    <div className="flex items-center justify-between pb-3 border-b border-[#F2F4F6]">
                       <h3 className="text-hb-base font-bold text-[#191F28]">
                         최근 접수된 문의 현황
                       </h3>
@@ -1542,24 +1559,9 @@ export default function Home({
                         <p className="text-hb-xs text-[#6B7684] leading-relaxed break-keep">
                           가전 구매 재고 확인, 방문 매입 신청, 식당·카페 업소용 묶음 견적을 남겨주시면 담당자가 확인 후 신속히 안내해 드립니다.
                         </p>
-                        <div className="pt-1 flex flex-wrap items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => openInquiry("내 물건 팔기")}
-                            className="hb-btn-outline h-9 px-3 text-hb-xs"
-                          >
-                            <span>30초 간편 견적 접수</span>
-                          </button>
-                          <Link
-                            href="/inquiry"
-                            className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#191F28] hover:text-[#F05600] underline underline-offset-4 px-2"
-                          >
-                            <span>게시판 바로가기 →</span>
-                          </Link>
-                        </div>
                       </div>
                     ) : (
-                      <ul className="divide-y divide-[#E5E8EB]">
+                      <ul className="divide-y divide-[#F2F4F6]">
                         {recent.map((r) => {
                           const isDone =
                             r.status === "답변완료" || r.status === "처리완료";
@@ -1569,7 +1571,7 @@ export default function Home({
                               className="flex items-center justify-between gap-3 py-3 text-hb-sm"
                             >
                               <div className="flex min-w-0 flex-1 items-center gap-2">
-                                <span className="shrink-0 rounded bg-[#F9FAFB] border border-[#E5E8EB] px-2 py-0.5 text-hb-xs font-semibold text-[#191F28]">
+                                <span className="shrink-0 rounded-md bg-[#F2F4F6] px-2 py-0.5 text-hb-xs font-semibold text-[#191F28]">
                                   {getInquiryTypeLabel(r.inquiry_type)}
                                 </span>
                                 <Link
@@ -1584,7 +1586,7 @@ export default function Home({
                                   {r.masked_name || maskName(r.name)}
                                 </span>
                                 <span
-                                  className={`rounded px-1.5 py-0.5 text-hb-xs font-semibold ${
+                                  className={`rounded-md px-1.5 py-0.5 text-hb-xs font-semibold ${
                                     isDone
                                       ? "bg-emerald-50 text-emerald-700"
                                       : "bg-[#FFF4EE] text-[#F05600]"
@@ -1599,134 +1601,75 @@ export default function Home({
                       </ul>
                     )}
                   </div>
-                </div>
-              </div>
 
-              {/* 우측 (7열): 오프라인 매장 지도 및 주소 안내 (#location-section) */}
-              <div
-                id="location-section"
-                aria-labelledby="location-title"
-                className="lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white shadow-card"
-              >
-                <div className="relative h-[280px] sm:h-[340px] w-full bg-[#F2F4F6]">
-                  <iframe
-                    title="한밭중고전자 매장 위치 지도"
-                    src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="absolute inset-0 h-full w-full border-0"
-                    allowFullScreen
-                  />
+                  <div className="mt-3 pt-3 border-t border-[#F2F4F6] flex items-center justify-between text-hb-xs">
+                    <span className="text-[#6B7684]">사진 첨부 및 비공개 견적 글쓰기</span>
+                    <Link
+                      href="/inquiry?write=1"
+                      className="font-bold text-[#F05600] hover:underline"
+                    >
+                      온라인 문의 작성 →
+                    </Link>
+                  </div>
                 </div>
 
-                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between border-t border-[#E5E8EB] bg-white space-y-5">
-                  {/* 상단 주소 및 1·2층 직영 쇼룸 타이틀 */}
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="inline-block rounded bg-[#191F28] px-2 py-0.5 text-hb-xs font-bold text-white">
-                          오프라인 직영 쇼룸
-                        </span>
-                        <span className="text-hb-xs font-bold text-[#F05600]">
-                          1·2층 대형 매장
-                        </span>
-                      </div>
-                      <h3
-                        id="location-title"
-                        className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#191F28] break-keep"
+                {/* 하단: 화이트 톤 빠른 상담 연결 바 (다크 박스 제거·중복 최소화) */}
+                <div className="rounded-2xl bg-white p-5 shadow-2xs">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div>
+                      <span className="text-hb-xs font-bold text-[#F05600]">
+                        빠른 상담 연결
+                      </span>
+                      <a
+                        href={telHref(STORE.tel)}
+                        className="mt-0.5 block text-hb-xl font-bold text-[#191F28] hover:text-[#F05600] tabular-nums"
                       >
-                        {STORE.roadAddress}
-                      </h3>
-                      <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968]">
-                        지번: {STORE.jibunAddress} ({STORE.addressNote})
-                      </p>
+                        {STORE.tel}
+                      </a>
                     </div>
+                    <a
+                      href={telHref(STORE.mobile)}
+                      className="text-hb-xs font-semibold text-[#4E5968] hover:text-[#191F28] tabular-nums"
+                    >
+                      직통 휴대전화 {STORE.mobile}
+                    </a>
+                  </div>
 
+                  <div className="mt-3.5 grid grid-cols-3 gap-2">
+                    <a
+                      href={telHref(STORE.tel)}
+                      onClick={() =>
+                        trackEvent("click_tel_consult", {
+                          location: "inquiry_aside",
+                        })
+                      }
+                      className="hb-btn-outline h-10 px-2.5 text-hb-xs font-semibold"
+                    >
+                      <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#F05600]" />
+                      <span>전화 상담</span>
+                    </a>
+                    <a
+                      href={STORE.kakaoChat}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() =>
+                        trackEvent("click_kakao_consult", {
+                          location: "inquiry_aside",
+                        })
+                      }
+                      className="hb-btn-kakao h-10 px-2.5 text-hb-xs font-semibold"
+                    >
+                      <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                      <span>카톡 상담</span>
+                    </a>
                     <button
                       type="button"
-                      onClick={handleCopyAddress}
-                      className="hb-btn-outline h-9 px-3 text-hb-xs shrink-0 self-start"
+                      onClick={() => openInquiry("구매 문의")}
+                      className="hb-btn-accent h-10 px-2.5 text-hb-xs font-semibold cursor-pointer"
                     >
-                      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#F05600]" />
-                      <span>도로명 주소 복사</span>
+                      <Icon d={ICON.pen} className="w-3.5 h-3.5" />
+                      <span>견적 접수</span>
                     </button>
-                  </div>
-
-                  {/* 쇼룸 방문 특화 3대 편의 시설 안내 (DuotoneIcon 결합) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-4 border-t border-[#F2F4F6]">
-                    <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs">
-                      <div className="flex items-center gap-2 font-bold text-[#191F28]">
-                        <DuotoneIcon d={ICON.pin} tone="orange" size="sm" />
-                        <span>전용 주차장 완비</span>
-                      </div>
-                      <p className="mt-1.5 text-[#6B7684] leading-relaxed">
-                        매장 정면 8대 전용 주차 · 승용차 및 1톤 화물차 진입 수월
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs">
-                      <div className="flex items-center gap-2 font-bold text-[#191F28]">
-                        <DuotoneIcon d={ICON.wrench} tone="navy" size="sm" />
-                        <span>현장 실물 점검</span>
-                      </div>
-                      <p className="mt-1.5 text-[#6B7684] leading-relaxed">
-                        전원 인가 및 시운전 직접 확인 후 당일 상차·수령 가능
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs">
-                      <div className="flex items-center gap-2 font-bold text-[#191F28]">
-                        <DuotoneIcon d={ICON.building} tone="emerald" size="sm" />
-                        <span>오시는 길 랜드마크</span>
-                      </div>
-                      <p className="mt-1.5 text-[#6B7684] leading-relaxed">
-                        중촌고가교 바로 밑 대전천변 · 중촌동 버스정류장 도보 2분
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* 하단 영업 시간 정보 및 4대 원클릭 안내 버튼 */}
-                  <div className="pt-4 border-t border-[#F2F4F6] space-y-3">
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-[#191F28]">영업 시간:</span>
-                        <span className="font-semibold text-[#4E5968]">{STORE.hours}</span>
-                        <span className="text-[#8B95A1]" aria-hidden="true">|</span>
-                        <span className="text-[#6B7684]">{STORE.closed} (유선 협의 시 가능)</span>
-                      </div>
-                      <a
-                        href={telHref(STORE.tel)}
-                        className="font-bold text-[#F05600] hover:underline tabular-nums"
-                      >
-                        전화 안내: {STORE.tel}
-                      </a>
-                    </div>
-
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                      <a
-                        href={STORE.naverMap}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hb-btn bg-[#027A3B] text-white hover:bg-[#026A33] h-11 text-hb-xs sm:text-hb-sm font-bold"
-                      >
-                        네이버 지도 길찾기
-                      </a>
-                      <a
-                        href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hb-btn-kakao h-11 text-hb-xs sm:text-hb-sm font-bold"
-                      >
-                        카카오맵 길찾기
-                      </a>
-                      <a
-                        href={telHref(STORE.tel)}
-                        className="hb-btn-outline h-11 text-hb-xs sm:text-hb-sm font-bold col-span-2 sm:col-span-1"
-                      >
-                        <Icon d={ICON.phone} className="w-4 h-4 text-[#F05600]" />
-                        <span>전화 길안내</span>
-                      </a>
-                    </div>
                   </div>
                 </div>
               </div>

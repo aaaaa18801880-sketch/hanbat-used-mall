@@ -1977,18 +1977,18 @@ export default function GalleryPage() {
         )}
       </SiteHeader>
 
-      {/* 상단 쇼룸 컴팩트 다크 네이비 헤더 (타이틀 + 실시간 재고 지표 + 통합 검색바) */}
+      {/* 상단 쇼룸 컴팩트 헤더 (타이틀 + 실시간 재고 지표 + 통합 검색바) */}
       <section className="bg-white border-b border-[#F2F4F6]">
-        <div className="hb-container py-5 sm:py-7">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div className="hb-container py-3.5 sm:py-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#F05600]">
                 <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5">
-                  LIVE SHOWROOM CATALOG
+                  LIVE CATALOG
                 </span>
                 <span className="text-[#D1D6DB]" aria-hidden="true">·</span>
                 <span className="text-[#4E5968]">
-                  대전 중촌동 1·2층 직영 매장 실매물
+                  대전 중촌동 직영 매장 실매물
                 </span>
                 {!isLoading && (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8FAF0] px-2.5 py-0.5 text-hb-xs font-bold text-[#00A85D] tabular-nums">
@@ -1997,17 +1997,17 @@ export default function GalleryPage() {
                   </span>
                 )}
               </div>
-              <div className="mt-2 flex flex-wrap items-baseline gap-3">
-                <h1 className="text-hb-xl sm:text-hb-2xl font-bold text-[#191F28] tracking-[-0.028em]">
+              <div className="mt-1 flex flex-wrap items-baseline gap-2.5">
+                <h1 className="text-hb-lg sm:text-hb-xl font-bold text-[#191F28] tracking-[-0.028em]">
                   판매 제품 갤러리
                 </h1>
-                <p className="hidden sm:inline text-hb-xs sm:text-hb-sm text-[#6B7684] truncate">
-                  분해 세척과 작동 검수를 마친 실매물입니다. 가격은 전화·카톡으로 문의해 주세요. 미등록 재고도 확인해 드립니다.
+                <p className="hidden sm:inline text-hb-xs text-[#6B7684] truncate">
+                  분해 세척·작동 검수 완료 실매물 · 가격 및 미등록 재고 문의 환영
                 </p>
               </div>
             </div>
 
-            {/* 통합 검색창 + 모바일 상세필터 토글 (토스 스타일 소프트 인풋) */}
+            {/* 통합 검색창 + 모바일 상세필터 토글 */}
             <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
               <div className="relative flex-1 lg:w-80">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B95A1] pointer-events-none">
@@ -2022,7 +2022,7 @@ export default function GalleryPage() {
                   }}
                   placeholder="제품명·모델명·규격 검색 (예: 45박스, 스탠드)"
                   aria-label="제품명 또는 모델명 검색"
-                  className="w-full h-11 pl-10 pr-8 rounded-2xl border border-transparent bg-[#F2F4F6] text-hb-xs sm:text-hb-sm font-medium text-[#191F28] placeholder:text-[#8B95A1] focus:border-[#191F28] focus:bg-white focus:outline-none transition-all"
+                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-transparent bg-[#F2F4F6] text-hb-xs sm:text-hb-sm font-medium text-[#191F28] placeholder:text-[#8B95A1] focus:border-[#191F28] focus:bg-white focus:outline-none transition-all"
                 />
                 {search.trim() !== "" && (
                   <button
@@ -2043,7 +2043,7 @@ export default function GalleryPage() {
                 type="button"
                 onClick={() => setMobileFilterOpen((v) => !v)}
                 aria-expanded={mobileFilterOpen}
-                className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-lg border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-xl border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
                   (hasPricedProducts && priceRange !== "all") ||
