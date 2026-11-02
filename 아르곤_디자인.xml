@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-11-02T09:38:36.040Z">
+<project name="hanbat-mall" generated_at="2026-11-02T09:41:05.640Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -12684,7 +12684,7 @@ export function useGalleryInitialProducts(): ProductItem[] | null {
 
 ]]>
     </file>
-    <file path="components/home/ai-recommendation-guide-section.tsx" lines="237">
+    <file path="components/home/ai-recommendation-guide-section.tsx" lines="263">
       <![CDATA[
 import React from "react";
 import Link from "next/link";
@@ -12761,86 +12761,112 @@ export function AiRecommendationGuideSection() {
       className="border-b border-[#E5E8EB] bg-[#F9FAFB] py-14 sm:py-20"
     >
       <div className="hb-container space-y-12">
-        {/* 1. 개인 직거래 vs 한밭중고전자 비교 테이블 (토스/애플 클린 매트릭스) */}
+        {/* 1. 개인 직거래 vs 한밭중고전자 비교 (좌우 분리형 대조 카드 — 서로 연결되는 표 느낌 탈피) */}
         <div>
           <SectionHeading
-            eyebrow="직영 쇼룸 안심 비교"
+            eyebrow="구매 전 안심 비교"
             title={
               <span id="buying-guide-title">
-                일반 개인 중고거래 vs {STORE.name} 직영 매장 비교
+                일반 개인 중고거래 vs {STORE.name} 비교
               </span>
             }
             desc={
               <>
                 중고가전과 업소용 설비는 구매 가격만큼이나 &lsquo;내부 세척&rsquo;, &lsquo;운반·설치&rsquo;, &lsquo;사후 A/S 보증&rsquo;이 중요합니다.
-                <br className="hidden sm:inline" /> 구매 전 아래 5가지 비교 기준을 꼭 확인해 보세요.
+                <br className="hidden sm:inline" /> 구매 전 아래 5가지 핵심 차이점을 확인해 보세요.
               </>
             }
           />
 
-          <div className="mt-7 overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white shadow-card">
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-hb-xs sm:text-hb-sm">
-                <thead>
-                  <tr className="border-b border-[#E5E8EB] bg-[#F2F4F6]/80 text-[#191F28]">
-                    <th
-                      scope="col"
-                      className="py-4 px-5 sm:px-6 font-extrabold w-[24%] min-w-[130px] text-[#4E5968]"
-                    >
-                      비교 항목
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-4 px-5 sm:px-6 font-semibold text-[#6B7684] w-[34%] min-w-[200px]"
-                    >
-                      <span className="inline-block px-2 py-0.5 rounded-full bg-[#E5E8EB] text-[#4E5968] text-hb-xs mb-1 font-bold">
-                        위험 · 주의
-                      </span>
-                      <p>일반 개인간 중고거래 (직거래 앱 등)</p>
-                    </th>
-                    <th
-                      scope="col"
-                      className="py-4 px-5 sm:px-6 font-extrabold text-white bg-[#191F28] w-[42%] min-w-[240px]"
-                    >
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#FF6F0F] px-2.5 py-0.5 text-hb-xs font-extrabold text-white tracking-wide">
-                          <Icon d={ICON.shieldCheck} className="w-3 h-3 text-white" />
-                          직영 품질 보증
-                        </span>
-                      </div>
-                      <p className="text-white text-hb-sm">
-                        {STORE.name} (SINCE {STORE.since} 직영 쇼룸)
-                      </p>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#F2F4F6]">
+          <div className="mt-7 grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7 items-stretch">
+            {/* 좌측 카드: 개인 중고 직거래 (주의·리스크 톤) */}
+            <div className="flex flex-col justify-between rounded-3xl border border-[#E5E8EB] bg-[#F9FAFB] p-6 sm:p-7 shadow-2xs">
+              <div>
+                <div className="flex items-center justify-between gap-2 pb-4 border-b border-[#E5E8EB]">
+                  <div>
+                    <span className="inline-block rounded-full bg-[#E5E8EB] px-2.5 py-0.5 text-hb-xs font-bold text-[#6B7684]">
+                      주의 · 확인 필요
+                    </span>
+                    <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-extrabold text-[#4E5968]">
+                      일반 개인 중고 직거래
+                    </h3>
+                  </div>
+                  <span className="text-hb-xs font-bold text-[#8B95A1]">
+                    개인간 거래 앱
+                  </span>
+                </div>
+
+                <ul className="mt-5 space-y-3">
                   {COMPARISON_ROWS.map((row) => (
-                    <tr
+                    <li
                       key={row.criteria}
-                      className="hover:bg-[#F9FAFB] transition-colors"
+                      className="rounded-2xl border border-[#E5E8EB]/70 bg-white/80 p-4 text-hb-xs sm:text-hb-sm"
                     >
-                      <th
-                        scope="row"
-                        className="py-4 px-5 sm:px-6 font-bold text-[#191F28]"
-                      >
+                      <span className="font-extrabold text-[#6B7684] block mb-1">
                         {row.criteria}
-                      </th>
-                      <td className="py-4 px-5 sm:px-6 text-[#6B7684] leading-relaxed">
-                        {row.personal}
-                      </td>
-                      <td className="py-4 px-5 sm:px-6 font-bold text-[#191F28] bg-[#FFF4EE]/45 leading-relaxed">
-                        <span className="inline-flex items-center gap-2 text-[#191F28]">
-                          <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#FFF4EE] text-[#FF6F0F]">
-                            <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                          </span>
-                          <span>{row.hanbat}</span>
+                      </span>
+                      <div className="flex items-start gap-2 text-[#4E5968] leading-relaxed">
+                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#F2F4F6] text-[#8B95A1] mt-0.5">
+                          <Icon d={ICON.close} className="w-3 h-3 text-[#8B95A1]" />
                         </span>
-                      </td>
-                    </tr>
+                        <span>{row.personal}</span>
+                      </div>
+                    </li>
                   ))}
-                </tbody>
-              </table>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-[#E5E8EB] flex items-center justify-between text-hb-xs text-[#8B95A1]">
+                <span>고장 및 설치 문제 발생 시 구매자 전액 부담</span>
+              </div>
+            </div>
+
+            {/* 우측 카드: 한밭중고전자 (공식 품질 보증 하이라이트 카드 — 입체적 분리) */}
+            <div className="flex flex-col justify-between rounded-3xl border-2 border-[#191F28] bg-white p-6 sm:p-7 shadow-card-hover relative ring-4 ring-[#191F28]/5">
+              <div>
+                <div className="flex items-center justify-between gap-2 pb-4 border-b border-[#F2F4F6]">
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FFF4EE] px-3 py-0.5 text-hb-xs font-extrabold text-[#F05600]">
+                      <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#F05600]" />
+                      <span>공식 품질 보증</span>
+                    </span>
+                    <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-extrabold text-[#191F28]">
+                      {STORE.name} (SINCE {STORE.since})
+                    </h3>
+                  </div>
+                  <span className="text-hb-xs font-extrabold text-[#00A85D] bg-[#E8FAF0] px-2.5 py-0.5 rounded-full">
+                    원스톱 책임 출고
+                  </span>
+                </div>
+
+                <ul className="mt-5 space-y-3">
+                  {COMPARISON_ROWS.map((row) => (
+                    <li
+                      key={row.criteria}
+                      className="rounded-2xl border border-[#FF6F0F]/20 bg-[#FFF4EE]/35 p-4 text-hb-xs sm:text-hb-sm"
+                    >
+                      <span className="font-extrabold text-[#191F28] block mb-1">
+                        {row.criteria}
+                      </span>
+                      <div className="flex items-start gap-2 text-[#191F28] font-bold leading-relaxed">
+                        <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#00C471] text-white mt-0.5">
+                          <Icon d={ICON.check} className="w-3 h-3 text-white" />
+                        </span>
+                        <span>{row.hanbat}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-[#F2F4F6] flex items-center justify-between text-hb-xs">
+                <span className="font-bold text-[#F05600]">
+                  세척 · 시운전 검수필 · 무상 A/S 보증서 발급
+                </span>
+                <span className="text-[#6B7684]">
+                  카드 · 현금영수증 · 세금계산서 100%
+                </span>
+              </div>
             </div>
           </div>
         </div>
