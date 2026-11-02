@@ -270,8 +270,8 @@ export function ProductCard({
         aria-hidden="true"
       />
 
-      {/* 1. 쿨 화이트 스튜디오 조명 백드롭 & 사진 프레임 */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden hb-studio-backdrop">
+      {/* 1. 쿨 화이트 스튜디오 조명 백드롭 & 1:1 정방형 사진 프레임 (세로형 가전 상하단 잘림 방지) */}
+      <div className="relative aspect-square w-full overflow-hidden hb-studio-backdrop">
         <SafeImg
           src={images[0]}
           alt={product.title}

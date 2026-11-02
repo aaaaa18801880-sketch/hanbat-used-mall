@@ -5,7 +5,6 @@ import React from "react";
 import Link from "next/link";
 import {
   trackEvent,
-  triggerQuickInquiry,
   type InquiryTypeValue,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
@@ -121,43 +120,11 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
 ];
 
-const ACTION_BENTO_ITEMS: ReadonlyArray<{
-  label: string;
-  sub: string;
-  icon: ModernIconType;
-  inquiryType?: InquiryTypeValue;
-  scrollTarget?: string;
-}> = [
-  {
-    label: "가전 방문매입",
-    sub: "당일 수거·현금 입금",
-    icon: "sell",
-    inquiryType: "내 물건 팔기",
-  },
-  {
-    label: "식당·카페 폐업정리",
-    sub: "주방설비 일괄 매입·철거",
-    icon: "closure",
-    inquiryType: "대량·업소용 상담",
-  },
-  {
-    label: "창업 패키지 상담",
-    sub: "업종별 맞춤 설비 견적",
-    icon: "startup",
-    inquiryType: "대량·업소용 상담",
-  },
-  {
-    label: "출고·설치 사례",
-    sub: "실제 현장 납품 기록",
-    icon: "shield",
-    scrollTarget: "reviews-section",
-  },
-];
-
 export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
   categoryCounts,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   onSelectInquiry,
 }: {
   selectedKey?: PictogramKey;
@@ -179,25 +146,6 @@ export function CategoryPictogramBar({
           .getElementById("featured-products-section")
           ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       }
-    }
-  };
-
-  const handleActionClick = (action: (typeof ACTION_BENTO_ITEMS)[number]) => {
-    if (action.inquiryType) {
-      trackEvent("begin_buyback_inquiry", {
-        location: "category_pictogram_bar",
-      });
-      if (onSelectInquiry) {
-        onSelectInquiry(action.inquiryType);
-      } else {
-        triggerQuickInquiry({ type: action.inquiryType });
-      }
-      return;
-    }
-    if (action.scrollTarget && typeof document !== "undefined") {
-      document
-        .getElementById(action.scrollTarget)
-        ?.scrollIntoView({ behavior: "smooth" });
     }
   };
 
@@ -325,39 +273,6 @@ export function CategoryPictogramBar({
                 );
               })}
             </div>
-          </div>
-
-          {/* 2단: 토스 스타일 소프트 서피스 퀵 액션 스트립 */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-            {ACTION_BENTO_ITEMS.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                onClick={() => handleActionClick(item)}
-                className="group flex items-center justify-between gap-2.5 py-3 px-4 rounded-2xl bg-[#F9FAFB] border border-[#E5E8EB]/80 hover:bg-white hover:border-[#D1D6DB] hover:shadow-card transition-all cursor-pointer text-left"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <ModernApplianceIcon
-                    name={item.icon}
-                    className="w-6 h-6 shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#191F28] group-hover:text-[#F05600] transition-colors truncate">
-                      {item.label}
-                    </span>
-                    <span className="hidden sm:block text-hb-xs text-[#6B7684] truncate">
-                      {item.sub}
-                    </span>
-                  </div>
-                </div>
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#8B95A1] shadow-2xs group-hover:bg-[#FFF4EE] group-hover:text-[#FF6F0F] transition-colors">
-                  <Icon
-                    d={ICON.right}
-                    className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform"
-                  />
-                </span>
-              </button>
-            ))}
           </div>
         </div>
       </div>

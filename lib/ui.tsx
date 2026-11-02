@@ -295,15 +295,15 @@ export function SectionHeading({
     <div className={className}>
       {eyebrow && (
         <p
-          className={`mb-2.5 inline-flex items-center rounded-full px-3 py-1 text-hb-xs font-bold tracking-[-0.01em] ${
-            dark ? "bg-white/10 text-[#FF8A50]" : "bg-[#FFF4EE] text-[#F05600]"
+          className={`mb-1.5 text-hb-xs sm:text-hb-sm font-bold ${
+            dark ? "text-[#FF8A50]" : "text-[#F05600]"
           }`}
         >
           {eyebrow}
         </p>
       )}
       <h2
-        className={`mt-2 text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] tracking-[-0.024em] break-keep ${
+        className={`text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] break-keep ${
           dark ? "text-white" : "text-[#191F28]"
         }`}
       >

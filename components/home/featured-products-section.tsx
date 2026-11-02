@@ -282,7 +282,7 @@ export function FeaturedProductsSection({
                 key={idx}
                 className="overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white animate-pulse"
               >
-                <div className="aspect-[4/3] bg-[#F2F4F6]" />
+                <div className="aspect-square bg-[#F2F4F6]" />
                 <div className="p-4 space-y-3">
                   <div className="h-3 w-1/3 rounded-full bg-[#F2F4F6]" />
                   <div className="h-5 w-4/5 rounded-lg bg-[#F2F4F6]" />

@@ -167,7 +167,7 @@ body {
   }
 
   .hb-eyebrow {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-[#FFF4EE] px-2.5 py-0.5 text-hb-xs font-bold tracking-[-0.01em] text-[#F05600];
+    @apply inline-block text-hb-xs sm:text-hb-sm font-bold text-[#F05600];
   }
 
   .hb-chip {

@@ -612,65 +612,34 @@ export default function Home({
         <section
           id="hero-section"
           aria-labelledby="hero-title"
-          className="relative w-full border-b border-[#E5E8EB] hb-ambient-hero hb-arch-grid"
+          className="relative w-full border-b border-[#E5E8EB] hb-ambient-hero"
         >
-          {/* 상단 직영 쇼룸 상태 스트립 */}
-          <div className="border-b border-[#191F28]/20 bg-[#191F28] text-white">
-            <div className="hb-container py-2 flex flex-wrap items-center justify-between gap-2 text-hb-xs">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF8A50] opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF8A50]" />
-                </span>
-                <span className="font-bold text-white truncate">
-                  SINCE {STORE.since} · 대전 중촌동 1·2층 직영 쇼룸 ({OPERATING_YEARS}년 운영)
-                </span>
-                {sellingCount > 0 && (
-                  <span className="inline-flex sm:hidden items-center rounded-full bg-white/10 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50] tabular-nums">
-                    실매물 {sellingCount}대
-                  </span>
-                )}
-              </div>
-              <div className="hidden sm:flex items-center gap-4 text-white/80 tabular-nums">
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon d={ICON.clock} className="w-3.5 h-3.5 text-white/60" />
-                  <span>영업시간: {STORE.hours}</span>
-                </span>
-                <span className="text-white/40">·</span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon d={ICON.building} className="w-3.5 h-3.5 text-white/60" />
-                  <span>매장 앞 전용 주차 완비</span>
-                </span>
-                <span className="text-white/40">·</span>
-                <strong className="inline-flex items-center gap-1 text-[#FF8A50]">
-                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                  <span>현재 구매 가능 실매물 {sellingCount > 0 ? `${sellingCount}대` : "상시"} 전시</span>
-                </strong>
-              </div>
-            </div>
-          </div>
-
           <div className="hb-container py-8 sm:py-12 lg:py-14">
             <div className="grid items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
               {/* 좌측 (7열): 쇼룸 에디토리얼 헤드라인 + 듀얼 액션 독 + 3대 출고 원칙 레저 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#FF6F0F]/25 bg-[#FFF4EE]/90 px-3.5 py-1 text-hb-xs font-bold text-[#F05600] shadow-2xs">
+                  <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#FF6F0F]/20 bg-[#FFF4EE]/90 px-3.5 py-1 text-hb-xs font-bold text-[#F05600]">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#F05600] animate-pulse" />
-                    <span className="tracking-wide">대전 직영 플래그십 쇼룸 · 오프라인 실물 매장</span>
+                    <span>SINCE {STORE.since} ({OPERATING_YEARS}년 운영) · 대전 중촌동 직영 매장</span>
+                    {sellingCount > 0 && (
+                      <span className="text-[#191F28] tabular-nums">
+                        · 실매물 {sellingCount}대 전시
+                      </span>
+                    )}
                   </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-3.5 hb-fluid-h1 text-[#191F28] tracking-tight break-keep font-bold"
+                    className="mt-4 hb-fluid-h1 text-[#191F28] tracking-tight break-keep font-bold"
                   >
-                    가정용 가전부터 업소용 주방설비까지,{" "}
-                    <br className="hidden sm:inline" />
-                    <span className="text-[#F05600]">분해 고압세척·시운전 검수</span>를 마친 실매물만 출고합니다
+                    <span className="text-[#F05600]">분해 고압세척과 시운전</span>을 마친
+                    <br />
+                    검증된 중고가전 · 업소용 설비
                   </h1>
 
-                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#4E5968] break-keep">
-                    대전 중구 중촌동 1·2층 직영 쇼룸 상시 개방 · 전 품목 성능 점검필 및 안심 무상 A/S 보증
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.68] text-[#4E5968] break-keep">
+                    가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후 무상 A/S 보증과 함께 출고합니다.
                   </p>
 
                   {/* 듀얼 핵심 행동 독 (선명한 2-Track CTA 버튼 그룹) */}
@@ -841,7 +810,7 @@ export default function Home({
                             href={`/${item.id}`}
                             className="group relative block min-w-0 rounded-2xl bg-white p-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-card transition-all duration-200"
                           >
-                            <div className="relative aspect-[4/3] w-full rounded-xl overflow-hidden hb-studio-backdrop">
+                            <div className="relative aspect-square w-full rounded-xl overflow-hidden hb-studio-backdrop">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}
