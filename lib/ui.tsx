@@ -973,7 +973,7 @@ export function QuoteBasketFloatingBar() {
 }
 
 /* ════════════════════════════════════════════════════════════
-   6-2. 우측 슬림 아이콘 독 (FloatingQuickWing — 1440px+ 전용 64px 독)
+   6-2. 우측 슬림 아이콘 독 (FloatingQuickWing — 1280px+ 랩탑/데스크톱 퀵 독)
    ════════════════════════════════════════════════════════════ */
 export function FloatingQuickWing() {
   const [basketCount, setBasketCount] = useState(0);
@@ -1006,9 +1006,9 @@ export function FloatingQuickWing() {
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-5 top-1/2 -translate-y-1/2 z-40 hidden min-[1440px]:flex flex-col items-center select-none"
+      className="fixed right-2.5 2xl:right-5 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col items-center select-none"
     >
-      <div className="w-[58px] rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)] p-1.5 flex flex-col items-center gap-1">
+      <div className="w-[54px] 2xl:w-[58px] rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)] p-1.5 flex flex-col items-center gap-1">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>

@@ -28,7 +28,6 @@ export interface ShowroomCategoryItem {
   label: string;
   subLabel: string;
   icon: ModernIconType;
-  imageSrc: string;
   href: string;
   filterCategory: string;
   filterKeyword?: string;
@@ -41,7 +40,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "전체 실매물",
     subLabel: "전 품목 보기",
     icon: "all",
-    imageSrc: "/illustrations/picto-fridge.jpg",
     href: "/gallery",
     filterCategory: "전체",
     group: "all",
@@ -51,7 +49,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "에어컨·냉난방",
     subLabel: "벽걸이·스탠드·천장형",
     icon: "aircon",
-    imageSrc: "/illustrations/picto-aircon.jpg",
     href: "/gallery?category=%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     filterCategory: "에어컨/냉난방기",
     group: "home",
@@ -61,7 +58,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "냉장고·김치냉장",
     subLabel: "양문형·4도어·일반",
     icon: "fridge",
-    imageSrc: "/illustrations/picto-fridge.jpg",
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
     filterCategory: "냉장고",
     group: "home",
@@ -71,7 +67,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "세탁기·건조기",
     subLabel: "드럼·통돌이·워시타워",
     icon: "washer",
-    imageSrc: "/illustrations/picto-washer.jpg",
     href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
     filterCategory: "세탁기/건조기",
     group: "home",
@@ -81,7 +76,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "TV·소형가전",
     subLabel: "TV·전자레인지·기타",
     icon: "small",
-    imageSrc: "/illustrations/picto-small.jpg",
     href: "/gallery?category=%EA%B8%B0%ED%83%80",
     filterCategory: "기타",
     group: "home",
@@ -91,7 +85,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "업소용 냉장고",
     subLabel: "25·45박스·테이블냉장",
     icon: "biz-fridge",
-    imageSrc: "/illustrations/picto-biz-fridge.jpg",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
     filterCategory: "업소용기기",
     filterKeyword: "냉장",
@@ -102,7 +95,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "음료·주류 쇼케이스",
     subLabel: "음료·주류·제과",
     icon: "showcase",
-    imageSrc: "/illustrations/picto-showcase.jpg",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
     filterCategory: "업소용기기",
     filterKeyword: "쇼케이스",
@@ -113,7 +105,6 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "제빙기·주방설비",
     subLabel: "제빙기·세척기·작업대",
     icon: "kitchen",
-    imageSrc: "/illustrations/picto-kitchen.jpg",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
     filterCategory: "업소용기기",
     group: "biz",

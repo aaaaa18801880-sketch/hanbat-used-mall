@@ -1088,7 +1088,7 @@ export default function IntegratedAdminDashboard() {
 
   if (authChecking) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#FAF9F7] text-hb-sm font-semibold text-[#4B5260]">
+      <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] text-hb-sm font-semibold text-[#4B5260]">
         관리자 권한을 확인하고 있습니다...
       </main>
     );
@@ -1096,8 +1096,8 @@ export default function IntegratedAdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#FAF9F7] p-4 font-sans">
-        <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E2DC] w-full max-w-sm">
+      <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-4 font-sans">
+        <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E8EB] w-full max-w-sm">
           <div className="text-center mb-6">
             <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
               Admin Console
@@ -1140,7 +1140,7 @@ export default function IntegratedAdminDashboard() {
               {loggingIn ? "인증 확인 중..." : "관리자 로그인"}
             </button>
           </form>
-          <div className="mt-5 pt-4 border-t border-[#EEEBE5] text-center">
+          <div className="mt-5 pt-4 border-t border-[#E5E8EB] text-center">
             <Link
               href="/"
               className="text-hb-xs font-semibold text-[#6B7280] hover:text-[#0E1A2B] underline underline-offset-4"
@@ -1154,7 +1154,7 @@ export default function IntegratedAdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#1F2530] pb-20">
+    <div className="min-h-screen bg-[#F9FAFB] font-sans text-[#1F2530] pb-20">
       {/* 상단 관리자 헤더 */}
       <header className="sticky top-0 z-40 bg-[#0E1A2B] text-white border-b border-white/10 shadow-md">
         <div className="hb-container py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-3">
@@ -1247,7 +1247,7 @@ export default function IntegratedAdminDashboard() {
                 onClick={() => setActiveTab(t.id)}
                 className={`px-3.5 sm:px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
                   active
-                    ? "bg-[#FAF9F7] text-[#0E1A2B]"
+                    ? "bg-[#F9FAFB] text-[#0E1A2B]"
                     : "text-white/75 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -1302,7 +1302,7 @@ export default function IntegratedAdminDashboard() {
               setActiveTab("inquiries");
               setInqStatusFilter("전체");
             }}
-            className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E5E8EB] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
             <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               전체 문의 · 매입 신청
@@ -1318,7 +1318,7 @@ export default function IntegratedAdminDashboard() {
           <button
             type="button"
             onClick={() => setActiveTab("products")}
-            className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E5E8EB] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
             <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               현재 판매중 / 예약중 재고
@@ -1334,7 +1334,7 @@ export default function IntegratedAdminDashboard() {
           <button
             type="button"
             onClick={() => setActiveTab("delivery")}
-            className="text-left rounded-xl border border-[#E5E2DC] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E5E8EB] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
           >
             <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               판매완료 / 배송사례
@@ -1350,8 +1350,8 @@ export default function IntegratedAdminDashboard() {
 
         {/* 2. 탭별 본문: OVERVIEW 또는 INQUIRIES */}
         {(activeTab === "overview" || activeTab === "inquiries") && (
-          <section className="rounded-xl border border-[#E5E2DC] bg-white p-4 sm:p-6 shadow-2xs space-y-5">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E5E2DC] pb-4">
+          <section className="rounded-xl border border-[#E5E8EB] bg-white p-4 sm:p-6 shadow-2xs space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E5E8EB] pb-4">
               <div>
                 <h2 className="text-hb-lg sm:text-hb-lg font-extrabold text-[#0E1A2B]">
                   고객 문의 및 매입 신청 통합 관리
@@ -1365,7 +1365,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqStatusFilter}
                   onChange={(e) => setInqStatusFilter(e.target.value)}
-                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]"
+                  className="h-9 rounded border border-[#E5E8EB] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]"
                 >
                   <option value="priority">미처리 신규(접수·검토중)만</option>
                   <option value="전체">전체 상태 보기</option>
@@ -1380,7 +1380,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqTypeFilter}
                   onChange={(e) => setInqTypeFilter(e.target.value)}
-                  className="h-9 rounded border border-[#DDD9D1] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#4B5260]"
+                  className="h-9 rounded border border-[#E5E8EB] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#4B5260]"
                 >
                   <option value="전체">모든 문의 유형</option>
                   <option value="내 물건 팔기">내 물건 팔기 (매입)</option>
@@ -1394,7 +1394,7 @@ export default function IntegratedAdminDashboard() {
                   value={inqKeyword}
                   onChange={(e) => setInqKeyword(e.target.value)}
                   placeholder="고객명·연락처·제목 검색"
-                  className="h-9 flex-1 sm:flex-none rounded border border-[#DDD9D1] px-3 text-hb-xs sm:text-hb-sm"
+                  className="h-9 flex-1 sm:flex-none rounded border border-[#E5E8EB] px-3 text-hb-xs sm:text-hb-sm"
                 />
               </div>
             </div>
@@ -1416,7 +1416,7 @@ export default function IntegratedAdminDashboard() {
                       className={`rounded-xl border p-4 sm:p-5 transition-colors ${
                         isPriority
                           ? "border-[#D9531E]/50 bg-[#FFFDFB] shadow-2xs"
-                          : "border-[#E5E2DC] bg-white"
+                          : "border-[#E5E8EB] bg-white"
                       }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
@@ -1504,7 +1504,7 @@ export default function IntegratedAdminDashboard() {
                                 type="button"
                                 disabled={busyActionId === `notify-telegram-${req.id}`}
                                 onClick={() => handleManualNotificationDispatch("telegram", req)}
-                                className="h-9 rounded border border-[#0E1A2B]/30 bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B] hover:bg-[#FAF9F7]"
+                                className="h-9 rounded border border-[#0E1A2B]/30 bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B] hover:bg-[#F9FAFB]"
                                 title="텔레그램 알림 수동 재전송"
                               >
                                 텔레그램
@@ -1540,7 +1540,7 @@ export default function IntegratedAdminDashboard() {
                           );
                           if (!parsed.isStructured) {
                             return (
-                              <div className="mt-3 rounded bg-[#FAF9F7] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                              <div className="mt-3 rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E5E8EB]">
                                 {req.description}
                               </div>
                             );
@@ -1573,7 +1573,7 @@ export default function IntegratedAdminDashboard() {
                                     </dl>
                                   )}
                                   {parsed.bulkItems.length > 0 && (
-                                    <div className="pt-1.5 border-t border-[#E4E0D8]">
+                                    <div className="pt-1.5 border-t border-[#E5E8EB]">
                                       <span className="text-hb-xs font-bold text-[#B5431A] block mb-1">
                                         요청 장비 및 희망 수량 목록
                                       </span>
@@ -1581,7 +1581,7 @@ export default function IntegratedAdminDashboard() {
                                         {parsed.bulkItems.map((it, idx) => (
                                           <li
                                             key={idx}
-                                            className="bg-white px-2.5 py-1 rounded border border-[#E4E0D8]"
+                                            className="bg-white px-2.5 py-1 rounded border border-[#E5E8EB]"
                                           >
                                             • {it}
                                           </li>
@@ -1593,7 +1593,7 @@ export default function IntegratedAdminDashboard() {
                               )}
 
                               {parsed.customerContent && (
-                                <div className="rounded bg-[#FAF9F7] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#EEEBE5]">
+                                <div className="rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E5E8EB]">
                                   <span className="block text-hb-xs font-bold text-[#6B7280] mb-1">
                                     고객 작성 본문
                                   </span>
@@ -1632,7 +1632,7 @@ export default function IntegratedAdminDashboard() {
                               href={url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="h-16 w-16 overflow-hidden rounded border border-[#DDD9D1] bg-[#EFECE6]"
+                              className="h-16 w-16 overflow-hidden rounded border border-[#E5E8EB] bg-[#EFECE6]"
                               title="클릭하여 원본 사진 보기"
                             >
                               <SafeImg
@@ -1655,7 +1655,7 @@ export default function IntegratedAdminDashboard() {
                       )}
 
                       {activeReplyId === req.id && (
-                        <div className="mt-3 space-y-2 border-t border-[#EEEBE5] pt-3">
+                        <div className="mt-3 space-y-2 border-t border-[#E5E8EB] pt-3">
                           <div className="flex flex-wrap items-center gap-1.5">
                             <span className="text-hb-xs font-bold text-[#6B7280] mr-1">
                               빠른 답변 템플릿:
@@ -1665,7 +1665,7 @@ export default function IntegratedAdminDashboard() {
                                 key={tpl.label}
                                 type="button"
                                 onClick={() => setReplyDraft(tpl.text)}
-                                className="rounded border border-[#DDD9D1] bg-[#FAF9F7] px-2.5 py-1 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                                className="rounded border border-[#E5E8EB] bg-[#F9FAFB] px-2.5 py-1 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
                               >
                                 + {tpl.label}
                               </button>
@@ -1715,7 +1715,7 @@ export default function IntegratedAdminDashboard() {
         {/* 3. 탭별 본문: PRODUCTS (AI 상품 등록·수정 및 재고 상태 관리) */}
         {activeTab === "products" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
+            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <div className="flex items-center justify-between">
                 <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                   {editingProductId ? "상품 정보 수정" : "신규 상품 등록 (AI 보조)"}
@@ -1747,7 +1747,7 @@ export default function IntegratedAdminDashboard() {
                       {editingExistingImages.map((imgUrl, idx) => (
                         <div
                           key={imgUrl + idx}
-                          className="relative aspect-square rounded border border-[#DDD9D1] overflow-hidden bg-[#EFECE6]"
+                          className="relative aspect-square rounded border border-[#E5E8EB] overflow-hidden bg-[#EFECE6]"
                         >
                           <SafeImg
                             src={imgUrl}
@@ -1795,7 +1795,7 @@ export default function IntegratedAdminDashboard() {
                   <label className="hb-label">
                     {editingProductId ? "추가할 상품 사진" : "상품 사진 (최대 3장)"}
                   </label>
-                  <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E4E0D8] bg-[#FAF9F7] p-2.5 text-hb-xs">
+                  <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E5E8EB] bg-[#F9FAFB] p-2.5 text-hb-xs">
                     <label className="flex items-center gap-2 font-semibold text-[#0E1A2B] cursor-pointer">
                       <input
                         type="checkbox"
@@ -1841,7 +1841,7 @@ export default function IntegratedAdminDashboard() {
                       {prodPreviews.map((src, index) => (
                         <div
                           key={src}
-                          className="flex flex-col overflow-hidden rounded border border-[#DDD9D1] bg-[#FAF9F7]"
+                          className="flex flex-col overflow-hidden rounded border border-[#E5E8EB] bg-[#F9FAFB]"
                         >
                           <div className="relative aspect-square bg-[#EFECE6]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1895,7 +1895,7 @@ export default function IntegratedAdminDashboard() {
                               <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-hb-xs font-bold text-[#4B5260]">
+                          <div className="grid grid-cols-2 divide-x divide-[#E5E8EB] border-t border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#4B5260]">
                             <button
                               type="button"
                               disabled={index === 0}
@@ -1923,7 +1923,7 @@ export default function IntegratedAdminDashboard() {
                 {(aiPhotoObserved.length > 0 ||
                   aiSearchSpecs.length > 0 ||
                   aiWarnings.length > 0) && (
-                  <div className="rounded border border-[#E4E0D8] bg-[#FAF9F7] p-3 text-hb-xs space-y-2">
+                  <div className="rounded border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs space-y-2">
                     {aiPhotoObserved.length > 0 && (
                       <div>
                         <strong className="text-[#0E1A2B]">
@@ -2097,8 +2097,8 @@ export default function IntegratedAdminDashboard() {
             </section>
 
             {/* 우측: 등록된 상품 목록 및 명시적 상태 변경 */}
-            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-3">
+            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E8EB] pb-3">
                 <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                   재고 목록 ({filteredProducts.length}건)
                 </h2>
@@ -2106,7 +2106,7 @@ export default function IntegratedAdminDashboard() {
                   <select
                     value={prodCategoryFilter}
                     onChange={(e) => setProdCategoryFilter(e.target.value)}
-                    className="h-9 rounded border border-[#DDD9D1] px-2 text-hb-xs"
+                    className="h-9 rounded border border-[#E5E8EB] px-2 text-hb-xs"
                   >
                     <option value="전체">전체 카테고리</option>
                     {PRODUCT_CATEGORIES.map((c) => (
@@ -2118,7 +2118,7 @@ export default function IntegratedAdminDashboard() {
                   <select
                     value={prodStatusFilter}
                     onChange={(e) => setProdStatusFilter(e.target.value)}
-                    className="h-9 rounded border border-[#DDD9D1] px-2 text-hb-xs"
+                    className="h-9 rounded border border-[#E5E8EB] px-2 text-hb-xs"
                   >
                     <option value="전체">전체 상태</option>
                     {PRODUCT_STATUS_LIST.map((s) => (
@@ -2135,7 +2135,7 @@ export default function IntegratedAdminDashboard() {
                     value={prodKeyword}
                     onChange={(e) => setProdKeyword(e.target.value)}
                     placeholder="상품명·사양 검색"
-                    className="h-9 rounded border border-[#DDD9D1] px-2.5 text-hb-xs"
+                    className="h-9 rounded border border-[#E5E8EB] px-2.5 text-hb-xs"
                   />
                 </div>
               </div>
@@ -2184,10 +2184,10 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={product.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#E5E2DC] p-3 hover:border-[#0E1A2B]/40 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#E5E8EB] p-3 hover:border-[#0E1A2B]/40 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#FAF9F7] border border-[#E5E2DC]">
+                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#F9FAFB] border border-[#E5E8EB]">
                           <SafeImg
                             src={imgs[0]}
                             alt={product.title}
@@ -2245,7 +2245,7 @@ export default function IntegratedAdminDashboard() {
                               e.target.value
                             )
                           }
-                          className="h-9 rounded border border-[#DDD9D1] bg-white px-2 text-hb-xs font-bold text-[#0E1A2B]"
+                          className="h-9 rounded border border-[#E5E8EB] bg-white px-2 text-hb-xs font-bold text-[#0E1A2B]"
                         >
                           {PRODUCT_STATUS_LIST.map((s) => (
                             <option key={s} value={s}>
@@ -2256,7 +2256,7 @@ export default function IntegratedAdminDashboard() {
                         <button
                           type="button"
                           onClick={() => startEditProduct(product)}
-                          className="h-9 rounded border border-[#DDD9D1] bg-[#FAF9F7] px-3 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                          className="h-9 rounded border border-[#E5E8EB] bg-[#F9FAFB] px-3 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
                         >
                           편집
                         </button>
@@ -2280,7 +2280,7 @@ export default function IntegratedAdminDashboard() {
         {/* 4. 탭별 본문: DELIVERY */}
         {activeTab === "delivery" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
+            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 배송·설치 현장 사례 등록 (AI 제목 보조)
               </h2>
@@ -2302,7 +2302,7 @@ export default function IntegratedAdminDashboard() {
                 </div>
 
                 {(delivObserved.length > 0 || delivReviewNotes.length > 0) && (
-                  <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-3 text-hb-xs space-y-1.5">
+                  <div className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs space-y-1.5">
                     {delivObserved.length > 0 && (
                       <p>
                         <strong>판독된 요소:</strong>{" "}
@@ -2341,7 +2341,7 @@ export default function IntegratedAdminDashboard() {
               </form>
             </section>
 
-            <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
+            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
               <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 등록된 배송·설치 사례 ({deliveryCases.length}건)
               </h2>
@@ -2351,7 +2351,7 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 rounded-lg border border-[#E5E2DC] p-3"
+                      className="flex items-center gap-3 rounded-lg border border-[#E5E8EB] p-3"
                     >
                       <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#EFECE6]">
                         <SafeImg
@@ -2387,7 +2387,7 @@ export default function IntegratedAdminDashboard() {
 
         {/* 5. 탭별 본문: NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <section className="rounded-xl border border-[#E5E2DC] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
+          <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
             <div>
               <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
                 외부 알림(Telegram / 알림톡) 발송 상태 관리 및 재시도
@@ -2402,8 +2402,8 @@ export default function IntegratedAdminDashboard() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-hb-sm border-t border-[#E5E2DC]">
-                <thead className="bg-[#FAF9F7] text-[#6B7280] border-b border-[#E5E2DC]">
+              <table className="w-full text-left text-hb-sm border-t border-[#E5E8EB]">
+                <thead className="bg-[#F9FAFB] text-[#6B7280] border-b border-[#E5E8EB]">
                   <tr>
                     <th className="py-3 px-4">접수일시 / 고객명</th>
                     <th className="py-3 px-4">구분 / 제목</th>
@@ -2412,7 +2412,7 @@ export default function IntegratedAdminDashboard() {
                     <th className="py-3 px-4 text-right">수동 발송 / 재시도</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#EEEBE5]">
+                <tbody className="divide-y divide-[#E5E8EB]">
                   {inquiries
                     .filter((i) => !i.is_notice)
                     .slice(0, 15)
@@ -2490,7 +2490,7 @@ export default function IntegratedAdminDashboard() {
                               onClick={() =>
                                 handleManualNotificationDispatch("alimtalk", inq)
                               }
-                              className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4B5260] hover:bg-[#FAF9F7] disabled:opacity-50"
+                              className="rounded border border-[#E5E8EB] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4B5260] hover:bg-[#F9FAFB] disabled:opacity-50"
                             >
                               알림톡 상태 점검
                             </button>

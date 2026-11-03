@@ -338,8 +338,12 @@ export function FeaturedProductsSection({
         ) : (
           <>
             <div className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch">
-              {displayedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {displayedProducts.map((product, idx) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  eager={idx < 2}
+                />
               ))}
             </div>
 

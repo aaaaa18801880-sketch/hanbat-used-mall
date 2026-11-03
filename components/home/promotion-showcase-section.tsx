@@ -194,9 +194,9 @@ export function PromotionShowcaseSection() {
           </div>
         </div>
 
-        {/* 3열 그리드 카드 리스트 (쿠쿠몰 스타일) */}
-        <div className="mt-8 sm:mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 items-stretch">
-          {filteredItems.map((item) => {
+        {/* 모바일: 부드러운 수평 스냅 캐러셀 (Snap Scroll) / 태블릿·데스크톱: 2~3열 와이드 그리드 */}
+        <div className="mt-8 sm:mt-10 flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:gap-6 sm:overflow-visible sm:pb-0 items-stretch no-scrollbar">
+          {filteredItems.map((item, idx) => {
             const badgeBg =
               item.badgeTone === "orange"
                 ? "bg-[#F05600] text-white"
@@ -216,13 +216,14 @@ export function PromotionShowcaseSection() {
                     title: item.title,
                   })
                 }
-                className="group flex flex-col rounded-3xl border border-[#E5E8EB] bg-white overflow-hidden shadow-card hover:shadow-card-hover hover:border-[#D1D6DB] hover:-translate-y-1 transition-all duration-200"
+                className="group flex flex-col w-[84vw] max-w-[340px] shrink-0 snap-center sm:w-auto sm:max-w-none rounded-3xl border border-[#E5E8EB] bg-white overflow-hidden shadow-card hover:shadow-card-hover hover:border-[#D1D6DB] hover:-translate-y-1 transition-all duration-200"
               >
                 {/* 상단 이미지 아트워크 영역 */}
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#F2F4F6]">
                   <SafeImg
                     src={item.imageSrc}
                     alt={item.title}
+                    eager={idx === 0}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
@@ -276,6 +277,13 @@ export function PromotionShowcaseSection() {
               </Link>
             );
           })}
+        </div>
+
+        {/* 모바일 전용 스와이프 안내 힌트 */}
+        <div className="mt-3 flex sm:hidden items-center justify-center gap-1.5 text-hb-xs font-semibold text-[#8B95A1] select-none">
+          <Icon d={ICON.left} className="w-3 h-3 text-[#B0B8C1]" />
+          <span>좌우로 넘겨서 기획전 둘러보기</span>
+          <Icon d={ICON.right} className="w-3 h-3 text-[#B0B8C1]" />
         </div>
       </div>
     </section>

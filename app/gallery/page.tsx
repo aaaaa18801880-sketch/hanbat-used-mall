@@ -454,7 +454,7 @@ function ProductDetailModal({
               {!isEditing && (
                 <CopyPromoPostButton
                   product={product}
-                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#DDD9D1] bg-[#F9FAFB] px-2.5 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
+                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#E5E8EB] bg-[#F9FAFB] px-2.5 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
                 />
               )}
               {isAdmin && !isEditing && (
@@ -462,7 +462,7 @@ function ProductDetailModal({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#191F28] bg-[#F6F5F2] hover:bg-[#EFECE6] border border-[#DDD9D1] px-2.5 py-1.5 rounded transition-colors"
+                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#191F28] bg-[#F2F4F6] hover:bg-[#E5E8EB] border border-[#E5E8EB] px-2.5 py-1.5 rounded transition-colors"
                   >
                     <EditIcon /> 수정
                   </button>
@@ -594,9 +594,9 @@ function ProductDetailModal({
                       {editExistingImages.map((imgUrl, i) => (
                         <div
                           key={imgUrl + i}
-                          className="relative flex flex-col overflow-hidden rounded border border-[#DDD9D1] bg-[#F9FAFB]"
+                          className="relative flex flex-col overflow-hidden rounded border border-[#E5E8EB] bg-[#F9FAFB]"
                         >
-                          <div className="relative aspect-square w-full bg-[#EFECE6]">
+                          <div className="relative aspect-square w-full bg-[#F2F4F6]">
                             <SafeImg
                               src={imgUrl}
                               alt={`기존 사진 ${i + 1}`}
@@ -624,12 +624,12 @@ function ProductDetailModal({
                               <Icon d={ICON.close} className="w-3 h-3" />
                             </button>
                           </div>
-                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8] border-t border-[#E4E0D8] bg-white text-hb-xs font-bold text-[#4B5260]">
+                          <div className="grid grid-cols-2 divide-x divide-[#E5E8EB] border-t border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#4E5968]">
                             <button
                               type="button"
                               disabled={i === 0}
                               onClick={() => moveExistingImage(i, i - 1)}
-                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                              className="py-1 hover:bg-[#F2F4F6] disabled:opacity-30"
                             >
                               ← 앞으로
                             </button>
@@ -637,7 +637,7 @@ function ProductDetailModal({
                               type="button"
                               disabled={i === editExistingImages.length - 1}
                               onClick={() => moveExistingImage(i, i + 1)}
-                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                              className="py-1 hover:bg-[#F2F4F6] disabled:opacity-30"
                             >
                               뒤로 →
                             </button>
@@ -811,7 +811,7 @@ function ProductDetailModal({
                         판매 가격
                       </span>
                       {sold ? (
-                        <p className="text-hb-2xl font-bold text-[#8A8478]">
+                        <p className="text-hb-2xl font-bold text-[#8B95A1]">
                           판매완료
                         </p>
                       ) : hasProductPrice(product.price) ? (
@@ -836,7 +836,7 @@ function ProductDetailModal({
                       </span>
                       <Link
                         href={`/${product.id}`}
-                        className="rounded border border-[#DDD9D1] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
+                        className="rounded border border-[#E5E8EB] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
                       >
                         개별 상세페이지 →
                       </Link>
@@ -877,7 +877,7 @@ function ProductDetailModal({
           </div>
 
           {/* 모달 하단 액션 바 (전화 / 문자 / 카톡 / 온라인 문의) */}
-          <div className="p-4 border-t border-[#E4E0D8] bg-white shrink-0">
+          <div className="p-4 border-t border-[#E5E8EB] bg-white shrink-0">
             {isEditing ? (
               <div className="grid grid-cols-2 gap-2.5">
                 <button
@@ -2070,13 +2070,14 @@ export default function GalleryPage() {
         <div className="hb-container py-2 sm:py-2.5 flex flex-col gap-2">
           {/* 1행: 좌측 품목 탭 + 우측 데스크톱 인라인 필터 */}
           <div className="flex items-center justify-between gap-3">
-            <div
-              className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-2"
-              role="tablist"
-              aria-label="상품 카테고리 필터"
-            >
-              {CATEGORIES_WITH_ALL.map((cat) => {
-                const active = activeCategory === cat;
+            <div className="relative min-w-0 flex-1">
+              <div
+                className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-6 sm:pr-2"
+                role="tablist"
+                aria-label="상품 카테고리 필터"
+              >
+                {CATEGORIES_WITH_ALL.map((cat) => {
+                  const active = activeCategory === cat;
                 return (
                   <button
                     key={cat}
@@ -2104,6 +2105,12 @@ export default function GalleryPage() {
                   </button>
                 );
               })}
+              </div>
+              {/* 모바일 가로 스크롤 우측 페이드 힌트 마스크 */}
+              <div
+                className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/95 to-transparent sm:hidden"
+                aria-hidden="true"
+              />
             </div>
 
             {/* 데스크톱 우측 인라인 필터 */}
@@ -2182,48 +2189,55 @@ export default function GalleryPage() {
           {/* 확장 행: 상황별 프리셋 4종 + 모바일 필터 3종 (토글 열림 시 노출) */}
           {mobileFilterOpen && (
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-2 border-t border-[#F2F4F6]">
-              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none text-hb-xs">
-                <span className="shrink-0 font-bold text-[#6B7684] mr-1">
-                  상황별 프리셋:
-                </span>
-                {SITUATION_PRESETS.map((preset) => {
-                  const active =
-                    activeCategory === preset.category &&
-                    (!preset.keyword || search === preset.keyword);
-                  const presetIcon =
-                    preset.label === "원룸·자취필수"
-                      ? ICON.building
-                      : preset.label === "카페·디저트창업"
-                      ? ICON.sparkles
-                      : preset.label === "식당·주방설비"
-                      ? ICON.layers
-                      : ICON.snowflake;
-                  return (
-                    <button
-                      key={preset.label}
-                      type="button"
-                      onClick={() => {
-                        setActiveCategory(preset.category);
-                        setSearch(preset.keyword);
-                        setVisibleLimit(PAGE_STEP);
-                        trackEvent("click_situation_preset", {
-                          preset: preset.label,
-                          category: preset.category,
-                          keyword: preset.keyword,
-                        });
-                      }}
-                      className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
-                        active
-                          ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] font-bold"
-                          : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
-                      }`}
-                      title={preset.desc}
-                    >
-                      <Icon d={presetIcon} className="w-3.5 h-3.5" />
-                      <span>{preset.label}</span>
-                    </button>
-                  );
-                })}
+              <div className="relative min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-6 sm:pr-0 text-hb-xs">
+                  <span className="shrink-0 font-bold text-[#6B7684] mr-1">
+                    상황별 프리셋:
+                  </span>
+                  {SITUATION_PRESETS.map((preset) => {
+                    const active =
+                      activeCategory === preset.category &&
+                      (!preset.keyword || search === preset.keyword);
+                    const presetIcon =
+                      preset.label === "원룸·자취필수"
+                        ? ICON.building
+                        : preset.label === "카페·디저트창업"
+                        ? ICON.sparkles
+                        : preset.label === "식당·주방설비"
+                        ? ICON.layers
+                        : ICON.snowflake;
+                    return (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() => {
+                          setActiveCategory(preset.category);
+                          setSearch(preset.keyword);
+                          setVisibleLimit(PAGE_STEP);
+                          trackEvent("click_situation_preset", {
+                            preset: preset.label,
+                            category: preset.category,
+                            keyword: preset.keyword,
+                          });
+                        }}
+                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
+                          active
+                            ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] font-bold"
+                            : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
+                        }`}
+                        title={preset.desc}
+                      >
+                        <Icon d={presetIcon} className="w-3.5 h-3.5" />
+                        <span>{preset.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* 모바일 가로 스크롤 우측 페이드 힌트 마스크 */}
+                <div
+                  className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/95 to-transparent sm:hidden"
+                  aria-hidden="true"
+                />
               </div>
 
               <div className="grid grid-cols-3 lg:hidden gap-1.5">
@@ -2375,19 +2389,19 @@ export default function GalleryPage() {
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={`sk-${idx}`}
-                className="bg-white rounded-xl overflow-hidden border border-[#E6E3DC] animate-pulse"
+                className="bg-white rounded-xl overflow-hidden border border-[#E5E8EB] animate-pulse"
               >
-                <div className="aspect-[4/3] bg-[#EFECE6]" />
+                <div className="aspect-[4/3] bg-[#F2F4F6]" />
                 <div className="p-4 space-y-3">
-                  <div className="h-3 bg-[#EFECE6] rounded w-1/3" />
-                  <div className="h-5 bg-[#EFECE6] rounded w-4/5" />
-                  <div className="h-6 bg-[#EFECE6] rounded w-1/2 mt-4" />
+                  <div className="h-3 bg-[#F2F4F6] rounded w-1/3" />
+                  <div className="h-5 bg-[#F2F4F6] rounded w-4/5" />
+                  <div className="h-6 bg-[#F2F4F6] rounded w-1/2 mt-4" />
                 </div>
               </div>
             ))}
           </div>
         ) : loadError ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC]">
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E5E8EB]">
             <p className="text-[#191F28] text-hb-lg font-bold">
               상품 목록을 불러오지 못했습니다.
             </p>
@@ -2403,7 +2417,7 @@ export default function GalleryPage() {
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E6E3DC] shadow-2xs">
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E5E8EB] shadow-2xs">
             <p className="text-[#191F28] text-hb-lg font-bold">
               {search.trim()
                 ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
@@ -2461,10 +2475,11 @@ export default function GalleryPage() {
           <>
             <h2 className="sr-only">판매 제품 목록</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
-              {displayedProducts.map((product) => (
+              {displayedProducts.map((product, idx) => (
                 <ProductCard
                   key={product.id}
                   product={product}
+                  eager={idx < 2}
                   onSelect={isSelectMode ? handleProductClick : undefined}
                   onQuickView={handleProductClick}
                   isSelectMode={isSelectMode}
@@ -2493,7 +2508,7 @@ export default function GalleryPage() {
         )}
 
         {/* 미등록 매장 재고 및 맞춤 사양 문의 배너 */}
-        <div className="mt-12 rounded-xl border border-[#E6E3DC] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
+        <div className="mt-12 rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
           <div>
             <span className="hb-eyebrow">미등록 매장 재고 문의</span>
             <h2 className="mt-1.5 text-hb-lg font-bold text-[#191F28]">
@@ -2623,8 +2638,8 @@ export default function GalleryPage() {
           label="판매 상품 등록"
           panelClassName="max-w-lg"
         >
-          <div className="bg-white w-full max-h-[92vh] flex flex-col rounded-lg shadow-2xl border border-[#E4E0D8] overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E4E0D8] bg-white shrink-0 z-10">
+          <div className="bg-white w-full max-h-[92vh] flex flex-col rounded-lg shadow-2xl border border-[#E5E8EB] overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E8EB] bg-white shrink-0 z-10">
               <div className="flex items-center gap-2.5">
                 <h2 className="text-hb-lg font-bold text-[#191F28]">
                   판매 상품 등록
@@ -2706,9 +2721,9 @@ export default function GalleryPage() {
                     {productPreviews.map((preview, index) => (
                       <div
                         key={preview}
-                        className="flex flex-col overflow-hidden rounded border border-[#DDD9D1] bg-[#F9FAFB]"
+                        className="flex flex-col overflow-hidden rounded border border-[#E5E8EB] bg-[#F9FAFB]"
                       >
-                        <div className="relative aspect-square bg-[#EFECE6]">
+                        <div className="relative aspect-square bg-[#F2F4F6]">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={preview}
@@ -2759,22 +2774,22 @@ export default function GalleryPage() {
                             <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <div className="border-t border-[#E4E0D8] bg-white text-hb-xs font-bold text-[#4B5260]">
+                        <div className="border-t border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#4E5968]">
                           <button
                             type="button"
                             onClick={() => rotateUploadFile(index, 90)}
-                            className="w-full py-1.5 flex items-center justify-center gap-1.5 text-[#191F28] hover:text-[#F05600] hover:bg-[#FFF4EE] border-b border-[#E4E0D8] transition-colors"
+                            className="w-full py-1.5 flex items-center justify-center gap-1.5 text-[#191F28] hover:text-[#F05600] hover:bg-[#FFF4EE] border-b border-[#E5E8EB] transition-colors"
                             title="사진을 시계 방향으로 90도 회전합니다"
                           >
                             <Icon d={ICON.rotate} className="w-3.5 h-3.5 text-[#F05600]" />
                             <span>90° 회전</span>
                           </button>
-                          <div className="grid grid-cols-2 divide-x divide-[#E4E0D8]">
+                          <div className="grid grid-cols-2 divide-x divide-[#E5E8EB]">
                             <button
                               type="button"
                               disabled={index === 0}
                               onClick={() => moveUploadFile(index, index - 1)}
-                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                              className="py-1 hover:bg-[#F2F4F6] disabled:opacity-30"
                             >
                               ← 앞으로
                             </button>
@@ -2782,7 +2797,7 @@ export default function GalleryPage() {
                               type="button"
                               disabled={index === productPreviews.length - 1}
                               onClick={() => moveUploadFile(index, index + 1)}
-                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                              className="py-1 hover:bg-[#F2F4F6] disabled:opacity-30"
                             >
                               뒤로 →
                             </button>
@@ -2798,13 +2813,13 @@ export default function GalleryPage() {
               {(photoObserved.length > 0 ||
                 searchDerivedSpecs.length > 0 ||
                 reviewWarnings.length > 0) && (
-                <div className="space-y-2.5 rounded-md border border-[#E4E0D8] bg-[#F9FAFB] p-3.5 text-hb-xs">
+                <div className="space-y-2.5 rounded-md border border-[#E5E8EB] bg-[#F9FAFB] p-3.5 text-hb-xs">
                   {photoObserved.length > 0 && (
                     <div>
                       <p className="font-bold text-[#191F28]">
                         사진에서 직접 판독된 정보
                       </p>
-                      <ul className="mt-1 list-disc pl-4 text-[#4B5260] space-y-0.5">
+                      <ul className="mt-1 list-disc pl-4 text-[#4E5968] space-y-0.5">
                         {photoObserved.map((item, i) => (
                           <li key={i}>{item}</li>
                         ))}
@@ -2813,7 +2828,7 @@ export default function GalleryPage() {
                   )}
 
                   {searchDerivedSpecs.length > 0 && (
-                    <div className="pt-2 border-t border-[#E4E0D8]">
+                    <div className="pt-2 border-t border-[#E5E8EB]">
                       <div className="flex items-center justify-between">
                         <p className="font-bold text-[#191F28]">
                           인터넷 검색으로 보충된 참고 사양
@@ -2972,7 +2987,7 @@ export default function GalleryPage() {
             {/* 스크롤 본문 끝 */}
 
               {/* 하단 고정 액션 바: 스크롤 없이 즉시 클릭 가능 */}
-              <div className="p-4 sm:px-6 border-t border-[#E4E0D8] bg-[#F9FAFB] shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-10">
+              <div className="p-4 sm:px-6 border-t border-[#E5E8EB] bg-[#F9FAFB] shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] z-10">
                 <div className="flex gap-2.5">
                   <button
                     type="button"
@@ -3020,7 +3035,7 @@ export default function GalleryPage() {
         >
           <form
             onSubmit={handleAdminAuth}
-            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E4E0D8]"
+            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E5E8EB]"
           >
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-hb-lg font-bold text-[#191F28]">

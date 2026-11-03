@@ -135,6 +135,7 @@ export function ProductCard({
   isSelected = false,
   isAdmin = false,
   onDelete,
+  eager = false,
 }: {
   product: ProductItem;
   onSelect?: (product: ProductItem) => void;
@@ -143,6 +144,7 @@ export function ProductCard({
   isSelected?: boolean;
   isAdmin?: boolean;
   onDelete?: (id: string) => void;
+  eager?: boolean;
 }) {
   const images = splitImages(product.image_url);
   const sold = isProductSold(product.status);
@@ -275,6 +277,7 @@ export function ProductCard({
         <SafeImg
           src={images[0]}
           alt={product.title}
+          eager={eager}
           className={`h-full w-full object-cover transition-transform duration-500 group-hover:scale-105 ${
             sold ? "grayscale opacity-65" : ""
           }`}

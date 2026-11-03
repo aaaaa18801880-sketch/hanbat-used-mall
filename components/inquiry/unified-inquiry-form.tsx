@@ -798,7 +798,7 @@ export function UnifiedInquiryForm({
       <div
         role="status"
         aria-live="polite"
-        className="rounded-md border border-[#E4E0D8] bg-[#F9FAFB] p-6 sm:p-8 text-center"
+        className="rounded-md border border-[#E5E8EB] bg-[#F9FAFB] p-6 sm:p-8 text-center"
       >
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#191F28] text-white">
           <Icon d={ICON.check} className="h-6 w-6 text-[#FF8A50]" />
@@ -808,12 +808,12 @@ export function UnifiedInquiryForm({
             ? "매입 견적 신청이 정상 접수되었습니다."
             : "상담 문의가 정상 접수되었습니다."}
         </h3>
-        <p className="mt-2 text-hb-sm leading-relaxed text-[#4B5260]">
+        <p className="mt-2 text-hb-sm leading-relaxed text-[#4E5968]">
           남겨주신 내용은 담당자가 확인 후 연락드립니다. 설정하신 비밀번호로{" "}
           <strong className="text-[#191F28]">문의게시판</strong>에서 진행 상태와 답변을 언제든 조회하실 수 있습니다.
         </p>
 
-        <div className="mt-5 rounded border border-[#E4E0D8] bg-white p-4 text-left text-hb-sm text-[#4B5260] max-w-md mx-auto space-y-1">
+        <div className="mt-5 rounded border border-[#E5E8EB] bg-white p-4 text-left text-hb-sm text-[#4E5968] max-w-md mx-auto space-y-1">
           <p>
             • 접수 구분:{" "}
             <strong className="text-[#191F28]">{inquiryType}</strong>
@@ -823,7 +823,7 @@ export function UnifiedInquiryForm({
             <strong className="text-[#191F28]">{title}</strong>
           </p>
           {createdInquiryId && (
-            <p className="text-hb-xs text-[#8A8478]">
+            <p className="text-hb-xs text-[#8B95A1]">
               • 접수 번호: #{String(createdInquiryId).slice(0, 8)}
             </p>
           )}
@@ -1007,7 +1007,7 @@ export function UnifiedInquiryForm({
               return (
                 <li
                   key={item.id}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#DDD9D1] bg-white px-2.5 py-1 text-hb-sm"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-white px-2.5 py-1 text-hb-sm"
                 >
                   <span className="font-bold text-[#191F28]">
                     {item.title}
@@ -1050,7 +1050,7 @@ export function UnifiedInquiryForm({
                       }
                     }}
                     aria-label={`${item.title} 제외`}
-                    className="text-[#8A8478] hover:text-red-600 font-bold px-1"
+                    className="text-[#8B95A1] hover:text-red-600 font-bold px-1"
                   >
                     ×
                   </button>
@@ -1218,7 +1218,7 @@ export function UnifiedInquiryForm({
           {filePreviews.map((preview, idx) => (
             <div
               key={preview}
-              className="relative h-16 w-16 overflow-hidden rounded-xl border border-[#DDD9D1] bg-white shrink-0"
+              className="relative h-16 w-16 overflow-hidden rounded-xl border border-[#E5E8EB] bg-white shrink-0"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -1918,7 +1918,7 @@ export function UnifiedInquiryForm({
       </div>
 
       {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}
-      <div className="pt-4 border-t border-[#E4E0D8] space-y-4">
+      <div className="pt-4 border-t border-[#E5E8EB] space-y-4">
         {!isNotice && (
           <label className="flex cursor-pointer items-center gap-2.5 text-hb-base text-[#4E5968]">
             <input
