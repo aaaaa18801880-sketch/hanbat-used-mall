@@ -52,7 +52,6 @@ import { AirconGuideModal } from "../products/aircon-set-guide-banner";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
-import { PromotionShowcaseSection } from "./promotion-showcase-section";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -869,11 +868,6 @@ export default function Home({
           selectedCategory={selectedCategory}
           onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
         />
-
-        {/* ════════════════════════════════════════════════════════════
-            [S3.5] 추천 프로모션 & 기획전 (쿠쿠몰 스타일 큐레이션 허브)
-            ════════════════════════════════════════════════════════════ */}
-        <PromotionShowcaseSection />
 
         {/* ════════════════════════════════════════════════════════════
             [S4] 업소·창업·폐업 전용 풀블리드 다크 네이비 쇼룸 섹션 (#business-section)

@@ -1199,9 +1199,7 @@ export type AnalyticsEventName =
   | "click_nav_tmap"
   | "click_copy_address"
   | "send_showroom_visit_sms"
-  | "send_showroom_visit_kakao"
-  | "click_promo_tab"
-  | "click_promo_card";
+  | "send_showroom_visit_kakao";
 
 const FORBIDDEN_PII_KEYS = new Set([
   "name",
