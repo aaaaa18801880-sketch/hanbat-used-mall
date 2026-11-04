@@ -546,3 +546,123 @@
 ### 4. 획득한 지식 및 교훈 (Lessons Learned)
 - **여백과 근접성(Law of Proximity)이 구분선을 대체한다**: 카드 내부의 수평선(`border-t`)이나 사진 상단의 상태바를 제거하면 오히려 사진과 가격이라는 핵심 정보의 집중도가 비약적으로 상승한다.
 - **모국어 마이크로카피의 직관성**: 토스·당근·카카오처럼 장식용 영문 캡션을 덜어내고 즉각 읽히는 한글 배지로 통일하면 전 연령대 방문자에게 훨씬 친근하고 신뢰감 있는 브랜드 인상을 전달한다.
+
+---
+
+## 🚀 [Cycle 16] 2026-11-02 — 2차 웹 디자인 폴리싱 (매장 위치 섹션 2열 도크화, 모바일 견적함/푸터 슬림화, 갤러리 헤더 컴팩트화) (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-021` (Commit `9e8583e`)
+- **문제 진단**:
+  1. 메인 [S8] 매장 안내 섹션의 정보(주차, 영업시간, 도로명 주소, 길찾기)가 다중 박스로 분산되어 시선이 분산됨.
+  2. 모바일 견적함 플로팅 바(`QuoteBasketFloatingBar`) 및 사이트 푸터(`SiteFooter`)의 타이포그래피와 여백이 다소 두꺼워 모바일 뷰포트 하단을 과도하게 점유.
+  3. 갤러리 페이지 상단 헤더의 설명문과 필터 간격이 넓어 검색 결과 목록으로의 진입을 지연시킴.
+
+### 2. 코드 변경 요약
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - [S8] 매장 안내 섹션을 깔끔한 2열 도크 레이아웃(좌: 매장 실물/주소/길찾기 O2O 카드, 우: 운영시간/주차/연락처 카드)으로 재편.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `QuoteBasketFloatingBar`: 모바일 높이를 `h-8` 원형 캡슐로 슬림화하고 액션 버튼을 단일 묶음 버튼으로 정돈.
+  - `SiteFooter`: 법적 고지 및 사업자 정보 폰트를 `text-hb-xs leading-relaxed text-white/55`로 가볍게 정리.
+- **[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)**:
+  - 갤러리 헤더 설명문 여백 축소 및 스티키 필터 바 높이 컴팩트화.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- 8대 게이트(디자인 토큰, 배포 전 정적 검증, 보안/회귀, UX 벤치마크, AI 상담 파서, tsc, eslint, next build) 100% 통과.
+
+---
+
+## 🚀 [Cycle 17] 2026-11-02 — 3차 웹 디자인 폴리싱 (타임라인 단계 워터마크 비주얼, 토스 스타일 클린 입력 인풋, macOS 플로팅 아일랜드 윙 독) (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-022` (Commit `c942f2f`)
+- **문제 진단**:
+  1. 매입 신청 단계(`SELL_STEPS`)가 평면적인 텍스트 카드로 노출되어 진행 흐름(타임라인) 인지가 약함.
+  2. 고객 문의 폼(`unified-inquiry-form.tsx`)의 입력창 높이와 테두리가 구형 각진 스타일(`h-10 border-[#DDD9D1]`)을 유지하고 있어 토스 TDS 표준 인풋(`h-12 rounded-xl border-[#E5E8EB]`)으로 업그레이드 필요.
+  3. 우측 플로팅 퀵 윙이 투박한 직사각형 박스로 고정되어 있어 화면 우측 여백의 심미성을 저해.
+
+### 2. 코드 변경 요약
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - `SELL_STEPS` 카드 우하단에 은은한 01~04 워터마크 타이포그래피(`text-6xl font-black text-black/[0.04]`)와 화살표 타임라인 플로우 추가.
+- **[components/inquiry/unified-inquiry-form.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/unified-inquiry-form.tsx)**:
+  - 모든 텍스트/셀렉트 입력 필드를 토스 스타일 `rounded-xl h-12 border-[#E5E8EB] bg-[#F9FAFB] focus:bg-white` 규격으로 전면 통일.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `FloatingQuickWing`: macOS 스타일 플로팅 아일랜드 독(`rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)]`)으로 럭셔리하게 리디자인.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- 8대 게이트 전원 100% 통과 (Exit Code 0).
+
+---
+
+## 🚀 [Cycle 18] 2026-11-02 — 서브 페이지(가전 매입 / 문의 게시판) 디자인 토큰 100% 쿨그레이 통일 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-023` (Commit `fe11aa6`)
+- **문제 진단**:
+  - 메인 홈과 상품 상세는 쿨그레이로 개편되었으나, 서브 페이지인 [app/purchase/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/page.tsx) 및 [app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx)에 과거의 웜 베이지/올리브 톤(`border-[#DDD9D1]`, `bg-[#EFECE6]`, `text-[#8A8478]`, `bg-[#FAF9F7]`)이 잔존하여 화면 전환 시 시각적 불일치 발생.
+
+### 2. 코드 변경 요약
+- **[app/purchase/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/page.tsx)**:
+  - 매입 절차 카드, 가전 사진 가이드, 주의사항 아코디언의 올리브 테두리와 배경을 `#E5E8EB`, `#F2F4F6`, `#6B7684`로 완전 교체.
+- **[app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx)**:
+  - 비밀글 자물쇠 배지, 문의 유형 필터 탭, 테이블 헤더 및 검색창의 구형 보더를 표준 토큰으로 일괄 교체.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- 8대 게이트 전원 100% 통과 (Exit Code 0).
+
+---
+
+## 🚀 [Cycle 19] 2026-11-02 — 추천 프로모션 & 기획전 큐레이션 및 AI 3D 스튜디오 배너 구축 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-024` (Commit `a196674`)
+- **문제 진단 및 프로토타입 구현**:
+  - 쿠쿠몰 스타일의 상황별 기획전 큐레이션 그리드를 벤치마킹하여, 하이브리드 렌더링(AI 3D 스튜디오 배경 + HTML/CSS 텍스트 오버레이) 기법으로 `components/home/promotion-showcase-section.tsx`를 구현하고 AI 이미지 생성기 서브에이전트로 4종의 고화질 3D 스튜디오 배너 아트워크를 생성하여 로컬호스트 검증 완료.
+
+---
+
+## 🚀 [Cycle 20] 2026-11-03 — 웹그래픽 자산 최적화, LCP 고속 로딩, 모바일 스냅 스크롤 & 서브페이지 색상 톤 전면 통일 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-025` (Commit `8708716`)
+- **문제 진단**:
+  1. `public/illustrations/` 및 `public/images/cat-*.png`에 실제 화면에 렌더링되지 않는 무거운 래스터 이미지(약 15MB)가 번들에 포함되어 저장소 및 전송 비효율 발생.
+  2. 첫 화면 렌더링 시 대표 매물 이미지가 일반 `loading="lazy"`로 동작하여 LCP(Largest Contentful Paint) 지표 지연 위험.
+  3. 모바일 화면에서 긴 카드 나열로 인한 스크롤 피로도 및 가로 스크롤 영역의 우측 잘림 현상.
+  4. `app/gallery/page.tsx`, `components/inquiry/unified-inquiry-form.tsx`, `app/admin/page.tsx`에 남아있던 구형 올리브 보더/텍스트 잔재.
+
+### 2. 코드 변경 요약
+- **불필요 래스터 이미지 약 15MB 전량 제거**:
+  - `public/illustrations/` 14개 미사용 파일(8MB) 및 `public/images/cat-*.png` 5개 파일(6.7MB) 영구 삭제.
+  - [components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)에서 불필요한 `imageSrc` 필드 제거.
+- **LCP 이미지 우선순위 고속 로딩 (`eager` & `fetchPriority="high"`)**:
+  - [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)에 `eager?: boolean` 추가 및 상단 1~2개 카드에 `eager={idx < 2}` 적용.
+- **모바일 수평 스냅 캐러셀 & 페이드 그라디언트 힌트**:
+  - [app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) 카테고리 탭 및 상황별 프리셋 우측에 모바일 전용 화이트 페이드 마스크(`bg-gradient-to-l from-white/95 to-transparent`) 추가.
+- **우측 플로팅 퀵 윙 1280px+ 랩탑 반응형 확장**:
+  - [lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) `FloatingQuickWing` 노출 브레이크포인트를 `min-[1440px]`에서 `xl:flex (1280px+)`로 확장하여 일반 노트북 사용자 접근성 확보.
+- **서브 페이지 및 관리자 뷰어 색상 톤 Toss Cool-Gray 일괄 통합**:
+  - `app/gallery/page.tsx`, `components/inquiry/unified-inquiry-form.tsx`, `app/admin/page.tsx` 내 구형 컬러(`#DDD9D1`, `#E4E0D8`, `#E6E3DC`, `#8A8478`, `#FAF9F7`)를 표준 토큰(`#E5E8EB`, `#F2F4F6`, `#6B7684`, `#8B95A1`, `#F9FAFB`)으로 100% 통합.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- 8대 게이트 전원 100% 통과 (Exit Code 0).
+
+---
+
+## 🚀 [Cycle 21] 2026-11-03 — 추천 프로모션 & 기획전 섹션 영구 삭제 및 순수 쇼룸 집중화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-026` (Commit `868c189`)
+- **문제 진단**:
+  - 프로모션 배너 허브보다 한밭중고전자 고유의 실매물 쇼룸(냉장고, 세탁기, 에어컨 실매물 카탈로그 및 직영 매장 투명 보증 정책)에 집중하고 페이지 간결성을 극대화하기 위해 프로모션 섹션을 완전히 덜어내기로 결정.
+
+### 2. 코드 변경 요약
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - `<PromotionShowcaseSection />` 마운트 및 import 구문 삭제.
+- **파일 영구 삭제**:
+  - `components/home/promotion-showcase-section.tsx` 컴포넌트 및 `public/images/promotions/` 이미지 4종 삭제.
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - 미사용 이벤트 추적 타입(`click_promo_tab`, `click_promo_card`) 정리.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- 8대 게이트 전원 100% 통과 및 프로덕션 원격 저장소(`origin/main`) 배포 완료.

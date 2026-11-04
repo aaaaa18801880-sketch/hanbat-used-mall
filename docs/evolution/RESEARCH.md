@@ -97,3 +97,46 @@
    - 한글, 줄바꿈(`\n`), 특수문자가 포함된 본문은 `encodeURIComponent`로 안전하게 인코딩하여 iOS(메시지 앱)와 Android(삼성 메시지/구글 메시지) 양대 OS에서 깨짐 없이 본문이 자동 프리필되도록 보장.
 2. **온·오프라인 단절 방지 링크 포함 (Context Preservation)**:
    - 단말기 문자 상담 시 매장 담당자가 고객이 문의하는 특정 매물(70여 개 중고 가전)의 사진과 스펙을 실시간으로 식별할 수 있도록 상품 번호 및 공식 상세 URL(`https://hanbatmall.com/{id}`)을 본문에 포함.
+
+---
+
+## 5. Web Vitals & W3C HTML Priority Hints: LCP(Largest Contentful Paint) 이미지 조기 렌더링 표준
+
+### 공식 표준 출처
+- **web.dev (Google Chrome)**: [Optimize Largest Contentful Paint](https://web.dev/articles/optimize-lcp)
+- **W3C Priority Hints Specification**: [W3C Priority Hints](https://wicg.github.io/priority-hints/)
+
+### 핵심 기술 요건
+1. **뷰포트 초기 렌더링 매물 이미지 우선권 부여**:
+   - 첫 화면 뷰포트 내에 즉시 노출되는 대표 매물(1~2순위 카드 이미지)에 `loading="lazy"`가 걸려있을 경우, 브라우저가 스크롤 감지 및 레이아웃 연산 완료 시점까지 이미지 다운로드를 지연시켜 LCP 점수가 크게 저하됨.
+   - 첫 화면 상단 1~2개 카드 이미지에는 `loading="eager"` 및 `fetchPriority="high"` 속성을 주입하여 네트워크 디스패처가 HTML 파싱 즉시 최고 우선순위로 이미지 바이너리를 스트리밍하도록 보장.
+2. **하단 카드 지연 로딩(`loading="lazy"`)과의 분리 원칙**:
+   - 뷰포트 밖의 3순위 이후 매물 카드들은 기본 `loading="lazy"` 및 `decoding="async"`를 유지하여 초기 메인 스레드 블로킹 및 대역폭 낭비를 원천 차단.
+
+---
+
+## 6. W3C CSS Scroll Snap Module & 수평 오버플로우 시각 인디케이터(Affordance)
+
+### 공식 표준 출처
+- **W3C CSS Scroll Snap Module Level 1**: [W3C Candidate Recommendation Snapshot](https://www.w3.org/TR/css-scroll-snap-1/)
+- **Nielsen Norman Group (NN/g)**: [Horizontal Attention Leanings & Scroll Affordance](https://www.nngroup.com/articles/horizontal-scrolling/)
+
+### 핵심 기술 요건
+1. **모바일 칩/카테고리 바 컷오프(Cut-off) 인지 부하 해소**:
+   - 모바일 뷰포트 폭(360~430px)에서 수평 나열 칩들이 우측 화면 경계선에 딱 맞물려 잘릴 경우, 사용자는 우측에 추가 카테고리가 존재함을 인지하지 못하고 스크롤을 중단하는 '페이크 엔드(False Floor)' 현상이 발생함.
+   - 컨테이너 우측에 `pointer-events-none`을 적용한 화이트 페이드 그라디언트 오버레이(`bg-gradient-to-l from-white/95 to-transparent`)를 배치하여 추가 콘텐츠가 존재함을 직관적으로 암시.
+2. **반응형 랩탑 해상도(1280px+) 퀵 윙 접근성 확장**:
+   - 1440px 이상의 대형 모니터뿐만 아니라 대다수 랩탑(1280px, 1366px 해상도)에서도 우측 퀵 내비게이션 및 견적 상담 도크가 안정적으로 노출되도록 브레이크포인트를 `xl:flex (1280px+)`로 최적화.
+
+---
+
+## 7. 정적 번들 풋프린트 다이어트: 래스터 비트맵 폐기 및 벡터 듀오톤 표준화
+
+### 공식 지침 출처
+- **Google Lighthouse**: [Efficiently encode images & Avoid enormous network payloads](https://developer.chrome.com/docs/lighthouse/performance/total-byte-weight/)
+
+### 핵심 기술 요건
+1. **미사용 래스터 자산(~15MB) 전량 제거**:
+   - 실제 렌더링에 사용되지 않는 일러스트레이션 JPG/PNG(약 15MB)를 번들에서 영구 제거하여 정적 파일 전송 오버헤드, Git 리포지토리 부하 및 CDN 전송 비용 절감.
+2. **해상도 독립적 듀오톤 벡터 아이콘 시스템**:
+   - 고용량 래스터 그래픽 대신 고해상도 레티나 디스플레이에서도 픽셀 깨짐이 전혀 없는 경량 SVG 듀오톤 패스(`ICON` 객체)를 단일 출처로 유지.

@@ -24,7 +24,7 @@
 | **AI 상담 분석 테스트** | `node scripts/test-analyze-inquiry.mjs` | 4대 상담 유형 프롬프트, 과잉 추론 차단 가드레일 | **PASS (3/3 PASS)** |
 | **정적 타입 검사** | `node ./node_modules/typescript/lib/tsc.js --noEmit` | TypeScript 5.x 정적 타입 분석 | **PASS (0 errors)** |
 | **코드 린트** | `node ./node_modules/eslint/bin/eslint.js .` | ESLint 9.x Next.js 핵심 룰 분석 | **PASS (0 errors, 0 warnings)** |
-| **프로덕션 빌드** | `node ./node_modules/next/dist/bin/next build` | Next.js 16.3.5 Turbopack (22/22 정적/동적 라우트) | **PASS (컴파일 8.9s, Exit 0)** |
+| **프로덕션 빌드** | `node ./node_modules/next/dist/bin/next build` | Next.js 16.4.3 Turbopack (22/22 정적/동적 라우트) | **PASS (컴파일 8.9s, Exit 0)** |
 
 ---
 

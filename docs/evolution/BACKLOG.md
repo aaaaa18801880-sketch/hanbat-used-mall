@@ -31,6 +31,12 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **18** | `EVO-018` | 상품 카드 2.5D 마이크로 뎁스 틸트 및 스튜디오 메탈릭 스펙큘러 라이팅(순수 시각 효과) | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 13)** |
 | **19** | `EVO-019` | 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편 | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[tailwind.config.js](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/tailwind.config.js)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[components/products/product-structured-description.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-structured-description.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 14)** |
 | **20** | `EVO-020` | 대기업(애플·토스·카카오·당근) 벤치마크 5대 주안점 심화 폴리싱 (De-boxing 2단계·0.5초 스캔 위계·한글 마이크로카피·BuyBox 독 통합) | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)<br>[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 15)** |
+| **21** | `EVO-021` | 2차 웹 디자인 폴리싱 (매장 위치 섹션 2열 도크화, 모바일 견적함/푸터 슬림화, 갤러리 헤더 컴팩트화) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 16)** |
+| **22** | `EVO-022` | 3차 웹 디자인 폴리싱 (타임라인 단계 워터마크 비주얼, 토스 스타일 클린 입력 인풋, macOS 플로팅 아일랜드 윙 독) | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/inquiry/unified-inquiry-form.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/unified-inquiry-form.tsx)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 17)** |
+| **23** | `EVO-023` | 서브 페이지(가전 매입 / 문의 게시판) 디자인 토큰 100% 쿨그레이 통일 | [app/purchase/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/page.tsx)<br>[app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx) | 4 | 4 | 1 | 1 | **16.0** | **Completed (Cycle 18)** |
+| **24** | `EVO-024` | 추천 프로모션 & 기획전 큐레이션 및 AI 3D 스튜디오 배너 구축 | [components/home/promotion-showcase-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/promotion-showcase-section.tsx) | 3 | 3 | 2 | 1 | **4.5** | **Completed (Cycle 19)** |
+| **25** | `EVO-025` | 웹그래픽 자산 최적화(~15MB 래스터 정리), LCP 고속 로딩, 모바일 스냅 스크롤 & 서브페이지 색상 톤 전면 통일 | [components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)<br>[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[public/](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/public/) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 20)** |
+| **26** | `EVO-026` | 추천 프로모션 & 기획전 섹션 영구 삭제 및 순수 쇼룸 집중화 | [components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts) | 4 | 4 | 1 | 1 | **16.0** | **Completed (Cycle 21)** |
 
 ---
 
@@ -199,25 +205,57 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **검증 계획**:
   - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
 
-### EVO-019: 토스(TDS)·애플(HIG)·당근(SEED) 하이브리드 디자인 시스템 및 고객 전 화면 UI/UX 전면 개편
+### EVO-021: 2차 웹 디자인 폴리싱 (매장 위치 섹션 2열 도크화, 모바일 견적함/푸터 슬림화, 갤러리 헤더 컴팩트화)
 - **문제 진단**:
-  - 기존 한밭중고전자 UI는 웜 베이지/알라바스터(`#FAF9F7`, `#F7F6F3`, `#E5E2DC`) 배경과 건축적 그리드 실선(`hb-arch-grid`), 상단 검은색 굵은 테두리(`border-t-2`, `border-t-4`), 테두리 있는 박스형 테이블 위주로 구성되어 있어 현대적인 한국 모바일 앱(토스, 당근마켓)이나 애플 스토어 같은 산뜻하고 직관적인 '떼깔'이 부족했음.
+  - 메인 [S8] 매장 안내 섹션의 텍스트와 박스가 분산되어 있어 모바일에서 가독성이 저하됨.
+  - 모바일 견적함 플로팅 캡슐과 푸터의 마진이 커서 실제 상품 탐색 뷰포트를 방해함.
 - **개선 방안**:
-  - **SEED Design + Toss TDS + Apple HIG 3대 디자인 언어 결합**:
-    1. **Color & Surface**: 누런 웜 베이지를 전면 걷어내고 **Pure White (`#FFFFFF`) & Cool Gray (`#F2F4F6`, `#F9FAFB`)** 서피스 레이어링, **Toss Charcoal (`#191F28`)** 타이포그래피, **SEED Coral Orange (`#FF6F0F` / `#F05600`)** 브랜드 포인트, **Toss Blue (`#3182F6`)** 및 **Toss Mint (`#00C471`)** 시맨틱 토큰으로 전면 교체.
-    2. **De-boxing & Squircle Curvature**: 불필요한 1px 격자 테두리와 상단 굵은 검은 줄(`border-t-2`)을 제거하고, `rounded-2xl` / `rounded-3xl` 스쿼클 곡률과 보더리스 소프트 칩(`bg-[#F2F4F6]`)으로 시각적 피로도 제로화.
-    3. **전 화면 일괄 개편**: 글로벌 토큰(`globals.css`, `tailwind.config.js`), 헤더/다이나믹 아일랜드 견적 바(`lib/ui.tsx`), 상품 카드(`product-card.tsx`), AI 스펙·검수 리포트(`product-structured-description.tsx`), 메인 홈 쇼룸(`home-page-client.tsx`, `category-pictogram-bar.tsx`, `featured-products-section.tsx`), 상품 상세(`app/[id]/page.tsx`, `product-detail-gallery.tsx`), 갤러리 검색(`app/gallery/page.tsx`) 등 20개 핵심 UI 파일 일괄 개편.
+  - [S8] 매장 안내를 2열 도크(O2O 길찾기 카드 + 운영정보 카드)로 재편.
+  - 견적함 바를 `h-8` 초슬림 원형 캡슐로 축소하고 푸터 폰트를 라이트하게 조정.
 - **검증 계획**:
-  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+  - 8대 통합 검증 러너 100% 통과 확인.
 
-### EVO-020: 대기업(애플·토스·카카오·당근) 벤치마크 5대 주안점 심화 폴리싱
+### EVO-022: 3차 웹 디자인 폴리싱 (타임라인 단계 워터마크 비주얼, 토스 스타일 클린 입력 인풋, macOS 플로팅 아일랜드 윙 독)
 - **문제 진단**:
-  - 컬러와 곡률 개편 이후에도 화면 곳곳에 ① 박스 안에 중첩된 박스(3중 번호/아이콘, 중복된 3대 보증 섹션), ② 사진 위를 누르는 영문 헤더 바(`SHOWROOM LIVE VIEW`, `SHOWROOM STUDIO PHOTO`), ③ 상품 카드 내부 수평 구분선, ④ 영문 장식 아이브로우(`FIELD ARCHIVE`, `CUSTOMER GUIDE` 등), ⑤ 상세페이지 우측 7개 버튼 박스 난립이 남아 있었음.
+  - 매입 절차 카드가 평면적이어서 프로세스 단계(01~04) 인지가 부족함.
+  - 상담 폼의 인풋 디자인이 구형 각진 스타일로 머물러 있음.
 - **개선 방안**:
-  - **1. De-boxing 2단계 & 중복 제거**: 매입 스텝 카드의 3중 번호·아이콘 중복을 단일 토스 스텝 배지로 통합하고, 리뷰 섹션 하단의 중복 3열 보증 박스를 제거.
-  - **2. 애플 스토어식 풀블리드 쇼케이스**: 히어로 우측 쇼케이스 및 상세 갤러리 상단 영문 바를 제거하고 반투명 글래스 플로팅 배지 + 소프트 벤토 트레이로 개편.
-  - **3. 당근·카카오식 0.5초 스캔 상품 카드 위계**: 카드 내부 수평선을 제거하고 `제목 → 대형 가격 → 핵심 스펙 칩(최대 2개) + 담기 버튼`으로 위계 재편.
-  - **4. 한글 중심 직관적 마이크로카피**: 전 섹션의 영문 장식 아이브로우를 직관적인 한글 캡슐 배지로 전면 교체.
-  - **5. 상세 BuyBox 원카드 소프트 액션 독**: 상세페이지 우측의 다크 네이비 가격 박스를 클린 타이포그래피로 전환하고, 보조 버튼 5개를 단일 토스 소프트 독(`bg-[#F2F4F6] rounded-2xl p-1.5`)으로 통합.
+  - `SELL_STEPS`에 대형 01~04 워터마크 타이포그래피 및 화살표 흐름 주입.
+  - 상담 폼 입력창을 토스 표준 `rounded-xl h-12 border-[#E5E8EB]`로 전면 개편.
+  - 우측 플로팅 윙을 macOS 아일랜드 글래스 독으로 리디자인.
 - **검증 계획**:
-  - 8대 통합 검증 러너(`run-all-verifications.mjs`) 100% 통과 확인.
+  - 8대 통합 검증 러너 100% 통과 확인.
+
+### EVO-023: 서브 페이지(가전 매입 / 문의 게시판) 디자인 토큰 100% 쿨그레이 통일
+- **문제 진단**:
+  - 메인 홈 개편 후 [app/purchase/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/page.tsx) 및 [app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx)에 남아있던 구형 올리브 보더/배경(`#DDD9D1`, `#EFECE6`, `#8A8478`).
+- **개선 방안**:
+  - 서브 페이지 전반의 보더와 텍스트를 Toss Cool-Gray(`#E5E8EB`, `#F2F4F6`, `#6B7684`)로 100% 일괄 교체.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 확인.
+
+### EVO-024: 추천 프로모션 & 기획전 큐레이션 및 AI 3D 스튜디오 배너 구축
+- **개선 방안**:
+  - 쿠쿠몰 스타일의 큐레이션 허브(`components/home/promotion-showcase-section.tsx`) 및 AI 3D 스튜디오 배너 생성 프로토타입 구현 및 검증.
+
+### EVO-025: 웹그래픽 자산 최적화(~15MB 래스터 정리), LCP 고속 로딩, 모바일 스냅 스크롤 & 서브페이지 색상 톤 전면 통일
+- **문제 진단**:
+  - `public/illustrations/` 및 `cat-*.png` 등 미사용 래스터 파일(약 15MB)이 번들 용량을 불필요하게 낭비.
+  - 첫 화면 LCP 이미지 지연 로딩으로 인한 초기 렌더링 속도 지연.
+  - 모바일 환경에서의 가로 스크롤 우측 잘림 및 퀵 윙 랩탑 미노출.
+- **개선 방안**:
+  - 미사용 래스터 이미지 19종(약 15MB) 전량 삭제 및 `category-pictogram-bar.tsx` 미사용 필드 정리.
+  - 첫 화면 상단 매물 카드에 `eager={idx < 2}` 및 `fetchPriority="high"` 적용.
+  - 갤러리 카테고리 탭 우측에 모바일 전용 화이트 페이드 그라디언트 마스크 추가.
+  - `FloatingQuickWing` 노출 구간을 `1280px+(xl:)`로 확장하여 일반 노트북 해상도 지원.
+  - `app/gallery/page.tsx`, `components/inquiry/unified-inquiry-form.tsx`, `app/admin/page.tsx` 잔여 구형 컬러를 표준 쿨그레이로 일괄 교체.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 확인.
+
+### EVO-026: 추천 프로모션 & 기획전 섹션 영구 삭제 및 순수 쇼룸 집중화
+- **문제 진단**:
+  - 복잡한 배너 기획전보다 한밭중고전자 고유의 실매물 쇼룸(냉장고, 세탁기, 에어컨 실매물 카탈로그 및 직영 매장 투명 보증 정책)에 집중하고 페이지 간결성을 극대화하기 위해 프로모션 섹션을 완전히 덜어내기로 결정.
+- **개선 방안**:
+  - `<PromotionShowcaseSection />` 마운트 및 컴포넌트, 이미지 파일 전량 영구 삭제.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
