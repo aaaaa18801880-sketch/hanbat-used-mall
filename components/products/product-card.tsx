@@ -429,7 +429,7 @@ export function ProductCard({
             onSelect(product);
           }
         }}
-        className="block h-full w-full min-w-0 cursor-pointer text-left rounded-2xl sm:rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28]"
+        className="block h-full w-full min-w-0 cursor-pointer text-left rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
         {cardInner}
       </div>
@@ -439,7 +439,7 @@ export function ProductCard({
   return (
     <Link
       href={`/${product.id}`}
-      className="block h-full min-w-0 rounded-2xl sm:rounded-3xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28]"
+      className="block h-full min-w-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
     >
       {cardInner}
     </Link>

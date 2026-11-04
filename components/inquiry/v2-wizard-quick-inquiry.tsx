@@ -511,13 +511,13 @@ export function V2InquirySectionWithWizard({
         className={
           variant === "embedded"
             ? "space-y-5"
-            : "rounded-xl border border-[#E5E8EB] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
+            : "rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
         }
       >
         {/* 모던 스텝퍼(Stepper) UI */}
-        <div className="space-y-3 pb-2 border-b border-[#E5E8EB]">
+        <div className="space-y-3 pb-2 border-b border-[#E2E6EC]">
           <div className="flex items-center justify-between text-hb-xs font-bold">
-            <span className="text-[#F05600]">{step}단계 / 3단계</span>
+            <span className="text-[#E8521A] tabular-nums font-mono">{step}단계 / 3단계</span>
             <span className="text-[#6B7684]">
               {step === 1
                 ? isSell
@@ -747,7 +747,7 @@ export function V2InquirySectionWithWizard({
                     type="button"
                     onClick={handleAiPhotoAnalyze}
                     disabled={analyzingAi}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#EFF6FF] px-3.5 py-2 text-hb-xs font-bold text-[#1D4ED8] hover:bg-[#DBEAFE] transition-colors disabled:opacity-50 cursor-pointer shadow-2xs"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#BAE6FD] bg-[#F0F9FF] px-3.5 py-2 text-hb-xs font-bold text-[#0369A1] hover:bg-[#BAE6FD]/40 transition-[background-color,transform] active:scale-[0.96] disabled:opacity-50 cursor-pointer shadow-2xs"
                   >
                     <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0" />
                     <span>
@@ -758,13 +758,13 @@ export function V2InquirySectionWithWizard({
                   </button>
 
                   {aiResult && (
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-2.5 text-hb-xs text-emerald-800 flex items-start gap-2">
+                    <div className="rounded-lg border border-[#CCFBF1] bg-[#F0FDFA] p-2.5 text-hb-xs text-[#0F766E] flex items-start gap-2">
                       <Icon
                         d={ICON.check}
-                        className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"
+                        className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5"
                       />
                       <div className="leading-relaxed">
-                        <strong className="font-bold text-emerald-900">
+                        <strong className="font-bold text-[#141A23]">
                           AI 판독 결과 적용됨:
                         </strong>{" "}
                         {[
@@ -786,12 +786,12 @@ export function V2InquirySectionWithWizard({
               </p>
 
               {/* 권장 촬영 참고 사진 가이드 (실제 예시 그래픽 + 3단계 요약 카드 + 라이트박스 확대) */}
-              <div className="mt-3 overflow-hidden rounded-xl border border-[#E5E8EB] bg-[#F9FAFB]">
-                <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border-b border-[#E5E8EB]">
-                  <div className="flex items-center gap-1.5 text-hb-xs font-bold text-[#191F28]">
-                    <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#F05600]" />
+              <div className="mt-3 overflow-hidden rounded-xl border border-[#E2E6EC] bg-[#F7F8FA]">
+                <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border-b border-[#E2E6EC]">
+                  <div className="flex items-center gap-1.5 text-hb-xs font-bold text-[#141A23]">
+                    <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#E8521A]" />
                     <span>권장 촬영 참고 사진</span>
-                    <span className="text-[#8B95A1] font-normal hidden sm:inline">
+                    <span className="text-[#94A3B8] font-normal hidden sm:inline">
                       · {guideInfo.subtitle}
                     </span>
                   </div>
@@ -799,14 +799,14 @@ export function V2InquirySectionWithWizard({
                     <button
                       type="button"
                       onClick={() => setZoomGuide(true)}
-                      className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
+                      className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
                     >
                       크게 보기
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowGuide((prev) => !prev)}
-                      className="rounded p-1 text-[#6B7684] hover:text-[#191F28]"
+                      className="rounded p-1 text-[#64748B] hover:text-[#141A23]"
                       aria-label={showGuide ? "가이드 접기" : "가이드 펼치기"}
                     >
                       <Icon
@@ -823,7 +823,7 @@ export function V2InquirySectionWithWizard({
                     <button
                       type="button"
                       onClick={() => setZoomGuide(true)}
-                      className="group relative block w-full overflow-hidden bg-white text-left focus:outline-none cursor-zoom-in border-b border-[#E5E8EB]"
+                      className="group relative block w-full overflow-hidden bg-white text-left focus:outline-none cursor-zoom-in border-b border-[#E2E6EC]"
                       aria-label="권장 촬영 예시 사진 원본 크게 보기"
                     >
                       <SafeImg
@@ -833,21 +833,21 @@ export function V2InquirySectionWithWizard({
                       />
                     </button>
 
-                    {/* 3단계 촬영 포인트 안내 카드 */}
-                    <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-3 bg-[#F9FAFB] text-hb-xs">
+                    {/* 3단계 촬영 포인트 안내 (No Card-in-Card: divide-y / divide-x 평탄화) */}
+                    <ol className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC] bg-[#F7F8FA] text-hb-xs">
                       {guideInfo.steps.map((g) => (
                         <li
                           key={g.step}
-                          className="flex items-start gap-2 rounded-lg bg-white p-2.5 border border-[#E5E8EB]"
+                          className="flex items-start gap-2.5 p-3.5"
                         >
-                          <span className="shrink-0 rounded bg-[#191F28] px-1.5 py-0.5 text-hb-xs font-bold text-white">
+                          <span className="shrink-0 rounded bg-[#141A23] px-1.5 py-0.5 font-mono text-hb-xs font-bold text-white tabular-nums">
                             {g.step}
                           </span>
                           <div className="min-w-0 flex-1">
-                            <strong className="font-bold text-[#191F28] block">
+                            <strong className="font-bold text-[#141A23] block">
                               {g.title}
                             </strong>
-                            <span className="text-[#6B7684] leading-relaxed block mt-0.5">
+                            <span className="text-[#64748B] leading-relaxed block mt-0.5">
                               {g.desc}
                             </span>
                           </div>
@@ -856,8 +856,8 @@ export function V2InquirySectionWithWizard({
                     </ol>
 
                     {/* 하단 팁 */}
-                    <div className="px-3 pb-3 pt-0">
-                      <p className="rounded-lg bg-white p-2.5 border border-[#E5E8EB] text-hb-xs text-[#4B5260] leading-relaxed">
+                    <div className="border-t border-[#E2E6EC] bg-white px-3.5 py-2.5">
+                      <p className="text-hb-xs text-[#334155] leading-relaxed">
                         {guideInfo.tip}
                       </p>
                     </div>

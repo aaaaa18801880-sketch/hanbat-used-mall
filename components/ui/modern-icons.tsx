@@ -40,19 +40,19 @@ export function ModernApplianceIcon({
   const isCyanType = name === "aircon" || name === "fridge" || name === "showcase";
   const isTealType = name === "washer" || name === "kitchen" || name === "sparkle" || name === "shield";
 
-  const primaryStroke = dark ? "#FFFFFF" : "#191F28";
-  const secondaryFill = dark ? "rgba(255,255,255,0.14)" : "#F1F4F9";
+  const primaryStroke = dark ? "#FFFFFF" : "#141A23";
+  const secondaryFill = dark ? "rgba(255,255,255,0.14)" : "#F1F3F6";
   const accentColor = isCyanType
-    ? (dark ? "#64A8FF" : "#3182F6")
+    ? (dark ? "#38BDF8" : "#0284C7")
     : isTealType
-    ? (dark ? "#34D399" : "#00C471")
-    : (dark ? "#FF8A50" : "#FF6F0F");
+    ? (dark ? "#2DD4BF" : "#0D9488")
+    : (dark ? "#FF8A50" : "#E8521A");
 
   const glowClass = isCyanType
-    ? (dark ? "bg-[#64A8FF]/25" : "bg-[#3182F6]/15")
+    ? (dark ? "bg-[#0284C7]/25" : "bg-[#0284C7]/15")
     : isTealType
-    ? (dark ? "bg-[#34D399]/25" : "bg-[#00C471]/15")
-    : (dark ? "bg-[#FF8A50]/25" : "bg-[#F05600]/15");
+    ? (dark ? "bg-[#0D9488]/25" : "bg-[#0D9488]/15")
+    : (dark ? "bg-[#FF8A50]/25" : "bg-[#E8521A]/15");
 
   return (
     <div

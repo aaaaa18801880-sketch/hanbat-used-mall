@@ -134,13 +134,13 @@ export function DuotoneIcon({
   strokeWidth?: number;
 }) {
   const toneClasses = {
-    navy: "bg-[#F2F4F6] text-[#191F28] border border-[#E5E8EB]",
+    navy: "bg-[#F1F3F6] text-[#141A23] border border-[#E2E6EC]",
     orange:
-      "bg-[#FFF4EE] text-[#F05600] border border-[#FF6F0F]/20",
+      "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]",
     emerald:
-      "bg-[#E8FAF0] text-[#00A85D] border border-[#00C471]/20",
+      "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]",
     kakao:
-      "bg-[#FEE500]/30 text-[#191F28] border border-[#FEE500]/50",
+      "bg-[#FEE500]/30 text-[#141A23] border border-[#FEE500]/50",
     light:
       "bg-white/15 text-white border border-white/20",
   };
@@ -1490,9 +1490,9 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_tel_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] text-hb-xs font-bold text-[#191F28] active:bg-[#F2F4F6] whitespace-nowrap"
+          className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] text-hb-xs font-bold text-[#141A23] transition-[transform,background-color] duration-150 active:scale-[0.96] active:bg-[#F1F3F6] whitespace-nowrap"
         >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#F05600]" />
+          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
           <span>전화상담</span>
         </a>
         <a
@@ -1502,7 +1502,7 @@ export function MobileCtaBar({
           onClick={() =>
             trackEvent("click_kakao_consult", { location: "mobile_cta_bar" })
           }
-          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FEE500] text-hb-xs font-bold text-[#191600] active:bg-[#F2D900] whitespace-nowrap"
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FEE500] text-hb-xs font-bold text-[#191600] transition-[transform,background-color] duration-150 active:scale-[0.96] active:bg-[#F2D900] whitespace-nowrap"
         >
           <Icon d={ICON.chat} className="w-3.5 h-3.5" />
           <span>카톡상담</span>
@@ -1519,7 +1519,7 @@ export function MobileCtaBar({
               triggerQuickInquiry({ type: "구매 문의" });
             }
           }}
-          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#191F28] text-hb-xs font-bold text-white active:bg-[#333D4B] whitespace-nowrap cursor-pointer"
+          className="flex items-center justify-center gap-1.5 rounded-lg bg-[#141A23] text-hb-xs font-bold text-white transition-[transform,background-color] duration-150 active:scale-[0.96] active:bg-[#1E2736] whitespace-nowrap cursor-pointer"
         >
           <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#FF8A50]" />
           <span>견적·매입문의</span>

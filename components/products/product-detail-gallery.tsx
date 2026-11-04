@@ -123,7 +123,7 @@ export function ProductDetailGallery({
 
   return (
     <>
-      <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E5E8EB] bg-white shadow-card">
+      <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
         {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (상단 영문 바 제거) */}
         <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none">
           <SafeImg
@@ -143,7 +143,7 @@ export function ProductDetailGallery({
               aria-label="상품 사진 크게 보기"
               aria-haspopup="dialog"
               title="클릭하여 원본 비율 전체화면으로 확대"
-              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#F05600]"
+              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#E8521A]"
             >
               <span className="sr-only">상품 사진 크게 보기</span>
             </button>
@@ -154,23 +154,23 @@ export function ProductDetailGallery({
           </div>
 
           {sold && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#191F28]/45">
-              <span className="px-5 py-2 rounded-full bg-[#191F28]/90 text-white text-hb-sm font-bold tracking-[0.15em] border border-white/20">
+            <div className="absolute inset-0 flex items-center justify-center bg-[#141A23]/55">
+              <span className="px-5 py-2 rounded-full bg-[#141A23]/90 text-white text-hb-sm font-bold tracking-[0.15em] border border-white/20">
                 판매완료
               </span>
             </div>
           )}
 
           {displayImages[0] && (
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-[#191F28] shadow-xs text-hb-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
-              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#F05600]" />
+            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-[#141A23] shadow-xs text-hb-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
+              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#E8521A]" />
               <span>크게 보기</span>
             </div>
           )}
 
           {/* 우하단 애플/당근 스타일 반투명 사진 순서 캡슐 */}
           {displayImages.length > 0 && (
-            <div className="absolute bottom-3.5 right-4 z-10 rounded-full bg-[#191F28]/75 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-white tabular-nums pointer-events-none">
+            <div className="absolute bottom-3.5 right-4 z-10 rounded-full bg-[#141A23]/75 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-white tabular-nums pointer-events-none">
               {idx + 1} / {displayImages.length}
             </div>
           )}
@@ -184,7 +184,7 @@ export function ProductDetailGallery({
                   go(-1);
                 }}
                 aria-label="이전 사진"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#191F28] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
               >
                 <Icon d={ICON.left} className="w-5 h-5" />
               </button>
@@ -195,7 +195,7 @@ export function ProductDetailGallery({
                   go(1);
                 }}
                 aria-label="다음 사진"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#191F28] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
               >
                 <Icon d={ICON.right} className="w-5 h-5" />
               </button>
@@ -205,17 +205,17 @@ export function ProductDetailGallery({
 
         {/* 썸네일 스트립 */}
         {displayImages.length > 1 && (
-          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#F2F4F6] overflow-x-auto">
+          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#F1F3F6] overflow-x-auto">
             {displayImages.map((img, i) => (
               <button
                 key={img + i}
                 type="button"
                 onClick={() => setIdx(i)}
                 aria-label={`${i + 1}번 사진 선택`}
-                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F2F4F6] border transition-[border-color,box-shadow,transform] ${
+                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F1F3F6] border transition-[border-color,box-shadow,transform] ${
                   i === idx
-                    ? "border-[#FF6F0F] ring-2 ring-[#FF6F0F]/35"
-                    : "border-[#E5E8EB] opacity-65 hover:opacity-100"
+                    ? "border-[#E8521A] ring-2 ring-[#E8521A]/35"
+                    : "border-[#E2E6EC] opacity-65 hover:opacity-100"
                 }`}
               >
                 <SafeImg
@@ -319,10 +319,10 @@ export function CopyProductLinkButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4E5968] hover:border-[#191F28] hover:text-[#191F28] transition-colors shadow-2xs"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4E5968] hover:border-[#141A23] hover:text-[#141A23] transition-[border-color,color,transform] active:scale-[0.96] shadow-2xs"
       title={`${productTitle} 링크 복사`}
     >
-      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#F05600]" />
+      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
       <span>상품 링크 복사</span>
     </button>
   );
@@ -372,10 +372,10 @@ export function QuoteBasketButton({
     }
   };
 
-  const defaultClasses = `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-colors w-full ${
+  const defaultClasses = `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-[background-color,border-color,color,transform] active:scale-[0.96] w-full ${
     inBasket
-      ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
-      : "border-[#D1D6DB] bg-[#F9FAFB] text-[#191F28] hover:border-[#191F28]"
+      ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
+      : "border-[#CBD2DC] bg-[#F7F8FA] text-[#141A23] hover:border-[#141A23]"
   }`;
 
   return (
@@ -454,10 +454,10 @@ export function CopyPromoPostButton({
     <div className="inline-flex items-center gap-1.5">
       <Link
         href={`/admin?search=${encodeURIComponent(product.id)}`}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-3 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28] hover:bg-white transition-colors shadow-2xs"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white transition-[border-color,background-color,color,transform] active:scale-[0.96] shadow-2xs"
         title="관리자 페이지에서 이 상품 정보 수정하기"
       >
-        <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#191F28]" />
+        <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#141A23]" />
         <span>상품 수정 (관리자)</span>
       </Link>
       <button
@@ -465,11 +465,11 @@ export function CopyPromoPostButton({
         onClick={handleCopyPromo}
         className={
           className ||
-          "inline-flex items-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-3 py-1.5 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28] hover:bg-white transition-colors shadow-2xs"
+          "inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white transition-[border-color,background-color,color,transform] active:scale-[0.96] shadow-2xs"
         }
         title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
       >
-        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#F05600]" />
+        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
         <span>홍보글 양식 복사 (관리자)</span>
       </button>
     </div>
@@ -561,10 +561,10 @@ export function InteractiveChecklistAndCta({
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   return (
-    <div className="mt-5 pt-4 border-t border-[#E5E8EB] space-y-3">
+    <div className="mt-5 pt-4 border-t border-[#E2E6EC] space-y-3">
       {sold && (
-        <div className="rounded-xl border border-[#FFD8C2] bg-[#FFF4EE] p-3 text-hb-xs text-[#F05600] font-semibold leading-snug flex items-center gap-2">
-          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#F05600]" />
+        <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3 text-hb-xs text-[#E8521A] font-semibold leading-snug flex items-center gap-2">
+          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#E8521A]" />
           <span>
             이 매물은 판매 완료되었으나 직영 매장에{" "}
             <strong className="underline">동일·유사 스펙 대기 매물</strong>이 있습니다.
@@ -572,23 +572,24 @@ export function InteractiveChecklistAndCta({
         </div>
       )}
 
-      {/* 1순위: 직영 매장 전화 문의 버튼 (h-14) */}
+      {/* 1순위: 직영 매장 전화 문의 버튼 (h-14, WCAG AA 고대비 다크 네이비 + 오렌지 포인트) */}
       <a
         href={telHref(STORE.tel)}
-        className="w-full h-14 rounded-2xl bg-[#F05600] hover:bg-[#E55A00] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] group cursor-pointer"
+        aria-label={`${STORE.name} 직영 매장 전화 문의 연결 (${STORE.tel})`}
+        className="w-full h-14 rounded-2xl bg-[#141A23] hover:bg-[#1E2736] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-xl bg-[#E8521A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Icon d={ICON.phone} className="w-5 h-5 text-white" />
           </div>
           <div className="text-left min-w-0">
             <div className="text-hb-base font-bold leading-tight text-white flex items-center gap-1.5 truncate">
               <span>{sold ? "유사 매물 전화 문의" : "전화 바로 문의하기"}</span>
-              <span className="text-hb-xs font-bold text-white tabular-nums">
+              <span className="text-hb-xs font-bold text-[#FF8A50] tabular-nums">
                 ({STORE.tel})
               </span>
             </div>
-            <p className="text-hb-xs text-white/90 font-medium leading-none mt-1 truncate">
+            <p className="text-hb-xs text-white/85 font-medium leading-none mt-1 truncate">
               실시간 재고 확인 · 빠른 방문/배송 상담 (터치 즉시 연결)
             </p>
           </div>
@@ -604,7 +605,8 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] group cursor-pointer"
+        aria-label={`${STORE.name} 카카오톡 1:1 실시간 상담창 열기 (새 창)`}
+        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-black/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -625,27 +627,27 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (동심원 곡률 R_inner = R_outer - Padding 적용) */}
-      <div className="rounded-2xl bg-[#F2F4F6] p-2 space-y-2">
+      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (동심원 곡률 R_inner(8px) = R_outer(16px) - Padding(8px)) */}
+      <div className="rounded-2xl bg-[#F1F3F6] p-2 space-y-2">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
-            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#F05600] shrink-0" />
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#E8521A] shrink-0" />
             <span className="truncate">문자 문의</span>
           </a>
 
           <Link
             href={inquiryHref}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
-            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#3182F6] shrink-0" />
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#0284C7] shrink-0" />
             <span className="truncate">온라인 견적</span>
           </Link>
 
           <QuoteBasketButton
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
             compact
             item={{
               id: String(product.id),
@@ -663,9 +665,9 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={galleryCategoryHref}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
-            <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#00A85D] shrink-0" />
+            <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#0D9488] shrink-0" />
             <span className="truncate">유사 매물</span>
           </Link>
         </div>
@@ -680,13 +682,13 @@ export function InteractiveChecklistAndCta({
             });
             setVisitModalOpen(true);
           }}
-          className="w-full h-10 rounded-lg bg-white/80 hover:bg-white text-[#191F28] flex items-center justify-between px-3.5 transition-[background-color,color,transform] duration-150 active:scale-[0.96] font-bold text-hb-xs cursor-pointer"
+          className="w-full h-10 rounded-lg bg-white/85 hover:bg-white text-[#141A23] flex items-center justify-between px-3.5 transition-[background-color,color,transform] duration-150 active:scale-[0.96] font-bold text-hb-xs cursor-pointer"
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#F05600] shrink-0" />
+            <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
             <span className="truncate">대전 중촌동 직영 매장 실물 확인 · 1초 길찾기</span>
           </div>
-          <span className="text-hb-xs font-bold text-[#F05600] shrink-0 ml-1">
+          <span className="text-hb-xs font-bold text-[#E8521A] shrink-0 ml-1">
             실물 찜 →
           </span>
         </button>

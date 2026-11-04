@@ -419,7 +419,7 @@ export default async function ProductDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-sans text-[#191F28] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
@@ -433,23 +433,23 @@ export default async function ProductDetailPage({
           aria-label="경로 이동"
           className="mb-4 sm:mb-5 flex flex-wrap items-center justify-between gap-3"
         >
-          <div className="flex flex-wrap items-center gap-2 text-hb-sm font-bold text-[#4E5968] min-w-0">
+          <div className="flex flex-wrap items-center gap-2 text-hb-sm font-bold text-[#334155] min-w-0">
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1.5 text-[#191F28] hover:text-[#F05600] transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 text-[#141A23] hover:text-[#E8521A] transition-colors shrink-0"
             >
               <Icon d={ICON.left} className="h-4 w-4" />
               <span>전체 제품 갤러리</span>
             </Link>
-            <span className="text-[#8B95A1]" aria-hidden="true">/</span>
+            <span className="text-[#94A3B8]" aria-hidden="true">/</span>
             <Link
               href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-              className="hover:text-[#191F28] underline underline-offset-4 shrink-0"
+              className="hover:text-[#141A23] underline underline-offset-4 shrink-0"
             >
               {categoryLabel}
             </Link>
-            <span className="hidden md:inline text-[#8B95A1]" aria-hidden="true">/</span>
-            <span className="hidden md:inline truncate max-w-[280px] text-[#6B7684] font-medium">
+            <span className="hidden md:inline text-[#94A3B8]" aria-hidden="true">/</span>
+            <span className="hidden md:inline truncate max-w-[280px] text-[#64748B] font-medium">
               {product.title}
             </span>
           </div>
@@ -557,18 +557,18 @@ export default async function ProductDetailPage({
                 </span>
               </div>
 
-              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 (토스 ListRow 시트) */}
-              <dl className="mt-4 rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-4 py-1.5 divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
-                <div className="flex items-center justify-between gap-3 py-2.5">
+              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 (No Card-in-Card 평탄화 ListRow) */}
+              <dl className="mt-4 border-y border-[#E2E6EC] divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
+                <div className="flex items-center justify-between gap-3 py-3">
                   <dt className="font-semibold text-[#64748B] shrink-0">
                     모델명 / 코드
                   </dt>
-                  <dd className="font-mono font-bold text-[#141A23] text-right truncate">
+                  <dd className="font-mono font-bold text-[#141A23] text-right truncate tabular-nums">
                     {modelName || "매장 실물 확인 (상세 사진 참조)"}
                   </dd>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 py-2.5">
+                <div className="flex items-center justify-between gap-3 py-3">
                   <dt className="font-semibold text-[#64748B] shrink-0">
                     외관 · 상태 등급
                   </dt>
@@ -586,11 +586,11 @@ export default async function ProductDetailPage({
                   </dd>
                 </div>
 
-                <div className="flex items-center justify-between gap-3 py-2.5">
+                <div className="flex items-center justify-between gap-3 py-3">
                   <dt className="font-semibold text-[#64748B] shrink-0">
                     검수 · 보증 기준
                   </dt>
-                  <dd className="font-semibold text-[#141A23] text-right">
+                  <dd className="font-semibold text-[#141A23] text-right tabular-nums">
                     {isHvacDetail
                       ? "무상 A/S 최대 8개월 보증"
                       : isMajorApplianceDetail
@@ -600,7 +600,7 @@ export default async function ProductDetailPage({
                 </div>
 
                 {specCapsules.length > 0 && (
-                  <div className="flex items-center justify-between gap-3 py-2.5">
+                  <div className="flex items-center justify-between gap-3 py-3">
                     <dt className="font-semibold text-[#64748B] shrink-0">
                       핵심 스펙 요약
                     </dt>
@@ -608,7 +608,7 @@ export default async function ProductDetailPage({
                       {specCapsules.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-md bg-white border border-[#E2E6EC] px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] shadow-2xs"
+                          className="rounded-md bg-[#F1F3F6] px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] tabular-nums"
                         >
                           {tag}
                         </span>

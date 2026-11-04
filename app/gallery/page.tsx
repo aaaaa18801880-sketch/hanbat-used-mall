@@ -702,7 +702,7 @@ function ProductDetailModal({
                       <select
                         value={editCategory}
                         onChange={(e) => setEditCategory(e.target.value)}
-                        className="hb-input mt-1 text-hb-sm font-semibold"
+                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
                       >
                         {PRODUCT_CATEGORIES.map((cat) => (
                           <option key={cat} value={cat}>
@@ -716,7 +716,7 @@ function ProductDetailModal({
                       <select
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
-                        className="hb-input mt-1 text-hb-sm font-semibold"
+                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
                       >
                         <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                         <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
@@ -728,7 +728,7 @@ function ProductDetailModal({
                       <select
                         value={editGrade}
                         onChange={(e) => setEditGrade(e.target.value)}
-                        className="hb-input mt-1 text-hb-sm font-semibold"
+                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
                       >
                         {PRODUCT_CONDITION_GRADES.map((g) => (
                           <option key={g} value={g}>
@@ -772,7 +772,7 @@ function ProductDetailModal({
                       rows={8}
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
-                      className="hb-input mt-1 font-mono text-hb-sm leading-relaxed resize-y"
+                      className="hb-input mt-1 font-mono text-hb-base sm:text-hb-sm leading-relaxed resize-y"
                       placeholder="특징 및 사양 내용을 수정하세요"
                     />
                   </div>
@@ -2248,7 +2248,7 @@ export default function GalleryPage() {
                     setVisibleLimit(PAGE_STEP);
                   }}
                   aria-label="모바일 판매 상태 필터"
-                  className="h-8 px-2 rounded border border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#191F28]"
+                  className="h-10 px-2.5 rounded-lg border border-[#E2E6EC] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                 >
                   <option value="all">전체 상태</option>
                   <option value="selling">판매중만</option>
@@ -2265,7 +2265,7 @@ export default function GalleryPage() {
                       setVisibleLimit(PAGE_STEP);
                     }}
                     aria-label="모바일 가격대 필터"
-                    className="h-8 px-2 rounded border border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#191F28]"
+                    className="h-10 px-2.5 rounded-lg border border-[#E2E6EC] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                   >
                     {PRICE_RANGE_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -2279,7 +2279,7 @@ export default function GalleryPage() {
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
                   aria-label="모바일 정렬 기준"
-                  className="h-8 px-2 rounded border border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#191F28]"
+                  className="h-10 px-2.5 rounded-lg border border-[#E2E6EC] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                 >
                   <option value="latest">최신 등록순</option>
                   <option value="views">조회 많은순</option>

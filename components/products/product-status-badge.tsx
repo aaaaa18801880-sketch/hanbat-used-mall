@@ -37,7 +37,7 @@ export function ProductStatusBadge({
         {!sold && (
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              reserved ? "bg-white" : "bg-[#00C471]"
+              reserved ? "bg-white" : "bg-[#0D9488]"
             }`}
           />
         )}
@@ -45,7 +45,7 @@ export function ProductStatusBadge({
       </span>
       {isFresh && (
         <span className="inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#E8521A]/30 px-2 py-0.5 text-hb-xs font-bold text-[#E8521A] shadow-2xs">
-          NEW
+          신규입고
         </span>
       )}
     </div>

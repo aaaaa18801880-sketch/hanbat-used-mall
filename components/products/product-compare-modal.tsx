@@ -92,15 +92,15 @@ export function ProductCompareModal({
       label="관심 매물 상세 비교"
       panelClassName="max-w-4xl"
     >
-      <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white shadow-floating">
+      <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-3xl border border-[#E2E6EC] bg-white shadow-floating">
         {/* 상단 헤더 */}
-        <div className="flex items-center justify-between border-b border-[#E5E8EB] bg-[#191F28] px-5 py-4 text-white">
+        <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-4 text-white">
           <div>
             <span className="text-hb-xs font-bold text-[#FF8A50]">
               실매물 스펙 · 조건 한눈에 비교
             </span>
             <h2 className="text-hb-lg font-bold">
-              선택한 매물 비교 ({compareItems.length}건)
+              선택한 매물 비교 (<span className="tabular-nums font-mono">{compareItems.length}</span>건)
             </h2>
           </div>
           <button

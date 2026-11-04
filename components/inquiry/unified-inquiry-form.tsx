@@ -1571,7 +1571,7 @@ export function UnifiedInquiryForm({
                           updateBulkItem(item.id, "modelNumber", e.target.value)
                         }
                         placeholder="모델·규격 (선택)"
-                        className="hb-input h-[46px] text-hb-sm font-mono"
+                        className="hb-input h-11 text-hb-base sm:text-hb-sm font-mono"
                       />
                     </div>
                     <div className="sm:col-span-1 text-right">
@@ -1703,21 +1703,21 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            {/* 3. 상태 및 연식 (선택 보조 옵션 콤팩트 박스) */}
-            <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3.5 sm:p-4">
-              <span className="text-hb-sm font-bold text-[#191F28] block mb-2.5">
-                제품 상태 및 연식 <span className="font-normal text-[#6B7684]">(선택 사항 · 잘 모르시면 비워두셔도 됩니다)</span>
+            {/* 3. 상태 및 연식 (중첩 보더 제거 + 모바일 iOS 16px 자동 줌 방지) */}
+            <div className="rounded-2xl bg-[#F7F8FA] p-4">
+              <span className="text-hb-sm font-bold text-[#141A23] block mb-2.5">
+                제품 상태 및 연식 <span className="font-normal text-[#64748B]">(선택 사항 · 잘 모르시면 비워두셔도 됩니다)</span>
               </span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label htmlFor="uf-op" className="text-hb-xs font-bold text-[#6B7684] block mb-1">
+                  <label htmlFor="uf-op" className="text-hb-xs font-bold text-[#64748B] block mb-1">
                     작동 상태
                   </label>
                   <select
                     id="uf-op"
                     value={operatingStatus}
                     onChange={(e) => setOperatingStatus(e.target.value)}
-                    className="hb-input h-[44px] text-hb-sm font-medium bg-white"
+                    className="hb-input h-11 text-hb-base sm:text-hb-sm font-medium bg-white"
                   >
                     <option value="정상 작동 확인됨">정상 작동 (냉기/세탁 이상 없음)</option>
                     <option value="작동 상태 미확인 (상담 시 안내)">미확인 (기사님 방문 시 점검)</option>
@@ -1726,7 +1726,7 @@ export function UnifiedInquiryForm({
                 </div>
 
                 <div>
-                  <label htmlFor="uf-mfg" className="text-hb-xs font-bold text-[#6B7684] block mb-1">
+                  <label htmlFor="uf-mfg" className="text-hb-xs font-bold text-[#64748B] block mb-1">
                     제조년월 / 연식
                   </label>
                   <input
@@ -1735,12 +1735,12 @@ export function UnifiedInquiryForm({
                     value={manufacturingDate}
                     onChange={(e) => setManufacturingDate(e.target.value)}
                     placeholder="예: 2021년식 / 미확인"
-                    className="hb-input h-[44px] text-hb-sm bg-white"
+                    className="hb-input h-11 text-hb-base sm:text-hb-sm bg-white"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="uf-model" className="text-hb-xs font-bold text-[#6B7684] block mb-1">
+                  <label htmlFor="uf-model" className="text-hb-xs font-bold text-[#64748B] block mb-1">
                     상세 모델 코드
                   </label>
                   <input
@@ -1749,7 +1749,7 @@ export function UnifiedInquiryForm({
                     value={model}
                     onChange={(e) => setModel(e.target.value)}
                     placeholder="명판 스티커 코드 (선택)"
-                    className="hb-input h-[44px] font-mono text-hb-sm bg-white"
+                    className="hb-input h-11 font-mono text-hb-base sm:text-hb-sm bg-white"
                   />
                 </div>
               </div>

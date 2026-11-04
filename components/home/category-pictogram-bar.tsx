@@ -201,7 +201,7 @@ export function CategoryPictogramBar({
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl p-2.5 sm:py-3 sm:px-2 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-lg p-2.5 sm:py-3 sm:px-2 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                       isSelected
                         ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]/30"
                         : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD2DC] hover:shadow-card"

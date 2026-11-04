@@ -1046,7 +1046,7 @@ export default function Home({
                                   : "bg-[#F1F3F6] text-[#4E5968]"
                               }`}
                             >
-                              STEP {s.step}
+                              {s.step}단계
                             </span>
                             <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
                               {s.t}

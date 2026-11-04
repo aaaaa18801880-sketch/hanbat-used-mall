@@ -754,3 +754,53 @@
 - **7. eslint**: PASS (12.97s) — 0 errors, 0 warnings
 - **8. next build**: PASS (14.44s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~33s)
+
+---
+
+## 🚀 [Cycle 25] 2026-11-05 — 웹 아르곤 3대 디자인 감사(Audit) 지적사항 9개 전수 해결 및 100% 무결점 달성 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-032`
+- **핵심 목표**:
+  - `아르곤_디자인.xml` 기반 웹 아르곤 전수 감사 리포트에서 도출된 3대 프레임워크(`Nutlope/hallmark` · `pbakaus/impeccable` · `jakubkrehel/skills`) 지적사항 8대 과제 + 9개 컴포넌트 전수 교정.
+  - 잔여 Card-in-Card 해체, 모바일 iOS 자동 확대(16px 미만) 방지, 4색 지정 토큰 통일, 대형 CTA WCAG AA 명도 대비 및 aria-label 보강, 동심원 곡률 일치화, 촉각 피드백(`active:scale-[0.96]`) 및 `tabular-nums` 전수 적용.
+
+### 2. 코드 변경 요약
+- **[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)**:
+  - 브레드크럼 및 래퍼 구형 컬러(#191F28, #F05600 등)를 `#141A23` / `#E8521A` / `#334155`로 통일.
+  - 우측 콘솔 `<dl>`의 중첩 박스 해체 -> `border-y border-[#E2E6EC] divide-y divide-[#E2E6EC]` 평탄화 및 모델명/보증/스펙에 `tabular-nums` 적용.
+- **[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)**:
+  - 1순위 전화 버튼: WCAG AA 고대비 다크 네이비(`#141A23`) + 오렌지 아이콘/폰트, `aria-label` 및 포커스 링 보강.
+  - 2순위 카카오톡 버튼: `aria-label` 및 포커스 링 보강.
+  - 3순위 소프트 독 & 4순위 쇼룸 방문 바: 4색 시맨틱 토큰 정렬, `active:scale-[0.96]` 촉각 피드백 적용.
+- **[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)** & **[components/products/product-status-badge.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-status-badge.tsx)**:
+  - 외곽 포커스 래퍼 곡률을 `rounded-2xl`로 단일화하여 동심원 곡률 불일치 해소.
+  - 상태 배지 영문 `NEW`를 정직한 한국어 `신규입고`로 변경하고 라이브 도트 `#0D9488`(Teal) 통일.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 동심원 곡률 공식($16\text{px} - 8\text{px} = 8\text{px}$)에 따라 내부 버튼을 `rounded-lg`로 교정, `active:scale-[0.96]` 및 `focus-visible:ring-2` 추가.
+- **[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx)**:
+  - 카테고리 품질 보증 배너 내부 중첩 카드 해체 -> `divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC]` 단일 원장 평탄화.
+- **[components/products/aircon-set-guide-banner.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/aircon-set-guide-banner.tsx)**:
+  - 외곽 카드 내부 3열 서브카드 해체 -> `divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC]` 평탄화, 쿨그레이/시맨틱 토큰 통일.
+- **[components/inquiry/unified-inquiry-form.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/unified-inquiry-form.tsx)** & **[components/inquiry/v2-wizard-quick-inquiry.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/v2-wizard-quick-inquiry.tsx)**:
+  - `<select>`, `<input>`에 `text-hb-base sm:text-hb-sm` 적용하여 iOS Safari 자동 줌 원천 차단.
+  - 가이드 박스 내부 중첩 카드 평탄화, AI 판독 상태에 지정 Cyan/Teal 토큰 적용, 스텝퍼에 `tabular-nums` 적용.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)** & **[components/ui/modern-icons.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/ui/modern-icons.tsx)**:
+  - `DuotoneIcon` toneClasses 및 `ModernApplianceIcon` 4색 지정 토큰 통일, `MobileCtaBar`에 `active:scale-[0.96]` 촉각 피드백 추가.
+- **[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)**:
+  - 모바일 3개 필터 `<select>` 및 상세 수정 모달 필드에 `text-hb-base sm:text-hb-xs` 및 `h-10` 터치 타겟 확보.
+- **[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)**, **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**, **[app/admin/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/admin/page.tsx)**, **[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx)**, **[app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx)**:
+  - 영문 라벨 직관화(`STEP 01~04` -> `01단계~04단계`, `Admin Console` -> `관리자 콘솔`), 건수 및 페이지네이션 `tabular-nums` 적용, 방문 예약 버튼 촉각 피드백 적용.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,620줄 최신본 자동 패키징 완료.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.24s) — 임의 픽셀 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.13s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.14s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.12s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.13s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.49s) — 0 errors
+- **7. eslint**: PASS (18.32s) — 0 errors, 0 warnings
+- **8. next build**: PASS (15.96s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~40s)

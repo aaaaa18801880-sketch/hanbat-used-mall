@@ -97,9 +97,9 @@ export function ShowroomVisitModal({
       label="직영 쇼룸 방문 및 실물 확인 예약"
       panelClassName="max-w-2xl"
     >
-      <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E5E8EB] bg-white shadow-2xl">
+      <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
         {/* 상단 헤더 */}
-        <div className="flex items-center justify-between border-b border-[#E5E8EB] bg-[#191F28] px-5 py-4 text-white">
+        <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-4 text-white">
           <div className="flex items-center gap-2.5">
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#FF8A50]/20 text-[#FF8A50]">
               <Icon d={ICON.pin} className="w-4 h-4" />
@@ -127,16 +127,16 @@ export function ShowroomVisitModal({
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           {/* 1. 실물 찜 대상 상품 요약 (선택된 상품이 있는 경우) */}
           {product && (
-            <div className="rounded-xl border border-[#FFD8C2] bg-[#FFF4EE] p-3.5 sm:p-4">
-              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#FFD8C2]/60 text-hb-xs font-bold text-[#F05600]">
+            <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3.5 sm:p-4">
+              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#FADCD0]/60 text-hb-xs font-bold text-[#E8521A]">
                 <span>실물 확인 예약 대상 매물</span>
-                <span className="rounded bg-[#F05600] px-1.5 py-0.5 text-white">
+                <span className="rounded bg-[#E8521A] px-1.5 py-0.5 text-white">
                   방문 전 실물 찜
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-3">
                 {product.imageUrl && (
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E5E8EB] bg-white">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2E6EC] bg-white">
                     <SafeImg
                       src={product.imageUrl}
                       alt={product.title}
@@ -145,18 +145,18 @@ export function ShowroomVisitModal({
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
-                  <span className="text-hb-xs font-bold text-[#6B7684]">
+                  <span className="text-hb-xs font-bold text-[#64748B]">
                     [{cat}] {product.modelName ? `모델명: ${product.modelName}` : ""}
                   </span>
-                  <h3 className="truncate text-hb-sm font-bold text-[#191F28]">
+                  <h3 className="truncate text-hb-sm font-bold text-[#141A23]">
                     {product.title}
                   </h3>
-                  <span className="text-hb-sm font-bold text-[#F05600] tabular-nums">
+                  <span className="text-hb-sm font-bold text-[#E8521A] tabular-nums">
                     {priceDisplay}
                   </span>
                 </div>
               </div>
-              <p className="mt-2.5 text-hb-xs text-[#4E5968] leading-relaxed">
+              <p className="mt-2.5 text-hb-xs text-[#334155] leading-relaxed">
                 ※ 방문 전 예약 문자를 남겨주시면, 오시는 동안 타 고객에게 판매되지 않도록 우선 안내해 드리고 매장에서 전원을 미리 연결하여 시운전 준비를 해드립니다.
               </p>
             </div>
@@ -164,7 +164,7 @@ export function ShowroomVisitModal({
 
           {/* 2. 방문 예정 시간대 선택 */}
           <div>
-            <label className="block text-hb-xs sm:text-hb-sm font-bold text-[#191F28] mb-2">
+            <label className="block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] mb-2">
               방문 희망 일정 선택
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -173,7 +173,7 @@ export function ShowroomVisitModal({
                   key={opt}
                   type="button"
                   onClick={() => setSelectedTime(opt)}
-                  className={`flex items-center justify-between rounded-lg border p-2.5 text-hb-xs sm:text-hb-sm font-bold transition-[border-color,background-color,color,box-shadow] text-left ${
+                  className={`flex items-center justify-between rounded-lg border p-2.5 text-hb-xs sm:text-hb-sm font-bold transition-[border-color,background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] text-left cursor-pointer ${
                     selectedTime === opt
                       ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] shadow-2xs"
                       : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
@@ -181,7 +181,7 @@ export function ShowroomVisitModal({
                 >
                   <span className="truncate">{opt}</span>
                   {selectedTime === opt && (
-                    <Icon d={ICON.check} className="w-4 h-4 shrink-0 text-[#F05600]" />
+                    <Icon d={ICON.check} className="w-4 h-4 shrink-0 text-[#E8521A]" />
                   )}
                 </button>
               ))}
@@ -197,7 +197,7 @@ export function ShowroomVisitModal({
                   hasProduct: Boolean(product),
                 });
               }}
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#191F28] hover:bg-[#1A2E4C] h-12 px-4 text-hb-sm font-bold text-white transition-colors shadow-2xs"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#141A23] hover:bg-[#1E2736] h-12 px-4 text-hb-sm font-bold text-white transition-[background-color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
             >
               <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
               <span>문자로 방문 예약 및 실물 찜</span>
@@ -205,7 +205,7 @@ export function ShowroomVisitModal({
             <button
               type="button"
               onClick={handleKakaoVisit}
-              className="flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] hover:bg-[#F2D900] h-12 px-4 text-hb-sm font-bold text-[#191600] transition-colors shadow-2xs"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#FEE500] hover:bg-[#F2D900] h-12 px-4 text-hb-sm font-bold text-[#191600] transition-[background-color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
             >
               <Icon d={ICON.chat} className="w-4 h-4" />
               <span>카카오톡 방문 예약 상담</span>
@@ -221,7 +221,7 @@ export function ShowroomVisitModal({
               <button
                 type="button"
                 onClick={handleCopyAddress}
-                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#E8521A] hover:underline"
+                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#E8521A] hover:underline cursor-pointer"
               >
                 <Icon d={ICON.copy} className="w-3.5 h-3.5" />
                 <span>도로명 주소 복사</span>
@@ -229,10 +229,10 @@ export function ShowroomVisitModal({
             </div>
 
             <div>
-              <p className="text-hb-sm font-bold text-[#191F28]">
+              <p className="text-hb-sm font-bold text-[#141A23]">
                 {STORE_NAVIGATION.roadAddress}
               </p>
-              <p className="text-hb-xs text-[#6B7684] mt-0.5">
+              <p className="text-hb-xs text-[#64748B] mt-0.5">
                 지번: {STORE_NAVIGATION.jibunAddress} ({STORE_NAVIGATION.addressNote})
               </p>
             </div>
@@ -243,7 +243,7 @@ export function ShowroomVisitModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackEvent("click_nav_naver")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#03C75A]/30 bg-[#027A3B]/10 hover:bg-[#027A3B]/20 px-2 py-2.5 text-hb-xs font-bold text-[#027A3B] transition-colors"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#03C75A]/30 bg-[#027A3B]/10 hover:bg-[#027A3B]/20 px-2 py-2.5 text-hb-xs font-bold text-[#027A3B] transition-[background-color,transform] duration-150 active:scale-[0.96]"
               >
                 <span>네이버 지도</span>
                 <Icon d={ICON.external} className="w-3 h-3" />
@@ -253,7 +253,7 @@ export function ShowroomVisitModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackEvent("click_nav_kakao")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#FEE500]/50 bg-[#FEE500]/20 hover:bg-[#FEE500]/30 px-2 py-2.5 text-hb-xs font-bold text-[#191600] transition-colors"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#FEE500]/50 bg-[#FEE500]/20 hover:bg-[#FEE500]/30 px-2 py-2.5 text-hb-xs font-bold text-[#191600] transition-[background-color,transform] duration-150 active:scale-[0.96]"
               >
                 <span>카카오맵</span>
                 <Icon d={ICON.external} className="w-3 h-3" />
@@ -263,7 +263,7 @@ export function ShowroomVisitModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackEvent("click_nav_tmap")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E8EB] bg-white hover:bg-[#F2F4F6] px-2 py-2.5 text-hb-xs font-bold text-[#191F28] transition-colors"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white hover:bg-[#F1F3F6] px-2 py-2.5 text-hb-xs font-bold text-[#141A23] transition-[background-color,transform] duration-150 active:scale-[0.96]"
               >
                 <span>티맵 길안내</span>
                 <Icon d={ICON.external} className="w-3 h-3" />
@@ -272,20 +272,20 @@ export function ShowroomVisitModal({
           </div>
 
           {/* 5. 매장 방문 편의 & 주차 안내 (실제 매장 배치와 다른 층별 구분 박스 제거) */}
-          <div className="rounded-2xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#4E5968]">
-            <div className="flex items-center gap-1.5 font-bold text-[#191F28]">
-              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#F05600]" />
+          <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#334155]">
+            <div className="flex items-center gap-1.5 font-bold text-[#141A23]">
+              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#E8521A]" />
               <span>{STORE_NAVIGATION.parking}</span>
             </div>
-            <div className="text-[#6B7684]">
+            <div className="text-[#64748B]">
               <span>영업시간: {STORE_NAVIGATION.hours} ({STORE_NAVIGATION.closed})</span>
             </div>
           </div>
         </div>
 
         {/* 하단 닫기 바 */}
-        <div className="border-t border-[#E5E8EB] bg-[#F9FAFB] px-5 py-3 flex items-center justify-between">
-          <span className="text-hb-xs text-[#6B7684]">
+        <div className="border-t border-[#E2E6EC] bg-[#F7F8FA] px-5 py-3 flex items-center justify-between">
+          <span className="text-hb-xs text-[#64748B]">
             방문 전 문의: {STORE.tel} · {STORE.mobile}
           </span>
           <button

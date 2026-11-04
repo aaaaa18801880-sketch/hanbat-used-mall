@@ -230,43 +230,39 @@ export function FeaturedProductsSection({
           </div>
         </div>
 
-        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 */}
+        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 (No Card-in-Card 평탄화) */}
         {!loading && !error && (
-          <div className="mt-5 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-3.5 sm:p-5">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#E2E6EC] bg-white shadow-2xs">
-                  <ModernApplianceIcon
-                    name={categoryFact.icon}
-                    className="w-7 h-7"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white shrink-0">
-                      {categoryFact.badge}
-                    </span>
-                    <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
-                      {categoryFact.headline}
-                    </strong>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 text-hb-xs text-[#4E5968] shrink-0">
-                {categoryFact.points.map((pt) => (
-                  <span
-                    key={pt}
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E6EC] bg-white px-3 py-1.5 font-semibold text-[#141A23] shadow-2xs"
-                  >
-                    <Icon
-                      d={ICON.check}
-                      className="w-3.5 h-3.5 text-[#0D9488] shrink-0"
-                    />
-                    <span>{pt}</span>
+          <div className="mt-5 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <ModernApplianceIcon
+                name={categoryFact.icon}
+                className="w-9 h-9 shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-md bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white shrink-0">
+                    {categoryFact.badge}
                   </span>
-                ))}
+                  <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
+                    {categoryFact.headline}
+                  </strong>
+                </div>
               </div>
+            </div>
+
+            <div className="pt-3 lg:pt-0 lg:pl-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-hb-xs shrink-0">
+              {categoryFact.points.map((pt) => (
+                <span
+                  key={pt}
+                  className="inline-flex items-center gap-1.5 font-semibold text-[#141A23] tabular-nums"
+                >
+                  <Icon
+                    d={ICON.check}
+                    className="w-3.5 h-3.5 text-[#0D9488] shrink-0"
+                  />
+                  <span>{pt}</span>
+                </span>
+              ))}
             </div>
           </div>
         )}

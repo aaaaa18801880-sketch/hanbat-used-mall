@@ -977,13 +977,13 @@ export default function InquiryBoardPage() {
               onClick={() => goPage(Math.max(safePage - 1, 1))}
               disabled={safePage === 1}
               aria-label="이전 페이지"
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E5E8EB] bg-white text-[#4E5968] disabled:opacity-30"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E2E6EC] bg-white text-[#4E5968] disabled:opacity-30"
             >
               <Icon d={ICON.left} className="w-4 h-4" />
             </button>
             {pageWindow(safePage, totalPages).map((p, i) =>
               p === "…" ? (
-                <span key={`e${i}`} className="w-6 text-center text-[#8B95A1]">
+                <span key={`e${i}`} className="w-6 text-center text-[#94A3B8]">
                   …
                 </span>
               ) : (
@@ -991,10 +991,10 @@ export default function InquiryBoardPage() {
                   key={p}
                   type="button"
                   onClick={() => goPage(p)}
-                  className={`w-9 h-9 rounded-lg text-hb-sm font-semibold ${
+                  className={`w-9 h-9 rounded-lg text-hb-sm font-semibold tabular-nums ${
                     safePage === p
-                      ? "bg-[#191F28] text-white"
-                      : "border border-[#E5E8EB] bg-white text-[#4E5968]"
+                      ? "bg-[#141A23] text-white"
+                      : "border border-[#E2E6EC] bg-white text-[#4E5968] hover:border-[#141A23]"
                   }`}
                 >
                   {p}
@@ -1006,7 +1006,7 @@ export default function InquiryBoardPage() {
               onClick={() => goPage(Math.min(safePage + 1, totalPages))}
               disabled={safePage === totalPages}
               aria-label="다음 페이지"
-              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E5E8EB] bg-white text-[#4E5968] disabled:opacity-30"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E2E6EC] bg-white text-[#4E5968] disabled:opacity-30"
             >
               <Icon d={ICON.right} className="w-4 h-4" />
             </button>

@@ -1099,8 +1099,8 @@ export default function IntegratedAdminDashboard() {
       <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-4 font-sans">
         <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E8EB] w-full max-w-sm">
           <div className="text-center mb-6">
-            <span className="inline-block rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-extrabold tracking-[0.16em] text-[#FF8A50] uppercase">
-              Admin Console
+            <span className="inline-block rounded-md bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
+              관리자 콘솔
             </span>
             <h1 className="mt-2 text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
               한밭중고전자 통합 관리자
