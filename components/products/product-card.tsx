@@ -62,8 +62,8 @@ export function ProductTrustMicroStrip({
           : "전문 엔지니어 작동 점검 및 살균 클리닝 완료",
       highlight: null,
       icon: "sparkle" as const,
-      color: "text-[#00A85D]",
-      badge: "bg-[#E8FAF0] text-[#00A85D]",
+      color: "text-[#0F766E]",
+      badge: "bg-[#F0FDFA] border border-[#CCFBF1] text-[#0F766E]",
     },
     {
       step: "02",
@@ -71,8 +71,8 @@ export function ProductTrustMicroStrip({
       desc: warrantyHighlight,
       highlight: null,
       icon: "shield" as const,
-      color: "text-[#F05600]",
-      badge: "bg-[#FFF4EE] text-[#F05600]",
+      color: "text-[#D9531E]",
+      badge: "bg-[#FFF5F0] border border-[#FADCD0] text-[#D9531E]",
     },
     {
       step: "03",
@@ -80,8 +80,8 @@ export function ProductTrustMicroStrip({
       desc: "사업자 계산서 100% 정식 발행 및 충청권 직배송",
       highlight: null,
       icon: "tax" as const,
-      color: "text-[#3182F6]",
-      badge: "bg-[#E8F3FF] text-[#3182F6]",
+      color: "text-[#0369A1]",
+      badge: "bg-[#F0F9FF] border border-[#BAE6FD] text-[#0369A1]",
     },
   ] as const;
 
@@ -378,7 +378,7 @@ export function ProductCard({
         <div>
           {/* 상단 메타: 소프트 코랄 카테고리 칩 + 모델명 */}
           <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="inline-flex items-center rounded-md bg-[#FFF4EE] px-2 py-0.5 font-semibold text-[#F05600] truncate">
+            <span className="inline-flex items-center rounded-md bg-[#FFF5F0] border border-[#FADCD0] px-2 py-0.5 font-semibold text-[#D9531E] truncate">
               {categoryLabel}
             </span>
             {modelName && (
@@ -396,7 +396,7 @@ export function ProductCard({
             className={`mt-2 line-clamp-2 text-hb-sm sm:text-hb-base font-semibold leading-[1.42] transition-colors break-keep ${
               sold
                 ? "text-[#8B95A1]"
-                : "text-[#191F28] group-hover:text-[#F05600]"
+                : "text-[#0E1A2B] group-hover:text-[#D9531E]"
             }`}
           >
             {product.title}
@@ -409,11 +409,11 @@ export function ProductCard({
                 판매완료 · 유사매물 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-lg sm:text-hb-xl font-bold text-[#191F28] tabular-nums truncate">
+              <strong className="block text-hb-lg sm:text-hb-xl font-bold text-[#D9531E] tabular-nums truncate">
                 {priceText}
               </strong>
             ) : (
-              <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#191F28] truncate">
+              <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#0E1A2B] truncate">
                 <span className="sm:hidden">견적 상담</span>
                 <span className="hidden sm:inline">{priceText}</span>
               </strong>
@@ -421,14 +421,14 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* 하단: 핵심 스펙 칩(최대 2개, 500 Medium) + 원터치 견적 담기(600 SemiBold) */}
+        {/* 하단: 핵심 스펙 칩(쿨 시안 배지) + 원터치 견적 담기(600 SemiBold) */}
         <div className="mt-3 flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
             {specCapsules.length > 0 ? (
               specCapsules.map((cap) => (
                 <span
                   key={cap}
-                  className="inline-block rounded-lg bg-[#F2F4F6] px-2 py-1 text-hb-xs font-medium text-[#4E5968] truncate"
+                  className="inline-block rounded-lg bg-[#F0F9FF] border border-[#BAE6FD]/80 px-2 py-0.5 text-hb-xs font-bold text-[#0369A1] truncate whitespace-nowrap"
                 >
                   {cap}
                 </span>

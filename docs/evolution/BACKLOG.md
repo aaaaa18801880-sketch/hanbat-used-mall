@@ -259,3 +259,31 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - `<PromotionShowcaseSection />` 마운트 및 컴포넌트, 이미지 파일 전량 영구 삭제.
 - **검증 계획**:
   - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
+
+### EVO-027: 전체 프로덕션 문서 체계 최신화 (README.md 전면 개편)
+- **개선 방안**:
+  - `README.md`를 초기 템플릿에서 프로덕션 수준의 기술 스택, 8대 게이트 아키텍처, 디렉터리 맵으로 전면 개편.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
+
+### EVO-028: 아르곤 코드베이스 XML 패키징 동기화 (아르곤_디자인.xml)
+- **개선 방안**:
+  - `아르곤_디자인.xml`을 최신 진화 사이클 반영본(87개 파일, 30,564줄)으로 자동 재패키징.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
+
+### EVO-029: 3대 프론트엔드 디자인 스킬 1단계 (De-boxing & Concentric Border Radius)
+- **개선 방안**:
+  - `jakubkrehel/skills` 동심원 곡률($R_{inner} = R_{outer} - P$) 및 촉각 피드백(`active:scale-[0.96]`) 적용.
+  - `pbakaus/impeccable` & `Nutlope/hallmark` 중첩 박스 해체(No Card-in-Card) 적용.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
+
+### EVO-030: 3대 프론트엔드 디자인 스킬 2단계 (3색 분할 보색 & 정밀 검수/설치 플래너 개편)
+- **개선 방안**:
+  - `app/globals.css`: 3색 분할 보색(`--hb-teal`, `--hb-cyan`, `--hb-orange`, `--hb-navy`), 마이크로 그라데이션 버튼, 스튜디오 조명 배경 토큰.
+  - `components/products/product-card.tsx`: 동심원 모서리 곡률 및 3색 분할 신뢰 스트립.
+  - `components/products/v2-visual-inspection-viewer.tsx`: 4대 구매자 우려 해소형 에디토리얼 그리드 및 No Card-in-Card.
+  - `components/products/v2-spatial-fit-planner.tsx`: 조작부 상단 배치(4단계 인터랙션), 경고/공간 시각화, 비용 구분, tabular-nums.
+- **검증 계획**:
+  - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
