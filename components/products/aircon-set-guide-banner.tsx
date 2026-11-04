@@ -20,7 +20,7 @@ export function AirconSetGuideBanner({
     return (
       <>
         <div
-          className={`relative overflow-hidden rounded-xl border border-[#E5E8EB] bg-white p-4 sm:p-5 shadow-2xs transition-all ${className}`}
+          className={`relative overflow-hidden rounded-xl border border-[#E2E6EC] bg-white p-4 sm:p-5 shadow-2xs transition-[border-color,box-shadow] duration-200 ${className}`}
         >
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5 min-w-0">
@@ -133,7 +133,7 @@ export function AirconSetGuideBanner({
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="group relative mt-3.5 block w-full overflow-hidden rounded-lg border border-[#E5E8EB] bg-white cursor-pointer transition-all hover:border-[#191F28]"
+          className="group relative mt-3.5 block w-full overflow-hidden rounded-lg border border-[#E2E6EC] bg-white cursor-pointer transition-[border-color] duration-200 hover:border-[#141A23]"
         >
           <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F4F2ED]">
             <SafeImg

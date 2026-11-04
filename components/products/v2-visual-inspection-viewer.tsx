@@ -132,7 +132,7 @@ function getBuyerConcernItems(
 const TONE_BADGE_STYLE = {
   cyan: "bg-[#F0F9FF] text-[#0369A1] border-[#BAE6FD]",
   teal: "bg-[#F0FDFA] text-[#0F766E] border-[#CCFBF1]",
-  orange: "bg-[#FFF5F0] text-[#D9531E] border-[#FADCD0]",
+  orange: "bg-[#FFF4EE] text-[#E8521A] border-[#FADCD0]",
 } as const;
 
 export function V2VisualInspectionViewer({
@@ -153,10 +153,10 @@ export function V2VisualInspectionViewer({
   return (
     <div className="hb-surface-card flex h-full flex-col justify-between overflow-hidden">
       {/* 상단 헤더 (중첩 박스 없이 하단 보더로만 분리) */}
-      <div className="border-b border-[#E5E8EB] bg-gradient-to-r from-[#FAF9F7] via-white to-[#F0FDFA]/50 px-5 py-5 sm:px-6">
+      <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-[#0E1A2B] px-2.5 py-1 text-hb-xs font-bold text-white whitespace-nowrap">
+            <span className="rounded-md bg-[#141A23] px-2.5 py-1 text-hb-xs font-bold text-white whitespace-nowrap">
               안심 출고 검수 리포트
             </span>
             <span className="rounded-md border border-[#CCFBF1] bg-[#F0FDFA] px-2.5 py-1 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
@@ -164,12 +164,12 @@ export function V2VisualInspectionViewer({
             </span>
           </div>
 
-          <span className="rounded-full border border-[#FADCD0] bg-[#FFF5F0] px-3 py-1 text-hb-xs font-bold text-[#D9531E] whitespace-nowrap tabular-nums">
+          <span className="rounded-full border border-[#FADCD0] bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#E8521A] whitespace-nowrap tabular-nums">
             {displayGrade} · {warrantyText}
           </span>
         </div>
 
-        <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#0E1A2B] tracking-tight">
+        <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight">
           중고 구매 전 가장 걱정되는 4가지, 이렇게 해결합니다
         </h3>
         <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#334155]">
@@ -178,13 +178,13 @@ export function V2VisualInspectionViewer({
       </div>
 
       {/* 본문 2×2 에디토리얼 그리드 (No Card-in-Card: 얇은 구분선과 여백만 사용) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E5E8EB] flex-1">
-        <div className="divide-y divide-[#E5E8EB]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC] flex-1">
+        <div className="divide-y divide-[#E2E6EC]">
           {items.slice(0, 2).map((item) => (
             <div key={item.no} className="p-5 sm:p-6 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
-                  CHECK {item.no}
+                  검수 {item.no}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold whitespace-nowrap ${
@@ -195,10 +195,10 @@ export function V2VisualInspectionViewer({
                   <span>{item.badge}</span>
                 </span>
               </div>
-              <p className="text-hb-xs font-bold text-[#D9531E] leading-snug break-keep">
+              <p className="text-hb-xs font-bold text-[#E8521A] leading-snug break-keep">
                 Q. {item.question}
               </p>
-              <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#0E1A2B] leading-snug break-keep">
+              <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug break-keep">
                 {item.answerTitle}
               </h4>
               <p className="text-hb-xs sm:text-hb-sm leading-[1.65] text-[#334155] break-keep pt-0.5">
@@ -208,12 +208,12 @@ export function V2VisualInspectionViewer({
           ))}
         </div>
 
-        <div className="divide-y divide-[#E5E8EB]">
+        <div className="divide-y divide-[#E2E6EC]">
           {items.slice(2, 4).map((item) => (
             <div key={item.no} className="p-5 sm:p-6 space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <span className="font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
-                  CHECK {item.no}
+                  검수 {item.no}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold whitespace-nowrap ${
@@ -224,10 +224,10 @@ export function V2VisualInspectionViewer({
                   <span>{item.badge}</span>
                 </span>
               </div>
-              <p className="text-hb-xs font-bold text-[#D9531E] leading-snug break-keep">
+              <p className="text-hb-xs font-bold text-[#E8521A] leading-snug break-keep">
                 Q. {item.question}
               </p>
-              <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#0E1A2B] leading-snug break-keep">
+              <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug break-keep">
                 {item.answerTitle}
               </h4>
               <p className="text-hb-xs sm:text-hb-sm leading-[1.65] text-[#334155] break-keep pt-0.5">
@@ -239,7 +239,7 @@ export function V2VisualInspectionViewer({
       </div>
 
       {/* 하단 푸터 스트립 */}
-      <div className="border-t border-[#E5E8EB] bg-[#FAF9F7] px-5 py-3.5 text-hb-xs text-[#334155] flex items-center gap-2">
+      <div className="border-t border-[#E2E6EC] bg-[#F7F8FA] px-5 py-3.5 text-hb-xs text-[#334155] flex items-center gap-2">
         <Icon d={ICON.pin} className="w-4 h-4 text-[#0D9488] shrink-0" />
         <span className="break-keep">
           <strong>대전 중촌동 1·2층 직영 쇼룸 상시 개방:</strong> 매장에 방문하시면 구매 전 직접 전원을 켜고 냉기·작동 상태를 확인하실 수 있습니다.

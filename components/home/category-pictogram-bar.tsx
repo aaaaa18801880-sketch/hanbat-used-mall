@@ -151,10 +151,10 @@ export function CategoryPictogramBar({
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2.5">
             <span
-              className="inline-block h-4 w-1.5 rounded-full bg-[#FF6F0F]"
+              className="inline-block h-4 w-1.5 rounded-full bg-[#E8521A]"
               aria-hidden="true"
             />
-            <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#191F28] tracking-[-0.02em]">
+            <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-[-0.02em]">
               품목별 쇼룸 카탈로그
             </h2>
           </div>
@@ -163,22 +163,22 @@ export function CategoryPictogramBar({
             <button
               type="button"
               onClick={() => handleCategoryClick(allItem)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-[color,background-color,border-color,box-shadow] cursor-pointer ${
                 selectedKey === "all"
-                  ? "bg-[#191F28] text-white shadow-xs"
-                  : "bg-[#F2F4F6] text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28]"
+                  ? "bg-[#141A23] text-white shadow-xs"
+                  : "bg-[#F1F3F6] text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23]"
               }`}
             >
               <span>전체 실매물</span>
               {typeof categoryCounts?.all === "number" && (
-                <span className="text-[#FF8A50] tabular-nums">
+                <span className="text-[#E8521A] tabular-nums font-bold">
                   {categoryCounts.all}대
                 </span>
               )}
             </button>
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1 rounded-full bg-[#F2F4F6] px-3.5 py-1.5 text-hb-xs font-bold text-[#191F28] hover:bg-[#E5E8EB] transition-colors"
+              className="inline-flex items-center gap-1 rounded-full bg-[#F1F3F6] px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:bg-[#E2E6EC] transition-colors"
             >
               <span>갤러리 전체보기</span>
               <Icon d={ICON.right} className="w-3.5 h-3.5" />
@@ -186,10 +186,10 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 (토스/당근 스타일 스쿼클 그리드) */}
+        {/* 쇼룸 카탈로그 독 + 슬림 퀵 액션 스트립 */}
         <div className="space-y-3">
           {/* 1단: 전 품목 쇼룸 카탈로그 독 (8열 와이드 그리드) */}
-          <div className="rounded-3xl bg-[#F2F4F6]/80 p-2.5 sm:p-3">
+          <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2 sm:p-2.5">
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-2.5">
               {SHOWROOM_CATEGORIES.map((item) => {
                 const isSelected = selectedKey === item.key;
@@ -201,10 +201,10 @@ export function CategoryPictogramBar({
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-2xl p-2.5 sm:py-3.5 sm:px-2 text-center transition-all duration-200 cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl p-2.5 sm:py-3 sm:px-2 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer ${
                       isSelected
-                        ? "bg-[#191F28] text-white shadow-card-hover -translate-y-0.5 ring-2 ring-[#FF6F0F]/40"
-                        : "bg-white text-[#191F28] shadow-2xs hover:shadow-card hover:-translate-y-0.5"
+                        ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]/30"
+                        : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD2DC] hover:shadow-card"
                     }`}
                   >
                     {/* 업소용일 때만 B2B 마이크로 배지 표시 */}
@@ -212,8 +212,8 @@ export function CategoryPictogramBar({
                       <span
                         className={`text-hb-xs font-bold px-2 py-0.5 rounded-full leading-none ${
                           isSelected
-                            ? "bg-white/15 text-[#FF8A50]"
-                            : "bg-[#E8F3FF] text-[#3182F6]"
+                            ? "bg-white/15 text-[#FB923C]"
+                            : "bg-[#E0F2FE] text-[#0284C7]"
                         }`}
                       >
                         B2B
@@ -233,7 +233,7 @@ export function CategoryPictogramBar({
                         className={`block text-hb-xs sm:text-hb-sm font-bold tracking-[-0.015em] truncate ${
                           isSelected
                             ? "text-white"
-                            : "text-[#191F28] group-hover:text-[#F05600]"
+                            : "text-[#141A23] group-hover:text-[#E8521A]"
                         }`}
                       >
                         {item.label}
@@ -241,10 +241,10 @@ export function CategoryPictogramBar({
                       <span
                         className={`mt-0.5 block text-hb-xs font-semibold truncate ${
                           isSelected
-                            ? "text-[#FF8A50]"
+                            ? "text-[#FB923C]"
                             : isBiz
-                            ? "text-[#3182F6]"
-                            : "text-[#8B95A1]"
+                            ? "text-[#0284C7]"
+                            : "text-[#64748B]"
                         }`}
                       >
                         {typeof count === "number"
@@ -256,7 +256,7 @@ export function CategoryPictogramBar({
                     {/* 선택 시 하단 오렌지 인디케이터 바 */}
                     {isSelected && (
                       <span
-                        className="h-1 w-7 rounded-full bg-[#FF6F0F] mt-0.5"
+                        className="h-1 w-7 rounded-full bg-[#E8521A] mt-0.5"
                         aria-hidden="true"
                       />
                     )}

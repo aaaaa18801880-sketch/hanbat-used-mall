@@ -42,16 +42,16 @@ export default function PurchasePage() {
   const [guideOpen, setGuideOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] font-sans text-[#191F28] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
       {/* 상단 매입 전용 헤더 */}
-      <section className="bg-white border-b border-[#E5E8EB]">
+      <section className="bg-white border-b border-[#E2E6EC]">
         <div className="hb-container py-8 sm:py-11">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
               <span className="hb-eyebrow">가전 · 업소용 주방설비 방문 매입</span>
-              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] leading-[1.2] text-[#191F28]">
+              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] leading-[1.2] text-[#141A23]">
                 중고 가전 · 업소용 주방기기 매입 신청
               </h1>
               <p className="mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed break-keep [text-wrap:pretty]">
@@ -61,13 +61,13 @@ export default function PurchasePage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <span className="rounded-xl border border-[#E5E8EB] bg-[#F2F4F6] px-3.5 py-2 text-hb-xs font-bold text-[#191F28]">
+              <span className="rounded-xl border border-[#E2E6EC] bg-[#F1F3F6] px-3.5 py-2 text-hb-xs font-bold text-[#141A23]">
                 가정용 · 업소용 전 품목
               </span>
-              <span className="rounded-xl border border-[#E5E8EB] bg-[#F2F4F6] px-3.5 py-2 text-hb-xs font-bold text-[#191F28]">
+              <span className="rounded-xl border border-[#E2E6EC] bg-[#F1F3F6] px-3.5 py-2 text-hb-xs font-bold text-[#141A23]">
                 전문 기사 직접 철거·수거
               </span>
-              <span className="rounded-xl border border-[#FFD8C2] bg-[#FFF6F2] px-3.5 py-2 text-hb-xs font-bold text-[#F05600]">
+              <span className="rounded-xl border border-[#E8521A]/30 bg-[#FFF4EE] px-3.5 py-2 text-hb-xs font-bold text-[#E8521A]">
                 현장 즉시 정산
               </span>
             </div>
@@ -76,15 +76,15 @@ export default function PurchasePage() {
       </section>
 
       <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
-        {/* 3단계 매입 진행 프로세스 요약 바 (Tactile Bento 카드) */}
+        {/* 3단계 매입 진행 프로세스 일체형 아키텍처 바 */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4"
+          className="rounded-2xl border border-[#E2E6EC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E2E6EC] shadow-2xs grid grid-cols-1 md:grid-cols-3 overflow-hidden"
         >
           {BUYBACK_STEPS.map((item) => (
             <div
               key={item.step}
-              className="flex items-start gap-4 p-5 sm:p-6 hb-bento-card"
+              className="flex items-start gap-4 p-5 sm:p-6"
             >
               <ModernApplianceIcon
                 name={item.icon}
@@ -92,11 +92,11 @@ export default function PurchasePage() {
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-hb-xs font-bold tracking-[0.06em] text-[#F05600]">
+                  <span className="text-hb-xs font-bold tracking-[0.06em] text-[#E8521A]">
                     {item.step}
                   </span>
                 </div>
-                <h2 className="mt-0.5 text-hb-base sm:text-hb-lg font-bold text-[#191F28]">
+                <h2 className="mt-0.5 text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
                   {item.title}
                 </h2>
                 <p className="mt-1.5 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
@@ -109,17 +109,17 @@ export default function PurchasePage() {
 
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
           {/* 좌측 8컬럼: 통합 매입 신청 폼 */}
-          <div className="rounded-2xl border border-[#E5E8EB] bg-white p-5 sm:p-7 shadow-card lg:col-span-8">
-            <div className="mb-5 pb-4 border-b border-[#F2F4F6] flex flex-wrap items-center justify-between gap-2">
+          <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs lg:col-span-8">
+            <div className="mb-5 pb-4 border-b border-[#E2E6EC] flex flex-wrap items-center justify-between gap-2">
               <div>
-                <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#191F28]">
+                <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
                   온라인 매입 견적 신청서
                 </h2>
-                <p className="mt-1 text-hb-sm text-[#6B7684]">
+                <p className="mt-1 text-hb-sm text-[#64748B]">
                   사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 최고가 견적과 수거 일정을 빠르게 안내해 드립니다.
                 </p>
               </div>
-              <span className="rounded-lg bg-[#F2F4F6] border border-[#E5E8EB] px-3 py-1 text-hb-xs font-bold text-[#191F28]">
+              <span className="rounded-lg bg-[#F7F8FA] border border-[#E2E6EC] px-3 py-1 text-hb-xs font-bold text-[#141A23]">
                 개인정보 보호 비밀글 자동 적용
               </span>
             </div>
@@ -134,30 +134,30 @@ export default function PurchasePage() {
 
           {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}
           <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
-            <div className="rounded-2xl border border-[#E5E8EB] bg-white p-5 sm:p-6 shadow-card">
+            <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs">
               <span className="hb-eyebrow">급매 · 폐업 직통 상담</span>
-              <h2 className="mt-1.5 text-hb-lg font-bold text-[#191F28]">
+              <h2 className="mt-1.5 text-hb-lg font-bold text-[#141A23]">
                 급매 · 폐업 일괄 정리 직통 상담
               </h2>
               <p className="mt-2 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
                 품목이 많거나 빠른 방문 수거가 필요하신 경우, 전화 또는 카카오톡으로 사진을 보내주시면 가장 빠르게 견적을 안내해 드립니다.
               </p>
 
-              <div className="mt-4 rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] p-3.5 space-y-2 text-hb-xs">
+              <div className="mt-4 rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-3.5 space-y-2 text-hb-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#6B7684]">매장 대표전화</span>
+                  <span className="font-semibold text-[#64748B]">매장 대표전화</span>
                   <a
                     href={telHref(STORE.tel)}
-                    className="font-bold text-[#191F28] hover:text-[#F05600] tabular-nums"
+                    className="font-bold text-[#141A23] hover:text-[#E8521A] tabular-nums"
                   >
                     {STORE.tel}
                   </a>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-[#6B7684]">매입/수거 직통</span>
+                  <span className="font-semibold text-[#64748B]">매입/수거 직통</span>
                   <a
                     href={telHref(STORE.mobile)}
-                    className="font-bold text-[#F05600] hover:underline tabular-nums"
+                    className="font-bold text-[#E8521A] hover:underline tabular-nums"
                   >
                     {STORE.mobile}
                   </a>
@@ -185,20 +185,20 @@ export default function PurchasePage() {
             </div>
 
             {/* 공식 매입 안내문 원본 보기 카드 (크롭 없이 object-contain) */}
-            <div className="rounded-2xl border border-[#E5E8EB] bg-white p-5 shadow-card">
+            <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs">
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div>
-                  <span className="text-hb-xs font-bold text-[#F05600]">
+                  <span className="text-hb-xs font-bold text-[#E8521A]">
                     공식 매입 기준 안내문
                   </span>
-                  <h3 className="text-hb-sm font-bold text-[#191F28]">
+                  <h3 className="text-hb-sm font-bold text-[#141A23]">
                     한밭중고전자 매입 기준 안내문
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setGuideOpen(true)}
-                  className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-2.5 py-1 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28]"
+                  className="rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] px-2.5 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
                 >
                   크게 보기
                 </button>
@@ -206,7 +206,7 @@ export default function PurchasePage() {
               <button
                 type="button"
                 onClick={() => setGuideOpen(true)}
-                className="group relative block w-full overflow-hidden rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-2.5 text-left"
+                className="group relative block w-full overflow-hidden rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 text-left"
               >
                 <div className="aspect-[4/3] w-full overflow-hidden flex items-center justify-center bg-white rounded-lg">
                   <SafeImg
@@ -215,7 +215,7 @@ export default function PurchasePage() {
                     className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                   />
                 </div>
-                <p className="mt-2 text-center text-hb-xs font-semibold text-[#6B7684] group-hover:text-[#191F28]">
+                <p className="mt-2 text-center text-hb-xs font-semibold text-[#64748B] group-hover:text-[#141A23]">
                   클릭하여 매입 가능 품목 및 체크사항 크게 보기
                 </p>
               </button>
@@ -230,8 +230,8 @@ export default function PurchasePage() {
           onClose={() => setGuideOpen(false)}
           panelClassName="max-w-2xl"
         >
-          <div className="overflow-hidden rounded-2xl border border-[#E5E8EB] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E5E8EB] px-5 py-3.5 bg-[#191F28] text-white">
+          <div className="overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E2E6EC] px-5 py-3.5 bg-[#141A23] text-white">
               <h3 className="text-hb-base font-bold">
                 한밭중고전자 공식 매입 안내문
               </h3>
@@ -244,11 +244,11 @@ export default function PurchasePage() {
                 <Icon d={ICON.close} className="h-5 w-5" />
               </button>
             </div>
-            <div className="max-h-[82vh] overflow-y-auto bg-[#F9FAFB] p-4 sm:p-6 flex justify-center">
+            <div className="max-h-[82vh] overflow-y-auto bg-[#F7F8FA] p-4 sm:p-6 flex justify-center">
               <SafeImg
                 src="/매입 안내문.png"
                 alt="한밭중고전자 공식 매입 안내문 원본"
-                className="max-h-[74vh] w-auto object-contain rounded-lg border border-[#E5E8EB] bg-white"
+                className="max-h-[74vh] w-auto object-contain rounded-lg border border-[#E2E6EC] bg-white"
               />
             </div>
           </div>

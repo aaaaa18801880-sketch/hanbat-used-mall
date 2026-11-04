@@ -30,21 +30,21 @@ export function ProductStatusBadge({
           sold
             ? "bg-[#4E5968]/90 text-white"
             : reserved
-            ? "bg-[#FF6F0F]/95 text-white"
-            : "bg-[#191F28]/90 text-white"
+            ? "bg-[#E8521A]/95 text-white"
+            : "bg-[#141A23]/90 text-white"
         }`}
       >
         {!sold && (
           <span
             className={`h-1.5 w-1.5 rounded-full ${
-              reserved ? "bg-white animate-pulse" : "bg-[#00C471]"
+              reserved ? "bg-white" : "bg-[#00C471]"
             }`}
           />
         )}
         <span>{label}</span>
       </span>
       {isFresh && (
-        <span className="inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#FF6F0F]/30 px-2 py-0.5 text-hb-xs font-bold text-[#F05600] shadow-2xs">
+        <span className="inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#E8521A]/30 px-2 py-0.5 text-hb-xs font-bold text-[#E8521A] shadow-2xs">
           NEW
         </span>
       )}

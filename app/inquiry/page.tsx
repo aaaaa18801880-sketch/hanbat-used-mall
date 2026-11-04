@@ -80,12 +80,12 @@ const REPLY_TEMPLATES = [
 
 const typeStyle = (t?: string | null) =>
   isSellInquiry(t)
-    ? "bg-[#FBE9E1] text-[#F05600]"
+    ? "bg-[#FFF4EE] text-[#E8521A]"
     : isBulkBizInquiry(t)
     ? "bg-amber-100 text-amber-900"
     : isBuyInquiry(t)
-    ? "bg-[#E8ECF2] text-[#191F28]"
-    : "bg-[#F2F4F6] text-[#4B5260]";
+    ? "bg-[#F1F3F6] text-[#141A23]"
+    : "bg-[#F7F8FA] text-[#4E5968]";
 
 const formatDate = (dateStr: string) => {
   if (!dateStr) return "";
@@ -582,12 +582,12 @@ export default function InquiryBoardPage() {
     Boolean(item.has_images || (item.images && item.images.length > 0));
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#191F28] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FA] text-[#141A23] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden sm:inline-flex items-center rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#191F28] hover:border-[#191F28]"
+            className="hidden sm:inline-flex items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23]"
           >
             통합 관리자 대시보드
           </Link>
@@ -602,18 +602,18 @@ export default function InquiryBoardPage() {
       </SiteHeader>
 
       {/* 상단 게시판 헤더 */}
-      <section className="bg-[#F9FAFB] border-b border-[#E5E8EB]">
+      <section className="bg-[#F7F8FA] border-b border-[#E2E6EC]">
         <div className="hb-container py-9 sm:py-12">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="hb-eyebrow">구매 · 매입 · 업소용 상담 게시판</span>
-                <span className="text-hb-xs text-[#E5E8EB]" aria-hidden="true">|</span>
-                <span className="text-hb-xs font-semibold text-[#6B7684]">
+                <span className="text-hb-xs text-[#E2E6EC]" aria-hidden="true">|</span>
+                <span className="text-hb-xs font-semibold text-[#64748B]">
                   비밀번호 보호 안전 열람
                 </span>
               </div>
-              <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#191F28] tracking-[-0.03em] leading-[1.2]">
+              <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2]">
                 고객 문의 · 매입 신청 게시판
               </h1>
               <p className="mt-2.5 text-hb-base text-[#4E5968] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
@@ -635,7 +635,7 @@ export default function InquiryBoardPage() {
                 href={telHref(STORE.tel)}
                 className="hb-btn-outline h-11 px-4 text-hb-sm tabular-nums"
               >
-                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#F05600]" />
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
                 <span>전화 {STORE.tel}</span>
               </a>
             </div>
@@ -665,14 +665,14 @@ export default function InquiryBoardPage() {
                   }}
                   className={`px-3 sm:px-3.5 py-2 rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap border transition-colors shrink-0 ${
                     active
-                      ? "bg-[#191F28] text-white border-[#191F28] shadow-2xs"
-                      : "bg-white text-[#4E5968] border-[#E5E8EB] hover:border-[#191F28]/40 hover:bg-[#F9FAFB]"
+                      ? "bg-[#141A23] text-white border-[#141A23] shadow-2xs"
+                      : "bg-white text-[#4E5968] border-[#E2E6EC] hover:border-[#141A23]/40 hover:bg-[#F7F8FA]"
                   }`}
                 >
                   {tab}
                   <span
                     className={`ml-1.5 text-hb-xs tabular-nums ${
-                      active ? "text-[#FF8A50]" : "text-[#6B7684]"
+                      active ? "text-[#FB923C]" : "text-[#64748B]"
                     }`}
                   >
                     {tabCounts[tab] || 0}
@@ -693,9 +693,9 @@ export default function InquiryBoardPage() {
                 }}
                 placeholder="제목·품목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-full md:w-[230px] rounded-lg border border-[#E5E8EB] bg-white px-3 pl-9 pr-8 text-hb-sm text-[#191F28] placeholder:text-[#8B95A1] focus:border-[#191F28] focus:outline-none"
+                className="h-10 w-full md:w-[230px] rounded-lg border border-[#CBD2DC] bg-white px-3 pl-9 pr-8 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none"
               />
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7684] pointer-events-none">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
               </span>
               {keyword.trim() !== "" && (
@@ -706,7 +706,7 @@ export default function InquiryBoardPage() {
                     setCurrentPage(1);
                   }}
                   aria-label="검색어 지우기"
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#8B95A1] hover:text-[#191F28]"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#141A23]"
                 >
                   <Icon d={ICON.close} className="w-3.5 h-3.5" />
                 </button>

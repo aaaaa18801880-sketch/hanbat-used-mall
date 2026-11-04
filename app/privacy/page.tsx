@@ -14,26 +14,26 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#FAF9F7] font-sans text-[#0E1A2B] flex flex-col">
+    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
       <main className="hb-container py-10 sm:py-14 flex-1">
-        <div className="mx-auto max-w-3xl rounded-xl border border-[#E5E2DC] bg-white p-6 sm:p-10 shadow-card">
-          <p className="hb-eyebrow">Privacy Policy</p>
-          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#0E1A2B] pb-5 border-b border-[#E5E2DC]">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-[#E2E6EC] bg-white p-6 sm:p-10 shadow-2xs">
+          <p className="hb-eyebrow">개인정보 보호 정책</p>
+          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] pb-5 border-b border-[#E2E6EC]">
             개인정보처리방침
           </h1>
 
-          <div className="mt-6 space-y-7 text-hb-sm leading-relaxed text-[#3E4756]">
+          <div className="mt-6 space-y-7 text-hb-sm leading-relaxed text-[#334155]">
             <p>
-              <strong className="text-[#0E1A2B]">{STORE.name}</strong>(이하
+              <strong className="text-[#141A23]">{STORE.name}</strong>(이하
               &ldquo;회사&rdquo;)는 개인정보보호법 등 관련 법령에 따라 이용자의
               개인정보를 보호하고, 이와 관련한 고충을 신속하고 원활하게 처리할 수
               있도록 다음과 같이 개인정보처리방침을 수립·공개합니다.
             </p>
 
             <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#141A23]">
                 1. 개인정보의 수집 및 이용 목적
               </h2>
               <p>회사는 다음의 목적을 위하여 최소한의 개인정보를 처리합니다.</p>
@@ -51,17 +51,17 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#141A23]">
                 2. 수집하는 개인정보의 항목
               </h2>
               <ul className="list-disc pl-5 space-y-1">
                 <li>
-                  <strong className="text-[#0E1A2B]">필수항목:</strong> 성함(또는
+                  <strong className="text-[#141A23]">필수항목:</strong> 성함(또는
                   상호명), 연락처(전화번호), 게시글 조회용 비밀번호(암호화 해시
                   저장), 문의 제목 및 상세 내용
                 </li>
                 <li>
-                  <strong className="text-[#0E1A2B]">선택항목:</strong> 제품
+                  <strong className="text-[#141A23]">선택항목:</strong> 제품
                   카테고리, 모델명, 외관·작동 상태 등급, 방문 수거 또는 배송 희망
                   지역, 제품 첨부 사진
                 </li>
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#141A23]">
                 3. 개인정보의 보유 및 이용기간
               </h2>
               <p>
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#141A23]">
                 4. 개인정보의 제3자 제공 및 안전성 확보 조치
               </h2>
               <p>
@@ -99,38 +99,38 @@ export default function PrivacyPage() {
             </section>
 
             <section className="space-y-2">
-              <h2 className="text-hb-base font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-base font-bold text-[#141A23]">
                 5. 개인정보 보호책임자 안내
               </h2>
-              <div className="rounded-lg border border-[#E5E2DC] bg-[#FAF9F7] p-4 text-hb-xs space-y-1">
+              <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 text-hb-xs space-y-1">
                 <p>
-                  • <strong className="text-[#0E1A2B]">상호:</strong> {STORE.name}{" "}
+                  • <strong className="text-[#141A23]">상호:</strong> {STORE.name}{" "}
                   (대표: {STORE.ceo})
                 </p>
                 <p>
                   •{" "}
-                  <strong className="text-[#0E1A2B]">
+                  <strong className="text-[#141A23]">
                     개인정보 보호책임자:
                   </strong>{" "}
                   {STORE.privacyOfficer}
                 </p>
                 <p>
-                  • <strong className="text-[#0E1A2B]">대표 전화:</strong>{" "}
+                  • <strong className="text-[#141A23]">대표 전화:</strong>{" "}
                   <a
                     href={telHref(STORE.tel)}
-                    className="font-bold text-[#0E1A2B] underline underline-offset-4"
+                    className="font-bold text-[#141A23] underline underline-offset-4"
                   >
                     {STORE.tel}
                   </a>
                 </p>
                 <p>
-                  • <strong className="text-[#0E1A2B]">사업장 주소:</strong>{" "}
+                  • <strong className="text-[#141A23]">사업장 주소:</strong>{" "}
                   {STORE.roadAddress} (지번: {STORE.jibunAddress}, {STORE.addressNote})
                 </p>
               </div>
             </section>
 
-            <div className="pt-5 border-t border-[#E5E2DC] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#646E7E]">
+            <div className="pt-5 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#64748B]">
               <span>시행일자: 2026년 1월 1일</span>
               <Link href="/" className="hb-btn-primary h-10 px-5 text-hb-xs">
                 홈으로 돌아가기

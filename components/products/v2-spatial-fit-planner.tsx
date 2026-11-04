@@ -219,12 +219,12 @@ export function V2SpatialFitPlanner({
     return (
       <div className={`hb-surface-card flex h-full flex-col justify-between overflow-hidden ${className}`}>
         {/* 상단 헤더 */}
-        <div className="border-b border-[#E5E8EB] bg-gradient-to-r from-[#F0F9FF]/70 via-white to-[#FAF9F7] px-5 py-5 sm:px-6">
+        <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
           <span className="inline-flex items-center gap-1.5 rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2.5 py-1 text-hb-xs font-bold text-[#0369A1] whitespace-nowrap">
             <Icon d={ICON.snowflake} className="w-3.5 h-3.5 text-[#0369A1] shrink-0" />
             <span>에어컨 설치비 · 전원 호환성 판별기</span>
           </span>
-          <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#0E1A2B] tracking-tight">
+          <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight">
             내 환경에선 어떤 추가 작업이 필요할까요?
           </h3>
           <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#334155]">
@@ -234,11 +234,11 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 중앙 조작 및 결과 영역 (중첩 박스 없이 divide-y로 깔끔하게 분리) */}
-        <div className="divide-y divide-[#E5E8EB] flex-1">
+        <div className="divide-y divide-[#E2E6EC] flex-1">
           {/* 1. 3가지 핵심 조건 터치 선택 */}
           <div className="p-5 sm:p-6 space-y-4">
             <div>
-              <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] mb-2">
+              <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] mb-2">
                 1. 실외기를 놓을 위치
               </span>
               <div className="grid grid-cols-3 gap-2">
@@ -255,8 +255,8 @@ export function V2SpatialFitPlanner({
                     }
                     className={`h-10 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                       outdoorSpot === opt.id
-                        ? "border-[#0E1A2B] bg-[#0E1A2B] text-white shadow-2xs"
-                        : "border-[#E5E8EB] bg-[#FAF9F7] text-[#334155] hover:border-[#0E1A2B]"
+                        ? "border-[#141A23] bg-[#141A23] text-white shadow-2xs"
+                        : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
                     }`}
                   >
                     {opt.label}
@@ -267,7 +267,7 @@ export function V2SpatialFitPlanner({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] mb-2">
+                <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] mb-2">
                   2. 실내기~실외기 배관 거리
                 </span>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -283,8 +283,8 @@ export function V2SpatialFitPlanner({
                       }
                       className={`h-10 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                         pipeDistance === opt.id
-                          ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
-                          : "border-[#E5E8EB] bg-[#FAF9F7] text-[#334155]"
+                          ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
+                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155]"
                       }`}
                     >
                       {opt.label}
@@ -294,7 +294,7 @@ export function V2SpatialFitPlanner({
               </div>
 
               <div>
-                <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B] mb-2">
+                <span className="block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] mb-2">
                   3. 우리 집·매장 전기 방식
                 </span>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -312,7 +312,7 @@ export function V2SpatialFitPlanner({
                       className={`h-10 rounded-lg border px-1.5 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                         powerType === opt.id
                           ? "border-[#0284C7] bg-[#F0F9FF] text-[#0369A1]"
-                          : "border-[#E5E8EB] bg-[#FAF9F7] text-[#334155]"
+                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155]"
                       }`}
                     >
                       {opt.label}
@@ -336,7 +336,7 @@ export function V2SpatialFitPlanner({
           </div>
 
           {/* 2. 기본 포함 vs 추가 비용 확인 항목 구분 */}
-          <div className="p-5 sm:p-6 space-y-3.5 bg-[#FAF9F7]/50 text-hb-xs sm:text-hb-sm">
+          <div className="p-5 sm:p-6 space-y-3.5 bg-[#F7F8FA]/60 text-hb-xs sm:text-hb-sm">
             <div>
               <strong className="flex items-center gap-1.5 text-[#0F766E] font-bold">
                 <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#0F766E] shrink-0" />
@@ -349,9 +349,9 @@ export function V2SpatialFitPlanner({
               </ul>
             </div>
 
-            <div className="pt-2 border-t border-[#E5E8EB]">
-              <strong className="flex items-center gap-1.5 text-[#D9531E] font-bold">
-                <Icon d={ICON.wrench} className="w-3.5 h-3.5 text-[#D9531E] shrink-0" />
+            <div className="pt-2 border-t border-[#E2E6EC]">
+              <strong className="flex items-center gap-1.5 text-[#E8521A] font-bold">
+                <Icon d={ICON.wrench} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
                 <span>선택하신 여건에서 현장 산정이 필요한 항목</span>
               </strong>
               <ul className="mt-1.5 space-y-1 pl-4 text-[#334155] list-disc">
@@ -366,7 +366,7 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 하단 원클릭 문의 연결 바 */}
-        <div className="border-t border-[#E5E8EB] bg-white p-5 sm:px-6 space-y-2">
+        <div className="border-t border-[#E2E6EC] bg-white p-5 sm:px-6 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <a
               href={smsHref(STORE.mobile, smsBody)}
@@ -438,17 +438,17 @@ export function V2SpatialFitPlanner({
   return (
     <div className={`hb-surface-card flex h-full flex-col justify-between overflow-hidden ${className}`}>
       {/* 상단 헤더 */}
-      <div className="border-b border-[#E5E8EB] bg-gradient-to-r from-[#F0F9FF]/70 via-white to-[#FAF9F7] px-5 py-5 sm:px-6">
+      <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2.5 py-1 text-hb-xs font-bold text-[#0369A1] whitespace-nowrap">
             <Icon d={ICON.ruler} className="w-3.5 h-3.5 text-[#0369A1] shrink-0" />
             <span>공간 · 문폭 · 운반 여건 판별기</span>
           </span>
-          <span className="rounded-full border border-[#E5E8EB] bg-white px-3 py-1 text-hb-xs font-bold text-[#0E1A2B] whitespace-nowrap tabular-nums">
+          <span className="rounded-full border border-[#E2E6EC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] whitespace-nowrap tabular-nums">
             {detected.isExact ? "실측 규격" : "표준 참고치"}: 가로 {productWidthCm}cm × 깊이 {productDepthCm}cm
           </span>
         </div>
-        <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#0E1A2B] tracking-tight">
+        <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight">
           우리 집에 들어가고, 추가 운반비가 들까요?
         </h3>
         <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#334155]">
@@ -458,7 +458,7 @@ export function V2SpatialFitPlanner({
       </div>
 
       {/* 본문 영역 (No Card-in-Card: divide-y 구분선으로 깔끔하게 분리) */}
-      <div className="divide-y divide-[#E5E8EB] flex-1">
+      <div className="divide-y divide-[#E2E6EC] flex-1">
         {/* 1. 조작 컨트롤 영역 */}
         <div className="p-5 sm:p-6 space-y-5">
           {/* 놓을 자리 가로폭 */}
@@ -466,11 +466,11 @@ export function V2SpatialFitPlanner({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="space-slider"
-                className="text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]"
+                className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23]"
               >
                 1. 제품 놓을 자리(벽면) 가로폭
               </label>
-              <strong className="text-hb-sm sm:text-hb-base font-bold text-[#D9531E] tabular-nums">
+              <strong className="text-hb-sm sm:text-hb-base font-bold text-[#E8521A] tabular-nums">
                 {mySpaceCm}cm
               </strong>
             </div>
@@ -482,8 +482,8 @@ export function V2SpatialFitPlanner({
                   onClick={() => setMySpaceCm(p.cm)}
                   className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                     mySpaceCm === p.cm
-                      ? "border-[#0E1A2B] bg-[#0E1A2B] text-white"
-                      : "border-[#E5E8EB] bg-[#FAF9F7] text-[#334155] hover:border-[#0E1A2B]"
+                      ? "border-[#141A23] bg-[#141A23] text-white"
+                      : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   {p.label}
@@ -498,7 +498,7 @@ export function V2SpatialFitPlanner({
               step={5}
               value={mySpaceCm}
               onChange={(e) => setMySpaceCm(Number(e.target.value))}
-              className="w-full accent-[#0E1A2B] cursor-pointer"
+              className="w-full accent-[#141A23] cursor-pointer"
             />
           </div>
 
@@ -507,7 +507,7 @@ export function V2SpatialFitPlanner({
             <div className="flex items-center justify-between">
               <label
                 htmlFor="door-slider"
-                className="text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]"
+                className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23]"
               >
                 2. 가장 좁은 출입문 폭 &amp; 운반 층수
               </label>
@@ -524,7 +524,7 @@ export function V2SpatialFitPlanner({
                   className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                     myDoorCm === d.cm
                       ? "border-[#0284C7] bg-[#F0F9FF] text-[#0369A1]"
-                      : "border-[#E5E8EB] bg-[#FAF9F7] text-[#334155] hover:border-[#0E1A2B]"
+                      : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   {d.label}
@@ -538,7 +538,7 @@ export function V2SpatialFitPlanner({
                 className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                   carryFloor === "1f_elev"
                     ? "border-[#0D9488] bg-[#F0FDFA] text-[#0F766E]"
-                    : "border-[#E5E8EB] bg-[#FAF9F7] text-[#64748B]"
+                    : "border-[#E2E6EC] bg-[#F7F8FA] text-[#64748B]"
                 }`}
               >
                 1층 또는 엘리베이터 있음
@@ -548,8 +548,8 @@ export function V2SpatialFitPlanner({
                 onClick={() => setCarryFloor("stairs")}
                 className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                   carryFloor === "stairs"
-                    ? "border-[#D9531E] bg-[#FFF5F0] text-[#D9531E]"
-                    : "border-[#E5E8EB] bg-[#FAF9F7] text-[#64748B]"
+                    ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
+                    : "border-[#E2E6EC] bg-[#F7F8FA] text-[#64748B]"
                 }`}
               >
                 2층 이상 계단 운반
@@ -559,10 +559,10 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 2. 공간 점유 바 & 2줄 핵심 판정 결과 */}
-        <div className="p-5 sm:p-6 bg-[#FAF9F7]/60 space-y-3.5">
+        <div className="p-5 sm:p-6 bg-[#F7F8FA]/60 space-y-3.5">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-hb-xs tabular-nums">
-              <span className="font-bold text-[#0E1A2B]">
+              <span className="font-bold text-[#141A23]">
                 설치 공간({mySpaceCm}cm) 대비 제품+양옆 방열폭({requiredSpaceCm}cm)
               </span>
               <strong
@@ -576,14 +576,14 @@ export function V2SpatialFitPlanner({
               </strong>
             </div>
 
-            <div className="flex h-10 w-full items-center justify-center overflow-hidden rounded-lg border border-[#D1D6DB] bg-white px-2">
+            <div className="flex h-10 w-full items-center justify-center overflow-hidden rounded-lg border border-[#CBD2DC] bg-white px-2">
               <span className="flex h-7 items-center rounded-l bg-[#F0FDFA] border border-r-0 border-[#CCFBF1] px-2 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
                 방열 5cm
               </span>
               <div
                 style={{ width: `${applianceBarPercent}%` }}
                 className={`flex h-7 items-center justify-center text-hb-xs font-bold text-white whitespace-nowrap tabular-nums ${
-                  fitsSpace ? "bg-[#0E1A2B]" : "bg-red-600"
+                  fitsSpace ? "bg-[#141A23]" : "bg-red-600"
                 }`}
               >
                 본체 {productWidthCm}cm
@@ -594,10 +594,10 @@ export function V2SpatialFitPlanner({
             </div>
           </div>
 
-          <dl className="divide-y divide-[#E5E8EB] text-hb-xs sm:text-hb-sm pt-1">
+          <dl className="divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm pt-1">
             <div className="py-2 flex items-start justify-between gap-3">
               <dt className="font-bold text-[#64748B] shrink-0">출입문 통과</dt>
-              <dd className="font-bold text-[#0E1A2B] text-right break-keep">
+              <dd className="font-bold text-[#141A23] text-right break-keep">
                 {fitsDoorEasily
                   ? `그대로 통과 가능 (최소 통과면 ${narrowestSideCm}cm)`
                   : fitsDoorTight
@@ -618,7 +618,7 @@ export function V2SpatialFitPlanner({
       </div>
 
       {/* 하단 원클릭 문의 연결 바 */}
-      <div className="border-t border-[#E5E8EB] bg-white p-5 sm:px-6 space-y-2">
+      <div className="border-t border-[#E2E6EC] bg-white p-5 sm:px-6 space-y-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <a
             href={smsHref(STORE.mobile, applianceSmsBody)}

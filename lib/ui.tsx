@@ -296,15 +296,15 @@ export function SectionHeading({
       {eyebrow && (
         <p
           className={`mb-1.5 text-hb-xs sm:text-hb-sm font-bold ${
-            dark ? "text-[#FF8A50]" : "text-[#F05600]"
+            dark ? "text-[#FF8A50]" : "text-[#E8521A]"
           }`}
         >
           {eyebrow}
         </p>
       )}
       <h2
-        className={`text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] break-keep ${
-          dark ? "text-white" : "text-[#191F28]"
+        className={`text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] break-keep [text-wrap:balance] ${
+          dark ? "text-white" : "text-[#141A23]"
         }`}
       >
         {title}
@@ -312,7 +312,7 @@ export function SectionHeading({
       {desc && (
         <p
           className={`mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base leading-[1.65] break-keep [text-wrap:pretty] ${
-            dark ? "text-white/75" : "text-[#4E5968]"
+            dark ? "text-white/75" : "text-[#334155]"
           }`}
         >
           {desc}
@@ -422,11 +422,11 @@ export function Modal({
       role="dialog"
       aria-modal="true"
       aria-label={label}
-      className={`fixed inset-0 z-[70] flex justify-center ${
+      className={`fixed inset-0 z-[70] flex justify-center overscroll-contain ${
         sheet
           ? "items-end sm:items-center p-0 sm:p-4"
           : "items-center p-3 sm:p-6"
-      } bg-[#191F28]/65 backdrop-blur-xs ${overlayClassName}`}
+      } bg-[#141A23]/65 backdrop-blur-xs ${overlayClassName}`}
       onMouseDown={(e) => {
         isMouseDownOnOverlay.current = e.target === e.currentTarget;
       }}
@@ -439,7 +439,7 @@ export function Modal({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className={`w-full focus:outline-none ${panelClassName}`}
+        className={`w-full focus:outline-none overscroll-contain ${panelClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
@@ -612,7 +612,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
       {/* 모바일·태블릿 내비게이션 드로어 */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-[80] flex flex-col bg-white lg:hidden"
+          className="fixed inset-0 z-[80] flex flex-col bg-white lg:hidden overscroll-contain"
           role="dialog"
           aria-modal="true"
           aria-label="모바일 전체 메뉴"
@@ -774,7 +774,7 @@ export function QuoteBasketFloatingBar() {
     <>
       <aside
         aria-label="관심 매물 견적함"
-        className={`fixed bottom-[calc(58px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-all duration-200 ${
+        className={`fixed bottom-[calc(58px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-[width,background-color,box-shadow,transform] duration-200 ${
           expanded
             ? "w-[calc(100vw-20px)] max-w-[400px] rounded-2xl"
             : "w-auto max-w-[94vw] rounded-full"
@@ -1017,9 +1017,9 @@ export function FloatingQuickWing() {
             })
           }
           title={`대표전화 ${STORE.tel}`}
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#191F28] hover:bg-[#F2F4F6] hover:text-[#F05600] transition-all duration-150 active:scale-95"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95"
         >
-          <Icon d={ICON.phone} className="w-4 h-4 text-[#F05600]" />
+          <Icon d={ICON.phone} className="w-4 h-4 text-[#E8521A]" />
           <span className="text-hb-xs font-bold leading-none">전화</span>
         </a>
 
@@ -1033,7 +1033,7 @@ export function FloatingQuickWing() {
             })
           }
           title="카카오톡 상담"
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#191F28] hover:bg-[#F2F4F6] hover:text-[#F05600] transition-all duration-150 active:scale-95"
+          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95"
         >
           <span className="grid h-5 w-5 place-items-center rounded-lg bg-[#FEE500] text-[#191600]">
             <Icon d={ICON.chat} className="w-3.5 h-3.5" />
@@ -1045,24 +1045,24 @@ export function FloatingQuickWing() {
           type="button"
           onClick={() => handleInquiryClick("구매 문의")}
           title="견적 문의"
-          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#191F28] hover:bg-[#FFF4EE] hover:text-[#F05600] transition-all duration-150 active:scale-95 cursor-pointer"
+          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#141A23] hover:bg-[#FFF4EE] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
-          <Icon d={ICON.pen} className="w-4 h-4 text-[#F05600]" />
+          <Icon d={ICON.pen} className="w-4 h-4 text-[#E8521A]" />
           <span className="text-hb-xs font-bold leading-none">견적</span>
           {basketCount > 0 && (
-            <span className="absolute right-1 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#F05600] px-1 text-hb-xs font-bold text-white tabular-nums">
+            <span className="absolute right-1 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#E8521A] px-1 text-hb-xs font-bold text-white tabular-nums">
               {basketCount}
             </span>
           )}
         </button>
 
-        <div className="w-8 h-[1px] bg-[#E5E8EB] my-0.5" aria-hidden="true" />
+        <div className="w-8 h-[1px] bg-[#E2E6EC] my-0.5" aria-hidden="true" />
 
         <button
           type="button"
           onClick={scrollToTop}
           title="맨 위로 이동"
-          className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#6B7684] hover:bg-[#F2F4F6] hover:text-[#191F28] transition-all duration-150 active:scale-95 cursor-pointer"
+          className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#141A23] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
           <Icon d={ICON.up} className="w-3.5 h-3.5" />
           <span className="text-hb-xs font-semibold leading-none">위로</span>

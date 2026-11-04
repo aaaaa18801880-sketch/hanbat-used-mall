@@ -61,7 +61,7 @@ export function ModernApplianceIcon({
     >
       {/* 호버 시 은은하게 퍼지는 후면 앰비언트 광원 */}
       <span
-        className={`pointer-events-none absolute inset-1 rounded-2xl opacity-0 blur-md transition-all duration-300 group-hover:opacity-100 group-hover:scale-110 ${glowClass}`}
+        className={`pointer-events-none absolute inset-1 rounded-2xl opacity-0 blur-md transition-[opacity,transform] duration-300 group-hover:opacity-100 group-hover:scale-110 ${glowClass}`}
       />
 
       <svg

@@ -4,17 +4,17 @@
 @tailwind utilities;
 
 :root {
-  /* 1. Primary: Deep Trust Navy */
-  --hb-navy: #0e1a2b;
-  --hb-navy-hover: #182942;
+  /* 1. Primary: Precision Slate Navy */
+  --hb-navy: #141a23;
+  --hb-navy-hover: #1e2736;
   --hb-navy-subtle: #f1f5f9;
 
-  /* 2. Warm Accent: Action & Price Terracotta Orange */
-  --hb-orange: #d9531e;
-  --hb-orange-hover: #c04615;
-  --hb-orange-subtle: #fff5f0;
+  /* 2. Brand Accent: Industrial Signal Orange */
+  --hb-orange: #e8521a;
+  --hb-orange-hover: #cf4310;
+  --hb-orange-subtle: #fff4ee;
 
-  /* 3. Cool Accent: Hygiene Teal & Cooling Cyan (3색 분할 보색 시스템) */
+  /* 3. Semantic Accents: Hygiene Teal & Technical Cyan */
   --hb-teal: #0d9488;
   --hb-teal-text: #0f766e;
   --hb-teal-subtle: #f0fdfa;
@@ -25,19 +25,19 @@
   --hb-cyan-subtle: #f0f9ff;
   --hb-cyan-border: #bae6fd;
 
-  /* 4. Tinted Neutrals (Pure White & Cool Gray Layering) */
-  --hb-bg-warm: #f2f4f6;
-  --hb-bg-subtle: #f9fafb;
-  --hb-bg-muted: #e5e8eb;
+  /* 4. Canvas & Surfaces (Pure Studio White & Cool Alabaster) */
   --hb-surface: #ffffff;
+  --hb-bg-subtle: #f7f8fa;
+  --hb-bg-warm: #f1f3f6;
+  --hb-bg-muted: #e2e6ec;
 
-  --hb-text-primary: #0e1a2b;
+  --hb-text-primary: #141a23;
   --hb-text-secondary: #334155;
   --hb-text-muted: #64748b;
-  --hb-text-subtle: #8b95a1;
+  --hb-text-subtle: #94a3b8;
 
-  --hb-border: #e5e8eb;
-  --hb-border-strong: #d1d6db;
+  --hb-border: #e2e6ec;
+  --hb-border-strong: #cbd2dc;
 
   --hb-kakao: #fee500;
   --hb-kakao-hover: #f2d900;
@@ -98,24 +98,24 @@ body {
   }
 
   .hb-card {
-    @apply rounded-2xl border border-[#E5E8EB] bg-white shadow-2xs;
+    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs;
   }
 
   /* Apple HIG Liquid Glass & Translucent Chrome */
   .hb-glass {
-    @apply bg-white/85 backdrop-blur-xl border-b border-[#E5E8EB]/80 shadow-glass-sm;
+    @apply bg-white/90 backdrop-blur-xl border-b border-[#E2E6EC] shadow-glass-sm;
   }
 
   .hb-glass-dark {
-    @apply bg-[#191F28]/95 backdrop-blur-xl border border-white/10 shadow-floating;
+    @apply bg-[#141A23]/95 backdrop-blur-xl border border-white/10 shadow-floating;
   }
 
   .hb-bento-card {
-    @apply rounded-3xl border border-[#E5E8EB]/90 bg-white shadow-card transition-all duration-200 hover:border-[#D1D6DB] hover:shadow-card-hover;
+    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:border-[#CBD2DC] hover:shadow-card;
   }
 
   .hb-bento-dark {
-    @apply rounded-3xl border border-white/10 bg-[#191F28] text-white shadow-floating transition-all duration-200 hover:border-[#FF6F0F]/50;
+    @apply rounded-2xl border border-white/10 bg-[#141A23] text-white shadow-floating transition-[border-color,box-shadow] duration-200 hover:border-[#E8521A]/50;
   }
 
   /* Fluid Editorial Display Typography (Toss/Apple Bold 700 Clarity) */
@@ -124,6 +124,8 @@ body {
     line-height: 1.28;
     letter-spacing: -0.032em;
     font-weight: 700;
+    text-wrap: balance;
+    word-break: keep-all;
   }
 
   .hb-fluid-h2 {
@@ -131,13 +133,12 @@ body {
     line-height: 1.32;
     letter-spacing: -0.028em;
     font-weight: 700;
+    text-wrap: balance;
+    word-break: keep-all;
   }
 
   .hb-surface-card {
-    @apply rounded-2xl border border-[#E5E8EB]/90 bg-white transition-all duration-200 hover:-translate-y-0.5 hover:shadow-card-hover hover:border-[#D1D6DB];
-    box-shadow:
-      0 2px 10px -2px rgba(25, 31, 40, 0.04),
-      0 10px 28px -6px rgba(25, 31, 40, 0.04);
+    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-card hover:border-[#CBD2DC];
   }
 
   .hb-snap-row {
@@ -149,44 +150,44 @@ body {
   }
 
   .hb-h1 {
-    @apply text-hb-2xl lg:text-hb-3xl font-bold tracking-[-0.03em] text-[#191F28];
+    @apply text-hb-2xl lg:text-hb-3xl font-bold tracking-[-0.03em] text-[#141A23] [text-wrap:balance] break-keep;
   }
 
   .hb-h2 {
-    @apply text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#191F28];
+    @apply text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23] [text-wrap:balance] break-keep;
   }
 
   .hb-h3 {
-    @apply text-hb-base sm:text-hb-lg font-bold tracking-[-0.018em] text-[#191F28];
+    @apply text-hb-base sm:text-hb-lg font-bold tracking-[-0.018em] text-[#141A23] [text-wrap:balance] break-keep;
   }
 
   .hb-body {
-    @apply text-hb-sm sm:text-hb-base text-[#4E5968];
+    @apply text-hb-sm sm:text-hb-base text-[#334155] [text-wrap:pretty] break-keep;
   }
 
   .hb-label {
-    @apply block text-hb-sm font-semibold tracking-[-0.01em] text-[#191F28];
+    @apply block text-hb-sm font-semibold tracking-[-0.01em] text-[#141A23];
   }
 
   .hb-caption {
-    @apply text-hb-xs text-[#6B7684];
+    @apply text-hb-xs text-[#64748B];
   }
 
   .hb-eyebrow {
-    @apply inline-block text-hb-xs sm:text-hb-sm font-bold text-[#F05600];
+    @apply inline-block text-hb-xs sm:text-hb-sm font-bold text-[#E8521A];
   }
 
   .hb-chip {
-    @apply inline-flex items-center h-8 rounded-full bg-[#F2F4F6] px-3.5 text-hb-xs font-semibold text-[#4E5968] transition-colors hover:bg-[#E5E8EB];
+    @apply inline-flex items-center h-8 rounded-full bg-[#F1F3F6] px-3.5 text-hb-xs font-semibold text-[#334155] transition-colors hover:bg-[#E2E6EC];
   }
 
   .hb-input {
-    @apply w-full h-11 rounded-xl border border-transparent bg-[#F2F4F6] px-4 text-hb-sm sm:text-hb-base text-[#191F28] placeholder:text-[#8B95A1] transition-all duration-150 focus:border-[#191F28] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#191F28]/10 disabled:bg-[#F2F4F6] disabled:text-[#8B95A1];
+    @apply w-full h-11 rounded-xl border border-[#CBD2DC] bg-white px-3.5 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-[border-color,box-shadow,background-color] duration-150 focus:border-[#141A23] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 disabled:bg-[#F1F3F6] disabled:text-[#94A3B8];
   }
 
   /* jakubkrehel/better-ui: Tactile feedback (scale 0.96) & explicit transitions */
   .hb-btn {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold tracking-[-0.015em] transition-[transform,background-color,border-color,box-shadow,color] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0E1A2B] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold tracking-[-0.015em] transition-[transform,background-color,border-color,box-shadow,color] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .hb-btn > svg:last-child {
@@ -200,57 +201,54 @@ body {
   /* 1. 입체 마이크로 그라데이션 Primary 버튼 */
   .hb-btn-primary {
     @apply hb-btn text-white;
-    background-color: #0e1a2b;
-    background-image: linear-gradient(135deg, #1b3152 0%, #0e1a2b 100%);
+    background-color: #141a23;
+    background-image: linear-gradient(135deg, #1e2736 0%, #141a23 100%);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.18),
-      0 2px 5px -1px rgba(14, 26, 43, 0.22);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
+      0 2px 5px -1px rgba(20, 26, 35, 0.22);
   }
 
   .hb-btn-primary:hover {
-    background-image: linear-gradient(135deg, #233e66 0%, #14243b 100%);
+    background-image: linear-gradient(135deg, #273447 0%, #1a222e 100%);
   }
 
   /* 2. 입체 마이크로 그라데이션 Accent 버튼 */
   .hb-btn-accent {
-    @apply hb-btn text-white focus-visible:ring-[#D9531E];
-    background-color: #d9531e;
-    background-image: linear-gradient(135deg, #f06429 0%, #c84312 100%);
+    @apply hb-btn text-white focus-visible:ring-[#E8521A];
+    background-color: #e8521a;
+    background-image: linear-gradient(135deg, #f06429 0%, #cf4310 100%);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.26),
-      0 4px 12px -2px rgba(217, 83, 30, 0.3);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
+      0 4px 12px -2px rgba(232, 82, 26, 0.28);
   }
 
   .hb-btn-accent:hover {
-    background-image: linear-gradient(135deg, #e0561c 0%, #b3390d 100%);
+    background-image: linear-gradient(135deg, #e0561c 0%, #b83a0c 100%);
   }
 
-  /* 3. 히어로 섹션용 소프트 앰비언트 메쉬 그라데이션 (웜 코랄 + 쿨 시안 미스트) */
+  /* 3. 히어로 섹션용 정갈한 쇼룸 알라바스터 표면 */
   .hb-ambient-hero {
-    background-color: #faf9f7;
-    background-image:
-      radial-gradient(at 10% 15%, rgba(240, 100, 41, 0.09) 0px, transparent 48%),
-      radial-gradient(at 88% 20%, rgba(2, 132, 199, 0.08) 0px, transparent 50%),
-      linear-gradient(180deg, #ffffff 0%, #faf9f7 100%);
+    background-color: #f7f8fa;
+    background-image: linear-gradient(180deg, #ffffff 0%, #f7f8fa 100%);
   }
 
-  /* 4. B2B 업소용 & 다크 카드용 딥 네이비 메쉬 그라데이션 */
+  /* 4. B2B 업소용 & 다크 카드용 딥 슬레이트 메쉬 그라데이션 */
   .hb-dark-mesh {
-    background-color: #0e1a2b;
+    background-color: #141a23;
     background-image:
-      radial-gradient(at 92% 12%, rgba(217, 83, 30, 0.2) 0px, transparent 45%),
+      radial-gradient(at 92% 12%, rgba(232, 82, 26, 0.2) 0px, transparent 45%),
       radial-gradient(at 8% 88%, rgba(13, 148, 136, 0.16) 0px, transparent 50%),
-      linear-gradient(135deg, #152740 0%, #0b1523 100%);
+      linear-gradient(135deg, #1e2736 0%, #10151c 100%);
   }
 
-  /* 5. 중고 실매물 사진 보정용 스튜디오 조명 백드롭 */
+  /* 5. 중고 실매물 사진 보정용 무채색 스튜디오 조명 백드롭 */
   .hb-studio-backdrop {
-    background-color: #f4f2ed;
+    background-color: #f3f5f8;
     background-image: radial-gradient(
-      circle at 50% 42%,
+      circle at 50% 45%,
       #ffffff 0%,
-      #f5f3ef 58%,
-      #eae6df 100%
+      #f3f5f8 70%,
+      #e9edf2 100%
     );
   }
 
@@ -260,21 +258,15 @@ body {
   }
 
   .hb-pedestal-card {
-    @apply rounded-3xl border border-[#E5E8EB]/90 bg-white transition-all duration-300;
-    box-shadow:
-      0 8px 30px -6px rgba(25, 31, 40, 0.06),
-      0 2px 6px -1px rgba(25, 31, 40, 0.03);
+    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200;
   }
 
   .hb-pedestal-card:hover {
-    @apply -translate-y-0.5 border-[#D1D6DB];
-    box-shadow:
-      0 16px 40px -8px rgba(25, 31, 40, 0.1),
-      0 4px 12px -2px rgba(25, 31, 40, 0.04);
+    @apply -translate-y-0.5 border-[#CBD2DC] shadow-card;
   }
 
   .hb-price-ticket {
-    @apply rounded-2xl bg-[#191F28] text-white shadow-card;
+    @apply rounded-2xl bg-[#141A23] text-white shadow-card;
   }
 
   .hb-specular {
@@ -286,27 +278,24 @@ body {
   }
 
   .hb-showroom-frame {
-    @apply relative overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white transition-all duration-200;
-    box-shadow:
-      0 4px 20px -4px rgba(25, 31, 40, 0.05),
-      0 1px 3px 0 rgba(25, 31, 40, 0.03);
+    @apply relative overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white transition-[border-color,box-shadow] duration-200;
   }
 
   .hb-btn-outline {
-    @apply hb-btn border border-[#E5E8EB] bg-white text-[#191F28] hover:border-[#D1D6DB] hover:bg-[#F9FAFB] active:bg-[#F2F4F6];
+    @apply hb-btn border border-[#E2E6EC] bg-white text-[#141A23] hover:border-[#CBD2DC] hover:bg-[#F7F8FA] active:bg-[#F1F3F6];
   }
 
   .hb-btn-kakao {
-    @apply hb-btn bg-[#FEE500] text-[#191F28] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#191F28];
+    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#141A23];
   }
 
   /* Toss TDS Clean List Row Layout */
   .hb-list {
-    @apply divide-y divide-[#F2F4F6] rounded-2xl border border-[#E5E8EB] bg-white overflow-hidden;
+    @apply divide-y divide-[#E2E6EC] rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden;
   }
 
   .hb-list-row {
-    @apply relative flex items-center justify-between gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-[#F9FAFB];
+    @apply relative flex items-center justify-between gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-[#F7F8FA];
   }
 
   .scrollbar-none {

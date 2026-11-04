@@ -705,3 +705,52 @@
 - **6. tsc --noEmit**: PASS (0 errors)
 - **7. eslint**: PASS (0 errors, 0 warnings)
 - **8. next build**: PASS (Next.js Turbopack 22/22 routes prerendered)
+
+---
+
+## 🚀 [Cycle 24] 2026-11-05 — 정밀 가전 쇼룸(Precision Appliance Showroom) 디자인 시스템 완성 및 전 화면 중첩 박스 평탄화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-031`
+- **핵심 목표**:
+  - `jakubkrehel/skills` + `pbakaus/impeccable` + `Nutlope/hallmark` 3대 방법론을 바탕으로 전 고객 접점(홈, 갤러리, 상세, 매입, 문의, 오류 안내)을 통일된 「정밀 가전 쇼룸(Precision Appliance Showroom)」 체계로 완성.
+  - 카드의 카드 중첩(Card-in-Card Anti-Pattern), 불필요한 GPU 낭비(`transition-all`), 3D 틸트/인위적 반사광 제거, 모바일 16px 인풋 표준화, 영문 트래킹 캡션 전면 국문 정규화.
+
+### 2. 코드 변경 요약
+- **[app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)**:
+  - 4대 정밀 쇼룸 색상 토큰 정의: 딥 차콜 네이비(`--hb-navy: #141a23`), 테라코타 오렌지(`--hb-orange: #e8521a`), 위생·살균 틸(`--hb-teal: #0d9488`), 냉기·성능 시안(`--hb-cyan: #0284c7`), 보더 라인(`--hb-border: #e2e6ec`).
+  - `.hb-input` 모바일 16px 보장(`text-hb-base sm:text-hb-sm`), 모달 `overscroll-contain` 추가, 전역 `transition-all` 일체 배제.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `SectionHeading` 색상 토큰 `#141A23` / `#E8521A` 정규화 및 `text-wrap: balance / pretty` 적용.
+  - 모달 오버레이 및 모바일 드로어에 `overscroll-contain` 적용.
+  - `QuoteBasketFloatingBar`, `FloatingQuickWing`의 `transition-all`을 명시적 transition 속성으로 교체.
+- **[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)**:
+  - 인위적인 마우스 3D 틸트 효과(`cardRef`, `perspective`, `rotateX/Y`) 및 반사광 블렌드 레이어 전면 제거.
+  - 외곽 카드 `rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs`와 내부 이미지 `rounded-xl hb-studio-backdrop`의 동심원 곡률 적용.
+  - `ProductTrustMicroStrip` 내부 중첩 박스를 단일 평탄 원장 그리드로 개선.
+- **[components/products/product-structured-description.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-structured-description.tsx)**:
+  - 6중 중첩 컬러 박스를 하나의 단일 아키텍처 시트(`divide-y divide-[#E2E6EC]`)로 해체.
+  - 영문 라벨 `SHOWROOM SPECIFICATION`을 `상세 제원 및 검수 소견`으로 정규화.
+- **[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)**:
+  - BuyBox 및 스펙 `<dl>` 박스 평탄화, 영문 아이브로우(`INSPECTION & INSTALLATION GUIDE` 등)를 국문 섹션 타이틀로 교체.
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - 히어로 뱃지 불필요 펄스 제거(Hallmark Gate 29), 헤딩 단어 색상 혼용 배제(Hallmark Gate 38iii).
+  - 하단 3대 출고 원칙 및 4단계 매입 스텝 카드 평탄화, 오프라인 매장 위치 및 최근 접수 문의 도크의 Card-in-Card 구조 전면 해체.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**, **[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx)**, **[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)**:
+  - 5개 비교 박스 및 3개 솔루션 카드의 중첩 구조를 평탄화하고 색상 토큰 동기화.
+- **[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)**, **[app/purchase/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/purchase/page.tsx)**, **[app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx)**:
+  - 모바일 16px 인풋 규격 적용(Safari 자동 확대 버그 원천 차단), 3단계 매입 프로세스 일체형 아키텍처 바 통합.
+  - 코드베이스 전체에서 `transition-all` 완전 퇴출.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,566줄 최신본 자동 패키징 완료.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.20s) — 임의 픽셀 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.12s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.13s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.11s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.11s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.11s) — 0 errors
+- **7. eslint**: PASS (12.97s) — 0 errors, 0 warnings
+- **8. next build**: PASS (14.44s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~33s)

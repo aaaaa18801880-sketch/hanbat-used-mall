@@ -558,10 +558,10 @@ function ProductDetailModal({
                         type="button"
                         onClick={() => setIdx(i)}
                         aria-label={`${i + 1}번 사진 보기`}
-                        className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-all ${
+                        className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-[border-color,opacity] duration-150 ${
                           i === idx
-                            ? "border-[#FF6F0F] ring-2 ring-[#FF6F0F]/40"
-                            : "border-[#E5E8EB] opacity-60 hover:opacity-100"
+                            ? "border-[#E8521A] ring-2 ring-[#E8521A]/30"
+                            : "border-[#E2E6EC] opacity-60 hover:opacity-100"
                         }`}
                       >
                         <SafeImg
@@ -1978,30 +1978,30 @@ export default function GalleryPage() {
       </SiteHeader>
 
       {/* 상단 쇼룸 컴팩트 헤더 (타이틀 + 실시간 재고 지표 + 통합 검색바) */}
-      <section className="bg-white border-b border-[#F2F4F6]">
+      <section className="bg-white border-b border-[#E2E6EC]">
         <div className="hb-container py-3.5 sm:py-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#F05600]">
+              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#E8521A]">
                 <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5">
-                  LIVE CATALOG
+                  실시간 직영 쇼룸
                 </span>
-                <span className="text-[#D1D6DB]" aria-hidden="true">·</span>
+                <span className="text-[#CBD2DC]" aria-hidden="true">·</span>
                 <span className="text-[#4E5968]">
                   대전 중촌동 직영 매장 실매물
                 </span>
                 {!isLoading && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8FAF0] px-2.5 py-0.5 text-hb-xs font-bold text-[#00A85D] tabular-nums">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#00C471]" />
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#0D9488]/20 px-2.5 py-0.5 text-hb-xs font-bold text-[#0D9488] tabular-nums">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
                     구매 가능 {sellingCount}건
                   </span>
                 )}
               </div>
               <div className="mt-1 flex flex-wrap items-baseline gap-2.5">
-                <h1 className="text-hb-lg sm:text-hb-xl font-bold text-[#191F28] tracking-[-0.028em]">
+                <h1 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-[-0.028em]">
                   판매 제품 갤러리
                 </h1>
-                <p className="hidden sm:inline text-hb-xs text-[#6B7684] truncate">
+                <p className="hidden sm:inline text-hb-xs text-[#64748B] truncate">
                   분해 세척·작동 검수 완료 실매물 · 가격 및 미등록 재고 문의 환영
                 </p>
               </div>
@@ -2010,7 +2010,7 @@ export default function GalleryPage() {
             {/* 통합 검색창 + 모바일 상세필터 토글 */}
             <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
               <div className="relative flex-1 lg:w-80">
-                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#8B95A1] pointer-events-none">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none">
                   <Icon d={ICON.search} className="w-4 h-4" />
                 </span>
                 <input
@@ -2022,7 +2022,7 @@ export default function GalleryPage() {
                   }}
                   placeholder="제품명·모델명·규격 검색 (예: 45박스, 스탠드)"
                   aria-label="제품명 또는 모델명 검색"
-                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-transparent bg-[#F2F4F6] text-hb-xs sm:text-hb-sm font-medium text-[#191F28] placeholder:text-[#8B95A1] focus:border-[#191F28] focus:bg-white focus:outline-none transition-all"
+                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-[#CBD2DC] bg-white text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:ring-1 focus:ring-[#141A23] focus:outline-none transition-[border-color,box-shadow] duration-150"
                 />
                 {search.trim() !== "" && (
                   <button
@@ -2032,7 +2032,7 @@ export default function GalleryPage() {
                       setVisibleLimit(PAGE_STEP);
                     }}
                     aria-label="검색어 지우기"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6B7684] hover:text-[#191F28] p-0.5"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#141A23] p-0.5"
                   >
                     <Icon d={ICON.close} className="w-3.5 h-3.5" />
                   </button>

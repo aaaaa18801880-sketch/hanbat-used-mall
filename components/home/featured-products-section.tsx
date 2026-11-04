@@ -177,28 +177,28 @@ export function FeaturedProductsSection({
     <section
       id="featured-products-section"
       aria-labelledby="featured-heading"
-      className="border-b border-[#E5E8EB] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
+      className="border-b border-[#E2E6EC] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
     >
       <div className="hb-container">
-        {/* 토스/애플 스타일 클린 카탈로그 헤더 */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-5 border-b border-[#F2F4F6]">
+        {/* 클린 카탈로그 헤더 */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-5 border-b border-[#E2E6EC]">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#F05600]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#FF6F0F]" />
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#E8521A]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#E8521A]" />
               <span>실시간 직영 쇼룸</span>
               <span>·</span>
-              <span className="text-[#191F28] tabular-nums">
+              <span className="text-[#141A23] tabular-nums font-bold">
                 현재 구매 가능 총 {totalSellingCount}대
               </span>
             </div>
             <div className="mt-2.5 flex flex-wrap items-baseline gap-2.5">
               <h2
                 id="featured-heading"
-                className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] text-[#191F28]"
+                className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] text-[#141A23]"
               >
                 {activeCategoryTitle}
               </h2>
-              <span className="text-hb-base font-bold text-[#8B95A1] tabular-nums">
+              <span className="text-hb-base font-bold text-[#64748B] tabular-nums">
                 {filteredProducts.length}건
               </span>
               {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
@@ -208,7 +208,7 @@ export function FeaturedProductsSection({
                     setVisibleCount(INITIAL_DISPLAY_LIMIT);
                     onResetCategory();
                   }}
-                  className="ml-1 rounded-full bg-[#F2F4F6] px-3 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28] transition-colors cursor-pointer"
+                  className="ml-1 rounded-full bg-[#F1F3F6] px-3 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23] transition-colors cursor-pointer"
                 >
                   전체 품목 보기
                 </button>
@@ -225,17 +225,17 @@ export function FeaturedProductsSection({
               className="hb-btn-primary h-11 px-5 text-hb-sm"
             >
               <span>상세 필터 · 전체 매물 보기</span>
-              <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
+              <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />
             </Link>
           </div>
         </div>
 
-        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 (토스 스타일 소프트 콜아웃) */}
+        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 */}
         {!loading && !error && (
-          <div className="mt-5 rounded-2xl bg-[#F2F4F6]/80 p-4 sm:p-5">
+          <div className="mt-5 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-3.5 sm:p-5">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-2xs">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#E2E6EC] bg-white shadow-2xs">
                   <ModernApplianceIcon
                     name={categoryFact.icon}
                     className="w-7 h-7"
@@ -243,10 +243,10 @@ export function FeaturedProductsSection({
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center rounded-full bg-[#191F28] px-2.5 py-0.5 text-hb-xs font-bold text-white shrink-0">
+                    <span className="inline-flex items-center rounded-full bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white shrink-0">
                       {categoryFact.badge}
                     </span>
-                    <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#191F28] break-keep">
+                    <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
                       {categoryFact.headline}
                     </strong>
                   </div>
@@ -257,11 +257,11 @@ export function FeaturedProductsSection({
                 {categoryFact.points.map((pt) => (
                   <span
                     key={pt}
-                    className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-1.5 font-semibold text-[#191F28] shadow-2xs"
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-[#E2E6EC] bg-white px-3 py-1.5 font-semibold text-[#141A23] shadow-2xs"
                   >
                     <Icon
                       d={ICON.check}
-                      className="w-3.5 h-3.5 text-[#00A85D] shrink-0"
+                      className="w-3.5 h-3.5 text-[#0D9488] shrink-0"
                     />
                     <span>{pt}</span>
                   </span>
@@ -280,23 +280,23 @@ export function FeaturedProductsSection({
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={idx}
-                className="overflow-hidden rounded-3xl border border-[#E5E8EB] bg-white animate-pulse"
+                className="overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white animate-pulse"
               >
-                <div className="aspect-square bg-[#F2F4F6]" />
+                <div className="aspect-square bg-[#F1F3F6]" />
                 <div className="p-4 space-y-3">
-                  <div className="h-3 w-1/3 rounded-full bg-[#F2F4F6]" />
-                  <div className="h-5 w-4/5 rounded-lg bg-[#F2F4F6]" />
-                  <div className="h-6 w-1/2 rounded-lg bg-[#F2F4F6] pt-2" />
+                  <div className="h-3 w-1/3 rounded-full bg-[#F1F3F6]" />
+                  <div className="h-5 w-4/5 rounded-lg bg-[#F1F3F6]" />
+                  <div className="h-6 w-1/2 rounded-lg bg-[#F1F3F6] pt-2" />
                 </div>
               </div>
             ))}
           </div>
         ) : error ? (
-          <div className="mt-7 rounded-3xl bg-[#F9FAFB] border border-[#E5E8EB] p-8 sm:p-10 text-center">
-            <p className="text-hb-base font-bold text-[#191F28]">
+          <div className="mt-7 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-8 sm:p-10 text-center">
+            <p className="text-hb-base font-bold text-[#141A23]">
               실시간 상품 목록을 불러오지 못했습니다.
             </p>
-            <p className="mt-1.5 text-hb-sm text-[#6B7684]">
+            <p className="mt-1.5 text-hb-sm text-[#64748B]">
               네트워크 상태를 확인하시거나 잠시 후 다시 시도해 주세요.
             </p>
             <button
@@ -308,9 +308,9 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : displayedProducts.length === 0 ? (
-          <div className="mt-7 flex flex-col items-start justify-between gap-6 rounded-3xl bg-[#F9FAFB] border border-[#E5E8EB] p-6 sm:p-8 sm:flex-row sm:items-center">
+          <div className="mt-7 flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
-              <p className="text-hb-lg font-bold text-[#191F28]">
+              <p className="text-hb-lg font-bold text-[#141A23]">
                 선택하신 분류의 온라인 등록 매물을 준비 중입니다.
               </p>
               <p className="mt-1 text-hb-sm text-[#4E5968]">
@@ -348,14 +348,14 @@ export function FeaturedProductsSection({
             </div>
 
             {/* 하단 더보기 및 전체 갤러리 이동 바 */}
-            <div className="mt-10 pt-6 border-t border-[#F2F4F6] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-hb-xs sm:text-hb-sm text-[#6B7684]">
+            <div className="mt-10 pt-6 border-t border-[#E2E6EC] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <p className="text-hb-xs sm:text-hb-sm text-[#64748B]">
                 표시 중:{" "}
-                <strong className="font-bold text-[#191F28] tabular-nums">
+                <strong className="font-bold text-[#141A23] tabular-nums">
                   {displayedProducts.length}
                 </strong>{" "}
                 / 전체{" "}
-                <strong className="font-bold text-[#191F28] tabular-nums">
+                <strong className="font-bold text-[#141A23] tabular-nums">
                   {filteredProducts.length}
                 </strong>
                 건 · 가격대 필터와 모델명 검색은 전체 갤러리에서 지원합니다.
@@ -377,7 +377,7 @@ export function FeaturedProductsSection({
                   className="hb-btn-primary h-11 px-6 text-hb-sm font-bold"
                 >
                   <span>전체 판매 제품 갤러리 ({totalSellingCount}대)</span>
-                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
+                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />
                 </Link>
               </div>
             </div>

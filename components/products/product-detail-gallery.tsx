@@ -212,7 +212,7 @@ export function ProductDetailGallery({
                 type="button"
                 onClick={() => setIdx(i)}
                 aria-label={`${i + 1}번 사진 선택`}
-                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F2F4F6] border transition-all ${
+                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F2F4F6] border transition-[border-color,box-shadow,transform] ${
                   i === idx
                     ? "border-[#FF6F0F] ring-2 ring-[#FF6F0F]/35"
                     : "border-[#E5E8EB] opacity-65 hover:opacity-100"

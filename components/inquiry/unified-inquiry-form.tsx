@@ -929,12 +929,12 @@ export function UnifiedInquiryForm({
                       );
                     }
                   }}
-                  className={`h-11 sm:h-12 rounded-xl px-3 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] transition-all flex items-center justify-center text-center leading-tight cursor-pointer ${
+                  className={`h-11 sm:h-12 rounded-xl px-3 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] transition-[color,background-color,border-color,box-shadow] duration-150 flex items-center justify-center text-center leading-tight cursor-pointer ${
                     active
                       ? t === "내 물건 팔기"
-                        ? "bg-[#F05600] text-white shadow-xs"
-                        : "bg-[#191F28] text-white shadow-xs"
-                      : "bg-[#F2F4F6] text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28]"
+                        ? "bg-[#E8521A] text-white shadow-xs"
+                        : "bg-[#141A23] text-white shadow-xs"
+                      : "bg-[#F1F3F6] text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23]"
                   }`}
                 >
                   {tabLabel}

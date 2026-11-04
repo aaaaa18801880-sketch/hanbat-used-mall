@@ -541,21 +541,21 @@ export function V2InquirySectionWithWizard({
               return (
                 <div
                   key={s.num}
-                  className={`flex items-center gap-2 rounded-lg p-2 transition-all ${
+                  className={`flex items-center gap-2 rounded-lg p-2 transition-[color,background-color,border-color] duration-150 ${
                     isCurrent
-                      ? "bg-[#191F28] text-white"
+                      ? "bg-[#141A23] text-white"
                       : isPast
-                      ? "bg-[#FFF4EE] text-[#F05600] border border-[#FED7AA]"
-                      : "bg-[#F7F5F0] text-[#8B95A1]"
+                      ? "bg-[#FFF4EE] text-[#E8521A] border border-[#E8521A]/30"
+                      : "bg-[#F1F3F6] text-[#64748B]"
                   }`}
                 >
                   <span
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold ${
                       isCurrent
-                        ? "bg-[#FF8A50] text-[#191F28]"
+                        ? "bg-[#FB923C] text-[#141A23]"
                         : isPast
-                        ? "bg-[#F05600] text-white"
-                        : "bg-[#E5E8EB] text-[#6B7684]"
+                        ? "bg-[#E8521A] text-white"
+                        : "bg-[#E2E6EC] text-[#64748B]"
                     }`}
                   >
                     {isPast ? (
@@ -572,10 +572,10 @@ export function V2InquirySectionWithWizard({
             })}
           </div>
 
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F2F4F6]">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F1F3F6]">
             <div
               style={{ width: `${(step / 3) * 100}%` }}
-              className="h-full bg-[#191F28] transition-all duration-300"
+              className="h-full bg-[#141A23] transition-[width] duration-300"
             />
           </div>
         </div>
@@ -630,10 +630,10 @@ export function V2InquirySectionWithWizard({
                           setInquiryType(t);
                           setSelectedChips([]);
                         }}
-                        className={`h-12 rounded-xl border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
+                        className={`h-12 rounded-xl border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
                           active
-                            ? "border-[#191F28] bg-[#191F28] text-white shadow-2xs"
-                            : "border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28] hover:border-[#191F28]"
+                            ? "border-[#141A23] bg-[#141A23] text-white shadow-2xs"
+                            : "border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] hover:border-[#CBD2DC]"
                         }`}
                       >
                         {t === "내 물건 팔기" ? "가전 팔기(방문매입)" : t}
@@ -658,10 +658,10 @@ export function V2InquirySectionWithWizard({
                       key={cat}
                       type="button"
                       onClick={() => toggleCategory(cat)}
-                      className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
+                      className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
                         active
-                          ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]"
-                          : "border-[#E5E8EB] bg-white text-[#4E5968] hover:border-[#191F28]"
+                          ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]"
+                          : "border-[#E2E6EC] bg-white text-[#4E5968] hover:border-[#CBD2DC]"
                       }`}
                     >
                       <span>{cat}</span>
@@ -920,10 +920,10 @@ export function V2InquirySectionWithWizard({
                       key={chip}
                       type="button"
                       onClick={() => toggleChip(chip)}
-                      className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-all cursor-pointer ${
+                      className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
                         active
-                          ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]"
-                          : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
+                          ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]"
+                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#4E5968] hover:border-[#CBD2DC]"
                       }`}
                     >
                       <Icon

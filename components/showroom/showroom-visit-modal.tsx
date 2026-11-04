@@ -173,10 +173,10 @@ export function ShowroomVisitModal({
                   key={opt}
                   type="button"
                   onClick={() => setSelectedTime(opt)}
-                  className={`flex items-center justify-between rounded-lg border p-2.5 text-hb-xs sm:text-hb-sm font-bold transition-all text-left ${
+                  className={`flex items-center justify-between rounded-lg border p-2.5 text-hb-xs sm:text-hb-sm font-bold transition-[border-color,background-color,color,box-shadow] text-left ${
                     selectedTime === opt
-                      ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] shadow-2xs"
-                      : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
+                      ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] shadow-2xs"
+                      : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   <span className="truncate">{opt}</span>
@@ -213,15 +213,15 @@ export function ShowroomVisitModal({
           </div>
 
           {/* 4. 내비게이션 3사 원클릭 길찾기 */}
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 space-y-3">
+          <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-hb-xs font-bold text-[#6B7684] uppercase">
-                ONE-CLICK NAVIGATION
+              <span className="text-hb-xs font-bold text-[#E8521A]">
+                내비게이션 바로 길찾기
               </span>
               <button
                 type="button"
                 onClick={handleCopyAddress}
-                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#F05600] hover:underline"
+                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#E8521A] hover:underline"
               >
                 <Icon d={ICON.copy} className="w-3.5 h-3.5" />
                 <span>도로명 주소 복사</span>
