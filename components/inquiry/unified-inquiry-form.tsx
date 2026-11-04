@@ -1196,10 +1196,10 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={handleRunGeminiAnalysis}
               disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold transition-[background-color,color,transform] active:scale-[0.96] ${
                 selectedFiles.length > 0
                   ? "bg-[#F05600] text-white hover:bg-[#BE4415]"
-                  : "bg-[#EAE6DF] text-[#8B95A1] cursor-not-allowed"
+                  : "bg-[#F2F4F6] text-[#8B95A1] cursor-not-allowed"
               }`}
             >
               <span>
@@ -1437,9 +1437,9 @@ export function UnifiedInquiryForm({
 
       {/* 5. 상담 유형별 맞춤 입력란 */}
       <div className="space-y-4">
-        {/* [대량·업소용 상담] 전용 구조화 입력 블록 */}
+        {/* [대량·업소용 상담] 전용 구조화 입력 블록 (중첩 테두리 박스 해체) */}
         {!isNotice && isBulk && (
-          <div className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-4 sm:p-5 space-y-4">
+          <div className="rounded-2xl bg-[#F9FAFB] p-4 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
               <strong className="text-hb-base font-bold text-[#191F28]">
                 업소용 · 창업 설비 체크 사항 (선택 입력)
@@ -1535,7 +1535,7 @@ export function UnifiedInquiryForm({
                 {bulkItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E5E8EB]"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2.5 rounded-xl shadow-2xs"
                   >
                     <div className="sm:col-span-5">
                       <input

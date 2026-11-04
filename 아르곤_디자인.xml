@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-11-04T12:59:41.461Z">
+<project name="hanbat-mall" generated_at="2026-11-04T13:42:29.407Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -638,7 +638,7 @@ export default async function ProductDetailPage({
                       {priceDisplay}
                     </span>
                   ) : (
-                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#F05600]">
+                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#F05600] tabular-nums">
                       {priceDisplay}
                     </span>
                   )}
@@ -8547,7 +8547,7 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`h-9 px-4 inline-flex items-center rounded-full text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                    className={`h-9 px-4 inline-flex items-center rounded-full text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-[background-color,color,box-shadow,transform] active:scale-[0.96] shrink-0 cursor-pointer ${
                       active
                         ? "bg-[#191F28] text-white shadow-xs"
                         : "bg-[#F2F4F6] text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28]"
@@ -8679,7 +8679,7 @@ export default function GalleryPage() {
                             keyword: preset.keyword,
                           });
                         }}
-                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
+                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-[background-color,color,border-color,transform] active:scale-[0.96] border shrink-0 cursor-pointer ${
                           active
                             ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] font-bold"
                             : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
@@ -14295,7 +14295,7 @@ export default function Home({
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
                     <Link
                       href="/gallery"
-                      className="group relative flex items-center justify-between rounded-2xl bg-[#191F28] px-5 py-4 text-white shadow-card hover:bg-[#333D4B] hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200"
+                      className="group relative flex items-center justify-between rounded-2xl bg-[#191F28] px-5 py-4 text-white shadow-card hover:bg-[#333D4B] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96]"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-[#FF8A50]">
@@ -14310,7 +14310,7 @@ export default function Home({
                           )}
                         </strong>
                       </div>
-                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#F05600] group-hover:translate-x-0.5 transition-all">
+                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#F05600] group-hover:translate-x-0.5 transition-[background-color,transform]">
                         <Icon d={ICON.arrow} className="w-4 h-4" />
                       </span>
                     </Link>
@@ -14323,7 +14323,7 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group relative flex items-center justify-between rounded-2xl bg-[#FF6F0F] px-5 py-4 text-left text-white shadow-card hover:bg-[#E55A00] hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200 cursor-pointer"
+                      className="group relative flex items-center justify-between rounded-2xl bg-[#FF6F0F] px-5 py-4 text-left text-white shadow-card hover:bg-[#E55A00] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96] cursor-pointer"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-white/90">
@@ -14457,9 +14457,9 @@ export default function Home({
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group relative block min-w-0 rounded-2xl bg-white p-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-card transition-all duration-200"
+                            className="group relative block min-w-0 rounded-2xl bg-white p-2 shadow-2xs hover:-translate-y-0.5 hover:shadow-card transition-[transform,box-shadow] duration-200"
                           >
-                            <div className="relative aspect-square w-full rounded-xl overflow-hidden hb-studio-backdrop">
+                            <div className="relative aspect-square w-full rounded-lg overflow-hidden hb-studio-backdrop">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}
@@ -17019,10 +17019,10 @@ export function UnifiedInquiryForm({
               type="button"
               onClick={handleRunGeminiAnalysis}
               disabled={selectedFiles.length === 0 || isAnalyzingPhotos}
-              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold transition-colors ${
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold transition-[background-color,color,transform] active:scale-[0.96] ${
                 selectedFiles.length > 0
                   ? "bg-[#F05600] text-white hover:bg-[#BE4415]"
-                  : "bg-[#EAE6DF] text-[#8B95A1] cursor-not-allowed"
+                  : "bg-[#F2F4F6] text-[#8B95A1] cursor-not-allowed"
               }`}
             >
               <span>
@@ -17260,9 +17260,9 @@ export function UnifiedInquiryForm({
 
       {/* 5. 상담 유형별 맞춤 입력란 */}
       <div className="space-y-4">
-        {/* [대량·업소용 상담] 전용 구조화 입력 블록 */}
+        {/* [대량·업소용 상담] 전용 구조화 입력 블록 (중첩 테두리 박스 해체) */}
         {!isNotice && isBulk && (
-          <div className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-4 sm:p-5 space-y-4">
+          <div className="rounded-2xl bg-[#F9FAFB] p-4 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
               <strong className="text-hb-base font-bold text-[#191F28]">
                 업소용 · 창업 설비 체크 사항 (선택 입력)
@@ -17358,7 +17358,7 @@ export function UnifiedInquiryForm({
                 {bulkItems.map((item, idx) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-[#E5E8EB]"
+                    className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-white p-2.5 rounded-xl shadow-2xs"
                   >
                     <div className="sm:col-span-5">
                       <input
@@ -19330,13 +19330,13 @@ export function ProductTrustMicroStrip({
   return (
     <section
       aria-label="한밭중고전자 핵심 거래 보증 안내"
-      className={`rounded-2xl bg-[#F2F4F6] p-1.5 ${className}`}
+      className={`rounded-2xl bg-[#F2F4F6] p-2 ${className}`}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {items.map((item) => (
           <div
             key={item.title}
-            className="flex flex-col justify-between rounded-xl bg-white px-4 py-3.5 shadow-2xs"
+            className="flex flex-col justify-between rounded-lg bg-white px-4 py-3.5 shadow-2xs"
           >
             <div>
               <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#191F28]">
@@ -19499,7 +19499,7 @@ export function ProductCard({
         transformStyle: "preserve-3d",
         willChange: isHovered ? "transform" : "auto",
       }}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white transition-all duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white transition-[transform,box-shadow,background-color] duration-200 ${
         isSelected
           ? "ring-2 ring-[#FF6F0F] bg-[#FFFDFB] shadow-card-hover"
           : "hb-surface-card"
@@ -19576,7 +19576,7 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className={`absolute bottom-3 left-3 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#191F28] shadow-xs hover:bg-[#191F28] hover:text-white transition-all cursor-pointer active:scale-95 ${
+            className={`absolute bottom-3 left-3 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#191F28] shadow-xs hover:bg-[#191F28] hover:text-white transition-[background-color,color,transform,opacity] cursor-pointer active:scale-[0.96] ${
               isAdmin
                 ? "inline-flex"
                 : "hidden sm:inline-flex opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200"
@@ -19691,7 +19691,7 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-semibold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-semibold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
                   ? "bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]/30"
                   : "bg-[#F2F4F6] text-[#191F28] hover:bg-[#191F28] hover:text-white"
@@ -20938,7 +20938,7 @@ export function InteractiveChecklistAndCta({
       {/* 1순위: 직영 매장 전화 문의 버튼 (h-14) */}
       <a
         href={telHref(STORE.tel)}
-        className="w-full h-14 rounded-2xl bg-[#F05600] hover:bg-[#E55A00] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
+        className="w-full h-14 rounded-2xl bg-[#F05600] hover:bg-[#E55A00] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -20947,7 +20947,7 @@ export function InteractiveChecklistAndCta({
           <div className="text-left min-w-0">
             <div className="text-hb-base font-bold leading-tight text-white flex items-center gap-1.5 truncate">
               <span>{sold ? "유사 매물 전화 문의" : "전화 바로 문의하기"}</span>
-              <span className="text-hb-xs font-bold text-white">
+              <span className="text-hb-xs font-bold text-white tabular-nums">
                 ({STORE.tel})
               </span>
             </div>
@@ -20967,7 +20967,7 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
+        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-black/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -20988,12 +20988,12 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (테두리 박스 난립 제거) */}
-      <div className="rounded-2xl bg-[#F2F4F6] p-1.5 space-y-1.5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (동심원 곡률 R_inner = R_outer - Padding 적용) */}
+      <div className="rounded-2xl bg-[#F2F4F6] p-2 space-y-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#F05600] shrink-0" />
             <span className="truncate">문자 문의</span>
@@ -21001,14 +21001,14 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={inquiryHref}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
             <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#3182F6] shrink-0" />
             <span className="truncate">온라인 견적</span>
           </Link>
 
           <QuoteBasketButton
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
             compact
             item={{
               id: String(product.id),
@@ -21026,7 +21026,7 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={galleryCategoryHref}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
             <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#00A85D] shrink-0" />
             <span className="truncate">유사 매물</span>
@@ -21043,7 +21043,7 @@ export function InteractiveChecklistAndCta({
             });
             setVisitModalOpen(true);
           }}
-          className="w-full h-10 rounded-xl bg-white/80 hover:bg-white text-[#191F28] flex items-center justify-between px-3.5 transition-colors font-bold text-hb-xs cursor-pointer"
+          className="w-full h-10 rounded-lg bg-white/80 hover:bg-white text-[#191F28] flex items-center justify-between px-3.5 transition-[background-color,color,transform] duration-150 active:scale-[0.96] font-bold text-hb-xs cursor-pointer"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#F05600] shrink-0" />
@@ -21698,8 +21698,8 @@ export function V2SpatialFitPlanner({
             </div>
           )}
 
-          {/* 3. 실용적인 [기본 포함 vs 현장 추가비용 발생 항목] 비교표 */}
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 space-y-3 text-hb-xs">
+          {/* 3. 실용적인 [기본 포함 vs 현장 추가비용 발생 항목] 비교표 (중첩 테두리 박스 해체) */}
+          <div className="rounded-xl bg-[#F9FAFB] p-4 space-y-3 text-hb-xs">
             <div>
               <strong className="flex items-center gap-1.5 text-[#191F28] font-bold">
                 <Icon d={ICON.check} className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -21826,9 +21826,9 @@ export function V2SpatialFitPlanner({
           </div>
         </div>
 
-        {/* 1. 공간 · 문폭 · 층수 선택 컨트롤 */}
+        {/* 1. 공간 · 문폭 · 층수 선택 컨트롤 (중첩 테두리 박스 해체 -> 플랫 그룹화) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 space-y-2">
+          <div className="rounded-xl bg-[#F9FAFB] p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="space-slider"
@@ -21846,10 +21846,10 @@ export function V2SpatialFitPlanner({
                   key={p.label}
                   type="button"
                   onClick={() => setMySpaceCm(p.cm)}
-                  className={`rounded border py-1.5 px-1.5 text-hb-xs font-bold transition-all ${
+                  className={`rounded-lg py-1.5 px-1.5 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                     mySpaceCm === p.cm
-                      ? "border-[#191F28] bg-[#191F28] text-white"
-                      : "border-[#E5E8EB] bg-white text-[#4E5968]"
+                      ? "border border-[#191F28] bg-[#191F28] text-white"
+                      : "border border-[#E5E8EB] bg-white text-[#4E5968] hover:border-[#191F28]"
                   }`}
                 >
                   {p.label}
@@ -21868,7 +21868,7 @@ export function V2SpatialFitPlanner({
             />
           </div>
 
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 space-y-2">
+          <div className="rounded-xl bg-[#F9FAFB] p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="door-slider"
@@ -21886,10 +21886,10 @@ export function V2SpatialFitPlanner({
                   key={d.label}
                   type="button"
                   onClick={() => setMyDoorCm(d.cm)}
-                  className={`rounded border py-1.5 px-1.5 text-hb-xs font-bold transition-all ${
+                  className={`rounded-lg py-1.5 px-1.5 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                     myDoorCm === d.cm
-                      ? "border-[#191F28] bg-[#191F28] text-white"
-                      : "border-[#E5E8EB] bg-white text-[#4E5968]"
+                      ? "border border-[#191F28] bg-[#191F28] text-white"
+                      : "border border-[#E5E8EB] bg-white text-[#4E5968] hover:border-[#191F28]"
                   }`}
                 >
                   {d.label}
@@ -21900,10 +21900,10 @@ export function V2SpatialFitPlanner({
               <button
                 type="button"
                 onClick={() => setCarryFloor("1f_elev")}
-                className={`rounded border py-1 text-hb-xs font-bold ${
+                className={`rounded-lg py-1 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                   carryFloor === "1f_elev"
-                    ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
-                    : "border-[#E5E8EB] bg-white text-[#6B7684]"
+                    ? "border border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
+                    : "border border-[#E5E8EB] bg-white text-[#6B7684]"
                 }`}
               >
                 1층 / 엘리베이터 있음
@@ -21911,10 +21911,10 @@ export function V2SpatialFitPlanner({
               <button
                 type="button"
                 onClick={() => setCarryFloor("stairs")}
-                className={`rounded border py-1 text-hb-xs font-bold ${
+                className={`rounded-lg py-1 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                   carryFloor === "stairs"
-                    ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
-                    : "border-[#E5E8EB] bg-white text-[#6B7684]"
+                    ? "border border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
+                    : "border border-[#E5E8EB] bg-white text-[#6B7684]"
                 }`}
               >
                 2층 이상 계단운반
@@ -21923,8 +21923,8 @@ export function V2SpatialFitPlanner({
           </div>
         </div>
 
-        {/* 2. 공간 점유 다이어그램 */}
-        <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 space-y-2">
+        {/* 2. 공간 점유 다이어그램 (박스-인-박스 테두리 해체) */}
+        <div className="rounded-xl bg-[#F9FAFB] p-3.5 space-y-2">
           <div className="flex items-center justify-between text-hb-xs">
             <span className="font-bold text-[#191F28]">
               설치 벽면({mySpaceCm}cm) 대비 제품+방열폭({requiredSpaceCm}cm)
@@ -22225,22 +22225,22 @@ export function V2VisualInspectionViewer({
           </div>
         </div>
 
-        {/* 4대 소비자 질문 & 해결 카드 (2×2 그리드) */}
+        {/* 4대 소비자 질문 & 해결 카드 (2×2 그리드 - 중첩 테두리 박스 해체) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {items.map((item) => {
             const badgeStyle = getInspectionBadgeStyle(item.badge);
             return (
               <div
                 key={item.no}
-                className="flex flex-col justify-between rounded-xl border border-[#E5E8EB] bg-[#F9FAFB]/75 p-4 hover:border-[#191F28] hover:bg-white transition-colors"
+                className="flex flex-col justify-between rounded-xl bg-[#F9FAFB] p-3.5 sm:p-4 hover:bg-[#F2F4F6] transition-[background-color] duration-150"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-bold text-white">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-bold text-white tabular-nums">
                       {item.no}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold shrink-0 ${badgeStyle.wrap}`}
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-bold shrink-0 ${badgeStyle.wrap}`}
                     >
                       <Icon
                         d={ICON.check}
@@ -22266,8 +22266,8 @@ export function V2VisualInspectionViewer({
         </div>
       </div>
 
-      {/* 하단 쇼룸 실물 확인 안내 */}
-      <div className="rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] px-4 py-3 flex items-center gap-2.5 text-hb-xs text-[#4E5968]">
+      {/* 하단 쇼룸 실물 확인 안내 (박스 중첩 제거 -> 클린 디바이더 라인) */}
+      <div className="pt-3 border-t border-[#F2F4F6] flex items-center gap-2.5 text-hb-xs text-[#4E5968]">
         <Icon d={ICON.pin} className="w-4 h-4 text-[#F05600] shrink-0" />
         <span className="break-keep">
           <strong>대전 중촌동 1·2층 직영 매장 상시 개방:</strong> 사진만으로 결정하기 망설여지신다면 매장에 오셔서 직접 전원을 켜보고 선택하셔도 됩니다.

@@ -334,8 +334,8 @@ export function V2SpatialFitPlanner({
             </div>
           )}
 
-          {/* 3. 실용적인 [기본 포함 vs 현장 추가비용 발생 항목] 비교표 */}
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-4 space-y-3 text-hb-xs">
+          {/* 3. 실용적인 [기본 포함 vs 현장 추가비용 발생 항목] 비교표 (중첩 테두리 박스 해체) */}
+          <div className="rounded-xl bg-[#F9FAFB] p-4 space-y-3 text-hb-xs">
             <div>
               <strong className="flex items-center gap-1.5 text-[#191F28] font-bold">
                 <Icon d={ICON.check} className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
@@ -462,9 +462,9 @@ export function V2SpatialFitPlanner({
           </div>
         </div>
 
-        {/* 1. 공간 · 문폭 · 층수 선택 컨트롤 */}
+        {/* 1. 공간 · 문폭 · 층수 선택 컨트롤 (중첩 테두리 박스 해체 -> 플랫 그룹화) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 space-y-2">
+          <div className="rounded-xl bg-[#F9FAFB] p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="space-slider"
@@ -482,10 +482,10 @@ export function V2SpatialFitPlanner({
                   key={p.label}
                   type="button"
                   onClick={() => setMySpaceCm(p.cm)}
-                  className={`rounded border py-1.5 px-1.5 text-hb-xs font-bold transition-all ${
+                  className={`rounded-lg py-1.5 px-1.5 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                     mySpaceCm === p.cm
-                      ? "border-[#191F28] bg-[#191F28] text-white"
-                      : "border-[#E5E8EB] bg-white text-[#4E5968]"
+                      ? "border border-[#191F28] bg-[#191F28] text-white"
+                      : "border border-[#E5E8EB] bg-white text-[#4E5968] hover:border-[#191F28]"
                   }`}
                 >
                   {p.label}
@@ -504,7 +504,7 @@ export function V2SpatialFitPlanner({
             />
           </div>
 
-          <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 space-y-2">
+          <div className="rounded-xl bg-[#F9FAFB] p-3.5 space-y-2">
             <div className="flex items-center justify-between">
               <label
                 htmlFor="door-slider"
@@ -522,10 +522,10 @@ export function V2SpatialFitPlanner({
                   key={d.label}
                   type="button"
                   onClick={() => setMyDoorCm(d.cm)}
-                  className={`rounded border py-1.5 px-1.5 text-hb-xs font-bold transition-all ${
+                  className={`rounded-lg py-1.5 px-1.5 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                     myDoorCm === d.cm
-                      ? "border-[#191F28] bg-[#191F28] text-white"
-                      : "border-[#E5E8EB] bg-white text-[#4E5968]"
+                      ? "border border-[#191F28] bg-[#191F28] text-white"
+                      : "border border-[#E5E8EB] bg-white text-[#4E5968] hover:border-[#191F28]"
                   }`}
                 >
                   {d.label}
@@ -536,10 +536,10 @@ export function V2SpatialFitPlanner({
               <button
                 type="button"
                 onClick={() => setCarryFloor("1f_elev")}
-                className={`rounded border py-1 text-hb-xs font-bold ${
+                className={`rounded-lg py-1 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                   carryFloor === "1f_elev"
-                    ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
-                    : "border-[#E5E8EB] bg-white text-[#6B7684]"
+                    ? "border border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
+                    : "border border-[#E5E8EB] bg-white text-[#6B7684]"
                 }`}
               >
                 1층 / 엘리베이터 있음
@@ -547,10 +547,10 @@ export function V2SpatialFitPlanner({
               <button
                 type="button"
                 onClick={() => setCarryFloor("stairs")}
-                className={`rounded border py-1 text-hb-xs font-bold ${
+                className={`rounded-lg py-1 text-hb-xs font-bold transition-[background-color,color,border-color] ${
                   carryFloor === "stairs"
-                    ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
-                    : "border-[#E5E8EB] bg-white text-[#6B7684]"
+                    ? "border border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600]"
+                    : "border border-[#E5E8EB] bg-white text-[#6B7684]"
                 }`}
               >
                 2층 이상 계단운반
@@ -559,8 +559,8 @@ export function V2SpatialFitPlanner({
           </div>
         </div>
 
-        {/* 2. 공간 점유 다이어그램 */}
-        <div className="rounded-xl border border-[#E5E8EB] bg-[#F9FAFB] p-3 space-y-2">
+        {/* 2. 공간 점유 다이어그램 (박스-인-박스 테두리 해체) */}
+        <div className="rounded-xl bg-[#F9FAFB] p-3.5 space-y-2">
           <div className="flex items-center justify-between text-hb-xs">
             <span className="font-bold text-[#191F28]">
               설치 벽면({mySpaceCm}cm) 대비 제품+방열폭({requiredSpaceCm}cm)

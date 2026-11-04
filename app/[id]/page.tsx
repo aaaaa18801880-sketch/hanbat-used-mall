@@ -543,7 +543,7 @@ export default async function ProductDetailPage({
                       {priceDisplay}
                     </span>
                   ) : (
-                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#F05600]">
+                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#F05600] tabular-nums">
                       {priceDisplay}
                     </span>
                   )}

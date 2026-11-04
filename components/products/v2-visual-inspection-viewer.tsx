@@ -196,22 +196,22 @@ export function V2VisualInspectionViewer({
           </div>
         </div>
 
-        {/* 4대 소비자 질문 & 해결 카드 (2×2 그리드) */}
+        {/* 4대 소비자 질문 & 해결 카드 (2×2 그리드 - 중첩 테두리 박스 해체) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {items.map((item) => {
             const badgeStyle = getInspectionBadgeStyle(item.badge);
             return (
               <div
                 key={item.no}
-                className="flex flex-col justify-between rounded-xl border border-[#E5E8EB] bg-[#F9FAFB]/75 p-4 hover:border-[#191F28] hover:bg-white transition-colors"
+                className="flex flex-col justify-between rounded-xl bg-[#F9FAFB] p-3.5 sm:p-4 hover:bg-[#F2F4F6] transition-[background-color] duration-150"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-2">
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-bold text-white">
+                    <span className="inline-flex h-5 w-5 items-center justify-center rounded bg-[#191F28] text-hb-xs font-bold text-white tabular-nums">
                       {item.no}
                     </span>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold shrink-0 ${badgeStyle.wrap}`}
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-bold shrink-0 ${badgeStyle.wrap}`}
                     >
                       <Icon
                         d={ICON.check}
@@ -237,8 +237,8 @@ export function V2VisualInspectionViewer({
         </div>
       </div>
 
-      {/* 하단 쇼룸 실물 확인 안내 */}
-      <div className="rounded-xl bg-[#F9FAFB] border border-[#E5E8EB] px-4 py-3 flex items-center gap-2.5 text-hb-xs text-[#4E5968]">
+      {/* 하단 쇼룸 실물 확인 안내 (박스 중첩 제거 -> 클린 디바이더 라인) */}
+      <div className="pt-3 border-t border-[#F2F4F6] flex items-center gap-2.5 text-hb-xs text-[#4E5968]">
         <Icon d={ICON.pin} className="w-4 h-4 text-[#F05600] shrink-0" />
         <span className="break-keep">
           <strong>대전 중촌동 1·2층 직영 매장 상시 개방:</strong> 사진만으로 결정하기 망설여지신다면 매장에 오셔서 직접 전원을 켜보고 선택하셔도 됩니다.

@@ -646,7 +646,7 @@ export default function Home({
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
                     <Link
                       href="/gallery"
-                      className="group relative flex items-center justify-between rounded-2xl bg-[#191F28] px-5 py-4 text-white shadow-card hover:bg-[#333D4B] hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200"
+                      className="group relative flex items-center justify-between rounded-2xl bg-[#191F28] px-5 py-4 text-white shadow-card hover:bg-[#333D4B] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96]"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-[#FF8A50]">
@@ -661,7 +661,7 @@ export default function Home({
                           )}
                         </strong>
                       </div>
-                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#F05600] group-hover:translate-x-0.5 transition-all">
+                      <span className="ml-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white group-hover:bg-[#F05600] group-hover:translate-x-0.5 transition-[background-color,transform]">
                         <Icon d={ICON.arrow} className="w-4 h-4" />
                       </span>
                     </Link>
@@ -674,7 +674,7 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group relative flex items-center justify-between rounded-2xl bg-[#FF6F0F] px-5 py-4 text-left text-white shadow-card hover:bg-[#E55A00] hover:-translate-y-0.5 hover:shadow-card-hover transition-all duration-200 cursor-pointer"
+                      className="group relative flex items-center justify-between rounded-2xl bg-[#FF6F0F] px-5 py-4 text-left text-white shadow-card hover:bg-[#E55A00] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96] cursor-pointer"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-white/90">
@@ -808,9 +808,9 @@ export default function Home({
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group relative block min-w-0 rounded-2xl bg-white p-1.5 shadow-2xs hover:-translate-y-0.5 hover:shadow-card transition-all duration-200"
+                            className="group relative block min-w-0 rounded-2xl bg-white p-2 shadow-2xs hover:-translate-y-0.5 hover:shadow-card transition-[transform,box-shadow] duration-200"
                           >
-                            <div className="relative aspect-square w-full rounded-xl overflow-hidden hb-studio-backdrop">
+                            <div className="relative aspect-square w-full rounded-lg overflow-hidden hb-studio-backdrop">
                               <SafeImg
                                 src={thumb}
                                 alt={item.title}

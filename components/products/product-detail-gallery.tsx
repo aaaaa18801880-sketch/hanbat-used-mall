@@ -575,7 +575,7 @@ export function InteractiveChecklistAndCta({
       {/* 1순위: 직영 매장 전화 문의 버튼 (h-14) */}
       <a
         href={telHref(STORE.tel)}
-        className="w-full h-14 rounded-2xl bg-[#F05600] hover:bg-[#E55A00] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
+        className="w-full h-14 rounded-2xl bg-[#F05600] hover:bg-[#E55A00] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -584,7 +584,7 @@ export function InteractiveChecklistAndCta({
           <div className="text-left min-w-0">
             <div className="text-hb-base font-bold leading-tight text-white flex items-center gap-1.5 truncate">
               <span>{sold ? "유사 매물 전화 문의" : "전화 바로 문의하기"}</span>
-              <span className="text-hb-xs font-bold text-white">
+              <span className="text-hb-xs font-bold text-white tabular-nums">
                 ({STORE.tel})
               </span>
             </div>
@@ -604,7 +604,7 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
-        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-all duration-200 active:scale-[0.99] group cursor-pointer"
+        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-9 h-9 rounded-xl bg-black/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -625,12 +625,12 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (테두리 박스 난립 제거) */}
-      <div className="rounded-2xl bg-[#F2F4F6] p-1.5 space-y-1.5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (동심원 곡률 R_inner = R_outer - Padding 적용) */}
+      <div className="rounded-2xl bg-[#F2F4F6] p-2 space-y-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#F05600] shrink-0" />
             <span className="truncate">문자 문의</span>
@@ -638,14 +638,14 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={inquiryHref}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
             <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#3182F6] shrink-0" />
             <span className="truncate">온라인 견적</span>
           </Link>
 
           <QuoteBasketButton
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
             compact
             item={{
               id: String(product.id),
@@ -663,7 +663,7 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={galleryCategoryHref}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-colors shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#191F28] text-[#191F28] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
           >
             <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#00A85D] shrink-0" />
             <span className="truncate">유사 매물</span>
@@ -680,7 +680,7 @@ export function InteractiveChecklistAndCta({
             });
             setVisitModalOpen(true);
           }}
-          className="w-full h-10 rounded-xl bg-white/80 hover:bg-white text-[#191F28] flex items-center justify-between px-3.5 transition-colors font-bold text-hb-xs cursor-pointer"
+          className="w-full h-10 rounded-lg bg-white/80 hover:bg-white text-[#191F28] flex items-center justify-between px-3.5 transition-[background-color,color,transform] duration-150 active:scale-[0.96] font-bold text-hb-xs cursor-pointer"
         >
           <div className="flex items-center gap-2 min-w-0">
             <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#F05600] shrink-0" />

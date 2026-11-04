@@ -88,13 +88,13 @@ export function ProductTrustMicroStrip({
   return (
     <section
       aria-label="한밭중고전자 핵심 거래 보증 안내"
-      className={`rounded-2xl bg-[#F2F4F6] p-1.5 ${className}`}
+      className={`rounded-2xl bg-[#F2F4F6] p-2 ${className}`}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {items.map((item) => (
           <div
             key={item.title}
-            className="flex flex-col justify-between rounded-xl bg-white px-4 py-3.5 shadow-2xs"
+            className="flex flex-col justify-between rounded-lg bg-white px-4 py-3.5 shadow-2xs"
           >
             <div>
               <div className="flex items-center gap-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#191F28]">
@@ -257,7 +257,7 @@ export function ProductCard({
         transformStyle: "preserve-3d",
         willChange: isHovered ? "transform" : "auto",
       }}
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white transition-all duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white transition-[transform,box-shadow,background-color] duration-200 ${
         isSelected
           ? "ring-2 ring-[#FF6F0F] bg-[#FFFDFB] shadow-card-hover"
           : "hb-surface-card"
@@ -334,7 +334,7 @@ export function ProductCard({
             }}
             title={isAdmin ? "관리자 수정" : "상품 미리보기"}
             aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className={`absolute bottom-3 left-3 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#191F28] shadow-xs hover:bg-[#191F28] hover:text-white transition-all cursor-pointer active:scale-95 ${
+            className={`absolute bottom-3 left-3 z-20 items-center gap-1 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#191F28] shadow-xs hover:bg-[#191F28] hover:text-white transition-[background-color,color,transform,opacity] cursor-pointer active:scale-[0.96] ${
               isAdmin
                 ? "inline-flex"
                 : "hidden sm:inline-flex opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity duration-200"
@@ -449,7 +449,7 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-semibold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`shrink-0 inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-hb-xs font-semibold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
                   ? "bg-[#FFF4EE] text-[#F05600] ring-1 ring-[#FF6F0F]/30"
                   : "bg-[#F2F4F6] text-[#191F28] hover:bg-[#191F28] hover:text-white"

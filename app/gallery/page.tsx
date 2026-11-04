@@ -2088,7 +2088,7 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`h-9 px-4 inline-flex items-center rounded-full text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                    className={`h-9 px-4 inline-flex items-center rounded-full text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-[background-color,color,box-shadow,transform] active:scale-[0.96] shrink-0 cursor-pointer ${
                       active
                         ? "bg-[#191F28] text-white shadow-xs"
                         : "bg-[#F2F4F6] text-[#4E5968] hover:bg-[#E5E8EB] hover:text-[#191F28]"
@@ -2220,7 +2220,7 @@ export default function GalleryPage() {
                             keyword: preset.keyword,
                           });
                         }}
-                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-colors border shrink-0 cursor-pointer ${
+                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-[background-color,color,border-color,transform] active:scale-[0.96] border shrink-0 cursor-pointer ${
                           active
                             ? "border-[#FF6F0F] bg-[#FFF4EE] text-[#F05600] font-bold"
                             : "border-[#E5E8EB] bg-[#F9FAFB] text-[#4E5968] hover:border-[#191F28]"
