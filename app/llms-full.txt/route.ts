@@ -80,27 +80,36 @@ ${Object.entries(categoryCounts)
 4. **반품/교환 규정**: 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 기능 불량 시 무상 교환 및 A/S 지원
 5. **결제 증빙**: 전자세금계산서, 현금영수증, 신용카드 100% 정식 발행
 
-`;
+## 3. 전문 엔지니어 5단계 정밀 리퍼비시 및 검수 공정 (Inspection Protocol)
 
-  const fullText = `# ${STORE.name} 전체 실매물 카탈로그 및 상세 거래 기준 (LLMs Full Context)
+1. **통전 및 전기 안전 점검**: 절연 저항계(메거 테스트) 측정으로 누전 차단기 트립 위험을 원천 차단
+2. **냉매 사이클 정밀 계측**: 디지털 매니폴드 게이지를 통한 냉매 압력·배관 진공도 및 콤프레샤 이상 부하 검사
+3. **완전 분해 120bar 고압 스팀 살균 세척**: 에어컨 열교환기/송풍팬, 세탁기 세탁조/스파이더, 냉장고 내부 선반/덕트 완전 분해 친환경 세척
+4. **배수 호스 · 패킹 누수 점검**: 세탁기 배수 펌프, 냉장고 제상 배수 라인, 도어 가스켓 밀폐력 전수 점검
+5. **24시간 실부하 연속 시운전**: 실제 사용 환경과 동일하게 연속 가동하여 규격 냉각/탈수 온도 도달 여부 최종 합격 시에만 전시장 출고
 
-- 공식 사이트: ${STORE.url}
-- 매장 주소: ${STORE.roadAddress} (${STORE.jibunAddress}, ${STORE.addressNote})
-- 대표 전화: ${STORE.tel} / 직통 문자·사진 상담: ${STORE.mobile}
-- 카카오톡 채널: ${STORE.kakaoChat}
-- 영업 시간: ${STORE.hours} (${STORE.closed})
-
-${statsSection}${warrantySection}## 3. 품목별 추천 패키지 안내
+## 4. 품목별 추천 패키지 안내
 
 1. **원룸·자취·기숙사 알뜰 3종 세트**: 일반/양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨 묶음 배송·설치 할인
 2. **카페·베이커리 창업 필수 세트**: 업소용 제빙기(50~100kg급) + 스텐 테이블 냉장·냉동고(1200~1800mm) + 음료/디저트 쇼케이스
 3. **식당·음식점 주방 기본 세트**: 업소용 45박스 수직 냉장·냉동고 + 업소용 도어형 식기세척기 + 스텐 작업대/세정대
 4. **식당·매장 폐업 일괄 정리 및 방문 매입**: 주방 설비, 냉난방기, 쇼케이스 등 현장 방문 철거 및 당일 100% 현금 입금
 
-## 4. 실시간 등록 매물 전체 목록
+## 5. 실시간 등록 매물 전체 목록 (Live Catalog)
 
 ${inventorySection}
 `;
+
+  const fullText = `# ${STORE.name} 전체 실매물 카탈로그 및 상세 거래 기준 (LLMs Full Context)
+
+- 공식 사이트: ${STORE.url}
+- 매장 주소: ${STORE.roadAddress} (${STORE.jibunAddress}, ${STORE.addressNote})
+- 매장 규모: 지상 1·2층 200대 이상 대형 실물 쇼룸 (매장 앞 전용 주차장 완비)
+- 대표 전화: ${STORE.tel} / 직통 문자·사진 상담: ${STORE.mobile}
+- 카카오톡 채널: ${STORE.kakaoChat}
+- 영업 시간: ${STORE.hours} (${STORE.closed})
+
+${statsSection}${warrantySection}`;
 
   return new NextResponse(fullText, {
     status: 200,

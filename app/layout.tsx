@@ -2,7 +2,7 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
-import { STORE } from "../lib/site";
+import { STORE, STORE_MERCHANT_POLICY } from "../lib/site";
 import { serializeJsonLd } from "../lib/json-ld";
 import "./globals.css";
 
@@ -155,18 +155,19 @@ export default function RootLayout({
   // 3) AI 검색엔진(ChatGPT, Perplexity, Gemini) 및 로컬 비즈니스 지식 그래프용 상세 스키마
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
-    "@type": ["ElectronicsStore", "LocalBusiness"],
+    "@type": ["ElectronicsStore", "HomeGoodsStore", "LocalBusiness"],
     "@id": `${STORE.url}/#localbusiness`,
     name: STORE.name,
     legalName: STORE.legalName,
+    slogan: "대전·세종·충청 1등 분해세척 중고가전 & 업소용 주방설비 직영 전시장",
     description:
-      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 작동 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
+      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 24시간 시운전 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 100% 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
     image: [`${STORE.url}/og-image.jpg`, `${STORE.url}/main-bg2.png`],
     logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
     url: STORE.url,
     foundingDate: String(STORE.since),
-    priceRange: "₩₩",
+    priceRange: "₩~₩₩₩",
     paymentAccepted: "현금, 계좌이체, 신용카드, 전자세금계산서, 현금영수증",
     currenciesAccepted: "KRW",
     address: {
@@ -199,12 +200,45 @@ export default function RootLayout({
     ],
     knowsAbout: [
       "대전 중고가전 판매 및 방문 매입",
+      "대전 중고가전 추천 및 실매물 전시장",
       "중고 냉장고·양문형냉장고·김치냉장고",
       "중고 세탁기·드럼세탁기·통돌이·건조기",
       "중고 에어컨·벽걸이에어컨·스탠드에어컨·중대형 냉난방기",
       "업소용 45박스 냉장고·테이블냉장고·음료 및 주류 쇼케이스",
       "업소용 제빙기·업소용 식기세척기·스텐 작업대",
       "식당·카페 창업 주방설비 패키지 및 폐업 일괄 정리",
+      "원룸·자취방 입주 알뜰 가전 3종 패키지",
+      "개인 직거래(당근마켓) 대비 분해 고압 세척 및 사후 보증",
+    ],
+    hasMerchantReturnPolicy: {
+      "@type": "MerchantReturnPolicy",
+      applicableCountry: STORE_MERCHANT_POLICY.applicableCountry,
+      returnPolicyCategory: STORE_MERCHANT_POLICY.returnPolicyCategory,
+      merchantReturnDays: STORE_MERCHANT_POLICY.merchantReturnDays,
+      returnMethod: STORE_MERCHANT_POLICY.returnMethod,
+      returnFees: STORE_MERCHANT_POLICY.returnFees,
+    },
+    amenityFeature: [
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "무료 전용 주차장 (승용차 및 대형 화물차 주차 가능)",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "1·2층 실물 대형 전시 쇼룸 (200대 이상 실매물 전시)",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "대전·세종·충청 전문 기사 직배송 및 수평·배관 원스톱 설치",
+        value: true,
+      },
+      {
+        "@type": "LocationFeatureSpecification",
+        name: "새 중고가전 구매 시 기존 가전 보상판매 및 동시 수거",
+        value: true,
+      },
     ],
     hasOfferCatalog: {
       "@type": "OfferCatalog",

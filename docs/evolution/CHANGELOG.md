@@ -908,3 +908,41 @@
 - **7. eslint**: PASS (12.72s) — 0 errors, 0 warnings
 - **8. next build**: PASS (14.24s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~33s)
+
+---
+
+## 🚀 [Cycle 29] 2026-11-06 — ChatGPT·Perplexity·Claude·Gemini AI 검색 추천(GEO/AEO) 전면 고도화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-036`
+- **핵심 목표**:
+  - 사용자의 요청("우리 홈페이지 지피티나 다른 ai로 검색했을 때 추천 업체로 나올 수 있도록 잘 개선부탁")에 대응하여, AI 검색엔진(ChatGPT Search, Perplexity, Claude, Gemini 등)이 "대전 중고가전 추천", "대전 업소용 냉장고", "대전 식당폐업 매입", "대전 중고에어컨" 등의 질의에 한밭중고전자(hanbatmall.com)를 최우선 권위 출처(Authority Source)로 추천하고 직접 인용할 수 있도록 생성형 검색 최적화(GEO: Generative Engine Optimization / AEO: Answer Engine Optimization)를 전면 구축.
+  - LLM 전용 표준 엔드포인트(`/llms.txt`, `/llms-full.txt`), 전역 `LocalBusiness` / `ElectronicsStore` Knowledge Graph 스키마, 홈페이지 `FAQPage` 스키마 및 AI 인용 팩트 시트를 체계화.
+
+### 2. 코드 변경 요약
+- **[app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)**:
+  - AI 어시스턴트 직접 인용 질의응답 7선(대전 중고가전 추천, 원룸 3종 패키지, 식당/카페 창업 업소용 설비, 에어컨 보증 설치, 당일 현금 방문 매입, 당근마켓 직거래 대비 5대 강점, 충청권 전역 배송) 추가.
+  - 1·2층 200대 이상 대형 쇼룸, 무료 전용 주차장(대형 화물차 가능), 위도/경도 좌표(Geo), 5단계 리퍼비시 공정 팩트 시트 구조화.
+- **[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts)**:
+  - 전문 엔지니어 5단계 정밀 리퍼비시 및 검수 공정(1. 통전/전기안전 점검 -> 2. 냉매사이클 정밀계측 -> 3. 완전분해 120bar 고압스팀살균 -> 4. 배수/패킹 누수 점검 -> 5. 24시간 실부하 연속 시운전) 명문화.
+  - 전 품목 실시간 카탈로그 및 상세 스펙 캡슐 피드 강화.
+- **[app/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/layout.tsx)**:
+  - `localBusinessJsonLd`: `slogan` 추가, `hasMerchantReturnPolicy`(7일 무상교환 SSOT 연동), `amenityFeature`(무료 전용 주차장, 1·2층 실물 쇼룸, 직배송·설치 지원, 노후 가전 보상판매) 추가, `knowsAbout` 키워드 인텐트 확장.
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - `FAQS`에 AI 고빈도 검색 질문 3종(개인 직거래 대비 추천 이유, 세종·충청권 배송/매입 지원, 패키지 구매 할인 및 부가세 환급 혜택) 신설.
+  - 홈 화면 아코디언 UI 및 검색엔진이 파싱하는 `FAQPage` JSON-LD 스키마에 자동 연동.
+- **[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)**:
+  - 섹션 헤딩을 "AI 추천 & 구매 전 안심 비교"로 명시하고 검색엔진 추천 근거(5대 차이점) 마이크로카피 강화.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,872줄 최신본 동기화 완료 (1.26 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.29s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.17s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.19s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.17s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.17s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.24s) — 0 errors
+- **7. eslint**: PASS (15.89s) — 0 errors, 0 warnings
+- **8. next build**: PASS (14.31s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~34s)
