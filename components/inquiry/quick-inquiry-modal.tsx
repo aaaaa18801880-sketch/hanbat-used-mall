@@ -56,13 +56,14 @@ export function QuickInquiryModal() {
       onClose={() => setIsOpen(false)}
       label="견적 문의"
       panelClassName="max-w-2xl w-full"
+      closeOnOverlayClick={false}
     >
-      <div className="relative rounded-2xl bg-white border border-[#E5E8EB] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative rounded-2xl bg-white border border-[#E2E6EC] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* 모달 상단 헤더 */}
-        <div className="bg-[#191F28] text-white p-4 sm:p-5 flex items-start justify-between gap-3 shrink-0">
+        <div className="bg-[#141A23] text-white p-4 sm:p-5 flex items-start justify-between gap-3 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="rounded bg-[#F05600] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
+              <span className="rounded bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
                 직영 매장 직통
               </span>
               <span className="text-hb-xs font-medium text-white/70">
@@ -80,14 +81,14 @@ export function QuickInquiryModal() {
             type="button"
             onClick={() => setIsOpen(false)}
             aria-label="닫기"
-            className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 hover:text-white transition-colors shrink-0"
+            className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 shrink-0 cursor-pointer"
           >
             <Icon d={ICON.close} className="w-5 h-5" />
           </button>
         </div>
 
         {/* 폼 본문 (스크롤 영역) */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#F9FAFB]">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#F7F8FA]">
           <V2InquirySectionWithWizard
             key={`${inquiryType}_${linkedProduct?.productTitle || ""}`}
             defaultType={inquiryType}

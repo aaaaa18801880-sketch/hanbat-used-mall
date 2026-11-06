@@ -96,6 +96,7 @@ export function ShowroomVisitModal({
       onClose={onClose}
       label="직영 쇼룸 방문 및 실물 확인 예약"
       panelClassName="max-w-2xl"
+      closeOnOverlayClick={false}
     >
       <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
         {/* 상단 헤더 */}

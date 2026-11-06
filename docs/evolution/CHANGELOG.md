@@ -845,3 +845,35 @@
 - **7. eslint**: PASS (19.13s) — 0 errors, 0 warnings
 - **8. next build**: PASS (15.38s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~39s)
+
+---
+
+## 🚀 [Cycle 27] 2026-11-06 — 견적 문의 및 쇼룸 예약 모달 외부 오버레이 클릭 닫힘 방지 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-034`
+- **핵심 목표**:
+  - 사용자 요청("여기 바깥 누르면 꺼지는 거 없애줭")에 따라 견적 문의 모달(`QuickInquiryModal`) 작성 중 외부 오버레이(바깥 어두운 배경) 클릭 시 모달이 실수로 닫혀 작성 데이터가 유실되는 문제 원천 차단.
+  - 방문 예약 모달(`ShowroomVisitModal`)에도 동일하게 외부 클릭 닫힘 방지(`closeOnOverlayClick={false}`) 적용.
+  - 상단 닫기 X 버튼(`active:scale-[0.96]`)을 통한 명시적 종료만 허용.
+
+### 2. 코드 변경 요약
+- **[components/inquiry/quick-inquiry-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/quick-inquiry-modal.tsx)**:
+  - `<Modal>`에 `closeOnOverlayClick={false}` 전달.
+  - 헤더 구형 컬러(#191F28, #F05600, #E5E8EB, #F9FAFB)를 단일 출처 토큰(#141A23, #E8521A, #E2E6EC, #F7F8FA)으로 통일.
+  - 닫기 버튼에 `active:scale-[0.96]` 촉각 피드백 추가.
+- **[components/showroom/showroom-visit-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/showroom/showroom-visit-modal.tsx)**:
+  - `<Modal>`에 `closeOnOverlayClick={false}` 전달.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,717줄 최신본 동기화 완료 (1.25 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.28s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.17s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.20s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.19s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.17s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.46s) — 0 errors
+- **7. eslint**: PASS (13.02s) — 0 errors, 0 warnings
+- **8. next build**: PASS (15.84s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~35s)
