@@ -120,6 +120,7 @@ export default function RootLayout({
       "hanbatmall",
       "대전한밭중고전자",
       "한밭중고가전",
+      "대전중고가전매입판매",
     ],
     url: STORE.url,
     inLanguage: "ko-KR",
@@ -142,6 +143,7 @@ export default function RootLayout({
     "@id": `${STORE.url}/#organization`,
     name: STORE.name,
     legalName: STORE.legalName,
+    alternateName: ["한밭몰", "대전중고가전매입판매", "hanbatmall"],
     url: STORE.url,
     logo: {
       "@type": "ImageObject",
@@ -153,9 +155,10 @@ export default function RootLayout({
     image: `${STORE.url}/store-exterior.jpg`,
     telephone: STORE.tel,
     sameAs: [
-      "https://cafe.naver.com/hanbatmall",
-      "https://pf.kakao.com/_XmyrX",
-      "https://naver.me/F5DkWQ4z",
+      STORE.cafe,
+      STORE.kakaoChannel,
+      STORE.naverMap,
+      STORE.daangnLocalProfile,
     ],
   };
 
@@ -166,6 +169,12 @@ export default function RootLayout({
     "@id": `${STORE.url}/#localbusiness`,
     name: STORE.name,
     legalName: STORE.legalName,
+    alternateName: ["한밭몰", "대전중고가전매입판매", "hanbatmall"],
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${STORE.url}/`,
+      url: `${STORE.url}/`,
+    },
     slogan: "대전·세종·충청 1등 분해세척 중고가전 & 업소용 주방설비 직영 전시장",
     description:
       "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 24시간 시운전 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 100% 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
@@ -302,7 +311,12 @@ export default function RootLayout({
         closes: "19:00",
       },
     ],
-    sameAs: [STORE.cafe, STORE.kakaoChannel, STORE.naverMap],
+    sameAs: [
+      STORE.cafe,
+      STORE.kakaoChannel,
+      STORE.naverMap,
+      STORE.daangnLocalProfile,
+    ],
   };
 
   return (

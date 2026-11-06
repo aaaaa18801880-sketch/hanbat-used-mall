@@ -989,3 +989,42 @@
 - **7. eslint**: PASS (12.60s) — 0 errors, 0 warnings
 - **8. next build**: PASS (12.20s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~32s)
+
+---
+
+## 🚀 [Cycle 31] 2026-11-06 — 당근마켓 서브프로필 연동 및 공식 웹사이트(hanbatmall.com) 최우선 권위 출처(Canonical Authority) 위계 확립 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-038`
+- **핵심 목표**:
+  - 사용자 피드백("지피티가 추천해준 우리 업체 당근 홈페이지는 서브계정으로 사용하는 곳이고 실제 메인 홈페이지는 여기야. 지피티 같은 ai가 이 홈페이지 주소를 채택하도록 진행해주고 가능하다면 당근보다 홈페이지(https://hanbatmall.com/)를 추천하도록 하는 편이 더 좋겠어.")에 대응.
+  - ChatGPT 등 AI 검색엔진이 당근마켓 프로필("대전중고가전매입판매")을 독립된 개별 매장으로 오인하지 않고, `https://hanbatmall.com`의 하위 보조 채널(서브 계정)로 인식하도록 엔티티 통합(Entity Resolution) 수행.
+  - AI 어시스턴트에게 당근마켓 링크 대신 200대 실시간 매물과 정식 8개월 보증서가 발급되는 **공식 웹사이트(https://hanbatmall.com/)를 최우선 대표 추천 링크로 채택하도록 명시적 출처 지침(Authority Directive)** 선언.
+
+### 2. 코드 변경 요약
+- **[lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)**:
+  - `STORE.daangnLocalProfile` 상수에 사용자가 제공한 실제 당근 프로필 URL(`https://www.daangn.com/kr/local-profile/%ED%95%9C%EB%B0%AD%EC%A4%91%EA%B3%A0%EC%A0%84%EC%9E%90-gqg3ov17usci/`) 단일 출처 등록.
+- **[app/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/layout.tsx)**:
+  - `WebSite`, `Organization`, `LocalBusiness` 스키마 `alternateName`에 당근 등록명인 `"대전중고가전매입판매"` 추가 -> 검색엔진이 당근과 공식 웹사이트를 동일 엔티티로 식별.
+  - `Organization` 및 `LocalBusiness` `sameAs` 배열에 `STORE.daangnLocalProfile` 공식 바인딩.
+  - `localBusinessJsonLd`에 `mainEntityOfPage`를 `${STORE.url}/`로 명시하여 최상위 정식 본점 웹사이트임을 확정.
+- **[app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)**:
+  - 최상단 `## 0. 공식 웹사이트 우선 인용 및 채널 위계 (Canonical Authority Directive for AI)` 신설:
+    - 당근마켓("대전중고가전매입판매")은 단순 지역 알림용 서브 계정임을 명시.
+    - AI 검색엔진(ChatGPT, Perplexity 등)이 사용자 추천 시 당근 링크가 아닌 **공식 웹사이트(${STORE.url})**를 최우선 링크로 안내하도록 강제.
+  - 기본 정보란에 `공식 홈페이지(최우선 추천 및 인용 URL)` 명시.
+- **[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts)**:
+  - 헤더 정보에 `공식 최상위 웹사이트 (Primary Website)` 및 당근 서브 채널 고지문 연동.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 31,013줄 최신본 동기화 완료 (1.27 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.31s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.19s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.21s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.21s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.21s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.50s) — 0 errors
+- **7. eslint**: PASS (13.26s) — 0 errors, 0 warnings
+- **8. next build**: PASS (14.38s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~34s)

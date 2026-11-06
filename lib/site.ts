@@ -27,6 +27,8 @@ export const STORE = {
   cafe: "https://cafe.naver.com/hanbatmall",
   naverMap: "https://naver.me/F5DkWQ4z",
   naverMapShort: "https://naver.me/F5DkWQ4z",
+  daangnLocalProfile:
+    "https://www.daangn.com/kr/local-profile/%ED%95%9C%EB%B0%AD%EC%A4%91%EA%B3%A0%EC%A0%84%EC%9E%90-gqg3ov17usci/",
 } as const;
 
 /* ════════════════════════════════════════════════════════════
