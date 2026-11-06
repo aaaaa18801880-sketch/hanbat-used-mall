@@ -194,7 +194,7 @@ export function FeaturedProductsSection({
             <div className="mt-2.5 flex flex-wrap items-baseline gap-2.5">
               <h2
                 id="featured-heading"
-                className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] text-[#141A23]"
+                className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] text-[#141A23] [text-wrap:balance]"
               >
                 {activeCategoryTitle}
               </h2>
@@ -208,13 +208,13 @@ export function FeaturedProductsSection({
                     setVisibleCount(INITIAL_DISPLAY_LIMIT);
                     onResetCategory();
                   }}
-                  className="ml-1 rounded-full bg-[#F1F3F6] px-3 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23] transition-colors cursor-pointer"
+                  className="ml-1 rounded-full bg-[#F1F3F6] px-3 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23] active:scale-[0.96] transition-[background-color,color,transform] duration-150 cursor-pointer"
                 >
                   전체 품목 보기
                 </button>
               )}
             </div>
-            <p className="mt-1.5 text-hb-sm text-[#4E5968]">
+            <p className="mt-1.5 text-hb-sm text-[#4E5968] [text-wrap:balance]">
               대전 중촌동 1·2층 직영 매장에서 분해 고압세척과 시운전 검수를 마친 실매물입니다.
             </p>
           </div>
@@ -222,7 +222,7 @@ export function FeaturedProductsSection({
           <div className="flex items-center gap-2 shrink-0">
             <Link
               href={galleryHref}
-              className="hb-btn-primary h-11 px-5 text-hb-sm"
+              className="hb-btn-primary h-11 px-5 text-hb-sm active:scale-[0.96]"
             >
               <span>상세 필터 · 전체 매물 보기</span>
               <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />
@@ -298,7 +298,7 @@ export function FeaturedProductsSection({
             <button
               type="button"
               onClick={onRetry}
-              className="hb-btn-primary mt-5 h-11 px-5 text-hb-sm"
+              className="hb-btn-primary mt-5 h-11 px-5 text-hb-sm active:scale-[0.96]"
             >
               다시 불러오기
             </button>
@@ -318,14 +318,14 @@ export function FeaturedProductsSection({
                 <button
                   type="button"
                   onClick={onResetCategory}
-                  className="hb-btn-outline h-11 px-4 text-hb-sm"
+                  className="hb-btn-outline h-11 px-4 text-hb-sm active:scale-[0.96]"
                 >
                   전체 매물 보기
                 </button>
               )}
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-primary h-11 px-5 text-hb-sm"
+                className="hb-btn-primary h-11 px-5 text-hb-sm active:scale-[0.96]"
               >
                 <Icon d={ICON.phone} className="w-4 h-4" /> 전화로 재고 확인
               </a>
@@ -362,7 +362,7 @@ export function FeaturedProductsSection({
                   <button
                     type="button"
                     onClick={() => setVisibleCount((prev) => prev + 8)}
-                    className="hb-btn-outline h-11 px-5 text-hb-sm font-bold cursor-pointer"
+                    className="hb-btn-outline h-11 px-5 text-hb-sm font-bold cursor-pointer active:scale-[0.96]"
                   >
                     <span>이 화면에서 매물 더보기 (+8)</span>
                     <Icon d={ICON.down} className="w-4 h-4" />
@@ -370,7 +370,7 @@ export function FeaturedProductsSection({
                 )}
                 <Link
                   href={galleryHref}
-                  className="hb-btn-primary h-11 px-6 text-hb-sm font-bold"
+                  className="hb-btn-primary h-11 px-6 text-hb-sm font-bold active:scale-[0.96]"
                 >
                   <span>전체 판매 제품 갤러리 ({totalSellingCount}대)</span>
                   <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />

@@ -804,3 +804,44 @@
 - **7. eslint**: PASS (18.32s) — 0 errors, 0 warnings
 - **8. next build**: PASS (15.96s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~40s)
+
+---
+
+## 🚀 [Cycle 26] 2026-11-06 — 홈페이지 전수 디자인 엔지니어링 고도화 (Jakub Krehel + Impeccable + Hallmark) (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-033`
+- **핵심 목표**:
+  - 사용자 요청에 따라 메인 홈페이지(`home-page-client.tsx`, `category-pictogram-bar.tsx`, `featured-products-section.tsx`, `ai-recommendation-guide-section.tsx`) 전역에 `jakubkrehel/skills`, `pbakaus/impeccable`, `Nutlope/hallmark` 3대 프레임워크 방법론 전수 반영.
+  - 구형 토큰 잔여물(#191F28, #FF6F0F, #F05600, #E5E8EB, #F2F4F6, #F9FAFB, #333D4B, #6B7684) 27건 전수 정규화 (잔여 0건 달성).
+  - 전체 버튼 및 인터랙티브 엘리먼트에 `active:scale-[0.96]` 촉각 피드백 및 명시적 transition 속성 부여 (`transition-all` 0건 유지).
+  - 타이포그래피 정밀도 향상: 모든 섹션 헤드라인에 `[text-wrap:balance]` 적용, 리뷰 건수·전화번호·스텝 번호에 `tabular-nums` 적용.
+  - 모달 패널(매입 안내문, 라이트박스, 관리자 로그인, 인증사진 등록) 동심원 곡률($R_{inner} = R_{outer} - P$) 정렬.
+
+### 2. 코드 변경 요약
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - 구형 컬러 27건 전수 교체: `#191F28` -> `#141A23`, `#FF6F0F`/`#F05600` -> `#E8521A`, `#E5E8EB` -> `#E2E6EC`, `#F9FAFB`/`#F2F4F6` -> `#F7F8FA`/`#F1F3F6`, `#333D4B` -> `#232B36`, `#6B7684` -> `#64748B`.
+  - 섹션 타이틀(#business-title, #sell-title, #review-title, #faq-title, #cta-title, #location-title)에 `[text-wrap:balance]` 일괄 적용.
+  - 전 인터랙션 요소(B2B 견적, 매입 신청, 카카오톡 상담, 시공 분류 탭, 길찾기 3종, 빠른 상담 독, 모달 제어 버튼)에 `active:scale-[0.96]` 적용.
+  - 4개 모달(안내문, 라이트박스, 로그인, 리뷰 등록) 외곽 `rounded-2xl` 및 내부 엘리먼트 동심원 곡률 정렬.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 상단 "전체 실매물", "갤러리 전체보기" 링크 및 버튼에 `active:scale-[0.96]` 및 명시적 transition 속성 부여.
+- **[components/home/featured-products-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/featured-products-section.tsx)**:
+  - 활성 카테고리 헤드라인 및 서브텍스트에 `[text-wrap:balance]` 적용.
+  - 전체 품목 보기, 상세 필터, 매물 더보기, 재고 확인 CTA 버튼에 `active:scale-[0.96]` 적용.
+- **[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)**:
+  - 고객 상황별 맞춤 솔루션 헤드라인에 `[text-wrap:balance]` 적용.
+  - 직통 상담 버튼 및 3개 추천 카드 CTA 링크에 `active:scale-[0.96]` 적용.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,673줄 최신본 자동 패키징 완료 (1.24 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.29s) — 임의 픽셀 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 100% 준수
+- **2. verify-predeploy**: PASS (0.16s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.19s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.16s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.15s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.57s) — 0 errors
+- **7. eslint**: PASS (19.13s) — 0 errors, 0 warnings
+- **8. next build**: PASS (15.38s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~39s)

@@ -163,7 +163,7 @@ export function CategoryPictogramBar({
             <button
               type="button"
               onClick={() => handleCategoryClick(allItem)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-[color,background-color,border-color,box-shadow] cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
                 selectedKey === "all"
                   ? "bg-[#141A23] text-white shadow-xs"
                   : "bg-[#F1F3F6] text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23]"
@@ -178,7 +178,7 @@ export function CategoryPictogramBar({
             </button>
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1 rounded-full bg-[#F1F3F6] px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:bg-[#E2E6EC] transition-colors"
+              className="inline-flex items-center gap-1 rounded-full bg-[#F1F3F6] px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:bg-[#E2E6EC] active:scale-[0.96] transition-[background-color,transform] duration-150"
             >
               <span>갤러리 전체보기</span>
               <Icon d={ICON.right} className="w-3.5 h-3.5" />

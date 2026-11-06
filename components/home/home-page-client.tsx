@@ -587,7 +587,7 @@ export default function Home({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#191F28]">
+    <div className="min-h-screen flex flex-col bg-white text-[#141A23]">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
@@ -598,7 +598,7 @@ export default function Home({
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden md:inline-flex items-center rounded-lg border border-[#D1D6DB] bg-[#F9FAFB] px-3.5 h-10 text-hb-xs font-bold text-[#191F28] hover:border-[#191F28] whitespace-nowrap"
+            className="hidden md:inline-flex items-center rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] px-3.5 h-10 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
           >
             관리자
           </Link>
@@ -875,25 +875,25 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="business-section"
-          className="bg-[#191F28] hb-dark-mesh relative overflow-hidden text-white py-12 sm:py-16 lg:py-20 border-b border-[#263040]"
+          className="bg-[#141A23] hb-dark-mesh relative overflow-hidden text-white py-12 sm:py-16 lg:py-20 border-b border-[#263040]"
           aria-labelledby="business-title"
         >
           <div className="hb-container">
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
               {/* 좌측 (5열): 업소용 핵심 메시지 & 전용 CTA */}
               <div className="lg:col-span-5 min-w-0">
-                <span className="inline-block rounded-full bg-[#FF6F0F] px-3 py-1 text-hb-xs font-bold text-white tracking-wide">
+                <span className="inline-block rounded-full bg-[#E8521A] px-3 py-1 text-hb-xs font-bold text-white tracking-wide">
                   식당·카페 창업 & 업소용 설비
                 </span>
                 <h2
                   id="business-title"
-                  className="mt-3.5 text-hb-2xl sm:text-hb-3xl font-bold text-white tracking-tight leading-[1.25] break-keep"
+                  className="mt-3.5 text-hb-2xl sm:text-hb-3xl font-bold text-white tracking-tight leading-[1.25] break-keep [text-wrap:balance]"
                 >
                   식당·카페 창업 설비 도입부터
                   <br />
                   폐업 매장 일괄 정리까지
                 </h2>
-                <p className="mt-3 text-hb-sm sm:text-hb-base text-white/75 leading-relaxed break-keep">
+                <p className="mt-3 text-hb-sm sm:text-hb-base text-white/75 leading-relaxed break-keep [text-wrap:balance]">
                   45박스 냉장고·쇼케이스·제빙기·냉난방기 맞춤 패키지 납품 및 전자세금계산서 100% 발행
                 </p>
 
@@ -901,14 +901,14 @@ export default function Home({
                   <button
                     type="button"
                     onClick={() => openInquiry("대량·업소용 상담")}
-                    className="hb-btn-accent h-12 px-6 text-hb-base font-bold cursor-pointer"
+                    className="hb-btn-accent h-12 px-6 text-hb-base font-bold cursor-pointer active:scale-[0.96]"
                   >
                     <span>업소용 견적 · 철거 상담</span>
                     <Icon d={ICON.arrow} className="w-4 h-4" />
                   </button>
                   <Link
                     href="/gallery?category=업소용기기"
-                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-white/10 hover:bg-white/20 h-12 px-5 text-hb-sm font-bold text-white transition-colors"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-white/10 hover:bg-white/20 active:scale-[0.96] h-12 px-5 text-hb-sm font-bold text-white transition-[background-color,transform] duration-150"
                   >
                     <span>업소용 설비 실매물 보기 →</span>
                   </Link>
@@ -966,11 +966,11 @@ export default function Home({
                 <span className="hb-eyebrow">당일 방문 매입 · 현금 정산</span>
                 <h2
                   id="sell-title"
-                  className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-tight leading-[1.25] break-keep"
+                  className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-tight leading-[1.25] break-keep [text-wrap:balance]"
                 >
                   쓰던 가전, 사진만 보내주세요
                 </h2>
-                <p className="mt-3 text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed break-keep">
+                <p className="mt-3 text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed break-keep [text-wrap:balance]">
                   가전·식당설비 사진을 보내주시면 시세를 확인하여 안내해 드리며, 방문 수거 당일 현장 즉시 입금해 드립니다.
                 </p>
 
@@ -978,7 +978,7 @@ export default function Home({
                   <button
                     type="button"
                     onClick={() => openInquiry("내 물건 팔기")}
-                    className="hb-btn-accent h-12 px-5 text-hb-base font-bold justify-between cursor-pointer"
+                    className="hb-btn-accent h-12 px-5 text-hb-base font-bold justify-between cursor-pointer active:scale-[0.96]"
                   >
                     <span>방문 매입 견적 신청하기</span>
                     <Icon d={ICON.arrow} className="h-4 w-4" />
@@ -987,7 +987,7 @@ export default function Home({
                     href={STORE.kakaoChat}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hb-btn-kakao h-12 px-5 text-hb-base font-bold justify-between"
+                    className="hb-btn-kakao h-12 px-5 text-hb-base font-bold justify-between active:scale-[0.96]"
                   >
                     <span>카카오톡으로 사진 보내기</span>
                     <Icon d={ICON.chat} className="h-4 w-4" />
@@ -998,14 +998,14 @@ export default function Home({
                   <button
                     type="button"
                     onClick={() => setGuideModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 font-bold text-[#4E5968] hover:text-[#141A23] underline underline-offset-4 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 font-bold text-[#4E5968] hover:text-[#141A23] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4 cursor-pointer"
                   >
                     <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#E8521A]" />
                     <span>매입 사진 촬영 가이드</span>
                   </button>
                   <Link
                     href="/purchase"
-                    className="inline-flex items-center gap-1 font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4"
+                    className="inline-flex items-center gap-1 font-bold text-[#141A23] hover:text-[#E8521A] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4"
                   >
                     <span>전용 매입 신청 페이지 →</span>
                   </Link>
@@ -1074,7 +1074,7 @@ export default function Home({
                       STORE.mobile,
                       "[한밭중고전자 매입문의] 처분할 가전 사진과 지역을 보내주시면 빠르게 매입 견적을 안내해 드립니다."
                     )}
-                    className="shrink-0 font-bold text-[#F05600] hover:underline tabular-nums"
+                    className="shrink-0 font-bold text-[#E8521A] hover:underline tabular-nums active:scale-[0.96] transition-transform duration-150 inline-block"
                   >
                     문자({STORE.mobile}) 바로 전송 →
                   </a>
@@ -1089,28 +1089,28 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="reviews-section"
-          className="border-b border-[#E5E8EB] bg-white py-12 sm:py-16 lg:py-20"
+          className="border-b border-[#E2E6EC] bg-white py-12 sm:py-16 lg:py-20"
           aria-labelledby="review-title"
         >
           <div className="hb-container">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b border-[#F2F4F6]">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b border-[#F1F3F6]">
               <SectionHeading
                 eyebrow="직영 시공 기록"
-                title={<span id="review-title">직영 배송 · 설치 현장 기록</span>}
+                title={<span id="review-title" className="[text-wrap:balance]">직영 배송 · 설치 현장 기록</span>}
                 desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송하고 설치한 실제 현장 사진입니다."
               />
               <div className="flex items-center gap-3 shrink-0">
                 {reviews.length > 0 && (
-                  <span className="text-hb-sm font-bold text-[#6B7684] tabular-nums">
+                  <span className="text-hb-sm font-bold text-[#64748B] tabular-nums">
                     현장 기록{" "}
-                    <strong className="text-[#191F28]">{reviews.length}</strong>건
+                    <strong className="text-[#141A23]">{reviews.length}</strong>건
                   </span>
                 )}
                 {isAdmin && (
                   <button
                     type="button"
                     onClick={() => setReviewModalOpen(true)}
-                    className="hb-btn-primary h-10 px-4 text-hb-xs"
+                    className="hb-btn-primary h-10 px-4 text-hb-xs active:scale-[0.96]"
                   >
                     <Icon d={ICON.plus} className="h-4 w-4" /> 인증사진 등록
                   </button>
@@ -1131,7 +1131,7 @@ export default function Home({
                     role="tab"
                     aria-selected={reviewFilter === "all"}
                     onClick={() => setReviewFilter("all")}
-                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold transition-colors duration-150 ${
+                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "all"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#4E5968] hover:text-[#141A23]"
@@ -1144,7 +1144,7 @@ export default function Home({
                     role="tab"
                     aria-selected={reviewFilter === "home"}
                     onClick={() => setReviewFilter("home")}
-                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold transition-colors duration-150 ${
+                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "home"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#4E5968] hover:text-[#141A23]"
@@ -1157,7 +1157,7 @@ export default function Home({
                     role="tab"
                     aria-selected={reviewFilter === "commercial"}
                     onClick={() => setReviewFilter("commercial")}
-                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold transition-colors duration-150 ${
+                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "commercial"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#4E5968] hover:text-[#141A23]"
@@ -1179,14 +1179,14 @@ export default function Home({
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-[4/3] animate-pulse rounded-lg bg-[#F2F4F6]"
+                    className="aspect-[4/3] animate-pulse rounded-lg bg-[#F1F3F6]"
                   />
                 ))}
               </div>
             ) : reviews.length === 0 ? (
-              <div className="mt-8 flex flex-col items-start gap-4 border-y border-[#E5E8EB] bg-[#F9FAFB] px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-8 flex flex-col items-start gap-4 border-y border-[#E2E6EC] bg-[#F7F8FA] px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-hb-base font-bold text-[#191F28]">
+                  <p className="text-hb-base font-bold text-[#141A23]">
                     현장 사진을 정리하고 있습니다.
                   </p>
                   <p className="mt-1 text-hb-sm text-[#4E5968]">
@@ -1197,7 +1197,7 @@ export default function Home({
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 shrink-0 px-4 text-hb-sm"
+                  className="hb-btn-kakao h-11 shrink-0 px-4 text-hb-sm active:scale-[0.96]"
                 >
                   <Icon d={ICON.chat} className="h-4 w-4" /> 카카오톡 문의
                 </a>
@@ -1260,7 +1260,7 @@ export default function Home({
                     <button
                       type="button"
                       onClick={() => setShowAllReviews((v) => !v)}
-                      className="hb-btn-outline h-11 px-7 text-hb-sm"
+                      className="hb-btn-outline h-11 px-7 text-hb-sm active:scale-[0.96]"
                     >
                       {showAllReviews
                         ? "현장 사진 접기"
@@ -1283,10 +1283,10 @@ export default function Home({
                 <span className="inline-flex items-center rounded-full border border-[#E2E6EC] bg-white px-3 py-0.5 text-hb-xs font-bold text-[#E8521A] shadow-2xs">
                   오프라인 1·2층 직영 매장
                 </span>
-                <h3 className="mt-2 text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                <h3 className="mt-2 text-hb-base sm:text-hb-lg font-bold text-[#141A23] [text-wrap:balance]">
                   대전 중촌동 1·2층 직영 쇼룸에서 실물을 직접 확인하세요
                 </h3>
-                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968]">
+                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968] [text-wrap:balance]">
                   {STORE.roadAddress} · 매장 앞 전용 주차 무료 · 실물 전원 시운전 가능
                 </p>
               </div>
@@ -1296,7 +1296,7 @@ export default function Home({
                   trackEvent("open_showroom_modal", { location: "home_usp" });
                   setVisitModalOpen(true);
                 }}
-                className="hb-btn-primary h-11 px-5 text-hb-xs sm:text-hb-sm shrink-0 font-bold justify-center"
+                className="hb-btn-primary h-11 px-5 text-hb-xs sm:text-hb-sm shrink-0 font-bold justify-center active:scale-[0.96]"
               >
                 <Icon d={ICON.pin} className="w-4 h-4 text-[#FB923C]" />
                 <span>쇼룸 방문 길찾기 · 실물 찜</span>
@@ -1322,13 +1322,13 @@ export default function Home({
             <div className="lg:col-span-4 min-w-0">
               <SectionHeading
                 eyebrow="궁금하신 점"
-                title={<span id="faq-title">자주 묻는 질문 (FAQ)</span>}
+                title={<span id="faq-title" className="[text-wrap:balance]">자주 묻는 질문 (FAQ)</span>}
                 desc="A/S 보증 기간, 보상판매 차액 정산, 설치 비용 등 상담 전 가장 많이 물어보시는 핵심 질문입니다."
               />
               <div className="mt-5">
                 <Link
                   href="/inquiry"
-                  className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4"
+                  className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4"
                 >
                   <span>1:1 문의 게시판 바로가기 →</span>
                 </Link>
@@ -1360,7 +1360,7 @@ export default function Home({
                             <span className="inline-block text-hb-xs font-bold text-[#64748B] mb-0.5">
                               [{f.tag}]
                             </span>
-                            <span className="block text-hb-base font-bold leading-snug text-[#141A23] break-keep">
+                            <span className="block text-hb-base font-bold leading-snug text-[#141A23] break-keep [text-wrap:balance]">
                               {f.q}
                             </span>
                           </div>
@@ -1391,7 +1391,7 @@ export default function Home({
                                 {pIdx < arr.length - 1 && (
                                   <a
                                     href={telHref(STORE.tel)}
-                                    className="font-bold text-[#F05600] hover:underline underline-offset-2 tabular-nums"
+                                    className="font-bold text-[#E8521A] hover:underline underline-offset-2 tabular-nums"
                                   >
                                     {STORE.tel}
                                   </a>
@@ -1404,18 +1404,18 @@ export default function Home({
                         )}
 
                         {f.tag === "에어컨 · 냉난방기 구매 안내" && (
-                          <div className="mt-3.5 pt-3 border-t border-[#E5E8EB] flex flex-wrap gap-2">
+                          <div className="mt-3.5 pt-3 border-t border-[#E2E6EC] flex flex-wrap gap-2">
                             <button
                               type="button"
                               onClick={() => setAirconModalOpen(true)}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#191F28] bg-white px-3.5 py-1.5 text-hb-xs font-bold text-[#191F28] hover:bg-[#F9FAFB] transition-colors cursor-pointer"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD2DC] bg-white px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
                             >
-                              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#F05600]" />
+                              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#E8521A]" />
                               <span>에어컨 세트 구성 안내문 크게 보기</span>
                             </button>
                             <Link
                               href="/gallery?category=에어컨/냉난방기"
-                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#191F28] px-3.5 py-1.5 text-hb-xs font-bold text-white hover:bg-[#333D4B] transition-colors"
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-[#141A23] px-3.5 py-1.5 text-hb-xs font-bold text-white hover:bg-[#232B36] active:scale-[0.96] transition-[background-color,transform] duration-150"
                             >
                               <span>에어컨 실매물 보러가기 →</span>
                             </Link>
@@ -1435,13 +1435,13 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="inquiry-section"
-          className="border-b border-[#E5E8EB] bg-white py-12 sm:py-16 lg:py-20"
+          className="border-b border-[#E2E6EC] bg-white py-12 sm:py-16 lg:py-20"
           aria-labelledby="cta-title"
         >
           <div className="hb-container">
             <SectionHeading
               eyebrow="오프라인 매장 및 상담"
-              title={<span id="cta-title">오프라인 매장 오시는 길 및 실시간 문의</span>}
+              title={<span id="cta-title" className="[text-wrap:balance]">오프라인 매장 오시는 길 및 실시간 문의</span>}
               desc="대전 중촌동 매장에 방문해 실물을 직접 확인하시거나 전화·카톡·온라인 게시판으로 편하게 문의해 주세요."
             />
 
@@ -1472,7 +1472,7 @@ export default function Home({
                       </span>
                       <h3
                         id="location-title"
-                        className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] break-keep"
+                        className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] break-keep [text-wrap:balance]"
                       >
                         {STORE.roadAddress}
                       </h3>
@@ -1484,7 +1484,7 @@ export default function Home({
                     <button
                       type="button"
                       onClick={handleCopyAddress}
-                      className="hb-btn-outline h-9 px-3 text-hb-xs shrink-0 self-start"
+                      className="hb-btn-outline h-9 px-3 text-hb-xs shrink-0 self-start active:scale-[0.96]"
                     >
                       <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
                       <span>주소 복사</span>
@@ -1530,7 +1530,7 @@ export default function Home({
                       href={STORE.naverMap}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hb-btn bg-[#027A3B] text-white hover:bg-[#026A33] h-11 text-hb-xs sm:text-hb-sm font-bold"
+                      className="hb-btn bg-[#027A3B] text-white hover:bg-[#026A33] active:scale-[0.96] h-11 text-hb-xs sm:text-hb-sm font-bold"
                     >
                       네이버 지도 길찾기
                     </a>
@@ -1538,13 +1538,13 @@ export default function Home({
                       href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hb-btn-kakao h-11 text-hb-xs sm:text-hb-sm font-bold"
+                      className="hb-btn-kakao h-11 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
                     >
                       카카오맵 길찾기
                     </a>
                     <a
                       href={telHref(STORE.tel)}
-                      className="hb-btn-outline h-11 text-hb-xs sm:text-hb-sm font-bold col-span-2 sm:col-span-1"
+                      className="hb-btn-outline h-11 text-hb-xs sm:text-hb-sm font-bold col-span-2 sm:col-span-1 active:scale-[0.96]"
                     >
                       <Icon d={ICON.phone} className="w-4 h-4 text-[#E8521A]" />
                       <span>전화 길안내</span>
@@ -1662,7 +1662,7 @@ export default function Home({
                           location: "inquiry_aside",
                         })
                       }
-                      className="hb-btn-outline h-10 px-2.5 text-hb-xs font-semibold"
+                      className="hb-btn-outline h-10 px-2.5 text-hb-xs font-semibold active:scale-[0.96]"
                     >
                       <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
                       <span>전화 상담</span>
@@ -1676,7 +1676,7 @@ export default function Home({
                           location: "inquiry_aside",
                         })
                       }
-                      className="hb-btn-kakao h-10 px-2.5 text-hb-xs font-semibold"
+                      className="hb-btn-kakao h-10 px-2.5 text-hb-xs font-semibold active:scale-[0.96]"
                     >
                       <Icon d={ICON.chat} className="w-3.5 h-3.5" />
                       <span>카톡 상담</span>
@@ -1684,7 +1684,7 @@ export default function Home({
                     <button
                       type="button"
                       onClick={() => openInquiry("구매 문의")}
-                      className="hb-btn-accent h-10 px-2.5 text-hb-xs font-semibold cursor-pointer"
+                      className="hb-btn-accent h-10 px-2.5 text-hb-xs font-semibold cursor-pointer active:scale-[0.96]"
                     >
                       <Icon d={ICON.pen} className="w-3.5 h-3.5" />
                       <span>견적 접수</span>
@@ -1712,8 +1712,8 @@ export default function Home({
           label="제품 매입 안내문 크게 보기"
           panelClassName="max-w-4xl"
         >
-          <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-[#E5E8EB] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E5E8EB] bg-[#191F28] px-5 py-3.5 text-white">
+          <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-3.5 text-white">
               <div>
                 <h3 className="text-hb-base font-bold">
                   {STORE.name} 제품 매입 안내문
@@ -1726,20 +1726,20 @@ export default function Home({
                 type="button"
                 onClick={() => setGuideModalOpen(false)}
                 aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded bg-white/10 text-white hover:bg-white/20"
+                className="grid h-8 w-8 place-items-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} className="w-5 h-5" />
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto bg-[#F9FAFB] p-4 sm:p-6">
+            <div className="flex-1 overflow-y-auto bg-[#F7F8FA] p-4 sm:p-6">
               <SafeImg
                 src="/매입 안내문.png"
                 alt="제품 매입 시 고객 안내문 전체 이미지"
                 eager
-                className="mx-auto max-h-[72vh] w-auto max-w-full object-contain rounded border border-[#E5E8EB] bg-white"
+                className="mx-auto max-h-[72vh] w-auto max-w-full object-contain rounded-xl border border-[#E2E6EC] bg-white"
               />
             </div>
-            <div className="flex items-center justify-between gap-3 border-t border-[#E5E8EB] bg-white px-5 py-3.5">
+            <div className="flex items-center justify-between gap-3 border-t border-[#E2E6EC] bg-white px-5 py-3.5">
               <span className="text-hb-xs text-[#4E5968] hidden sm:inline">
                 안내문에 맞춰 사진을 보내주시면 정확한 견적 안내가 가능합니다.
               </span>
@@ -1750,14 +1750,14 @@ export default function Home({
                     setGuideModalOpen(false);
                     openInquiry("내 물건 팔기");
                   }}
-                  className="hb-btn-accent h-10 px-4 text-hb-sm"
+                  className="hb-btn-accent h-10 px-4 text-hb-sm active:scale-[0.96]"
                 >
                   바로 매입 견적 신청하기
                 </button>
                 <button
                   type="button"
                   onClick={() => setGuideModalOpen(false)}
-                  className="hb-btn-outline h-10 px-4 text-hb-sm"
+                  className="hb-btn-outline h-10 px-4 text-hb-sm active:scale-[0.96]"
                 >
                   닫기
                 </button>
@@ -1791,10 +1791,10 @@ export default function Home({
           label="배송·설치 사진 확대 보기"
           panelClassName="max-w-4xl"
         >
-          <div className="relative flex w-full flex-col rounded-xl bg-[#191F28] p-4 sm:p-5 text-white shadow-2xl border border-white/15">
+          <div className="relative flex w-full flex-col rounded-2xl bg-[#141A23] p-4 sm:p-5 text-white shadow-2xl border border-white/15">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <span className="text-hb-xs font-bold text-[#FF8A50]">
+                <span className="text-hb-xs font-bold text-[#FB923C]">
                   직영 배송 · 설치 현장 기록
                 </span>
                 <p className="truncate text-hb-base font-bold">
@@ -1805,17 +1805,17 @@ export default function Home({
                 type="button"
                 onClick={() => setLightbox(null)}
                 aria-label="닫기"
-                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/10 text-white hover:bg-white/20 active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} />
               </button>
             </div>
-            <div className="relative flex items-center justify-center bg-[#060C14] rounded-lg p-2">
+            <div className="relative flex items-center justify-center bg-[#060C14] rounded-xl p-2">
               <SafeImg
                 src={lbImages[lightbox.index]}
                 alt={lightbox.review.title || "현장 사진"}
                 eager
-                className="max-h-[70vh] w-auto max-w-full rounded object-contain"
+                className="max-h-[70vh] w-auto max-w-full rounded-lg object-contain"
               />
               {lbImages.length > 1 && (
                 <>
@@ -1823,7 +1823,7 @@ export default function Home({
                     type="button"
                     onClick={() => moveLightbox(-1)}
                     aria-label="이전 사진"
-                    className="absolute left-3 grid h-10 w-10 place-items-center rounded-full bg-black/65 text-white hover:bg-black"
+                    className="absolute left-3 grid h-10 w-10 place-items-center rounded-full bg-black/65 text-white hover:bg-black active:scale-[0.96] transition-[background-color,transform]"
                   >
                     <Icon d={ICON.left} />
                   </button>
@@ -1831,7 +1831,7 @@ export default function Home({
                     type="button"
                     onClick={() => moveLightbox(1)}
                     aria-label="다음 사진"
-                    className="absolute right-3 grid h-10 w-10 place-items-center rounded-full bg-black/65 text-white hover:bg-black"
+                    className="absolute right-3 grid h-10 w-10 place-items-center rounded-full bg-black/65 text-white hover:bg-black active:scale-[0.96] transition-[background-color,transform]"
                   >
                     <Icon d={ICON.right} />
                   </button>
@@ -1906,16 +1906,17 @@ export default function Home({
         >
           <form
             onSubmit={handleAdminLogin}
-            className="w-full rounded-xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E5E8EB]"
+            className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-hb-lg font-bold text-[#191F28]">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
                 관리자 로그인
               </h2>
               <button
                 type="button"
                 onClick={() => setLoginOpen(false)}
                 aria-label="닫기"
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#4E5968] active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} />
               </button>
@@ -1945,7 +1946,7 @@ export default function Home({
             <button
               type="submit"
               disabled={loggingIn}
-              className="hb-btn-primary mt-6 h-11 w-full text-hb-sm"
+              className="hb-btn-primary mt-6 h-11 w-full text-hb-sm active:scale-[0.96]"
             >
               {loggingIn ? "로그인 중…" : "로그인"}
             </button>
@@ -1963,16 +1964,17 @@ export default function Home({
         >
           <form
             onSubmit={handleReviewUpload}
-            className="w-full rounded-xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E5E8EB]"
+            className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-hb-lg font-bold text-[#191F28]">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
                 배송·설치 인증사진 등록
               </h2>
               <button
                 type="button"
                 onClick={closeReviewModal}
                 aria-label="닫기"
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#4E5968] active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} />
               </button>
@@ -1982,7 +1984,7 @@ export default function Home({
                 제목
               </label>
               {isAnalyzingReview && (
-                <span className="text-hb-xs font-semibold text-[#F05600] animate-pulse">
+                <span className="text-hb-xs font-semibold text-[#E8521A] animate-pulse">
                   AI 제목 초안 생성 중...
                 </span>
               )}
@@ -2001,7 +2003,7 @@ export default function Home({
               {reviewPreviews.map((src, i) => (
                 <div
                   key={src}
-                  className="relative aspect-square overflow-hidden rounded bg-[#F2F4F6]"
+                  className="relative aspect-square overflow-hidden rounded-lg bg-[#F1F3F6]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -2020,14 +2022,14 @@ export default function Home({
                       );
                     }}
                     aria-label="사진 제거"
-                    className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white"
+                    className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white active:scale-[0.96] transition-transform"
                   >
                     <Icon d={ICON.close} className="w-3 h-3" />
                   </button>
                 </div>
               ))}
               {reviewFiles.length < MAX_REVIEW_PHOTOS && (
-                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-[#E5E8EB] bg-[#F9FAFB] text-hb-xs font-semibold text-[#6B7684] hover:border-[#FF6F0F] hover:text-[#F05600]">
+                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#CBD2DC] bg-[#F7F8FA] text-hb-xs font-semibold text-[#64748B] hover:border-[#E8521A] hover:text-[#E8521A] active:scale-[0.96] transition-[border-color,color,transform] duration-150">
                   <Icon d={ICON.plus} className="w-5 h-5" />
                   <span className="mt-1">추가</span>
                   <input
@@ -2043,7 +2045,7 @@ export default function Home({
             <button
               type="submit"
               disabled={uploadingReview || isAnalyzingReview}
-              className="hb-btn-accent mt-6 h-11 w-full text-hb-sm"
+              className="hb-btn-accent mt-6 h-11 w-full text-hb-sm active:scale-[0.96]"
             >
               {uploadingReview ? "등록 중…" : "등록하기"}
             </button>

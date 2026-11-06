@@ -187,17 +187,17 @@ export function AiRecommendationGuideSection() {
         <div>
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
             <div>
-              <h3 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-[-0.025em]">
+              <h3 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-[-0.025em] [text-wrap:balance]">
                 고객 상황별 가장 많이 찾는 맞춤 솔루션
               </h3>
-              <p className="mt-1 text-hb-sm text-[#4E5968]">
+              <p className="mt-1 text-hb-sm text-[#4E5968] [text-wrap:balance]">
                 대전 중구 중촌동 1·2층 직영 매장에서 실물을 직접 확인하시거나
                 전화·카톡으로 즉시 재고 안내를 받으실 수 있습니다.
               </p>
             </div>
             <a
               href={telHref(STORE.tel)}
-              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-[#CBD2DC] px-4 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] hover:border-[#E8521A] transition-colors tabular-nums shrink-0 whitespace-nowrap shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-full bg-white border border-[#CBD2DC] px-4 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] hover:border-[#E8521A] active:scale-[0.96] transition-[border-color,transform] duration-150 tabular-nums shrink-0 whitespace-nowrap shadow-2xs"
             >
               <Icon d={ICON.phone} className="w-3.5 h-3.5" />
               <span>직통 상담: {STORE.tel} / {STORE.mobile}</span>
@@ -219,7 +219,7 @@ export function AiRecommendationGuideSection() {
                       {g.badge}
                     </span>
                   </div>
-                  <h4 className="mt-3 text-hb-lg font-bold tracking-[-0.02em] text-[#141A23]">
+                  <h4 className="mt-3 text-hb-lg font-bold tracking-[-0.02em] text-[#141A23] [text-wrap:balance]">
                     {g.title}
                   </h4>
                   <dl className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm">
@@ -243,7 +243,7 @@ export function AiRecommendationGuideSection() {
                 <div className="mt-5 pt-4 border-t border-[#E2E6EC]">
                   <Link
                     href={g.href}
-                    className="flex w-full items-center justify-between rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] px-4 py-3 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:bg-[#141A23] hover:text-white transition-colors"
+                    className="flex w-full items-center justify-between rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] px-4 py-3 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:bg-[#141A23] hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150"
                   >
                     <span>{g.ctaLabel}</span>
                     <Icon
