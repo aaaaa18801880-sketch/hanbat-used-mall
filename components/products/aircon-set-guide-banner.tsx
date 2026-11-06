@@ -202,6 +202,7 @@ export function AirconGuideModal({
       onClose={onClose}
       label="에어컨/냉난방기 세트 구성 안내문"
       panelClassName="max-w-3xl"
+      closeOnOverlayClick={false}
     >
       <div className="flex max-h-[92vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
         {/* 모달 헤더 */}

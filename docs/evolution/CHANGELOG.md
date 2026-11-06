@@ -877,3 +877,34 @@
 - **7. eslint**: PASS (13.02s) — 0 errors, 0 warnings
 - **8. next build**: PASS (15.84s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~35s)
+
+---
+
+## 🚀 [Cycle 28] 2026-11-06 — 비교·안내문·가이드 등 주요 모달 전역 외부 오버레이 클릭 닫힘 방지 일괄 적용 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-035`
+- **핵심 목표**:
+  - 사용자 피드백("아직두 밖에 누르면 화면 꺼지는뎀")에 대응하여 매물 비교 모달, 에어컨 구성 안내문 모달, 매입 안내문 확대 모달 등 전역 주요 모달에 `closeOnOverlayClick={false}`를 일괄 확대 적용.
+  - 모바일 및 터치 환경에서 실수로 바깥 영역을 스치거나 터치하여 모달이 닫히는 현상을 전역에서 완전 차단.
+
+### 2. 코드 변경 요약
+- **[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx)**:
+  - `<Modal>`에 `closeOnOverlayClick={false}` 전달.
+- **[components/products/aircon-set-guide-banner.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/aircon-set-guide-banner.tsx)**:
+  - `<Modal>`에 `closeOnOverlayClick={false}` 전달.
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - `guideModalOpen` 안내문 모달에 `closeOnOverlayClick={false}` 전달.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,753줄 최신본 동기화 완료 (1.25 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.26s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.17s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.18s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.17s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.16s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (4.89s) — 0 errors
+- **7. eslint**: PASS (12.72s) — 0 errors, 0 warnings
+- **8. next build**: PASS (14.24s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~33s)

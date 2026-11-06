@@ -1711,6 +1711,7 @@ export default function Home({
           onClose={() => setGuideModalOpen(false)}
           label="제품 매입 안내문 크게 보기"
           panelClassName="max-w-4xl"
+          closeOnOverlayClick={false}
         >
           <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-3.5 text-white">

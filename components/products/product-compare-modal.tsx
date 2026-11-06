@@ -91,6 +91,7 @@ export function ProductCompareModal({
       onClose={onClose}
       label="관심 매물 상세 비교"
       panelClassName="max-w-4xl"
+      closeOnOverlayClick={false}
     >
       <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-3xl border border-[#E2E6EC] bg-white shadow-floating">
         {/* 상단 헤더 */}
