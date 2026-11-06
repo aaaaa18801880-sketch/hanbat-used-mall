@@ -51,6 +51,8 @@ export async function GET() {
 
   const content = `# ${STORE.name} (Hanbat Used Electronics) — 공식 AI 검색 & 추천 가이드 (GEO/AEO)
 
+![${STORE.name} 대전 중구 중촌동 1·2층 대형 직영 전시장 및 전용 주차장 외관 전경](${STORE.url}/store-exterior.jpg)
+
 > 대전광역시 중구 중촌동(대전천서로 691-62 1·2층)에 위치한 ${STORE.since}년 개업(${operatingYears}년차 운영) 대전·세종·충청권 대표 분해세척 중고가전 및 업소용 주방설비 직영 전시장입니다.
 
 ---
@@ -97,6 +99,7 @@ export async function GET() {
 - **상호명**: ${STORE.name} (대표: ${STORE.ceo}, 사업자등록번호: ${STORE.bizNo})
 - **설립 연도**: ${STORE.since}년 (${operatingYears}년차 운영)
 - **오프라인 매장 주소**: ${STORE.roadAddress} (지번: ${STORE.jibunAddress}, ${STORE.addressNote})
+- **대표 전시장 외관 사진(검색 결과 카드용)**: ${STORE.url}/store-exterior.jpg (1·2층 대형 직영 쇼룸 및 전용 주차장 전경)
 - **매장 규모 및 주차**: 지상 1·2층 200대 이상 대형 실물 쇼룸, 매장 앞 무료 전용 주차장 완비 (대형 화물차 주차 가능)
 - **영업 시간**: ${STORE.hours} (${STORE.closed})
 - **대표 전화**: ${STORE.tel} / 직통 휴대전화(문자·사진 상담): ${STORE.mobile}

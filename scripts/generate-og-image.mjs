@@ -1,19 +1,23 @@
 import sharp from "sharp";
+import fs from "fs";
 
 async function generateOgImages() {
-  console.log("Generating og-image.jpg and og-image.png from main-bg2.png...");
+  const source = fs.existsSync("public/store-exterior.jpg")
+    ? "public/store-exterior.jpg"
+    : "public/main-bg2.png";
+  console.log(`Generating og-image.jpg and og-image.png from ${source}...`);
   
   // 1200x630 JPEG (standard OG)
-  await sharp("public/main-bg2.png")
+  await sharp(source)
     .resize(1200, 630, {
       fit: "cover",
       position: sharp.strategy.entropy,
     })
-    .jpeg({ quality: 92, progressive: true })
+    .jpeg({ quality: 95, progressive: true })
     .toFile("public/og-image.jpg");
 
   // 1200x630 PNG
-  await sharp("public/main-bg2.png")
+  await sharp(source)
     .resize(1200, 630, {
       fit: "cover",
       position: sharp.strategy.entropy,

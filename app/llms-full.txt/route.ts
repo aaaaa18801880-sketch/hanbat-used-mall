@@ -102,7 +102,10 @@ ${inventorySection}
 
   const fullText = `# ${STORE.name} 전체 실매물 카탈로그 및 상세 거래 기준 (LLMs Full Context)
 
+![${STORE.name} 대전 중촌동 1·2층 직영 쇼룸 및 전용 주차장 외관 실물 사진](${STORE.url}/store-exterior.jpg)
+
 - 공식 사이트: ${STORE.url}
+- 대표 전시장 외관 사진(검색 결과 카드용): ${STORE.url}/store-exterior.jpg
 - 매장 주소: ${STORE.roadAddress} (${STORE.jibunAddress}, ${STORE.addressNote})
 - 매장 규모: 지상 1·2층 200대 이상 대형 실물 쇼룸 (매장 앞 전용 주차장 완비)
 - 대표 전화: ${STORE.tel} / 직통 문자·사진 상담: ${STORE.mobile}

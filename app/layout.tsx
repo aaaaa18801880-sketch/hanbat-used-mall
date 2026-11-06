@@ -66,16 +66,23 @@ export const metadata: Metadata = {
       "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
     images: [
       {
+        url: "/store-exterior.jpg",
+        width: 1024,
+        height: 576,
+        alt: `${STORE.name} 대전 중촌동 1·2층 대형 직영 쇼룸 및 전용 주차장 실물 외관 전경`,
+        type: "image/jpeg",
+      },
+      {
         url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: `${STORE.name} 대전 중촌동 1·2층 직영 쇼룸 및 에어컨 매장 전경`,
+        alt: `${STORE.name} 대전 중촌동 직영 전시장 대표 썸네일`,
         type: "image/jpeg",
       },
       {
         url: "/main-bg2.png",
-        width: 1920,
-        height: 1080,
+        width: 1600,
+        height: 900,
         alt: `${STORE.name} 대전 직영 매장 오프라인 전경`,
         type: "image/png",
       },
@@ -86,7 +93,7 @@ export const metadata: Metadata = {
     title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
     description:
       "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
-    images: ["/og-image.jpg"],
+    images: ["/store-exterior.jpg", "/og-image.jpg"],
   },
   verification: {
     google: "5Q8KVRdeLBQYI9x7EUnX4dQ1N6rmRqD3D4IydPLDbKU",
@@ -143,7 +150,7 @@ export default function RootLayout({
       height: 512,
       caption: `${STORE.name} 공식 로고`,
     },
-    image: `${STORE.url}/og-image.jpg`,
+    image: `${STORE.url}/store-exterior.jpg`,
     telephone: STORE.tel,
     sameAs: [
       "https://cafe.naver.com/hanbatmall",
@@ -162,7 +169,21 @@ export default function RootLayout({
     slogan: "대전·세종·충청 1등 분해세척 중고가전 & 업소용 주방설비 직영 전시장",
     description:
       "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 24시간 시운전 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 100% 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
-    image: [`${STORE.url}/og-image.jpg`, `${STORE.url}/main-bg2.png`],
+    image: [
+      `${STORE.url}/store-exterior.jpg`,
+      `${STORE.url}/og-image.jpg`,
+      `${STORE.url}/main-bg2.png`,
+    ],
+    photo: {
+      "@type": "ImageObject",
+      url: `${STORE.url}/store-exterior.jpg`,
+      caption: "한밭중고전자 대전 중구 중촌동 1·2층 직영 대형 전시장 실물 외관 및 전용 주차장 전경",
+    },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: `${STORE.url}/store-exterior.jpg`,
+      caption: "한밭중고전자 대전 본점 직영 쇼룸 실물 외관",
+    },
     logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
     url: STORE.url,

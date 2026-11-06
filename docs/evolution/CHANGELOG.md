@@ -946,3 +946,46 @@
 - **7. eslint**: PASS (15.89s) — 0 errors, 0 warnings
 - **8. next build**: PASS (14.31s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~34s)
+
+---
+
+## 🚀 [Cycle 30] 2026-11-06 — 신뢰도 높은 공식 전시장 실물 외관 사진 전역 연동 및 AI 검색 대표 썸네일(GEO/AEO) 최적화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-037`
+- **핵심 목표**:
+  - 사용자 피드백("지피티에 검색했을 때 잘 나오긴 하는데 2번째 이미지처럼 가게 사진을 보여주거나 좀 신뢰도 있는 이미지가 나오게 하고싶어")에 대응.
+  - ChatGPT 검색 결과에서 당근마켓(`daangn.com`)에 올라간 어수선한 세탁기 분해 사진 대신, 사용자가 제공한 맑은 하늘 배경의 2층 대형 직영 쇼룸("한밭중고전자 한밭에어컨" 간판, 전용 주차장, 배송 트럭, 야외 진열) 실물 외관 사진을 최우선 대표 썸네일로 노출하도록 구축.
+  - `llms.txt`, `llms-full.txt`, `app/layout.tsx` OpenGraph/Twitter, Schema.org `LocalBusiness` / `Organization` / `primaryImageOfPage`, 홈페이지 히어로 비주얼 전역에 공식 매장 외관 실물 이미지를 표준 바인딩.
+
+### 2. 코드 및 자산 변경 요약
+- **[public/store-exterior.jpg](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/public/store-exterior.jpg)**:
+  - 사용자가 업로드한 고해상도 대형 직영 전시장 실물 외관 사진을 공식 대표 자산으로 등록 (1024x576, 333KB).
+- **[public/og-image.jpg](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/public/og-image.jpg)** & **[public/og-image.png](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/public/og-image.png)**:
+  - 새 외관 사진을 기반으로 1200x630 규격 고품질 대표 오픈그래프 썸네일 재생성.
+- **[public/main-bg2.png](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/public/main-bg2.png)**:
+  - 1600x900 고화질 버전으로 동시 갱신하여 기존 참조 코드 무결성 유지.
+- **[app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)** & **[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts)**:
+  - AI 어시스턴트(ChatGPT, Perplexity 등)가 직접 파싱할 수 있도록 최상단에 `![한밭중고전자 실물 외관 전경](${STORE.url}/store-exterior.jpg)` 마크다운 이미지 임베딩.
+  - 매장 공식 정보에 `대표 전시장 외관 사진(검색 결과 카드용): ${STORE.url}/store-exterior.jpg` 명시.
+- **[app/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/layout.tsx)**:
+  - OpenGraph / Twitter 이미지 1순위로 `/store-exterior.jpg` 지정.
+  - Schema.org `localBusinessJsonLd`에 `photo`, `primaryImageOfPage`, `image` 1순위로 `${STORE.url}/store-exterior.jpg` 매핑.
+  - `organizationJsonLd`의 대표 `image`도 `${STORE.url}/store-exterior.jpg`로 일원화.
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - 첫 화면 우측 쇼룸 비주얼에 `/store-exterior.jpg`를 적용하고 구체적인 한글 `alt` 텍스트 부여.
+- **[scripts/generate-og-image.mjs](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/scripts/generate-og-image.mjs)**:
+  - `public/store-exterior.jpg`를 1순위 원본 소스로 우선 참조하도록 로직 보강.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 30,942줄 최신본 동기화 완료 (1.27 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.30s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.18s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.19s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.17s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.18s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (2.85s) — 0 errors
+- **7. eslint**: PASS (12.60s) — 0 errors, 0 warnings
+- **8. next build**: PASS (12.20s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~32s)

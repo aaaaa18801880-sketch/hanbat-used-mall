@@ -770,8 +770,8 @@ export default function Home({
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-2xs hb-pedestal-card">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
-                    src="/main-bg2.png"
-                    alt={`대전 중구 대전천서로 691-62(중촌동 144) ${STORE.name} 오프라인 직영 매장 외관`}
+                    src="/store-exterior.jpg"
+                    alt={`대전 중구 대전천서로 691-62(중촌동 144) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
                     eager
                     className="h-full w-full object-cover object-center"
                   />
