@@ -22,6 +22,7 @@ export interface RefrigeratorLayoutData {
   coolingDesc: string;
   capacity?: string | null;
   compartments: CompartmentInfo[];
+  hasMachineryRoom?: boolean;
 }
 
 export interface RefrigeratorCompartmentDiagramProps {
@@ -327,7 +328,138 @@ export function detectRefrigeratorLayout(
     };
   }
 
-  // 4. 2도어 (상하 2칸 분할 - 25박스, 30박스, 소형 투도어) 판별
+  // 4. 가로형 테이블 냉장고 / 찬밧드·반찬·토핑 냉장고 및 양문형 냉장고 (좌우 수평 2도어) 판별
+  const isTableFridge =
+    combined.includes("테이블") ||
+    combined.includes("반찬") ||
+    combined.includes("밧드") ||
+    combined.includes("찬밧드") ||
+    combined.includes("토핑") ||
+    combined.includes("김밥") ||
+    combined.includes("작업대") ||
+    combined.includes("서랍식 테이블") ||
+    combined.includes("가로형") ||
+    combined.includes("좌우");
+
+  const isSideBySide =
+    (combined.includes("양문") && !is4Door) ||
+    combined.includes("좌냉동") ||
+    combined.includes("우냉장");
+
+  if (isTableFridge || isSideBySide) {
+    const isAllFreeze = combined.includes("올냉동") || combined.includes("전칸 냉동");
+    const isHalfAndHalf =
+      combined.includes("반반") ||
+      combined.includes("1냉동 1냉장") ||
+      combined.includes("냉동 1칸 / 냉장 1칸") ||
+      (combined.includes("냉동") && combined.includes("냉장")) ||
+      isSideBySide;
+
+    // A. 좌우 수평 올냉동
+    if (isAllFreeze && !isHalfAndHalf) {
+      return {
+        type: "table_horizontal",
+        hasMachineryRoom: !isSideBySide,
+        title: isTableFridge
+          ? "업소용 2도어 테이블 올냉동 원장"
+          : "양문형 2도어 전칸 올냉동 원장",
+        subtitle: "좌우 2도어 전체 강력 급속 냉동 구성 (수평 분할)",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+        compartments: [
+          {
+            id: "left",
+            positionLabel: "좌측 도어 (1칸)",
+            role: "freezer",
+            roleName: "급속 냉동실 (좌측)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["손질 육류", "급랭 해산물", "냉동 식재료"],
+            features: "독립 급속 냉동 도어로 신속한 식자재 인출을 지원합니다.",
+          },
+          {
+            id: "right",
+            positionLabel: "우측 도어 (1칸)",
+            role: "freezer",
+            roleName: "대용량 냉동실 (우측)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["대용량 비축 냉동육", "냉동 완제품", "업소용 박스 식자재"],
+            features: "넓은 내부 수납 선반으로 대용량 냉동 품목을 안전하게 비축합니다.",
+          },
+        ],
+      };
+    }
+
+    // B. 좌냉동 / 우냉장 분할 (테이블 반반형 또는 양문형 일반)
+    if (isHalfAndHalf && !combined.includes("올냉장") && !combined.includes("전칸 냉장") && !combined.includes("전체 냉장실")) {
+      return {
+        type: "table_horizontal",
+        hasMachineryRoom: !isSideBySide,
+        title: isTableFridge
+          ? "업소용 테이블 2도어 (좌측 냉동 / 우측 냉장)"
+          : "양문형 2도어 독립 냉각 원장 (좌측 냉동 / 우측 냉장)",
+        subtitle: "좌측 급속 냉동 1도어 + 우측 와이드 신선 냉장 1도어 수평 분할",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+        compartments: [
+          {
+            id: "left",
+            positionLabel: "좌측 도어 (냉동)",
+            role: "freezer",
+            roleName: "급속 냉동실 (좌측)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["육류·생선", "소포장 냉동식자재", "얼음"],
+            features: "좌측 독립 구역으로 냉기 손실 없이 신속하게 인출하는 급속 냉동실입니다.",
+          },
+          {
+            id: "right",
+            positionLabel: "우측 도어 (냉장)",
+            role: "fridge",
+            roleName: "신선 냉장실 (우측)",
+            tempRange: "0℃ ~ +7℃",
+            recommendedItems: ["데일리 반찬", "당일 손질 채소", "주방 소스류", "음료"],
+            features: "자주 여닫는 작업 동선에 맞춘 대용량 와이드 신선 냉장실입니다.",
+          },
+        ],
+      };
+    }
+
+    // C. 테이블형 올냉장 (업소용 테이블 냉장고 표준)
+    return {
+      type: "table_horizontal",
+      hasMachineryRoom: !isSideBySide,
+      title: isTableFridge
+        ? "업소용 2도어 테이블 올냉장 원장"
+        : "양문형 2도어 전칸 올냉장 원장",
+      subtitle: "좌우 2도어 전체 신선 냉장 특화 구성 (작업대 일체형)",
+      coolingType,
+      coolingDesc,
+      capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+      compartments: [
+        {
+          id: "left",
+          positionLabel: "좌측 도어 (1칸)",
+          role: "fridge",
+          roleName: "신선 냉장실 (좌측)",
+          tempRange: "0℃ ~ +7℃",
+          recommendedItems: ["당일 손질 채소", "주방 양념 및 소스", "유제품"],
+          features: "상판 조리 작업대 바로 아래 위치해 손쉬운 데일리 식재료 인출을 지원합니다.",
+        },
+        {
+          id: "right",
+          positionLabel: "우측 도어 (1칸)",
+          role: "fridge",
+          roleName: "대용량 냉장실 (우측)",
+          tempRange: "0℃ ~ +7℃",
+          recommendedItems: ["대형 반찬통", "김치통", "주류 및 음료"],
+          features: "넓은 내부 수납 선반으로 대용량 식재료와 소분 반찬통을 넉넉하게 수납합니다.",
+        },
+      ],
+    };
+  }
+
+  // 5. 2도어 수직 분할 (상하 2칸 분할 - 25박스, 30박스, 소형 투도어) 판별
   const is2Door =
     combined.includes("25박스") ||
     combined.includes("30박스") ||
@@ -538,7 +670,11 @@ export function RefrigeratorCompartmentDiagram({
         {/* A. 좌측: 스테인리스 스틸 실물 모형 섀시 (Dieter Rams Industrial Blueprint) */}
         <div className="md:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl border border-[#CBD2DC] bg-gradient-to-b from-[#F8FAFC] via-[#EDF2F7] to-[#E2E8F0]">
           {/* 캐비닛 상단 디지털 온도 컨트롤러 모형 */}
-          <div className="w-full max-w-[240px] mb-2.5 flex items-center justify-between px-3 py-1 rounded bg-[#0F172A] border border-[#334155] text-white">
+          <div
+            className={`w-full ${
+              layout.type === "table_horizontal" ? "max-w-[280px]" : "max-w-[240px]"
+            } mb-2.5 flex items-center justify-between px-3 py-1 rounded bg-[#0F172A] border border-[#334155] text-white`}
+          >
             <div className="flex items-center gap-1.5">
               <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
               <span className="text-hb-xs font-mono font-bold tracking-wider text-[#94A3B8]">
@@ -552,7 +688,131 @@ export function RefrigeratorCompartmentDiagram({
           </div>
 
           {/* 실물 캐비닛 본체 */}
-          <div className="w-full max-w-[240px] rounded-lg border-2 border-[#94A3B8] bg-[#CBD2DC] p-2 shadow-inner space-y-2">
+          <div
+            className={`w-full ${
+              layout.type === "table_horizontal" ? "max-w-[280px]" : "max-w-[240px]"
+            } rounded-lg border-2 border-[#94A3B8] bg-[#CBD2DC] p-2 shadow-inner space-y-2`}
+          >
+            {/* 테이블형 / 양문형 좌우 2도어 수평 레이아웃 */}
+            {layout.type === "table_horizontal" && (
+              <div className="space-y-1.5">
+                {/* 상판 스테인리스 작업대 바 (테이블형) */}
+                {layout.hasMachineryRoom && (
+                  <div className="h-4 rounded-t-sm bg-gradient-to-r from-[#CBD2DC] via-[#E2E6EC] to-[#CBD2DC] border border-[#94A3B8] shadow-2xs flex items-center justify-between px-2">
+                    <span className="text-hb-xs font-mono font-bold text-[#64748B] scale-90 origin-left">
+                      FLAT WORKTOP
+                    </span>
+                    <span className="text-hb-xs font-mono font-bold text-[#64748B] tabular-nums scale-90 origin-right">
+                      {layout.capacity ?? "1500·1800"}
+                    </span>
+                  </div>
+                )}
+
+                {/* 하단 좌우 도어 (+ 기계실) 그리드 */}
+                <div
+                  className={`grid gap-1.5 ${
+                    layout.hasMachineryRoom ? "grid-cols-12" : "grid-cols-2"
+                  }`}
+                >
+                  <div
+                    className={`${
+                      layout.hasMachineryRoom ? "col-span-9" : "col-span-2"
+                    } grid grid-cols-2 gap-1.5`}
+                  >
+                    {layout.compartments.map((comp) => {
+                      const isSelected = comp.id === activeCompartment.id;
+                      const isFreeze = comp.role === "freezer";
+                      return (
+                        <button
+                          key={comp.id}
+                          type="button"
+                          onClick={() => setSelectedId(comp.id)}
+                          className={`text-left rounded-md p-2.5 relative transition-[border-color,background-color,transform] active:scale-[0.98] cursor-pointer ${
+                            isSelected
+                              ? "ring-2 ring-[#E8521A] shadow-md"
+                              : "hover:brightness-95"
+                          } ${
+                            isFreeze
+                              ? "bg-gradient-to-br from-[#1E293B] to-[#0F172A] text-white border border-[#334155]"
+                              : "bg-gradient-to-br from-[#F0FDFA] to-[#E6F4F1] text-[#141A23] border border-[#99F6E4]"
+                          }`}
+                        >
+                          {/* 실물 매립형 수평 핸들 (테이블형) 또는 수직 핸들 (양문형) */}
+                          {layout.hasMachineryRoom ? (
+                            <div
+                              className={`mx-auto mb-2 h-1.5 w-3/4 rounded-xs ${
+                                isFreeze ? "bg-[#334155]" : "bg-[#94A3B8]"
+                              }`}
+                            />
+                          ) : (
+                            <span
+                              className={`absolute ${
+                                comp.id === "left" ? "right-2" : "left-2"
+                              } top-1/2 -translate-y-1/2 w-1 h-12 rounded-full ${
+                                isFreeze ? "bg-[#475569]" : "bg-[#94A3B8]"
+                              }`}
+                            />
+                          )}
+
+                          <div className="flex items-center gap-1">
+                            <span
+                              className={`inline-flex items-center justify-center h-3.5 w-3.5 rounded-full shrink-0 ${
+                                isFreeze
+                                  ? "bg-[#334155] text-[#38BDF8]"
+                                  : "bg-[#CCFBF1] text-[#0F766E]"
+                              }`}
+                            >
+                              <Icon
+                                d={isFreeze ? ICON.snowflake : ICON.check}
+                                className="h-2 w-2"
+                              />
+                            </span>
+                            <span
+                              className={`text-hb-xs font-bold truncate ${
+                                isFreeze ? "text-[#94A3B8]" : "text-[#0F766E]"
+                              }`}
+                            >
+                              {comp.positionLabel.replace(" (1칸)", "")}
+                            </span>
+                          </div>
+
+                          <div className="mt-1 font-bold text-hb-xs truncate">
+                            {comp.roleName}
+                          </div>
+
+                          <div
+                            className={`mt-1 font-mono text-hb-xs font-bold tabular-nums ${
+                              isFreeze ? "text-[#38BDF8]" : "text-[#0F766E]"
+                            }`}
+                          >
+                            {comp.tempRange}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 우측 콤프레셔 기계실 벤트 유닛 (테이블형) */}
+                  {layout.hasMachineryRoom && (
+                    <div className="col-span-3 rounded-md bg-[#1E2736] border border-[#334155] p-1.5 flex flex-col justify-between items-center text-center">
+                      <span className="text-hb-xs font-mono font-bold text-[#94A3B8] tracking-tight scale-75 origin-top">
+                        COMP
+                      </span>
+                      <div className="w-full space-y-1 my-1 px-1">
+                        <div className="h-0.5 bg-[#475569] rounded-full" />
+                        <div className="h-0.5 bg-[#475569] rounded-full" />
+                        <div className="h-0.5 bg-[#475569] rounded-full" />
+                        <div className="h-0.5 bg-[#475569] rounded-full" />
+                      </div>
+                      <span className="text-hb-xs font-mono text-[#64748B] scale-75 origin-bottom">
+                        UNIT
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* 2도어 상하 분할 레이아웃 */}
             {layout.type === "2door_vertical" && (
               <div className="space-y-2">
