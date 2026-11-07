@@ -223,7 +223,7 @@ export function AiRecommendationGuideSection() {
                     {g.title}
                   </h4>
                   <dl className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm">
-                    <div className="border-l-2 border-[#E8521A] pl-3 py-1">
+                    <div className="rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-3">
                       <dt className="text-hb-xs font-bold text-[#64748B]">
                         주요 구성 품목
                       </dt>

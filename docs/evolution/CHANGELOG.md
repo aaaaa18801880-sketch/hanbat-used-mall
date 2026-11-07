@@ -1028,3 +1028,40 @@
 - **7. eslint**: PASS (13.26s) — 0 errors, 0 warnings
 - **8. next build**: PASS (14.38s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~34s)
+
+---
+
+## 🚀 [Cycle 32] 2026-11-07 — garden-skills web-design-engineer 방법론 기반 홈페이지 디자인 엔지니어링 정밀 고도화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-039`
+- **핵심 목표**:
+  - `garden-skills`의 `web-design-engineer`(ConardLi) 프레임워크 5대 다이얼(Five Dials) 및 안티 클리셰(Anti-Cliché) 규칙을 홈페이지에 엄격 적용.
+  - 카테고리 선택 탭에서 선택 시 발생하던 6px 레이아웃 시프트(CLS 결함) 원천 차단.
+  - 카드 상단 오렌지 바 및 좌측 보더 강조 등 AI/Tailwind 템플릿 클리셰 제거 -> 정밀 림 라이트 헤어라인 및 평탄화 레저 컨테이너로 교정.
+  - 전역 셀렉션 컬러 레거시 토큰(#ff6f0f)을 단일 출처 브랜드 토큰(#e8521a)으로 통일.
+
+### 2. 코드 변경 요약
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 탭 하단 오렌지 인디케이터 바를 조건부 렌더링에서 `transition-opacity` 불변 공간 예약 방식으로 변경 -> 탭 전환 시 6px 버튼 높이 뜀(Layout Shift) 0건 달성.
+  - 외곽 16px(`rounded-2xl`) 컨테이너 대비 내부 버튼 12px(`rounded-xl`) 동심원 곡률 정합.
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - B2B 설비 매트릭스 카드 상단의 호버 오렌지 바 클리셰 제거 -> `border-white/25`, `bg-white/[0.10]`의 우아한 표면 조명 및 `active:scale-[0.96]` 촉각 피드백으로 교정.
+  - 우측 쇼룸 외관 비주얼 하단 바에 `border-t border-white/10` 헤어라인 추가 및 "오시는 길 →" 캡슐 촉각 피드백 부여.
+- **[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx)**:
+  - 상황별 추천 카드 내부의 `border-l-2 border-[#E8521A]` 좌측 강조선 클리셰 제거 -> `rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-3` 하드웨어 카탈로그 스펙 블록으로 정갈하게 평탄화.
+- **[app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)**:
+  - `::selection` 배경색을 레거시 `#ff6f0f`에서 브랜드 단일 출처 `#e8521a`로 통일.
+- **[아르곤_디자인.xml](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/아르곤_디자인.xml)**:
+  - 87개 핵심 소스코드 31,052줄 최신본 동기화 완료 (1.28 MB).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.39s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.24s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.22s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.24s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.25s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.94s) — 0 errors
+- **7. eslint**: PASS (20.63s) — 0 errors, 0 warnings
+- **8. next build**: PASS (17.14s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~43s)

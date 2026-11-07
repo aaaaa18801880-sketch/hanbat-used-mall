@@ -782,7 +782,7 @@ export default function Home({
                     <span>1·2층 직영 쇼룸 상시 개방</span>
                   </div>
 
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#141A23]/90 via-[#141A23]/55 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#141A23]/90 via-[#141A23]/55 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2 border-t border-white/10">
                     <div className="min-w-0">
                       <p className="text-hb-xs sm:text-hb-sm font-bold text-white truncate">
                         {STORE.roadAddress} ({STORE.addressNote})
@@ -790,7 +790,7 @@ export default function Home({
                     </div>
                     <a
                       href="#location-section"
-                      className="shrink-0 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-hb-xs font-bold text-white backdrop-blur-md transition-colors"
+                      className="shrink-0 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-hb-xs font-bold text-white backdrop-blur-md active:scale-[0.96] transition-[background-color,transform] duration-150"
                     >
                       오시는 길 →
                     </a>
@@ -936,9 +936,8 @@ export default function Home({
                   <Link
                     key={cell.code}
                     href={cell.href}
-                    className="group relative flex flex-col justify-between p-5 sm:p-6 rounded-2xl border border-white/10 bg-white/[0.06] hover:bg-white/[0.11] hover:-translate-y-0.5 transition-[background-color,border-color,transform] duration-150 overflow-hidden"
+                    className="group relative flex flex-col justify-between p-5 sm:p-6 rounded-2xl border border-white/10 bg-white/[0.06] hover:bg-white/[0.10] hover:border-white/25 hover:-translate-y-0.5 active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 overflow-hidden"
                   >
-                    <span className="absolute top-0 inset-x-0 h-0.5 bg-[#E8521A] opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">

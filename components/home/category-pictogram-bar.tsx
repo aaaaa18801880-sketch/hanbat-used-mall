@@ -201,7 +201,7 @@ export function CategoryPictogramBar({
                     key={item.key}
                     type="button"
                     onClick={() => handleCategoryClick(item)}
-                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-lg p-2.5 sm:py-3 sm:px-2 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                    className={`group relative flex flex-col items-center justify-center gap-2 rounded-xl p-2.5 sm:py-3 sm:px-2 text-center transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                       isSelected
                         ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]/30"
                         : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD2DC] hover:shadow-card"
@@ -253,13 +253,13 @@ export function CategoryPictogramBar({
                       </span>
                     </div>
 
-                    {/* 선택 시 하단 오렌지 인디케이터 바 */}
-                    {isSelected && (
-                      <span
-                        className="h-1 w-7 rounded-full bg-[#E8521A] mt-0.5"
-                        aria-hidden="true"
-                      />
-                    )}
+                    {/* 선택 시 하단 오렌지 인디케이터 바 (레이아웃 시프트 방지) */}
+                    <span
+                      className={`h-1 w-7 rounded-full mt-0.5 transition-opacity duration-150 ${
+                        isSelected ? "bg-[#E8521A] opacity-100" : "opacity-0"
+                      }`}
+                      aria-hidden="true"
+                    />
                   </button>
                 );
               })}
