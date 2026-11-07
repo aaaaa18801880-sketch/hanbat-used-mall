@@ -1189,3 +1189,37 @@
 - **7. eslint**: PASS (13.95s) — 0 errors, 0 warnings
 - **8. next build**: PASS (15.14s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~38s)
+
+---
+
+## 🚀 [Cycle 36] 2026-11-08 — 카테고리 픽토그램 바 상단 인디케이터·벤토 카드 타일 고도화 및 테이블 냉장고 좌우 분할 청사진 지원 (EVO-043) (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-043`
+- **핵심 목표**:
+  - 홈 화면 최상단 품목별 쇼룸 카탈로그 독(`components/home/category-pictogram-bar.tsx`)의 상단 인디케이터 바 및 8열 벤토 카드 타일 비주얼 정밀 폴리싱.
+  - 카탈로그 타이틀 앞의 시그널 인디케이터 캡슐과 필터링 안내 문구 닷(dot)을 결합하여 실시간 쇼룸 상태 피드백 강화.
+  - 벤토 독 컨테이너에 동심원 곡률(`rounded-xl`) 및 `overflow-hidden`을 적용하고, 호버 시 마이크로 리프트(`hover:-translate-y-0.5`)와 액티브 시 하단 시그널 오렌지 인디케이터 바(Zero CLS)를 라운드 일체형으로 통합.
+  - 업소용 테이블/반찬 냉장고(좌우 도어 + 기계실 챔버)에 대한 실물 청사진 분할 레이아웃 추가 지원.
+
+### 2. 코드 변경 요약
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 타이틀 좌측 인디케이터에 그라디언트 캡슐(`bg-gradient-to-b from-[#E8521A] to-[#FF6B35] shadow-xs`) 적용.
+  - 실시간 안내 문구에 인디케이터 닷(`inline-block h-1.5 w-1.5 rounded-full bg-[#E8521A]/70`) 통합.
+  - 전체 실매물 캡슐 버튼 및 갤러리 링크 보더·호버 인터랙션(화살표 마이크로 트랜지션) 강화.
+  - 벤토 타일 컨테이너: `rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-2 sm:p-2.5 shadow-2xs`로 정돈.
+  - 벤토 카드 타일: `rounded-xl`, `overflow-hidden`, `active:scale-[0.97]`, `hover:-translate-y-0.5` 반응성 적용.
+  - B2B 및 실시간 매물 대수 배지 테두리·가독성 정돈 및 타일 하단 밀착형 4px 시그널 오렌지 인디케이터 바 연결.
+- **[components/products/refrigerator-compartment-diagram.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/refrigerator-compartment-diagram.tsx)**:
+  - 수평형 테이블 냉장고(가로 900~1800mm) 판별 알고리즘 및 좌우 분할 도어 + 측면 컴프레서 기계실 챔버 레이아웃 지원.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.33s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.25s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.23s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.23s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.23s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.14s) — 0 errors
+- **7. eslint**: PASS (13.31s) — 0 errors, 0 warnings
+- **8. next build**: PASS (13.40s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~31s)
