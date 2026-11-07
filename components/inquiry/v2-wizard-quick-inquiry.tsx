@@ -518,7 +518,7 @@ export function V2InquirySectionWithWizard({
         <div className="space-y-3 pb-2 border-b border-[#E2E6EC]">
           <div className="flex items-center justify-between text-hb-xs font-bold">
             <span className="text-[#E8521A] tabular-nums font-mono">{step}단계 / 3단계</span>
-            <span className="text-[#6B7684]">
+            <span className="text-[#64748B]">
               {step === 1
                 ? isSell
                   ? "처분하실 품목을 선택해 주세요"
@@ -661,7 +661,7 @@ export function V2InquirySectionWithWizard({
                       className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
                         active
                           ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]"
-                          : "border-[#E2E6EC] bg-white text-[#4E5968] hover:border-[#CBD2DC]"
+                          : "border-[#E2E6EC] bg-white text-[#334155] hover:border-[#CBD2DC]"
                       }`}
                     >
                       <span>{cat}</span>
@@ -675,7 +675,7 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end border-t border-[#E5E8EB]">
+            <div className="pt-2 flex justify-end border-t border-[#E2E6EC]">
               <button
                 type="button"
                 onClick={goToPhotoStep}
@@ -699,7 +699,7 @@ export function V2InquirySectionWithWizard({
                     ? "2. 제품 사진 첨부 (선택, 최대 3장)"
                     : "3. 제품 사진 첨부 (선택, 최대 3장)"}
                 </span>
-                <span className="text-hb-xs text-[#6B7684]">
+                <span className="text-hb-xs text-[#64748B]">
                   {selectedFiles.length} / {MAX_PHOTOS}장
                 </span>
               </div>
@@ -708,7 +708,7 @@ export function V2InquirySectionWithWizard({
                 {filePreviews.map((src, i) => (
                   <div
                     key={src}
-                    className="relative aspect-square w-20 sm:w-24 overflow-hidden rounded-lg border border-[#E5E8EB] bg-[#F2F4F6] shrink-0"
+                    className="relative aspect-square w-20 sm:w-24 overflow-hidden rounded-lg border border-[#E2E6EC] bg-[#F1F3F6] shrink-0"
                   >
                     <SafeImg
                       src={src}
@@ -727,8 +727,8 @@ export function V2InquirySectionWithWizard({
                 ))}
 
                 {selectedFiles.length < MAX_PHOTOS && (
-                  <label className="flex aspect-square w-20 sm:w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#E5E8EB] bg-[#F9FAFB] text-hb-xs font-semibold text-[#6B7684] hover:border-[#FF6F0F] hover:text-[#F05600] transition-colors shrink-0">
-                    <Icon d={ICON.camera} className="w-5 h-5 text-[#8B95A1]" />
+                  <label className="flex aspect-square w-20 sm:w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#E2E6EC] bg-[#F7F8FA] text-hb-xs font-semibold text-[#64748B] hover:border-[#E8521A] hover:text-[#E8521A] transition-colors shrink-0">
+                    <Icon d={ICON.camera} className="w-5 h-5 text-[#94A3B8]" />
                     <span className="mt-1">+ 사진 추가</span>
                     <input
                       type="file"
@@ -781,7 +781,7 @@ export function V2InquirySectionWithWizard({
                 </div>
               )}
 
-              <p className="mt-2 text-hb-xs text-[#6B7684]">
+              <p className="mt-2 text-hb-xs text-[#64748B]">
                 제품 전면 또는 모델명 명판 스티커 사진을 첨부하시면 가장 신속하고 정확한 견적을 받으실 수 있습니다. (생략 가능)
               </p>
 
@@ -866,7 +866,7 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E5E8EB]">
+            <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E2E6EC]">
               <button
                 type="button"
                 onClick={() => setStep(1)}
@@ -889,9 +889,9 @@ export function V2InquirySectionWithWizard({
         {/* STEP 3: 현장 조건 + 지역/메모 + 연락처 입력 및 완료 */}
         {step === 3 && (
           <div className="space-y-4">
-            <div className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs text-[#4E5968] flex flex-wrap items-center justify-between gap-1.5">
+            <div className="rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] p-3 text-hb-xs text-[#334155] flex flex-wrap items-center justify-between gap-1.5">
               <div>
-                <strong className="text-[#191F28]">선택 요약:</strong> [{inquiryType}] {selectedCategories.join(", ")}
+                <strong className="text-[#141A23]">선택 요약:</strong> [{inquiryType}] {selectedCategories.join(", ")}
                 {selectedFiles.length > 0
                   ? ` · 사진 ${selectedFiles.length}장 첨부됨`
                   : " · 사진 미첨부"}
@@ -899,7 +899,7 @@ export function V2InquirySectionWithWizard({
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="text-hb-xs text-[#6B7684] underline hover:text-[#191F28]"
+                className="text-hb-xs text-[#64748B] underline hover:text-[#141A23]"
               >
                 사진 수정
               </button>
@@ -923,7 +923,7 @@ export function V2InquirySectionWithWizard({
                       className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
                         active
                           ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]"
-                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#4E5968] hover:border-[#CBD2DC]"
+                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#CBD2DC]"
                       }`}
                     >
                       <Icon
@@ -966,11 +966,11 @@ export function V2InquirySectionWithWizard({
             </div>
 
             {/* 3. 연락처 및 신청자 정보 */}
-            <div className="pt-2 border-t border-[#E5E8EB] space-y-2">
+            <div className="pt-2 border-t border-[#E2E6EC] space-y-2">
               <span className="hb-label">3. 신청자 정보 및 연락처 *</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="hb-label text-[#6B7684]">성함 / 상호명 *</label>
+                  <label className="hb-label text-[#64748B]">성함 / 상호명 *</label>
                   <input
                     type="text"
                     required
@@ -981,7 +981,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[#6B7684]">연락처 *</label>
+                  <label className="hb-label text-[#64748B]">연락처 *</label>
                   <input
                     type="tel"
                     required
@@ -992,7 +992,7 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[#6B7684]">조회 비밀번호(4자+) *</label>
+                  <label className="hb-label text-[#64748B]">조회 비밀번호(4자+) *</label>
                   <input
                     type="password"
                     required
@@ -1005,17 +1005,17 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-hb-xs text-[#4B5260] cursor-pointer select-none">
+            <label className="flex items-center gap-2 text-hb-xs text-[#334155] cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={agreed}
                 onChange={(e) => setAgreed(e.target.checked)}
-                className="h-4 w-4 rounded border-[#D1D6DB] accent-[#191F28]"
+                className="h-4 w-4 rounded border-[#CBD2DC] accent-[#141A23]"
               />
               <span>상담 안내를 위한 개인정보 수집·이용에 동의합니다.</span>
             </label>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E5E8EB]">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E2E6EC]">
               <button
                 type="button"
                 onClick={() => setStep(2)}
@@ -1034,7 +1034,7 @@ export function V2InquirySectionWithWizard({
                   )}
                   className="hb-btn-outline h-11 px-4 text-hb-sm"
                 >
-                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#F05600]" />
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />
                   <span>문자로 바로 전송</span>
                 </a>
                 <button
@@ -1061,10 +1061,10 @@ export function V2InquirySectionWithWizard({
           panelClassName="max-w-3xl w-full"
           overlayClassName="z-[70]"
         >
-          <div className="overflow-hidden rounded-xl border border-[#E5E8EB] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E5E8EB] px-5 py-3.5 bg-[#191F28] text-white">
+          <div className="overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-[#E2E6EC] px-5 py-3.5 bg-[#141A23] text-white">
               <div className="flex items-center gap-2">
-                <Icon d={ICON.camera} className="w-4 h-4 text-[#F05600]" />
+                <Icon d={ICON.camera} className="w-4 h-4 text-[#E8521A]" />
                 <h3 className="text-hb-sm font-bold text-white">
                   권장 촬영 참고 사진 가이드
                 </h3>
@@ -1078,13 +1078,13 @@ export function V2InquirySectionWithWizard({
                 <Icon d={ICON.close} className="h-5 w-5" />
               </button>
             </div>
-            <div className="max-h-[80vh] overflow-y-auto bg-[#F9FAFB] p-4 flex flex-col items-center gap-3">
+            <div className="max-h-[80vh] overflow-y-auto bg-[#F7F8FA] p-4 flex flex-col items-center gap-3">
               <SafeImg
                 src={guideInfo.image}
                 alt="권장 촬영 참고 사진 가이드 원본"
-                className="max-h-[65vh] w-auto object-contain rounded-lg border border-[#E5E8EB] bg-white shadow-xs"
+                className="max-h-[65vh] w-auto object-contain rounded-lg border border-[#E2E6EC] bg-white shadow-xs"
               />
-              <p className="text-hb-xs text-[#6B7684] text-center max-w-lg leading-relaxed">
+              <p className="text-hb-xs text-[#64748B] text-center max-w-lg leading-relaxed">
                 {guideInfo.tip}
               </p>
             </div>

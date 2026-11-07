@@ -319,7 +319,7 @@ export function CopyProductLinkButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4E5968] hover:border-[#141A23] hover:text-[#141A23] transition-[border-color,color,transform] active:scale-[0.96] shadow-2xs"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#334155] hover:border-[#141A23] hover:text-[#141A23] transition-[border-color,color,transform] active:scale-[0.96] shadow-2xs"
       title={`${productTitle} 링크 복사`}
     >
       <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
@@ -388,7 +388,7 @@ export function QuoteBasketButton({
       <Icon
         d={inBasket ? ICON.check : ICON.plus}
         className={`w-4 h-4 shrink-0 ${
-          inBasket ? "text-[#F05600]" : "text-[#191F28]"
+          inBasket ? "text-[#E8521A]" : "text-[#141A23]"
         }`}
       />
       <span className="truncate">

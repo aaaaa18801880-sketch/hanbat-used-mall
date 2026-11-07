@@ -2678,7 +2678,7 @@ export default function GalleryPage() {
                   </span>
                 </div>
 
-                <div className="mb-2.5 flex items-center justify-between gap-2 p-2.5 bg-[#F7F8FA] rounded border border-[#E4E0D8]">
+                <div className="mb-2.5 flex items-center justify-between gap-2 p-2.5 bg-[#F7F8FA] rounded border border-[#E2E6EC]">
                   <label className="flex items-center gap-2 text-hb-xs font-semibold text-[#141A23] cursor-pointer select-none">
                     <input
                       type="checkbox"

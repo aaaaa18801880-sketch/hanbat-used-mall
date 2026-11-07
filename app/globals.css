@@ -94,6 +94,21 @@ body {
 
 /* Typography & Shared Component Tokens (Toss TDS + Apple HIG + SEED) */
 @layer components {
+  @keyframes hbModalEnter {
+    from {
+      opacity: 0;
+      transform: scale(0.97) translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+  }
+
+  .hb-modal-panel {
+    animation: hbModalEnter 180ms var(--hb-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  }
+
   .hb-container {
     @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
   }

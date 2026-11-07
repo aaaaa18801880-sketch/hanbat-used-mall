@@ -52,6 +52,7 @@ import { AirconGuideModal } from "../products/aircon-set-guide-banner";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
+import { DeliveryRegionChecker } from "./delivery-region-checker";
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -1020,7 +1021,7 @@ export default function Home({
                 >
                   쓰던 가전, 사진만 보내주세요
                 </h2>
-                <p className="mt-3 text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed break-keep [text-wrap:balance]">
+                <p className="mt-3 text-hb-sm sm:text-hb-base text-[#334155] leading-relaxed break-keep [text-wrap:balance]">
                   가전·식당설비 사진을 보내주시면 시세를 확인하여 안내해 드리며, 방문 수거 당일 현장 즉시 입금해 드립니다.
                 </p>
 
@@ -1048,7 +1049,7 @@ export default function Home({
                   <button
                     type="button"
                     onClick={() => setGuideModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 font-bold text-[#4E5968] hover:text-[#141A23] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 font-bold text-[#334155] hover:text-[#141A23] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4 cursor-pointer"
                   >
                     <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#E8521A]" />
                     <span>매입 사진 촬영 가이드</span>
@@ -1093,7 +1094,7 @@ export default function Home({
                               className={`inline-flex items-center rounded-md px-2 py-0.5 font-mono text-hb-xs font-bold tabular-nums ${
                                 isLast
                                   ? "bg-[#E8521A] text-white"
-                                  : "bg-[#F1F3F6] text-[#4E5968]"
+                                  : "bg-[#F1F3F6] text-[#334155]"
                               }`}
                             >
                               {s.step}단계
@@ -1102,7 +1103,7 @@ export default function Home({
                               {s.t}
                             </h3>
                           </div>
-                          <p className="mt-2 text-hb-sm leading-relaxed text-[#4E5968] break-keep">
+                          <p className="mt-2 text-hb-sm leading-relaxed text-[#334155] break-keep">
                             {s.d}
                           </p>
                         </div>
@@ -1112,7 +1113,7 @@ export default function Home({
                 </ol>
 
                 {/* 하단 매입 팁 요약 스트립 */}
-                <div className="mt-8 pt-5 border-t border-[#E2E6EC] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-hb-xs sm:text-hb-sm text-[#4E5968]">
+                <div className="mt-8 pt-5 border-t border-[#E2E6EC] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-hb-xs sm:text-hb-sm text-[#334155]">
                   <div>
                     <strong className="font-bold text-[#141A23]">
                       빠른 견적 팁:
@@ -1184,7 +1185,7 @@ export default function Home({
                     className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "all"
                         ? "bg-[#141A23] text-white shadow-2xs"
-                        : "text-[#4E5968] hover:text-[#141A23]"
+                        : "text-[#334155] hover:text-[#141A23]"
                     }`}
                   >
                     전체 현장 ({reviews.length})
@@ -1197,7 +1198,7 @@ export default function Home({
                     className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "home"
                         ? "bg-[#141A23] text-white shadow-2xs"
-                        : "text-[#4E5968] hover:text-[#141A23]"
+                        : "text-[#334155] hover:text-[#141A23]"
                     }`}
                   >
                     가정용 (냉장고·세탁기·에어컨)
@@ -1210,7 +1211,7 @@ export default function Home({
                     className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "commercial"
                         ? "bg-[#141A23] text-white shadow-2xs"
-                        : "text-[#4E5968] hover:text-[#141A23]"
+                        : "text-[#334155] hover:text-[#141A23]"
                     }`}
                   >
                     상가·식당 (업소용·냉난방)
@@ -1239,7 +1240,7 @@ export default function Home({
                   <p className="text-hb-base font-bold text-[#141A23]">
                     현장 사진을 정리하고 있습니다.
                   </p>
-                  <p className="mt-1 text-hb-sm text-[#4E5968]">
+                  <p className="mt-1 text-hb-sm text-[#334155]">
                     배송·설치 사례가 궁금하시면 카카오톡으로 편하게 문의해 주세요.
                   </p>
                 </div>
@@ -1336,7 +1337,7 @@ export default function Home({
                 <h3 className="mt-2 text-hb-base sm:text-hb-lg font-bold text-[#141A23] [text-wrap:balance]">
                   대전 중촌동 1·2층 직영 쇼룸에서 실물을 직접 확인하세요
                 </h3>
-                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968] [text-wrap:balance]">
+                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#334155] [text-wrap:balance]">
                   {STORE.roadAddress} · 매장 앞 전용 주차 무료 · 실물 전원 시운전 가능
                 </p>
               </div>
@@ -1431,7 +1432,7 @@ export default function Home({
                         id={`faq-a-${i}`}
                         role="region"
                         aria-labelledby={`faq-q-${i}`}
-                        className="pb-5 pl-9 pr-4 text-hb-sm leading-[1.75] text-[#4E5968] break-keep"
+                        className="pb-5 pl-9 pr-4 text-hb-sm leading-[1.75] text-[#334155] break-keep"
                       >
                         {f.a.includes(STORE.tel) ? (
                           <>
@@ -1495,6 +1496,8 @@ export default function Home({
               desc="대전 중촌동 매장에 방문해 실물을 직접 확인하시거나 전화·카톡·온라인 게시판으로 편하게 문의해 주세요."
             />
 
+            <DeliveryRegionChecker className="mt-7" />
+
             <div className="mt-8 grid gap-6 lg:grid-cols-12 items-stretch">
               {/* 좌측 (7열): 오프라인 매장 지도 및 주소·편의시설 일체형 카드 (#location-section) */}
               <div
@@ -1526,7 +1529,7 @@ export default function Home({
                       >
                         {STORE.roadAddress}
                       </h3>
-                      <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#4E5968]">
+                      <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#334155]">
                         지번: {STORE.jibunAddress} ({STORE.addressNote}) · 영업시간 {STORE.hours} ({STORE.closed})
                       </p>
                     </div>
@@ -1621,7 +1624,7 @@ export default function Home({
                       </Link>
                     </div>
                     {recent.length === 0 ? (
-                      <div className="py-4 text-hb-xs sm:text-hb-sm text-[#4E5968] space-y-2.5">
+                      <div className="py-4 text-hb-xs sm:text-hb-sm text-[#334155] space-y-2.5">
                         <p className="font-bold text-[#141A23]">
                           비밀번호로 보호되는 실시간 1:1 견적 게시판입니다.
                         </p>
@@ -1698,7 +1701,7 @@ export default function Home({
                     </div>
                     <a
                       href={telHref(STORE.mobile)}
-                      className="text-hb-xs font-semibold text-[#4E5968] hover:text-[#141A23] tabular-nums"
+                      className="text-hb-xs font-semibold text-[#334155] hover:text-[#141A23] tabular-nums"
                     >
                       직통 휴대전화 {STORE.mobile}
                     </a>
@@ -1791,7 +1794,7 @@ export default function Home({
               />
             </div>
             <div className="flex items-center justify-between gap-3 border-t border-[#E2E6EC] bg-white px-5 py-3.5">
-              <span className="text-hb-xs text-[#4E5968] hidden sm:inline">
+              <span className="text-hb-xs text-[#334155] hidden sm:inline">
                 안내문에 맞춰 사진을 보내주시면 정확한 견적 안내가 가능합니다.
               </span>
               <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -1967,7 +1970,7 @@ export default function Home({
                 type="button"
                 onClick={() => setLoginOpen(false)}
                 aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#4E5968] active:scale-[0.96] transition-[background-color,transform]"
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} />
               </button>
@@ -2025,7 +2028,7 @@ export default function Home({
                 type="button"
                 onClick={closeReviewModal}
                 aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#4E5968] active:scale-[0.96] transition-[background-color,transform]"
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} />
               </button>

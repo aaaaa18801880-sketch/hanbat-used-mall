@@ -70,7 +70,7 @@ export function ProductStructuredDescription({
             </h2>
           </div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F5F9] px-3 py-1 text-hb-xs font-bold text-[#334155]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#00C471]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
             직영 매장 입고 실물 기준
           </span>
         </div>
@@ -188,7 +188,7 @@ export function ProductStructuredDescription({
           )}
 
           {parsed.consultationGuide.length > 0 && (
-            <div className="text-hb-sm text-[#4E5968] leading-relaxed space-y-1">
+            <div className="text-hb-sm text-[#334155] leading-relaxed space-y-1">
               {parsed.consultationGuide.map((cg, i) => (
                 <p key={i} className="flex items-start gap-2">
                   <Icon

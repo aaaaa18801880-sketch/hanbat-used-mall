@@ -1106,3 +1106,47 @@
 - **7. eslint**: PASS (13.03s) — 0 errors, 0 warnings
 - **8. next build**: PASS (16.19s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~42s)
+
+---
+
+## 🚀 [Cycle 34] 2026-11-07 — 서브페이지·문의폼 잔여 구형 토큰 100% 완전 단일화(EVO-041), Emil Kowalski 모달 모션 물리 적용 및 충청권 직배송·방문매입 1초 조회 원장 위젯(EVO-012) 구축 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-041` & `EVO-012`
+- **핵심 목표**:
+  - `emilkowalski/skills` 및 `ibelick/ui-skills` 기반 모션 물리 적용: 모달 패널 진입 시 `cubic-bezier(0.22, 1, 0.36, 1)` 기반 180ms `opacity` + `scale(0.97 -> 1)` 컴포지터 애니메이션(`.hb-modal-panel`) 전역 적용 (`prefers-reduced-motion` 자동 감쇄).
+  - 서브페이지 및 문의 폼 7개 핵심 파일(`app/inquiry/page.tsx`, `components/inquiry/unified-inquiry-form.tsx`, `components/inquiry/v2-wizard-quick-inquiry.tsx`, `components/products/product-detail-gallery.tsx`, `components/products/product-structured-description.tsx`, `components/products/product-status-badge.tsx`, `app/gallery/page.tsx`)에 남아있던 구형 레거시 컬러 248건 전수 치환 및 쇼룸 표준 토큰(#141A23, #E8521A, #E2E6EC, #F1F3F6, #F7F8FA, #64748B, #334155) 100% 일원화.
+  - `docs/evolution/BACKLOG.md`의 미해결 과제였던 `EVO-012` 완수: 대전 핵심구, 대전 동부, 세종/청주, 충남 인접, 천안/아산, 전국 화물 6대 권역별 1초 스펙 원장 및 원클릭 상담 연동 위젯(`components/home/delivery-region-checker.tsx`) 구축 및 홈페이지 메인 [S8] 섹션 마운트.
+
+### 2. 코드 변경 요약
+- **[app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)**:
+  - `@keyframes hbModalEnter` 및 `.hb-modal-panel` 모달 진입 애니메이션 클래스 선언.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `Modal` 컴포넌트 패널 `div`에 `.hb-modal-panel` 연동 -> 전역 모달(견적문의, 쇼룸방문, 비교모달 등)에 매끄러운 180ms 물리 모션 일괄 부여.
+- **[components/home/delivery-region-checker.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/delivery-region-checker.tsx)** (신규):
+  - 6대 권역별 직배송 설치 기준, 당일 현금 방문매입 기준, 주요 배차 동네 1초 스캔 원장.
+  - 선택한 지역명이 자동 프리필되는 1초 구매/매입 문의 버튼 및 SMS 연동.
+  - 동심원 곡률($R_{inner} = R_{outer} - P$), No Card-in-Card 평탄화 원장(`divide-y`, `divide-x`).
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - `DeliveryRegionChecker` 컴포넌트 import 및 [S8] 매장·상담 섹션 상단 마운트.
+  - 잔여 `#4E5968` 컬러 17건을 표준 `#334155` 토큰으로 교정.
+- **서브페이지 및 폼 파일 7종**:
+  - `app/inquiry/page.tsx` (102건 치환)
+  - `components/inquiry/unified-inquiry-form.tsx` (104건 치환)
+  - `components/inquiry/v2-wizard-quick-inquiry.tsx` (37건 치환)
+  - `components/products/product-detail-gallery.tsx` (3건 치환)
+  - `components/products/product-structured-description.tsx` (2건 치환)
+  - `components/products/product-status-badge.tsx` (1건 치환)
+  - `app/gallery/page.tsx` (1건 치환)
+  - 총 250건 레거시 컬러 완전 퇴출 (잔여 0건).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.32s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.30s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.29s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.25s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.23s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.52s) — 0 errors
+- **7. eslint**: PASS (14.07s) — 0 errors, 0 warnings
+- **8. next build**: PASS (17.22s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~44s)

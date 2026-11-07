@@ -28,7 +28,7 @@ export function ProductStatusBadge({
       <span
         className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-hb-xs font-semibold backdrop-blur-md shadow-xs ${
           sold
-            ? "bg-[#4E5968]/90 text-white"
+            ? "bg-[#334155]/90 text-white"
             : reserved
             ? "bg-[#E8521A]/95 text-white"
             : "bg-[#141A23]/90 text-white"

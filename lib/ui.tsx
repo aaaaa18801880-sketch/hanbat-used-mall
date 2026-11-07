@@ -439,7 +439,7 @@ export function Modal({
       <div
         ref={panelRef}
         tabIndex={-1}
-        className={`w-full focus:outline-none overscroll-contain ${panelClassName}`}
+        className={`w-full focus:outline-none overscroll-contain hb-modal-panel ${panelClassName}`}
         onClick={(e) => e.stopPropagation()}
       >
         {children}
