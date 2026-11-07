@@ -47,7 +47,8 @@ export function detectRefrigeratorLayout(
     category === "세탁기/건조기" ||
     category === "에어컨/냉난방기" ||
     category === "TV/영상가전" ||
-    category === "주방/생활가전";
+    category === "주방/생활가전" ||
+    category === "배송인증";
 
   if (isExcludedCategory && !combined.includes("냉장") && !combined.includes("냉동")) {
     return null;
@@ -76,10 +77,17 @@ export function detectRefrigeratorLayout(
     coolingDesc = "팬 강제 대류 순환 방식으로 성에 발생이 없는 간접 냉각 시스템입니다.";
   }
 
-  // 용량(리터/박스) 감지
+  // 용량(리터/박스/테이블 규격) 감지
   const boxMatch = combined.match(/\b(25|30|45|65)\s*박스/);
   const literMatch = combined.match(/\b(\d{2,4})\s*(?:l|리터)\b/);
-  const capacityStr = boxMatch ? `${boxMatch[1]}박스` : literMatch ? `${literMatch[1]}L` : null;
+  const tableWidthMatch = combined.match(/\b(900|1200|1500|1800)\b/);
+  const capacityStr = boxMatch
+    ? `${boxMatch[1]}박스`
+    : literMatch
+    ? `${literMatch[1]}L`
+    : tableWidthMatch
+    ? `${tableWidthMatch[1]} 규격`
+    : null;
 
   // 2. 스탠드형 김치냉장고 판별
   const isKimchiStand =
@@ -339,7 +347,15 @@ export function detectRefrigeratorLayout(
     combined.includes("작업대") ||
     combined.includes("서랍식 테이블") ||
     combined.includes("가로형") ||
-    combined.includes("좌우");
+    combined.includes("수평") ||
+    combined.includes("좌우") ||
+    combined.includes("좌/우") ||
+    combined.includes("좌·우") ||
+    combined.includes("상부선반") ||
+    combined.includes("상치선반") ||
+    combined.includes("슬라이딩") ||
+    Boolean(tableWidthMatch && (combined.includes("2도어") || combined.includes("올냉장") || combined.includes("냉장"))) ||
+    /\b(cwsm|cwt|wst|rtar|rtf|rtr|rt-)\b/i.test(combined);
 
   const isSideBySide =
     (combined.includes("양문") && !is4Door) ||
@@ -347,6 +363,13 @@ export function detectRefrigeratorLayout(
     combined.includes("우냉장");
 
   if (isTableFridge || isSideBySide) {
+    const isBanchanTopping =
+      combined.includes("반찬") ||
+      combined.includes("밧드") ||
+      combined.includes("찬밧드") ||
+      combined.includes("토핑") ||
+      combined.includes("김밥");
+
     const isAllFreeze = combined.includes("올냉동") || combined.includes("전칸 냉동");
     const isHalfAndHalf =
       combined.includes("반반") ||
@@ -360,7 +383,9 @@ export function detectRefrigeratorLayout(
       return {
         type: "table_horizontal",
         hasMachineryRoom: !isSideBySide,
-        title: isTableFridge
+        title: isBanchanTopping
+          ? "업소용 2도어 찬밧드·토핑 올냉동 원장"
+          : isTableFridge
           ? "업소용 2도어 테이블 올냉동 원장"
           : "양문형 2도어 전칸 올냉동 원장",
         subtitle: "좌우 2도어 전체 강력 급속 냉동 구성 (수평 분할)",
@@ -395,7 +420,9 @@ export function detectRefrigeratorLayout(
       return {
         type: "table_horizontal",
         hasMachineryRoom: !isSideBySide,
-        title: isTableFridge
+        title: isBanchanTopping
+          ? "업소용 찬밧드·토핑 2도어 (좌측 냉동 / 우측 냉장)"
+          : isTableFridge
           ? "업소용 테이블 2도어 (좌측 냉동 / 우측 냉장)"
           : "양문형 2도어 독립 냉각 원장 (좌측 냉동 / 우측 냉장)",
         subtitle: "좌측 급속 냉동 1도어 + 우측 와이드 신선 냉장 1도어 수평 분할",
@@ -429,10 +456,14 @@ export function detectRefrigeratorLayout(
     return {
       type: "table_horizontal",
       hasMachineryRoom: !isSideBySide,
-      title: isTableFridge
+      title: isBanchanTopping
+        ? "업소용 2도어 찬밧드 반찬 테이블 냉장고 원장"
+        : isTableFridge
         ? "업소용 2도어 테이블 올냉장 원장"
         : "양문형 2도어 전칸 올냉장 원장",
-      subtitle: "좌우 2도어 전체 신선 냉장 특화 구성 (작업대 일체형)",
+      subtitle: isBanchanTopping
+        ? "좌우 2도어 전체 신선 냉장 특화 구성 (상단 밧드 + 작업대 일체형)"
+        : "좌우 2도어 전체 신선 냉장 특화 구성 (작업대 일체형)",
       coolingType,
       coolingDesc,
       capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
@@ -443,8 +474,12 @@ export function detectRefrigeratorLayout(
           role: "fridge",
           roleName: "신선 냉장실 (좌측)",
           tempRange: "0℃ ~ +7℃",
-          recommendedItems: ["당일 손질 채소", "주방 양념 및 소스", "유제품"],
-          features: "상판 조리 작업대 바로 아래 위치해 손쉬운 데일리 식재료 인출을 지원합니다.",
+          recommendedItems: isBanchanTopping
+            ? ["배식용 소분 반찬", "당일 손질 채소", "주방 양념 및 소스"]
+            : ["당일 손질 채소", "주방 양념 및 소스", "유제품"],
+          features: isBanchanTopping
+            ? "상단 찬밧드 구획과 연계되어 신속한 서빙 및 데일리 식재료 인출을 지원합니다."
+            : "상판 조리 작업대 바로 아래 위치해 손쉬운 데일리 식재료 인출을 지원합니다.",
         },
         {
           id: "right",
