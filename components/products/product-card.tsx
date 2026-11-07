@@ -109,7 +109,7 @@ export function ProductTrustMicroStrip({
                 </span>
                 <span className="truncate">{item.title}</span>
               </div>
-              <p className="mt-1.5 text-hb-xs leading-[1.5] text-[#4E5968] break-keep">
+              <p className="mt-1.5 text-hb-xs leading-[1.5] text-[#64748B] break-keep">
                 {item.desc}
               </p>
             </div>
@@ -320,7 +320,7 @@ export function ProductCard({
         <div>
           {/* 상단 메타: 중립 슬레이트 카테고리 칩 + 모델명 */}
           <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="inline-flex items-center rounded-md bg-[#F1F3F6] px-2 py-0.5 font-semibold text-[#4E5968] truncate">
+            <span className="inline-flex items-center rounded-md bg-[#F1F3F6] px-2 py-0.5 font-semibold text-[#334155] truncate">
               {categoryLabel}
             </span>
             {modelName && (
@@ -344,14 +344,14 @@ export function ProductCard({
             {product.title}
           </h3>
 
-          {/* 가격 (당근·카카오 스타일: 제목 바로 아래 700 Bold로 선명하게 강조) */}
+          {/* 가격 및 직영 검수 마이크로 스탬프 */}
           <div className="mt-2 flex items-baseline justify-between gap-2 min-w-0">
             {sold ? (
               <span className="text-hb-sm font-semibold text-[#64748B] truncate block">
                 판매완료 · 유사매물 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tabular-nums truncate">
+              <strong className="block text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tabular-nums tracking-[-0.025em] truncate">
                 {priceText}
               </strong>
             ) : (
@@ -359,6 +359,12 @@ export function ProductCard({
                 <span className="sm:hidden">견적 상담</span>
                 <span className="hidden sm:inline">{priceText}</span>
               </strong>
+            )}
+            {!sold && (
+              <span className="hidden xs:inline-flex items-center gap-1 shrink-0 text-hb-xs font-semibold text-[#0F766E]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
+                <span>검수필</span>
+              </span>
             )}
           </div>
         </div>

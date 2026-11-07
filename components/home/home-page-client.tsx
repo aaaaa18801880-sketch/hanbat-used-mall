@@ -653,7 +653,7 @@ export default function Home({
                     검증된 중고가전 · 업소용 설비
                   </h1>
 
-                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.68] text-[#4E5968] break-keep">
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.68] text-[#334155] break-keep">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후 무상 A/S 보증과 함께 출고합니다.
                   </p>
 
@@ -661,10 +661,10 @@ export default function Home({
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
                     <Link
                       href="/gallery"
-                      className="group relative flex items-center justify-between rounded-2xl bg-[#141A23] px-5 py-4 text-white shadow-card hover:bg-[#232B36] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96]"
+                      className="group relative flex items-center justify-between rounded-2xl bg-[#141A23] px-5 py-4 text-white shadow-card hover:bg-[#1E2736] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96]"
                     >
                       <div className="min-w-0">
-                        <span className="block text-hb-xs font-bold text-[#FB923C]">
+                        <span className="block text-hb-xs font-bold text-[#FF8A50]">
                           세척·검수 완료 · 무상 A/S
                         </span>
                         <strong className="mt-0.5 block text-hb-lg font-bold text-white tracking-tight">
@@ -689,7 +689,7 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group relative flex items-center justify-between rounded-2xl bg-[#E8521A] px-5 py-4 text-left text-white shadow-card hover:bg-[#D04814] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96] cursor-pointer"
+                      className="group relative flex items-center justify-between rounded-2xl bg-[#E8521A] px-5 py-4 text-left text-white shadow-card hover:bg-[#CF4310] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.96] cursor-pointer"
                     >
                       <div className="min-w-0">
                         <span className="block text-hb-xs font-bold text-white/90">
@@ -706,7 +706,7 @@ export default function Home({
                   </div>
 
                   {/* 빠른 보조 동선: 업소 상담 & 직통 전화 */}
-                  <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-hb-xs sm:text-hb-sm text-[#4E5968]">
+                  <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-hb-xs sm:text-hb-sm text-[#64748B]">
                     <a
                       href="#business-section"
                       className="inline-flex items-center gap-1.5 font-bold text-[#141A23] hover:text-[#E8521A] transition-colors"
@@ -718,7 +718,7 @@ export default function Home({
                     </a>
                     <a
                       href={telHref(STORE.tel)}
-                      className="inline-flex items-center gap-1.5 font-bold text-[#4E5968] hover:text-[#141A23] tabular-nums"
+                      className="inline-flex items-center gap-1.5 font-bold text-[#64748B] hover:text-[#141A23] tabular-nums"
                     >
                       <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
                       <span>직통 {STORE.tel}</span>
@@ -735,7 +735,7 @@ export default function Home({
                         <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] truncate">
                           분해 고압세척 출고
                         </p>
-                        <p className="mt-0.5 text-hb-xs text-[#4E5968] break-keep">
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] break-keep">
                           냉매·누수 시운전 검수 완료
                         </p>
                       </div>
@@ -746,7 +746,7 @@ export default function Home({
                         <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] truncate">
                           무상 A/S 책임 보증
                         </p>
-                        <p className="mt-0.5 text-hb-xs text-[#4E5968] break-keep">
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] break-keep">
                           에어컨 8개월·가전 4개월 보증
                         </p>
                       </div>
@@ -757,7 +757,7 @@ export default function Home({
                         <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] truncate">
                           직배송·세금계산서
                         </p>
-                        <p className="mt-0.5 text-hb-xs text-[#4E5968] break-keep">
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] break-keep">
                           충청권 직배송·부가세 증빙
                         </p>
                       </div>
@@ -766,8 +766,8 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 풀블리드 쇼룸 비주얼 + 벤토 트레이 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-2xs hb-pedestal-card">
+              {/* 우측 (5열): 풀블리드 쇼룸 비주얼 + 오프라인 스펙 바 + 입고 매물 포디움 트레이 */}
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
                     src="/store-exterior.jpg"
@@ -777,28 +777,61 @@ export default function Home({
                   />
 
                   {/* 좌상단 프로스티드 글래스 플로팅 배지 */}
-                  <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#141A23] shadow-xs">
+                  <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#141A23] shadow-xs">
                     <span className="inline-block w-2 h-2 rounded-full bg-[#0D9488]" />
                     <span>1·2층 직영 쇼룸 상시 개방</span>
                   </div>
 
-                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#141A23]/90 via-[#141A23]/55 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2 border-t border-white/10">
+                  {/* 우상단 영업시간 캡슐 */}
+                  <div className="absolute top-3 right-3 z-10 hidden sm:inline-flex items-center rounded-full bg-[#141A23]/80 backdrop-blur-md px-2.5 py-1 text-hb-xs font-semibold text-white tabular-nums">
+                    {STORE.hours}
+                  </div>
+
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#141A23]/95 via-[#141A23]/60 to-transparent px-4 pt-8 pb-3 text-white flex items-end justify-between gap-2">
                     <div className="min-w-0">
                       <p className="text-hb-xs sm:text-hb-sm font-bold text-white truncate">
                         {STORE.roadAddress} ({STORE.addressNote})
                       </p>
                     </div>
-                    <a
-                      href="#location-section"
-                      className="shrink-0 rounded-full bg-white/20 hover:bg-white/30 px-3 py-1 text-hb-xs font-bold text-white backdrop-blur-md active:scale-[0.96] transition-[background-color,transform] duration-150"
+                    <button
+                      type="button"
+                      onClick={() => {
+                        trackEvent("open_showroom_modal", {
+                          location: "hero_exterior_card",
+                        });
+                        setVisitModalOpen(true);
+                      }}
+                      className="shrink-0 rounded-full bg-white/20 hover:bg-[#E8521A] px-3 py-1 text-hb-xs font-bold text-white backdrop-blur-md active:scale-[0.96] transition-[background-color,transform] duration-150 cursor-pointer"
                     >
-                      오시는 길 →
-                    </a>
+                      1초 길찾기 →
+                    </button>
                   </div>
                 </div>
 
-                {/* 첫 화면에서 즉시 확인하는 실시간 매장 전시 가전 미니 쇼케이스 */}
-                <div className="p-3.5 sm:p-4 bg-[#F7F8FA] flex-1 flex flex-col justify-between">
+                {/* 직영 매장 3대 핵심 원장 스트립 (Dieter Rams Spec Ledger) */}
+                <div className="grid grid-cols-3 divide-x divide-[#E2E6EC] border-y border-[#E2E6EC] bg-white text-center text-hb-xs">
+                  <div className="py-2 px-1.5">
+                    <span className="block font-bold text-[#141A23]">전시 규모</span>
+                    <span className="text-[#0F766E] font-semibold tabular-nums">
+                      1·2층 200대+
+                    </span>
+                  </div>
+                  <div className="py-2 px-1.5">
+                    <span className="block font-bold text-[#141A23]">시운전 확인</span>
+                    <span className="text-[#0369A1] font-semibold">
+                      현장 전원 테스트
+                    </span>
+                  </div>
+                  <div className="py-2 px-1.5">
+                    <span className="block font-bold text-[#141A23]">전용 주차</span>
+                    <span className="text-[#E8521A] font-semibold">
+                      화물·승용 완비
+                    </span>
+                  </div>
+                </div>
+
+                {/* 첫 화면에서 즉시 확인하는 실시간 매장 전시 가전 미니 쇼케이스 (동심원 곡률 적용) */}
+                <div className="p-3 sm:p-3.5 bg-[#F7F8FA] flex-1 flex flex-col justify-between">
                   <div className="flex items-center justify-between px-1 pb-2">
                     <div className="flex items-center gap-1.5">
                       <span className="w-1.5 h-3.5 rounded-full bg-[#E8521A]" />
@@ -815,15 +848,15 @@ export default function Home({
                   </div>
 
                   {heroPreviewProducts.length > 0 ? (
-                    <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
-                      {heroPreviewProducts.map((item) => {
+                    <div className="grid grid-cols-3 gap-2">
+                      {heroPreviewProducts.map((item, idx) => {
                         const thumb = splitImages(item.image_url)[0];
                         const cat = normalizeProductCategory(item.category);
                         return (
                           <Link
                             key={item.id}
                             href={`/${item.id}`}
-                            className="group relative block min-w-0 rounded-xl border border-[#E2E6EC] bg-white p-2 shadow-2xs hover:border-[#CBD2DC] hover:shadow-card transition-[border-color,box-shadow,transform] duration-150"
+                            className="group relative block min-w-0 rounded-xl border border-[#E2E6EC] bg-white p-1.5 sm:p-2 shadow-2xs hover:border-[#141A23] hover:shadow-card active:scale-[0.96] transition-[border-color,box-shadow,transform] duration-150"
                           >
                             <div className="relative aspect-square w-full rounded-lg overflow-hidden hb-studio-backdrop">
                               <SafeImg
@@ -831,9 +864,12 @@ export default function Home({
                                 alt={item.title}
                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                               />
+                              <span className="absolute top-1 left-1 rounded bg-[#141A23]/80 px-1.5 py-0.5 font-mono text-hb-xs font-bold text-white leading-none tabular-nums">
+                                0{idx + 1}
+                              </span>
                             </div>
-                            <div className="px-1 pt-2 pb-0.5">
-                              <p className="truncate text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors">
+                            <div className="px-0.5 pt-1.5 pb-0.5">
+                              <p className="truncate text-hb-xs font-semibold text-[#141A23] group-hover:text-[#E8521A] transition-colors">
                                 {item.title}
                               </p>
                               <span className="mt-0.5 block truncate text-hb-xs font-bold text-[#141A23] tabular-nums">
@@ -845,7 +881,7 @@ export default function Home({
                       })}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-3 gap-2">
                       {Array.from({ length: 3 }).map((_, idx) => (
                         <div
                           key={idx}

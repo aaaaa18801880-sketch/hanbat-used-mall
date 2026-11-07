@@ -50,6 +50,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **37** | `EVO-037` | 신뢰도 높은 공식 전시장 실물 외관 사진 전역 연동 및 AI 검색 대표 썸네일(GEO/AEO) 최적화 | [public/store-exterior.jpg](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/public/store-exterior.jpg)<br>[app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)<br>[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts)<br>[app/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/layout.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 30)** |
 | **38** | `EVO-038` | 당근마켓 서브프로필 연동 및 공식 웹사이트(hanbatmall.com) 최우선 권위 출처(Canonical Authority) 위계 확립 | [lib/site.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/site.ts)<br>[app/layout.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/layout.tsx)<br>[app/llms.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms.txt/route.ts)<br>[app/llms-full.txt/route.ts](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/llms-full.txt/route.ts) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 31)** |
 | **39** | `EVO-039` | garden-skills web-design-engineer 방법론(Five Dials·Anti-Cliche·Zero Layout Shift) 기반 홈페이지 정밀 고도화 | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/home/ai-recommendation-guide-section.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/ai-recommendation-guide-section.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 32)** |
+| **40** | `EVO-040` | garden-skills web-design-engineer v1.3.0 전역 정밀 쇼룸 고도화 (Bento 컨트롤 타일, 쇼룸 스펙 원장, 전역 토큰 100% 통일) | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 33)** |
 
 ---
 
@@ -300,3 +301,13 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - `components/products/v2-spatial-fit-planner.tsx`: 조작부 상단 배치(4단계 인터랙션), 경고/공간 시각화, 비용 구분, tabular-nums.
 - **검증 계획**:
   - 8대 통합 검증 러너 100% 통과 및 원격 배포 완료.
+
+### EVO-040: garden-skills web-design-engineer v1.3.0 전역 정밀 쇼룸 고도화
+- **개선 방안**:
+  - `app/globals.css`: `oklch()` 지각적 균일 색채 변수, motion easing, `.hb-studio-backdrop` 및 `.hb-ledger-bar` 원장 유틸리티 추가.
+  - `components/home/category-pictogram-bar.tsx`: 상단 빈 여백 데드스페이스 해소, 8열 벤토 컨트롤 타일(Bento Control Tile), Zero CLS 인디케이터 바.
+  - `components/home/home-page-client.tsx`: 히어로 우측 쇼룸 외관 3대 핵심 원장 스트립(규모, 시운전, 주차) 및 01~03 실매물 미리보기 포디움 트레이.
+  - `components/products/product-card.tsx`: 가격 우측 직영 검수 마이크로 스탬프("검수필") 및 스펙 가독성 강화.
+  - `lib/ui.tsx`, `components/products/product-compare-modal.tsx`, `app/gallery/page.tsx`: 잔여 구형 컬러 코드(#191F28, #F05600, #E5E8EB, #F2F4F6 등) 100% 완전 퇴출 및 쇼룸 표준 토큰 통일.
+- **검증 계획**:
+  - 8대 통합 검증 러너(`node scripts/run-all-verifications.mjs`) 100% 통과.

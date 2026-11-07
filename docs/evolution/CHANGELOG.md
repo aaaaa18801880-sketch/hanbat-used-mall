@@ -1065,3 +1065,44 @@
 - **7. eslint**: PASS (20.63s) — 0 errors, 0 warnings
 - **8. next build**: PASS (17.14s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~43s)
+
+---
+
+## 🚀 [Cycle 33] 2026-11-07 — garden-skills web-design-engineer (v1.3.0) 규격 전역 정밀 쇼룸 디자인 엔지니어링 고도화 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-040`
+- **핵심 목표**:
+  - `garden-skills`의 `web-design-engineer` (v1.3.0) 6단계 워크플로우(Step 0 팩트 검증 → Step 2b 5-Dial Design Read → Step 3a 4대 포지셔닝 질문 → Step 3 디자인 시스템 & oklch 토큰 선언 → Step 4~5 맥락적 실패 패턴 교정 및 구현 → Step 6 8대 게이트 검증)를 한밭중고전자 코드베이스에 전면 적용.
+  - 카테고리 독(`category-pictogram-bar.tsx`)의 상단 데드스페이스(`<span className="h-4" />`)를 제거하고 좌측 아이콘 + 우측 B2B/실시간 대수 배지, 하단 라벨의 8열 벤토 컨트롤 타일(Bento Control Tile) 및 Zero CLS 인디케이터 구조로 개편.
+  - 히어로 섹션(`home-page-client.tsx`) 우측 직영 쇼룸 외관 카드 하단에 3대 핵심 원장 스트립(규모, 시운전, 주차) 및 01~03 실매물 미리보기 포디움 트레이 신설.
+  - 상품 카드(`product-card.tsx`) 가격 우측 직영 검수 마이크로 스탬프("검수필") 및 스펙 가독성 강화.
+  - 전역 크롬(`lib/ui.tsx`), 비교 모달(`product-compare-modal.tsx`), 실매물 갤러리(`app/gallery/page.tsx`)에 잔존하던 구형 레거시 컬러(#191F28, #F05600, #FF6F0F, #E5E8EB, #F2F4F6 등) 100% 완전 퇴출 및 쇼룸 표준 토큰(#141A23, #E8521A, #E2E6EC, #F1F3F6, #F7F8FA, #64748B, #334155) 단일화.
+
+### 2. 코드 변경 요약
+- **[app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)**:
+  - `:root`에 `oklch()` 지각적 균일 색채 변수(`--hb-navy-oklch`, `--hb-orange-oklch`) 및 모션 이징 토큰(`--hb-ease-out`) 선언.
+  - `.hb-studio-backdrop` 무채색 스튜디오 조명 radial-gradient 정밀화 및 `.hb-ledger-bar` 정밀 스펙 원장 유틸리티 클래스 추가.
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 8개 품목 카드 상단 빈 공간 제거 후 [좌: 아이콘 / 우: B2B·쇼룸 배지], [하단: 품목명 + 전시 대수·스펙]의 8열 벤토 컨트롤 타일로 재설계.
+  - 절대 위치(`absolute bottom-0`) 기반 불변 인디케이터로 탭 전환 시 레이아웃 시프트(CLS) 0px 유지.
+- **[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)**:
+  - 우측 쇼룸 외관 카드 하단에 3열 마이크로 스펙 바(전시 규모 1·2층 200대+ · 시운전 확인 현장 전원 테스트 · 전용 주차 화물·승용 완비) 헤어라인 원장 연동.
+  - 하단 실매물 미리보기 3종에 01~03 모노스페이스 워터마크 인덱스 부여 및 tactile 피드백 강화.
+- **[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)**:
+  - 가격 영역 우측에 청결·안심을 상징하는 직영 검수 마이크로 스탬프("검수필") 추가.
+- **[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)**:
+  - `HanbatBrandLogo`, `SafeImg`, `SiteHeader`, 모바일 드로어, `QuoteBasketFloatingBar`, `SiteFooter`, `MobileCtaBar` 전역에서 구형 토큰(#191F28, #F05600, #E5E8EB, #F2F4F6 등) 완전 제거.
+- **[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx)** & **[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx)**:
+  - 총 281개 잔여 레거시 컬러 코드를 쇼룸 표준 토큰으로 일괄 치환 (검증 필수 문자열 100% 보존).
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.38s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.23s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.29s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.30s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.28s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (5.48s) — 0 errors
+- **7. eslint**: PASS (13.03s) — 0 errors, 0 warnings
+- **8. next build**: PASS (16.19s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~42s)

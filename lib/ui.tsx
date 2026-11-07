@@ -178,8 +178,8 @@ export function HanbatBrandLogo({
   dark?: boolean;
   size?: "default" | "compact";
 }) {
-  const frameBg = dark ? "#242C38" : "#191F28";
-  const accentFill = dark ? "#FF7A45" : "#FF6F0F";
+  const frameBg = dark ? "#1E2736" : "#141A23";
+  const accentFill = dark ? "#FF8A50" : "#E8521A";
 
   return (
     <span className="inline-flex items-center gap-2.5 sm:gap-3 select-none">
@@ -215,7 +215,7 @@ export function HanbatBrandLogo({
             size === "compact"
               ? "text-hb-lg"
               : "text-hb-lg sm:text-hb-xl"
-          } ${dark ? "text-white" : "text-[#191F28]"}`}
+          } ${dark ? "text-white" : "text-[#141A23]"}`}
         >
           {STORE.name}
         </span>
@@ -252,9 +252,9 @@ export function SafeImg({
       <div
         role="img"
         aria-label={alt || "상품 이미지 준비 중"}
-        className={`flex flex-col items-center justify-center gap-1 bg-[#F2F4F6] text-[#6B7684] text-hb-xs font-medium select-none ${className}`}
+        className={`flex flex-col items-center justify-center gap-1 bg-[#F1F3F6] text-[#64748B] text-hb-xs font-medium select-none ${className}`}
       >
-        <Icon d={ICON.image} className="w-5 h-5 text-[#8B95A1]/70" />
+        <Icon d={ICON.image} className="w-5 h-5 text-[#94A3B8]/70" />
         <span>이미지 준비 중</span>
       </div>
     );
@@ -501,7 +501,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#191F28] focus:px-4 focus:py-2.5 focus:text-hb-sm focus:font-bold focus:text-white focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-[#141A23] focus:px-4 focus:py-2.5 focus:text-hb-sm focus:font-bold focus:text-white focus:shadow-lg"
       >
         본문 바로가기
       </a>
@@ -512,7 +512,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           <div className="flex items-center shrink-0">
             <Link
               href="/"
-              className="inline-flex items-center py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28]"
+              className="inline-flex items-center py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
               aria-label="한밭중고전자 홈으로 이동"
             >
               <HanbatBrandLogo />
@@ -532,10 +532,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-colors whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28] ${
+                  className={`relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.96] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
                     isActive
-                      ? "text-[#F05600] bg-[#FFF4EE] font-bold"
-                      : "text-[#191F28] hover:text-[#F05600] hover:bg-[#F9FAFB]"
+                      ? "text-[#E8521A] bg-[#FFF4EE] font-bold"
+                      : "text-[#141A23] hover:text-[#E8521A] hover:bg-[#F7F8FA]"
                   }`}
                 >
                   {item.label}
@@ -549,12 +549,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#FFF4EE] px-3.5 h-10 text-hb-xs font-bold text-[#F05600] hover:bg-[#FF6F0F] hover:text-white transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#FFF4EE] border border-[#FADCD0] px-3.5 h-10 text-hb-xs font-bold text-[#E8521A] hover:bg-[#E8521A] hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 whitespace-nowrap"
                 title="담아둔 관심 매물 견적함 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#F05600] px-1 text-hb-xs font-bold text-white tabular-nums">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#E8521A] px-1 text-hb-xs font-bold text-white tabular-nums">
                   {basketCount}
                 </span>
               </Link>
@@ -565,12 +565,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-[#F2F4F6] px-3.5 h-10 text-hb-sm font-bold text-[#191F28] hover:bg-[#E5E8EB] transition-colors whitespace-nowrap tabular-nums"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-[#F1F3F6] px-3.5 h-10 text-hb-sm font-bold text-[#141A23] hover:bg-[#E2E6EC] active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap tabular-nums"
               aria-label={`전화 상담 ${STORE.tel}`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#F05600]" />
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
               <span>전화 상담</span>
-              <span className="hidden xl:inline text-[#4E5968] font-bold">
+              <span className="hidden xl:inline text-[#334155] font-bold">
                 {STORE.tel}
               </span>
             </a>
@@ -594,7 +594,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28] lg:hidden hover:bg-[#F2F4F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#191F28] transition-colors"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] lg:hidden hover:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150"
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >
@@ -617,7 +617,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           aria-modal="true"
           aria-label="모바일 전체 메뉴"
         >
-          <div className="flex h-[66px] items-center justify-between border-b border-[#E5E8EB] px-4 sm:px-6 bg-white">
+          <div className="flex h-[66px] items-center justify-between border-b border-[#E2E6EC] px-4 sm:px-6 bg-white">
             <Link
               href="/"
               onClick={() => setMenuOpen(false)}
@@ -628,7 +628,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(false)}
-              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28]"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] active:scale-[0.96] transition-transform"
               aria-label="메뉴 닫기"
             >
               <Icon d={ICON.close} className="w-5 h-5" />
@@ -640,10 +640,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             aria-label="모바일 메뉴 목록"
           >
             <div>
-              <p className="text-hb-xs font-bold text-[#6B7684] mb-2">
+              <p className="text-hb-xs font-bold text-[#64748B] mb-2">
                 주요 메뉴
               </p>
-              <ul className="divide-y divide-[#E5E8EB] border-y border-[#E5E8EB]">
+              <ul className="divide-y divide-[#E2E6EC] border-y border-[#E2E6EC]">
                 {HEADER_NAV.map((item) => {
                   const isActive =
                     item.matchPrefix && pathname?.startsWith(item.matchPrefix);
@@ -654,14 +654,14 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                         onClick={() => setMenuOpen(false)}
                         className={`flex items-center justify-between py-3.5 text-hb-base font-bold transition-colors ${
                           isActive
-                            ? "text-[#F05600]"
-                            : "text-[#191F28] hover:text-[#F05600]"
+                            ? "text-[#E8521A]"
+                            : "text-[#141A23] hover:text-[#E8521A]"
                         }`}
                       >
                         <span>{item.label}</span>
                         <Icon
                           d={ICON.right}
-                          className="w-4 h-4 text-[#8B95A1]"
+                          className="w-4 h-4 text-[#94A3B8]"
                         />
                       </Link>
                     </li>
@@ -671,7 +671,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             </div>
 
             <div>
-              <p className="text-hb-xs font-bold text-[#6B7684] mb-2.5">
+              <p className="text-hb-xs font-bold text-[#64748B] mb-2.5">
                 품목별 바로가기
               </p>
               <div className="grid grid-cols-2 gap-2">
@@ -680,24 +680,24 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                     key={cat.label}
                     href={cat.href}
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center justify-between rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] px-3.5 py-3 text-hb-sm font-semibold text-[#191F28] hover:border-[#191F28]"
+                    className="flex items-center justify-between rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-3 text-hb-sm font-semibold text-[#141A23] hover:border-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
                   >
                     <span className="truncate">{cat.label}</span>
                     <Icon
                       d={ICON.right}
-                      className="w-3.5 h-3.5 text-[#F05600] shrink-0"
+                      className="w-3.5 h-3.5 text-[#E8521A] shrink-0"
                     />
                   </Link>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-lg border border-[#E5E8EB] bg-[#F2F4F6] p-4 text-hb-sm text-[#4E5968] space-y-1.5">
+            <div className="rounded-lg border border-[#E2E6EC] bg-[#F1F3F6] p-4 text-hb-sm text-[#334155] space-y-1.5">
               <div className="flex items-center justify-between">
-                <p className="font-bold text-[#191F28]">
+                <p className="font-bold text-[#141A23]">
                   {STORE.name} 직영 매장
                 </p>
-                <span className="rounded bg-[#191F28] px-2 py-0.5 text-hb-xs font-bold text-white">
+                <span className="rounded bg-[#141A23] px-2 py-0.5 text-hb-xs font-bold text-white">
                   {STORE.since}년 개업
                 </span>
               </div>
@@ -708,14 +708,14 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                 영업시간: {STORE.hours} ({STORE.closed})
               </p>
               <p className="tabular-nums">
-                대표전화: <strong className="text-[#191F28]">{STORE.tel}</strong>{" "}
+                대표전화: <strong className="text-[#141A23]">{STORE.tel}</strong>{" "}
                 · 직통:{" "}
-                <strong className="text-[#191F28]">{STORE.mobile}</strong>
+                <strong className="text-[#141A23]">{STORE.mobile}</strong>
               </p>
             </div>
           </nav>
 
-          <div className="grid grid-cols-2 gap-2.5 border-t border-[#E5E8EB] bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+          <div className="grid grid-cols-2 gap-2.5 border-t border-[#E2E6EC] bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
             <a
               href={telHref(STORE.tel)}
               onClick={() =>
@@ -781,7 +781,7 @@ export function QuoteBasketFloatingBar() {
         }`}
       >
         {expanded && (
-          <div className="border-b border-white/15 p-3.5 max-h-[260px] overflow-y-auto space-y-2 bg-[#191F28] rounded-t-2xl">
+          <div className="border-b border-white/15 p-3.5 max-h-[260px] overflow-y-auto space-y-2 bg-[#141A23] rounded-t-2xl">
             <div className="flex items-center justify-between text-hb-xs text-white/75 pb-1">
               <span className="font-semibold">
                 담아둔 관심 매물 ({items.length}종 · 총 {totalUnits}대)
@@ -901,7 +901,7 @@ export function QuoteBasketFloatingBar() {
             onClick={() => setExpanded((v) => !v)}
             className="flex min-w-0 items-center gap-1.5 text-left text-hb-xs sm:text-hb-sm font-semibold text-white hover:text-[#FF8A50]"
           >
-            <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#F05600] px-1.5 text-hb-xs font-bold text-white tabular-nums">
+            <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#E8521A] px-1.5 text-hb-xs font-bold text-white tabular-nums">
               {items.length}
             </span>
             <span className="truncate">
@@ -1087,14 +1087,14 @@ export function SiteFooter({
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
       <QuickInquiryModal />
-      <footer className="relative bg-[#191F28] text-white/80 mt-auto border-t border-[#242C38]">
+      <footer className="relative bg-[#141A23] text-white/80 mt-auto border-t border-[#1E2736]">
         <div className="hb-container py-10 sm:py-14">
           <div className="grid gap-8 lg:grid-cols-12 pb-8 border-b border-white/10">
             {/* 브랜드 및 직통 고객센터 영역 (타이포그래피 중심 절제형) */}
             <div className="lg:col-span-5 space-y-3.5">
               <div className="flex items-center gap-3">
                 <HanbatBrandLogo dark size="compact" />
-                <span className="rounded bg-[#F05600]/20 border border-[#FF6F0F]/40 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
+                <span className="rounded bg-[#E8521A]/20 border border-[#E8521A]/40 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
                   {STORE.since}년 개업
                 </span>
               </div>
@@ -1398,28 +1398,28 @@ export function MobileCtaBar({
                   }
                 }}
                 aria-pressed={inBasket}
-                className={`flex h-10 shrink-0 items-center gap-1 rounded-lg border px-2.5 text-hb-xs font-bold transition-colors ${
+                className={`flex h-10 shrink-0 items-center gap-1 rounded-lg border px-2.5 text-hb-xs font-bold transition-[background-color,border-color,transform] duration-150 active:scale-[0.96] ${
                   inBasket
-                    ? "border-[#191F28] bg-[#191F28] text-white"
-                    : "border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28]"
+                    ? "border-[#141A23] bg-[#141A23] text-white"
+                    : "border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23]"
                 }`}
               >
                 <Icon
                   d={inBasket ? ICON.check : ICON.plus}
                   className={`h-3.5 w-3.5 ${
-                    inBasket ? "text-[#FF8A50]" : "text-[#F05600]"
+                    inBasket ? "text-[#FF8A50]" : "text-[#E8521A]"
                   }`}
                 />
                 <span>{inBasket ? "담김" : "견적함"}</span>
               </button>
             )}
             <div className="min-w-0">
-              <span className="block truncate text-hb-xs font-semibold text-[#6B7684]">
+              <span className="block truncate text-hb-xs font-semibold text-[#64748B]">
                 {productContext.category}
               </span>
               <strong
                 className={`block truncate text-hb-sm font-bold leading-tight tabular-nums ${
-                  sold ? "text-[#6B7684]" : "text-[#191F28]"
+                  sold ? "text-[#64748B]" : "text-[#141A23]"
                 }`}
               >
                 {priceLabel}
@@ -1436,9 +1436,9 @@ export function MobileCtaBar({
                 })
               }
               aria-label="전화 상담"
-              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] text-[#191F28]"
+              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150"
             >
-              <Icon d={ICON.phone} className="h-4 w-4 text-[#F05600]" />
+              <Icon d={ICON.phone} className="h-4 w-4 text-[#E8521A]" />
             </a>
             <a
               href={smsHref(STORE.mobile, productSmsBody)}
@@ -1448,7 +1448,7 @@ export function MobileCtaBar({
                 })
               }
               aria-label="문자 문의"
-              className="hidden xs:inline-flex h-10 items-center justify-center rounded-lg border border-[#E5E8EB] bg-white px-2.5 text-hb-xs font-bold text-[#191F28]"
+              className="hidden xs:inline-flex h-10 items-center justify-center rounded-lg border border-[#E2E6EC] bg-white px-2.5 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
             >
               <span>문자</span>
             </a>
@@ -1462,13 +1462,13 @@ export function MobileCtaBar({
                 })
               }
               aria-label="카카오톡 문의"
-              className="grid h-10 w-10 place-items-center rounded-lg bg-[#FEE500] text-[#191600]"
+              className="grid h-10 w-10 place-items-center rounded-lg bg-[#FEE500] text-[#191600] active:scale-[0.96] transition-transform duration-150"
             >
               <Icon d={ICON.chat} className="h-4 w-4" />
             </a>
             <Link
               href={productContext.inquiryHref}
-              className="hb-btn-accent h-10 px-3.5 text-hb-xs whitespace-nowrap"
+              className="hb-btn-accent h-10 px-3.5 text-hb-xs whitespace-nowrap active:scale-[0.96] transition-transform duration-150"
             >
               <span>문의하기</span>
             </Link>
