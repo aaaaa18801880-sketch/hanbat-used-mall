@@ -42,6 +42,7 @@ import { ProductStructuredDescription } from "../../components/products/product-
 import { RecentViewedStrip } from "../../components/products/product-compare-modal";
 import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
 import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
+import { RefrigeratorCompartmentDiagram } from "../../components/products/refrigerator-compartment-diagram";
 
 export const dynamic = "force-dynamic";
 
@@ -484,6 +485,13 @@ export default async function ProductDetailPage({
               images={images}
               status={product.status}
               createdAt={product.created_at}
+            />
+
+            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (상하단 2도어, 4도어, 김치냉장고 등) */}
+            <RefrigeratorCompartmentDiagram
+              title={product.title}
+              description={product.description}
+              category={categoryLabel}
             />
 
             {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}

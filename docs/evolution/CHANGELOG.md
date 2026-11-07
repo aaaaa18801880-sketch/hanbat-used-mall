@@ -1150,3 +1150,42 @@
 - **7. eslint**: PASS (14.07s) — 0 errors, 0 warnings
 - **8. next build**: PASS (17.22s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~44s)
+
+---
+
+## 🚀 [Cycle 35] 2026-11-08 — 다도어 냉장·냉동고 실물 청사진 다이어그램 위젯(EVO-042: RefrigeratorCompartmentDiagram) 구축 (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-042`
+- **핵심 목표**:
+  - 업소용 냉장고(유니크 25박스/30박스/45박스/65박스 등) 및 다도어 가전 상품 상세 페이지에서 고객이 가장 빈번하게 문의하는 "위가 냉동인가요, 아래가 냉동인가요?", "4도어 중 몇 칸이 냉동이고 몇 칸이 냉장인가요?", "적정 보관 온도는 어떻게 되나요?" 문제를 시각적으로 즉시 해결.
+  - 실제 냉장고 도어 비율과 메탈릭 질감을 반영한 실물 청사진 모형 다이어그램(`components/products/refrigerator-compartment-diagram.tsx`) 신설 및 상품 상세 페이지(`app/[id]/page.tsx`)에 연동.
+  - 비냉장고 품목(세탁기, TV, 에어컨 등)에 대해서는 `null`을 반환하는 안전 필터링(Zero CLS) 구현.
+
+### 2. 코드 변경 요약
+- **[components/products/refrigerator-compartment-diagram.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/refrigerator-compartment-diagram.tsx)** (신규):
+  - `detectRefrigeratorLayout(title, description, category)` 파서 알고리즘 구현:
+    - 2도어 상하 분할: 상단 냉동 1칸 / 하단 냉장 1칸 (25/30박스 표준), 상단 냉장 / 하단 냉동, 2도어 올냉동, 2도어 올냉장.
+    - 4도어 2x2 그리드: 45박스 1/4 냉동(상단 좌측 1칸 냉동 / 나머지 3칸 냉장), 반반 냉동(상 2칸 냉장 / 하 2칸 냉동), 4도어 올냉동, 4도어 올냉장.
+    - 스탠드형 김치냉장고: 3단 분할(상칸 도어 + 중칸 서랍 + 하칸 서랍).
+    - 냉각 방식 자동 판별: 직냉식(내벽 직접 냉각, 수분 보존, 주기적 제상 가이드) vs 간냉식(팬 강제 대류, No-Frost).
+  - Dieter Rams / Pentagram Industrial Blueprint 스타일의 스테인리스 캐비닛 섀시 및 상단 마이크로프로세서 디지털 LED 온도 디스플레이 모형.
+  - 칸별 색채 및 위계:
+    - ❄️ **급속 냉동실**: 딥 슬레이트 네이비(`bg-[#1E293B]`), 적정 권장 온도 `-15℃ ~ -24℃`, 권장 품목(육류, 생선, 소포장 식자재, 얼음).
+    - 🥬 **신선 냉장실**: 클린 틸(`bg-[#F0FDFA]`, border `#99F6E4`), 적정 권장 온도 `0℃ ~ +7℃`, 권장 품목(채소, 과일, 반찬, 소스, 유제품, 음료).
+    - 🌶️ **정밀 맞춤실**: 웜 앰버(`bg-[#FFFBEB]`), 적정 권장 온도 `-1℃ ~ +2℃`, 권장 품목(김치, 발효식품, 육류 숙성).
+  - 탭/클릭 시 선택 구역으로 즉각 전환되는 상세 스펙 원장(권장 식재료 칩, 전체 도어 요약 표, 직냉식/간냉식 맞춤 관리 가이드).
+  - `AGENTS.md` 가드레일 준수: 임의 픽셀 폰트 배제(`text-hb-*` 준수), JSX 텍스트 이모지 0건(SVG `Icon` 전용), 동심원 곡률 적용.
+- **[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx)**:
+  - `RefrigeratorCompartmentDiagram` 컴포넌트 임포트 및 좌측 컬럼 `ProductDetailGallery` 바로 아래 마운트.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.37s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.23s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.24s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.31s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.31s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.07s) — 0 errors
+- **7. eslint**: PASS (13.95s) — 0 errors, 0 warnings
+- **8. next build**: PASS (15.14s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~38s)
