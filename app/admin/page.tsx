@@ -8,6 +8,7 @@ import {
   supabase,
   isAuthorizedAdminUser,
   getAdminAuthHeaders,
+  revalidateAdminCache,
 } from "../../lib/supabase";
 import {
   STORE,
@@ -904,6 +905,7 @@ export default function IntegratedAdminDashboard() {
       }
 
       resetProductForm();
+      void revalidateAdminCache(editingProductId || undefined);
       await fetchAllAdminData();
     } catch (err: unknown) {
       toast.error(
@@ -932,6 +934,7 @@ export default function IntegratedAdminDashboard() {
       setProducts((prev) =>
         prev.map((p) => (p.id === productId ? { ...p, status: normalized } : p))
       );
+      void revalidateAdminCache(productId);
       toast.success(`상품 상태가 '${normalized}'(으)로 변경되었습니다.`);
     } catch {
       toast.error("상품 상태 변경에 실패했습니다.");
@@ -963,6 +966,7 @@ export default function IntegratedAdminDashboard() {
       }
 
       setProducts((prev) => prev.filter((p) => p.id !== product.id));
+      void revalidateAdminCache(product.id);
       toast.success("상품이 삭제되었습니다.");
     } catch {
       toast.error("상품 삭제 중 오류가 발생했습니다.");

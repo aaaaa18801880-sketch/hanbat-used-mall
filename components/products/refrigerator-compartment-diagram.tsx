@@ -787,36 +787,37 @@ export function RefrigeratorCompartmentDiagram({
           </p>
         </div>
 
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#F7F8FA] px-3 py-1.5 text-hb-xs font-semibold text-[#334155] border border-[#E2E6EC] shrink-0">
-          <Icon d={ICON.sparkles} className="h-3.5 w-3.5 text-[#E8521A]" />
-          <span>도어 칸을 누르면 구역별 스펙이 전환됩니다</span>
+        {/* 차분한 인라인 안내 문구 (버튼 오인 Fake Affordance 완전 제거) */}
+        <div className="flex items-center gap-1.5 text-hb-xs text-[#64748B] shrink-0">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#E8521A]" aria-hidden="true" />
+          <span>도어 칸을 누르면 구역별 상세 스펙이 전환됩니다</span>
         </div>
       </div>
 
-      {/* 2. 메인 2열 레이아웃 (좌: 일체형 하드웨어 캐비닛 모형 / 우: 선택 구역 스펙 시트) */}
+      {/* 2. 메인 2열 레이아웃 (좌: 일체형 하드웨어 캐비닛 모형 / 우: 선택 구역 상세 스펙 시트) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
-        {/* A. 좌측 (6열): 상단 빈 여백을 없애고 컨트롤러 베젤을 본체에 일체화한 캐비닛 다이어그램 */}
-        <div className="md:col-span-6 flex flex-col justify-center rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5">
-          <div className="w-full max-w-[380px] mx-auto rounded-2xl border border-[#CBD2DC] bg-white shadow-xs overflow-hidden">
+        {/* A. 좌측 (5열): 컨트롤러 일체화 + 스텐 가전 질감 캐비닛 다이어그램 */}
+        <div className="md:col-span-5 flex flex-col items-center justify-center rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5">
+          <div className="w-full max-w-[340px] sm:max-w-[360px] mx-auto rounded-2xl border border-[#CBD5E1] bg-white shadow-xs overflow-hidden">
             {/* 상단 일체형 디지털 컨트롤러 헤드 베젤 */}
             <div className="flex items-center justify-between bg-[#141A23] px-3.5 py-2.5 text-white border-b border-[#1E2736]">
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#0D9488]" />
+                <span className="h-2 w-2 rounded-full bg-[#10B981]" aria-hidden="true" />
                 <span className="font-mono text-hb-xs font-bold tracking-wider text-white/90">
                   HANBAT CONTROL
                 </span>
               </div>
               <div className="flex items-center gap-1.5 rounded-md bg-white/10 px-2 py-0.5 font-mono text-hb-xs font-bold tabular-nums">
                 <span className="text-[#38BDF8]">
-                  {activeCompartment.tempRange}
+                  {activeCompartment.tempRange.replace(/℃/g, "°C")}
                 </span>
-                <span className="text-white/60">SET</span>
+                <span className="text-white/60 text-[10px]">SET</span>
               </div>
             </div>
 
             {/* 테이블형 냉장고일 때 상판 스테인리스 작업대 표시 */}
             {layout.type === "table_horizontal" && layout.hasMachineryRoom && (
-              <div className="flex items-center justify-between bg-[#F1F5F9] border-b border-[#CBD2DC] px-3.5 py-1.5 text-hb-xs">
+              <div className="flex items-center justify-between bg-[#F1F5F9] border-b border-[#CBD5E1] px-3.5 py-1.5 text-hb-xs">
                 <span className="font-mono font-bold text-[#334155]">
                   STAINLESS WORKTOP · 상판 작업대
                 </span>
@@ -826,7 +827,7 @@ export function RefrigeratorCompartmentDiagram({
               </div>
             )}
 
-            {/* 캐비닛 도어 그리드 영역 (내부 텍스트 잘림 제로) */}
+            {/* 캐비닛 도어 그리드 영역 (스튜디오 쿨그레이 / 화이트 스텐 질감) */}
             <div className="p-2.5 bg-[#F1F3F6]">
               {/* Case 1: 테이블형 / 양문형 좌우 수평 배치 */}
               {layout.type === "table_horizontal" && (
@@ -849,35 +850,35 @@ export function RefrigeratorCompartmentDiagram({
                           key={comp.id}
                           type="button"
                           onClick={() => setSelectedId(comp.id)}
-                          className={`group relative flex flex-col justify-between rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer min-h-[124px] ${
+                          className={`group relative flex flex-col justify-between rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer min-h-[110px] sm:min-h-[118px] ${
                             isSelected
-                              ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
-                              : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
+                              ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
+                              : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
                           }`}
                         >
                           <div className="flex items-center justify-between gap-1 w-full">
                             <span
-                              className={`inline-flex items-center rounded px-1.5 py-0.5 text-hb-xs font-bold leading-none ${
+                              className={`inline-flex items-center rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
                                 isSelected
                                   ? isFreeze
                                     ? "bg-[#0284C7] text-white"
-                                    : "bg-[#0D9488] text-white"
+                                    : "bg-[#059669] text-white"
                                   : isFreeze
-                                  ? "bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]"
-                                  : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                                  ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
+                                  : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
                               }`}
                             >
                               {isFreeze ? "냉동" : "냉장"}
                             </span>
                             <span
-                              className={`h-1.5 w-5 rounded-full ${
-                                isSelected ? "bg-white/35" : "bg-[#CBD2DC]"
+                              className={`h-1 w-6 rounded-full transition-colors ${
+                                isSelected ? "bg-white/40" : "bg-[#CBD5E1]"
                               }`}
                               aria-hidden="true"
                             />
                           </div>
 
-                          <div className="my-2">
+                          <div className="my-1.5 min-w-0">
                             <strong
                               className={`block text-hb-sm font-bold leading-tight break-keep ${
                                 isSelected
@@ -885,23 +886,23 @@ export function RefrigeratorCompartmentDiagram({
                                   : "text-[#141A23] group-hover:text-[#E8521A]"
                               }`}
                             >
-                              {comp.shortPos}
+                              {stripParens(comp.roleName)}
                             </strong>
                             <span
-                              className={`mt-0.5 block text-hb-xs font-semibold break-keep ${
-                                isSelected ? "text-[#FF8A50]" : "text-[#64748B]"
+                              className={`mt-0.5 block text-hb-xs font-medium ${
+                                isSelected ? "text-white/70" : "text-[#64748B]"
                               }`}
                             >
-                              {stripParens(comp.roleName)}
+                              {comp.shortPos}
                             </span>
                           </div>
 
                           <div
                             className={`font-mono text-hb-xs font-bold tabular-nums whitespace-nowrap ${
-                              isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                              isSelected ? "text-[#38BDF8]" : "text-[#334155]"
                             }`}
                           >
-                            {comp.tempRange}
+                            {comp.tempRange.replace(/℃/g, "°C")}
                           </div>
                         </button>
                       );
@@ -910,7 +911,7 @@ export function RefrigeratorCompartmentDiagram({
 
                   {/* 우측 기계실 (컴프레서 챔버) */}
                   {layout.hasMachineryRoom && (
-                    <div className="col-span-3 rounded-xl border border-[#CBD2DC] bg-[#E2E6EC]/70 p-2.5 flex flex-col justify-between items-center text-center select-none">
+                    <div className="col-span-3 rounded-xl border border-[#CBD5E1] bg-[#E2E8F0] p-2.5 flex flex-col justify-between items-center text-center select-none">
                       <span className="font-mono text-hb-xs font-bold text-[#334155]">
                         기계실
                       </span>
@@ -921,7 +922,7 @@ export function RefrigeratorCompartmentDiagram({
                         <div className="h-1 bg-[#94A3B8] rounded-full" />
                       </div>
                       <span className="font-mono text-hb-xs font-semibold text-[#64748B]">
-                        COMP
+                        COMP UNIT
                       </span>
                     </div>
                   )}
@@ -940,10 +941,10 @@ export function RefrigeratorCompartmentDiagram({
                         key={comp.id}
                         type="button"
                         onClick={() => setSelectedId(comp.id)}
-                        className={`group relative flex items-center justify-between gap-3 rounded-xl p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full min-h-[88px] ${
+                        className={`group relative flex items-center justify-between gap-3 rounded-xl p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full min-h-[84px] ${
                           isSelected
-                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
-                            : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
+                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
+                            : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
                         }`}
                       >
                         <div className="space-y-1 min-w-0">
@@ -953,10 +954,10 @@ export function RefrigeratorCompartmentDiagram({
                                 isSelected
                                   ? isFreeze
                                     ? "bg-[#0284C7] text-white"
-                                    : "bg-[#0D9488] text-white"
+                                    : "bg-[#059669] text-white"
                                   : isFreeze
-                                  ? "bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]"
-                                  : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                                  ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
+                                  : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
                               }`}
                             >
                               {isFreeze ? "냉동구역" : "냉장구역"}
@@ -973,7 +974,7 @@ export function RefrigeratorCompartmentDiagram({
                           </div>
                           <p
                             className={`text-hb-xs font-medium break-keep ${
-                              isSelected ? "text-white/75" : "text-[#64748B]"
+                              isSelected ? "text-white/70" : "text-[#64748B]"
                             }`}
                           >
                             권장 보관: {comp.recommendedItems.slice(0, 3).join(", ")}
@@ -983,14 +984,14 @@ export function RefrigeratorCompartmentDiagram({
                         <div className="flex items-center gap-2.5 shrink-0">
                           <span
                             className={`font-mono text-hb-xs sm:text-hb-sm font-bold tabular-nums whitespace-nowrap ${
-                              isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                              isSelected ? "text-[#38BDF8]" : "text-[#334155]"
                             }`}
                           >
-                            {comp.tempRange}
+                            {comp.tempRange.replace(/℃/g, "°C")}
                           </span>
                           <span
-                            className={`w-1.5 h-8 rounded-full ${
-                              isSelected ? "bg-[#E8521A]" : "bg-[#CBD2DC]"
+                            className={`w-1.5 h-7 rounded-full transition-colors ${
+                              isSelected ? "bg-[#E8521A]" : "bg-[#CBD5E1]"
                             }`}
                             aria-hidden="true"
                           />
@@ -1013,10 +1014,10 @@ export function RefrigeratorCompartmentDiagram({
                         key={comp.id}
                         type="button"
                         onClick={() => setSelectedId(comp.id)}
-                        className={`group relative flex flex-col justify-between rounded-xl p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer min-h-[112px] ${
+                        className={`group relative flex flex-col justify-between rounded-xl p-3 sm:p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer min-h-[110px] sm:min-h-[118px] ${
                           isSelected
-                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
-                            : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
+                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
+                            : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-1.5 w-full">
@@ -1025,25 +1026,25 @@ export function RefrigeratorCompartmentDiagram({
                               isSelected
                                 ? isFreeze
                                   ? "bg-[#0284C7] text-white"
-                                  : "bg-[#0D9488] text-white"
+                                  : "bg-[#059669] text-white"
                                 : isFreeze
-                                ? "bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]"
-                                : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                                ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
+                                : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
                             }`}
                           >
                             {isFreeze ? "냉동" : "냉장"}
                           </span>
                           <span
-                            className={`w-1.5 h-4 rounded-full ${
-                              isSelected ? "bg-[#E8521A]" : "bg-[#CBD2DC]"
+                            className={`h-1 w-6 rounded-full transition-colors ${
+                              isSelected ? "bg-white/40" : "bg-[#CBD5E1]"
                             }`}
                             aria-hidden="true"
                           />
                         </div>
 
-                        <div className="my-2">
+                        <div className="my-1.5 min-w-0">
                           <strong
-                            className={`block text-hb-sm font-bold leading-snug break-keep ${
+                            className={`block text-hb-sm font-bold leading-tight break-keep ${
                               isSelected
                                 ? "text-white"
                                 : "text-[#141A23] group-hover:text-[#E8521A]"
@@ -1052,20 +1053,20 @@ export function RefrigeratorCompartmentDiagram({
                             {stripParens(comp.roleName)}
                           </strong>
                           <span
-                            className={`block text-hb-xs font-medium ${
-                              isSelected ? "text-white/75" : "text-[#64748B]"
+                            className={`mt-0.5 block text-hb-xs font-medium ${
+                              isSelected ? "text-white/70" : "text-[#64748B]"
                             }`}
                           >
-                            {comp.shortPos} 도어
+                            {comp.shortPos}
                           </span>
                         </div>
 
                         <div
                           className={`font-mono text-hb-xs font-bold tabular-nums whitespace-nowrap ${
-                            isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                            isSelected ? "text-[#38BDF8]" : "text-[#334155]"
                           }`}
                         >
-                          {comp.tempRange}
+                          {comp.tempRange.replace(/℃/g, "°C")}
                         </div>
                       </button>
                     );
@@ -1084,10 +1085,10 @@ export function RefrigeratorCompartmentDiagram({
                         key={comp.id}
                         type="button"
                         onClick={() => setSelectedId(comp.id)}
-                        className={`group relative flex items-center justify-between gap-3 rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full min-h-[72px] ${
+                        className={`group relative flex items-center justify-between gap-3 rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full min-h-[70px] ${
                           isSelected
-                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
-                            : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
+                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
+                            : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
                         }`}
                       >
                         <div>
@@ -1095,13 +1096,13 @@ export function RefrigeratorCompartmentDiagram({
                             className={`inline-block rounded px-2 py-0.5 text-hb-xs font-bold ${
                               isSelected
                                 ? "bg-white/15 text-[#FF8A50]"
-                                : "bg-[#FFF4EE] text-[#E8521A]"
+                                : "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]"
                             }`}
                           >
                             {comp.shortPos}
                           </span>
                           <strong
-                            className={`mt-1 block text-hb-sm font-bold ${
+                            className={`mt-1 block text-hb-sm font-bold break-keep ${
                               isSelected
                                 ? "text-white"
                                 : "text-[#141A23] group-hover:text-[#E8521A]"
@@ -1112,10 +1113,10 @@ export function RefrigeratorCompartmentDiagram({
                         </div>
                         <span
                           className={`font-mono text-hb-xs font-bold tabular-nums whitespace-nowrap ${
-                            isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                            isSelected ? "text-[#38BDF8]" : "text-[#334155]"
                           }`}
                         >
-                          {comp.tempRange}
+                          {comp.tempRange.replace(/℃/g, "°C")}
                         </span>
                       </button>
                     );
@@ -1125,13 +1126,13 @@ export function RefrigeratorCompartmentDiagram({
             </div>
           </div>
 
-          <p className="mt-2.5 text-center text-hb-xs font-medium text-[#64748B]">
-            실물 도어 배치 기준 인터랙티브 모형 (터치하여 구역 전환)
+          <p className="mt-3 text-center text-hb-xs font-medium text-[#64748B]">
+            실물 규격 비율 기준 다이어그램 (도어를 터치하여 구역 전환)
           </p>
         </div>
 
-        {/* B. 우측 (6열): 선택된 도어 구역 상세 스펙 시트 (불필요한 세로 늘어짐 제거) */}
-        <div className="md:col-span-6 flex flex-col justify-between rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 space-y-4">
+        {/* B. 우측 (7열): 선택 구역 상세 스펙 시트 (중복 제거로 완벽한 좌우 높이 일치) */}
+        <div className="md:col-span-7 flex flex-col justify-between rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 space-y-4">
           <div className="space-y-4">
             {/* 상단 구역 빠른 전환 탭 바 */}
             <div className="flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#F1F3F6]">
@@ -1154,43 +1155,46 @@ export function RefrigeratorCompartmentDiagram({
               })}
             </div>
 
-            {/* 현재 선택 구역 타이틀 & 권장 온도 */}
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div>
-                <span className="text-hb-xs font-bold text-[#64748B] block">
-                  선택된 도어 구역
-                </span>
-                <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <h4 className="text-hb-lg font-bold text-[#141A23] tracking-tight">
-                    {activeCompartment.positionLabel}
-                  </h4>
+            {/* 현재 선택 구역 타이틀 & 권장 온도 (우측 박스 완벽 정렬) */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E6EC]">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-hb-xs font-bold text-[#64748B]">
+                    선택된 도어 구역
+                  </span>
                   <span
-                    className={`rounded-md px-2 py-0.5 text-hb-xs font-bold ${
+                    className={`inline-flex items-center rounded px-1.5 py-0.5 text-hb-xs font-bold leading-none ${
                       activeCompartment.role === "freezer"
-                        ? "bg-[#141A23] text-white"
-                        : "bg-[#F0FDFA] border border-[#CCFBF1] text-[#0F766E]"
+                        ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
+                        : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
                     }`}
                   >
-                    {stripParens(activeCompartment.roleName)}
+                    {activeCompartment.role === "freezer" ? "냉동" : "냉장"}
                   </span>
                 </div>
+                <h4 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight break-keep">
+                  {stripParens(activeCompartment.positionLabel)} · {stripParens(activeCompartment.roleName)}
+                </h4>
               </div>
 
-              <div className="rounded-xl bg-[#FFF4EE] border border-[#FADCD0] px-3 py-1.5 text-right shrink-0">
-                <span className="block text-hb-xs font-bold text-[#64748B]">
+              <div className="rounded-lg bg-white border border-[#CBD5E1] px-3.5 py-2 text-right shadow-2xs shrink-0">
+                <span className="block text-hb-xs font-bold text-[#64748B] text-right">
                   적정 권장 온도
                 </span>
-                <strong className="font-mono text-hb-base font-bold text-[#E8521A] tabular-nums">
-                  {activeCompartment.tempRange}
+                <strong className="font-mono text-hb-base sm:text-hb-lg font-bold text-[#E8521A] tabular-nums whitespace-nowrap block text-right">
+                  {activeCompartment.tempRange.replace(/℃/g, "°C")}
                 </strong>
               </div>
             </div>
 
             {/* 구역 특징 설명 */}
             {activeCompartment.features && (
-              <p className="rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-3 text-hb-sm text-[#334155] leading-relaxed break-keep">
-                {activeCompartment.features}
-              </p>
+              <div className="rounded-xl bg-[#F8FAFC] border border-[#E2E6EC] p-3.5 text-hb-sm text-[#334155] leading-relaxed break-keep">
+                <strong className="text-[#141A23] block font-bold mb-1">
+                  구역 주요 기능 및 수납 특성
+                </strong>
+                <p>{activeCompartment.features}</p>
+              </div>
             )}
 
             {/* 권장 보관 식자재 칩 */}
@@ -1202,67 +1206,12 @@ export function RefrigeratorCompartmentDiagram({
                 {activeCompartment.recommendedItems.map((item, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3 py-1.5 text-hb-xs font-bold text-[#141A23]"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F8FAFC] px-3 py-1.5 text-hb-xs font-bold text-[#141A23]"
                   >
                     <Icon d={ICON.check} className="h-3.5 w-3.5 text-[#E8521A]" />
                     <span>{item}</span>
                   </span>
                 ))}
-              </div>
-            </div>
-
-            {/* 전체 도어 구성 요약 (컴팩트 2열 그리드로 높이 절감 & 이중 괄호 제거) */}
-            <div className="pt-1">
-              <span className="text-hb-xs font-bold text-[#64748B] block mb-2">
-                전체 도어 구성 한눈에 보기
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-                {layout.compartments.map((comp) => {
-                  const isCurrent = comp.id === activeCompartment.id;
-                  const cleanRole = stripParens(comp.roleName);
-
-                  return (
-                    <button
-                      key={comp.id}
-                      type="button"
-                      onClick={() => setSelectedId(comp.id)}
-                      className={`px-3 py-2 rounded-xl flex items-center justify-between gap-2 text-hb-xs cursor-pointer transition-[background-color,border-color] duration-150 text-left ${
-                        isCurrent
-                          ? "bg-[#141A23] text-white font-bold"
-                          : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] hover:border-[#CBD2DC]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-1.5 min-w-0">
-                        <span
-                          className={`h-2 w-2 rounded-full shrink-0 ${
-                            isCurrent
-                              ? "bg-[#E8521A]"
-                              : comp.role === "freezer"
-                              ? "bg-[#0284C7]"
-                              : "bg-[#0D9488]"
-                          }`}
-                        />
-                        <span className="font-bold truncate">
-                          {comp.shortPos}
-                        </span>
-                        <span
-                          className={`truncate ${
-                            isCurrent ? "text-[#FF8A50]" : "text-[#64748B]"
-                          }`}
-                        >
-                          · {cleanRole}
-                        </span>
-                      </div>
-                      <span
-                        className={`font-mono font-bold tabular-nums shrink-0 ${
-                          isCurrent ? "text-[#38BDF8]" : "text-[#334155]"
-                        }`}
-                      >
-                        {comp.tempRange}
-                      </span>
-                    </button>
-                  );
-                })}
               </div>
             </div>
           </div>

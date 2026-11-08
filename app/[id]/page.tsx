@@ -43,7 +43,7 @@ import { V2VisualInspectionViewer } from "../../components/products/v2-visual-in
 import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
 import { RefrigeratorCompartmentDiagram } from "../../components/products/refrigerator-compartment-diagram";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const getProductById = cache(async (id: string) => {
   const { data: product, error } = await supabase

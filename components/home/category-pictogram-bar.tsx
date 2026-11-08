@@ -42,7 +42,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "에어컨·냉난방",
     subLabel: "벽걸이·스탠드·천장형",
     icon: "aircon",
-    href: "/gallery?category=%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
+    href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     filterCategory: "에어컨/냉난방기",
     group: "home",
   },

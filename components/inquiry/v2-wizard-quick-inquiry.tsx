@@ -1,14 +1,17 @@
 // 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import toast from "react-hot-toast";
 import {
   compressImage,
   formatPhone,
+  clearQuoteBasket,
   formatQuoteBasketSummary,
   formatStructuredInquiryDescription,
   getQuoteBasket,
+  revokeObjectUrls,
+  type ExtractedFactItem,
   INQUIRY_TYPES,
   isValidPhone,
   MAX_PHOTOS,
@@ -191,6 +194,9 @@ export function V2InquirySectionWithWizard({
     title?: string;
     modelNumber?: string;
     summaryNote?: string;
+    extractedFacts?: ExtractedFactItem[];
+    missingInfo?: string[];
+    followUpQuestions?: string[];
   } | null>(null);
 
   useEffect(() => {
@@ -261,6 +267,16 @@ export function V2InquirySectionWithWizard({
   /* 사진 첨부 상태 (최대 3장) */
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
+  const previewsRef = useRef<string[]>([]);
+  useEffect(() => {
+    previewsRef.current = filePreviews;
+  }, [filePreviews]);
+
+  useEffect(() => {
+    return () => {
+      revokeObjectUrls(previewsRef.current);
+    };
+  }, []);
 
   /* 3단계 연락처 상태 */
   const [name, setName] = useState("");
@@ -361,6 +377,9 @@ export function V2InquirySectionWithWizard({
         summaryNote:
           data.summaryNote ||
           (data.estimatedYear ? `연식: ${data.estimatedYear}` : undefined),
+        extractedFacts: Array.isArray(data.extractedFacts) ? data.extractedFacts : [],
+        missingInfo: Array.isArray(data.missingInfo) ? data.missingInfo : [],
+        followUpQuestions: Array.isArray(data.followUpQuestions) ? data.followUpQuestions : [],
       });
 
       if (
@@ -454,7 +473,17 @@ export function V2InquirySectionWithWizard({
         linkedProductUrl: linkedProduct?.productId
           ? `${STORE.url}/${linkedProduct.productId}`
           : undefined,
-        modelNumber: linkedProduct?.modelName || undefined,
+        modelNumber: aiResult?.modelNumber || linkedProduct?.modelName || undefined,
+        aiReference: aiResult
+          ? {
+              summaryNote:
+                aiResult.summaryNote ||
+                (aiResult.title ? `[사진 판독] ${aiResult.title}` : "사진 판독 정보"),
+              extractedFacts: aiResult.extractedFacts || [],
+              missingInfo: aiResult.missingInfo || [],
+              followUpQuestions: aiResult.followUpQuestions || [],
+            }
+          : null,
       });
 
       const res = await fetch("/api/inquiries", {
@@ -483,6 +512,28 @@ export function V2InquirySectionWithWizard({
         has_photos: uploadedUrls.length > 0,
       });
 
+      // 묶음 견적함 비우기
+      clearQuoteBasket();
+      setBasketItems([]);
+
+      // 텔레그램 알림 클라이언트 폴백 (서버 즉시 알림 미도달 시)
+      const newId = json.inquiryId || null;
+      if (!json.telegramNotified && newId) {
+        fetch("/api/telegram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            inquiryId: newId,
+            name: name.trim(),
+            phone: phone.trim(),
+            type: inquiryType,
+            title: autoTitle,
+          }),
+        }).catch(() => {});
+      }
+
+      // 메모리 해제 및 폼 초기화
+      revokeObjectUrls(filePreviews);
       toast.success(
         inquiryType === "내 물건 팔기"
           ? "매입 견적 신청이 정상 접수되었습니다!"

@@ -66,8 +66,8 @@ flowchart TD
 - **Phase 2: Research (연구)**: Google Search Central 가이드, Schema.org 스펙, W3C WCAG 표준 대조 후 [docs/evolution/RESEARCH.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/RESEARCH.md)에 출처 기록.
 - **Phase 3: Plan (계획)**: 우선순위 점수 $\text{Priority Score} = \frac{\text{Impact} \times \text{Frequency}}{\text{Cost} \times \text{Risk}}$ 기준 [docs/evolution/BACKLOG.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/BACKLOG.md)에 등록.
 - **Phase 4: Execute (구현)**: 의도하지 않은 사이드 이펙트를 차단하는 외과수술적(surgical) 최소 수정 및 SSOT 준수.
-- **Phase 5: Verify (검증)**: `node scripts/run-all-verifications.mjs`를 실행하여 8대 전 게이트 100% 통과 확인.
-- **Phase 6: Persist (영구화)**: [docs/evolution/CHANGELOG.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/CHANGELOG.md) 기록, `node scripts/build-codebase-xml.mjs` 실행으로 `아르곤_디자인.xml` 동기화, `node scripts/git-checkpoint.mjs` 실행으로 로컬 체크포인트 커밋 격리.
+- **Phase 5: Verify (검증)**: 일상적 UI/기능 수정 시에는 고속 모드(`check-design-tokens.mjs` + `tsc --noEmit`, 약 3초)로 신속히 검증하고, 마일스톤 완료 및 최종 배포 시에만 `node scripts/run-all-verifications.mjs`를 실행하여 8대 전 게이트 100% 통과를 확인.
+- **Phase 6: Persist (영구화)**: 사용자의 마감/체크포인트 요청 시에 한하여 [docs/evolution/CHANGELOG.md](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/docs/evolution/CHANGELOG.md) 기록, `node scripts/build-codebase-xml.mjs` 실행으로 `아르곤_디자인.xml` 동기화, `node scripts/git-checkpoint.mjs` 실행으로 로컬 체크포인트 커밋 격리.
 
 ---
 

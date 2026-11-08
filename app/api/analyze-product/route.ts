@@ -512,12 +512,27 @@ export async function POST(req: NextRequest) {
               const obj = item as Record<string, unknown>;
               const index = typeof obj.index === "number" ? obj.index : 0;
               const rotate = typeof obj.rotate === "number" ? obj.rotate : 0;
-              return { index, rotate };
+              const res: {
+                index: number;
+                rotate: number;
+                brightness?: number;
+                contrast?: number;
+              } = { index, rotate };
+              if (typeof obj.brightness === "number") res.brightness = obj.brightness;
+              if (typeof obj.contrast === "number") res.contrast = obj.contrast;
+              return res;
             }
             return null;
           })
           .filter(
-            (it): it is { index: number; rotate: number } =>
+            (
+              it
+            ): it is {
+              index: number;
+              rotate: number;
+              brightness?: number;
+              contrast?: number;
+            } =>
               it !== null &&
               it.index > 0 &&
               [0, 90, 180, 270].includes(it.rotate)

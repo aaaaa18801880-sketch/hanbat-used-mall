@@ -68,3 +68,16 @@ export function createServerSupabaseClient(
       : undefined,
   });
 }
+
+export async function revalidateAdminCache(productId?: string | number): Promise<void> {
+  try {
+    const headers = await getAdminAuthHeaders();
+    await fetch("/api/admin/revalidate", {
+      method: "POST",
+      headers: { ...headers, "Content-Type": "application/json" },
+      body: JSON.stringify({ id: productId ? String(productId) : undefined }),
+    });
+  } catch {
+    // Non-blocking
+  }
+}

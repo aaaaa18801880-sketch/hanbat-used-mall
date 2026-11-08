@@ -7,6 +7,7 @@ import {
   supabase,
   isAuthorizedAdminUser,
   getAdminAuthHeaders,
+  revalidateAdminCache,
 } from "../../lib/supabase";
 import {
   STORE,
@@ -16,6 +17,7 @@ import {
   compressImage,
   rotateImageFile,
   enhanceImageFile,
+  PRODUCT_IMAGE_TONE_PRESET,
   sanitizeOldManufactureYear,
   validateImageFiles,
   MAX_PHOTOS,
@@ -231,7 +233,7 @@ function ProductDetailModal({
     setEditExistingImages((prev) => prev.filter((_, i) => i !== targetIdx));
   };
 
-  const handleAddEditFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddEditFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const picked = Array.from(e.target.files);
     e.target.value = "";
@@ -245,10 +247,20 @@ function ProductDetailModal({
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
-    setEditNewFiles((prev) => [...prev, ...ok]);
+    const toned = await Promise.all(
+      ok.map(async (f) => {
+        try {
+          return await enhanceImageFile(f, PRODUCT_IMAGE_TONE_PRESET);
+        } catch {
+          return f;
+        }
+      })
+    );
+
+    setEditNewFiles((prev) => [...prev, ...toned]);
     setEditNewPreviews((prev) => [
       ...prev,
-      ...ok.map((f) => URL.createObjectURL(f)),
+      ...toned.map((f) => URL.createObjectURL(f)),
     ]);
   };
 
@@ -349,6 +361,7 @@ function ProductDetailModal({
       };
 
       onProductUpdated(updated);
+      void revalidateAdminCache(product.id);
       setIdx(0);
       setIsEditing(false);
       toast.success("상품 정보가 저장되었습니다.");
@@ -1151,9 +1164,11 @@ export default function GalleryPage() {
       }
     );
 
-    queueMicrotask(() => {
-      void fetchProducts(initialProducts !== null);
-    });
+    if (initialProducts === null) {
+      queueMicrotask(() => {
+        void fetchProducts(false);
+      });
+    }
     return () => authListener.subscription.unsubscribe();
   }, [fetchProducts, initialProducts]);
 
@@ -1437,6 +1452,7 @@ export default function GalleryPage() {
           selectedIds.has(p.id) ? { ...p, status: targetStatus } : p
         )
       );
+      void revalidateAdminCache();
       toast.success(
         `${updatedRows.length}개 상품이 '${targetStatus}' 처리되었습니다.`,
         { id: toastId }
@@ -1480,6 +1496,7 @@ export default function GalleryPage() {
       }
 
       setProducts((prev) => prev.filter((p) => !selectedIds.has(p.id)));
+      void revalidateAdminCache();
       toast.success(`${ids.length}개 상품이 삭제되었습니다.`, { id: toastId });
       setSelectedIds(new Set());
     } catch (err: unknown) {
@@ -1514,6 +1531,7 @@ export default function GalleryPage() {
       if (selectedProduct?.id === id) {
         setSelectedProduct(null);
       }
+      void revalidateAdminCache(id);
       toast.success("상품이 삭제되었습니다.");
     } catch (error: unknown) {
       toast.error(
@@ -1719,7 +1737,7 @@ export default function GalleryPage() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const files = Array.from(e.target.files);
     e.target.value = "";
@@ -1734,12 +1752,26 @@ export default function GalleryPage() {
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
-    const updatedFiles = [...productFiles, ...ok];
+    // 업로드 즉시 쇼룸 스튜디오 톤업 자동 적용
+    const toned = await Promise.all(
+      ok.map(async (f) => {
+        try {
+          return await enhanceImageFile(f, PRODUCT_IMAGE_TONE_PRESET);
+        } catch {
+          return f;
+        }
+      })
+    );
+
+    const updatedFiles = [...productFiles, ...toned];
     setProductFiles(updatedFiles);
     setProductPreviews((prev) => [
       ...prev,
-      ...ok.map((f) => URL.createObjectURL(f)),
+      ...toned.map((f) => URL.createObjectURL(f)),
     ]);
+    toast.success(
+      `사진 ${toned.length}장에 쇼룸 스튜디오 톤업(밝기 +20%)을 자동 적용했습니다.`
+    );
 
     if (productFiles.length === 0 && ok.length > 0) {
       analyzeImageWithAI(ok);
@@ -1913,6 +1945,7 @@ export default function GalleryPage() {
       if (error) throw error;
 
       toast.success("새 상품이 등록되었습니다.");
+      void revalidateAdminCache();
       setIsUploadModalOpen(false);
       resetUploadForm();
       await fetchProducts();
