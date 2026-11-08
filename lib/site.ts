@@ -234,7 +234,10 @@ export function extractSpecCapsules(
   const pyeongMatch = combined.match(/\b(\d{1,2})\s*평(?:형)?\b/);
   if (pyeongMatch) addTag(`${pyeongMatch[1]}평형`);
 
-  const literMatch = combined.match(/\b(\d{2,4})\s*(?:L|리터)\b/i);
+  // 천 단위 콤마(예: 1,060L)가 있을 때 뒷자리 '060L'만 잘리는 현상 방지
+  const literMatch = combined.match(
+    /(?:^|[^\d,])(\d{1,2},\d{3}|\d{2,4})\s*(?:L|리터)\b/i
+  );
   if (literMatch) addTag(`${literMatch[1]}L`);
 
   const kgMatch = combined.match(/\b(\d{1,3}(?:\.\d)?)\s*kg\b/i);
@@ -247,9 +250,9 @@ export function extractSpecCapsules(
 
   const KEYWORD_RULES: ReadonlyArray<{ pattern: RegExp; label: string }> = [
     { pattern: /냉동\s*1\s*칸|1\/4\s*냉동|냉장\s*3.*냉동\s*1/i, label: "냉동1칸/냉장3칸" },
-    { pattern: /냉동\s*2\s*칸|냉장\s*2.*냉동\s*2|반반|하프/i, label: "냉동2칸/냉장2칸" },
-    { pattern: /올냉장|전칸\s*냉장/, label: "올냉장" },
-    { pattern: /올냉동|전칸\s*냉동/, label: "올냉동" },
+    { pattern: /냉동\s*2\s*칸|2\s*냉동\s*2\s*냉장|냉장\s*2.*냉동\s*2|반반|하프/i, label: "냉동2칸/냉장2칸" },
+    { pattern: /올냉장|전칸\s*냉장|전체\s*냉장실/, label: "올냉장" },
+    { pattern: /올냉동|전칸\s*냉동|전체\s*냉동실/, label: "올냉동" },
     { pattern: /상냉장\s*하냉동|상냉장/, label: "상냉장 하냉동" },
     { pattern: /좌냉동\s*우냉장/, label: "좌냉동 우냉장" },
     { pattern: /2\s*in\s*1|투인원/i, label: "2in1" },

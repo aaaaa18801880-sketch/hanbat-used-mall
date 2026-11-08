@@ -127,7 +127,7 @@ lines.push("> **이 문서는 타 AI(Claude, ChatGPT, Gemini, Cursor 등)에게 
 lines.push("> **별도 파일 격리 보장**: PDF 관련 프로젝트, 성경 앱 프로젝트와 완전히 분리된 **순수 한밭중고전자 홈페이지 전용** 단일 코드베이스 번들입니다.");
 lines.push("");
 lines.push(`- **생성 일시**: ${new Date().toISOString()}`);
-lines.push("- **적용 사이클**: Cycle 37 (구조 청사진 다이어그램 벤토 카드 UI 고도화 & 테이블·찬밧드 냉장고 좌우 수평 도어 판별 정밀화)");
+lines.push("- **적용 사이클**: Cycle 38 (냉장고 도어 구조도 2냉동2냉장 수직분할·찬밧드 정밀판별 & 1단 와이드 반응형 UI 최신화)");
 lines.push("- **검증 상태**: 8대 게이트(디자인 토큰, 배포 전 보안/SEO, 회귀 방지, UX 벤치마크, AI 상담 가드레일, tsc, eslint, next build) 100% PASS");
 lines.push("");
 lines.push("---");

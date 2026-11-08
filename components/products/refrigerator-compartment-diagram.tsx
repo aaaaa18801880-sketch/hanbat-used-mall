@@ -21,6 +21,7 @@ export interface RefrigeratorLayoutData {
   coolingType: "직냉식" | "간냉식" | "미지정";
   coolingDesc: string;
   capacity?: string | null;
+  widthSpec?: string | null;
   compartments: CompartmentInfo[];
   hasMachineryRoom?: boolean;
 }
@@ -32,21 +33,19 @@ export interface RefrigeratorCompartmentDiagramProps {
   className?: string;
 }
 
-/**
- * 괄호 부가 설명을 깔끔하게 제거하는 헬퍼 (이중 괄호 원천 방지)
- */
 function stripParens(text: string): string {
   return text.replace(/\s*\([^)]*\)/g, "").trim();
 }
 
 /**
- * 상품명과 상세 설명에서 냉장고 도어 구조 및 칸별 역할을 분석하는 헬퍼
+ * 상품명(title)과 상세 설명(description)에서 냉장고 도어 구조 및 칸별 역할을 정확히 판별하는 헬퍼
  */
 export function detectRefrigeratorLayout(
   title: string,
   description?: string | null,
   category?: string | null
 ): RefrigeratorLayoutData | null {
+  const titleLower = (title ?? "").toLowerCase();
   const combined = `${title} ${description ?? ""}`.toLowerCase();
 
   const isExcludedCategory =
@@ -77,7 +76,8 @@ export function detectRefrigeratorLayout(
   }
 
   let coolingType: "직냉식" | "간냉식" | "미지정" = "미지정";
-  let coolingDesc = "정밀 컴프레서 제어로 식자재 적정 온도를 안정적으로 유지합니다.";
+  let coolingDesc =
+    "정밀 온도 제어 시스템으로 식자재 적정 보관 온도를 일정하게 유지합니다.";
   if (combined.includes("직냉")) {
     coolingType = "직냉식";
     coolingDesc =
@@ -89,24 +89,29 @@ export function detectRefrigeratorLayout(
   ) {
     coolingType = "간냉식";
     coolingDesc =
-      "팬 강제 대류 순환 방식으로 성에가 끼지 않아 관리가 편리한 간접 냉각 시스템입니다.";
+      "팬 강제 대류 순환 방식으로 성에가 끼지 않아 위생적이고 관리가 편리한 간접 냉각 시스템입니다.";
   }
 
+  // 용량(박스 / 리터 - 1,060L 등 콤마 포함 숫자 정확히 인식) 및 가로폭 규격 추출
   const boxMatch = combined.match(/\b(25|30|45|65)\s*박스/);
-  const literMatch = combined.match(/\b(\d{2,4})\s*(?:l|리터)\b/);
-  const tableWidthMatch = combined.match(/\b(900|1200|1500|1800)\b/);
+  const literMatch = combined.match(
+    /(?:^|[^\d,])(\d{1,2},\d{3}|\d{2,4})\s*(?:l|리터)\b/i
+  );
+  const tableWidthMatch = combined.match(
+    /\b(900|1200|1500|1800|2100|2400)\b/
+  );
+
   const capacityStr = boxMatch
     ? `${boxMatch[1]}박스`
     : literMatch
     ? `${literMatch[1]}L`
-    : tableWidthMatch
-    ? `${tableWidthMatch[1]}mm 규격`
     : null;
+  const widthSpecStr = tableWidthMatch ? `폭 ${tableWidthMatch[1]}mm` : null;
 
   // 1. 스탠드형 김치냉장고 판별
   const isKimchiStand =
-    combined.includes("김치냉장고") ||
-    (combined.includes("김치") &&
+    titleLower.includes("김치냉장고") ||
+    (titleLower.includes("김치") &&
       (combined.includes("스탠드") ||
         combined.includes("3단") ||
         combined.includes("3룸")));
@@ -122,6 +127,7 @@ export function detectRefrigeratorLayout(
           ? "룸별 독립 냉각 기술로 김치와 식자재 고유의 풍미를 보존합니다."
           : coolingDesc,
       capacity: capacityStr,
+      widthSpec: widthSpecStr,
       compartments: [
         {
           id: "tier_top",
@@ -131,7 +137,7 @@ export function detectRefrigeratorLayout(
           roleName: "다목적 신선·김치실",
           tempRange: "-1℃ ~ +3℃",
           recommendedItems: ["보관 김치", "신선 채소·과일", "주류·음료"],
-          features: "자주 꺼내는 식자재와 밀폐 김치통 수납에 최적화된 상부 공간",
+          features: "자주 꺼내는 식자재와 밀폐 김치통 수납에 최적화된 상부 공간입니다.",
         },
         {
           id: "tier_mid",
@@ -141,7 +147,7 @@ export function detectRefrigeratorLayout(
           roleName: "정온 김치·육류 숙성실",
           tempRange: "-1.5℃ ~ -0.5℃",
           recommendedItems: ["포기김치", "육류 숙성", "생선류"],
-          features: "냉기 유출을 막는 밀폐 서랍 구조로 온도 편차를 최소화한 핵심 구역",
+          features: "냉기 유출을 막는 밀폐 서랍 구조로 온도 편차를 최소화한 핵심 구역입니다.",
         },
         {
           id: "tier_bot",
@@ -151,7 +157,7 @@ export function detectRefrigeratorLayout(
           roleName: "장기 보관 전문 서랍",
           tempRange: "-2℃ ~ +2℃",
           recommendedItems: ["묵은지", "쌀·잡곡", "뿌리채소"],
-          features: "무거운 김치통이나 곡류·채소를 장기간 신선하게 보관하는 하부 서랍",
+          features: "무거운 김치통이나 곡류·채소를 장기간 신선하게 보관하는 하부 서랍입니다.",
         },
       ],
     };
@@ -167,14 +173,25 @@ export function detectRefrigeratorLayout(
 
   if (is4Door) {
     const isAllFreeze =
-      combined.includes("올냉동") || combined.includes("전칸 냉동");
+      combined.includes("올냉동") ||
+      combined.includes("전칸 냉동") ||
+      combined.includes("4칸 전체 냉동");
     const isAllFridge =
-      combined.includes("올냉장") || combined.includes("전칸 냉장");
+      combined.includes("올냉장") ||
+      combined.includes("전칸 냉장") ||
+      combined.includes("4칸 전체 냉장") ||
+      combined.includes("전체 냉장실");
+
+    // 2냉동 2냉장 (반반형) 정밀 판별: "2냉동 2냉장", "냉동 2칸", "냉동2칸", "2RF", "2R2F" 등 모두 인식
     const isHalfAndHalf =
+      combined.includes("2냉동") ||
+      combined.includes("냉동 2칸") ||
+      combined.includes("냉동2칸") ||
       combined.includes("반반") ||
-      combined.includes("2칸 냉동 / 2칸 냉장") ||
+      combined.includes("2칸 냉동") ||
       combined.includes("상2칸") ||
-      combined.includes("하2칸 냉동");
+      combined.includes("하2칸") ||
+      /\b\d*2r2f\b/i.test(combined);
 
     if (isAllFreeze) {
       return {
@@ -283,53 +300,116 @@ export function detectRefrigeratorLayout(
     }
 
     if (isHalfAndHalf) {
+      // 상하 분할(가정용 4도어 등 상냉장 하냉동) vs 좌우 수직 분할(업소용 45박스 표준 좌2칸 냉동 / 우2칸 냉장) 구분
+      const isHorizontalSplit =
+        combined.includes("상냉장") ||
+        combined.includes("하냉동") ||
+        combined.includes("상단 2칸") ||
+        combined.includes("하단 2칸");
+
+      if (isHorizontalSplit) {
+        return {
+          type: "4door_grid",
+          title: "4도어 상냉장 · 하냉동 구조도 (냉장 2칸 / 냉동 2칸)",
+          subtitle: "상단 2도어 와이드 신선 냉장 + 하단 2도어 분리형 급속 냉동",
+          coolingType,
+          coolingDesc,
+          capacity: capacityStr,
+          widthSpec: widthSpecStr,
+          compartments: [
+            {
+              id: "tl",
+              positionLabel: "상단 좌측 도어 (냉장)",
+              shortPos: "상단 좌측",
+              role: "fridge",
+              roleName: "신선 냉장실",
+              tempRange: "0℃ ~ +7℃",
+              recommendedItems: ["채소·과일", "손질 식재료", "소스류"],
+              features: "허리를 숙이지 않고 자주 꺼내는 상부 좌측 신선 냉장 구역입니다.",
+            },
+            {
+              id: "tr",
+              positionLabel: "상단 우측 도어 (냉장)",
+              shortPos: "상단 우측",
+              role: "fridge",
+              roleName: "신선 냉장실",
+              tempRange: "0℃ ~ +7℃",
+              recommendedItems: ["데일리 반찬", "유제품", "음료"],
+              features: "자주 여닫는 일상 반찬과 음료를 편리하게 수납하는 상부 우측 구역입니다.",
+            },
+            {
+              id: "bl",
+              positionLabel: "하단 좌측 도어 (냉동)",
+              shortPos: "하단 좌측",
+              role: "freezer",
+              roleName: "급속 냉동실",
+              tempRange: "-15℃ ~ -24℃",
+              recommendedItems: ["육류 비축", "해산물 냉동"],
+              features: "안정적인 영하 온도를 유지하는 하부 좌측 집중 냉동 구역입니다.",
+            },
+            {
+              id: "br",
+              positionLabel: "하단 우측 도어 (냉동)",
+              shortPos: "하단 우측",
+              role: "freezer",
+              roleName: "급속 냉동실",
+              tempRange: "-15℃ ~ -24℃",
+              recommendedItems: ["가공 냉동식품", "얼음·장기보관품"],
+              features: "부피가 큰 냉동 완제품과 식자재를 분리 보관하는 하부 우측 구역입니다.",
+            },
+          ],
+        };
+      }
+
+      // 업소용 45박스 수직 분할 2냉동 2냉장 (좌측 상·하 2칸 냉동 / 우측 상·하 2칸 냉장)
       return {
         type: "4door_grid",
-        title: "업소용 4도어 반반형 구조도 (냉장 2 / 냉동 2)",
-        subtitle: "상단 2도어 신선 냉장 + 하단 2도어 급속 냉동 분할",
+        title: "업소용 4도어 수직 분할 구조도 (냉동 2칸 / 냉장 2칸)",
+        subtitle: "좌측 상·하단 2도어 급속 냉동 + 우측 상·하단 2도어 신선 냉장",
         coolingType,
         coolingDesc,
-        capacity: capacityStr ?? "45박스 규격",
+        capacity: capacityStr ?? "45박스",
+        widthSpec: widthSpecStr,
         compartments: [
           {
             id: "tl",
-            positionLabel: "상단 좌측 도어 (냉장)",
+            positionLabel: "상단 좌측 도어 (냉동)",
             shortPos: "상단 좌측",
-            role: "fridge",
-            roleName: "신선 냉장실",
-            tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["채소류", "손질 식재료", "소스류"],
-            features: "허리를 숙이지 않고 자주 꺼내는 주방 메인 냉장 식자재 구역",
+            role: "freezer",
+            roleName: "급속 냉동실 (상좌)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["소포장 육류", "생선·해산물", "주요 냉동재"],
+            features: "자주 꺼내는 핵심 냉동 식자재를 눈높이에서 빠르게 인출하는 상부 냉동실입니다.",
           },
           {
             id: "tr",
             positionLabel: "상단 우측 도어 (냉장)",
             shortPos: "상단 우측",
             role: "fridge",
-            roleName: "신선 냉장실",
+            roleName: "신선 냉장실 (상우)",
             tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["당일 사용 반찬", "유제품", "계란"],
-            features: "영업 중 도어 개폐가 잦은 데일리 반찬 및 부재료 보관 구역",
+            recommendedItems: ["당일 손질 채소", "조리 소스", "유제품"],
+            features: "조리 중 가장 손이 잘 닿는 우측 상단 데일리 신선 냉장실입니다.",
           },
           {
             id: "bl",
             positionLabel: "하단 좌측 도어 (냉동)",
             shortPos: "하단 좌측",
             role: "freezer",
-            roleName: "급속 냉동실",
+            roleName: "대용량 냉동실 (하좌)",
             tempRange: "-15℃ ~ -24℃",
-            recommendedItems: ["육류 비축", "해산물 냉동"],
-            features: "안정적인 영하 온도를 유지하는 대용량 육류·수산물 냉동 구역",
+            recommendedItems: ["대용량 육류 박스", "비축 냉동품", "육수 냉동"],
+            features: "좌측 독립 냉동 라인 하단부로 무거운 대용량 냉동 식자재를 안정적으로 비축합니다.",
           },
           {
             id: "br",
-            positionLabel: "하단 우측 도어 (냉동)",
+            positionLabel: "하단 우측 도어 (냉장)",
             shortPos: "하단 우측",
-            role: "freezer",
-            roleName: "급속 냉동실",
-            tempRange: "-15℃ ~ -24℃",
-            recommendedItems: ["가공 냉동식품", "얼음 및 냉동 보관품"],
-            features: "대용량 냉동 식자재와 완제품을 여유 있게 비축하는 구역",
+            role: "fridge",
+            roleName: "대용량 냉장실 (하우)",
+            tempRange: "0℃ ~ +7℃",
+            recommendedItems: ["대형 반찬통", "김치통", "음료·육수통"],
+            features: "우측 독립 냉장 라인 하단부로 대형 반찬 용기와 식재료를 넉넉히 수납합니다.",
           },
         ],
       };
@@ -388,23 +468,23 @@ export function detectRefrigeratorLayout(
   }
 
   // 3. 가로형 테이블 냉장고 / 찬밧드·반찬·토핑 냉장고 및 양문형 냉장고 (좌우 수평 2도어) 판별
+  // 주의: 일반 설명문의 "반찬 보관" 문구 때문에 일반 테이블 냉장고가 찬밧드로 오인되지 않도록 title 기준으로 찬밧드 판별!
+  const isBanchanTopping =
+    titleLower.includes("반찬") ||
+    titleLower.includes("밧드") ||
+    titleLower.includes("찬밧드") ||
+    titleLower.includes("토핑") ||
+    titleLower.includes("김밥") ||
+    combined.includes("찬밧드");
+
   const isTableFridge =
+    isBanchanTopping ||
     combined.includes("테이블") ||
-    combined.includes("반찬") ||
-    combined.includes("밧드") ||
-    combined.includes("찬밧드") ||
-    combined.includes("토핑") ||
-    combined.includes("김밥") ||
     combined.includes("작업대") ||
     combined.includes("서랍식 테이블") ||
     combined.includes("가로형") ||
-    combined.includes("수평") ||
-    combined.includes("좌우") ||
-    combined.includes("좌/우") ||
-    combined.includes("좌·우") ||
     combined.includes("상부선반") ||
     combined.includes("상치선반") ||
-    combined.includes("슬라이딩") ||
     Boolean(
       tableWidthMatch &&
         (combined.includes("2도어") ||
@@ -419,20 +499,13 @@ export function detectRefrigeratorLayout(
     combined.includes("우냉장");
 
   if (isTableFridge || isSideBySide) {
-    const isBanchanTopping =
-      combined.includes("반찬") ||
-      combined.includes("밧드") ||
-      combined.includes("찬밧드") ||
-      combined.includes("토핑") ||
-      combined.includes("김밥");
-
     const isAllFreeze =
       combined.includes("올냉동") || combined.includes("전칸 냉동");
     const isHalfAndHalf =
       combined.includes("반반") ||
       combined.includes("1냉동 1냉장") ||
       combined.includes("냉동 1칸 / 냉장 1칸") ||
-      (combined.includes("냉동") && combined.includes("냉장")) ||
+      (titleLower.includes("냉동") && titleLower.includes("냉장")) ||
       isSideBySide;
 
     if (isAllFreeze && !isHalfAndHalf) {
@@ -447,7 +520,8 @@ export function detectRefrigeratorLayout(
         subtitle: "좌·우 2도어 전체 급속 냉동 구성 (수평 배치)",
         coolingType,
         coolingDesc,
-        capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+        capacity: capacityStr,
+        widthSpec: widthSpecStr ?? (isTableFridge ? "테이블형" : null),
         compartments: [
           {
             id: "left",
@@ -469,7 +543,7 @@ export function detectRefrigeratorLayout(
             recommendedItems: [
               "대용량 비축 냉동육",
               "냉동 완제품",
-              "업소용 박스 식자재",
+              "박스 식자재",
             ],
             features: "넓은 내부 선반으로 대용량 냉동 품목을 안전하게 비축합니다.",
           },
@@ -487,14 +561,15 @@ export function detectRefrigeratorLayout(
         type: "table_horizontal",
         hasMachineryRoom: !isSideBySide,
         title: isBanchanTopping
-          ? "업소용 찬밧드 2도어 (좌냉동 / 우냉장)"
+          ? "업소용 찬밧드 2도어 구조도 (좌냉동 / 우냉장)"
           : isTableFridge
-          ? "업소용 테이블 2도어 (좌냉동 / 우냉장)"
+          ? "업소용 테이블 2도어 구조도 (좌냉동 / 우냉장)"
           : "양문형 2도어 구조도 (좌냉동 / 우냉장)",
         subtitle: "좌측 급속 냉동 1도어 + 우측 신선 냉장 1도어 수평 분할",
         coolingType,
         coolingDesc,
-        capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+        capacity: capacityStr,
+        widthSpec: widthSpecStr ?? (isTableFridge ? "테이블형" : null),
         compartments: [
           {
             id: "left",
@@ -536,36 +611,37 @@ export function detectRefrigeratorLayout(
         ? "업소용 2도어 테이블 올냉장 구조도"
         : "양문형 2도어 전칸 올냉장 구조도",
       subtitle: isBanchanTopping
-        ? "좌·우 2도어 전체 신선 냉장 구성 (상단 밧드 + 작업대 일체형)"
-        : "좌·우 2도어 전체 신선 냉장 구성 (상판 조리 작업대 일체형)",
+        ? "좌·우 2도어 전체 신선 냉장 구성 (상단 찬밧드 + 작업대 일체형)"
+        : "좌·우 2도어 전체 신선 냉장 구성 (상판 스텐 조리 작업대 일체형)",
       coolingType,
       coolingDesc,
-      capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+      capacity: capacityStr,
+      widthSpec: widthSpecStr ?? (isTableFridge ? "테이블형" : null),
       compartments: [
         {
           id: "left",
-          positionLabel: "좌측 도어 (1칸)",
+          positionLabel: "좌측 도어 (냉장 1칸)",
           shortPos: "좌측 도어",
           role: "fridge",
           roleName: "신선 냉장실",
           tempRange: "0℃ ~ +7℃",
           recommendedItems: isBanchanTopping
-            ? ["배식용 소분 반찬", "당일 손질 채소", "주방 양념 및 소스"]
-            : ["당일 손질 채소", "주방 양념 및 소스", "유제품"],
+            ? ["배식용 소분 반찬", "당일 손질 채소", "주방 양념·소스"]
+            : ["당일 손질 채소", "주방 양념·소스", "유제품"],
           features: isBanchanTopping
             ? "상단 찬밧드 구획과 연계되어 신속한 서빙 및 데일리 식재료 인출을 지원합니다."
-            : "상판 조리 작업대 바로 아래 위치해 손쉬운 데일리 식재료 인출을 지원합니다.",
+            : "상판 스텐 조리 작업대 바로 아래 위치해 조리 중 즉각적인 식재료 인출을 지원합니다.",
         },
         {
           id: "right",
-          positionLabel: "우측 도어 (1칸)",
+          positionLabel: "우측 도어 (냉장 1칸)",
           shortPos: "우측 도어",
           role: "fridge",
           roleName: "대용량 냉장실",
           tempRange: "0℃ ~ +7℃",
-          recommendedItems: ["대형 반찬통", "김치통", "주류 및 음료"],
+          recommendedItems: ["대형 반찬통", "김치·절임류", "음료·주류"],
           features:
-            "넓은 내부 수납 선반으로 대용량 식재료와 소분 반찬통을 넉넉하게 수납합니다.",
+            "넓은 내부 선반 구조로 부피가 큰 반찬 용기와 식자재를 넉넉하게 수납합니다.",
         },
       ],
     };
@@ -592,7 +668,9 @@ export function detectRefrigeratorLayout(
     const isAllFreeze =
       combined.includes("올냉동") || combined.includes("2도어 올냉동");
     const isAllFridge =
-      combined.includes("올냉장") || combined.includes("2도어 올냉장");
+      combined.includes("올냉장") ||
+      combined.includes("2도어 올냉장") ||
+      combined.includes("전체 냉장실");
 
     if (isAllFreeze) {
       return {
@@ -601,11 +679,12 @@ export function detectRefrigeratorLayout(
         subtitle: "상·하 2칸 전체 급속 냉동 특화 구성",
         coolingType,
         coolingDesc,
-        capacity: capacityStr ?? "25/30박스 규격",
+        capacity: capacityStr ?? "25/30박스",
+        widthSpec: widthSpecStr,
         compartments: [
           {
             id: "top",
-            positionLabel: "상단 도어 (1칸)",
+            positionLabel: "상단 도어 (냉동 1칸)",
             shortPos: "상단 도어",
             role: "freezer",
             roleName: "급속 냉동실",
@@ -615,16 +694,12 @@ export function detectRefrigeratorLayout(
           },
           {
             id: "bot",
-            positionLabel: "하단 도어 (1칸)",
+            positionLabel: "하단 도어 (냉동 1칸)",
             shortPos: "하단 도어",
             role: "freezer",
             roleName: "대용량 냉동실",
             tempRange: "-15℃ ~ -24℃",
-            recommendedItems: [
-              "장기 보관 냉동육",
-              "비축 식자재",
-              "대용량 해산물",
-            ],
+            recommendedItems: ["장기 보관 냉동육", "비축 식자재", "해산물"],
             features: "부피가 큰 냉동 박스와 비축용 식자재를 안정적으로 보관합니다.",
           },
         ],
@@ -638,26 +713,27 @@ export function detectRefrigeratorLayout(
         subtitle: "상·하 2칸 전체 신선 냉장 특화 구성",
         coolingType,
         coolingDesc,
-        capacity: capacityStr ?? "25/30박스 규격",
+        capacity: capacityStr ?? "25/30박스",
+        widthSpec: widthSpecStr,
         compartments: [
           {
             id: "top",
-            positionLabel: "상단 도어 (1칸)",
+            positionLabel: "상단 도어 (냉장 1칸)",
             shortPos: "상단 도어",
             role: "fridge",
             roleName: "신선 냉장실",
             tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["당일 손질 채소", "주방 양념 및 소스", "유제품"],
+            recommendedItems: ["당일 손질 채소", "주방 양념·소스", "유제품"],
             features: "조리 중 가장 손이 잘 닿는 상부 데일리 신선 냉장 구역입니다.",
           },
           {
             id: "bot",
-            positionLabel: "하단 도어 (1칸)",
+            positionLabel: "하단 도어 (냉장 1칸)",
             shortPos: "하단 도어",
             role: "fridge",
             roleName: "대용량 냉장실",
             tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["대형 반찬통", "김치통", "주류 및 음료"],
+            recommendedItems: ["대형 반찬통", "김치통", "주류·음료"],
             features: "무거운 반찬 용기와 음료 박스를 넉넉하게 수납하는 하부 냉장실입니다.",
           },
         ],
@@ -672,6 +748,7 @@ export function detectRefrigeratorLayout(
         coolingType,
         coolingDesc,
         capacity: capacityStr,
+        widthSpec: widthSpecStr,
         compartments: [
           {
             id: "top",
@@ -703,7 +780,8 @@ export function detectRefrigeratorLayout(
       subtitle: "상단 급속 냉동실(1도어) + 하단 신선 냉장실(1도어) 수직 분할",
       coolingType,
       coolingDesc,
-      capacity: capacityStr ?? "25박스 규격",
+      capacity: capacityStr ?? "25박스",
+      widthSpec: widthSpecStr,
       compartments: [
         {
           id: "top",
@@ -752,24 +830,28 @@ export function RefrigeratorCompartmentDiagram({
   return (
     <section
       aria-label="도어별 구조 및 칸별 역할 안내"
-      className={`rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs space-y-5 ${className}`.trim()}
+      className={`rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs ${className}`.trim()}
     >
-      {/* 1. 상단 섹션 헤더 */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E2E6EC]">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-[#141A23] px-2.5 py-1 text-hb-xs font-bold text-white">
-              <Icon d={ICON.sliders} className="w-3.5 h-3.5 text-[#FF8A50]" />
-              <span>도어 구조 청사진</span>
+      {/* 1. 상단 헤더 (우측 구매 박스 및 하단 제원서와 동일한 클린 스튜디오 톤) */}
+      <div className="flex flex-wrap items-end justify-between gap-2 pb-4 border-b border-[#E2E6EC]">
+        <div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="text-hb-xs font-bold text-[#E8521A]">
+              도어 구획 및 온도 안내
             </span>
+            {layout.widthSpec && (
+              <span className="rounded-md bg-[#F1F3F6] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#141A23] tabular-nums">
+                {layout.widthSpec}
+              </span>
+            )}
             {layout.capacity && (
-              <span className="rounded-md border border-[#E2E6EC] bg-[#F7F8FA] px-2.5 py-1 font-mono text-hb-xs font-bold text-[#141A23] tabular-nums">
+              <span className="rounded-md bg-[#F1F3F6] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#141A23] tabular-nums">
                 {layout.capacity}
               </span>
             )}
             {layout.coolingType !== "미지정" && (
               <span
-                className={`rounded-md px-2.5 py-1 text-hb-xs font-bold ${
+                className={`rounded-md px-2 py-0.5 text-hb-xs font-bold ${
                   layout.coolingType === "직냉식"
                     ? "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]"
                     : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
@@ -779,461 +861,311 @@ export function RefrigeratorCompartmentDiagram({
               </span>
             )}
           </div>
-          <h3 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight break-keep">
+          <h2 className="mt-1 text-hb-lg sm:text-hb-xl font-bold tracking-[-0.02em] text-[#141A23] break-keep">
             {layout.title}
-          </h3>
-          <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#64748B] break-keep">
-            {layout.subtitle}
-          </p>
+          </h2>
         </div>
-
-        {/* 차분한 인라인 안내 문구 (버튼 오인 Fake Affordance 완전 제거) */}
-        <div className="flex items-center gap-1.5 text-hb-xs text-[#64748B] shrink-0">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#E8521A]" aria-hidden="true" />
-          <span>도어 칸을 누르면 구역별 상세 스펙이 전환됩니다</span>
-        </div>
+        <p className="text-hb-xs text-[#64748B]">{layout.subtitle}</p>
       </div>
 
-      {/* 2. 메인 2열 레이아웃 (좌: 일체형 하드웨어 캐비닛 모형 / 우: 선택 구역 상세 스펙 시트) */}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-stretch">
-        {/* A. 좌측 (5열): 컨트롤러 일체화 + 스텐 가전 질감 캐비닛 다이어그램 */}
-        <div className="md:col-span-5 flex flex-col items-center justify-center rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5">
-          <div className="w-full max-w-[340px] sm:max-w-[360px] mx-auto rounded-2xl border border-[#CBD5E1] bg-white shadow-xs overflow-hidden">
-            {/* 상단 일체형 디지털 컨트롤러 헤드 베젤 */}
-            <div className="flex items-center justify-between bg-[#141A23] px-3.5 py-2.5 text-white border-b border-[#1E2736]">
-              <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-[#10B981]" aria-hidden="true" />
-                <span className="font-mono text-hb-xs font-bold tracking-wider text-white/90">
-                  HANBAT CONTROL
+      {/* 2. 풀와이드 도어 배치 도면 (억지 좌·우 분할을 없애고 가로폭 100%를 활용하여 글자 깨짐 제로화) */}
+      <div className="mt-4 rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-3 sm:p-4">
+        {/* Case A: 가로형 테이블 냉장고 / 양문형 (실제 테이블 냉장고처럼 와이드한 수평 비례) */}
+        {layout.type === "table_horizontal" && (
+          <div className="space-y-2">
+            {layout.hasMachineryRoom && (
+              <div className="flex items-center justify-between rounded-lg border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs shadow-2xs">
+                <span className="font-bold text-[#141A23]">
+                  상판 스테인리스 조리 작업대 (WORKTOP)
                 </span>
-              </div>
-              <div className="flex items-center gap-1.5 rounded-md bg-white/10 px-2 py-0.5 font-mono text-hb-xs font-bold tabular-nums">
-                <span className="text-[#38BDF8]">
-                  {activeCompartment.tempRange.replace(/℃/g, "°C")}
-                </span>
-                <span className="text-white/60 text-[10px]">SET</span>
-              </div>
-            </div>
-
-            {/* 테이블형 냉장고일 때 상판 스테인리스 작업대 표시 */}
-            {layout.type === "table_horizontal" && layout.hasMachineryRoom && (
-              <div className="flex items-center justify-between bg-[#F1F5F9] border-b border-[#CBD5E1] px-3.5 py-1.5 text-hb-xs">
-                <span className="font-mono font-bold text-[#334155]">
-                  STAINLESS WORKTOP · 상판 작업대
-                </span>
-                <span className="font-mono font-bold text-[#E8521A] tabular-nums">
-                  {layout.capacity ?? "테이블형"}
+                <span className="font-mono font-bold text-[#64748B] tabular-nums">
+                  {[layout.widthSpec, layout.capacity].filter(Boolean).join(" · ")}
                 </span>
               </div>
             )}
 
-            {/* 캐비닛 도어 그리드 영역 (스튜디오 쿨그레이 / 화이트 스텐 질감) */}
-            <div className="p-2.5 bg-[#F1F3F6]">
-              {/* Case 1: 테이블형 / 양문형 좌우 수평 배치 */}
-              {layout.type === "table_horizontal" && (
-                <div
-                  className={`grid gap-2 ${
-                    layout.hasMachineryRoom ? "grid-cols-11" : "grid-cols-2"
+            <div
+              className={`grid gap-2.5 ${
+                layout.hasMachineryRoom
+                  ? "grid-cols-1 sm:grid-cols-12"
+                  : "grid-cols-1 sm:grid-cols-2"
+              }`}
+            >
+              <div
+                className={`${
+                  layout.hasMachineryRoom ? "sm:col-span-9" : "sm:col-span-2"
+                } grid grid-cols-2 gap-2.5`}
+              >
+                {layout.compartments.map((comp) => {
+                  const isSelected = comp.id === activeCompartment.id;
+                  const isFreeze = comp.role === "freezer";
+
+                  return (
+                    <button
+                      key={comp.id}
+                      type="button"
+                      onClick={() => setSelectedId(comp.id)}
+                      className={`group relative flex flex-col justify-between rounded-xl p-3.5 sm:p-4 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer ${
+                        isSelected
+                          ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
+                          : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2 w-full">
+                        <span className="text-hb-xs font-bold opacity-80">
+                          {comp.shortPos}
+                        </span>
+                        <span
+                          className={`rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
+                            isSelected
+                              ? isFreeze
+                                ? "bg-[#0284C7] text-white"
+                                : "bg-[#0D9488] text-white"
+                              : isFreeze
+                              ? "bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]"
+                              : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                          }`}
+                        >
+                          {isFreeze ? "냉동" : "냉장"}
+                        </span>
+                      </div>
+
+                      <div className="my-2.5 flex flex-wrap items-baseline justify-between gap-1">
+                        <strong
+                          className={`text-hb-base font-bold tracking-tight ${
+                            isSelected
+                              ? "text-white"
+                              : "text-[#141A23] group-hover:text-[#E8521A]"
+                          }`}
+                        >
+                          {stripParens(comp.roleName)}
+                        </strong>
+                        <span
+                          className={`font-mono text-hb-sm font-bold tabular-nums whitespace-nowrap ${
+                            isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                          }`}
+                        >
+                          {comp.tempRange}
+                        </span>
+                      </div>
+
+                      <p
+                        className={`text-hb-xs truncate ${
+                          isSelected ? "text-white/75" : "text-[#64748B]"
+                        }`}
+                      >
+                        {comp.recommendedItems.join(" · ")}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {layout.hasMachineryRoom && (
+                <div className="sm:col-span-3 rounded-xl border border-[#CBD2DC] bg-[#E2E6EC]/60 p-3 flex sm:flex-col justify-between items-center text-center select-none">
+                  <span className="text-hb-xs font-bold text-[#334155]">
+                    기계실 (우측)
+                  </span>
+                  <div className="hidden sm:flex flex-col gap-1.5 w-full my-2 px-3">
+                    <div className="h-1 bg-[#94A3B8]/80 rounded-full" />
+                    <div className="h-1 bg-[#94A3B8]/80 rounded-full" />
+                    <div className="h-1 bg-[#94A3B8]/80 rounded-full" />
+                  </div>
+                  <span className="font-mono text-hb-xs font-semibold text-[#64748B]">
+                    콤프레샤·방열부
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Case B: 4도어 2×2 와이드 그리드 (45박스 등) */}
+        {layout.type === "4door_grid" && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            {layout.compartments.map((comp) => {
+              const isSelected = comp.id === activeCompartment.id;
+              const isFreeze = comp.role === "freezer";
+
+              return (
+                <button
+                  key={comp.id}
+                  type="button"
+                  onClick={() => setSelectedId(comp.id)}
+                  className={`group relative flex flex-col justify-between rounded-xl p-3.5 sm:p-4 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer ${
+                    isSelected
+                      ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
+                      : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
                   }`}
                 >
-                  <div
-                    className={`${
-                      layout.hasMachineryRoom ? "col-span-8" : "col-span-2"
-                    } grid grid-cols-2 gap-2`}
-                  >
-                    {layout.compartments.map((comp) => {
-                      const isSelected = comp.id === activeCompartment.id;
-                      const isFreeze = comp.role === "freezer";
-
-                      return (
-                        <button
-                          key={comp.id}
-                          type="button"
-                          onClick={() => setSelectedId(comp.id)}
-                          className={`group relative flex flex-col justify-between rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer min-h-[110px] sm:min-h-[118px] ${
-                            isSelected
-                              ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
-                              : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1 w-full">
-                            <span
-                              className={`inline-flex items-center rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
-                                isSelected
-                                  ? isFreeze
-                                    ? "bg-[#0284C7] text-white"
-                                    : "bg-[#059669] text-white"
-                                  : isFreeze
-                                  ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
-                                  : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
-                              }`}
-                            >
-                              {isFreeze ? "냉동" : "냉장"}
-                            </span>
-                            <span
-                              className={`h-1 w-6 rounded-full transition-colors ${
-                                isSelected ? "bg-white/40" : "bg-[#CBD5E1]"
-                              }`}
-                              aria-hidden="true"
-                            />
-                          </div>
-
-                          <div className="my-1.5 min-w-0">
-                            <strong
-                              className={`block text-hb-sm font-bold leading-tight break-keep ${
-                                isSelected
-                                  ? "text-white"
-                                  : "text-[#141A23] group-hover:text-[#E8521A]"
-                              }`}
-                            >
-                              {stripParens(comp.roleName)}
-                            </strong>
-                            <span
-                              className={`mt-0.5 block text-hb-xs font-medium ${
-                                isSelected ? "text-white/70" : "text-[#64748B]"
-                              }`}
-                            >
-                              {comp.shortPos}
-                            </span>
-                          </div>
-
-                          <div
-                            className={`font-mono text-hb-xs font-bold tabular-nums whitespace-nowrap ${
-                              isSelected ? "text-[#38BDF8]" : "text-[#334155]"
-                            }`}
-                          >
-                            {comp.tempRange.replace(/℃/g, "°C")}
-                          </div>
-                        </button>
-                      );
-                    })}
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    <span
+                      className={`text-hb-xs font-bold ${
+                        isSelected ? "text-[#FF8A50]" : "text-[#64748B]"
+                      }`}
+                    >
+                      {comp.shortPos} 도어
+                    </span>
+                    <span
+                      className={`rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
+                        isSelected
+                          ? isFreeze
+                            ? "bg-[#0284C7] text-white"
+                            : "bg-[#0D9488] text-white"
+                          : isFreeze
+                          ? "bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]"
+                          : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                      }`}
+                    >
+                      {isFreeze ? "냉동실" : "냉장실"}
+                    </span>
                   </div>
 
-                  {/* 우측 기계실 (컴프레서 챔버) */}
-                  {layout.hasMachineryRoom && (
-                    <div className="col-span-3 rounded-xl border border-[#CBD5E1] bg-[#E2E8F0] p-2.5 flex flex-col justify-between items-center text-center select-none">
-                      <span className="font-mono text-hb-xs font-bold text-[#334155]">
-                        기계실
-                      </span>
-                      <div className="w-full space-y-1.5 my-2 px-1">
-                        <div className="h-1 bg-[#94A3B8] rounded-full" />
-                        <div className="h-1 bg-[#94A3B8] rounded-full" />
-                        <div className="h-1 bg-[#94A3B8] rounded-full" />
-                        <div className="h-1 bg-[#94A3B8] rounded-full" />
-                      </div>
-                      <span className="font-mono text-hb-xs font-semibold text-[#64748B]">
-                        COMP UNIT
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+                  <div className="my-2 flex items-baseline justify-between gap-2">
+                    <strong
+                      className={`text-hb-base font-bold tracking-tight ${
+                        isSelected
+                          ? "text-white"
+                          : "text-[#141A23] group-hover:text-[#E8521A]"
+                      }`}
+                    >
+                      {stripParens(comp.roleName)}
+                    </strong>
+                    <span
+                      className={`font-mono text-hb-sm font-bold tabular-nums whitespace-nowrap ${
+                        isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                      }`}
+                    >
+                      {comp.tempRange}
+                    </span>
+                  </div>
 
-              {/* Case 2: 2도어 상하 수직 분할 */}
-              {layout.type === "2door_vertical" && (
-                <div className="space-y-2">
-                  {layout.compartments.map((comp) => {
-                    const isSelected = comp.id === activeCompartment.id;
-                    const isFreeze = comp.role === "freezer";
-
-                    return (
-                      <button
-                        key={comp.id}
-                        type="button"
-                        onClick={() => setSelectedId(comp.id)}
-                        className={`group relative flex items-center justify-between gap-3 rounded-xl p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full min-h-[84px] ${
-                          isSelected
-                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
-                            : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
-                        }`}
-                      >
-                        <div className="space-y-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`inline-flex items-center rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
-                                isSelected
-                                  ? isFreeze
-                                    ? "bg-[#0284C7] text-white"
-                                    : "bg-[#059669] text-white"
-                                  : isFreeze
-                                  ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
-                                  : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
-                              }`}
-                            >
-                              {isFreeze ? "냉동구역" : "냉장구역"}
-                            </span>
-                            <strong
-                              className={`text-hb-sm font-bold break-keep ${
-                                isSelected
-                                  ? "text-white"
-                                  : "text-[#141A23] group-hover:text-[#E8521A]"
-                              }`}
-                            >
-                              {comp.shortPos} · {stripParens(comp.roleName)}
-                            </strong>
-                          </div>
-                          <p
-                            className={`text-hb-xs font-medium break-keep ${
-                              isSelected ? "text-white/70" : "text-[#64748B]"
-                            }`}
-                          >
-                            권장 보관: {comp.recommendedItems.slice(0, 3).join(", ")}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2.5 shrink-0">
-                          <span
-                            className={`font-mono text-hb-xs sm:text-hb-sm font-bold tabular-nums whitespace-nowrap ${
-                              isSelected ? "text-[#38BDF8]" : "text-[#334155]"
-                            }`}
-                          >
-                            {comp.tempRange.replace(/℃/g, "°C")}
-                          </span>
-                          <span
-                            className={`w-1.5 h-7 rounded-full transition-colors ${
-                              isSelected ? "bg-[#E8521A]" : "bg-[#CBD5E1]"
-                            }`}
-                            aria-hidden="true"
-                          />
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Case 3: 4도어 2x2 그리드 */}
-              {layout.type === "4door_grid" && (
-                <div className="grid grid-cols-2 gap-2">
-                  {layout.compartments.map((comp) => {
-                    const isSelected = comp.id === activeCompartment.id;
-                    const isFreeze = comp.role === "freezer";
-
-                    return (
-                      <button
-                        key={comp.id}
-                        type="button"
-                        onClick={() => setSelectedId(comp.id)}
-                        className={`group relative flex flex-col justify-between rounded-xl p-3 sm:p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer min-h-[110px] sm:min-h-[118px] ${
-                          isSelected
-                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
-                            : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between gap-1.5 w-full">
-                          <span
-                            className={`inline-flex items-center rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
-                              isSelected
-                                ? isFreeze
-                                  ? "bg-[#0284C7] text-white"
-                                  : "bg-[#059669] text-white"
-                                : isFreeze
-                                ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
-                                : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
-                            }`}
-                          >
-                            {isFreeze ? "냉동" : "냉장"}
-                          </span>
-                          <span
-                            className={`h-1 w-6 rounded-full transition-colors ${
-                              isSelected ? "bg-white/40" : "bg-[#CBD5E1]"
-                            }`}
-                            aria-hidden="true"
-                          />
-                        </div>
-
-                        <div className="my-1.5 min-w-0">
-                          <strong
-                            className={`block text-hb-sm font-bold leading-tight break-keep ${
-                              isSelected
-                                ? "text-white"
-                                : "text-[#141A23] group-hover:text-[#E8521A]"
-                            }`}
-                          >
-                            {stripParens(comp.roleName)}
-                          </strong>
-                          <span
-                            className={`mt-0.5 block text-hb-xs font-medium ${
-                              isSelected ? "text-white/70" : "text-[#64748B]"
-                            }`}
-                          >
-                            {comp.shortPos}
-                          </span>
-                        </div>
-
-                        <div
-                          className={`font-mono text-hb-xs font-bold tabular-nums whitespace-nowrap ${
-                            isSelected ? "text-[#38BDF8]" : "text-[#334155]"
-                          }`}
-                        >
-                          {comp.tempRange.replace(/℃/g, "°C")}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* Case 4: 스탠드형 3단 김치냉장고 */}
-              {layout.type === "kimchi_3tier" && (
-                <div className="space-y-2">
-                  {layout.compartments.map((comp) => {
-                    const isSelected = comp.id === activeCompartment.id;
-
-                    return (
-                      <button
-                        key={comp.id}
-                        type="button"
-                        onClick={() => setSelectedId(comp.id)}
-                        className={`group relative flex items-center justify-between gap-3 rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full min-h-[70px] ${
-                          isSelected
-                            ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A] border-transparent"
-                            : "border border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC]"
-                        }`}
-                      >
-                        <div>
-                          <span
-                            className={`inline-block rounded px-2 py-0.5 text-hb-xs font-bold ${
-                              isSelected
-                                ? "bg-white/15 text-[#FF8A50]"
-                                : "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]"
-                            }`}
-                          >
-                            {comp.shortPos}
-                          </span>
-                          <strong
-                            className={`mt-1 block text-hb-sm font-bold break-keep ${
-                              isSelected
-                                ? "text-white"
-                                : "text-[#141A23] group-hover:text-[#E8521A]"
-                            }`}
-                          >
-                            {stripParens(comp.roleName)}
-                          </strong>
-                        </div>
-                        <span
-                          className={`font-mono text-hb-xs font-bold tabular-nums whitespace-nowrap ${
-                            isSelected ? "text-[#38BDF8]" : "text-[#334155]"
-                          }`}
-                        >
-                          {comp.tempRange.replace(/℃/g, "°C")}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                  <p
+                    className={`text-hb-xs truncate ${
+                      isSelected ? "text-white/75" : "text-[#64748B]"
+                    }`}
+                  >
+                    권장 보관: {comp.recommendedItems.join(" · ")}
+                  </p>
+                </button>
+              );
+            })}
           </div>
+        )}
 
-          <p className="mt-3 text-center text-hb-xs font-medium text-[#64748B]">
-            실물 규격 비율 기준 다이어그램 (도어를 터치하여 구역 전환)
+        {/* Case C: 2도어 상·하 수직 분할 또는 3단 김치냉장고 */}
+        {(layout.type === "2door_vertical" ||
+          layout.type === "kimchi_3tier") && (
+          <div className="space-y-2.5">
+            {layout.compartments.map((comp) => {
+              const isSelected = comp.id === activeCompartment.id;
+              const isFreeze = comp.role === "freezer";
+
+              return (
+                <button
+                  key={comp.id}
+                  type="button"
+                  onClick={() => setSelectedId(comp.id)}
+                  className={`group relative flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl p-3.5 sm:p-4 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] cursor-pointer w-full ${
+                    isSelected
+                      ? "bg-[#141A23] text-white shadow-card ring-2 ring-[#E8521A]"
+                      : "border border-[#CBD2DC] bg-white text-[#141A23] hover:border-[#141A23]"
+                  }`}
+                >
+                  <div className="space-y-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`rounded px-2 py-0.5 text-hb-xs font-bold leading-none ${
+                          isSelected
+                            ? isFreeze
+                              ? "bg-[#0284C7] text-white"
+                              : "bg-[#0D9488] text-white"
+                            : isFreeze
+                            ? "bg-[#F0F9FF] text-[#0369A1] border border-[#BAE6FD]"
+                            : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                        }`}
+                      >
+                        {comp.shortPos}
+                      </span>
+                      <strong
+                        className={`text-hb-base font-bold ${
+                          isSelected
+                            ? "text-white"
+                            : "text-[#141A23] group-hover:text-[#E8521A]"
+                        }`}
+                      >
+                        {stripParens(comp.roleName)}
+                      </strong>
+                    </div>
+                    <p
+                      className={`text-hb-xs ${
+                        isSelected ? "text-white/75" : "text-[#64748B]"
+                      }`}
+                    >
+                      권장 보관: {comp.recommendedItems.join(" · ")}
+                    </p>
+                  </div>
+
+                  <span
+                    className={`font-mono text-hb-base font-bold tabular-nums whitespace-nowrap shrink-0 ${
+                      isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                    }`}
+                  >
+                    {comp.tempRange}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 3. 하단 선택 구역 요약 원장 (중첩 박스 없이 우측 구매 박스와 동일한 깔끔한 가로선 구조) */}
+      <dl className="mt-4 divide-y divide-[#E2E6EC] border-t border-[#E2E6EC] text-hb-xs sm:text-hb-sm">
+        <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <dt className="font-semibold text-[#64748B] shrink-0 flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#E8521A]" />
+            <span>선택 구역 ({activeCompartment.shortPos})</span>
+          </dt>
+          <dd className="font-bold text-[#141A23] sm:text-right break-keep">
+            {activeCompartment.features ||
+              `${stripParens(activeCompartment.roleName)} (${activeCompartment.tempRange})`}
+          </dd>
+        </div>
+
+        <div className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <dt className="font-semibold text-[#64748B] shrink-0">
+            권장 보관 품목
+          </dt>
+          <dd className="flex flex-wrap sm:justify-end gap-1.5">
+            {activeCompartment.recommendedItems.map((item, idx) => (
+              <span
+                key={idx}
+                className="inline-flex items-center gap-1 rounded-md bg-[#F1F3F6] px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23]"
+              >
+                <Icon d={ICON.check} className="h-3 w-3 text-[#E8521A]" />
+                <span>{item}</span>
+              </span>
+            ))}
+          </dd>
+        </div>
+
+        <div className="pt-3 flex items-start gap-2 text-hb-xs text-[#64748B]">
+          <Icon
+            d={ICON.shieldCheck}
+            className="h-4 w-4 text-[#0D9488] shrink-0 mt-0.5"
+          />
+          <p className="leading-relaxed break-keep">
+            <strong className="text-[#141A23]">
+              {layout.coolingType === "미지정"
+                ? "냉각 특성"
+                : `${layout.coolingType} 냉각 시스템`}
+              :
+            </strong>{" "}
+            {layout.coolingDesc}
           </p>
         </div>
-
-        {/* B. 우측 (7열): 선택 구역 상세 스펙 시트 (중복 제거로 완벽한 좌우 높이 일치) */}
-        <div className="md:col-span-7 flex flex-col justify-between rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 space-y-4">
-          <div className="space-y-4">
-            {/* 상단 구역 빠른 전환 탭 바 */}
-            <div className="flex flex-wrap items-center gap-1.5 pb-3 border-b border-[#F1F3F6]">
-              {layout.compartments.map((comp) => {
-                const isCurrent = comp.id === activeCompartment.id;
-                return (
-                  <button
-                    key={comp.id}
-                    type="button"
-                    onClick={() => setSelectedId(comp.id)}
-                    className={`rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] cursor-pointer ${
-                      isCurrent
-                        ? "bg-[#141A23] text-white shadow-2xs"
-                        : "bg-[#F1F3F6] text-[#334155] hover:bg-[#E2E6EC]"
-                    }`}
-                  >
-                    {comp.shortPos}
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* 현재 선택 구역 타이틀 & 권장 온도 (우측 박스 완벽 정렬) */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 sm:p-4 rounded-xl bg-[#F8FAFC] border border-[#E2E6EC]">
-              <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-hb-xs font-bold text-[#64748B]">
-                    선택된 도어 구역
-                  </span>
-                  <span
-                    className={`inline-flex items-center rounded px-1.5 py-0.5 text-hb-xs font-bold leading-none ${
-                      activeCompartment.role === "freezer"
-                        ? "bg-[#E0F2FE] text-[#0369A1] border border-[#BAE6FD]"
-                        : "bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]"
-                    }`}
-                  >
-                    {activeCompartment.role === "freezer" ? "냉동" : "냉장"}
-                  </span>
-                </div>
-                <h4 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight break-keep">
-                  {stripParens(activeCompartment.positionLabel)} · {stripParens(activeCompartment.roleName)}
-                </h4>
-              </div>
-
-              <div className="rounded-lg bg-white border border-[#CBD5E1] px-3.5 py-2 text-right shadow-2xs shrink-0">
-                <span className="block text-hb-xs font-bold text-[#64748B] text-right">
-                  적정 권장 온도
-                </span>
-                <strong className="font-mono text-hb-base sm:text-hb-lg font-bold text-[#E8521A] tabular-nums whitespace-nowrap block text-right">
-                  {activeCompartment.tempRange.replace(/℃/g, "°C")}
-                </strong>
-              </div>
-            </div>
-
-            {/* 구역 특징 설명 */}
-            {activeCompartment.features && (
-              <div className="rounded-xl bg-[#F8FAFC] border border-[#E2E6EC] p-3.5 text-hb-sm text-[#334155] leading-relaxed break-keep">
-                <strong className="text-[#141A23] block font-bold mb-1">
-                  구역 주요 기능 및 수납 특성
-                </strong>
-                <p>{activeCompartment.features}</p>
-              </div>
-            )}
-
-            {/* 권장 보관 식자재 칩 */}
-            <div>
-              <span className="text-hb-xs font-bold text-[#141A23] block mb-2">
-                권장 보관 식자재 및 품목
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {activeCompartment.recommendedItems.map((item, idx) => (
-                  <span
-                    key={idx}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F8FAFC] px-3 py-1.5 text-hb-xs font-bold text-[#141A23]"
-                  >
-                    <Icon d={ICON.check} className="h-3.5 w-3.5 text-[#E8521A]" />
-                    <span>{item}</span>
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* 하단 냉각 방식 가이드 */}
-          <div className="pt-3 border-t border-[#E2E6EC] flex items-start gap-2 text-hb-xs text-[#64748B]">
-            <Icon
-              d={ICON.shieldCheck}
-              className="h-4 w-4 text-[#0D9488] shrink-0 mt-0.5"
-            />
-            <p className="leading-relaxed break-keep">
-              <strong className="text-[#141A23]">
-                {layout.coolingType === "미지정"
-                  ? "냉각 시스템 특성"
-                  : `${layout.coolingType} 냉각 시스템`}
-                :
-              </strong>{" "}
-              {layout.coolingDesc}
-            </p>
-          </div>
-        </div>
-      </div>
+      </dl>
     </section>
   );
 }
