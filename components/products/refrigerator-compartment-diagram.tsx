@@ -48,6 +48,18 @@ export function detectRefrigeratorLayout(
   const titleLower = (title ?? "").toLowerCase();
   const combined = `${title} ${description ?? ""}`.toLowerCase();
 
+  // 1. 비(非)냉장 가전 및 주방기기 원천 차단 (가열·조리·세척·가공·배기·주방집기 등)
+  // ※ 생선구이기, 가스그릴, 튀김기, 간택기, 식기세척기 등이 업소용기기 카테고리라는 이유로 냉장고로 오인되는 것을 방지
+  const isNonFridgeAppliance =
+    /구이기|그릴|튀김기|간택기|가스렌지|가스레인지|인덕션|하이라이트|버너|화구|온수기|보일러|식기세척기|세척기|소독기|밥솥|취사기|제면기|반죽기|육절기|슬라이서|믹서기|분쇄기|씽크대|싱크대|세정대|잔반통|다단선반|벽선반|상부선반|식판대|후드|닥트|환풍기|실링기|진공포장기|온장고|보온고/i.test(
+      titleLower
+    );
+
+  if (isNonFridgeAppliance) {
+    return null;
+  }
+
+  // 2. 냉장고와 무관한 카테고리 배제
   const isExcludedCategory =
     category === "세탁기/건조기" ||
     category === "에어컨/냉난방기" ||
@@ -57,21 +69,36 @@ export function detectRefrigeratorLayout(
 
   if (
     isExcludedCategory &&
-    !combined.includes("냉장") &&
-    !combined.includes("냉동")
+    !titleLower.includes("냉장") &&
+    !titleLower.includes("냉동")
   ) {
     return null;
   }
 
-  const isFridgeLike =
-    category === "냉장고" ||
-    category === "업소용기기" ||
-    combined.includes("냉장") ||
-    combined.includes("냉동") ||
-    combined.includes("쇼케이스") ||
-    combined.includes("박스");
+  // 3. 실제로 냉장/냉동/김치냉장고 관련 기기인지 엄격 검증
+  // 주의: category === "업소용기기" 만으로 통과시키면 비냉장 업소용 기기가 통과하므로 절대 금지!
+  const hasFridgeKeywordInTitle =
+    titleLower.includes("냉장") ||
+    titleLower.includes("냉동") ||
+    titleLower.includes("쇼케이스") ||
+    titleLower.includes("김치") ||
+    titleLower.includes("찬밧드") ||
+    titleLower.includes("반찬냉장") ||
+    titleLower.includes("테이블냉장") ||
+    titleLower.includes("작업대냉장") ||
+    titleLower.includes("토핑냉장") ||
+    /\b(25|30|45|65)\s*박스/.test(titleLower);
 
-  if (!isFridgeLike) {
+  const hasFridgeKeywordInCombined =
+    combined.includes("냉장고") ||
+    combined.includes("냉동고") ||
+    combined.includes("쇼케이스") ||
+    combined.includes("찬밧드") ||
+    combined.includes("김치냉장고") ||
+    /\b(25|30|45|65)\s*박스/.test(combined) ||
+    /\b(cwsm|cwt|wst|rtar|rtf|rtr|rt-)\b/i.test(combined);
+
+  if (!hasFridgeKeywordInTitle && !hasFridgeKeywordInCombined) {
     return null;
   }
 
@@ -106,7 +133,25 @@ export function detectRefrigeratorLayout(
     : literMatch
     ? `${literMatch[1]}L`
     : null;
-  const widthSpecStr = tableWidthMatch ? `폭 ${tableWidthMatch[1]}mm` : null;
+
+  // 테이블/작업대/찬밧드 제품이거나 모델명에 폭이 명시된 경우에만 폭 규격 사용 (스탠드 25/30/45박스에 엉뚱한 900mm 배지 부착 방지)
+  const isTableExplicit =
+    titleLower.includes("테이블") ||
+    titleLower.includes("작업대") ||
+    titleLower.includes("찬밧드") ||
+    titleLower.includes("반찬") ||
+    titleLower.includes("밧드") ||
+    titleLower.includes("토핑") ||
+    titleLower.includes("김밥") ||
+    titleLower.includes("피자") ||
+    combined.includes("테이블 냉장고") ||
+    combined.includes("작업대 냉장고") ||
+    combined.includes("찬밧드 냉장고") ||
+    combined.includes("반찬 냉장고") ||
+    /\b(cwsm|cwt|wst|rtar|rtf|rtr|rt-)\b/i.test(combined);
+
+  const widthSpecStr =
+    tableWidthMatch && isTableExplicit ? `폭 ${tableWidthMatch[1]}mm` : null;
 
   // 1. 스탠드형 김치냉장고 판별
   const isKimchiStand =
@@ -467,34 +512,220 @@ export function detectRefrigeratorLayout(
     };
   }
 
-  // 3. 가로형 테이블 냉장고 / 찬밧드·반찬·토핑 냉장고 및 양문형 냉장고 (좌우 수평 2도어) 판별
-  // 주의: 일반 설명문의 "반찬 보관" 문구 때문에 일반 테이블 냉장고가 찬밧드로 오인되지 않도록 title 기준으로 찬밧드 판별!
+  // 3. 스탠드형 상/하 2도어 (25박스, 30박스 및 상하 분할) 판별
+  // ※ 핵심 invariant: 25박스, 30박스는 업소용 수직 2도어의 표준이므로 테이블 냉장고보다 반드시 먼저 판별!
+  const isBox2Door =
+    combined.includes("25박스") ||
+    combined.includes("30박스");
+
+  const isVertical2DoorExplicit =
+    combined.includes("상단 냉동") ||
+    combined.includes("하단 냉장") ||
+    combined.includes("상단 냉장") ||
+    combined.includes("하단 냉동") ||
+    combined.includes("상냉동") ||
+    combined.includes("하냉장") ||
+    combined.includes("상냉장") ||
+    combined.includes("상/하") ||
+    combined.includes("상하") ||
+    combined.includes("상·하");
+
+  const is2DoorGeneral =
+    !isTableExplicit &&
+    !combined.includes("양문") &&
+    (combined.includes("2도어") ||
+      combined.includes("2문") ||
+      combined.includes("투도어") ||
+      combined.includes("냉장냉동고"));
+
+  const is2DoorVertical = isBox2Door || isVertical2DoorExplicit || is2DoorGeneral;
+
+  if (is2DoorVertical) {
+    const isTopFridgeBottomFreeze =
+      (combined.includes("상냉장") && combined.includes("하냉동")) ||
+      combined.includes("상단 냉장 / 하단 냉동") ||
+      combined.includes("상단 냉장 1칸 / 하단 냉동 1칸") ||
+      combined.includes("상단 냉장") ||
+      combined.includes("상냉장");
+
+    const isAllFreeze =
+      combined.includes("올냉동") ||
+      combined.includes("2도어 올냉동") ||
+      combined.includes("전칸 냉동") ||
+      combined.includes("2칸 전체 냉동");
+
+    const isAllFridge =
+      combined.includes("올냉장") ||
+      combined.includes("2도어 올냉장") ||
+      combined.includes("전칸 냉장") ||
+      combined.includes("2칸 전체 냉장") ||
+      combined.includes("전체 냉장실");
+
+    if (isAllFreeze) {
+      return {
+        type: "2door_vertical",
+        title: isBox2Door
+          ? `업소용 ${boxMatch?.[1] ?? "25/30"}박스 2도어 전칸 올냉동 구조도`
+          : "업소용 2도어 전칸 올냉동 구조도",
+        subtitle: "상·하 2칸 전체 급속 냉동 특화 구성",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr ?? "25/30박스",
+        widthSpec: null,
+        compartments: [
+          {
+            id: "top",
+            positionLabel: "상단 도어 (냉동 1칸)",
+            shortPos: "상단 도어",
+            role: "freezer",
+            roleName: "급속 냉동실",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["자주 꺼내는 냉동 식자재", "육류", "가공식품"],
+            features: "눈높이 상부 도어로 주력 냉동 식자재를 빠르게 수납·인출합니다.",
+          },
+          {
+            id: "bot",
+            positionLabel: "하단 도어 (냉동 1칸)",
+            shortPos: "하단 도어",
+            role: "freezer",
+            roleName: "대용량 냉동실",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["장기 보관 냉동육", "비축 식자재", "해산물"],
+            features: "부피가 큰 냉동 박스와 비축용 식자재를 안정적으로 보관합니다.",
+          },
+        ],
+      };
+    }
+
+    if (isAllFridge) {
+      return {
+        type: "2door_vertical",
+        title: isBox2Door
+          ? `업소용 ${boxMatch?.[1] ?? "30"}박스 2도어 전칸 올냉장 구조도`
+          : "업소용 2도어 전칸 올냉장 구조도",
+        subtitle: "상·하 2칸 전체 신선 냉장 특화 구성",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr ?? "25/30박스",
+        widthSpec: null,
+        compartments: [
+          {
+            id: "top",
+            positionLabel: "상단 도어 (냉장 1칸)",
+            shortPos: "상단 도어",
+            role: "fridge",
+            roleName: "신선 냉장실",
+            tempRange: "0℃ ~ +7℃",
+            recommendedItems: ["당일 손질 채소", "주방 양념·소스", "유제품"],
+            features: "조리 중 가장 손이 잘 닿는 상부 데일리 신선 냉장 구역입니다.",
+          },
+          {
+            id: "bot",
+            positionLabel: "하단 도어 (냉장 1칸)",
+            shortPos: "하단 도어",
+            role: "fridge",
+            roleName: "대용량 냉장실",
+            tempRange: "0℃ ~ +7℃",
+            recommendedItems: ["대형 반찬통", "김치통", "주류·음료"],
+            features: "무거운 반찬 용기와 음료 박스를 넉넉하게 수납하는 하부 냉장실입니다.",
+          },
+        ],
+      };
+    }
+
+    if (isTopFridgeBottomFreeze) {
+      return {
+        type: "2door_vertical",
+        title: "2도어 독립 냉각 구조도 (상냉장 / 하냉동)",
+        subtitle: "상단 인체공학적 신선 냉장 + 하단 대용량 급속 냉동",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr,
+        widthSpec: null,
+        compartments: [
+          {
+            id: "top",
+            positionLabel: "상단 도어 (냉장)",
+            shortPos: "상단 도어",
+            role: "fridge",
+            roleName: "신선 냉장실",
+            tempRange: "0℃ ~ +7℃",
+            recommendedItems: ["자주 꺼내는 반찬", "채소·과일", "음료·유제품"],
+            features: "허리를 숙이지 않고 편안하게 수납하는 데일리 냉장 구역입니다.",
+          },
+          {
+            id: "bot",
+            positionLabel: "하단 도어 (냉동)",
+            shortPos: "하단 도어",
+            role: "freezer",
+            roleName: "급속 냉동실",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["장기 보관 냉동육", "생선류", "냉동 간편식"],
+            features: "냉기 유출이 적고 깊이감이 뛰어난 대용량 냉동 보관 구역입니다.",
+          },
+        ],
+      };
+    }
+
+    // 기본 업소용 25박스/30박스 표준: 상단 냉동 1칸 / 하단 냉장 1칸
+    return {
+      type: "2door_vertical",
+      title: isBox2Door
+        ? `업소용 ${boxMatch?.[1] ?? "25"}박스 2도어 구조도 (상단 냉동 / 하단 냉장)`
+        : "업소용 2도어 구조도 (상단 냉동 / 하단 냉장)",
+      subtitle: "상단 급속 냉동실(1도어) + 하단 신선 냉장실(1도어) 수직 분할",
+      coolingType,
+      coolingDesc,
+      capacity: capacityStr ?? "25박스",
+      widthSpec: null,
+      compartments: [
+        {
+          id: "top",
+          positionLabel: "상단 도어 (냉동 1칸)",
+          shortPos: "상단 도어",
+          role: "freezer",
+          roleName: "급속 냉동실",
+          tempRange: "-15℃ ~ -24℃",
+          recommendedItems: ["육류", "생선", "소포장 냉동 식자재", "얼음"],
+          features: "직냉식 급속 파이프로 강력한 동결 온도를 유지하는 상단 냉동실입니다.",
+        },
+        {
+          id: "bot",
+          positionLabel: "하단 도어 (냉장 1칸)",
+          shortPos: "하단 도어",
+          role: "fridge",
+          roleName: "신선 냉장실",
+          tempRange: "0℃ ~ +7℃",
+          recommendedItems: ["손질 채소", "식당용 반찬통", "소스류", "음료·주류"],
+          features: "깊고 넓은 다단 선반 구조로 대형 식재료를 신선하게 보관합니다.",
+        },
+      ],
+    };
+  }
+
+  // 4. 가로형 테이블 냉장고 / 찬밧드·반찬·토핑 냉장고 및 양문형 냉장고 (좌우 수평 2도어) 판별
+  // 주의: 스탠드 박스형(25/30/45박스)이 아닌 실제 테이블/작업대/찬밧드 형태일 때만 진입!
   const isBanchanTopping =
     titleLower.includes("반찬") ||
     titleLower.includes("밧드") ||
     titleLower.includes("찬밧드") ||
     titleLower.includes("토핑") ||
     titleLower.includes("김밥") ||
-    combined.includes("찬밧드");
+    titleLower.includes("피자") ||
+    titleLower.includes("샌드위치") ||
+    combined.includes("찬밧드 냉장고") ||
+    combined.includes("반찬 냉장고");
 
   const isTableFridge =
     isBanchanTopping ||
-    combined.includes("테이블") ||
-    combined.includes("작업대") ||
-    combined.includes("서랍식 테이블") ||
-    combined.includes("가로형") ||
-    combined.includes("상부선반") ||
-    combined.includes("상치선반") ||
+    isTableExplicit ||
     Boolean(
       tableWidthMatch &&
-        (combined.includes("2도어") ||
-          combined.includes("올냉장") ||
-          combined.includes("냉장"))
-    ) ||
-    /\b(cwsm|cwt|wst|rtar|rtf|rtr|rt-)\b/i.test(combined);
+        (combined.includes("테이블") || combined.includes("작업대"))
+    );
 
   const isSideBySide =
-    (combined.includes("양문") && !is4Door) ||
+    combined.includes("양문") ||
     combined.includes("좌냉동") ||
     combined.includes("우냉장");
 
@@ -647,165 +878,7 @@ export function detectRefrigeratorLayout(
     };
   }
 
-  // 4. 2도어 수직 분할 (상하 2칸 분할 - 25박스, 30박스, 일반 투도어) 판별
-  const is2Door =
-    combined.includes("25박스") ||
-    combined.includes("30박스") ||
-    combined.includes("2도어") ||
-    combined.includes("2문") ||
-    combined.includes("투도어") ||
-    combined.includes("상단 냉동") ||
-    combined.includes("하단 냉동") ||
-    combined.includes("상냉장") ||
-    combined.includes("상냉동");
 
-  if (is2Door || combined.includes("냉장냉동고")) {
-    const isTopFridgeBottomFreeze =
-      (combined.includes("상냉장") && combined.includes("하냉동")) ||
-      combined.includes("상단 냉장 / 하단 냉동") ||
-      combined.includes("상단 냉장 1칸 / 하단 냉동 1칸");
-
-    const isAllFreeze =
-      combined.includes("올냉동") || combined.includes("2도어 올냉동");
-    const isAllFridge =
-      combined.includes("올냉장") ||
-      combined.includes("2도어 올냉장") ||
-      combined.includes("전체 냉장실");
-
-    if (isAllFreeze) {
-      return {
-        type: "2door_vertical",
-        title: "업소용 2도어 전칸 올냉동 구조도",
-        subtitle: "상·하 2칸 전체 급속 냉동 특화 구성",
-        coolingType,
-        coolingDesc,
-        capacity: capacityStr ?? "25/30박스",
-        widthSpec: widthSpecStr,
-        compartments: [
-          {
-            id: "top",
-            positionLabel: "상단 도어 (냉동 1칸)",
-            shortPos: "상단 도어",
-            role: "freezer",
-            roleName: "급속 냉동실",
-            tempRange: "-15℃ ~ -24℃",
-            recommendedItems: ["자주 꺼내는 냉동 식자재", "육류", "가공식품"],
-            features: "눈높이 상부 도어로 주력 냉동 식자재를 빠르게 수납·인출합니다.",
-          },
-          {
-            id: "bot",
-            positionLabel: "하단 도어 (냉동 1칸)",
-            shortPos: "하단 도어",
-            role: "freezer",
-            roleName: "대용량 냉동실",
-            tempRange: "-15℃ ~ -24℃",
-            recommendedItems: ["장기 보관 냉동육", "비축 식자재", "해산물"],
-            features: "부피가 큰 냉동 박스와 비축용 식자재를 안정적으로 보관합니다.",
-          },
-        ],
-      };
-    }
-
-    if (isAllFridge) {
-      return {
-        type: "2door_vertical",
-        title: "업소용 2도어 전칸 올냉장 구조도",
-        subtitle: "상·하 2칸 전체 신선 냉장 특화 구성",
-        coolingType,
-        coolingDesc,
-        capacity: capacityStr ?? "25/30박스",
-        widthSpec: widthSpecStr,
-        compartments: [
-          {
-            id: "top",
-            positionLabel: "상단 도어 (냉장 1칸)",
-            shortPos: "상단 도어",
-            role: "fridge",
-            roleName: "신선 냉장실",
-            tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["당일 손질 채소", "주방 양념·소스", "유제품"],
-            features: "조리 중 가장 손이 잘 닿는 상부 데일리 신선 냉장 구역입니다.",
-          },
-          {
-            id: "bot",
-            positionLabel: "하단 도어 (냉장 1칸)",
-            shortPos: "하단 도어",
-            role: "fridge",
-            roleName: "대용량 냉장실",
-            tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["대형 반찬통", "김치통", "주류·음료"],
-            features: "무거운 반찬 용기와 음료 박스를 넉넉하게 수납하는 하부 냉장실입니다.",
-          },
-        ],
-      };
-    }
-
-    if (isTopFridgeBottomFreeze) {
-      return {
-        type: "2door_vertical",
-        title: "2도어 독립 냉각 구조도 (상냉장 / 하냉동)",
-        subtitle: "상단 인체공학적 신선 냉장 + 하단 대용량 급속 냉동",
-        coolingType,
-        coolingDesc,
-        capacity: capacityStr,
-        widthSpec: widthSpecStr,
-        compartments: [
-          {
-            id: "top",
-            positionLabel: "상단 도어 (냉장)",
-            shortPos: "상단 도어",
-            role: "fridge",
-            roleName: "신선 냉장실",
-            tempRange: "0℃ ~ +7℃",
-            recommendedItems: ["자주 꺼내는 반찬", "채소·과일", "음료·유제품"],
-            features: "허리를 숙이지 않고 편안하게 수납하는 데일리 냉장 구역입니다.",
-          },
-          {
-            id: "bot",
-            positionLabel: "하단 도어 (냉동)",
-            shortPos: "하단 도어",
-            role: "freezer",
-            roleName: "급속 냉동실",
-            tempRange: "-15℃ ~ -24℃",
-            recommendedItems: ["장기 보관 냉동육", "생선류", "냉동 간편식"],
-            features: "냉기 유출이 적고 깊이감이 뛰어난 대용량 냉동 보관 구역입니다.",
-          },
-        ],
-      };
-    }
-
-    return {
-      type: "2door_vertical",
-      title: "업소용 2도어 구조도 (상단 냉동 / 하단 냉장)",
-      subtitle: "상단 급속 냉동실(1도어) + 하단 신선 냉장실(1도어) 수직 분할",
-      coolingType,
-      coolingDesc,
-      capacity: capacityStr ?? "25박스",
-      widthSpec: widthSpecStr,
-      compartments: [
-        {
-          id: "top",
-          positionLabel: "상단 도어 (냉동 1칸)",
-          shortPos: "상단 도어",
-          role: "freezer",
-          roleName: "급속 냉동실",
-          tempRange: "-15℃ ~ -24℃",
-          recommendedItems: ["육류", "생선", "소포장 냉동 식자재", "얼음"],
-          features: "직냉식 급속 파이프로 강력한 동결 온도를 유지하는 상단 냉동실입니다.",
-        },
-        {
-          id: "bot",
-          positionLabel: "하단 도어 (냉장 1칸)",
-          shortPos: "하단 도어",
-          role: "fridge",
-          roleName: "신선 냉장실",
-          tempRange: "0℃ ~ +7℃",
-          recommendedItems: ["손질 채소", "식당용 반찬통", "소스류", "음료·주류"],
-          features: "깊고 넓은 다단 선반 구조로 대형 식재료를 신선하게 보관합니다.",
-        },
-      ],
-    };
-  }
 
   return null;
 }

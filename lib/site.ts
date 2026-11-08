@@ -243,17 +243,25 @@ export function extractSpecCapsules(
   const kgMatch = combined.match(/\b(\d{1,3}(?:\.\d)?)\s*kg\b/i);
   if (kgMatch) addTag(`${kgMatch[1]}kg`);
 
+  // 테이블/작업대/찬밧드/쇼케이스 등 가로형 제품이거나 title에 명시된 경우에만 폭 태그 부착 (스탠드 박스형 냉장고 오인 방지)
+  const isStandBox = Boolean(boxMatch);
+  const isTableLike = /테이블|작업대|찬밧드|반찬|밧드|토핑|김밥|쇼케이스|싱크대|간택기/i.test(combined);
   const widthMmMatch = combined.match(
     /\b(900|1200|1500|1800|2100|2400)\s*(?:mm|각|폭)/i
   );
-  if (widthMmMatch) addTag(`폭 ${widthMmMatch[1]}mm`);
+  if (widthMmMatch && (!isStandBox || isTableLike)) {
+    addTag(`폭 ${widthMmMatch[1]}mm`);
+  }
 
   const KEYWORD_RULES: ReadonlyArray<{ pattern: RegExp; label: string }> = [
-    { pattern: /냉동\s*1\s*칸|1\/4\s*냉동|냉장\s*3.*냉동\s*1/i, label: "냉동1칸/냉장3칸" },
+    // 2도어 상하 분할 (상단 냉동 1칸 / 하단 냉장 1칸 등) - 4칸 규칙보다 먼저 평가하여 2도어의 오분류 원천 방지
+    { pattern: /상단\s*냉동|상냉동.*하냉장|상단\s*냉동.*하단\s*냉장|냉동\s*1\s*칸.*냉장\s*1\s*칸|1\s*냉동\s*1\s*냉장/i, label: "상냉동/하냉장" },
+    // 4도어 4칸 전용 (1/4 냉동 또는 3냉장 1냉동)
+    { pattern: /(?:4\s*도어|4\s*문|45\s*박스|4\s*칸).*(?:냉동\s*1\s*칸|1\/4\s*냉동)|냉장\s*3.*냉동\s*1|냉동\s*1.*냉장\s*3|1\/4\s*냉동/i, label: "냉동1칸/냉장3칸" },
     { pattern: /냉동\s*2\s*칸|2\s*냉동\s*2\s*냉장|냉장\s*2.*냉동\s*2|반반|하프/i, label: "냉동2칸/냉장2칸" },
-    { pattern: /올냉장|전칸\s*냉장|전체\s*냉장실/, label: "올냉장" },
-    { pattern: /올냉동|전칸\s*냉동|전체\s*냉동실/, label: "올냉동" },
-    { pattern: /상냉장\s*하냉동|상냉장/, label: "상냉장 하냉동" },
+    { pattern: /올냉장|전칸\s*냉장|2\s*칸\s*전체\s*냉장|전체\s*냉장실/, label: "올냉장" },
+    { pattern: /올냉동|전칸\s*냉동|2\s*칸\s*전체\s*냉동|전체\s*냉동실/, label: "올냉동" },
+    { pattern: /상냉장\s*하냉동|상단\s*냉장.*하단\s*냉동|상냉장/, label: "상냉장 하냉동" },
     { pattern: /좌냉동\s*우냉장/, label: "좌냉동 우냉장" },
     { pattern: /2\s*in\s*1|투인원/i, label: "2in1" },
     { pattern: /냉난방/, label: "냉난방겸용" },
