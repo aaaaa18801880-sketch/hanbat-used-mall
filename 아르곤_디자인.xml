@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-11-08T03:37:56.782Z">
+<project name="hanbat-mall" generated_at="2026-11-08T03:54:41.205Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>91</file_count>
+    <file_count>84</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="43">
@@ -91,7 +91,7 @@ export default function ProductNotFound() {
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="761">
+    <file path="app/[id]/page.tsx" lines="685">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -113,7 +113,6 @@ import {
   extractModelName,
   extractSpecCapsules,
   getCategoryFaqs,
-  type ProductCategoryValue,
 } from "../../lib/site";
 import {
   SiteHeader,
@@ -140,80 +139,6 @@ import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-pl
 import { RefrigeratorCompartmentDiagram } from "../../components/products/refrigerator-compartment-diagram";
 
 export const dynamic = "force-dynamic";
-
-/**
- * 카테고리별(업소용 B2B / 에어컨·냉난방기 / 가정용 B2C) 맞춤 설치 환경 체크리스트 정의
- */
-function getCategoryChecklistConfig(category: ProductCategoryValue): {
-  badge: string;
-  title: string;
-  isB2B: boolean;
-  rows: ReadonlyArray<{ label: string; desc: string }>;
-} {
-  if (category === "업소용기기") {
-    return {
-      badge: "업소용 설비 확인",
-      title: "업소용 설비 도입 · 설치 환경 체크리스트",
-      isB2B: true,
-      rows: [
-        {
-          label: "전원 규격",
-          desc: "단상 220V / 삼상 380V 여부 및 매장 분전반(차단기) 용량 확인",
-        },
-        {
-          label: "급·배수 / 가스",
-          desc: "제빙기·세척기 급배수 배관 위치 / 가스기기(도시가스·LPG) 규격",
-        },
-        {
-          label: "반입 동선",
-          desc: "주방 출입구 가로 폭·문턱 높이 및 기존 폐업·철거 기기 유무",
-        },
-      ],
-    };
-  }
-
-  if (category === "에어컨/냉난방기") {
-    return {
-      badge: "냉난방기 시공 확인",
-      title: "에어컨 · 냉난방기 시공 환경 체크리스트",
-      isB2B: true,
-      rows: [
-        {
-          label: "전원 · 면적",
-          desc: "단상 220V / 삼상 380V 전원 규격 및 설치 공간 평형 확인",
-        },
-        {
-          label: "배관 · 타공",
-          desc: "실내기~실외기 예상 배관 거리 및 벽체 타공 여부 확인",
-        },
-        {
-          label: "실외기 거치",
-          desc: "베란다·옥상·외벽 앵글 등 실외기 안착 공간 및 층수 확인",
-        },
-      ],
-    };
-  }
-
-  return {
-    badge: "가정용 배송 확인",
-    title: "가정용 가전 배송 · 설치 환경 체크리스트",
-    isB2B: false,
-    rows: [
-      {
-        label: "진입로 · 문폭",
-        desc: "현관문·방문·설치 공간의 가로 × 깊이 × 높이 여유 치수 확인",
-      },
-      {
-        label: "운반 환경",
-        desc: "엘리베이터 유무 또는 계단 층수(사다리차 필요 여부) 사전 확인",
-      },
-      {
-        label: "수도 · 콘센트",
-        desc: "세탁기·냉장고 급배수 수도꼭지 위치 및 전용 콘센트 확인",
-      },
-    ],
-  };
-}
 
 const getProductById = cache(async (id: string) => {
   const { data: product, error } = await supabase
@@ -324,7 +249,7 @@ export default async function ProductDetailPage({
   const sold = isProductSold(product.status);
   const statusLabel = getProductStatusLabel(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
-  const checklistConfig = getCategoryChecklistConfig(categoryLabel);
+  const isB2B = categoryLabel === "업소용기기" || categoryLabel === "에어컨/냉난방기";
   const priced = hasProductPrice(product.price);
   const priceDisplay = sold
     ? "판매완료"
@@ -605,7 +530,7 @@ export default async function ProductDetailPage({
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
                   className={`rounded-md px-2.5 py-0.5 text-hb-xs font-bold transition-colors ${
-                    checklistConfig.isB2B
+                    isB2B
                       ? "bg-[#141A23] text-white hover:bg-[#1E2736]"
                       : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] hover:border-[#CBD2DC]"
                   }`}
@@ -735,7 +660,6 @@ export default async function ProductDetailPage({
                 sold={sold}
                 modelName={modelName}
                 firstImageUrl={images[0] || null}
-                checklistConfig={checklistConfig}
               />
             </div>
           </div>
@@ -1980,12 +1904,12 @@ export default function IntegratedAdminDashboard() {
   if (!isAdmin) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-4 font-sans">
-        <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E5E8EB] w-full max-w-sm">
+        <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E2E6EC] w-full max-w-sm">
           <div className="text-center mb-6">
             <span className="inline-block rounded-md bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
               관리자 콘솔
             </span>
-            <h1 className="mt-2 text-hb-xl font-extrabold text-[#0E1A2B] tracking-[-0.02em]">
+            <h1 className="mt-2 text-hb-xl font-extrabold text-[#141A23] tracking-[-0.02em]">
               한밭중고전자 통합 관리자
             </h1>
             <p className="mt-1 text-hb-sm text-[#6B7280]">
@@ -2023,10 +1947,10 @@ export default function IntegratedAdminDashboard() {
               {loggingIn ? "인증 확인 중..." : "관리자 로그인"}
             </button>
           </form>
-          <div className="mt-5 pt-4 border-t border-[#E5E8EB] text-center">
+          <div className="mt-5 pt-4 border-t border-[#E2E6EC] text-center">
             <Link
               href="/"
-              className="text-hb-xs font-semibold text-[#6B7280] hover:text-[#0E1A2B] underline underline-offset-4"
+              className="text-hb-xs font-semibold text-[#6B7280] hover:text-[#141A23] underline underline-offset-4"
             >
               ← 고객용 홈 화면으로 돌아가기
             </Link>
@@ -2039,11 +1963,11 @@ export default function IntegratedAdminDashboard() {
   return (
     <div className="min-h-screen bg-[#F9FAFB] font-sans text-[#1F2530] pb-20">
       {/* 상단 관리자 헤더 */}
-      <header className="sticky top-0 z-40 bg-[#0E1A2B] text-white border-b border-white/10 shadow-md">
+      <header className="sticky top-0 z-40 bg-[#141A23] text-white border-b border-white/10 shadow-md">
         <div className="hb-container py-3.5 sm:py-4 flex flex-wrap items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <span className="rounded-sm bg-[#B5431A] px-2 py-0.5 text-hb-xs font-extrabold tracking-wider">
+              <span className="rounded-sm bg-[#E8521A] px-2 py-0.5 text-hb-xs font-extrabold tracking-wider">
                 ADMIN
               </span>
               <h1 className="text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.02em]">
@@ -2130,7 +2054,7 @@ export default function IntegratedAdminDashboard() {
                 onClick={() => setActiveTab(t.id)}
                 className={`px-3.5 sm:px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
                   active
-                    ? "bg-[#F9FAFB] text-[#0E1A2B]"
+                    ? "bg-[#F9FAFB] text-[#141A23]"
                     : "text-white/75 hover:text-white hover:bg-white/10"
                 }`}
               >
@@ -2139,9 +2063,9 @@ export default function IntegratedAdminDashboard() {
                   <span
                     className={`rounded-full px-1.5 py-0.5 text-hb-xs font-extrabold tabular-nums ${
                       t.highlight
-                        ? "bg-[#B5431A] text-white"
+                        ? "bg-[#E8521A] text-white"
                         : active
-                        ? "bg-[#0E1A2B]/10 text-[#0E1A2B]"
+                        ? "bg-[#141A23]/10 text-[#141A23]"
                         : "bg-white/15 text-white/85"
                     }`}
                   >
@@ -2166,15 +2090,15 @@ export default function IntegratedAdminDashboard() {
               setActiveTab("inquiries");
               setInqStatusFilter("priority");
             }}
-            className="text-left rounded-xl border border-[#FADCD0] bg-[#FFF5F0] p-4 hover:border-[#D9531E] transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-4 hover:border-[#D9531E] transition-colors shadow-2xs"
           >
             <div className="flex items-center justify-between gap-2">
-              <span className="text-hb-xs sm:text-hb-xs font-bold text-[#B5431A]">
+              <span className="text-hb-xs sm:text-hb-xs font-bold text-[#E8521A]">
                 우선 확인 필요 (접수·검토중)
               </span>
-              <span className="h-2 w-2 rounded-full bg-[#B5431A]" />
+              <span className="h-2 w-2 rounded-full bg-[#E8521A]" />
             </div>
-            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#B5431A] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#E8521A] tabular-nums">
               {metrics.priorityCount}건
             </p>
           </button>
@@ -2185,12 +2109,12 @@ export default function IntegratedAdminDashboard() {
               setActiveTab("inquiries");
               setInqStatusFilter("전체");
             }}
-            className="text-left rounded-xl border border-[#E5E8EB] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E2E6EC] bg-white p-4 hover:border-[#141A23]/40 transition-colors shadow-2xs"
           >
             <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               전체 문의 · 매입 신청
             </span>
-            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#0E1A2B] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#141A23] tabular-nums">
               {metrics.totalInquiries}건{" "}
               <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#6B7280]">
                 (매입 {metrics.buybackCount})
@@ -2201,12 +2125,12 @@ export default function IntegratedAdminDashboard() {
           <button
             type="button"
             onClick={() => setActiveTab("products")}
-            className="text-left rounded-xl border border-[#E5E8EB] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E2E6EC] bg-white p-4 hover:border-[#141A23]/40 transition-colors shadow-2xs"
           >
             <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               현재 판매중 / 예약중 재고
             </span>
-            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#0E1A2B] tabular-nums">
+            <p className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold text-[#141A23] tabular-nums">
               {metrics.sellingProducts}건{" "}
               <span className="text-hb-xs sm:text-hb-sm font-semibold text-amber-700">
                 (예약 {metrics.reservedProducts})
@@ -2217,7 +2141,7 @@ export default function IntegratedAdminDashboard() {
           <button
             type="button"
             onClick={() => setActiveTab("delivery")}
-            className="text-left rounded-xl border border-[#E5E8EB] bg-white p-4 hover:border-[#0E1A2B]/40 transition-colors shadow-2xs"
+            className="text-left rounded-xl border border-[#E2E6EC] bg-white p-4 hover:border-[#141A23]/40 transition-colors shadow-2xs"
           >
             <span className="text-hb-xs sm:text-hb-xs font-bold text-[#6B7280] block">
               판매완료 / 배송사례
@@ -2233,10 +2157,10 @@ export default function IntegratedAdminDashboard() {
 
         {/* 2. 탭별 본문: OVERVIEW 또는 INQUIRIES */}
         {(activeTab === "overview" || activeTab === "inquiries") && (
-          <section className="rounded-xl border border-[#E5E8EB] bg-white p-4 sm:p-6 shadow-2xs space-y-5">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E5E8EB] pb-4">
+          <section className="rounded-xl border border-[#E2E6EC] bg-white p-4 sm:p-6 shadow-2xs space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 border-b border-[#E2E6EC] pb-4">
               <div>
-                <h2 className="text-hb-lg sm:text-hb-lg font-extrabold text-[#0E1A2B]">
+                <h2 className="text-hb-lg sm:text-hb-lg font-extrabold text-[#141A23]">
                   고객 문의 및 매입 신청 통합 관리
                 </h2>
                 <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#6B7280]">
@@ -2248,7 +2172,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqStatusFilter}
                   onChange={(e) => setInqStatusFilter(e.target.value)}
-                  className="h-9 rounded border border-[#E5E8EB] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#0E1A2B]"
+                  className="h-9 rounded border border-[#E2E6EC] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23]"
                 >
                   <option value="priority">미처리 신규(접수·검토중)만</option>
                   <option value="전체">전체 상태 보기</option>
@@ -2263,7 +2187,7 @@ export default function IntegratedAdminDashboard() {
                 <select
                   value={inqTypeFilter}
                   onChange={(e) => setInqTypeFilter(e.target.value)}
-                  className="h-9 rounded border border-[#E5E8EB] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#4B5260]"
+                  className="h-9 rounded border border-[#E2E6EC] bg-white px-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#4B5260]"
                 >
                   <option value="전체">모든 문의 유형</option>
                   <option value="내 물건 팔기">내 물건 팔기 (매입)</option>
@@ -2277,13 +2201,13 @@ export default function IntegratedAdminDashboard() {
                   value={inqKeyword}
                   onChange={(e) => setInqKeyword(e.target.value)}
                   placeholder="고객명·연락처·제목 검색"
-                  className="h-9 flex-1 sm:flex-none rounded border border-[#E5E8EB] px-3 text-hb-xs sm:text-hb-sm"
+                  className="h-9 flex-1 sm:flex-none rounded border border-[#E2E6EC] px-3 text-hb-xs sm:text-hb-sm"
                 />
               </div>
             </div>
 
             {filteredInquiries.length === 0 ? (
-              <div className="py-12 text-center text-hb-sm text-[#6E675C]">
+              <div className="py-12 text-center text-hb-sm text-[#64748B]">
                 해당 조건에 맞는 문의/매입 신청 내역이 없습니다.
               </div>
             ) : (
@@ -2299,40 +2223,40 @@ export default function IntegratedAdminDashboard() {
                       className={`rounded-xl border p-4 sm:p-5 transition-colors ${
                         isPriority
                           ? "border-[#D9531E]/50 bg-[#FFFDFB] shadow-2xs"
-                          : "border-[#E5E8EB] bg-white"
+                          : "border-[#E2E6EC] bg-white"
                       }`}
                     >
                       <div className="flex flex-col md:flex-row md:items-start justify-between gap-3">
                         <div className="space-y-1">
                           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                             {isPriority && !req.is_notice && (
-                              <span className="rounded-sm bg-[#B5431A] px-2 py-0.5 text-hb-xs font-bold text-white">
+                              <span className="rounded-sm bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white">
                                 우선 확인
                               </span>
                             )}
-                            <span className="rounded-sm bg-[#0E1A2B] px-2.5 py-0.5 text-hb-xs font-bold text-white">
+                            <span className="rounded-sm bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white">
                               {req.is_notice ? "공지" : req.status || "접수"}
                             </span>
                             <span className="rounded-sm bg-[#F2F0EC] px-2 py-0.5 text-hb-xs font-bold text-[#4B5260]">
                               {req.is_notice ? "공지사항" : req.inquiry_type || "문의"}
                             </span>
-                            <span className="text-hb-xs sm:text-hb-xs text-[#6E675C] tabular-nums">
+                            <span className="text-hb-xs sm:text-hb-xs text-[#64748B] tabular-nums">
                               {new Date(req.created_at).toLocaleString("ko-KR")}
                             </span>
                           </div>
 
-                          <h3 className="text-hb-base sm:text-hb-base font-bold text-[#0E1A2B] pt-1">
+                          <h3 className="text-hb-base sm:text-hb-base font-bold text-[#141A23] pt-1">
                             {req.category}
                           </h3>
 
                           <p className="text-hb-sm sm:text-hb-sm text-[#4B5260] flex flex-wrap items-center gap-x-3 gap-y-1">
                             <span>
-                              접수자: <strong className="text-[#0E1A2B]">{req.name}</strong>
+                              접수자: <strong className="text-[#141A23]">{req.name}</strong>
                             </span>
                             {req.phone && (
                               <a
                                 href={telHref(req.phone)}
-                                className="font-bold text-[#B5431A] underline tabular-nums"
+                                className="font-bold text-[#E8521A] underline tabular-nums"
                               >
                                 {req.phone}
                               </a>
@@ -2361,7 +2285,7 @@ export default function IntegratedAdminDashboard() {
                                     e.target.value
                                   )
                                 }
-                                className="h-9 rounded border border-[#0E1A2B] bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B]"
+                                className="h-9 rounded border border-[#141A23] bg-white px-2.5 text-hb-xs font-bold text-[#141A23]"
                               >
                                 {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
                                   <option key={opt.value} value={opt.value}>
@@ -2378,7 +2302,7 @@ export default function IntegratedAdminDashboard() {
                                   );
                                   setReplyDraft(req.admin_reply || "");
                                 }}
-                                className="h-9 rounded bg-[#0E1A2B] px-3 text-hb-xs font-bold text-white hover:bg-[#1C2D47]"
+                                className="h-9 rounded bg-[#141A23] px-3 text-hb-xs font-bold text-white hover:bg-[#1E2736]"
                               >
                                 {req.admin_reply ? "답변 수정" : "답변 작성"}
                               </button>
@@ -2387,7 +2311,7 @@ export default function IntegratedAdminDashboard() {
                                 type="button"
                                 disabled={busyActionId === `notify-telegram-${req.id}`}
                                 onClick={() => handleManualNotificationDispatch("telegram", req)}
-                                className="h-9 rounded border border-[#0E1A2B]/30 bg-white px-2.5 text-hb-xs font-bold text-[#0E1A2B] hover:bg-[#F9FAFB]"
+                                className="h-9 rounded border border-[#141A23]/30 bg-white px-2.5 text-hb-xs font-bold text-[#141A23] hover:bg-[#F9FAFB]"
                                 title="텔레그램 알림 수동 재전송"
                               >
                                 텔레그램
@@ -2423,7 +2347,7 @@ export default function IntegratedAdminDashboard() {
                           );
                           if (!parsed.isStructured) {
                             return (
-                              <div className="mt-3 rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E5E8EB]">
+                              <div className="mt-3 rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E2E6EC]">
                                 {req.description}
                               </div>
                             );
@@ -2432,8 +2356,8 @@ export default function IntegratedAdminDashboard() {
                             <div className="mt-3 space-y-2.5">
                               {(parsed.structuredLines.length > 0 ||
                                 parsed.bulkItems.length > 0) && (
-                                <div className="rounded-md border border-[#0E1A2B]/20 bg-[#F8FAFC] p-3.5 text-hb-sm space-y-2">
-                                  <strong className="text-hb-xs font-extrabold text-[#0E1A2B] block">
+                                <div className="rounded-md border border-[#141A23]/20 bg-[#F8FAFC] p-3.5 text-hb-sm space-y-2">
+                                  <strong className="text-hb-xs font-extrabold text-[#141A23] block">
                                     고객 확인 상담 조건 ({req.inquiry_type})
                                   </strong>
                                   {parsed.structuredLines.length > 0 && (
@@ -2447,7 +2371,7 @@ export default function IntegratedAdminDashboard() {
                                             <dt className="font-bold text-[#4B5260] shrink-0">
                                               {row.label}:
                                             </dt>
-                                            <dd className="font-semibold text-[#0E1A2B]">
+                                            <dd className="font-semibold text-[#141A23]">
                                               {row.value}
                                             </dd>
                                           </div>
@@ -2456,15 +2380,15 @@ export default function IntegratedAdminDashboard() {
                                     </dl>
                                   )}
                                   {parsed.bulkItems.length > 0 && (
-                                    <div className="pt-1.5 border-t border-[#E5E8EB]">
-                                      <span className="text-hb-xs font-bold text-[#B5431A] block mb-1">
+                                    <div className="pt-1.5 border-t border-[#E2E6EC]">
+                                      <span className="text-hb-xs font-bold text-[#E8521A] block mb-1">
                                         요청 장비 및 희망 수량 목록
                                       </span>
-                                      <ul className="space-y-1 text-hb-xs font-medium text-[#0E1A2B]">
+                                      <ul className="space-y-1 text-hb-xs font-medium text-[#141A23]">
                                         {parsed.bulkItems.map((it, idx) => (
                                           <li
                                             key={idx}
-                                            className="bg-white px-2.5 py-1 rounded border border-[#E5E8EB]"
+                                            className="bg-white px-2.5 py-1 rounded border border-[#E2E6EC]"
                                           >
                                             • {it}
                                           </li>
@@ -2476,7 +2400,7 @@ export default function IntegratedAdminDashboard() {
                               )}
 
                               {parsed.customerContent && (
-                                <div className="rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E5E8EB]">
+                                <div className="rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E2E6EC]">
                                   <span className="block text-hb-xs font-bold text-[#6B7280] mb-1">
                                     고객 작성 본문
                                   </span>
@@ -2496,7 +2420,7 @@ export default function IntegratedAdminDashboard() {
                                   {parsed.missingAndQuestions.map((q, idx) => (
                                     <p
                                       key={idx}
-                                      className="font-semibold text-[#B5431A]"
+                                      className="font-semibold text-[#E8521A]"
                                     >
                                       {q}
                                     </p>
@@ -2515,7 +2439,7 @@ export default function IntegratedAdminDashboard() {
                               href={url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="h-16 w-16 overflow-hidden rounded border border-[#E5E8EB] bg-[#EFECE6]"
+                              className="h-16 w-16 overflow-hidden rounded border border-[#E2E6EC] bg-[#F1F3F6]"
                               title="클릭하여 원본 사진 보기"
                             >
                               <SafeImg
@@ -2529,8 +2453,8 @@ export default function IntegratedAdminDashboard() {
                       )}
 
                       {req.admin_reply && activeReplyId !== req.id && (
-                        <div className="mt-3 rounded border border-[#FADCD0] bg-[#FFF5F0] p-3 text-hb-sm text-[#4B5260]">
-                          <strong className="text-[#B5431A] block mb-1">
+                        <div className="mt-3 rounded border border-[#FADCD0] bg-[#FFF4EE] p-3 text-hb-sm text-[#4B5260]">
+                          <strong className="text-[#E8521A] block mb-1">
                             등록된 관리자 답변:
                           </strong>
                           <p className="whitespace-pre-wrap">{req.admin_reply}</p>
@@ -2538,7 +2462,7 @@ export default function IntegratedAdminDashboard() {
                       )}
 
                       {activeReplyId === req.id && (
-                        <div className="mt-3 space-y-2 border-t border-[#E5E8EB] pt-3">
+                        <div className="mt-3 space-y-2 border-t border-[#E2E6EC] pt-3">
                           <div className="flex flex-wrap items-center gap-1.5">
                             <span className="text-hb-xs font-bold text-[#6B7280] mr-1">
                               빠른 답변 템플릿:
@@ -2548,7 +2472,7 @@ export default function IntegratedAdminDashboard() {
                                 key={tpl.label}
                                 type="button"
                                 onClick={() => setReplyDraft(tpl.text)}
-                                className="rounded border border-[#E5E8EB] bg-[#F9FAFB] px-2.5 py-1 text-hb-xs font-semibold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                                className="rounded border border-[#E2E6EC] bg-[#F9FAFB] px-2.5 py-1 text-hb-xs font-semibold text-[#141A23] hover:border-[#141A23]"
                               >
                                 + {tpl.label}
                               </button>
@@ -2598,16 +2522,16 @@ export default function IntegratedAdminDashboard() {
         {/* 3. 탭별 본문: PRODUCTS (AI 상품 등록·수정 및 재고 상태 관리) */}
         {activeTab === "products" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
+            <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
               <div className="flex items-center justify-between">
-                <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
+                <h2 className="text-hb-lg font-bold text-[#141A23]">
                   {editingProductId ? "상품 정보 수정" : "신규 상품 등록 (AI 보조)"}
                 </h2>
                 {editingProductId && (
                   <button
                     type="button"
                     onClick={resetProductForm}
-                    className="text-hb-xs font-bold text-[#B5431A] underline"
+                    className="text-hb-xs font-bold text-[#E8521A] underline"
                   >
                     신규 등록으로 전환
                   </button>
@@ -2622,7 +2546,7 @@ export default function IntegratedAdminDashboard() {
                       <span className="hb-label">
                         기존 등록 사진 ({editingExistingImages.length}장)
                       </span>
-                      <span className="text-hb-xs font-semibold text-[#B5431A]">
+                      <span className="text-hb-xs font-semibold text-[#E8521A]">
                         1번 사진이 대표 이미지입니다
                       </span>
                     </div>
@@ -2630,7 +2554,7 @@ export default function IntegratedAdminDashboard() {
                       {editingExistingImages.map((imgUrl, idx) => (
                         <div
                           key={imgUrl + idx}
-                          className="relative aspect-square rounded border border-[#E5E8EB] overflow-hidden bg-[#EFECE6]"
+                          className="relative aspect-square rounded border border-[#E2E6EC] overflow-hidden bg-[#F1F3F6]"
                         >
                           <SafeImg
                             src={imgUrl}
@@ -2638,7 +2562,7 @@ export default function IntegratedAdminDashboard() {
                             className="h-full w-full object-cover"
                           />
                           {idx === 0 ? (
-                            <span className="absolute left-1 top-1 rounded-sm bg-[#B5431A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
+                            <span className="absolute left-1 top-1 rounded-sm bg-[#E8521A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                               대표
                             </span>
                           ) : (
@@ -2651,7 +2575,7 @@ export default function IntegratedAdminDashboard() {
                                   return [picked, ...next];
                                 })
                               }
-                              className="absolute left-1 top-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#B5431A]"
+                              className="absolute left-1 top-1 rounded-sm bg-[#141A23]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#E8521A]"
                             >
                               대표 지정
                             </button>
@@ -2678,13 +2602,13 @@ export default function IntegratedAdminDashboard() {
                   <label className="hb-label">
                     {editingProductId ? "추가할 상품 사진" : "상품 사진 (최대 3장)"}
                   </label>
-                  <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E5E8EB] bg-[#F9FAFB] p-2.5 text-hb-xs">
-                    <label className="flex items-center gap-2 font-semibold text-[#0E1A2B] cursor-pointer">
+                  <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E2E6EC] bg-[#F9FAFB] p-2.5 text-hb-xs">
+                    <label className="flex items-center gap-2 font-semibold text-[#141A23] cursor-pointer">
                       <input
                         type="checkbox"
                         checked={useSearchSpecs}
                         onChange={(e) => setUseSearchSpecs(e.target.checked)}
-                        className="h-4 w-4 accent-[#0E1A2B]"
+                        className="h-4 w-4 accent-[#141A23]"
                       />
                       <span>모델명 인터넷 검색 사양 참조</span>
                     </label>
@@ -2693,7 +2617,7 @@ export default function IntegratedAdminDashboard() {
                         type="button"
                         disabled={analyzingProduct}
                         onClick={() => runGeminiProductAnalysis(prodFiles)}
-                        className="font-bold text-[#B5431A] underline"
+                        className="font-bold text-[#E8521A] underline"
                       >
                         AI 재분석
                       </button>
@@ -2714,7 +2638,7 @@ export default function IntegratedAdminDashboard() {
                   </p>
 
                   {analyzingProduct && (
-                    <p className="mt-2 rounded bg-[#FFF5F0] p-2.5 text-hb-xs font-bold text-[#B5431A] animate-pulse">
+                    <p className="mt-2 rounded bg-[#FFF4EE] p-2.5 text-hb-xs font-bold text-[#E8521A] animate-pulse">
                       AI가 사진 판독 및 사양 초안을 작성 중입니다...
                     </p>
                   )}
@@ -2724,9 +2648,9 @@ export default function IntegratedAdminDashboard() {
                       {prodPreviews.map((src, index) => (
                         <div
                           key={src}
-                          className="flex flex-col overflow-hidden rounded border border-[#E5E8EB] bg-[#F9FAFB]"
+                          className="flex flex-col overflow-hidden rounded border border-[#E2E6EC] bg-[#F9FAFB]"
                         >
-                          <div className="relative aspect-square bg-[#EFECE6]">
+                          <div className="relative aspect-square bg-[#F1F3F6]">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={src}
@@ -2735,7 +2659,7 @@ export default function IntegratedAdminDashboard() {
                             />
                             {editingExistingImages.length === 0 &&
                             index === 0 ? (
-                              <span className="absolute top-1 left-1 rounded-sm bg-[#B5431A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
+                              <span className="absolute top-1 left-1 rounded-sm bg-[#E8521A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
                                 대표
                               </span>
                             ) : (
@@ -2743,7 +2667,7 @@ export default function IntegratedAdminDashboard() {
                                 <button
                                   type="button"
                                   onClick={() => makePrimaryProdFile(index)}
-                                  className="absolute top-1 left-1 rounded-sm bg-[#0E1A2B]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#B5431A]"
+                                  className="absolute top-1 left-1 rounded-sm bg-[#141A23]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#E8521A]"
                                 >
                                   대표 지정
                                 </button>
@@ -2764,7 +2688,7 @@ export default function IntegratedAdminDashboard() {
                               }
                               title="한 단계 더 밝게 (밝기 +12%, 대비 +4%)"
                               aria-label="한 단계 더 밝게 보정"
-                              className="absolute bottom-1 right-8 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#B5431A] transition-colors"
+                              className="absolute bottom-1 right-8 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#E8521A] transition-colors"
                             >
                               <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#FF8A50]" />
                             </button>
@@ -2773,17 +2697,17 @@ export default function IntegratedAdminDashboard() {
                               onClick={() => rotateProdFile(index, 90)}
                               title="시계방향 90도 회전"
                               aria-label="시계방향 90도 회전"
-                              className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#B5431A]"
+                              className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#E8521A]"
                             >
                               <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                             </button>
                           </div>
-                          <div className="grid grid-cols-2 divide-x divide-[#E5E8EB] border-t border-[#E5E8EB] bg-white text-hb-xs font-bold text-[#4B5260]">
+                          <div className="grid grid-cols-2 divide-x divide-[#E2E6EC] border-t border-[#E2E6EC] bg-white text-hb-xs font-bold text-[#4B5260]">
                             <button
                               type="button"
                               disabled={index === 0}
                               onClick={() => moveProdFile(index, index - 1)}
-                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                              className="py-1 hover:bg-[#F7F8FA] disabled:opacity-30"
                             >
                               ← 앞
                             </button>
@@ -2791,7 +2715,7 @@ export default function IntegratedAdminDashboard() {
                               type="button"
                               disabled={index === prodPreviews.length - 1}
                               onClick={() => moveProdFile(index, index + 1)}
-                              className="py-1 hover:bg-[#F6F5F2] disabled:opacity-30"
+                              className="py-1 hover:bg-[#F7F8FA] disabled:opacity-30"
                             >
                               뒤 →
                             </button>
@@ -2806,10 +2730,10 @@ export default function IntegratedAdminDashboard() {
                 {(aiPhotoObserved.length > 0 ||
                   aiSearchSpecs.length > 0 ||
                   aiWarnings.length > 0) && (
-                  <div className="rounded border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs space-y-2">
+                  <div className="rounded border border-[#E2E6EC] bg-[#F9FAFB] p-3 text-hb-xs space-y-2">
                     {aiPhotoObserved.length > 0 && (
                       <div>
-                        <strong className="text-[#0E1A2B]">
+                        <strong className="text-[#141A23]">
                           1) 이미지 직접 판독 정보:
                         </strong>
                         <ul className="list-disc pl-4 text-[#4B5260]">
@@ -2822,13 +2746,13 @@ export default function IntegratedAdminDashboard() {
                     {aiSearchSpecs.length > 0 && (
                       <div>
                         <div className="flex items-center justify-between">
-                          <strong className="text-[#0E1A2B]">
+                          <strong className="text-[#141A23]">
                             2) 검색으로 확인한 참고 제원:
                           </strong>
                           <button
                             type="button"
                             onClick={appendSearchSpecsToAdminDesc}
-                            className="text-hb-xs font-bold text-[#B5431A] underline"
+                            className="text-hb-xs font-bold text-[#E8521A] underline"
                           >
                             + 설명란에 반영
                           </button>
@@ -2841,7 +2765,7 @@ export default function IntegratedAdminDashboard() {
                       </div>
                     )}
                     {aiSourceNote && (
-                      <p className="text-[#B5431A] font-semibold">
+                      <p className="text-[#E8521A] font-semibold">
                         {aiSourceNote}
                       </p>
                     )}
@@ -2980,16 +2904,16 @@ export default function IntegratedAdminDashboard() {
             </section>
 
             {/* 우측: 등록된 상품 목록 및 명시적 상태 변경 */}
-            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E8EB] pb-3">
-                <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
+            <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E6EC] pb-3">
+                <h2 className="text-hb-lg font-bold text-[#141A23]">
                   재고 목록 ({filteredProducts.length}건)
                 </h2>
                 <div className="flex flex-wrap gap-2">
                   <select
                     value={prodCategoryFilter}
                     onChange={(e) => setProdCategoryFilter(e.target.value)}
-                    className="h-9 rounded border border-[#E5E8EB] px-2 text-hb-xs"
+                    className="h-9 rounded border border-[#E2E6EC] px-2 text-hb-xs"
                   >
                     <option value="전체">전체 카테고리</option>
                     {PRODUCT_CATEGORIES.map((c) => (
@@ -3001,7 +2925,7 @@ export default function IntegratedAdminDashboard() {
                   <select
                     value={prodStatusFilter}
                     onChange={(e) => setProdStatusFilter(e.target.value)}
-                    className="h-9 rounded border border-[#E5E8EB] px-2 text-hb-xs"
+                    className="h-9 rounded border border-[#E2E6EC] px-2 text-hb-xs"
                   >
                     <option value="전체">전체 상태</option>
                     {PRODUCT_STATUS_LIST.map((s) => (
@@ -3018,7 +2942,7 @@ export default function IntegratedAdminDashboard() {
                     value={prodKeyword}
                     onChange={(e) => setProdKeyword(e.target.value)}
                     placeholder="상품명·사양 검색"
-                    className="h-9 rounded border border-[#E5E8EB] px-2.5 text-hb-xs"
+                    className="h-9 rounded border border-[#E2E6EC] px-2.5 text-hb-xs"
                   />
                 </div>
               </div>
@@ -3067,10 +2991,10 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={product.id}
-                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#E5E8EB] p-3 hover:border-[#0E1A2B]/40 transition-colors"
+                      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#E2E6EC] p-3 hover:border-[#141A23]/40 transition-colors"
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#F9FAFB] border border-[#E5E8EB]">
+                        <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#F9FAFB] border border-[#E2E6EC]">
                           <SafeImg
                             src={imgs[0]}
                             alt={product.title}
@@ -3089,10 +3013,10 @@ export default function IntegratedAdminDashboard() {
                                 </span>
                               )}
                           </div>
-                          <h3 className="truncate text-hb-sm font-bold text-[#0E1A2B]">
+                          <h3 className="truncate text-hb-sm font-bold text-[#141A23]">
                             {product.title}
                           </h3>
-                          <p className="text-hb-sm font-bold text-[#B5431A]">
+                          <p className="text-hb-sm font-bold text-[#E8521A]">
                             {formatProductPrice(product.price, catLabel)}
                           </p>
                         </div>
@@ -3113,7 +3037,7 @@ export default function IntegratedAdminDashboard() {
                               toast.error("복사에 실패했습니다.");
                             }
                           }}
-                          className="h-9 rounded border border-[#FADCD0] bg-[#FFF5F0] px-2.5 text-hb-xs font-bold text-[#B5431A] hover:bg-[#B5431A] hover:text-white transition-colors"
+                          className="h-9 rounded border border-[#FADCD0] bg-[#FFF4EE] px-2.5 text-hb-xs font-bold text-[#E8521A] hover:bg-[#E8521A] hover:text-white transition-colors"
                           title="당근마켓·네이버카페·블로그 업로드용 홍보 원고 복사"
                         >
                           홍보글 복사
@@ -3128,7 +3052,7 @@ export default function IntegratedAdminDashboard() {
                               e.target.value
                             )
                           }
-                          className="h-9 rounded border border-[#E5E8EB] bg-white px-2 text-hb-xs font-bold text-[#0E1A2B]"
+                          className="h-9 rounded border border-[#E2E6EC] bg-white px-2 text-hb-xs font-bold text-[#141A23]"
                         >
                           {PRODUCT_STATUS_LIST.map((s) => (
                             <option key={s} value={s}>
@@ -3139,7 +3063,7 @@ export default function IntegratedAdminDashboard() {
                         <button
                           type="button"
                           onClick={() => startEditProduct(product)}
-                          className="h-9 rounded border border-[#E5E8EB] bg-[#F9FAFB] px-3 text-hb-xs font-bold text-[#0E1A2B] hover:border-[#0E1A2B]"
+                          className="h-9 rounded border border-[#E2E6EC] bg-[#F9FAFB] px-3 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
                         >
                           편집
                         </button>
@@ -3163,8 +3087,8 @@ export default function IntegratedAdminDashboard() {
         {/* 4. 탭별 본문: DELIVERY */}
         {activeTab === "delivery" && (
           <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
-              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
+            <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
                 배송·설치 현장 사례 등록 (AI 제목 보조)
               </h2>
               <p className="text-hb-xs text-[#6B7280]">
@@ -3185,7 +3109,7 @@ export default function IntegratedAdminDashboard() {
                 </div>
 
                 {(delivObserved.length > 0 || delivReviewNotes.length > 0) && (
-                  <div className="rounded-lg border border-[#E5E8EB] bg-[#F9FAFB] p-3 text-hb-xs space-y-1.5">
+                  <div className="rounded-lg border border-[#E2E6EC] bg-[#F9FAFB] p-3 text-hb-xs space-y-1.5">
                     {delivObserved.length > 0 && (
                       <p>
                         <strong>판독된 요소:</strong>{" "}
@@ -3224,8 +3148,8 @@ export default function IntegratedAdminDashboard() {
               </form>
             </section>
 
-            <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
-              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
+            <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
                 등록된 배송·설치 사례 ({deliveryCases.length}건)
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3234,9 +3158,9 @@ export default function IntegratedAdminDashboard() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center gap-3 rounded-lg border border-[#E5E8EB] p-3"
+                      className="flex items-center gap-3 rounded-lg border border-[#E2E6EC] p-3"
                     >
-                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#EFECE6]">
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#F1F3F6]">
                         <SafeImg
                           src={imgs[0]}
                           alt={item.title}
@@ -3244,10 +3168,10 @@ export default function IntegratedAdminDashboard() {
                         />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-hb-sm font-bold text-[#0E1A2B]">
+                        <p className="truncate text-hb-sm font-bold text-[#141A23]">
                           {item.title}
                         </p>
-                        <p className="text-hb-xs text-[#6E675C]">
+                        <p className="text-hb-xs text-[#64748B]">
                           {new Date(item.created_at).toLocaleDateString("ko-KR")}
                         </p>
                       </div>
@@ -3270,9 +3194,9 @@ export default function IntegratedAdminDashboard() {
 
         {/* 5. 탭별 본문: NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <section className="rounded-xl border border-[#E5E8EB] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
+          <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
             <div>
-              <h2 className="text-hb-lg font-bold text-[#0E1A2B]">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
                 외부 알림(Telegram / 알림톡) 발송 상태 관리 및 재시도
               </h2>
               <p className="mt-1 text-hb-sm text-[#6B7280]">
@@ -3285,8 +3209,8 @@ export default function IntegratedAdminDashboard() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-hb-sm border-t border-[#E5E8EB]">
-                <thead className="bg-[#F9FAFB] text-[#6B7280] border-b border-[#E5E8EB]">
+              <table className="w-full text-left text-hb-sm border-t border-[#E2E6EC]">
+                <thead className="bg-[#F9FAFB] text-[#6B7280] border-b border-[#E2E6EC]">
                   <tr>
                     <th className="py-3 px-4">접수일시 / 고객명</th>
                     <th className="py-3 px-4">구분 / 제목</th>
@@ -3295,7 +3219,7 @@ export default function IntegratedAdminDashboard() {
                     <th className="py-3 px-4 text-right">수동 발송 / 재시도</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E5E8EB]">
+                <tbody className="divide-y divide-[#E2E6EC]">
                   {inquiries
                     .filter((i) => !i.is_notice)
                     .slice(0, 15)
@@ -3305,13 +3229,13 @@ export default function IntegratedAdminDashboard() {
                       return (
                         <tr key={inq.id}>
                           <td className="py-3 px-4">
-                            <strong className="text-[#0E1A2B]">{inq.name}</strong>
-                            <span className="block text-hb-xs text-[#6E675C]">
+                            <strong className="text-[#141A23]">{inq.name}</strong>
+                            <span className="block text-hb-xs text-[#64748B]">
                               {new Date(inq.created_at).toLocaleDateString("ko-KR")}
                             </span>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="text-hb-xs font-bold text-[#B5431A] block">
+                            <span className="text-hb-xs font-bold text-[#E8521A] block">
                               {inq.inquiry_type}
                             </span>
                             <span className="truncate block max-w-xs">
@@ -3335,7 +3259,7 @@ export default function IntegratedAdminDashboard() {
                                 </p>
                               </div>
                             ) : (
-                              <span className="text-hb-xs text-[#6E675C]">
+                              <span className="text-hb-xs text-[#64748B]">
                                 발송 대기 / 이력 미조회
                               </span>
                             )}
@@ -3363,7 +3287,7 @@ export default function IntegratedAdminDashboard() {
                               onClick={() =>
                                 handleManualNotificationDispatch("telegram", inq)
                               }
-                              className="rounded bg-[#0E1A2B] px-3 py-1.5 text-hb-xs font-bold text-white hover:bg-[#1C2D47] disabled:opacity-50"
+                              className="rounded bg-[#141A23] px-3 py-1.5 text-hb-xs font-bold text-white hover:bg-[#1E2736] disabled:opacity-50"
                             >
                               Telegram 재발송
                             </button>
@@ -3373,7 +3297,7 @@ export default function IntegratedAdminDashboard() {
                               onClick={() =>
                                 handleManualNotificationDispatch("alimtalk", inq)
                               }
-                              className="rounded border border-[#E5E8EB] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4B5260] hover:bg-[#F9FAFB] disabled:opacity-50"
+                              className="rounded border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4B5260] hover:bg-[#F9FAFB] disabled:opacity-50"
                             >
                               알림톡 상태 점검
                             </button>
@@ -4641,7 +4565,7 @@ export async function POST(req: NextRequest) {
 
 ]]>
     </file>
-    <file path="app/api/analyze-product/route.ts" lines="571">
+    <file path="app/api/analyze-product/route.ts" lines="569">
       <![CDATA[
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
@@ -5174,7 +5098,6 @@ export async function POST(req: NextRequest) {
         category: finalCategory,
         title,
         specDetails,
-        aiDraftSummary: specDetails,
         modelNumber,
         photoObserved,
         searchDerivedSpecs,
@@ -5189,7 +5112,6 @@ export async function POST(req: NextRequest) {
       category: sanitized.category || finalCategory,
       title: sanitized.title || title,
       specDetails: sanitized.specDetails || specDetails,
-      aiDraftSummary: sanitized.aiDraftSummary || specDetails,
       modelNumber,
       photoObserved: sanitized.photoObserved || photoObserved,
       searchDerivedSpecs: sanitized.searchDerivedSpecs || searchDerivedSpecs,
@@ -6465,7 +6387,7 @@ export default async function GalleryLayout({
 }
 ]]>
     </file>
-    <file path="app/gallery/page.tsx" lines="3089">
+    <file path="app/gallery/page.tsx" lines="3008">
       <![CDATA[
 "use client";
 
@@ -6512,6 +6434,7 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
+  AdminLoginModal,
 } from "../../lib/ui";
 import {
   ProductCard,
@@ -7512,9 +7435,6 @@ export default function GalleryPage() {
 
   /* 관리자 로그인 모달 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   /* 관리자 상품 등록 모달 상태 */
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -7991,32 +7911,6 @@ export default function GalleryPage() {
         "삭제 실패: " +
           (error instanceof Error ? error.message : "알 수 없는 오류")
       );
-    }
-  };
-
-  /* ───── 관리자 인증 ───── */
-  const handleAdminAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminEmail.trim(),
-        password: adminPassword,
-      });
-      if (error) throw error;
-      if (!isAuthorizedAdminUser(data.user)) {
-        await supabase.auth.signOut();
-        toast.error("관리자 권한이 허용되지 않은 계정입니다.");
-        return;
-      }
-      toast.success("관리자로 로그인했습니다.");
-      setIsAdminAuthModalOpen(false);
-      setAdminEmail("");
-      setAdminPassword("");
-    } catch {
-      toast.error("로그인 실패: 이메일이나 비밀번호를 확인해 주세요.");
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -9495,70 +9389,17 @@ export default function GalleryPage() {
       )}
 
       {/* 관리자 로그인 모달 */}
-      {isAdminAuthModalOpen && (
-        <Modal
-          open={isAdminAuthModalOpen}
-          onClose={() => setIsAdminAuthModalOpen(false)}
-          label="관리자 로그인"
-          panelClassName="max-w-sm"
-        >
-          <form
-            onSubmit={handleAdminAuth}
-            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                관리자 로그인
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsAdminAuthModalOpen(false)}
-                className="grid h-8 w-8 place-items-center text-[#64748B] hover:text-[#141A23]"
-                aria-label="닫기"
-              >
-                <Icon d={ICON.close} className="h-5 w-5" />
-              </button>
-            </div>
-            <label className="hb-label" htmlFor="admin-email">
-              관리자 이메일
-            </label>
-            <input
-              id="admin-email"
-              type="email"
-              autoComplete="username"
-              required
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className="hb-input mt-1.5 mb-4"
-            />
-            <label className="hb-label" htmlFor="admin-pw">
-              비밀번호
-            </label>
-            <input
-              id="admin-pw"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="hb-input mt-1.5"
-            />
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="hb-btn-primary mt-6 h-12 w-full text-hb-base"
-            >
-              {isLoggingIn ? "인증 확인 중…" : "로그인"}
-            </button>
-          </form>
-        </Modal>
-      )}
+      <AdminLoginModal
+        open={isAdminAuthModalOpen}
+        onClose={() => setIsAdminAuthModalOpen(false)}
+        onSuccess={() => setIsAdmin(true)}
+      />
     </div>
   );
 }
 ]]>
     </file>
-    <file path="app/globals.css" lines="349">
+    <file path="app/globals.css" lines="240">
       <![CDATA[
 /* 파일 경로: app/globals.css */
 @tailwind base;
@@ -9589,7 +9430,7 @@ export default function GalleryPage() {
   --hb-cyan-subtle: #f0f9ff;
   --hb-cyan-border: #bae6fd;
 
-  /* 4. Canvas & Surfaces (Pure Studio White & Cool Alabaster) */
+  /* 4. Canvas & Surfaces */
   --hb-surface: #ffffff;
   --hb-bg-subtle: #f7f8fa;
   --hb-bg-warm: #f1f3f6;
@@ -9607,7 +9448,7 @@ export default function GalleryPage() {
   --hb-kakao-hover: #f2d900;
   --hb-kakao-text: #191600;
 
-  /* 5. Motion Easing Tokens (web-design-engineer standard) */
+  /* 5. Motion Easing Tokens */
   --hb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -9654,7 +9495,6 @@ body {
   color: #ffffff;
 }
 
-/* Typography & Shared Component Tokens (Toss TDS + Apple HIG + SEED) */
 @layer components {
   @keyframes hbModalEnter {
     from {
@@ -9675,15 +9515,6 @@ body {
     @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
   }
 
-  .hb-section {
-    @apply py-12 sm:py-16 lg:py-20;
-  }
-
-  .hb-card {
-    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs;
-  }
-
-  /* Apple HIG Liquid Glass & Translucent Chrome */
   .hb-glass {
     @apply bg-white/90 backdrop-blur-xl border-b border-[#E2E6EC] shadow-glass-sm;
   }
@@ -9692,28 +9523,10 @@ body {
     @apply bg-[#141A23]/95 backdrop-blur-xl border border-white/10 shadow-floating;
   }
 
-  .hb-bento-card {
-    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:border-[#CBD2DC] hover:shadow-card;
-  }
-
-  .hb-bento-dark {
-    @apply rounded-2xl border border-white/10 bg-[#141A23] text-white shadow-floating transition-[border-color,box-shadow] duration-200 hover:border-[#E8521A]/50;
-  }
-
-  /* Fluid Editorial Display Typography (Toss/Apple Bold 700 Clarity) */
   .hb-fluid-h1 {
-    font-size: clamp(1.65rem, 2.2vw + 1rem, 2.45rem);
-    line-height: 1.28;
+    font-size: clamp(1.6rem, 2.1vw + 1rem, 2.35rem);
+    line-height: 1.26;
     letter-spacing: -0.032em;
-    font-weight: 700;
-    text-wrap: balance;
-    word-break: keep-all;
-  }
-
-  .hb-fluid-h2 {
-    font-size: clamp(1.375rem, 1.5vw + 0.9rem, 2rem);
-    line-height: 1.32;
-    letter-spacing: -0.028em;
     font-weight: 700;
     text-wrap: balance;
     word-break: keep-all;
@@ -9723,51 +9536,18 @@ body {
     @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-card hover:border-[#CBD2DC];
   }
 
-  .hb-snap-row {
-    @apply flex overflow-x-auto snap-x snap-mandatory gap-3 pb-2 scrollbar-none;
-  }
-
-  .hb-snap-item {
-    @apply snap-start shrink-0;
-  }
-
-  .hb-h1 {
-    @apply text-hb-2xl lg:text-hb-3xl font-bold tracking-[-0.03em] text-[#141A23] [text-wrap:balance] break-keep;
-  }
-
-  .hb-h2 {
-    @apply text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23] [text-wrap:balance] break-keep;
-  }
-
-  .hb-h3 {
-    @apply text-hb-base sm:text-hb-lg font-bold tracking-[-0.018em] text-[#141A23] [text-wrap:balance] break-keep;
-  }
-
-  .hb-body {
-    @apply text-hb-sm sm:text-hb-base text-[#334155] [text-wrap:pretty] break-keep;
-  }
-
   .hb-label {
     @apply block text-hb-sm font-semibold tracking-[-0.01em] text-[#141A23];
-  }
-
-  .hb-caption {
-    @apply text-hb-xs text-[#64748B];
   }
 
   .hb-eyebrow {
     @apply inline-block text-hb-xs sm:text-hb-sm font-bold text-[#E8521A];
   }
 
-  .hb-chip {
-    @apply inline-flex items-center h-8 rounded-full bg-[#F1F3F6] px-3.5 text-hb-xs font-semibold text-[#334155] transition-colors hover:bg-[#E2E6EC];
-  }
-
   .hb-input {
     @apply w-full h-11 rounded-xl border border-[#CBD2DC] bg-white px-3.5 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-[border-color,box-shadow,background-color] duration-150 focus:border-[#141A23] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 disabled:bg-[#F1F3F6] disabled:text-[#94A3B8];
   }
 
-  /* jakubkrehel/better-ui: Tactile feedback (scale 0.96) & explicit transitions */
   .hb-btn {
     @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold tracking-[-0.015em] transition-[transform,background-color,border-color,box-shadow,color] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
@@ -9780,7 +9560,6 @@ body {
     transform: translateX(2px);
   }
 
-  /* 1. 입체 마이크로 그라데이션 Primary 버튼 */
   .hb-btn-primary {
     @apply hb-btn text-white;
     background-color: #141a23;
@@ -9794,7 +9573,6 @@ body {
     background-image: linear-gradient(135deg, #273447 0%, #1a222e 100%);
   }
 
-  /* 2. 입체 마이크로 그라데이션 Accent 버튼 */
   .hb-btn-accent {
     @apply hb-btn text-white focus-visible:ring-[#E8521A];
     background-color: #e8521a;
@@ -9808,13 +9586,19 @@ body {
     background-image: linear-gradient(135deg, #e0561c 0%, #b83a0c 100%);
   }
 
-  /* 3. 히어로 섹션용 정갈한 쇼룸 알라바스터 표면 */
+  .hb-btn-outline {
+    @apply hb-btn border border-[#E2E6EC] bg-white text-[#141A23] hover:border-[#CBD2DC] hover:bg-[#F7F8FA] active:bg-[#F1F3F6];
+  }
+
+  .hb-btn-kakao {
+    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#141A23];
+  }
+
   .hb-ambient-hero {
     background-color: #f7f8fa;
     background-image: linear-gradient(180deg, #ffffff 0%, #f7f8fa 100%);
   }
 
-  /* 4. B2B 업소용 & 다크 카드용 딥 슬레이트 메쉬 그라데이션 */
   .hb-dark-mesh {
     background-color: #141a23;
     background-image:
@@ -9823,7 +9607,6 @@ body {
       linear-gradient(135deg, #1e2736 0%, #10151c 100%);
   }
 
-  /* 5. 중고 실매물 사진 보정용 무채색 스튜디오 조명 백드롭 (Dieter Rams Studio Pod) */
   .hb-studio-backdrop {
     background-color: #f3f5f8;
     background-image: radial-gradient(
@@ -9833,57 +9616,6 @@ body {
       #eaeef4 100%
     );
     box-shadow: inset 0 -1px 0 0 rgba(20, 26, 35, 0.05);
-  }
-
-  /* Pentagram / Braun 스타일 정밀 스펙 원장(Ledger) 행 */
-  .hb-ledger-bar {
-    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC];
-  }
-
-  /* 6. 클린 무결점 서피스 (구형 격자무늬 제거) */
-  .hb-arch-grid {
-    background-image: none;
-  }
-
-  .hb-pedestal-card {
-    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200;
-  }
-
-  .hb-pedestal-card:hover {
-    @apply -translate-y-0.5 border-[#CBD2DC] shadow-card;
-  }
-
-  .hb-price-ticket {
-    @apply rounded-2xl bg-[#141A23] text-white shadow-card;
-  }
-
-  .hb-specular {
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  }
-
-  .hb-specular-dark {
-    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
-  }
-
-  .hb-showroom-frame {
-    @apply relative overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white transition-[border-color,box-shadow] duration-200;
-  }
-
-  .hb-btn-outline {
-    @apply hb-btn border border-[#E2E6EC] bg-white text-[#141A23] hover:border-[#CBD2DC] hover:bg-[#F7F8FA] active:bg-[#F1F3F6];
-  }
-
-  .hb-btn-kakao {
-    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#141A23];
-  }
-
-  /* Toss TDS Clean List Row Layout */
-  .hb-list {
-    @apply divide-y divide-[#E2E6EC] rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden;
-  }
-
-  .hb-list-row {
-    @apply relative flex items-center justify-between gap-3 px-4 py-3.5 transition-colors duration-150 hover:bg-[#F7F8FA];
   }
 
   .scrollbar-none {
@@ -9951,7 +9683,7 @@ export default function InquiryLayout({
 }
 ]]>
     </file>
-    <file path="app/inquiry/page.tsx" lines="1509">
+    <file path="app/inquiry/page.tsx" lines="1450">
       <![CDATA[
 "use client";
 
@@ -9983,6 +9715,7 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
+  AdminLoginModal,
 } from "../../lib/ui";
 import {
   UnifiedInquiryForm,
@@ -10116,9 +9849,6 @@ export default function InquiryBoardPage() {
 
   /* 관리자 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
@@ -10423,31 +10153,6 @@ export default function InquiryBoardPage() {
         "상태 업데이트 실패: " +
           (err instanceof Error ? err.message : "알 수 없는 오류")
       );
-    }
-  };
-
-  const handleAdminAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminEmail.trim(),
-        password: adminPassword,
-      });
-      if (error) throw error;
-      if (!isAuthorizedAdminUser(data.user)) {
-        await supabase.auth.signOut();
-        toast.error("관리자 권한이 없는 계정입니다.");
-        return;
-      }
-      toast.success("관리자로 로그인했습니다.");
-      setIsAdminAuthModalOpen(false);
-      setAdminEmail("");
-      setAdminPassword("");
-    } catch {
-      toast.error("이메일 또는 비밀번호를 확인해 주세요.");
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -11419,45 +11124,13 @@ export default function InquiryBoardPage() {
         </div>
       )}
 
-      {isAdminAuthModalOpen && (
-        <Modal
-          label="관리자 로그인"
-          onClose={() => setIsAdminAuthModalOpen(false)}
-          panelClassName="max-w-sm"
-        >
-          <form
-            onSubmit={handleAdminAuth}
-            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E2E6EC] space-y-4"
-          >
-            <h3 className="text-hb-lg font-bold text-[#141A23]">
-              관리자 로그인
-            </h3>
-            <input
-              type="email"
-              required
-              placeholder="관리자 이메일"
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className="hb-input"
-            />
-            <input
-              type="password"
-              required
-              placeholder="비밀번호"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="hb-input"
-            />
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="hb-btn-primary h-11 w-full text-hb-sm"
-            >
-              {isLoggingIn ? "로그인 중..." : "로그인"}
-            </button>
-          </form>
-        </Modal>
-      )}
+      <AdminLoginModal
+        open={isAdminAuthModalOpen}
+        onClose={() => setIsAdminAuthModalOpen(false)}
+        onSuccess={() => {
+          loadData();
+        }}
+      />
     </div>
   );
 }
@@ -13145,13 +12818,13 @@ export function AiRecommendationGuideSection() {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="271">
+    <file path="components/home/category-pictogram-bar.tsx" lines="268">
       <![CDATA[
 "use client";
 
 import React from "react";
 import Link from "next/link";
-import { trackEvent, type InquiryTypeValue } from "../../lib/site";
+import { trackEvent } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 import { ModernApplianceIcon, type ModernIconType } from "../ui/modern-icons";
 
@@ -13257,13 +12930,10 @@ export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
   categoryCounts,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSelectInquiry,
 }: {
   selectedKey?: PictogramKey;
   onSelectCategory?: (item: ShowroomCategoryItem) => void;
   categoryCounts?: Partial<Record<PictogramKey, number>>;
-  onSelectInquiry?: (type: InquiryTypeValue) => void;
 }) {
   const handleCategoryClick = (item: ShowroomCategoryItem) => {
     trackEvent("filter_gallery", {
@@ -13575,7 +13245,7 @@ export function DeliveryRegionChecker({ className = "" }: { className?: string }
 
 ]]>
     </file>
-    <file path="components/home/featured-products-section.tsx" lines="386">
+    <file path="components/home/featured-products-section.tsx" lines="383">
       <![CDATA[
 // 파일 경로: components/home/featured-products-section.tsx
 "use client";
@@ -13699,8 +13369,6 @@ export function FeaturedProductsSection({
   onRetry,
   selectedCategory,
   onResetCategory,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onInquireProduct,
 }: {
   products: ProductItem[];
   loading: boolean;
@@ -13708,7 +13376,6 @@ export function FeaturedProductsSection({
   onRetry: () => void;
   selectedCategory?: ShowroomCategoryItem;
   onResetCategory?: () => void;
-  onInquireProduct?: (productTitle: string) => void;
 }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
 
@@ -13965,7 +13632,7 @@ export function FeaturedProductsSection({
 
 ]]>
     </file>
-    <file path="components/home/home-page-client.tsx" lines="2097">
+    <file path="components/home/home-page-client.tsx" lines="2018">
       <![CDATA[
 // 파일 경로: components/home/home-page-client.tsx
 "use client";
@@ -13989,6 +13656,7 @@ import {
   SiteFooter,
   MobileCtaBar,
   SectionHeading,
+  AdminLoginModal,
 } from "../../lib/ui";
 import {
   STORE,
@@ -14205,9 +13873,6 @@ export default function Home({
 
   /* 관리자 모달 상태 */
   const [loginOpen, setLoginOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [loggingIn, setLoggingIn] = useState(false);
 
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewTitle, setReviewTitle] = useState("");
@@ -14368,31 +14033,6 @@ export default function Home({
       toast.success("도로명 주소(대전천서로 691-62 1, 2층)가 복사되었습니다.");
     } catch {
       toast.error("주소 복사에 실패했습니다.");
-    }
-  };
-
-  /* ── 관리자 로그인 / 로그아웃 ── */
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoggingIn(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminEmail.trim(),
-        password: adminPassword,
-      });
-      if (error) throw error;
-      if (!isAuthorizedAdminUser(data.user)) {
-        await supabase.auth.signOut();
-        toast.error("관리자 권한이 허용되지 않은 계정입니다.");
-        return;
-      }
-      toast.success("관리자로 로그인했습니다.");
-      setLoginOpen(false);
-      setAdminPassword("");
-    } catch {
-      toast.error("이메일 또는 비밀번호를 확인해 주세요.");
-    } finally {
-      setLoggingIn(false);
     }
   };
 
@@ -14860,7 +14500,6 @@ export default function Home({
           onSelectCategory={(item) => {
             setSelectedCategory(item);
           }}
-          onSelectInquiry={openInquiry}
         />
 
         {/* ════════════════════════════════════════════════════════════
@@ -15905,62 +15544,11 @@ export default function Home({
       )}
 
       {/* ── 관리자 로그인 모달 ── */}
-      {loginOpen && (
-        <Modal
-          open={loginOpen}
-          onClose={() => setLoginOpen(false)}
-          label="관리자 로그인"
-          panelClassName="max-w-sm"
-        >
-          <form
-            onSubmit={handleAdminLogin}
-            className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                관리자 로그인
-              </h2>
-              <button
-                type="button"
-                onClick={() => setLoginOpen(false)}
-                aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
-              >
-                <Icon d={ICON.close} />
-              </button>
-            </div>
-            <label className="hb-label" htmlFor="admin-email">
-              이메일
-            </label>
-            <input
-              id="admin-email"
-              type="email"
-              required
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className="hb-input mt-1 mb-4"
-            />
-            <label className="hb-label" htmlFor="admin-pw">
-              비밀번호
-            </label>
-            <input
-              id="admin-pw"
-              type="password"
-              required
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="hb-input mt-1"
-            />
-            <button
-              type="submit"
-              disabled={loggingIn}
-              className="hb-btn-primary mt-6 h-11 w-full text-hb-sm active:scale-[0.96]"
-            >
-              {loggingIn ? "로그인 중…" : "로그인"}
-            </button>
-          </form>
-        </Modal>
-      )}
+      <AdminLoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onSuccess={() => setIsAdmin(true)}
+      />
 
       {/* ── 배송·설치 인증사진 등록 모달 (관리자) ── */}
       {reviewModalOpen && (
@@ -20646,7 +20234,7 @@ export function RecentViewedStrip({
 
 ]]>
     </file>
-    <file path="components/products/product-detail-gallery.tsx" lines="714">
+    <file path="components/products/product-detail-gallery.tsx" lines="681">
       <![CDATA[
 // 파일 경로: components/products/product-detail-gallery.tsx
 "use client";
@@ -21131,39 +20719,12 @@ export function CopyPromoPostButton({
  * 상품 상세 우측의 설치 환경 체크리스트를 고객이 직접 클릭해 선택하면,
  * 온라인 문의 / 문자(SMS) / 견적함에 해당 현장 조건이 자동으로 첨부됩니다.
  */
-export const QUICK_ENV_CHIPS_BY_CATEGORY: Record<string, readonly string[]> = {
-  업소용기기: [
-    "단상 220V",
-    "삼상 380V",
-    "1층 매장",
-    "계단·턱 있음",
-    "기존 설비 철거·매입 희망",
-    "세금계산서 발행 요청",
-  ],
-  "에어컨/냉난방기": [
-    "단상 220V",
-    "삼상 380V",
-    "실외기 1층/베란다",
-    "외벽 앵글 필요",
-    "배관 5m 이내",
-    "배관 10m 이상",
-  ],
-  default: [
-    "엘리베이터 있음",
-    "계단 운반(2층 이상)",
-    "기존 가전 보상매입/수거 희망",
-    "문폭 80cm 이상 여유",
-  ],
-};
-
 export function InteractiveChecklistAndCta({
   product,
   categoryLabel,
   sold,
   modelName,
   firstImageUrl,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  checklistConfig,
 }: {
   product: {
     id: string;
@@ -21177,12 +20738,6 @@ export function InteractiveChecklistAndCta({
   sold: boolean;
   modelName: string | null;
   firstImageUrl: string | null;
-  checklistConfig?: {
-    badge: string;
-    title: string;
-    isB2B: boolean;
-    rows: ReadonlyArray<{ label: string; desc: string }>;
-  };
 }) {
   const inquiryParams = new URLSearchParams({
     write: "1",
@@ -25184,7 +24739,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
   - `generateMetadata`: `openGraph.images` URL을 절대 URI(`https://...`)로 엄격 정규화.
   - `Product` JSON-LD 스키마: `offers` 하위에 7일 무상교환 반품 정책(`hasMerchantReturnPolicy`) 및 대전/충청 직영 배송(`shippingDetails`) Schema.org 표준 객체 추가.
 - **[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)**:
-  - 특대형 전화 상담 링크에 `aria-label="한밭중고전자 직영 매장 전화 문의 연결 (042-252-8949)"` 명시.
+  - 특대형 전화 상담 링크에 `aria-label="한밭중고전자 직영 매장 전화 문의 연결 (042-523-8179)"` 명시.
   - 특대형 카카오톡 1:1 상담 링크에 `aria-label="한밭중고전자 카카오톡 1:1 실시간 상담창 열기 (새 창)"` 명시.
 
 ### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
@@ -26536,7 +26091,7 @@ flowchart TD
 
 ### 핵심 기술 요건
 1. **전화번호 링크 명확화**:
-   - `tel:` 스키마를 사용하는 링크(`<a>`)는 텍스트만으로도 시각장애인 스크린 리더 사용자가 대상 매장 전화번호를 즉시 인지할 수 있도록 `aria-label="한밭중고전자 전화 바로 상담 연결 (042-252-8949)"` 명시.
+   - `tel:` 스키마를 사용하는 링크(`<a>`)는 텍스트만으로도 시각장애인 스크린 리더 사용자가 대상 매장 전화번호를 즉시 인지할 수 있도록 `aria-label="한밭중고전자 전화 바로 상담 연결 (042-523-8179)"` 명시.
 2. **외부 새 창 링크 알림**:
    - `target="_blank"`로 카카오톡 채팅창을 여는 링크는 시각장애인에게 새 창이 열림을 사전에 고지해야 함 (`aria-label="한밭중고전자 카카오톡 1:1 상담창 열기 (새 창)"`, `rel="noopener noreferrer"`).
 
@@ -27108,7 +26663,7 @@ export async function validateServerImageFiles(
 
 ]]>
     </file>
-    <file path="lib/site.ts" lines="2070">
+    <file path="lib/site.ts" lines="2066">
       <![CDATA[
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
@@ -27117,13 +26672,10 @@ export const STORE = {
   name: "한밭중고전자",
   legalName: "한밭중고전자",
   ceo: "김영종",
-  owner: "김영종",
   url: "https://hanbatmall.com",
   since: 1997,
   tel: "042-523-8179",
-  tel2: "042-527-4888",
   mobile: process.env.NEXT_PUBLIC_STORE_MOBILE || "010-6631-8179",
-  mobileLegacy: "010-5406-8179",
   address: "대전광역시 중구 대전천서로 691-62 1, 2층",
   roadAddress: "대전광역시 중구 대전천서로 691-62 1, 2층",
   jibunAddress: "대전광역시 중구 중촌동 144",
@@ -27138,7 +26690,6 @@ export const STORE = {
   kakaoChat: "https://pf.kakao.com/_XmyrX/chat",
   cafe: "https://cafe.naver.com/hanbatmall",
   naverMap: "https://naver.me/F5DkWQ4z",
-  naverMapShort: "https://naver.me/F5DkWQ4z",
   daangnLocalProfile:
     "https://www.daangn.com/kr/local-profile/%ED%95%9C%EB%B0%AD%EC%A4%91%EA%B3%A0%EC%A0%84%EC%9E%90-gqg3ov17usci/",
 } as const;
@@ -28203,7 +27754,7 @@ export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
     value: INQUIRY_STATUS.RECEIVED,
     label: "접수",
     desc: "신규 접수되어 확인 대기 중인 상태",
-    badgeClass: "bg-[#FFF5F0] text-[#B5431A] border border-[#FADCD0]",
+    badgeClass: "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]",
   },
   {
     value: INQUIRY_STATUS.REVIEWING,
@@ -28221,7 +27772,7 @@ export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
     value: INQUIRY_STATUS.ANSWERED,
     label: "답변완료",
     desc: "고객에게 온라인 답변 또는 전화 안내를 완료한 상태",
-    badgeClass: "bg-[#0E1A2B] text-white border border-[#0E1A2B]",
+    badgeClass: "bg-[#141A23] text-white border border-[#141A23]",
   },
   {
     value: INQUIRY_STATUS.COMPLETED,
@@ -29257,7 +28808,7 @@ export function createServerSupabaseClient(
 
 ]]>
     </file>
-    <file path="lib/ui.tsx" lines="1535">
+    <file path="lib/ui.tsx" lines="1630">
       <![CDATA[
 "use client";
 
@@ -29265,6 +28816,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
+import { supabase, isAuthorizedAdminUser } from "./supabase";
 import { ProductCompareModal } from "../components/products/product-compare-modal";
 import { QuickInquiryModal } from "../components/inquiry/quick-inquiry-modal";
 import {
@@ -29312,7 +28864,6 @@ export const ICON = {
     "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
   pen: "M4 20h4L19 9l-4-4L4 16v4z",
   pin: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
-  location: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
   clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
   menu: "M4 7h16M4 12h16M4 17h16",
   bag: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0",
@@ -29320,7 +28871,6 @@ export const ICON = {
   share: "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8m-4-6-4-4-4 4m4-4v13",
   shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
-  refresh: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
   shieldCheck:
     "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4",
   sparkles:
@@ -29340,7 +28890,6 @@ export const ICON = {
     "M3 21h18 M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16 M9 7h2 M13 7h2 M9 11h2 M13 11h2 M9 15h2 M13 15h2",
   snowflake:
     "M12 2v20 M17 5l-5 5-5-5 M17 19l-5-5-5 5 M2 12h20 M5 7l5 5-5 5 M19 7l-5 5 5 5",
-  droplet: "M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z",
   layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
   sliders:
     "M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6",
@@ -30790,8 +30339,105 @@ export function MobileCtaBar({
   );
 }
 
-export function AdminLoginModal() {
-  return null;
+export function AdminLoginModal({
+  open,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}) {
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  if (!open) return null;
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoggingIn(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: adminEmail.trim(),
+        password: adminPassword,
+      });
+      if (error) {
+        toast.error("로그인 실패: " + error.message);
+        return;
+      }
+      if (!isAuthorizedAdminUser(data.user)) {
+        await supabase.auth.signOut();
+        toast.error("관리자 권한이 없습니다.");
+        return;
+      }
+      toast.success("관리자 권한이 확인되었습니다.");
+      setAdminPassword("");
+      onClose();
+      onSuccess?.();
+    } catch {
+      toast.error("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      label="관리자 로그인"
+      panelClassName="max-w-sm"
+    >
+      <form
+        onSubmit={handleAdminLogin}
+        className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-hb-lg font-bold text-[#141A23]">
+            관리자 로그인
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="닫기"
+            className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
+          >
+            <Icon d={ICON.close} />
+          </button>
+        </div>
+        <label className="hb-label" htmlFor="admin-shared-modal-email">
+          이메일
+        </label>
+        <input
+          id="admin-shared-modal-email"
+          type="email"
+          required
+          value={adminEmail}
+          onChange={(e) => setAdminEmail(e.target.value)}
+          className="hb-input mt-1 mb-4"
+        />
+        <label className="hb-label" htmlFor="admin-shared-modal-pw">
+          비밀번호
+        </label>
+        <input
+          id="admin-shared-modal-pw"
+          type="password"
+          required
+          value={adminPassword}
+          onChange={(e) => setAdminPassword(e.target.value)}
+          className="hb-input mt-1"
+        />
+        <button
+          type="submit"
+          disabled={loggingIn}
+          className="hb-btn-primary mt-6 h-11 w-full text-hb-sm active:scale-[0.96]"
+        >
+          {loggingIn ? "로그인 중…" : "로그인"}
+        </button>
+      </form>
+    </Modal>
+  );
 }
 
 ]]>
@@ -30884,603 +30530,6 @@ export default nextConfig;
     "typescript": "^5"
   }
 }
-
-]]>
-    </file>
-    <file path="pdf-compressor-guide.md" lines="593">
-      <![CDATA[
-# PDF 용량 축소 및 초경량 변환 가이드 (PDF Compressor Guide)
-
-본 가이드는 대용량 스캔 도서 및 OCR 처리된 고용량 PDF(50MB~300MB 이상)를 **AI 챗봇 업로드 제한(10MB 이하)에 맞춰 1~3MB 수준으로 극단적으로 경량화**하거나, 필요에 따라 원본 스캔 레이아웃을 유지하면서 압축하는 전체 스크립트 소스코드, 사용 방법, 필요 라이브러리 목록을 제공합니다.
-
----
-
-## 1. 사용 라이브러리 목록 (Dependencies)
-
-본 프로젝트는 고성능 PDF 파싱 및 조판을 위해 검증된 라이브러리를 사용하며, 복잡한 외부 의존성을 최소화하여 윈도우 환경에서 즉시 구동되도록 설계되었습니다.
-
-| 라이브러리 명 | 패키지 명 | 필수 여부 | 주요 역할 및 기능 |
-|:---|:---|:---:|:---|
-| **PyMuPDF** | `pymupdf` (내부 모듈명: `fitz`) | **필수** | • 고속 PDF 텍스트 블록/좌표 추출<br>• 원본 페이지 구조 및 메타데이터 분석<br>• PDF 내부 이미지 스트림 교체 및 최적화 저장 |
-| **ReportLab** | `reportlab` | **필수** | • 초경량 벡터 PDF 재조판 엔진<br>• 윈도우 기본 한글 글꼴(맑은 고딕 등) 자동 임베딩<br>• 문단 스타일링, 줄바꿈, 페이지 나눔 자동화 |
-| **Pillow** | `Pillow` (내부 모듈명: `PIL`) | 선택 (방식 B용) | • 원본 스캔 이미지 다운샘플링 (DPI 조절)<br>• JPEG 압축 품질 최적화 및 색상 모드 변환 |
-| **Tkinter** | `tkinter` | 기본 내장 | • 사용자 친화적 데스크톱 GUI 인터페이스 제공 |
-| **ZipFile** | `zipfile` | 기본 내장 | • 외부 변환 툴 없이 순수 파이썬으로 표준 EPUB 규격 패키징 |
-
-### 라이브러리 설치 명령어 (터미널 / CMD)
-```bash
-pip install pymupdf reportlab Pillow
-```
-
----
-
-## 2. 핵심 원리: 스캔 OCR PDF의 2가지 압축 방식
-
-일반적인 스캔 OCR PDF 파일의 용량 중 **98% 이상은 배경 스캔 이미지**가 차지하며, OCR로 인식된 글자(투명 텍스트 레이어)는 수백 KB 미만에 불과합니다.
-
-```
-[방식 1: 텍스트 추출 & 초경량 재조판 (메인 추천 - 용량 99% 절감)]
-┌─────────────────────────────────┐
-│ 고용량 스캔 PDF (100MB~300MB)    │
-│ (배경 무거운 이미지 + 투명 텍스트) │
-└────────────────┬────────────────┘
-                 │ PyMuPDF로 텍스트 블록 및 좌표 추출
-                 ▼
-┌─────────────────────────────────┐
-│ 문단 정제 및 헤더/푸터 필터링      │
-└────────────────┬────────────────┘
-                 ├───────────────────────────────┐
-                 ▼ (ReportLab 조판)               ▼ (ZipFile 패키징)
-┌─────────────────────────────────┐   ┌───────────────────────────────┐
-│ 초경량 텍스트 PDF (1~3MB)        │   │ 모바일용 EPUB 전자책 (500KB~1MB)│
-│ • 벡터 폰트(맑은 고딕)로 재조판   │   │ • 챕터별 HTML 구조화          │
-│ • AI 챗봇 업로드 100% 최적화     │   │ • 리더기 호환 전자책            │
-└─────────────────────────────────┘   └───────────────────────────────┘
-
-[방식 2: 이미지 다운샘플링 재압축 (도판/삽화 유지 필요 시)]
-• 투명 텍스트 레이어는 건드리지 않고, 배경 이미지 해상도(DPI)와 화질(JPEG 60%)을 낮춰 10MB 미만으로 수렴
-```
-
----
-
-## 3. [전체 코드] PDF OCR 텍스트 추출 & 초경량 재조판 GUI 변환기
-
-아래 코드는 스캔 이미지 레이어를 완전히 제거하고 텍스트만 추출·정제하여 **1~3MB 초경량 PDF** 및 **EPUB 전자책**을 동시에 생성하는 완성형 GUI 프로그램의 전체 소스코드입니다.
-
-```python
-# -*- coding: utf-8 -*-
-"""
-==========================================================================
- PDF OCR 텍스트 추출 & 초경량 재조판 변환기 (GUI)
-==========================================================================
- 고용량 스캔 PDF에서 이미지를 제거하고, 텍스트 레이어만 추출하여
- 1~3MB 수준의 초경량 PDF(AI 업로드용) 및 EPUB(전자책용)으로 변환합니다.
-"""
-
-import os
-import re
-import sys
-import uuid
-import zipfile
-import threading
-from datetime import datetime
-import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
-
-# 1. 필수 라이브러리 체크
-try:
-    import fitz  # PyMuPDF
-    PYMUPDF_AVAILABLE = True
-except ImportError:
-    PYMUPDF_AVAILABLE = False
-
-try:
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import mm
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
-    REPORTLAB_AVAILABLE = True
-except ImportError:
-    REPORTLAB_AVAILABLE = False
-
-
-# ==========================================================================
-# 2. 텍스트 정제 엔진 (스캔 OCR 노이즈 필터링 및 문장 재조합)
-# ==========================================================================
-def clean_page_text(blocks, page_height):
-    """
-    페이지 내 블록들을 분석하여 상단 머리말, 하단 페이지 번호를 걸러내고
-    끊어진 줄바꿈을 문맥에 맞게 한 문단으로 병합합니다.
-    """
-    valid_lines = []
-    top_margin = page_height * 0.05
-    bottom_margin = page_height * 0.95
-
-    for b in blocks:
-        # b = (x0, y0, x1, y1, "text", block_no, block_type)
-        if b[6] == 0:  # 0 = 텍스트 블록
-            y0, y1, text = b[1], b[3], b[4].strip()
-            
-            # 상단/하단 여백의 페이지 번호/단순 라벨 제거
-            if y0 < top_margin or y1 > bottom_margin:
-                if len(text) < 15 and any(char.isdigit() for char in text):
-                    continue
-
-            lines = text.split("\n")
-            for line in lines:
-                l = line.strip()
-                if l:
-                    valid_lines.append(l)
-
-    # 마침표 없이 행갈음된 문장들을 하나의 자연스러운 문단으로 병합
-    paragraphs = []
-    current_para = []
-
-    for line in valid_lines:
-        current_para.append(line)
-        # 문장 종결 부호(. ! ? ” " 등)로 끝나면 문단 종료
-        if re.search(r'[.!?\"\'”’]\s*$', line):
-            paragraphs.append(" ".join(current_para))
-            current_para = []
-
-    if current_para:
-        paragraphs.append(" ".join(current_para))
-
-    return paragraphs
-
-
-# ==========================================================================
-# 3. AI 업로드용 초경량 PDF 생성기 (ReportLab 엔진)
-# ==========================================================================
-def generate_lightweight_pdf(all_pages_text, output_path, progress_cb=None):
-    if not REPORTLAB_AVAILABLE:
-        raise RuntimeError("ReportLab 라이브러리가 설치되어 있지 않습니다.")
-
-    # Windows 기본 맑은 고딕 등록 (한글 깨짐 방지)
-    font_path = "C:/Windows/Fonts/malgun.ttf"
-    font_name = "MalgunGothic"
-    if os.path.exists(font_path):
-        pdfmetrics.registerFont(TTFont(font_name, font_path))
-    else:
-        font_name = "Helvetica"
-
-    doc = SimpleDocTemplate(
-        output_path,
-        pagesize=A4,
-        leftMargin=20 * mm,
-        rightMargin=20 * mm,
-        topMargin=20 * mm,
-        bottomMargin=20 * mm,
-    )
-
-    styles = getSampleStyleSheet()
-    body_style = ParagraphStyle(
-        name="BookBody",
-        fontName=font_name,
-        fontSize=10,
-        leading=16,
-        spaceAfter=8,
-        textColor="#1a1a1a",
-    )
-    page_header_style = ParagraphStyle(
-        name="PageHeader",
-        fontName=font_name,
-        fontSize=8,
-        leading=10,
-        textColor="#888888",
-        spaceAfter=12,
-    )
-
-    story = []
-    total = len(all_pages_text)
-
-    for idx, paras in enumerate(all_pages_text):
-        if not paras:
-            continue
-        story.append(Paragraph(f"[ 원본 페이지 {idx + 1} ]", page_header_style))
-        for p in paras:
-            safe_text = p.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            story.append(Paragraph(safe_text, body_style))
-        story.append(PageBreak())
-
-        if progress_cb:
-            progress_cb(50 + int((idx / total) * 35))
-
-    doc.build(story)
-
-
-# ==========================================================================
-# 4. 순수 파이썬 표준 라이브러리 기반 EPUB 2/3 생성기
-# ==========================================================================
-def generate_clean_epub(all_pages_text, output_path, title="Extracted Book"):
-    book_id = str(uuid.uuid4())
-    with zipfile.ZipFile(output_path, 'w') as zf:
-        # 1. mimetype (압축 없이 첫 번째 엔트리로 기록 필수)
-        zf.writestr('mimetype', 'application/epub+zip', compress_type=zipfile.ZIP_STORED)
-
-        # 2. container.xml
-        container_xml = '''<?xml version="1.0" encoding="UTF-8"?>
-<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
-    <rootfiles>
-        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
-    </rootfiles>
-</container>'''
-        zf.writestr('META-INF/container.xml', container_xml, compress_type=zipfile.ZIP_DEFLATED)
-
-        manifest_items = []
-        spine_items = []
-        navpoints = []
-
-        # 3. 페이지별 XHTML 생성
-        for idx, paras in enumerate(all_pages_text):
-            if not paras:
-                continue
-            page_num = idx + 1
-            item_id = f"page_{page_num}"
-            filename = f"page_{page_num}.xhtml"
-
-            p_html = "".join(f"<p>{p.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')}</p>" for p in paras)
-            page_content = f'''<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Page {page_num}</title>
-    <style>
-        body {{ font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; line-height: 1.7; padding: 4%; }}
-        h2 {{ color: #444; font-size: 1.1em; border-bottom: 1px solid #ddd; padding-bottom: 5px; }}
-        p {{ margin-bottom: 0.9em; text-indent: 1em; }}
-    </style>
-</head>
-<body>
-    <h2>페이지 {page_num}</h2>
-    {p_html}
-</body>
-</html>'''
-            zf.writestr(f"OEBPS/{filename}", page_content.encode("utf-8"), compress_type=zipfile.ZIP_DEFLATED)
-            manifest_items.append(f'<item id="{item_id}" href="{filename}" media-type="application/xhtml+xml"/>')
-            spine_items.append(f'<itemref idref="{item_id}"/>')
-            navpoints.append(f'''<navPoint id="navPoint-{page_num}" playOrder="{page_num}">
-    <navLabel><text>페이지 {page_num}</text></navLabel>
-    <content src="{filename}"/>
-</navPoint>''')
-
-        # 4. content.opf
-        now_utc = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
-        manifest_str = "\n        ".join(manifest_items)
-        spine_str = "\n        ".join(spine_items)
-
-        content_opf = f'''<?xml version="1.0" encoding="UTF-8"?>
-<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0">
-    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
-        <dc:title>{title}</dc:title>
-        <dc:language>ko</dc:language>
-        <dc:identifier id="BookId">urn:uuid:{book_id}</dc:identifier>
-        <meta property="dcterms:modified">{now_utc}</meta>
-    </metadata>
-    <manifest>
-        <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
-        {manifest_str}
-    </manifest>
-    <spine toc="ncx">
-        {spine_str}
-    </spine>
-</package>'''
-        zf.writestr('OEBPS/content.opf', content_opf.encode("utf-8"), compress_type=zipfile.ZIP_DEFLATED)
-
-        # 5. toc.ncx (이북 리더기 목차)
-        nav_str = "\n        ".join(navpoints)
-        toc_ncx = f'''<?xml version="1.0" encoding="UTF-8"?>
-<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
-    <head>
-        <meta name="dtb:uid" content="urn:uuid:{book_id}"/>
-        <meta name="dtb:depth" content="1"/>
-        <meta name="dtb:totalPageCount" content="0"/>
-        <meta name="dtb:maxPageNumber" content="0"/>
-    </head>
-    <docTitle><text>{title}</text></docTitle>
-    <navMap>
-        {nav_str}
-    </navMap>
-</ncx>'''
-        zf.writestr('OEBPS/toc.ncx', toc_ncx.encode("utf-8"), compress_type=zipfile.ZIP_DEFLATED)
-
-
-# ==========================================================================
-# 5. Tkinter 기반 GUI 클래스
-# ==========================================================================
-class App(tk.Tk):
-    def __init__(self):
-        super().__init__()
-        self.title("OCR PDF 초경량 변환기 (AI 10MB 최적화 & EPUB)")
-        self.geometry("580x440")
-        self.resizable(False, False)
-        self.configure(bg="#f8f9fa")
-        self.setup_ui()
-        self.check_environment()
-
-    def check_environment(self):
-        missing = []
-        if not PYMUPDF_AVAILABLE:
-            missing.append("PyMuPDF (pip install pymupdf)")
-        if not REPORTLAB_AVAILABLE:
-            missing.append("ReportLab (pip install reportlab)")
-        if missing:
-            msg = "필수 라이브러리가 누락되었습니다:\n- " + "\n- ".join(missing)
-            messagebox.showwarning("라이브러리 경고", msg)
-
-    def setup_ui(self):
-        # 1. 상단 안내
-        title_lbl = tk.Label(
-            self,
-            text="고용량 OCR PDF → 1~3MB 초경량 텍스트 변환기",
-            font=("맑은 고딕", 13, "bold"),
-            bg="#f8f9fa",
-            fg="#212529"
-        )
-        title_lbl.pack(pady=(15, 5))
-
-        desc_lbl = tk.Label(
-            self,
-            text="불필요한 스캔 이미지를 제거하고 텍스트만 재조판하여 AI 업로드용으로 압축합니다.",
-            font=("맑은 고딕", 9),
-            bg="#f8f9fa",
-            fg="#6c757d"
-        )
-        desc_lbl.pack(pady=(0, 10))
-
-        # 2. 파일 선택
-        frame_file = tk.LabelFrame(self, text="1. 대상 PDF 파일 선택", padx=12, pady=10, bg="#ffffff", font=("맑은 고딕", 9, "bold"))
-        frame_file.pack(fill="x", padx=18, pady=5)
-
-        self.entry_path = tk.Entry(frame_file, width=52, font=("맑은 고딕", 9))
-        self.entry_path.pack(side="left", padx=(0, 8), ipady=3)
-
-        btn_browse = tk.Button(frame_file, text="파일 찾기...", command=self.browse_file, bg="#e9ecef", font=("맑은 고딕", 9))
-        btn_browse.pack(side="left")
-
-        # 3. 변환 옵션
-        frame_opts = tk.LabelFrame(self, text="2. 출력 옵션", padx=12, pady=10, bg="#ffffff", font=("맑은 고딕", 9, "bold"))
-        frame_opts.pack(fill="x", padx=18, pady=8)
-
-        self.var_pdf = tk.BooleanVar(value=True)
-        self.var_epub = tk.BooleanVar(value=True)
-
-        chk_pdf = tk.Checkbutton(
-            frame_opts,
-            text="[필수] AI 업로드용 초경량 PDF 생성 (1~3MB, 텍스트 재조판)",
-            variable=self.var_pdf,
-            bg="#ffffff",
-            font=("맑은 고딕", 9, "bold"),
-            fg="#0d6efd"
-        )
-        chk_pdf.pack(anchor="w", pady=(0, 4))
-
-        chk_epub = tk.Checkbutton(
-            frame_opts,
-            text="[선택] 전자책 뷰어용 EPUB 생성 (500KB~1MB, 모바일/리더기용)",
-            variable=self.var_epub,
-            bg="#ffffff",
-            font=("맑은 고딕", 9)
-        )
-        chk_epub.pack(anchor="w")
-
-        # 4. 진행도 & 상태 표시
-        frame_status = tk.LabelFrame(self, text="3. 작업 진행 상태", padx=12, pady=10, bg="#ffffff", font=("맑은 고딕", 9, "bold"))
-        frame_status.pack(fill="x", padx=18, pady=5)
-
-        self.progress = ttk.Progressbar(frame_status, length=515, mode="determinate")
-        self.progress.pack(pady=4)
-
-        self.lbl_status = tk.Label(frame_status, text="파일을 선택한 후 '변환 시작'을 눌러주세요.", bg="#ffffff", fg="#495057", font=("맑은 고딕", 9))
-        self.lbl_status.pack()
-
-        # 5. 실행 버튼
-        self.btn_run = tk.Button(
-            self,
-            text="초경량 변환 시작 (10MB 이하)",
-            command=self.start_thread,
-            bg="#0d6efd",
-            fg="white",
-            font=("맑은 고딕", 11, "bold"),
-            relief="flat",
-            cursor="hand2",
-            height=2
-        )
-        self.btn_run.pack(fill="x", padx=18, pady=(12, 10))
-
-    def browse_file(self):
-        f = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
-        if f:
-            self.entry_path.delete(0, tk.END)
-            self.entry_path.insert(0, f)
-
-    def start_thread(self):
-        pdf_path = self.entry_path.get().strip()
-        if not pdf_path or not os.path.exists(pdf_path):
-            messagebox.showerror("오류", "유효한 PDF 파일을 선택해 주세요.")
-            return
-
-        if not self.var_pdf.get() and not self.var_epub.get():
-            messagebox.showwarning("주의", "최소 하나의 출력 형식을 선택해 주세요.")
-            return
-
-        self.btn_run.config(state="disabled", bg="#6c757d")
-        threading.Thread(target=self.process, args=(pdf_path,), daemon=True).start()
-
-    def process(self, pdf_path):
-        try:
-            self.update_status("PDF 열기 및 텍스트 블록 분석 중...", 5)
-            doc = fitz.open(pdf_path)
-            total_pages = len(doc)
-            all_pages_text = []
-
-            for i in range(total_pages):
-                page = doc[i]
-                blocks = page.get_text("blocks")
-                paras = clean_page_text(blocks, page.rect.height)
-                all_pages_text.append(paras)
-                
-                pct = 5 + int(((i + 1) / total_pages) * 45)
-                self.update_status(f"텍스트 추출 중: {i+1} / {total_pages} 페이지 ({pct}%)", pct)
-
-            base_name, _ = os.path.splitext(pdf_path)
-            created_files = []
-
-            # A. 초경량 PDF 생성
-            if self.var_pdf.get():
-                self.update_status("초경량 PDF 재조판 및 글꼴 렌더링 중...", 55)
-                out_pdf = f"{base_name}_경량텍스트.pdf"
-                generate_lightweight_pdf(
-                    all_pages_text, 
-                    out_pdf, 
-                    progress_cb=lambda val: self.update_status(f"PDF 재조판 중... ({val}%)", val)
-                )
-                size_mb = os.path.getsize(out_pdf) / (1024 * 1024)
-                created_files.append(f"• PDF: {os.path.basename(out_pdf)} ({size_mb:.2f} MB)")
-
-            # B. EPUB 생성
-            if self.var_epub.get():
-                self.update_status("EPUB 전자책 압축 생성 중...", 90)
-                out_epub = f"{base_name}.epub"
-                generate_clean_epub(all_pages_text, out_epub, title=os.path.basename(base_name))
-                size_mb = os.path.getsize(out_epub) / (1024 * 1024)
-                created_files.append(f"• EPUB: {os.path.basename(out_epub)} ({size_mb:.2f} MB)")
-
-            self.update_status("변환이 성공적으로 완료되었습니다!", 100)
-            result_msg = "변환이 완료되었습니다!\n\n" + "\n".join(created_files) + f"\n\n저장 폴더:\n{os.path.dirname(pdf_path)}"
-            messagebox.showinfo("변환 완료", result_msg)
-
-        except Exception as e:
-            messagebox.showerror("에러", f"작업 중 오류가 발생했습니다:\n{str(e)}")
-            self.update_status("오류가 발생했습니다.", 0)
-        finally:
-            self.btn_run.config(state="normal", bg="#0d6efd")
-
-    def update_status(self, text, val):
-        self.lbl_status.config(text=text)
-        self.progress["value"] = val
-        self.update_idletasks()
-
-
-if __name__ == "__main__":
-    app = App()
-    app.mainloop()
-
-```
-
----
-
-## 4. [대안 코드] 원본 이미지 보존형 압축 스크립트 (`compress_ocr_pdf`)
-
-도표나 삽화가 많아 스캔 이미지를 그대로 보존해야 하는 책의 경우, 아래 함수를 사용하면 **OCR 텍스트 레이어를 100% 보존하면서 배경 이미지만 재압축**하여 10MB 이하로 용량을 줄일 수 있습니다.
-
-```python
-import io
-import fitz  # PyMuPDF
-from PIL import Image
-
-def compress_ocr_pdf(input_path: str, output_path: str, max_dimension: int = 1400, quality: int = 60):
-    """
-    기존 PDF의 OCR 투명 텍스트 레이어와 좌표를 온전히 유지하면서,
-    내부의 고용량 스캔 페이지만 찾아 해상도를 낮추고 JPEG로 재압축합니다.
-    """
-    doc = fitz.open(input_path)
-    total_pages = len(doc)
-    print(f"[시작] 총 {total_pages} 페이지 압축 처리 중...")
-
-    for page_idx in range(total_pages):
-        page = doc[page_idx]
-        image_list = page.get_images(full=True)
-
-        for img_info in image_list:
-            xref = img_info[0]
-            base_image = doc.extract_image(xref)
-            image_bytes = base_image["image"]
-
-            # Pillow를 이용한 이미지 로드
-            pil_img = Image.open(io.BytesIO(image_bytes))
-
-            # 1. 해상도 다운샘플링 (최대 너비/높이 제한)
-            w, h = pil_img.size
-            if max(w, h) > max_dimension:
-                scale = max_dimension / max(w, h)
-                new_size = (int(w * scale), int(h * scale))
-                pil_img = pil_img.resize(new_size, Image.Resampling.LANCZOS)
-
-            # 2. 색상 모드 최적화 (RGBA나 Palette 모드를 RGB로 통일)
-            if pil_img.mode in ("RGBA", "P"):
-                pil_img = pil_img.convert("RGB")
-
-            # 3. 고효율 JPEG 압축
-            out_buf = io.BytesIO()
-            pil_img.save(out_buf, format="JPEG", quality=quality, optimize=True)
-            new_bytes = out_buf.getvalue()
-
-            # 압축된 크기가 원본보다 작을 때만 교체
-            if len(new_bytes) < len(image_bytes):
-                page.replace_image(xref, stream=new_bytes)
-
-        if (page_idx + 1) % 20 == 0 or (page_idx + 1) == total_pages:
-            print(f"진행률: {page_idx + 1} / {total_pages} 페이지 완료")
-
-    # 미사용 데이터 정리 및 스트림 압축(Deflate) 활성화 저장
-    doc.save(
-        output_path,
-        garbage=4,     # 쓰지 않는 오브젝트 완전 제거
-        deflate=True,  # 내부 스트림 zlib 압축
-        clean=True     # 구문 정리
-    )
-    doc.close()
-    print(f"[완료] 압축 저장 완료: {output_path}")
-
-# 실행 예시:
-# compress_ocr_pdf("원본책.pdf", "압축된책_10mb이하.pdf", max_dimension=1400, quality=60)
-```
-
----
-
-## 5. 사용 방법 (User Guide)
-
-### 방법 1: GUI 프로그램 바로 실행하기
-1. 소스코드를 `app.py` 파일로 저장합니다.
-2. 터미널(또는 명령 프롬프트)에서 실행합니다:
-   ```bash
-   python app.py
-   ```
-3. GUI 창이 뜨면:
-   - **[파일 선택]** 버튼을 눌러 용량을 줄이고자 하는 PDF 파일을 선택합니다.
-   - **출력 옵션**을 확인합니다:
-     - `[기본]` **AI 업로드용 초경량 PDF 생성**: 1~3MB로 압축 (기본 체크 권장)
-     - `[선택]` **전자책 뷰어용 EPUB 생성**: 모바일 기기나 e-리더기용 전자책 추가 생성
-   - **[초경량 변환 시작]** 버튼을 누릅니다.
-4. 변환이 완료되면 원본 파일과 동일한 폴더에 `[파일명]_경량텍스트.pdf` 파일이 생성됩니다.
-
-### 방법 2: 파이썬 없는 환경을 위한 독립 실행 파일(`.exe`) 제작
-파이썬이 설치되지 않은 다른 PC에서도 더블클릭만으로 실행하고 싶다면, `pyinstaller`를 사용해 단일 실행 파일로 패키징할 수 있습니다.
-
-```bash
-# PyInstaller 설치
-pip install pyinstaller
-
-# 단일 무콘솔 실행 파일 빌드
-pyinstaller --noconsole --onefile --name "PDF_초경량_변환기" app.py
-```
-- 빌드가 완료되면 `dist` 폴더 안에 `PDF_초경량_변환기.exe` 파일이 생성됩니다. 이 파일만 있으면 파이썬 설치 없이 어디서든 즉시 실행할 수 있습니다.
-
----
-
-## 6. 핵심 기능 및 기술적 특징 요약
-
-1. **지능형 문단 복원 (Smart Word-Wrap & Heuristics)**
-   - 스캔 OCR PDF 특유의 문장 중간 행갈음을 정규표현식(`[.!?"'”’]`) 기반으로 분석하여 하나의 자연스러운 문단으로 자동 결합합니다.
-2. **머리말/꼬리말(Header/Footer) 자동 필터링**
-   - 페이지 상단 5% 및 하단 5% 영역에 위치하는 단순 페이지 번호나 책 제목 라벨을 감지하여 본문 흐름에 섞이지 않도록 걸러냅니다.
-3. **윈도우 기본 맑은 고딕(Malgun Gothic) 자동 등록**
-   - 별도의 폰트 다운로드 없이 `C:/Windows/Fonts/malgun.ttf`를 자동으로 인식·등록하여 한글 깨짐이나 네모(tofu) 현상을 완벽히 방지합니다.
-4. **외부 프로그램 의존성 제로의 EPUB 생성기**
-   - 별도의 무거운 전자책 툴(Calibre 등) 없이, 파이썬 표준 내장 `zipfile` 모듈로 직접 `mimetype`, `container.xml`, `content.opf`, `toc.ncx` 및 스타일시트(CSS)를 패키징하여 모든 전자책 리더기에서 완벽하게 호환됩니다.
 
 ]]>
     </file>
@@ -31762,23 +30811,6 @@ console.log("✅ 디자인 토큰 검사 통과");
 
 ]]>
     </file>
-    <file path="scripts/check-site.mjs" lines="13">
-      <![CDATA[
-const res = await fetch('https://hanbatmall.com?t=' + Date.now());
-const text = await res.text();
-console.log('Has xl:text-[31px]?', text.includes('xl:text-[31px]'));
-console.log('Has balanced description line 1?', text.includes('직영 쇼룸에서 실매물을 직접 확인하실 수 있으며,'));
-const h1Match = text.match(/<h1 id="hero-title"[\s\S]{1,400}<\/h1>/);
-if (h1Match) {
-  console.log('H1:', h1Match[0]);
-}
-const pMatch = text.match(/<p class="mt-4 max-w-\[540px\][\s\S]{1,400}<\/p>/);
-if (pMatch) {
-  console.log('P:', pMatch[0]);
-}
-
-]]>
-    </file>
     <file path="scripts/check-supabase-live.mjs" lines="92">
       <![CDATA[
 // scripts/check-supabase-live.mjs
@@ -31872,247 +30904,6 @@ async function runDiagnostics() {
 }
 
 runDiagnostics();
-
-]]>
-    </file>
-    <file path="scripts/deploy-and-verify.mjs" lines="141">
-      <![CDATA[
-import { spawnSync } from "child_process";
-import fs from "fs";
-
-// Clean up any temporary scratch files
-for (const f of [
-  'scripts/sync-repo.mjs',
-  'scripts/do-push.mjs',
-  'scripts/git-push-only.mjs',
-  'scripts/git-sync.bat',
-  'scripts/verify-live-sites.mjs'
-]) {
-  try { fs.unlinkSync(f); } catch {}
-}
-
-const gitBin = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
-const gitExecPath = 'C:\\Program Files\\Git\\mingw64\\libexec\\git-core';
-const mingwBin = 'C:\\Program Files\\Git\\mingw64\\bin';
-const usrBin = 'C:\\Program Files\\Git\\usr\\bin';
-
-const origPath = process.env.Path || process.env.PATH || '';
-const cleanEnv = {};
-for (const key of Object.keys(process.env)) {
-  if (key.toUpperCase() !== 'PATH') cleanEnv[key] = process.env[key];
-}
-cleanEnv.Path = `${mingwBin};${gitExecPath};${usrBin};${origPath}`;
-cleanEnv.GIT_EXEC_PATH = gitExecPath;
-
-function exec(args) {
-  console.log(`\n=== Running: git ${args.join(' ')} ===`);
-  const res = spawnSync(gitBin, args, { env: cleanEnv, encoding: "utf-8" });
-  if (res.stdout) process.stdout.write(res.stdout);
-  if (res.stderr) process.stderr.write(res.stderr);
-  return { ok: res.status === 0, status: res.status };
-}
-
-async function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function verifyLive() {
-  console.log("\n=== Verifying Vercel Live Deployment ===");
-  const urls = [
-    {
-      url: "https://hanbatmall.com",
-      name: "Home page",
-      checkString: "한밭중고전자",
-    },
-    {
-      url: "https://hanbatmall.com/gallery",
-      name: "Gallery page",
-      checkString: "카페·디저트창업", // Preset text
-    },
-    {
-      url: "https://hanbatmall.com/inquiry",
-      name: "Inquiry page",
-      checkString: "온라인 문의",
-    },
-    {
-      url: "https://hanbatmall.com/0401ff3d-0802-4620-a603-461484bba136",
-      name: "Product Detail page",
-      checkString: "설치 환경", // Interactive checklist
-    },
-  ];
-
-  let allPassed = false;
-  const maxAttempts = 6;
-
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    console.log(`\n--- Verification Attempt ${attempt}/${maxAttempts} ---`);
-    let passCount = 0;
-
-    for (const item of urls) {
-      try {
-        const res = await fetch(item.url, {
-          headers: { "User-Agent": "hanbat-mall-deploy-verifier/1.0" },
-          cache: "no-store",
-        });
-        const text = await res.text();
-        const statusOk = res.status === 200;
-        const hasContent = text.includes(item.checkString);
-
-        console.log(`[${item.name}] URL: ${item.url}`);
-        console.log(`  - Status: ${res.status} (OK: ${statusOk})`);
-        console.log(`  - Contains '${item.checkString}': ${hasContent}`);
-
-        if (statusOk && hasContent) {
-          passCount++;
-        }
-      } catch (e) {
-        console.error(`  - Fetch error for ${item.url}:`, e.message);
-      }
-    }
-
-    if (passCount === urls.length) {
-      allPassed = true;
-      console.log("\n✅ All live site verification checks PASSED successfully!");
-      break;
-    } else {
-      if (attempt < maxAttempts) {
-        console.log("⏳ Vercel build still deploying or propagating cache. Waiting 10s before retry...");
-        await sleep(10000);
-      }
-    }
-  }
-
-  if (!allPassed) {
-    console.warn("\n⚠️ Note: Vercel deployment may still be finalizing. Please re-check shortly.");
-  }
-}
-
-async function main() {
-  // 1. Stage files
-  exec(["add", "-A"]);
-
-  // 2. Commit
-  exec(["commit", "-m", "fix: resolve prefix duplication, sold sms branching, form title cleanup, and script assertions"]);
-
-  // 3. Wait 5s
-  console.log("Waiting 5 seconds before push...");
-  await sleep(5000);
-
-  // 4. Push
-  exec(["push", "origin", "main"]);
-
-  // 5. Check log and status
-  exec(["log", "-1", "--oneline"]);
-  exec(["status"]);
-
-  // 6. Wait 40s for Vercel
-  console.log("\nWaiting 40 seconds for Vercel deployment...");
-  await sleep(40000);
-
-  // 7. Verify live site
-  await verifyLive();
-}
-
-main().catch((err) => {
-  console.error("Deploy script failed:", err);
-  process.exit(1);
-});
-
-]]>
-    </file>
-    <file path="scripts/deploy.mjs" lines="92">
-      <![CDATA[
-// scripts/deploy.mjs
-import { execFileSync } from "node:child_process";
-import fs from "node:fs";
-
-const gitExe = "C:\\Program Files\\Git\\mingw64\\bin\\git.exe";
-const cwd = "c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall";
-
-async function main() {
-  // Clean up temporary files
-  ["scripts/deploy-pipeline.mjs", "scripts/run-lint.mjs"].forEach((f) => {
-    if (fs.existsSync(f)) {
-      try {
-        fs.unlinkSync(f);
-      } catch {}
-    }
-  });
-
-  // Re-run XML build to make sure no temp files are included
-  console.log("=== Regenerating 아르곤_디자인.xml ===");
-  execFileSync(process.execPath, ["scripts/build-codebase-xml.mjs"], { cwd, stdio: "inherit" });
-
-  console.log("\n=== Git add -A ===");
-  execFileSync(gitExe, ["add", "-A"], { cwd, stdio: "inherit" });
-
-  console.log("\n=== Git commit ===");
-  const commitMsg = "fix(gallery): remove cluttered hashtag chips and streamline sticky filter to single clean row";
-  try {
-    execFileSync(gitExe, ["commit", "-m", commitMsg], { cwd, stdio: "inherit" });
-  } catch (err) {
-    console.log("Commit notice:", err.message);
-  }
-
-  console.log("\nWaiting 5 seconds before push...");
-  await new Promise((r) => setTimeout(r, 5000));
-
-  console.log("=== Git push origin main ===");
-  execFileSync(gitExe, ["push", "origin", "main"], { cwd, stdio: "inherit" });
-
-  const statusOut = execFileSync(gitExe, ["status"], { cwd, encoding: "utf8" });
-  console.log("\nGit Status:\n" + statusOut);
-
-  const commitHash = execFileSync(gitExe, ["rev-parse", "HEAD"], { cwd, encoding: "utf8" }).trim();
-  console.log(`✅ Commit hash: ${commitHash}`);
-
-  console.log("\n=== Waiting 35 seconds for Vercel deployment ===");
-  for (let s = 35; s > 0; s -= 5) {
-    console.log(`... ${s}s remaining`);
-    await new Promise((r) => setTimeout(r, 5000));
-  }
-
-  console.log("Verifying live site https://hanbatmall.com/gallery ...");
-  let livePass = false;
-  let attempts = 0;
-  while (!livePass && attempts < 5) {
-    attempts++;
-    try {
-      const res = await fetch(`https://hanbatmall.com/gallery?t=${Date.now()}`, {
-        headers: { "Cache-Control": "no-cache" },
-      });
-      const html = await res.text();
-      console.log(`[Attempt ${attempts}] HTTP ${res.status}, size: ${html.length} bytes`);
-
-      const hasHashtags = html.includes("#LG디오스") || html.includes("#삼성비스포크") || html.includes("#인버터냉난방기");
-      const hasFilterBar = html.includes("PRICE_RANGE_OPTIONS") || html.includes("가격대 범위 필터") || html.includes("제품명·모델명 검색");
-
-      console.log(`  - Hashtag chips present: ${hasHashtags} (expected: false)`);
-      console.log(`  - Streamlined filter bar present: ${hasFilterBar} (expected: true)`);
-
-      if (!hasHashtags) {
-        livePass = true;
-        console.log("🎉 LIVE VERIFICATION SUCCESS: Hashtag line completely gone, streamlined filter bar verified!");
-        break;
-      }
-    } catch (err) {
-      console.warn(`  - Fetch attempt ${attempts} failed:`, err.message);
-    }
-    if (!livePass) {
-      console.log("Waiting 8s before retry...");
-      await new Promise((r) => setTimeout(r, 8000));
-    }
-  }
-
-  console.log("\n==========================================");
-  console.log(`DEPLOYMENT COMPLETE: ${commitHash}`);
-  console.log("==========================================");
-}
-
-main().catch((err) => {
-  console.error("Deploy script failed:", err);
-  process.exit(1);
-});
 
 ]]>
     </file>
@@ -32341,7 +31132,7 @@ lines.push("## 🤖 타 AI 에이전트를 위한 핵심 지침 (System Instruct
 lines.push("");
 lines.push("본 프로젝트 코드를 수정하거나 새로운 기능을 추가할 때 아래 4대 원칙을 반드시 준수해야 합니다:");
 lines.push("");
-lines.push("1. **도메인 단일 출처(SSOT) 규칙**: 매장명(한밭중고전자), 대표전화(`042-252-8949`), 주소(`대전 중구 대종로 637`), 무상 보증 정책(에어컨 8개월 / 주요 가전 4개월), 7일 교환 정책을 컴포넌트에 인라인 하드코딩하지 말고 반드시 `lib/site.ts`의 `STORE` 상수를 참조하세요.");
+lines.push("1. **도메인 단일 출처(SSOT) 규칙**: 매장명(한밭중고전자), 대표전화(`042-523-8179`), 주소(`대전광역시 중구 대전천서로 691-62 1, 2층`), 무상 보증 정책(에어컨 8개월 / 주요 가전 4개월), 7일 교환 정책을 컴포넌트에 인라인 하드코딩하지 말고 반드시 `lib/site.ts`의 `STORE` 상수를 참조하세요.");
 lines.push("2. **디자인 토큰 규격 준수**: 임의 픽셀 폰트(`text-[..px]`) 사용 금지 (`text-hb-xs`, `text-hb-sm`, `text-hb-base`, `text-hb-lg` 토큰 사용). JSX 화면 노출 텍스트 이모지 사용 금지 (외부 의존성 없는 `components/ui/modern-icons.tsx` 또는 `lib/ui.tsx`의 SVG Icon 사용). Tailwind CSS v3 규격 준수.");
 lines.push("3. **Windows 환경 프로세스 안전성**: 개별 검증 스크립트를 수동으로 연달아 호출하지 말고, 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`를 실행하세요.");
 lines.push("4. **원자적 로컬 체크포인트**: 변경 사항이 8대 게이트를 100% 통과하면 `node scripts/git-checkpoint.mjs \"<작업설명>\"`으로 로컬 커밋을 생성하세요.");
@@ -32492,89 +31283,6 @@ try {
   console.error("\n❌ Checkpoint commit failed:", e.message);
   process.exit(1);
 }
-
-]]>
-    </file>
-    <file path="scripts/inspect-products.mjs" lines="79">
-      <![CDATA[
-import { createClient } from "@supabase/supabase-js";
-import fs from "fs";
-import path from "path";
-
-const envPath = path.resolve(process.cwd(), ".env.local");
-let url = "";
-let anonKey = "";
-let serviceRoleKey = "";
-
-if (fs.existsSync(envPath)) {
-  const content = fs.readFileSync(envPath, "utf-8");
-  for (const line of content.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith("NEXT_PUBLIC_SUPABASE_URL=")) {
-      url = trimmed.split("=")[1].trim();
-    } else if (trimmed.startsWith("NEXT_PUBLIC_SUPABASE_ANON_KEY=")) {
-      anonKey = trimmed.split("=")[1].trim();
-    } else if (trimmed.startsWith("SUPABASE_SERVICE_ROLE_KEY=")) {
-      serviceRoleKey = trimmed.split("=")[1].trim();
-    }
-  }
-}
-
-const key = serviceRoleKey || anonKey;
-const supabase = createClient(url, key);
-
-async function inspect() {
-  const { data: allProducts, error } = await supabase
-    .from("products")
-    .select("id, title, views, created_at")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Error querying products:", error);
-    process.exit(1);
-  }
-
-  const oct19 = new Date("2026-10-19T00:00:00Z");
-
-  const recentWithViews = [];
-  const recentZeroViews = [];
-  const olderWithViews = [];
-  const olderZeroViews = [];
-
-  for (const p of allProducts) {
-    const d = new Date(p.created_at);
-    const views = p.views ?? 0;
-    const isRecent = d >= oct19;
-
-    if (isRecent) {
-      if (views > 0) recentWithViews.push(p);
-      else recentZeroViews.push(p);
-    } else {
-      if (views > 0) olderWithViews.push(p);
-      else olderZeroViews.push(p);
-    }
-  }
-
-  console.log("================================================================================");
-  console.log(`[Group 1] Registered on or after Oct 19 with views > 0 (${recentWithViews.length} products)`);
-  console.log("================================================================================");
-  recentWithViews.forEach((p, idx) => {
-    console.log(`${String(idx + 1).padStart(2, " ")}. [${p.id}] views: ${p.views} | created: ${p.created_at} | ${p.title}`);
-  });
-
-  console.log("\n================================================================================");
-  console.log(`[Group 2] Registered BEFORE Oct 19 with views > 0 (${olderWithViews.length} products)`);
-  console.log("================================================================================");
-  olderWithViews.forEach((p, idx) => {
-    console.log(`${String(idx + 1).padStart(2, " ")}. [${p.id}] views: ${p.views} | created: ${p.created_at} | ${p.title}`);
-  });
-
-  console.log("\n================================================================================");
-  console.log(`[Summary] Total: ${allProducts.length} | Oct 19+ (views>0: ${recentWithViews.length}, views==0: ${recentZeroViews.length}, total: ${recentWithViews.length + recentZeroViews.length}) | Before Oct 19 (views>0: ${olderWithViews.length}, views==0: ${olderZeroViews.length}, total: ${olderWithViews.length + olderZeroViews.length})`);
-  console.log("================================================================================");
-}
-
-inspect();
 
 ]]>
     </file>
@@ -33017,48 +31725,6 @@ if (!allPassed) {
 
 ]]>
     </file>
-    <file path="scripts/run-git.mjs" lines="38">
-      <![CDATA[
-import { spawnSync } from 'child_process';
-
-const gitExe = 'C:\\Program Files\\Git\\mingw64\\bin\\git.exe';
-
-function git(...args) {
-  console.log(`\n> git ${args.join(' ')}`);
-  const res = spawnSync(gitExe, args, { encoding: 'utf8' });
-  if (res.error) console.error('Spawn error:', res.error);
-  if (res.stdout) process.stdout.write(res.stdout);
-  if (res.stderr) process.stderr.write(res.stderr);
-  if (res.status !== 0) {
-    throw new Error(`git ${args[0]} failed with code ${res.status}`);
-  }
-  return res.stdout;
-}
-
-try {
-  console.log('--- Step 8: Git Stage, Commit & Push ---');
-  git('add', '-A');
-  git('commit', '-m', 'fix: resolve prefix duplication, sold sms branching, form title cleanup, and script assertions');
-  
-  console.log('\n--- Waiting 5 seconds before push ---');
-  const end = Date.now() + 5000;
-  while (Date.now() < end) {}
-
-  console.log('\n--- Pushing to origin main ---');
-  git('push', 'origin', 'main');
-
-  console.log('\n--- Verifying git log and status ---');
-  git('log', '-1', '--oneline');
-  git('status');
-
-  console.log('\n=== Git Stage, Commit & Push SUCCESS ===');
-} catch (e) {
-  console.error('\n❌ Execution error:', e.message);
-  process.exit(1);
-}
-
-]]>
-    </file>
     <file path="scripts/test-analyze-inquiry.mjs" lines="99">
       <![CDATA[
 // 파일 경로: scripts/test-analyze-inquiry.mjs
@@ -33457,88 +32123,6 @@ function runPredeployChecks() {
 }
 
 runPredeployChecks();
-]]>
-    </file>
-    <file path="scripts/verify-production-live.mjs" lines="78">
-      <![CDATA[
-// scripts/verify-production-live.mjs
-const BASE_URL = 'https://hanbatmall.com';
-
-async function verifyLiveSite() {
-  console.log(`Checking production live site: ${BASE_URL} ...`);
-
-  // 1. Home page
-  console.log('\n--- 1. Testing Home (/) ---');
-  const homeRes = await fetch(BASE_URL, { headers: { 'User-Agent': 'Mozilla/5.0 HanbatBot/1.0' } });
-  console.log(`Home status: ${homeRes.status}`);
-  if (homeRes.status !== 200) throw new Error(`Home status is ${homeRes.status}`);
-  const homeHtml = await homeRes.text();
-
-  // Verify V2DualModeConcierge is NOT rendered
-  const hasConcierge = homeHtml.includes('맞춤 가전 매칭') || homeHtml.includes('원스톱 패키지') || homeHtml.includes('v2-dual-mode-concierge');
-  console.log(`Dual Mode Concierge text/elements found: ${hasConcierge ? 'YES (UNEXPECTED)' : 'NO (AS EXPECTED)'}`);
-
-  // Verify category section & featured products section connect
-  const hasCategorySection = homeHtml.includes('id="category-section"');
-  const hasFeaturedSection = homeHtml.includes('id="featured-products-section"');
-  console.log(`Category section present: ${hasCategorySection}`);
-  console.log(`Featured products section present: ${hasFeaturedSection}`);
-
-  if (hasConcierge) {
-    console.warn('⚠️ Warning: Concierge elements still found. Vercel deployment might still be propagating or caching.');
-  }
-
-  // 2. Gallery page
-  console.log('\n--- 2. Testing Gallery (/gallery) ---');
-  const galleryRes = await fetch(`${BASE_URL}/gallery`, { headers: { 'User-Agent': 'Mozilla/5.0 HanbatBot/1.0' } });
-  console.log(`Gallery status: ${galleryRes.status}`);
-  if (galleryRes.status !== 200) throw new Error(`Gallery status is ${galleryRes.status}`);
-  const galleryHtml = await galleryRes.text();
-  const hasSticky = galleryHtml.includes('sticky top-');
-  console.log(`Sticky filter bar present: ${hasSticky}`);
-
-  // 3. Product detail page
-  const sampleProductId = '0401ff3d-0802-4620-a603-461484bba136';
-  console.log(`\n--- 3. Testing Product Detail (/${sampleProductId}) ---`);
-  const productRes = await fetch(`${BASE_URL}/${sampleProductId}`, { headers: { 'User-Agent': 'Mozilla/5.0 HanbatBot/1.0' } });
-  console.log(`Product page status: ${productRes.status}`);
-  if (productRes.status === 200) {
-    const productHtml = await productRes.text();
-    const hasVisualViewer = productHtml.includes('한밭중고전자 4대 부위별 정밀 검수 리포트') || productHtml.includes('분해 고압 물세척');
-    const hasSpatialPlanner = productHtml.includes('설치 공간 시뮬레이터') || productHtml.includes('가구/가전 배치도');
-    console.log(`Visual Inspection Viewer present: ${hasVisualViewer}`);
-    console.log(`Spatial Fit Planner present: ${hasSpatialPlanner}`);
-
-    // 4. Purchase page (/purchase)
-    console.log('\n--- 4. Testing Purchase (/purchase) ---');
-    const purchaseRes = await fetch(`${BASE_URL}/purchase`, { headers: { 'User-Agent': 'Mozilla/5.0 HanbatBot/1.0' } });
-    console.log(`Purchase status: ${purchaseRes.status}`);
-    const purchaseHtml = await purchaseRes.text();
-    const hasWizard = purchaseHtml.includes('1단계 / 3단계') || purchaseHtml.includes('처분하실 품목을 모두 선택해 주세요');
-    console.log(`Purchase 3-step wizard present: ${hasWizard}`);
-
-    return {
-      homeStatus: homeRes.status,
-      hasConcierge,
-      hasCategorySection,
-      hasFeaturedSection,
-      galleryStatus: galleryRes.status,
-      productStatus: productRes.status,
-      hasVisualViewer,
-      hasSpatialPlanner,
-      purchaseStatus: purchaseRes.status,
-      hasPurchaseWizard: hasWizard
-    };
-  }
-}
-
-verifyLiveSite().then(res => {
-  console.log('\nFinal Verification Result:', JSON.stringify(res, null, 2));
-}).catch(err => {
-  console.error('Verification failed:', err);
-  process.exit(1);
-});
-
 ]]>
     </file>
     <file path="scripts/verify-security-and-regression.mjs" lines="187">

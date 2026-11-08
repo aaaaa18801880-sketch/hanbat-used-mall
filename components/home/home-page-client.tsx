@@ -20,6 +20,7 @@ import {
   SiteFooter,
   MobileCtaBar,
   SectionHeading,
+  AdminLoginModal,
 } from "../../lib/ui";
 import {
   STORE,
@@ -236,9 +237,6 @@ export default function Home({
 
   /* 관리자 모달 상태 */
   const [loginOpen, setLoginOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [loggingIn, setLoggingIn] = useState(false);
 
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [reviewTitle, setReviewTitle] = useState("");
@@ -399,31 +397,6 @@ export default function Home({
       toast.success("도로명 주소(대전천서로 691-62 1, 2층)가 복사되었습니다.");
     } catch {
       toast.error("주소 복사에 실패했습니다.");
-    }
-  };
-
-  /* ── 관리자 로그인 / 로그아웃 ── */
-  const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoggingIn(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminEmail.trim(),
-        password: adminPassword,
-      });
-      if (error) throw error;
-      if (!isAuthorizedAdminUser(data.user)) {
-        await supabase.auth.signOut();
-        toast.error("관리자 권한이 허용되지 않은 계정입니다.");
-        return;
-      }
-      toast.success("관리자로 로그인했습니다.");
-      setLoginOpen(false);
-      setAdminPassword("");
-    } catch {
-      toast.error("이메일 또는 비밀번호를 확인해 주세요.");
-    } finally {
-      setLoggingIn(false);
     }
   };
 
@@ -891,7 +864,6 @@ export default function Home({
           onSelectCategory={(item) => {
             setSelectedCategory(item);
           }}
-          onSelectInquiry={openInquiry}
         />
 
         {/* ════════════════════════════════════════════════════════════
@@ -1936,62 +1908,11 @@ export default function Home({
       )}
 
       {/* ── 관리자 로그인 모달 ── */}
-      {loginOpen && (
-        <Modal
-          open={loginOpen}
-          onClose={() => setLoginOpen(false)}
-          label="관리자 로그인"
-          panelClassName="max-w-sm"
-        >
-          <form
-            onSubmit={handleAdminLogin}
-            className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                관리자 로그인
-              </h2>
-              <button
-                type="button"
-                onClick={() => setLoginOpen(false)}
-                aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
-              >
-                <Icon d={ICON.close} />
-              </button>
-            </div>
-            <label className="hb-label" htmlFor="admin-email">
-              이메일
-            </label>
-            <input
-              id="admin-email"
-              type="email"
-              required
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className="hb-input mt-1 mb-4"
-            />
-            <label className="hb-label" htmlFor="admin-pw">
-              비밀번호
-            </label>
-            <input
-              id="admin-pw"
-              type="password"
-              required
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="hb-input mt-1"
-            />
-            <button
-              type="submit"
-              disabled={loggingIn}
-              className="hb-btn-primary mt-6 h-11 w-full text-hb-sm active:scale-[0.96]"
-            >
-              {loggingIn ? "로그인 중…" : "로그인"}
-            </button>
-          </form>
-        </Modal>
-      )}
+      <AdminLoginModal
+        open={loginOpen}
+        onClose={() => setLoginOpen(false)}
+        onSuccess={() => setIsAdmin(true)}
+      />
 
       {/* ── 배송·설치 인증사진 등록 모달 (관리자) ── */}
       {reviewModalOpen && (

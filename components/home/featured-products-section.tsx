@@ -120,8 +120,6 @@ export function FeaturedProductsSection({
   onRetry,
   selectedCategory,
   onResetCategory,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onInquireProduct,
 }: {
   products: ProductItem[];
   loading: boolean;
@@ -129,7 +127,6 @@ export function FeaturedProductsSection({
   onRetry: () => void;
   selectedCategory?: ShowroomCategoryItem;
   onResetCategory?: () => void;
-  onInquireProduct?: (productTitle: string) => void;
 }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
 

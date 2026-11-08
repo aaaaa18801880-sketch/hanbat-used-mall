@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
+import { supabase, isAuthorizedAdminUser } from "./supabase";
 import { ProductCompareModal } from "../components/products/product-compare-modal";
 import { QuickInquiryModal } from "../components/inquiry/quick-inquiry-modal";
 import {
@@ -51,7 +52,6 @@ export const ICON = {
     "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
   pen: "M4 20h4L19 9l-4-4L4 16v4z",
   pin: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
-  location: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
   clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
   menu: "M4 7h16M4 12h16M4 17h16",
   bag: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0",
@@ -59,7 +59,6 @@ export const ICON = {
   share: "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8m-4-6-4-4-4 4m4-4v13",
   shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
-  refresh: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
   shieldCheck:
     "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4",
   sparkles:
@@ -79,7 +78,6 @@ export const ICON = {
     "M3 21h18 M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16 M9 7h2 M13 7h2 M9 11h2 M13 11h2 M9 15h2 M13 15h2",
   snowflake:
     "M12 2v20 M17 5l-5 5-5-5 M17 19l-5-5-5 5 M2 12h20 M5 7l5 5-5 5 M19 7l-5 5 5 5",
-  droplet: "M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z",
   layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
   sliders:
     "M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6",
@@ -1529,6 +1527,103 @@ export function MobileCtaBar({
   );
 }
 
-export function AdminLoginModal() {
-  return null;
+export function AdminLoginModal({
+  open,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSuccess?: () => void;
+}) {
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  if (!open) return null;
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoggingIn(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: adminEmail.trim(),
+        password: adminPassword,
+      });
+      if (error) {
+        toast.error("로그인 실패: " + error.message);
+        return;
+      }
+      if (!isAuthorizedAdminUser(data.user)) {
+        await supabase.auth.signOut();
+        toast.error("관리자 권한이 없습니다.");
+        return;
+      }
+      toast.success("관리자 권한이 확인되었습니다.");
+      setAdminPassword("");
+      onClose();
+      onSuccess?.();
+    } catch {
+      toast.error("로그인 중 오류가 발생했습니다.");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      label="관리자 로그인"
+      panelClassName="max-w-sm"
+    >
+      <form
+        onSubmit={handleAdminLogin}
+        className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-hb-lg font-bold text-[#141A23]">
+            관리자 로그인
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="닫기"
+            className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
+          >
+            <Icon d={ICON.close} />
+          </button>
+        </div>
+        <label className="hb-label" htmlFor="admin-shared-modal-email">
+          이메일
+        </label>
+        <input
+          id="admin-shared-modal-email"
+          type="email"
+          required
+          value={adminEmail}
+          onChange={(e) => setAdminEmail(e.target.value)}
+          className="hb-input mt-1 mb-4"
+        />
+        <label className="hb-label" htmlFor="admin-shared-modal-pw">
+          비밀번호
+        </label>
+        <input
+          id="admin-shared-modal-pw"
+          type="password"
+          required
+          value={adminPassword}
+          onChange={(e) => setAdminPassword(e.target.value)}
+          className="hb-input mt-1"
+        />
+        <button
+          type="submit"
+          disabled={loggingIn}
+          className="hb-btn-primary mt-6 h-11 w-full text-hb-sm active:scale-[0.96]"
+        >
+          {loggingIn ? "로그인 중…" : "로그인"}
+        </button>
+      </form>
+    </Modal>
+  );
 }

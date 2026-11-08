@@ -136,7 +136,7 @@ lines.push("## 🤖 타 AI 에이전트를 위한 핵심 지침 (System Instruct
 lines.push("");
 lines.push("본 프로젝트 코드를 수정하거나 새로운 기능을 추가할 때 아래 4대 원칙을 반드시 준수해야 합니다:");
 lines.push("");
-lines.push("1. **도메인 단일 출처(SSOT) 규칙**: 매장명(한밭중고전자), 대표전화(`042-252-8949`), 주소(`대전 중구 대종로 637`), 무상 보증 정책(에어컨 8개월 / 주요 가전 4개월), 7일 교환 정책을 컴포넌트에 인라인 하드코딩하지 말고 반드시 `lib/site.ts`의 `STORE` 상수를 참조하세요.");
+lines.push("1. **도메인 단일 출처(SSOT) 규칙**: 매장명(한밭중고전자), 대표전화(`042-523-8179`), 주소(`대전광역시 중구 대전천서로 691-62 1, 2층`), 무상 보증 정책(에어컨 8개월 / 주요 가전 4개월), 7일 교환 정책을 컴포넌트에 인라인 하드코딩하지 말고 반드시 `lib/site.ts`의 `STORE` 상수를 참조하세요.");
 lines.push("2. **디자인 토큰 규격 준수**: 임의 픽셀 폰트(`text-[..px]`) 사용 금지 (`text-hb-xs`, `text-hb-sm`, `text-hb-base`, `text-hb-lg` 토큰 사용). JSX 화면 노출 텍스트 이모지 사용 금지 (외부 의존성 없는 `components/ui/modern-icons.tsx` 또는 `lib/ui.tsx`의 SVG Icon 사용). Tailwind CSS v3 규격 준수.");
 lines.push("3. **Windows 환경 프로세스 안전성**: 개별 검증 스크립트를 수동으로 연달아 호출하지 말고, 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`를 실행하세요.");
 lines.push("4. **원자적 로컬 체크포인트**: 변경 사항이 8대 게이트를 100% 통과하면 `node scripts/git-checkpoint.mjs \"<작업설명>\"`으로 로컬 커밋을 생성하세요.");

@@ -28,6 +28,7 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
+  AdminLoginModal,
 } from "../../lib/ui";
 import {
   UnifiedInquiryForm,
@@ -161,9 +162,6 @@ export default function InquiryBoardPage() {
 
   /* 관리자 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
@@ -468,31 +466,6 @@ export default function InquiryBoardPage() {
         "상태 업데이트 실패: " +
           (err instanceof Error ? err.message : "알 수 없는 오류")
       );
-    }
-  };
-
-  const handleAdminAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminEmail.trim(),
-        password: adminPassword,
-      });
-      if (error) throw error;
-      if (!isAuthorizedAdminUser(data.user)) {
-        await supabase.auth.signOut();
-        toast.error("관리자 권한이 없는 계정입니다.");
-        return;
-      }
-      toast.success("관리자로 로그인했습니다.");
-      setIsAdminAuthModalOpen(false);
-      setAdminEmail("");
-      setAdminPassword("");
-    } catch {
-      toast.error("이메일 또는 비밀번호를 확인해 주세요.");
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -1464,45 +1437,13 @@ export default function InquiryBoardPage() {
         </div>
       )}
 
-      {isAdminAuthModalOpen && (
-        <Modal
-          label="관리자 로그인"
-          onClose={() => setIsAdminAuthModalOpen(false)}
-          panelClassName="max-w-sm"
-        >
-          <form
-            onSubmit={handleAdminAuth}
-            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E2E6EC] space-y-4"
-          >
-            <h3 className="text-hb-lg font-bold text-[#141A23]">
-              관리자 로그인
-            </h3>
-            <input
-              type="email"
-              required
-              placeholder="관리자 이메일"
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className="hb-input"
-            />
-            <input
-              type="password"
-              required
-              placeholder="비밀번호"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="hb-input"
-            />
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="hb-btn-primary h-11 w-full text-hb-sm"
-            >
-              {isLoggingIn ? "로그인 중..." : "로그인"}
-            </button>
-          </form>
-        </Modal>
-      )}
+      <AdminLoginModal
+        open={isAdminAuthModalOpen}
+        onClose={() => setIsAdminAuthModalOpen(false)}
+        onSuccess={() => {
+          loadData();
+        }}
+      />
     </div>
   );
 }

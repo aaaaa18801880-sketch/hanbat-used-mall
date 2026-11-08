@@ -43,6 +43,7 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
+  AdminLoginModal,
 } from "../../lib/ui";
 import {
   ProductCard,
@@ -1043,9 +1044,6 @@ export default function GalleryPage() {
 
   /* 관리자 로그인 모달 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   /* 관리자 상품 등록 모달 상태 */
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
@@ -1522,32 +1520,6 @@ export default function GalleryPage() {
         "삭제 실패: " +
           (error instanceof Error ? error.message : "알 수 없는 오류")
       );
-    }
-  };
-
-  /* ───── 관리자 인증 ───── */
-  const handleAdminAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: adminEmail.trim(),
-        password: adminPassword,
-      });
-      if (error) throw error;
-      if (!isAuthorizedAdminUser(data.user)) {
-        await supabase.auth.signOut();
-        toast.error("관리자 권한이 허용되지 않은 계정입니다.");
-        return;
-      }
-      toast.success("관리자로 로그인했습니다.");
-      setIsAdminAuthModalOpen(false);
-      setAdminEmail("");
-      setAdminPassword("");
-    } catch {
-      toast.error("로그인 실패: 이메일이나 비밀번호를 확인해 주세요.");
-    } finally {
-      setIsLoggingIn(false);
     }
   };
 
@@ -3026,64 +2998,11 @@ export default function GalleryPage() {
       )}
 
       {/* 관리자 로그인 모달 */}
-      {isAdminAuthModalOpen && (
-        <Modal
-          open={isAdminAuthModalOpen}
-          onClose={() => setIsAdminAuthModalOpen(false)}
-          label="관리자 로그인"
-          panelClassName="max-w-sm"
-        >
-          <form
-            onSubmit={handleAdminAuth}
-            className="w-full rounded-lg bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
-          >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                관리자 로그인
-              </h2>
-              <button
-                type="button"
-                onClick={() => setIsAdminAuthModalOpen(false)}
-                className="grid h-8 w-8 place-items-center text-[#64748B] hover:text-[#141A23]"
-                aria-label="닫기"
-              >
-                <Icon d={ICON.close} className="h-5 w-5" />
-              </button>
-            </div>
-            <label className="hb-label" htmlFor="admin-email">
-              관리자 이메일
-            </label>
-            <input
-              id="admin-email"
-              type="email"
-              autoComplete="username"
-              required
-              value={adminEmail}
-              onChange={(e) => setAdminEmail(e.target.value)}
-              className="hb-input mt-1.5 mb-4"
-            />
-            <label className="hb-label" htmlFor="admin-pw">
-              비밀번호
-            </label>
-            <input
-              id="admin-pw"
-              type="password"
-              autoComplete="current-password"
-              required
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              className="hb-input mt-1.5"
-            />
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="hb-btn-primary mt-6 h-12 w-full text-hb-base"
-            >
-              {isLoggingIn ? "인증 확인 중…" : "로그인"}
-            </button>
-          </form>
-        </Modal>
-      )}
+      <AdminLoginModal
+        open={isAdminAuthModalOpen}
+        onClose={() => setIsAdminAuthModalOpen(false)}
+        onSuccess={() => setIsAdmin(true)}
+      />
     </div>
   );
 }

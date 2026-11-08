@@ -18,7 +18,6 @@ import {
   extractModelName,
   extractSpecCapsules,
   getCategoryFaqs,
-  type ProductCategoryValue,
 } from "../../lib/site";
 import {
   SiteHeader,
@@ -45,80 +44,6 @@ import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-pl
 import { RefrigeratorCompartmentDiagram } from "../../components/products/refrigerator-compartment-diagram";
 
 export const dynamic = "force-dynamic";
-
-/**
- * 카테고리별(업소용 B2B / 에어컨·냉난방기 / 가정용 B2C) 맞춤 설치 환경 체크리스트 정의
- */
-function getCategoryChecklistConfig(category: ProductCategoryValue): {
-  badge: string;
-  title: string;
-  isB2B: boolean;
-  rows: ReadonlyArray<{ label: string; desc: string }>;
-} {
-  if (category === "업소용기기") {
-    return {
-      badge: "업소용 설비 확인",
-      title: "업소용 설비 도입 · 설치 환경 체크리스트",
-      isB2B: true,
-      rows: [
-        {
-          label: "전원 규격",
-          desc: "단상 220V / 삼상 380V 여부 및 매장 분전반(차단기) 용량 확인",
-        },
-        {
-          label: "급·배수 / 가스",
-          desc: "제빙기·세척기 급배수 배관 위치 / 가스기기(도시가스·LPG) 규격",
-        },
-        {
-          label: "반입 동선",
-          desc: "주방 출입구 가로 폭·문턱 높이 및 기존 폐업·철거 기기 유무",
-        },
-      ],
-    };
-  }
-
-  if (category === "에어컨/냉난방기") {
-    return {
-      badge: "냉난방기 시공 확인",
-      title: "에어컨 · 냉난방기 시공 환경 체크리스트",
-      isB2B: true,
-      rows: [
-        {
-          label: "전원 · 면적",
-          desc: "단상 220V / 삼상 380V 전원 규격 및 설치 공간 평형 확인",
-        },
-        {
-          label: "배관 · 타공",
-          desc: "실내기~실외기 예상 배관 거리 및 벽체 타공 여부 확인",
-        },
-        {
-          label: "실외기 거치",
-          desc: "베란다·옥상·외벽 앵글 등 실외기 안착 공간 및 층수 확인",
-        },
-      ],
-    };
-  }
-
-  return {
-    badge: "가정용 배송 확인",
-    title: "가정용 가전 배송 · 설치 환경 체크리스트",
-    isB2B: false,
-    rows: [
-      {
-        label: "진입로 · 문폭",
-        desc: "현관문·방문·설치 공간의 가로 × 깊이 × 높이 여유 치수 확인",
-      },
-      {
-        label: "운반 환경",
-        desc: "엘리베이터 유무 또는 계단 층수(사다리차 필요 여부) 사전 확인",
-      },
-      {
-        label: "수도 · 콘센트",
-        desc: "세탁기·냉장고 급배수 수도꼭지 위치 및 전용 콘센트 확인",
-      },
-    ],
-  };
-}
 
 const getProductById = cache(async (id: string) => {
   const { data: product, error } = await supabase
@@ -229,7 +154,7 @@ export default async function ProductDetailPage({
   const sold = isProductSold(product.status);
   const statusLabel = getProductStatusLabel(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
-  const checklistConfig = getCategoryChecklistConfig(categoryLabel);
+  const isB2B = categoryLabel === "업소용기기" || categoryLabel === "에어컨/냉난방기";
   const priced = hasProductPrice(product.price);
   const priceDisplay = sold
     ? "판매완료"
@@ -510,7 +435,7 @@ export default async function ProductDetailPage({
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
                   className={`rounded-md px-2.5 py-0.5 text-hb-xs font-bold transition-colors ${
-                    checklistConfig.isB2B
+                    isB2B
                       ? "bg-[#141A23] text-white hover:bg-[#1E2736]"
                       : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] hover:border-[#CBD2DC]"
                   }`}
@@ -640,7 +565,6 @@ export default async function ProductDetailPage({
                 sold={sold}
                 modelName={modelName}
                 firstImageUrl={images[0] || null}
-                checklistConfig={checklistConfig}
               />
             </div>
           </div>

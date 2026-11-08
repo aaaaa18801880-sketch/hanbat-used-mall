@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { trackEvent, type InquiryTypeValue } from "../../lib/site";
+import { trackEvent } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 import { ModernApplianceIcon, type ModernIconType } from "../ui/modern-icons";
 
@@ -108,13 +108,10 @@ export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
   categoryCounts,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onSelectInquiry,
 }: {
   selectedKey?: PictogramKey;
   onSelectCategory?: (item: ShowroomCategoryItem) => void;
   categoryCounts?: Partial<Record<PictogramKey, number>>;
-  onSelectInquiry?: (type: InquiryTypeValue) => void;
 }) {
   const handleCategoryClick = (item: ShowroomCategoryItem) => {
     trackEvent("filter_gallery", {

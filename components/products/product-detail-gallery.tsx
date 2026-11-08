@@ -481,39 +481,12 @@ export function CopyPromoPostButton({
  * 상품 상세 우측의 설치 환경 체크리스트를 고객이 직접 클릭해 선택하면,
  * 온라인 문의 / 문자(SMS) / 견적함에 해당 현장 조건이 자동으로 첨부됩니다.
  */
-export const QUICK_ENV_CHIPS_BY_CATEGORY: Record<string, readonly string[]> = {
-  업소용기기: [
-    "단상 220V",
-    "삼상 380V",
-    "1층 매장",
-    "계단·턱 있음",
-    "기존 설비 철거·매입 희망",
-    "세금계산서 발행 요청",
-  ],
-  "에어컨/냉난방기": [
-    "단상 220V",
-    "삼상 380V",
-    "실외기 1층/베란다",
-    "외벽 앵글 필요",
-    "배관 5m 이내",
-    "배관 10m 이상",
-  ],
-  default: [
-    "엘리베이터 있음",
-    "계단 운반(2층 이상)",
-    "기존 가전 보상매입/수거 희망",
-    "문폭 80cm 이상 여유",
-  ],
-};
-
 export function InteractiveChecklistAndCta({
   product,
   categoryLabel,
   sold,
   modelName,
   firstImageUrl,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  checklistConfig,
 }: {
   product: {
     id: string;
@@ -527,12 +500,6 @@ export function InteractiveChecklistAndCta({
   sold: boolean;
   modelName: string | null;
   firstImageUrl: string | null;
-  checklistConfig?: {
-    badge: string;
-    title: string;
-    isB2B: boolean;
-    rows: ReadonlyArray<{ label: string; desc: string }>;
-  };
 }) {
   const inquiryParams = new URLSearchParams({
     write: "1",

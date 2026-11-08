@@ -5,13 +5,10 @@ export const STORE = {
   name: "한밭중고전자",
   legalName: "한밭중고전자",
   ceo: "김영종",
-  owner: "김영종",
   url: "https://hanbatmall.com",
   since: 1997,
   tel: "042-523-8179",
-  tel2: "042-527-4888",
   mobile: process.env.NEXT_PUBLIC_STORE_MOBILE || "010-6631-8179",
-  mobileLegacy: "010-5406-8179",
   address: "대전광역시 중구 대전천서로 691-62 1, 2층",
   roadAddress: "대전광역시 중구 대전천서로 691-62 1, 2층",
   jibunAddress: "대전광역시 중구 중촌동 144",
@@ -26,7 +23,6 @@ export const STORE = {
   kakaoChat: "https://pf.kakao.com/_XmyrX/chat",
   cafe: "https://cafe.naver.com/hanbatmall",
   naverMap: "https://naver.me/F5DkWQ4z",
-  naverMapShort: "https://naver.me/F5DkWQ4z",
   daangnLocalProfile:
     "https://www.daangn.com/kr/local-profile/%ED%95%9C%EB%B0%AD%EC%A4%91%EA%B3%A0%EC%A0%84%EC%9E%90-gqg3ov17usci/",
 } as const;
@@ -1091,7 +1087,7 @@ export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
     value: INQUIRY_STATUS.RECEIVED,
     label: "접수",
     desc: "신규 접수되어 확인 대기 중인 상태",
-    badgeClass: "bg-[#FFF5F0] text-[#B5431A] border border-[#FADCD0]",
+    badgeClass: "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]",
   },
   {
     value: INQUIRY_STATUS.REVIEWING,
@@ -1109,7 +1105,7 @@ export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
     value: INQUIRY_STATUS.ANSWERED,
     label: "답변완료",
     desc: "고객에게 온라인 답변 또는 전화 안내를 완료한 상태",
-    badgeClass: "bg-[#0E1A2B] text-white border border-[#0E1A2B]",
+    badgeClass: "bg-[#141A23] text-white border border-[#141A23]",
   },
   {
     value: INQUIRY_STATUS.COMPLETED,
