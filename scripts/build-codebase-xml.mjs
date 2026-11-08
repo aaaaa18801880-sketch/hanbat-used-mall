@@ -38,6 +38,8 @@ const IGNORED_FILES = new Set([
   "yarn.lock",
   "pnpm-lock.yaml",
   "아르곤_디자인.xml",
+  "아르곤_디자인.md",
+  "한밭중고전자_전체코드.md",
   "repomix-output.xml",
   "scripts/build-codebase-xml.mjs",
   "scripts/execute_pipeline.mjs",

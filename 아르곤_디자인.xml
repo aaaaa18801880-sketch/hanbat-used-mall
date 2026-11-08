@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-11-07T15:16:09.999Z">
+<project name="hanbat-mall" generated_at="2026-11-08T03:07:02.609Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
-    <file_count>89</file_count>
+    <file_count>91</file_count>
   </summary>
   <files>
     <file path="AGENTS.md" lines="43">
@@ -4641,7 +4641,7 @@ export async function POST(req: NextRequest) {
 
 ]]>
     </file>
-    <file path="app/api/analyze-product/route.ts" lines="569">
+    <file path="app/api/analyze-product/route.ts" lines="571">
       <![CDATA[
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
@@ -4880,7 +4880,9 @@ export async function POST(req: NextRequest) {
   * 모델명 '2RF'/'2R2F'/'HRF': '냉동 2칸 / 냉장 2칸' (통상 좌측 세로 2도어가 냉동실, 우측 세로 2도어가 냉장실)
   * 모델명 'R': '4칸 전체 냉장실 (올냉장)'
   * 모델명 'F': '4칸 전체 냉동실 (올냉동)'
-  * 25박스/30박스 2도어: 통상 '상단 냉동 1칸 / 하단 냉장 1칸' 또는 '올냉장'
+  * 25박스/30박스 2도어: 통상 '상단 냉동 1칸 / 하단 냉장 1칸' 또는 '올냉장' (위/아래 수직 2도어)
+  * 가로 테이블/찬밧드·토핑·반찬/김밥냉장고(900/1200/1500/1800 규격): 높이가 낮고(80~85cm) 상판이 작업대/밧드인 기기. 도어가 세로가 아니라 [좌/우 수평]으로 나란히 배치됨. 도어 위치 작성 시 절대 '상단/하단'으로 쓰지 말고 반드시 '좌측 도어 / 우측 도어 (좌우 수평 배치)' 또는 '좌측 기계실 + 우측 2도어 올냉장'으로 명시할 것! 규격도 25/30박스가 아닌 1200/1500 등 가로폭 규격으로 표기.
+  * 모델명 'RB'/'RTAR'/'RT'/'CWT'/'WST': '테이블/찬밧드 냉장고 (좌우 수평 도어)'
 - 가정용 냉장고: 4도어='상냉장 하냉동', 양문형='좌냉동 우냉장'
 - 가정용 냉장고(삼성 비스포크, LG 디오스/오브제컬렉션, 위니아 등):
   * 에너지소비효율등급 라벨 또는 명판 스티커에서 모델명(예: RF85T9111AP 등), 전체 용량(예: 850L 등), 월간소비전력량(kWh/월) 등을 정밀 판독
@@ -13143,7 +13145,7 @@ export function AiRecommendationGuideSection() {
 
 ]]>
     </file>
-    <file path="components/home/category-pictogram-bar.tsx" lines="290">
+    <file path="components/home/category-pictogram-bar.tsx" lines="294">
       <![CDATA[
 // 파일 경로: components/home/category-pictogram-bar.tsx
 "use client";
@@ -13298,25 +13300,26 @@ export function CategoryPictogramBar({
         <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
           <div className="flex items-center gap-2.5">
             <span
-              className="inline-block h-4 w-1.5 rounded-full bg-[#E8521A]"
+              className="inline-block h-4 w-1.5 rounded-full bg-gradient-to-b from-[#E8521A] to-[#FF6B35] shadow-xs"
               aria-hidden="true"
             />
             <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-[-0.02em]">
               품목별 쇼룸 카탈로그
             </h2>
-            <span className="hidden sm:inline-block text-hb-xs font-medium text-[#64748B]">
-              · 품목을 선택하면 아래 전시장 매물이 즉시 필터링됩니다
-            </span>
+            <div className="hidden sm:inline-flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] pl-1">
+              <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#E8521A]/70" aria-hidden="true" />
+              <span>품목을 선택하면 아래 전시장 매물이 즉시 필터링됩니다</span>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => handleCategoryClick(allItem)}
-              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-hb-xs font-bold transition-all duration-150 active:scale-[0.96] cursor-pointer ${
                 selectedKey === "all"
-                  ? "bg-[#141A23] text-white shadow-xs"
-                  : "bg-[#F1F3F6] text-[#334155] hover:bg-[#E2E6EC] hover:text-[#141A23]"
+                  ? "bg-[#141A23] text-white shadow-xs ring-1 ring-[#141A23]"
+                  : "border border-[#E2E6EC] bg-white text-[#475569] hover:bg-[#F8FAFC] hover:border-[#CBD5E1] hover:text-[#141A23]"
               }`}
             >
               <span>전체 실매물</span>
@@ -13332,16 +13335,19 @@ export function CategoryPictogramBar({
             </button>
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1 rounded-full border border-[#E2E6EC] bg-white px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
+              className="group inline-flex items-center gap-1 rounded-full border border-[#E2E6EC] bg-white px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F8FAFC] active:scale-[0.96] transition-all duration-150"
             >
               <span>갤러리 전체보기</span>
-              <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#E8521A]" />
+              <Icon
+                d={ICON.right}
+                className="w-3.5 h-3.5 text-[#E8521A] transition-transform duration-150 group-hover:translate-x-0.5"
+              />
             </Link>
           </div>
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 독 (8열 벤토 컨트롤 타일 그리드 — 동심원 곡률 R_outer=16px, p=8px -> R_inner=8px) */}
-        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2">
+        {/* 전 품목 쇼룸 카탈로그 독 (8열 벤토 컨트롤 타일 그리드) */}
+        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-2 sm:p-2.5 shadow-2xs">
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
             {SHOWROOM_CATEGORIES.map((item) => {
               const isSelected = selectedKey === item.key;
@@ -13354,36 +13360,36 @@ export function CategoryPictogramBar({
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => handleCategoryClick(item)}
-                  className={`group relative flex flex-col justify-between rounded-lg p-3 text-left transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 sm:p-3.5 text-left transition-all duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                     isSelected
-                      ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#E8521A]/50"
-                      : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD2DC] hover:shadow-card"
+                      ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                      : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD5E1] hover:shadow-card hover:-translate-y-0.5"
                   }`}
                 >
-                  {/* 상단 행: 좌측 정밀 아이콘 + 우측 B2B/실시간 대수 배지 (데드 스페이스 제로) */}
+                  {/* 상단 행: 좌측 정밀 아이콘 + 우측 B2B/실시간 대수 배지 */}
                   <div className="flex items-start justify-between gap-1.5 w-full">
                     <ModernApplianceIcon
                       name={item.icon}
                       dark={isSelected}
-                      className="w-9 h-9 sm:w-10 sm:h-10 -ml-0.5"
+                      className="w-9 h-9 sm:w-10 sm:h-10 -ml-0.5 transition-transform duration-150 group-hover:scale-105"
                     />
                     <div className="flex flex-col items-end gap-1 shrink-0">
                       {isBiz ? (
                         <span
-                          className={`rounded px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none ${
+                          className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none transition-colors duration-150 ${
                             isSelected
-                              ? "bg-white/15 text-[#FF8A50]"
-                              : "bg-[#F0F9FF] border border-[#BAE6FD] text-[#0369A1]"
+                              ? "bg-white/15 text-[#FF8A50] ring-1 ring-white/20"
+                              : "bg-[#F0F9FF] border border-[#BAE6FD] text-[#0284C7]"
                           }`}
                         >
                           B2B
                         </span>
                       ) : (
                         <span
-                          className={`rounded px-1.5 py-0.5 font-mono text-hb-xs font-semibold leading-none tabular-nums ${
+                          className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-semibold leading-none tabular-nums transition-colors duration-150 ${
                             isSelected
-                              ? "bg-white/15 text-white"
-                              : "bg-[#F1F3F6] text-[#64748B]"
+                              ? "bg-white/15 text-white ring-1 ring-white/20"
+                              : "bg-[#F1F5F9] border border-[#E2E8F0] text-[#64748B]"
                           }`}
                         >
                           {typeof count === "number" ? `${count}대` : "쇼룸"}
@@ -13395,7 +13401,7 @@ export function CategoryPictogramBar({
                   {/* 하단 행: 품목 타이틀 + 세부 서브라벨/전시 대수 */}
                   <div className="mt-2.5 min-w-0 w-full">
                     <strong
-                      className={`block text-hb-xs sm:text-hb-sm font-bold tracking-[-0.015em] truncate ${
+                      className={`block text-hb-xs sm:text-hb-sm font-bold tracking-[-0.015em] truncate transition-colors duration-150 ${
                         isSelected
                           ? "text-white"
                           : "text-[#141A23] group-hover:text-[#E8521A]"
@@ -13404,11 +13410,11 @@ export function CategoryPictogramBar({
                       {item.label}
                     </strong>
                     <span
-                      className={`mt-0.5 block text-hb-xs font-medium truncate tabular-nums ${
+                      className={`mt-0.5 block text-hb-xs font-medium truncate tabular-nums transition-colors duration-150 ${
                         isSelected
                           ? "text-[#FF8A50]"
                           : isBiz && typeof count === "number"
-                          ? "text-[#0369A1] font-semibold"
+                          ? "text-[#0284C7] font-semibold"
                           : "text-[#64748B]"
                       }`}
                     >
@@ -13418,9 +13424,9 @@ export function CategoryPictogramBar({
                     </span>
                   </div>
 
-                  {/* 활성 상태 하단 시그널 오렌지 인디케이터 바 (Zero CLS) */}
+                  {/* 활성 상태 하단 시그널 오렌지 인디케이터 바 (Zero CLS, 라운드 일체형) */}
                   <span
-                    className={`absolute bottom-0 left-3 right-3 h-0.5 rounded-full bg-[#E8521A] transition-opacity duration-150 ${
+                    className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-all duration-150 ${
                       isSelected ? "opacity-100" : "opacity-0"
                     }`}
                     aria-hidden="true"
@@ -13437,318 +13443,153 @@ export function CategoryPictogramBar({
 
 ]]>
     </file>
-    <file path="components/home/delivery-region-checker.tsx" lines="316">
+    <file path="components/home/delivery-region-checker.tsx" lines="151">
       <![CDATA[
 // 파일 경로: components/home/delivery-region-checker.tsx
 "use client";
 
 import React, { useState } from "react";
-import {
-  STORE,
-  STORE_MERCHANT_POLICY,
-  telHref,
-  smsHref,
-  trackEvent,
-  triggerQuickInquiry,
-} from "../../lib/site";
+import { STORE, telHref, smsHref, trackEvent, triggerQuickInquiry } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
-interface RegionZoneSpec {
-  id: string;
-  label: string;
-  shortTag: string;
-  dispatchSpeed: string;
-  deliverySpec: string;
-  buybackSpec: string;
-  installNote: string;
-  sampleAreas: string;
-  tone: "teal" | "cyan" | "orange";
-}
-
-const REGION_ZONES: readonly RegionZoneSpec[] = [
+const ZONES = [
   {
-    id: "daejeon-core",
-    label: "대전 중구 · 서구 · 유성구",
-    shortTag: "당일·익일 최우선 배차",
-    dispatchSpeed: "당일 ~ 익일 직영 배차",
-    deliverySpec: "전담 기사 2인 1조 직배송 · 수평 및 기본 급배수 즉시 설치",
-    buybackSpec: "무료 방문 견적 · 수거 완료 즉시 현장 100% 당일 현금 송금",
-    installNote: "중촌동 직영 본점 반경 15분~25분 핵심 권역 · 매장 방문 후 당일 상차 가능",
-    sampleAreas: "중촌동 · 은행동 · 둔산동 · 탄방동 · 갈마동 · 가수원동 · 봉명동 · 전민동 · 노은동",
-    tone: "teal",
+    id: "dj-core",
+    label: "대전 중구·서구·유성구",
+    tag: "당일·익일 최우선 배차",
+    speed: "당일 ~ 익일 직영 배차",
+    delivery: "전담 기사 2인 1조 직배송 · 수평 및 기본 급배수 즉시 설치",
+    buyback: "무료 방문 견적 · 수거 완료 즉시 현장 100% 당일 현금 송금",
+    areas: "중촌동 · 둔산동 · 탄방동 · 갈마동 · 가수원동 · 봉명동 · 노은동",
   },
   {
-    id: "daejeon-east",
-    label: "대전 동구 · 대덕구",
-    shortTag: "당일·익일 직영 배차",
-    dispatchSpeed: "당일 ~ 익일 직영 배차",
-    deliverySpec: "전담 기사 직배송 · 원룸 입주 3종 패키지 및 업소용 주방 설비 일괄 안착",
-    buybackSpec: "가정 이사 가전 및 식당·카페 폐업 집기 방문 철거 · 당일 현금 정산",
-    installNote: "대전 전 지역 직영 화물차 상시 순회 · 기존 노후 가전 동시 수거(보상판매) 지원",
-    sampleAreas: "용전동 · 가오동 · 성남동 · 홍도동 · 중리동 · 송촌동 · 법동 · 신탄진동",
-    tone: "teal",
+    id: "dj-east",
+    label: "대전 동구·대덕구",
+    tag: "당일·익일 직영 배차",
+    speed: "당일 ~ 익일 직영 배차",
+    delivery: "원룸 3종 패키지 및 업소용 주방 설비 직영 화물 일괄 안착",
+    buyback: "가정 이사 가전 및 식당·카페 폐업 집기 방문 철거 · 당일 정산",
+    areas: "용전동 · 가오동 · 성남동 · 중리동 · 송촌동 · 법동 · 신탄진동",
   },
   {
-    id: "sejong-cheongju",
+    id: "sejong-cj",
     label: "세종 · 청주 권역",
-    shortTag: "익일·맞춤 직배송",
-    dispatchSpeed: "익일 또는 희망일 지정 배차",
-    deliverySpec: "아파트·오피스텔·상가 희망 입주일 맞춤 직배송 및 에어컨·냉난방기 전문 시공",
-    buybackSpec: "오피스텔·원룸 퇴실 가전 및 상가·식당 폐업 설비 일괄 방문 매입",
-    installNote: "묶음 구매(원룸 세트 / 창업 주방 패키지) 시 통합 배차로 운반비 절감",
-    sampleAreas: "세종시 전 지역(나성·다정·보람·고운·조치원) · 청주 흥덕구·서원구·청원구·상당구",
-    tone: "cyan",
+    tag: "익일·맞춤 직배송",
+    speed: "익일 또는 희망일 지정 배차",
+    delivery: "입주·오픈 희망일 맞춤 직배송 및 에어컨·냉난방기 전문 시공",
+    buyback: "오피스텔 퇴실 가전 및 상가·식당 폐업 설비 일괄 방문 매입",
+    areas: "세종시 전 지역(나성·다정·보람·조치원) · 청주 흥덕·서원·청원·상당",
   },
   {
-    id: "chungnam-near",
-    label: "계룡 · 공주 · 논산 · 금산",
-    shortTag: "충남 인접 직영권",
-    dispatchSpeed: "1~2일 내 직영 기사 방문",
-    deliverySpec: "가정용 대형가전 및 식당·카페 업소용 냉장·주방설비 안전 직배송",
-    buybackSpec: "사전 사진 견적 확인 후 약속 일정에 방문 수거 및 현장 즉시 정산",
-    installNote: "엘리베이터 유무 또는 1층 상가 진입 여건을 미리 알려주시면 맞춤 배차",
-    sampleAreas: "계룡시(엄사·금암) · 공주시(신관·월송) · 논산시(내동·취암) · 금산군 · 옥천군",
-    tone: "cyan",
-  },
-  {
-    id: "cheonan-asan",
-    label: "천안 · 아산 · 당진 · 평택",
-    shortTag: "충청·경기남부 배차",
-    dispatchSpeed: "희망 일정 사전 예약 배차",
-    deliverySpec: "업소용 45박스 냉장고·쇼케이스·제빙기·중대형 냉난방기 및 묶음 가전 직배송",
-    buybackSpec: "식당·카페·베이커리·마트 대량 폐업 설비 및 중고 가전 일괄 방문 매입",
-    installNote: "사업자 전자세금계산서 100% 발행 · 출고 전 카톡으로 작동 영상 사전 전송",
-    sampleAreas: "천안 서북구·동남구(불당·두정·성정·신부) · 아산 배방·탕정 · 세종 북부권",
-    tone: "orange",
-  },
-  {
-    id: "nationwide",
-    label: "그 외 전국 안전 화물",
-    shortTag: "전국 화물·용달 직송",
-    dispatchSpeed: "결제·검수 후 1~3일 내 도착",
-    deliverySpec: "출고 전 24시간 시운전 영상 전송 후 전용 완충 포장 · 전국 화물/독차 발송",
-    buybackSpec: "대량 업소용 설비·창고 정리 건은 전화 또는 사진 접수로 전국 출장 협의",
-    installNote: `수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 초기 기능 불량 시 무상 교환·A/S 보증 동일 적용`,
-    sampleAreas: "서울 · 경기 · 전북(전주·익산·군산) · 경북(구미·김천·상주) · 강원 · 영호남 전역",
-    tone: "orange",
+    id: "chungnam",
+    label: "계룡·공주·논산·천안",
+    tag: "충청권 직영 배차",
+    speed: "희망 일정 사전 예약 배차",
+    delivery: "가정용 대형가전 및 업소용 45박스·쇼케이스·제빙기 안전 직배송",
+    buyback: "사전 사진 견적 확인 후 약속 일정에 방문 수거 및 즉시 정산",
+    areas: "계룡시 · 공주시 · 논산시 · 금산군 · 천안시 · 아산시 전역",
   },
 ] as const;
 
-export function DeliveryRegionChecker({
-  className = "",
-}: {
-  className?: string;
-}) {
-  const [selectedId, setSelectedId] = useState<string>(REGION_ZONES[0].id);
-  const activeZone =
-    REGION_ZONES.find((z) => z.id === selectedId) || REGION_ZONES[0];
-
-  const badgeToneClass =
-    activeZone.tone === "teal"
-      ? "bg-[#F0FDFA] border-[#CCFBF1] text-[#0F766E]"
-      : activeZone.tone === "cyan"
-      ? "bg-[#F0F9FF] border-[#BAE6FD] text-[#0369A1]"
-      : "bg-[#FFF4EE] border-[#FADCD0] text-[#E8521A]";
-
-  const smsDraft = `[${STORE.name} 지역 배차·견적 문의]\n• 희망 지역: ${activeZone.label}\n• 문의 내용(구매 직배송 / 방문매입): `;
+export function DeliveryRegionChecker({ className = "" }: { className?: string }) {
+  const [selectedId, setSelectedId] = useState<string>(ZONES[0].id);
+  const zone = ZONES.find((z) => z.id === selectedId) || ZONES[0];
+  const smsDraft = `[${STORE.name} 지역 배차문의] 희망지역: ${zone.label} / 문의내용: `;
 
   return (
     <div
       aria-label="대전·세종·충청권 직배송 및 방문매입 가능 지역 1초 조회"
       className={`rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden shadow-2xs ${className}`}
     >
-      {/* 1. 상단 헤더 바 */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-5 py-4 bg-[#F7F8FA] border-b border-[#E2E6EC]">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#141A23] text-white">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 bg-[#F7F8FA] border-b border-[#E2E6EC]">
+        <div className="flex items-center gap-2">
+          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[#141A23] text-white">
             <Icon d={ICON.truck} className="w-4 h-4 text-[#FF8A50]" />
           </span>
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight">
-                우리 동네 직배송 · 방문매입 배차 1초 조회
-              </h3>
-              <span className="inline-flex items-center rounded-md border border-[#CCFBF1] bg-[#F0FDFA] px-2 py-0.5 text-hb-xs font-bold text-[#0F766E]">
-                직영 기사 배차
-              </span>
-            </div>
-            <p className="text-hb-xs text-[#64748B] truncate">
-              지역을 선택하시면 직배송·설치 일정과 당일 현금 방문매입 기준을 바로 확인하실 수 있습니다.
-            </p>
-          </div>
+          <h3 className="text-hb-base font-bold text-[#141A23]">
+            우리 동네 직배송 · 방문매입 배차 1초 조회
+          </h3>
         </div>
-
         <a
           href={telHref(STORE.tel)}
-          onClick={() =>
-            trackEvent("click_tel_consult", {
-              location: "delivery_region_checker",
-            })
-          }
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150 tabular-nums shrink-0 self-start sm:self-center"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD2DC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] active:scale-[0.96] transition-[border-color,transform] tabular-nums"
         >
           <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
           <span>배차 직통 {STORE.tel}</span>
         </a>
       </div>
 
-      {/* 2. 권역 선택 컨트롤 독 (동심원 곡률: 외곽 p-2 내부 rounded-lg) */}
-      <div className="p-2 bg-[#F1F3F6] border-b border-[#E2E6EC]">
-        <div
-          role="tablist"
-          aria-label="배송 및 매입 권역 선택"
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5"
-        >
-          {REGION_ZONES.map((zone) => {
-            const isSelected = zone.id === activeZone.id;
-            return (
-              <button
-                key={zone.id}
-                type="button"
-                role="tab"
-                aria-selected={isSelected}
-                onClick={() => setSelectedId(zone.id)}
-                className={`flex flex-col justify-between rounded-lg px-3 py-2.5 text-left transition-[background-color,color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
-                  isSelected
-                    ? "bg-[#141A23] text-white shadow-xs"
-                    : "bg-white text-[#141A23] border border-[#E2E6EC] hover:border-[#CBD2DC]"
-                }`}
-              >
-                <span
-                  className={`text-hb-xs font-bold leading-snug break-keep ${
-                    isSelected ? "text-white" : "text-[#141A23]"
-                  }`}
-                >
-                  {zone.label}
-                </span>
-                <span
-                  className={`mt-1 text-hb-xs font-semibold truncate ${
-                    isSelected ? "text-[#FF8A50]" : "text-[#64748B]"
-                  }`}
-                >
-                  {zone.shortTag}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="p-2 bg-[#F1F3F6] border-b border-[#E2E6EC] grid grid-cols-2 lg:grid-cols-4 gap-1.5" role="tablist">
+        {ZONES.map((z) => {
+          const active = z.id === zone.id;
+          return (
+            <button
+              key={z.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setSelectedId(z.id)}
+              className={`rounded-lg px-3 py-2 text-left transition-[background-color,color,transform] duration-150 active:scale-[0.96] cursor-pointer ${
+                active ? "bg-[#141A23] text-white shadow-xs" : "bg-white text-[#141A23] border border-[#E2E6EC]"
+              }`}
+            >
+              <strong className="block text-hb-xs font-bold truncate">{z.label}</strong>
+              <span className={`block text-hb-xs font-semibold truncate ${active ? "text-[#FF8A50]" : "text-[#64748B]"}`}>
+                {z.tag}
+              </span>
+            </button>
+          );
+        })}
       </div>
 
-      {/* 3. 선택 권역 상세 스펙 원장 (No Card-in-Card: divide-y / divide-x 평탄화) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC]">
-        {/* 좌측 8열: 배차 속도 · 직배송 설치 · 방문매입 기준 */}
-        <div className="lg:col-span-8 divide-y divide-[#E2E6EC]">
-          <div className="p-4 sm:p-5 flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-hb-xs font-bold text-[#64748B]">
-                선택 권역
-              </span>
-              <strong className="text-hb-base font-bold text-[#141A23]">
-                {activeZone.label}
-              </strong>
-            </div>
-            <span
-              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-hb-xs font-bold tabular-nums ${badgeToneClass}`}
-            >
-              <Icon d={ICON.clock} className="w-3.5 h-3.5" />
-              <span>{activeZone.dispatchSpeed}</span>
+        <div className="lg:col-span-8 divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
+          <div className="px-5 py-3 flex items-center justify-between gap-2">
+            <strong className="text-hb-sm font-bold text-[#141A23]">{zone.label}</strong>
+            <span className="rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-2.5 py-0.5 text-hb-xs font-bold text-[#0F766E]">
+              {zone.speed}
             </span>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
-            <div className="p-4 sm:p-5 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-[#0F766E]">
-                <Icon d={ICON.check} className="w-4 h-4 shrink-0" />
-                <span>구매 시 직배송 · 설치 기준</span>
-              </div>
-              <p className="text-[#334155] leading-relaxed break-keep">
-                {activeZone.deliverySpec}
-              </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC]">
+            <div className="p-4">
+              <span className="font-bold text-[#0F766E] block mb-1">구매 직배송 · 설치</span>
+              <p className="text-[#334155] leading-relaxed break-keep">{zone.delivery}</p>
             </div>
-
-            <div className="p-4 sm:p-5 space-y-1">
-              <div className="flex items-center gap-1.5 font-bold text-[#E8521A]">
-                <Icon d={ICON.wallet} className="w-4 h-4 shrink-0" />
-                <span>처분 시 방문매입 · 철거 기준</span>
-              </div>
-              <p className="text-[#334155] leading-relaxed break-keep">
-                {activeZone.buybackSpec}
-              </p>
+            <div className="p-4">
+              <span className="font-bold text-[#E8521A] block mb-1">방문매입 · 폐업철거</span>
+              <p className="text-[#334155] leading-relaxed break-keep">{zone.buyback}</p>
             </div>
           </div>
-
-          <div className="px-4 py-3 sm:px-5 bg-[#F7F8FA] text-hb-xs text-[#64748B] flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-            <span className="truncate">
-              <strong className="text-[#141A23]">주요 배차 동네:</strong>{" "}
-              {activeZone.sampleAreas}
-            </span>
-            <span className="text-[#334155] font-medium shrink-0">
-              · {activeZone.installNote}
-            </span>
+          <div className="px-5 py-2.5 bg-[#F7F8FA] text-hb-xs text-[#64748B] truncate">
+            <strong className="text-[#141A23]">주요 배차 동네:</strong> {zone.areas}
           </div>
         </div>
 
-        {/* 우측 4열: 선택한 지역명이 자동 프리필되는 원클릭 액션 콘솔 */}
-        <div className="lg:col-span-4 p-4 sm:p-5 bg-[#F7F8FA]/60 flex flex-col justify-between gap-3">
-          <div>
-            <span className="text-hb-xs font-bold text-[#E8521A]">
-              선택 지역 자동 입력 상담
-            </span>
-            <p className="mt-1 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
-              &lsquo;{activeZone.label}&rsquo; 기준으로 배송비나 방문매입 일정을 바로 물어보세요.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("begin_buyback_inquiry", {
-                  location: "region_checker_buy",
-                  category: activeZone.id,
-                });
-                triggerQuickInquiry({
-                  type: "구매 문의",
-                  envNote: `희망 배송지역: ${activeZone.label} (${activeZone.dispatchSpeed})`,
-                });
-              }}
-              className="hb-btn-primary h-10 w-full px-4 text-hb-xs font-bold justify-between cursor-pointer"
-            >
-              <span>이 지역 배송·구매 문의하기</span>
-              <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FF8A50]" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("begin_buyback_inquiry", {
-                  location: "region_checker_sell",
-                  category: activeZone.id,
-                });
-                triggerQuickInquiry({
-                  type: "내 물건 팔기",
-                  envNote: `방문 수거 희망지역: ${activeZone.label}`,
-                });
-              }}
-              className="hb-btn-accent h-10 w-full px-4 text-hb-xs font-bold justify-between cursor-pointer"
-            >
-              <span>이 지역 방문매입 신청하기</span>
-              <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-            </button>
-
-            <a
-              href={smsHref(STORE.mobile, smsDraft)}
-              onClick={() =>
-                trackEvent("click_sms_consult", {
-                  location: "region_checker_sms",
-                })
-              }
-              className="hb-btn-outline h-9 w-full px-3 text-hb-xs font-bold justify-center"
-            >
-              <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />
-              <span>문자로 지역·사진 바로 전송</span>
-            </a>
-          </div>
+        <div className="lg:col-span-4 p-4 bg-[#F7F8FA]/60 flex flex-col justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => triggerQuickInquiry({ type: "구매 문의", envNote: `희망 배송지역: ${zone.label}` })}
+            className="hb-btn-primary h-10 w-full px-4 text-hb-xs font-bold justify-between cursor-pointer"
+          >
+            <span>이 지역 배송·구매 문의</span>
+            <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FF8A50]" />
+          </button>
+          <button
+            type="button"
+            onClick={() => triggerQuickInquiry({ type: "내 물건 팔기", envNote: `방문 수거 지역: ${zone.label}` })}
+            className="hb-btn-accent h-10 w-full px-4 text-hb-xs font-bold justify-between cursor-pointer"
+          >
+            <span>이 지역 방문매입 신청</span>
+            <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+          </button>
+          <a
+            href={smsHref(STORE.mobile, smsDraft)}
+            onClick={() => trackEvent("click_sms_consult", { location: "region_checker_sms" })}
+            className="hb-btn-outline h-9 w-full px-3 text-hb-xs font-bold justify-center"
+          >
+            <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />
+            <span>문자로 지역·사진 전송</span>
+          </a>
         </div>
       </div>
     </div>
@@ -21865,7 +21706,7 @@ export function ProductStructuredDescription({
 
 ]]>
     </file>
-    <file path="components/products/refrigerator-compartment-diagram.tsx" lines="845">
+    <file path="components/products/refrigerator-compartment-diagram.tsx" lines="1219">
       <![CDATA[
 // 파일 경로: components/products/refrigerator-compartment-diagram.tsx
 "use client";
@@ -21891,6 +21732,7 @@ export interface RefrigeratorLayoutData {
   coolingDesc: string;
   capacity?: string | null;
   compartments: CompartmentInfo[];
+  hasMachineryRoom?: boolean;
 }
 
 export interface RefrigeratorCompartmentDiagramProps {
@@ -21915,7 +21757,8 @@ export function detectRefrigeratorLayout(
     category === "세탁기/건조기" ||
     category === "에어컨/냉난방기" ||
     category === "TV/영상가전" ||
-    category === "주방/생활가전";
+    category === "주방/생활가전" ||
+    category === "배송인증";
 
   if (isExcludedCategory && !combined.includes("냉장") && !combined.includes("냉동")) {
     return null;
@@ -21944,10 +21787,17 @@ export function detectRefrigeratorLayout(
     coolingDesc = "팬 강제 대류 순환 방식으로 성에 발생이 없는 간접 냉각 시스템입니다.";
   }
 
-  // 용량(리터/박스) 감지
+  // 용량(리터/박스/테이블 규격) 감지
   const boxMatch = combined.match(/\b(25|30|45|65)\s*박스/);
   const literMatch = combined.match(/\b(\d{2,4})\s*(?:l|리터)\b/);
-  const capacityStr = boxMatch ? `${boxMatch[1]}박스` : literMatch ? `${literMatch[1]}L` : null;
+  const tableWidthMatch = combined.match(/\b(900|1200|1500|1800)\b/);
+  const capacityStr = boxMatch
+    ? `${boxMatch[1]}박스`
+    : literMatch
+    ? `${literMatch[1]}L`
+    : tableWidthMatch
+    ? `${tableWidthMatch[1]} 규격`
+    : null;
 
   // 2. 스탠드형 김치냉장고 판별
   const isKimchiStand =
@@ -22196,7 +22046,165 @@ export function detectRefrigeratorLayout(
     };
   }
 
-  // 4. 2도어 (상하 2칸 분할 - 25박스, 30박스, 소형 투도어) 판별
+  // 4. 가로형 테이블 냉장고 / 찬밧드·반찬·토핑 냉장고 및 양문형 냉장고 (좌우 수평 2도어) 판별
+  const isTableFridge =
+    combined.includes("테이블") ||
+    combined.includes("반찬") ||
+    combined.includes("밧드") ||
+    combined.includes("찬밧드") ||
+    combined.includes("토핑") ||
+    combined.includes("김밥") ||
+    combined.includes("작업대") ||
+    combined.includes("서랍식 테이블") ||
+    combined.includes("가로형") ||
+    combined.includes("수평") ||
+    combined.includes("좌우") ||
+    combined.includes("좌/우") ||
+    combined.includes("좌·우") ||
+    combined.includes("상부선반") ||
+    combined.includes("상치선반") ||
+    combined.includes("슬라이딩") ||
+    Boolean(tableWidthMatch && (combined.includes("2도어") || combined.includes("올냉장") || combined.includes("냉장"))) ||
+    /\b(cwsm|cwt|wst|rtar|rtf|rtr|rt-)\b/i.test(combined);
+
+  const isSideBySide =
+    (combined.includes("양문") && !is4Door) ||
+    combined.includes("좌냉동") ||
+    combined.includes("우냉장");
+
+  if (isTableFridge || isSideBySide) {
+    const isBanchanTopping =
+      combined.includes("반찬") ||
+      combined.includes("밧드") ||
+      combined.includes("찬밧드") ||
+      combined.includes("토핑") ||
+      combined.includes("김밥");
+
+    const isAllFreeze = combined.includes("올냉동") || combined.includes("전칸 냉동");
+    const isHalfAndHalf =
+      combined.includes("반반") ||
+      combined.includes("1냉동 1냉장") ||
+      combined.includes("냉동 1칸 / 냉장 1칸") ||
+      (combined.includes("냉동") && combined.includes("냉장")) ||
+      isSideBySide;
+
+    // A. 좌우 수평 올냉동
+    if (isAllFreeze && !isHalfAndHalf) {
+      return {
+        type: "table_horizontal",
+        hasMachineryRoom: !isSideBySide,
+        title: isBanchanTopping
+          ? "업소용 2도어 찬밧드·토핑 올냉동 원장"
+          : isTableFridge
+          ? "업소용 2도어 테이블 올냉동 원장"
+          : "양문형 2도어 전칸 올냉동 원장",
+        subtitle: "좌우 2도어 전체 강력 급속 냉동 구성 (수평 분할)",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+        compartments: [
+          {
+            id: "left",
+            positionLabel: "좌측 도어 (1칸)",
+            role: "freezer",
+            roleName: "급속 냉동실 (좌측)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["손질 육류", "급랭 해산물", "냉동 식재료"],
+            features: "독립 급속 냉동 도어로 신속한 식자재 인출을 지원합니다.",
+          },
+          {
+            id: "right",
+            positionLabel: "우측 도어 (1칸)",
+            role: "freezer",
+            roleName: "대용량 냉동실 (우측)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["대용량 비축 냉동육", "냉동 완제품", "업소용 박스 식자재"],
+            features: "넓은 내부 수납 선반으로 대용량 냉동 품목을 안전하게 비축합니다.",
+          },
+        ],
+      };
+    }
+
+    // B. 좌냉동 / 우냉장 분할 (테이블 반반형 또는 양문형 일반)
+    if (isHalfAndHalf && !combined.includes("올냉장") && !combined.includes("전칸 냉장") && !combined.includes("전체 냉장실")) {
+      return {
+        type: "table_horizontal",
+        hasMachineryRoom: !isSideBySide,
+        title: isBanchanTopping
+          ? "업소용 찬밧드·토핑 2도어 (좌측 냉동 / 우측 냉장)"
+          : isTableFridge
+          ? "업소용 테이블 2도어 (좌측 냉동 / 우측 냉장)"
+          : "양문형 2도어 독립 냉각 원장 (좌측 냉동 / 우측 냉장)",
+        subtitle: "좌측 급속 냉동 1도어 + 우측 와이드 신선 냉장 1도어 수평 분할",
+        coolingType,
+        coolingDesc,
+        capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+        compartments: [
+          {
+            id: "left",
+            positionLabel: "좌측 도어 (냉동)",
+            role: "freezer",
+            roleName: "급속 냉동실 (좌측)",
+            tempRange: "-15℃ ~ -24℃",
+            recommendedItems: ["육류·생선", "소포장 냉동식자재", "얼음"],
+            features: "좌측 독립 구역으로 냉기 손실 없이 신속하게 인출하는 급속 냉동실입니다.",
+          },
+          {
+            id: "right",
+            positionLabel: "우측 도어 (냉장)",
+            role: "fridge",
+            roleName: "신선 냉장실 (우측)",
+            tempRange: "0℃ ~ +7℃",
+            recommendedItems: ["데일리 반찬", "당일 손질 채소", "주방 소스류", "음료"],
+            features: "자주 여닫는 작업 동선에 맞춘 대용량 와이드 신선 냉장실입니다.",
+          },
+        ],
+      };
+    }
+
+    // C. 테이블형 올냉장 (업소용 테이블 냉장고 표준)
+    return {
+      type: "table_horizontal",
+      hasMachineryRoom: !isSideBySide,
+      title: isBanchanTopping
+        ? "업소용 2도어 찬밧드 반찬 테이블 냉장고 원장"
+        : isTableFridge
+        ? "업소용 2도어 테이블 올냉장 원장"
+        : "양문형 2도어 전칸 올냉장 원장",
+      subtitle: isBanchanTopping
+        ? "좌우 2도어 전체 신선 냉장 특화 구성 (상단 밧드 + 작업대 일체형)"
+        : "좌우 2도어 전체 신선 냉장 특화 구성 (작업대 일체형)",
+      coolingType,
+      coolingDesc,
+      capacity: capacityStr ?? (isTableFridge ? "테이블 규격" : "대용량 규격"),
+      compartments: [
+        {
+          id: "left",
+          positionLabel: "좌측 도어 (1칸)",
+          role: "fridge",
+          roleName: "신선 냉장실 (좌측)",
+          tempRange: "0℃ ~ +7℃",
+          recommendedItems: isBanchanTopping
+            ? ["배식용 소분 반찬", "당일 손질 채소", "주방 양념 및 소스"]
+            : ["당일 손질 채소", "주방 양념 및 소스", "유제품"],
+          features: isBanchanTopping
+            ? "상단 찬밧드 구획과 연계되어 신속한 서빙 및 데일리 식재료 인출을 지원합니다."
+            : "상판 조리 작업대 바로 아래 위치해 손쉬운 데일리 식재료 인출을 지원합니다.",
+        },
+        {
+          id: "right",
+          positionLabel: "우측 도어 (1칸)",
+          role: "fridge",
+          roleName: "대용량 냉장실 (우측)",
+          tempRange: "0℃ ~ +7℃",
+          recommendedItems: ["대형 반찬통", "김치통", "주류 및 음료"],
+          features: "넓은 내부 수납 선반으로 대용량 식재료와 소분 반찬통을 넉넉하게 수납합니다.",
+        },
+      ],
+    };
+  }
+
+  // 5. 2도어 수직 분할 (상하 2칸 분할 - 25박스, 30박스, 소형 투도어) 판별
   const is2Door =
     combined.includes("25박스") ||
     combined.includes("30박스") ||
@@ -22360,131 +22368,276 @@ export function RefrigeratorCompartmentDiagram({
   return (
     <section
       aria-label="도어별 구조 및 칸별 역할 원장"
-      className={`rounded-2xl border border-[#CBD2DC] bg-white p-5 sm:p-7 shadow-2xs space-y-5 ${className}`.trim()}
+      className={`rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs space-y-5 ${className}`.trim()}
     >
-      {/* 1. 상단 섹션 헤더 (Dieter Rams Technical Ledger 헤더) */}
-      <div className="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-[#E2E6EC]">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white">
-              <Icon d={ICON.sliders} className="h-3 w-3 text-[#FF8A50]" />
-              구조 청사진
-            </span>
-            {layout.capacity && (
-              <span className="rounded-md border border-[#CBD2DC] bg-[#F1F3F6] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] tabular-nums">
-                {layout.capacity}
-              </span>
-            )}
-            {layout.coolingType !== "미지정" && (
-              <span
-                className={`rounded-md px-2 py-0.5 text-hb-xs font-bold ${
-                  layout.coolingType === "직냉식"
-                    ? "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]"
-                    : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
-                }`}
-              >
-                {layout.coolingType}
-              </span>
-            )}
+      {/* 1. 상단 섹션 헤더 (품목별 쇼룸 카탈로그 규격 준용) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[#E2E6EC]">
+        <div className="flex items-start gap-2.5">
+          <span
+            className="inline-block h-5 w-1.5 rounded-full bg-gradient-to-b from-[#E8521A] to-[#FF6B35] shadow-xs shrink-0 mt-0.5"
+            aria-hidden="true"
+          />
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-[-0.02em]">
+                {layout.title}
+              </h3>
+              {layout.capacity && (
+                <span className="rounded-md border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#141A23] tabular-nums">
+                  {layout.capacity}
+                </span>
+              )}
+              {layout.coolingType !== "미지정" && (
+                <span
+                  className={`rounded-md px-2 py-0.5 text-hb-xs font-bold ${
+                    layout.coolingType === "직냉식"
+                      ? "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]"
+                      : "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]"
+                  }`}
+                >
+                  {layout.coolingType}
+                </span>
+              )}
+            </div>
+            <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#64748B]">
+              {layout.subtitle}
+            </p>
           </div>
-          <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold tracking-[-0.02em] text-[#141A23]">
-            {layout.title}
-          </h3>
-          <p className="mt-0.5 text-hb-sm text-[#64748B]">
-            {layout.subtitle}
-          </p>
         </div>
 
         {/* 인터랙션 팁 배지 */}
-        <div className="inline-flex items-center gap-1.5 rounded-md bg-[#F7F8FA] px-2.5 py-1 text-hb-xs text-[#64748B] border border-[#E2E6EC]">
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#F8FAFC] px-3 py-1 text-hb-xs font-medium text-[#64748B] border border-[#E2E6EC]">
           <Icon d={ICON.sparkles} className="h-3.5 w-3.5 text-[#E8521A]" />
           <span>도어 칸을 누르면 상세 스펙이 전환됩니다</span>
         </div>
       </div>
 
-      {/* 2. 메인 시각화: 좌측 실물 모형 캐비닛 + 우측 선택 칸 테크니컬 원장 */}
+      {/* 2. 메인 시각화: 좌측 클린 벤토 캐비닛 + 우측 선택 칸 테크니컬 원장 */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 lg:gap-6 items-stretch">
-        {/* A. 좌측: 스테인리스 스틸 실물 모형 섀시 (Dieter Rams Industrial Blueprint) */}
-        <div className="md:col-span-5 flex flex-col items-center justify-center p-4 rounded-xl border border-[#CBD2DC] bg-gradient-to-b from-[#F8FAFC] via-[#EDF2F7] to-[#E2E8F0]">
-          {/* 캐비닛 상단 디지털 온도 컨트롤러 모형 */}
-          <div className="w-full max-w-[240px] mb-2.5 flex items-center justify-between px-3 py-1 rounded bg-[#0F172A] border border-[#334155] text-white">
+        {/* A. 좌측: 클린 벤토 냉장고 캐비닛 (Image 2의 Bento 카드 스타일) */}
+        <div className="md:col-span-5 flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] shadow-2xs">
+          {/* 캐비닛 상단 정밀 상태 바 */}
+          <div
+            className={`w-full ${
+              layout.type === "table_horizontal" ? "max-w-[290px]" : "max-w-[260px]"
+            } mb-2.5 flex items-center justify-between px-3 py-1.5 rounded-lg bg-white border border-[#E2E6EC] text-[#141A23] shadow-2xs`}
+          >
             <div className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
-              <span className="text-hb-xs font-mono font-bold tracking-wider text-[#94A3B8]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#10B981]" />
+              <span className="text-hb-xs font-mono font-bold tracking-wider text-[#475569]">
                 HANBAT TECH
               </span>
             </div>
-            <div className="flex items-center gap-2 font-mono text-hb-xs font-bold text-[#38BDF8] tabular-nums">
-              <span>{activeCompartment.tempRange.split("~")[0].trim()}</span>
-              <span className="text-hb-xs text-[#64748B]">SET</span>
+            <div className="flex items-center gap-1.5 font-mono text-hb-xs font-bold text-[#E8521A] tabular-nums">
+              <span>{activeCompartment.tempRange}</span>
+              <span className="text-hb-xs text-[#94A3B8]">SET</span>
             </div>
           </div>
 
-          {/* 실물 캐비닛 본체 */}
-          <div className="w-full max-w-[240px] rounded-lg border-2 border-[#94A3B8] bg-[#CBD2DC] p-2 shadow-inner space-y-2">
+          {/* 실물 캐비닛 본체 (화이트 미니멀 섀시) */}
+          <div
+            className={`w-full ${
+              layout.type === "table_horizontal" ? "max-w-[290px]" : "max-w-[260px]"
+            } rounded-xl border border-[#CBD5E1] bg-white p-2 shadow-2xs space-y-2`}
+          >
+            {/* 테이블형 / 양문형 좌우 2도어 수평 레이아웃 */}
+            {layout.type === "table_horizontal" && (
+              <div className="space-y-1.5">
+                {/* 상판 스테인리스 작업대 바 */}
+                {layout.hasMachineryRoom && (
+                  <div className="h-5 rounded-t-lg bg-[#F1F5F9] border border-[#CBD5E1] shadow-2xs flex items-center justify-between px-2.5">
+                    <span className="text-hb-xs font-mono font-bold text-[#475569] scale-90 origin-left">
+                      WORKTOP
+                    </span>
+                    <span className="text-hb-xs font-mono font-bold text-[#E8521A] tabular-nums scale-90 origin-right">
+                      {layout.capacity ?? "테이블 규격"}
+                    </span>
+                  </div>
+                )}
+
+                {/* 하단 좌우 도어 (+ 기계실) 그리드 */}
+                <div
+                  className={`grid gap-1.5 ${
+                    layout.hasMachineryRoom ? "grid-cols-12" : "grid-cols-2"
+                  }`}
+                >
+                  <div
+                    className={`${
+                      layout.hasMachineryRoom ? "col-span-9" : "col-span-2"
+                    } grid grid-cols-2 gap-1.5`}
+                  >
+                    {layout.compartments.map((comp) => {
+                      const isSelected = comp.id === activeCompartment.id;
+                      const isFreeze = comp.role === "freezer";
+                      const cleanPosition = comp.positionLabel
+                        .replace(" 도어", "")
+                        .replace(/\s*\([^)]*\)/g, "");
+                      const cleanRole = comp.roleName.replace(/\s*\([^)]*\)/g, "");
+
+                      return (
+                        <button
+                          key={comp.id}
+                          type="button"
+                          onClick={() => setSelectedId(comp.id)}
+                          className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-2.5 text-left transition-all duration-150 active:scale-[0.97] cursor-pointer min-h-[105px] ${
+                            isSelected
+                              ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                              : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD5E1] hover:shadow-card hover:-translate-y-0.5"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-1 w-full">
+                            <span
+                              className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none transition-colors duration-150 ${
+                                isSelected
+                                  ? "bg-white/15 text-white ring-1 ring-white/20"
+                                  : isFreeze
+                                  ? "bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155]"
+                                  : "bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A34A]"
+                              }`}
+                            >
+                              {isFreeze ? "냉동실" : "냉장실"}
+                            </span>
+                            <span
+                              className={`w-3.5 h-1 rounded-full ${
+                                isSelected ? "bg-white/30" : "bg-[#CBD5E1]"
+                              }`}
+                            />
+                          </div>
+
+                          <div className="my-1">
+                            <strong
+                              className={`block text-hb-xs sm:text-hb-sm font-bold tracking-tight transition-colors duration-150 ${
+                                isSelected
+                                  ? "text-white"
+                                  : "text-[#141A23] group-hover:text-[#E8521A]"
+                              }`}
+                            >
+                              {cleanPosition}
+                            </strong>
+                            <span
+                              className={`block text-hb-xs font-medium truncate ${
+                                isSelected ? "text-[#FF8A50]" : "text-[#64748B]"
+                              }`}
+                            >
+                              {cleanRole}
+                            </span>
+                          </div>
+
+                          <div
+                            className={`font-mono text-hb-xs font-bold tabular-nums ${
+                              isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
+                            }`}
+                          >
+                            {comp.tempRange}
+                          </div>
+
+                          <span
+                            className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-all duration-150 ${
+                              isSelected ? "opacity-100" : "opacity-0"
+                            }`}
+                            aria-hidden="true"
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* 우측 콤프레셔 기계실 벤트 유닛 (테이블형) */}
+                  {layout.hasMachineryRoom && (
+                    <div className="col-span-3 rounded-xl border border-[#CBD5E1] bg-[#F1F5F9] p-2 flex flex-col justify-between items-center text-center">
+                      <span className="text-hb-xs font-mono font-bold text-[#475569] tracking-tight scale-80 origin-top">
+                        COMP
+                      </span>
+                      <div className="w-full space-y-1.5 my-1.5 px-0.5">
+                        <div className="h-0.5 bg-[#CBD5E1] rounded-full" />
+                        <div className="h-0.5 bg-[#CBD5E1] rounded-full" />
+                        <div className="h-0.5 bg-[#CBD5E1] rounded-full" />
+                        <div className="h-0.5 bg-[#CBD5E1] rounded-full" />
+                      </div>
+                      <span className="text-hb-xs font-mono font-bold text-[#64748B] scale-80 origin-bottom">
+                        UNIT
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* 2도어 상하 분할 레이아웃 */}
             {layout.type === "2door_vertical" && (
               <div className="space-y-2">
                 {layout.compartments.map((comp) => {
                   const isSelected = comp.id === activeCompartment.id;
                   const isFreeze = comp.role === "freezer";
+                  const cleanPosition = comp.positionLabel
+                    .replace(" 도어", "")
+                    .replace(/\s*\([^)]*\)/g, "");
+                  const cleanRole = comp.roleName.replace(/\s*\([^)]*\)/g, "");
+
                   return (
                     <button
                       key={comp.id}
                       type="button"
                       onClick={() => setSelectedId(comp.id)}
-                      className={`w-full text-left rounded-md p-3 relative transition-[border-color,background-color,transform] active:scale-[0.98] ${
+                      className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3.5 text-left transition-all duration-150 active:scale-[0.97] cursor-pointer min-h-[96px] w-full ${
                         isSelected
-                          ? "ring-2 ring-[#E8521A] shadow-md"
-                          : "hover:brightness-95"
-                      } ${
-                        isFreeze
-                          ? "bg-gradient-to-br from-[#1E293B] to-[#0F172A] text-white border border-[#334155]"
-                          : "bg-gradient-to-br from-[#F0FDFA] to-[#E6F4F1] text-[#141A23] border border-[#99F6E4]"
+                          ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                          : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD5E1] hover:shadow-card hover:-translate-y-0.5"
                       }`}
                     >
-                      {/* 가상 손잡이 바 */}
-                      <span
-                        className={`absolute right-2.5 top-1/2 -translate-y-1/2 w-1.5 h-12 rounded-full ${
-                          isFreeze ? "bg-[#475569]" : "bg-[#94A3B8]"
-                        }`}
-                      />
+                      <div className="flex items-center justify-between gap-1 w-full">
+                        <span
+                          className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none transition-colors duration-150 ${
+                            isSelected
+                              ? "bg-white/15 text-white ring-1 ring-white/20"
+                              : isFreeze
+                              ? "bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155]"
+                              : "bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A34A]"
+                          }`}
+                        >
+                          {isFreeze ? "냉동실" : "냉장실"}
+                        </span>
 
-                      <div className="flex items-center gap-1.5">
                         <span
-                          className={`inline-flex items-center justify-center h-4 w-4 rounded-full ${
-                            isFreeze
-                              ? "bg-[#334155] text-[#38BDF8]"
-                              : "bg-[#CCFBF1] text-[#0F766E]"
+                          className={`w-1 h-5 rounded-full ${
+                            isSelected ? "bg-white/30" : "bg-[#CBD5E1]"
                           }`}
-                        >
-                          <Icon
-                            d={isFreeze ? ICON.snowflake : ICON.check}
-                            className="h-2.5 w-2.5"
-                          />
-                        </span>
-                        <span
-                          className={`text-hb-xs font-bold ${
-                            isFreeze ? "text-[#94A3B8]" : "text-[#0F766E]"
-                          }`}
-                        >
-                          {comp.positionLabel}
-                        </span>
+                        />
                       </div>
 
-                      <div className="mt-1 font-bold text-hb-sm">
-                        {comp.roleName}
+                      <div className="my-1">
+                        <strong
+                          className={`block text-hb-sm font-bold tracking-tight transition-colors duration-150 ${
+                            isSelected
+                              ? "text-white"
+                              : "text-[#141A23] group-hover:text-[#E8521A]"
+                          }`}
+                        >
+                          {cleanPosition}
+                        </strong>
+                        <span
+                          className={`block text-hb-xs font-medium truncate ${
+                            isSelected ? "text-[#FF8A50]" : "text-[#64748B]"
+                          }`}
+                        >
+                          {cleanRole}
+                        </span>
                       </div>
 
                       <div
-                        className={`mt-1 inline-flex items-center gap-1 font-mono text-hb-xs font-bold tabular-nums rounded px-1.5 py-0.5 ${
-                          isFreeze
-                            ? "bg-[#0F172A] text-[#38BDF8]"
-                            : "bg-white text-[#0F766E] border border-[#CCFBF1]"
+                        className={`font-mono text-hb-xs font-bold tabular-nums ${
+                          isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
                         }`}
                       >
                         {comp.tempRange}
                       </div>
+
+                      <span
+                        className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-all duration-150 ${
+                          isSelected ? "opacity-100" : "opacity-0"
+                        }`}
+                        aria-hidden="true"
+                      />
                     </button>
                   );
                 })}
@@ -22497,54 +22650,75 @@ export function RefrigeratorCompartmentDiagram({
                 {layout.compartments.map((comp) => {
                   const isSelected = comp.id === activeCompartment.id;
                   const isFreeze = comp.role === "freezer";
+                  const cleanPosition = comp.positionLabel
+                    .replace(" 도어", "")
+                    .replace(/\s*\([^)]*\)/g, "");
+                  const cleanRole = comp.roleName.replace(/\s*\([^)]*\)/g, "");
+
                   return (
                     <button
                       key={comp.id}
                       type="button"
                       onClick={() => setSelectedId(comp.id)}
-                      className={`text-left rounded-md p-2.5 relative transition-[border-color,background-color,transform] active:scale-[0.98] ${
+                      className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 text-left transition-all duration-150 active:scale-[0.97] cursor-pointer min-h-[105px] ${
                         isSelected
-                          ? "ring-2 ring-[#E8521A] shadow-md"
-                          : "hover:brightness-95"
-                      } ${
-                        isFreeze
-                          ? "bg-gradient-to-br from-[#1E293B] to-[#0F172A] text-white border border-[#334155]"
-                          : "bg-gradient-to-br from-[#F0FDFA] to-[#E6F4F1] text-[#141A23] border border-[#99F6E4]"
+                          ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                          : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD5E1] hover:shadow-card hover:-translate-y-0.5"
                       }`}
                     >
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center justify-between gap-1 w-full">
                         <span
-                          className={`inline-flex items-center justify-center h-3.5 w-3.5 rounded-full ${
-                            isFreeze
-                              ? "bg-[#334155] text-[#38BDF8]"
-                              : "bg-[#CCFBF1] text-[#0F766E]"
+                          className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none transition-colors duration-150 ${
+                            isSelected
+                              ? "bg-white/15 text-white ring-1 ring-white/20"
+                              : isFreeze
+                              ? "bg-[#F1F5F9] border border-[#E2E8F0] text-[#334155]"
+                              : "bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A34A]"
                           }`}
                         >
-                          <Icon
-                            d={isFreeze ? ICON.snowflake : ICON.check}
-                            className="h-2 w-2"
-                          />
+                          {isFreeze ? "냉동실" : "냉장실"}
                         </span>
+
                         <span
-                          className={`text-hb-xs font-bold truncate ${
-                            isFreeze ? "text-[#94A3B8]" : "text-[#0F766E]"
+                          className={`w-1 h-3.5 rounded-full ${
+                            isSelected ? "bg-white/30" : "bg-[#CBD5E1]"
                           }`}
-                        >
-                          {comp.role === "freezer" ? "냉동" : "냉장"}
-                        </span>
+                        />
                       </div>
 
-                      <div className="mt-1 font-bold text-hb-xs truncate">
-                        {comp.roleName}
+                      <div className="my-1">
+                        <strong
+                          className={`block text-hb-xs sm:text-hb-sm font-bold tracking-tight transition-colors duration-150 ${
+                            isSelected
+                              ? "text-white"
+                              : "text-[#141A23] group-hover:text-[#E8521A]"
+                          }`}
+                        >
+                          {cleanPosition}
+                        </strong>
+                        <span
+                          className={`block text-hb-xs font-medium truncate ${
+                            isSelected ? "text-[#FF8A50]" : "text-[#64748B]"
+                          }`}
+                        >
+                          {cleanRole}
+                        </span>
                       </div>
 
                       <div
-                        className={`mt-1 font-mono text-hb-xs font-bold tabular-nums ${
-                          isFreeze ? "text-[#38BDF8]" : "text-[#0F766E]"
+                        className={`font-mono text-hb-xs font-bold tabular-nums ${
+                          isSelected ? "text-[#38BDF8]" : "text-[#0F766E]"
                         }`}
                       >
                         {comp.tempRange}
                       </div>
+
+                      <span
+                        className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-all duration-150 ${
+                          isSelected ? "opacity-100" : "opacity-0"
+                        }`}
+                        aria-hidden="true"
+                      />
                     </button>
                   );
                 })}
@@ -22556,32 +22730,57 @@ export function RefrigeratorCompartmentDiagram({
               <div className="space-y-2">
                 {layout.compartments.map((comp) => {
                   const isSelected = comp.id === activeCompartment.id;
+                  const cleanPosition = comp.positionLabel.replace(/\s*\([^)]*\)/g, "");
+                  const cleanRole = comp.roleName.replace(/\s*\([^)]*\)/g, "");
+
                   return (
                     <button
                       key={comp.id}
                       type="button"
                       onClick={() => setSelectedId(comp.id)}
-                      className={`w-full text-left rounded-md p-2.5 relative transition-[border-color,background-color,transform] active:scale-[0.98] ${
+                      className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 text-left transition-all duration-150 active:scale-[0.97] cursor-pointer min-h-[78px] w-full ${
                         isSelected
-                          ? "ring-2 ring-[#E8521A] shadow-md"
-                          : "hover:brightness-95"
-                      } ${
-                        comp.role === "kimchi"
-                          ? "bg-gradient-to-br from-[#FFFBEB] to-[#FEF3C7] text-[#141A23] border border-[#FDE68A]"
-                          : "bg-gradient-to-br from-[#F0FDFA] to-[#E6F4F1] text-[#141A23] border border-[#99F6E4]"
+                          ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                          : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#CBD5E1] hover:shadow-card hover:-translate-y-0.5"
                       }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <span className="text-hb-xs font-bold text-[#64748B]">
-                          {comp.positionLabel}
+                      <div className="flex items-center justify-between w-full">
+                        <span
+                          className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none ${
+                            isSelected
+                              ? "bg-white/15 text-white ring-1 ring-white/20"
+                              : "bg-[#FFFBEB] border border-[#FDE68A] text-[#B45309]"
+                          }`}
+                        >
+                          {cleanPosition}
                         </span>
-                        <span className="font-mono text-hb-xs font-bold text-[#E8521A] tabular-nums">
+                        <span
+                          className={`font-mono text-hb-xs font-bold tabular-nums ${
+                            isSelected ? "text-[#FF8A50]" : "text-[#E8521A]"
+                          }`}
+                        >
                           {comp.tempRange}
                         </span>
                       </div>
-                      <div className="mt-1 font-bold text-hb-sm text-[#141A23]">
-                        {comp.roleName}
+
+                      <div className="mt-1">
+                        <strong
+                          className={`block text-hb-xs sm:text-hb-sm font-bold tracking-tight ${
+                            isSelected
+                              ? "text-white"
+                              : "text-[#141A23] group-hover:text-[#E8521A]"
+                          }`}
+                        >
+                          {cleanRole}
+                        </strong>
                       </div>
+
+                      <span
+                        className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-all duration-150 ${
+                          isSelected ? "opacity-100" : "opacity-0"
+                        }`}
+                        aria-hidden="true"
+                      />
                     </button>
                   );
                 })}
@@ -22589,42 +22788,43 @@ export function RefrigeratorCompartmentDiagram({
             )}
           </div>
 
-          <span className="mt-2 text-hb-xs text-[#64748B] text-center">
+          <span className="mt-2.5 text-hb-xs text-[#64748B] text-center font-medium">
             실물 규격 비율 기준 다이어그램
           </span>
         </div>
 
         {/* B. 우측: 선택된 도어 구역 상세 스펙 원장 (Technical Ledger) */}
-        <div className="md:col-span-7 flex flex-col justify-between rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5">
+        <div className="md:col-span-7 flex flex-col justify-between rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs space-y-4">
           <div className="space-y-4">
             {/* 현재 선택 구역 배너 */}
-            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3.5 border-b border-[#E2E6EC]">
               <div>
-                <span className="text-hb-xs font-bold text-[#64748B]">
+                <span className="text-hb-xs font-bold text-[#64748B] flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#E8521A]" />
                   선택된 도어 구역
                 </span>
-                <div className="mt-0.5 flex items-center gap-2">
-                  <h4 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  <h4 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-[-0.015em]">
                     {activeCompartment.positionLabel}
                   </h4>
                   <span
-                    className={`rounded px-2 py-0.5 text-hb-xs font-bold ${
+                    className={`rounded-md px-2 py-0.5 text-hb-xs font-bold ${
                       activeCompartment.role === "freezer"
                         ? "bg-[#141A23] text-white"
-                        : "bg-[#CCFBF1] text-[#0F766E]"
+                        : "bg-[#F0FDF4] border border-[#DCFCE7] text-[#16A34A]"
                     }`}
                   >
-                    {activeCompartment.roleName}
+                    {activeCompartment.roleName.replace(/\s*\([^)]*\)/g, "")}
                   </span>
                 </div>
               </div>
 
-              {/* 온도 범위 하이라이트 */}
+              {/* 온도 범위 하이라이트 배지 */}
               <div className="text-right">
-                <span className="text-hb-xs font-bold text-[#64748B]">
+                <span className="text-hb-xs font-bold text-[#64748B] block">
                   적정 권장 온도
                 </span>
-                <div className="font-mono text-hb-base sm:text-hb-lg font-bold text-[#E8521A] tabular-nums">
+                <div className="mt-1 font-mono text-hb-base sm:text-hb-lg font-bold text-[#E8521A] tabular-nums rounded-lg bg-[#FFF4EE] border border-[#FADCD0] px-2.5 py-0.5 inline-block">
                   {activeCompartment.tempRange}
                 </div>
               </div>
@@ -22632,12 +22832,12 @@ export function RefrigeratorCompartmentDiagram({
 
             {/* 특징 설명 */}
             {activeCompartment.features && (
-              <p className="text-hb-sm text-[#334155] leading-relaxed">
+              <p className="text-hb-sm text-[#475569] leading-relaxed border-l-2 border-[#E8521A] pl-3 py-0.5">
                 {activeCompartment.features}
               </p>
             )}
 
-            {/* 추천 보관 품목 (태그 칩) */}
+            {/* 추천 보관 품목 (태그 칩 - 카탈로그 뱃지 스타일) */}
             <div>
               <span className="text-hb-xs font-bold text-[#141A23] block mb-2">
                 권장 보관 식자재 및 품목:
@@ -22646,7 +22846,7 @@ export function RefrigeratorCompartmentDiagram({
                 {activeCompartment.recommendedItems.map((item, idx) => (
                   <span
                     key={idx}
-                    className="inline-flex items-center gap-1 rounded-md border border-[#E2E6EC] bg-white px-2.5 py-1 text-hb-xs font-bold text-[#141A23]"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F8FAFC] px-2.5 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#CBD5E1] transition-colors"
                   >
                     <Icon d={ICON.check} className="h-3 w-3 text-[#E8521A]" />
                     <span>{item}</span>
@@ -22655,41 +22855,56 @@ export function RefrigeratorCompartmentDiagram({
               </div>
             </div>
 
-            {/* 전체 칸 요약 미니 원장 (No Card-in-Card 평탄 표) */}
-            <div className="pt-2">
-              <span className="text-hb-xs font-bold text-[#64748B] block mb-1.5">
+            {/* 전체 칸 요약 목록 (Bento Row 스타일 - 더블 괄호 완전 제거) */}
+            <div className="pt-1">
+              <span className="text-hb-xs font-bold text-[#64748B] block mb-2">
                 전체 도어 역할 한눈에 보기
               </span>
-              <div className="rounded-lg border border-[#E2E6EC] bg-white divide-y divide-[#E2E6EC] overflow-hidden">
+              <div className="space-y-1.5">
                 {layout.compartments.map((comp) => {
                   const isCurrent = comp.id === activeCompartment.id;
+                  const cleanRole = comp.roleName.replace(/\s*\([^)]*\)/g, "");
+
                   return (
-                    <div
+                    <button
                       key={comp.id}
+                      type="button"
                       onClick={() => setSelectedId(comp.id)}
-                      className={`px-3 py-2 flex items-center justify-between gap-2 text-hb-xs cursor-pointer transition-colors ${
-                        isCurrent ? "bg-[#FFF4EE]" : "hover:bg-[#F7F8FA]"
+                      className={`w-full px-3.5 py-2.5 rounded-xl flex items-center justify-between gap-3 text-hb-xs cursor-pointer transition-all duration-150 text-left ${
+                        isCurrent
+                          ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                          : "border border-[#E2E6EC] bg-white text-[#141A23] hover:bg-[#F8FAFC] hover:border-[#CBD5E1]"
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
                         <span
-                          className={`h-2 w-2 rounded-full ${
-                            comp.role === "freezer"
-                              ? "bg-[#141A23]"
-                              : "bg-[#0D9488]"
+                          className={`h-2 w-2 rounded-full shrink-0 ${
+                            isCurrent
+                              ? "bg-[#E8521A]"
+                              : comp.role === "freezer"
+                              ? "bg-[#64748B]"
+                              : "bg-[#10B981]"
                           }`}
                         />
-                        <span className="font-bold text-[#141A23]">
+                        <span className="font-bold truncate">
                           {comp.positionLabel}
                         </span>
-                        <span className="text-[#64748B]">
-                          ({comp.roleName})
+                        <span
+                          className={`text-hb-xs font-medium truncate ${
+                            isCurrent ? "text-[#FF8A50]" : "text-[#64748B]"
+                          }`}
+                        >
+                          · {cleanRole}
                         </span>
                       </div>
-                      <span className="font-mono font-bold text-[#334155] tabular-nums">
+                      <span
+                        className={`font-mono font-bold tabular-nums shrink-0 ${
+                          isCurrent ? "text-[#38BDF8]" : "text-[#475569]"
+                        }`}
+                      >
                         {comp.tempRange}
                       </span>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -24568,7 +24783,7 @@ export function ModernApplianceIcon({
 
 ]]>
     </file>
-    <file path="docs/evolution/BACKLOG.md" lines="340">
+    <file path="docs/evolution/BACKLOG.md" lines="341">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 백로그 (Evolution Backlog)
 
@@ -24625,6 +24840,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 | **40** | `EVO-040` | garden-skills web-design-engineer v1.3.0 전역 정밀 쇼룸 고도화 (Bento 컨트롤 타일, 쇼룸 스펙 원장, 전역 토큰 100% 통일) | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/home/home-page-client.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/home-page-client.tsx)<br>[components/products/product-card.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-card.tsx)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[components/products/product-compare-modal.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-compare-modal.tsx)<br>[app/gallery/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/gallery/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 33)** |
 | **41** | `EVO-041` | 서브페이지·문의폼 잔여 구형 토큰 100% 완전 단일화 및 Emil Kowalski 모달 진입 모션 적용 | [app/globals.css](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/globals.css)<br>[lib/ui.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/lib/ui.tsx)<br>[app/inquiry/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/inquiry/page.tsx)<br>[components/inquiry/unified-inquiry-form.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/unified-inquiry-form.tsx)<br>[components/inquiry/v2-wizard-quick-inquiry.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/inquiry/v2-wizard-quick-inquiry.tsx)<br>[components/products/product-detail-gallery.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-detail-gallery.tsx)<br>[components/products/product-structured-description.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-structured-description.tsx)<br>[components/products/product-status-badge.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/product-status-badge.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 34)** |
 | **42** | `EVO-042` | 다도어 냉장·냉동고 실물 청사진 다이어그램 위젯(RefrigeratorCompartmentDiagram) 구축 | [components/products/refrigerator-compartment-diagram.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/refrigerator-compartment-diagram.tsx)<br>[app/[id]/page.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/app/[id]/page.tsx) | 5 | 5 | 1 | 1 | **25.0** | **Completed (Cycle 35)** |
+| **43** | `EVO-043` | 카테고리 픽토그램 바 상단 인디케이터·벤토 카드 타일 비주얼 고도화 및 테이블 냉장고 청사진 레이아웃 | [components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)<br>[components/products/refrigerator-compartment-diagram.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/refrigerator-compartment-diagram.tsx) | 4 | 5 | 1 | 1 | **20.0** | **Completed (Cycle 36)** |
 
 ---
 
@@ -24912,7 +25128,7 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 
 ]]>
     </file>
-    <file path="docs/evolution/CHANGELOG.md" lines="1192">
+    <file path="docs/evolution/CHANGELOG.md" lines="1226">
       <![CDATA[
 # 한밭중고전자(hanbat-mall) 자율 코드 진화 변경 이력 (Evolution Changelog)
 
@@ -26105,6 +26321,40 @@ $$\text{Priority Score} = \frac{\text{Impact (1-5)} \times \text{Frequency (1-5)
 - **7. eslint**: PASS (13.95s) — 0 errors, 0 warnings
 - **8. next build**: PASS (15.14s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
 - **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~38s)
+
+---
+
+## 🚀 [Cycle 36] 2026-11-08 — 카테고리 픽토그램 바 상단 인디케이터·벤토 카드 타일 고도화 및 테이블 냉장고 좌우 분할 청사진 지원 (EVO-043) (완료)
+
+### 1. 목표 및 동기
+- **과제 ID**: `EVO-043`
+- **핵심 목표**:
+  - 홈 화면 최상단 품목별 쇼룸 카탈로그 독(`components/home/category-pictogram-bar.tsx`)의 상단 인디케이터 바 및 8열 벤토 카드 타일 비주얼 정밀 폴리싱.
+  - 카탈로그 타이틀 앞의 시그널 인디케이터 캡슐과 필터링 안내 문구 닷(dot)을 결합하여 실시간 쇼룸 상태 피드백 강화.
+  - 벤토 독 컨테이너에 동심원 곡률(`rounded-xl`) 및 `overflow-hidden`을 적용하고, 호버 시 마이크로 리프트(`hover:-translate-y-0.5`)와 액티브 시 하단 시그널 오렌지 인디케이터 바(Zero CLS)를 라운드 일체형으로 통합.
+  - 업소용 테이블/반찬 냉장고(좌우 도어 + 기계실 챔버)에 대한 실물 청사진 분할 레이아웃 추가 지원.
+
+### 2. 코드 변경 요약
+- **[components/home/category-pictogram-bar.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/home/category-pictogram-bar.tsx)**:
+  - 타이틀 좌측 인디케이터에 그라디언트 캡슐(`bg-gradient-to-b from-[#E8521A] to-[#FF6B35] shadow-xs`) 적용.
+  - 실시간 안내 문구에 인디케이터 닷(`inline-block h-1.5 w-1.5 rounded-full bg-[#E8521A]/70`) 통합.
+  - 전체 실매물 캡슐 버튼 및 갤러리 링크 보더·호버 인터랙션(화살표 마이크로 트랜지션) 강화.
+  - 벤토 타일 컨테이너: `rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-2 sm:p-2.5 shadow-2xs`로 정돈.
+  - 벤토 카드 타일: `rounded-xl`, `overflow-hidden`, `active:scale-[0.97]`, `hover:-translate-y-0.5` 반응성 적용.
+  - B2B 및 실시간 매물 대수 배지 테두리·가독성 정돈 및 타일 하단 밀착형 4px 시그널 오렌지 인디케이터 바 연결.
+- **[components/products/refrigerator-compartment-diagram.tsx](file:///c:/Users/ABC/Desktop/한밭중고전자/hanbat-mall/components/products/refrigerator-compartment-diagram.tsx)**:
+  - 수평형 테이블 냉장고(가로 900~1800mm) 판별 알고리즘 및 좌우 분할 도어 + 측면 컴프레서 기계실 챔버 레이아웃 지원.
+
+### 3. 정량적 검증 결과 (8대 게이트 전원 100% PASS)
+- **1. check-design-tokens**: PASS (0.33s) — 임의 폰트 0건, 인라인 JSX 이모지 0건, Tailwind v3 규격 준수
+- **2. verify-predeploy**: PASS (0.25s) — 10 / 10 항목 전원 통과
+- **3. verify-security-and-regression**: PASS (0.23s) — 17 / 17 항목 전원 통과
+- **4. verify-ux-benchmark-upgrade**: PASS (0.23s) — 7 / 7 항목 전원 통과
+- **5. test-analyze-inquiry**: PASS (0.23s) — 3 / 3 항목 전원 통과
+- **6. tsc --noEmit**: PASS (3.14s) — 0 errors
+- **7. eslint**: PASS (13.31s) — 0 errors, 0 warnings
+- **8. next build**: PASS (13.40s) — 22/22 정적/동적 라우트 프리렌더링 완료 (Exit Code 0)
+- **통합 결과**: 8 / 8 게이트 100% 무결점 통과 (Total ~31s)
 
 ]]>
     </file>
@@ -30626,6 +30876,603 @@ export default nextConfig;
 
 ]]>
     </file>
+    <file path="pdf-compressor-guide.md" lines="593">
+      <![CDATA[
+# PDF 용량 축소 및 초경량 변환 가이드 (PDF Compressor Guide)
+
+본 가이드는 대용량 스캔 도서 및 OCR 처리된 고용량 PDF(50MB~300MB 이상)를 **AI 챗봇 업로드 제한(10MB 이하)에 맞춰 1~3MB 수준으로 극단적으로 경량화**하거나, 필요에 따라 원본 스캔 레이아웃을 유지하면서 압축하는 전체 스크립트 소스코드, 사용 방법, 필요 라이브러리 목록을 제공합니다.
+
+---
+
+## 1. 사용 라이브러리 목록 (Dependencies)
+
+본 프로젝트는 고성능 PDF 파싱 및 조판을 위해 검증된 라이브러리를 사용하며, 복잡한 외부 의존성을 최소화하여 윈도우 환경에서 즉시 구동되도록 설계되었습니다.
+
+| 라이브러리 명 | 패키지 명 | 필수 여부 | 주요 역할 및 기능 |
+|:---|:---|:---:|:---|
+| **PyMuPDF** | `pymupdf` (내부 모듈명: `fitz`) | **필수** | • 고속 PDF 텍스트 블록/좌표 추출<br>• 원본 페이지 구조 및 메타데이터 분석<br>• PDF 내부 이미지 스트림 교체 및 최적화 저장 |
+| **ReportLab** | `reportlab` | **필수** | • 초경량 벡터 PDF 재조판 엔진<br>• 윈도우 기본 한글 글꼴(맑은 고딕 등) 자동 임베딩<br>• 문단 스타일링, 줄바꿈, 페이지 나눔 자동화 |
+| **Pillow** | `Pillow` (내부 모듈명: `PIL`) | 선택 (방식 B용) | • 원본 스캔 이미지 다운샘플링 (DPI 조절)<br>• JPEG 압축 품질 최적화 및 색상 모드 변환 |
+| **Tkinter** | `tkinter` | 기본 내장 | • 사용자 친화적 데스크톱 GUI 인터페이스 제공 |
+| **ZipFile** | `zipfile` | 기본 내장 | • 외부 변환 툴 없이 순수 파이썬으로 표준 EPUB 규격 패키징 |
+
+### 라이브러리 설치 명령어 (터미널 / CMD)
+```bash
+pip install pymupdf reportlab Pillow
+```
+
+---
+
+## 2. 핵심 원리: 스캔 OCR PDF의 2가지 압축 방식
+
+일반적인 스캔 OCR PDF 파일의 용량 중 **98% 이상은 배경 스캔 이미지**가 차지하며, OCR로 인식된 글자(투명 텍스트 레이어)는 수백 KB 미만에 불과합니다.
+
+```
+[방식 1: 텍스트 추출 & 초경량 재조판 (메인 추천 - 용량 99% 절감)]
+┌─────────────────────────────────┐
+│ 고용량 스캔 PDF (100MB~300MB)    │
+│ (배경 무거운 이미지 + 투명 텍스트) │
+└────────────────┬────────────────┘
+                 │ PyMuPDF로 텍스트 블록 및 좌표 추출
+                 ▼
+┌─────────────────────────────────┐
+│ 문단 정제 및 헤더/푸터 필터링      │
+└────────────────┬────────────────┘
+                 ├───────────────────────────────┐
+                 ▼ (ReportLab 조판)               ▼ (ZipFile 패키징)
+┌─────────────────────────────────┐   ┌───────────────────────────────┐
+│ 초경량 텍스트 PDF (1~3MB)        │   │ 모바일용 EPUB 전자책 (500KB~1MB)│
+│ • 벡터 폰트(맑은 고딕)로 재조판   │   │ • 챕터별 HTML 구조화          │
+│ • AI 챗봇 업로드 100% 최적화     │   │ • 리더기 호환 전자책            │
+└─────────────────────────────────┘   └───────────────────────────────┘
+
+[방식 2: 이미지 다운샘플링 재압축 (도판/삽화 유지 필요 시)]
+• 투명 텍스트 레이어는 건드리지 않고, 배경 이미지 해상도(DPI)와 화질(JPEG 60%)을 낮춰 10MB 미만으로 수렴
+```
+
+---
+
+## 3. [전체 코드] PDF OCR 텍스트 추출 & 초경량 재조판 GUI 변환기
+
+아래 코드는 스캔 이미지 레이어를 완전히 제거하고 텍스트만 추출·정제하여 **1~3MB 초경량 PDF** 및 **EPUB 전자책**을 동시에 생성하는 완성형 GUI 프로그램의 전체 소스코드입니다.
+
+```python
+# -*- coding: utf-8 -*-
+"""
+==========================================================================
+ PDF OCR 텍스트 추출 & 초경량 재조판 변환기 (GUI)
+==========================================================================
+ 고용량 스캔 PDF에서 이미지를 제거하고, 텍스트 레이어만 추출하여
+ 1~3MB 수준의 초경량 PDF(AI 업로드용) 및 EPUB(전자책용)으로 변환합니다.
+"""
+
+import os
+import re
+import sys
+import uuid
+import zipfile
+import threading
+from datetime import datetime
+import tkinter as tk
+from tkinter import filedialog, messagebox, ttk
+
+# 1. 필수 라이브러리 체크
+try:
+    import fitz  # PyMuPDF
+    PYMUPDF_AVAILABLE = True
+except ImportError:
+    PYMUPDF_AVAILABLE = False
+
+try:
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import mm
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
+
+
+# ==========================================================================
+# 2. 텍스트 정제 엔진 (스캔 OCR 노이즈 필터링 및 문장 재조합)
+# ==========================================================================
+def clean_page_text(blocks, page_height):
+    """
+    페이지 내 블록들을 분석하여 상단 머리말, 하단 페이지 번호를 걸러내고
+    끊어진 줄바꿈을 문맥에 맞게 한 문단으로 병합합니다.
+    """
+    valid_lines = []
+    top_margin = page_height * 0.05
+    bottom_margin = page_height * 0.95
+
+    for b in blocks:
+        # b = (x0, y0, x1, y1, "text", block_no, block_type)
+        if b[6] == 0:  # 0 = 텍스트 블록
+            y0, y1, text = b[1], b[3], b[4].strip()
+            
+            # 상단/하단 여백의 페이지 번호/단순 라벨 제거
+            if y0 < top_margin or y1 > bottom_margin:
+                if len(text) < 15 and any(char.isdigit() for char in text):
+                    continue
+
+            lines = text.split("\n")
+            for line in lines:
+                l = line.strip()
+                if l:
+                    valid_lines.append(l)
+
+    # 마침표 없이 행갈음된 문장들을 하나의 자연스러운 문단으로 병합
+    paragraphs = []
+    current_para = []
+
+    for line in valid_lines:
+        current_para.append(line)
+        # 문장 종결 부호(. ! ? ” " 등)로 끝나면 문단 종료
+        if re.search(r'[.!?\"\'”’]\s*$', line):
+            paragraphs.append(" ".join(current_para))
+            current_para = []
+
+    if current_para:
+        paragraphs.append(" ".join(current_para))
+
+    return paragraphs
+
+
+# ==========================================================================
+# 3. AI 업로드용 초경량 PDF 생성기 (ReportLab 엔진)
+# ==========================================================================
+def generate_lightweight_pdf(all_pages_text, output_path, progress_cb=None):
+    if not REPORTLAB_AVAILABLE:
+        raise RuntimeError("ReportLab 라이브러리가 설치되어 있지 않습니다.")
+
+    # Windows 기본 맑은 고딕 등록 (한글 깨짐 방지)
+    font_path = "C:/Windows/Fonts/malgun.ttf"
+    font_name = "MalgunGothic"
+    if os.path.exists(font_path):
+        pdfmetrics.registerFont(TTFont(font_name, font_path))
+    else:
+        font_name = "Helvetica"
+
+    doc = SimpleDocTemplate(
+        output_path,
+        pagesize=A4,
+        leftMargin=20 * mm,
+        rightMargin=20 * mm,
+        topMargin=20 * mm,
+        bottomMargin=20 * mm,
+    )
+
+    styles = getSampleStyleSheet()
+    body_style = ParagraphStyle(
+        name="BookBody",
+        fontName=font_name,
+        fontSize=10,
+        leading=16,
+        spaceAfter=8,
+        textColor="#1a1a1a",
+    )
+    page_header_style = ParagraphStyle(
+        name="PageHeader",
+        fontName=font_name,
+        fontSize=8,
+        leading=10,
+        textColor="#888888",
+        spaceAfter=12,
+    )
+
+    story = []
+    total = len(all_pages_text)
+
+    for idx, paras in enumerate(all_pages_text):
+        if not paras:
+            continue
+        story.append(Paragraph(f"[ 원본 페이지 {idx + 1} ]", page_header_style))
+        for p in paras:
+            safe_text = p.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            story.append(Paragraph(safe_text, body_style))
+        story.append(PageBreak())
+
+        if progress_cb:
+            progress_cb(50 + int((idx / total) * 35))
+
+    doc.build(story)
+
+
+# ==========================================================================
+# 4. 순수 파이썬 표준 라이브러리 기반 EPUB 2/3 생성기
+# ==========================================================================
+def generate_clean_epub(all_pages_text, output_path, title="Extracted Book"):
+    book_id = str(uuid.uuid4())
+    with zipfile.ZipFile(output_path, 'w') as zf:
+        # 1. mimetype (압축 없이 첫 번째 엔트리로 기록 필수)
+        zf.writestr('mimetype', 'application/epub+zip', compress_type=zipfile.ZIP_STORED)
+
+        # 2. container.xml
+        container_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container">
+    <rootfiles>
+        <rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/>
+    </rootfiles>
+</container>'''
+        zf.writestr('META-INF/container.xml', container_xml, compress_type=zipfile.ZIP_DEFLATED)
+
+        manifest_items = []
+        spine_items = []
+        navpoints = []
+
+        # 3. 페이지별 XHTML 생성
+        for idx, paras in enumerate(all_pages_text):
+            if not paras:
+                continue
+            page_num = idx + 1
+            item_id = f"page_{page_num}"
+            filename = f"page_{page_num}.xhtml"
+
+            p_html = "".join(f"<p>{p.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')}</p>" for p in paras)
+            page_content = f'''<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Page {page_num}</title>
+    <style>
+        body {{ font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", sans-serif; line-height: 1.7; padding: 4%; }}
+        h2 {{ color: #444; font-size: 1.1em; border-bottom: 1px solid #ddd; padding-bottom: 5px; }}
+        p {{ margin-bottom: 0.9em; text-indent: 1em; }}
+    </style>
+</head>
+<body>
+    <h2>페이지 {page_num}</h2>
+    {p_html}
+</body>
+</html>'''
+            zf.writestr(f"OEBPS/{filename}", page_content.encode("utf-8"), compress_type=zipfile.ZIP_DEFLATED)
+            manifest_items.append(f'<item id="{item_id}" href="{filename}" media-type="application/xhtml+xml"/>')
+            spine_items.append(f'<itemref idref="{item_id}"/>')
+            navpoints.append(f'''<navPoint id="navPoint-{page_num}" playOrder="{page_num}">
+    <navLabel><text>페이지 {page_num}</text></navLabel>
+    <content src="{filename}"/>
+</navPoint>''')
+
+        # 4. content.opf
+        now_utc = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+        manifest_str = "\n        ".join(manifest_items)
+        spine_str = "\n        ".join(spine_items)
+
+        content_opf = f'''<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="3.0">
+    <metadata xmlns:dc="http://purl.org/dc/elements/1.1/">
+        <dc:title>{title}</dc:title>
+        <dc:language>ko</dc:language>
+        <dc:identifier id="BookId">urn:uuid:{book_id}</dc:identifier>
+        <meta property="dcterms:modified">{now_utc}</meta>
+    </metadata>
+    <manifest>
+        <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml"/>
+        {manifest_str}
+    </manifest>
+    <spine toc="ncx">
+        {spine_str}
+    </spine>
+</package>'''
+        zf.writestr('OEBPS/content.opf', content_opf.encode("utf-8"), compress_type=zipfile.ZIP_DEFLATED)
+
+        # 5. toc.ncx (이북 리더기 목차)
+        nav_str = "\n        ".join(navpoints)
+        toc_ncx = f'''<?xml version="1.0" encoding="UTF-8"?>
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+    <head>
+        <meta name="dtb:uid" content="urn:uuid:{book_id}"/>
+        <meta name="dtb:depth" content="1"/>
+        <meta name="dtb:totalPageCount" content="0"/>
+        <meta name="dtb:maxPageNumber" content="0"/>
+    </head>
+    <docTitle><text>{title}</text></docTitle>
+    <navMap>
+        {nav_str}
+    </navMap>
+</ncx>'''
+        zf.writestr('OEBPS/toc.ncx', toc_ncx.encode("utf-8"), compress_type=zipfile.ZIP_DEFLATED)
+
+
+# ==========================================================================
+# 5. Tkinter 기반 GUI 클래스
+# ==========================================================================
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("OCR PDF 초경량 변환기 (AI 10MB 최적화 & EPUB)")
+        self.geometry("580x440")
+        self.resizable(False, False)
+        self.configure(bg="#f8f9fa")
+        self.setup_ui()
+        self.check_environment()
+
+    def check_environment(self):
+        missing = []
+        if not PYMUPDF_AVAILABLE:
+            missing.append("PyMuPDF (pip install pymupdf)")
+        if not REPORTLAB_AVAILABLE:
+            missing.append("ReportLab (pip install reportlab)")
+        if missing:
+            msg = "필수 라이브러리가 누락되었습니다:\n- " + "\n- ".join(missing)
+            messagebox.showwarning("라이브러리 경고", msg)
+
+    def setup_ui(self):
+        # 1. 상단 안내
+        title_lbl = tk.Label(
+            self,
+            text="고용량 OCR PDF → 1~3MB 초경량 텍스트 변환기",
+            font=("맑은 고딕", 13, "bold"),
+            bg="#f8f9fa",
+            fg="#212529"
+        )
+        title_lbl.pack(pady=(15, 5))
+
+        desc_lbl = tk.Label(
+            self,
+            text="불필요한 스캔 이미지를 제거하고 텍스트만 재조판하여 AI 업로드용으로 압축합니다.",
+            font=("맑은 고딕", 9),
+            bg="#f8f9fa",
+            fg="#6c757d"
+        )
+        desc_lbl.pack(pady=(0, 10))
+
+        # 2. 파일 선택
+        frame_file = tk.LabelFrame(self, text="1. 대상 PDF 파일 선택", padx=12, pady=10, bg="#ffffff", font=("맑은 고딕", 9, "bold"))
+        frame_file.pack(fill="x", padx=18, pady=5)
+
+        self.entry_path = tk.Entry(frame_file, width=52, font=("맑은 고딕", 9))
+        self.entry_path.pack(side="left", padx=(0, 8), ipady=3)
+
+        btn_browse = tk.Button(frame_file, text="파일 찾기...", command=self.browse_file, bg="#e9ecef", font=("맑은 고딕", 9))
+        btn_browse.pack(side="left")
+
+        # 3. 변환 옵션
+        frame_opts = tk.LabelFrame(self, text="2. 출력 옵션", padx=12, pady=10, bg="#ffffff", font=("맑은 고딕", 9, "bold"))
+        frame_opts.pack(fill="x", padx=18, pady=8)
+
+        self.var_pdf = tk.BooleanVar(value=True)
+        self.var_epub = tk.BooleanVar(value=True)
+
+        chk_pdf = tk.Checkbutton(
+            frame_opts,
+            text="[필수] AI 업로드용 초경량 PDF 생성 (1~3MB, 텍스트 재조판)",
+            variable=self.var_pdf,
+            bg="#ffffff",
+            font=("맑은 고딕", 9, "bold"),
+            fg="#0d6efd"
+        )
+        chk_pdf.pack(anchor="w", pady=(0, 4))
+
+        chk_epub = tk.Checkbutton(
+            frame_opts,
+            text="[선택] 전자책 뷰어용 EPUB 생성 (500KB~1MB, 모바일/리더기용)",
+            variable=self.var_epub,
+            bg="#ffffff",
+            font=("맑은 고딕", 9)
+        )
+        chk_epub.pack(anchor="w")
+
+        # 4. 진행도 & 상태 표시
+        frame_status = tk.LabelFrame(self, text="3. 작업 진행 상태", padx=12, pady=10, bg="#ffffff", font=("맑은 고딕", 9, "bold"))
+        frame_status.pack(fill="x", padx=18, pady=5)
+
+        self.progress = ttk.Progressbar(frame_status, length=515, mode="determinate")
+        self.progress.pack(pady=4)
+
+        self.lbl_status = tk.Label(frame_status, text="파일을 선택한 후 '변환 시작'을 눌러주세요.", bg="#ffffff", fg="#495057", font=("맑은 고딕", 9))
+        self.lbl_status.pack()
+
+        # 5. 실행 버튼
+        self.btn_run = tk.Button(
+            self,
+            text="초경량 변환 시작 (10MB 이하)",
+            command=self.start_thread,
+            bg="#0d6efd",
+            fg="white",
+            font=("맑은 고딕", 11, "bold"),
+            relief="flat",
+            cursor="hand2",
+            height=2
+        )
+        self.btn_run.pack(fill="x", padx=18, pady=(12, 10))
+
+    def browse_file(self):
+        f = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
+        if f:
+            self.entry_path.delete(0, tk.END)
+            self.entry_path.insert(0, f)
+
+    def start_thread(self):
+        pdf_path = self.entry_path.get().strip()
+        if not pdf_path or not os.path.exists(pdf_path):
+            messagebox.showerror("오류", "유효한 PDF 파일을 선택해 주세요.")
+            return
+
+        if not self.var_pdf.get() and not self.var_epub.get():
+            messagebox.showwarning("주의", "최소 하나의 출력 형식을 선택해 주세요.")
+            return
+
+        self.btn_run.config(state="disabled", bg="#6c757d")
+        threading.Thread(target=self.process, args=(pdf_path,), daemon=True).start()
+
+    def process(self, pdf_path):
+        try:
+            self.update_status("PDF 열기 및 텍스트 블록 분석 중...", 5)
+            doc = fitz.open(pdf_path)
+            total_pages = len(doc)
+            all_pages_text = []
+
+            for i in range(total_pages):
+                page = doc[i]
+                blocks = page.get_text("blocks")
+                paras = clean_page_text(blocks, page.rect.height)
+                all_pages_text.append(paras)
+                
+                pct = 5 + int(((i + 1) / total_pages) * 45)
+                self.update_status(f"텍스트 추출 중: {i+1} / {total_pages} 페이지 ({pct}%)", pct)
+
+            base_name, _ = os.path.splitext(pdf_path)
+            created_files = []
+
+            # A. 초경량 PDF 생성
+            if self.var_pdf.get():
+                self.update_status("초경량 PDF 재조판 및 글꼴 렌더링 중...", 55)
+                out_pdf = f"{base_name}_경량텍스트.pdf"
+                generate_lightweight_pdf(
+                    all_pages_text, 
+                    out_pdf, 
+                    progress_cb=lambda val: self.update_status(f"PDF 재조판 중... ({val}%)", val)
+                )
+                size_mb = os.path.getsize(out_pdf) / (1024 * 1024)
+                created_files.append(f"• PDF: {os.path.basename(out_pdf)} ({size_mb:.2f} MB)")
+
+            # B. EPUB 생성
+            if self.var_epub.get():
+                self.update_status("EPUB 전자책 압축 생성 중...", 90)
+                out_epub = f"{base_name}.epub"
+                generate_clean_epub(all_pages_text, out_epub, title=os.path.basename(base_name))
+                size_mb = os.path.getsize(out_epub) / (1024 * 1024)
+                created_files.append(f"• EPUB: {os.path.basename(out_epub)} ({size_mb:.2f} MB)")
+
+            self.update_status("변환이 성공적으로 완료되었습니다!", 100)
+            result_msg = "변환이 완료되었습니다!\n\n" + "\n".join(created_files) + f"\n\n저장 폴더:\n{os.path.dirname(pdf_path)}"
+            messagebox.showinfo("변환 완료", result_msg)
+
+        except Exception as e:
+            messagebox.showerror("에러", f"작업 중 오류가 발생했습니다:\n{str(e)}")
+            self.update_status("오류가 발생했습니다.", 0)
+        finally:
+            self.btn_run.config(state="normal", bg="#0d6efd")
+
+    def update_status(self, text, val):
+        self.lbl_status.config(text=text)
+        self.progress["value"] = val
+        self.update_idletasks()
+
+
+if __name__ == "__main__":
+    app = App()
+    app.mainloop()
+
+```
+
+---
+
+## 4. [대안 코드] 원본 이미지 보존형 압축 스크립트 (`compress_ocr_pdf`)
+
+도표나 삽화가 많아 스캔 이미지를 그대로 보존해야 하는 책의 경우, 아래 함수를 사용하면 **OCR 텍스트 레이어를 100% 보존하면서 배경 이미지만 재압축**하여 10MB 이하로 용량을 줄일 수 있습니다.
+
+```python
+import io
+import fitz  # PyMuPDF
+from PIL import Image
+
+def compress_ocr_pdf(input_path: str, output_path: str, max_dimension: int = 1400, quality: int = 60):
+    """
+    기존 PDF의 OCR 투명 텍스트 레이어와 좌표를 온전히 유지하면서,
+    내부의 고용량 스캔 페이지만 찾아 해상도를 낮추고 JPEG로 재압축합니다.
+    """
+    doc = fitz.open(input_path)
+    total_pages = len(doc)
+    print(f"[시작] 총 {total_pages} 페이지 압축 처리 중...")
+
+    for page_idx in range(total_pages):
+        page = doc[page_idx]
+        image_list = page.get_images(full=True)
+
+        for img_info in image_list:
+            xref = img_info[0]
+            base_image = doc.extract_image(xref)
+            image_bytes = base_image["image"]
+
+            # Pillow를 이용한 이미지 로드
+            pil_img = Image.open(io.BytesIO(image_bytes))
+
+            # 1. 해상도 다운샘플링 (최대 너비/높이 제한)
+            w, h = pil_img.size
+            if max(w, h) > max_dimension:
+                scale = max_dimension / max(w, h)
+                new_size = (int(w * scale), int(h * scale))
+                pil_img = pil_img.resize(new_size, Image.Resampling.LANCZOS)
+
+            # 2. 색상 모드 최적화 (RGBA나 Palette 모드를 RGB로 통일)
+            if pil_img.mode in ("RGBA", "P"):
+                pil_img = pil_img.convert("RGB")
+
+            # 3. 고효율 JPEG 압축
+            out_buf = io.BytesIO()
+            pil_img.save(out_buf, format="JPEG", quality=quality, optimize=True)
+            new_bytes = out_buf.getvalue()
+
+            # 압축된 크기가 원본보다 작을 때만 교체
+            if len(new_bytes) < len(image_bytes):
+                page.replace_image(xref, stream=new_bytes)
+
+        if (page_idx + 1) % 20 == 0 or (page_idx + 1) == total_pages:
+            print(f"진행률: {page_idx + 1} / {total_pages} 페이지 완료")
+
+    # 미사용 데이터 정리 및 스트림 압축(Deflate) 활성화 저장
+    doc.save(
+        output_path,
+        garbage=4,     # 쓰지 않는 오브젝트 완전 제거
+        deflate=True,  # 내부 스트림 zlib 압축
+        clean=True     # 구문 정리
+    )
+    doc.close()
+    print(f"[완료] 압축 저장 완료: {output_path}")
+
+# 실행 예시:
+# compress_ocr_pdf("원본책.pdf", "압축된책_10mb이하.pdf", max_dimension=1400, quality=60)
+```
+
+---
+
+## 5. 사용 방법 (User Guide)
+
+### 방법 1: GUI 프로그램 바로 실행하기
+1. 소스코드를 `app.py` 파일로 저장합니다.
+2. 터미널(또는 명령 프롬프트)에서 실행합니다:
+   ```bash
+   python app.py
+   ```
+3. GUI 창이 뜨면:
+   - **[파일 선택]** 버튼을 눌러 용량을 줄이고자 하는 PDF 파일을 선택합니다.
+   - **출력 옵션**을 확인합니다:
+     - `[기본]` **AI 업로드용 초경량 PDF 생성**: 1~3MB로 압축 (기본 체크 권장)
+     - `[선택]` **전자책 뷰어용 EPUB 생성**: 모바일 기기나 e-리더기용 전자책 추가 생성
+   - **[초경량 변환 시작]** 버튼을 누릅니다.
+4. 변환이 완료되면 원본 파일과 동일한 폴더에 `[파일명]_경량텍스트.pdf` 파일이 생성됩니다.
+
+### 방법 2: 파이썬 없는 환경을 위한 독립 실행 파일(`.exe`) 제작
+파이썬이 설치되지 않은 다른 PC에서도 더블클릭만으로 실행하고 싶다면, `pyinstaller`를 사용해 단일 실행 파일로 패키징할 수 있습니다.
+
+```bash
+# PyInstaller 설치
+pip install pyinstaller
+
+# 단일 무콘솔 실행 파일 빌드
+pyinstaller --noconsole --onefile --name "PDF_초경량_변환기" app.py
+```
+- 빌드가 완료되면 `dist` 폴더 안에 `PDF_초경량_변환기.exe` 파일이 생성됩니다. 이 파일만 있으면 파이썬 설치 없이 어디서든 즉시 실행할 수 있습니다.
+
+---
+
+## 6. 핵심 기능 및 기술적 특징 요약
+
+1. **지능형 문단 복원 (Smart Word-Wrap & Heuristics)**
+   - 스캔 OCR PDF 특유의 문장 중간 행갈음을 정규표현식(`[.!?"'”’]`) 기반으로 분석하여 하나의 자연스러운 문단으로 자동 결합합니다.
+2. **머리말/꼬리말(Header/Footer) 자동 필터링**
+   - 페이지 상단 5% 및 하단 5% 영역에 위치하는 단순 페이지 번호나 책 제목 라벨을 감지하여 본문 흐름에 섞이지 않도록 걸러냅니다.
+3. **윈도우 기본 맑은 고딕(Malgun Gothic) 자동 등록**
+   - 별도의 폰트 다운로드 없이 `C:/Windows/Fonts/malgun.ttf`를 자동으로 인식·등록하여 한글 깨짐이나 네모(tofu) 현상을 완벽히 방지합니다.
+4. **외부 프로그램 의존성 제로의 EPUB 생성기**
+   - 별도의 무거운 전자책 툴(Calibre 등) 없이, 파이썬 표준 내장 `zipfile` 모듈로 직접 `mimetype`, `container.xml`, `content.opf`, `toc.ncx` 및 스타일시트(CSS)를 패키징하여 모든 전자책 리더기에서 완벽하게 호환됩니다.
+
+]]>
+    </file>
     <file path="postcss.config.js" lines="6">
       <![CDATA[
 module.exports = {
@@ -30636,7 +31483,7 @@ module.exports = {
 }
 ]]>
     </file>
-    <file path="README.md" lines="145">
+    <file path="README.md" lines="152">
       <![CDATA[
 # 한밭중고전자 (Hanbat Used Electronics Mall)
 
@@ -30685,6 +31532,13 @@ node scripts/run-all-verifications.mjs
 
 ## ✨ 주요 기능 및 UX 특징 (Key Features)
 
+- **품목별 쇼룸 카탈로그 벤토 독 (Bento Catalog Dock)**:
+  - 8열 반응형 벤토 카드 타일, 동심원 곡률 디자인 및 Zero CLS 시그널 오렌지 활성 인디케이터 바.
+  - 전 품목 실시간 재고 대수 및 B2B 전용 배지 지원.
+- **다도어·테이블 냉장고 실물 청사진 다이어그램 (Refrigerator Blueprint Diagram)**:
+  - 25~65박스 업소용 냉장고(상하/좌우 분할) 및 테이블 냉장고의 냉동/냉장 구역, 적정 온도, 직냉/간냉식 스펙을 시각적으로 즉시 파악하는 실물 청사진 모형 위젯.
+- **충청권 6대 권역 직배송 & 당일 방문매입 1초 조회 원장 (Delivery Region Checker)**:
+  - 대전 핵심구, 대전 동부, 세종/청주, 충남 인접, 천안/아산, 전국 화물 권역별 배송/설치 및 당일 현금 매입 기준 1초 안내 원장 위젯.
 - **2.5D 스튜디오 조명 매물 카드 (Studio Specular Lighting)**:
   - 뎁스 틸트 및 정밀한 스펙큘러 하이라이트 효과를 통해 실물 가전의 질감과 상태를 생생하게 전달.
 - **관심 매물 묶음 견적함 (Quote Basket)**:
@@ -31333,6 +32187,224 @@ async function main() {
 }
 
 main().catch(console.error);
+
+]]>
+    </file>
+    <file path="scripts/generate-full-codebase-md.mjs" lines="214">
+      <![CDATA[
+// scripts/generate-full-codebase-md.mjs
+import fs from "fs";
+import path from "path";
+
+const ROOT_DIR = process.cwd();
+const DESKTOP_DIR = "C:\\Users\\ABC\\Desktop";
+const OUTPUT_MD_PROJECT = path.join(ROOT_DIR, "한밭중고전자_전체코드.md");
+const OUTPUT_MD_DESKTOP = path.join(DESKTOP_DIR, "한밭중고전자_전체코드.md");
+const OUTPUT_ARGON_MD_PROJECT = path.join(ROOT_DIR, "아르곤_디자인.md");
+const OUTPUT_ARGON_MD_DESKTOP = path.join(DESKTOP_DIR, "아르곤_디자인.md");
+
+const IGNORED_DIRS = new Set([
+  "node_modules",
+  ".next",
+  ".git",
+  ".gemini",
+  ".vercel",
+  "dist",
+  "build",
+  "coverage",
+]);
+
+const IGNORED_FILES = new Set([
+  "package-lock.json",
+  "yarn.lock",
+  "pnpm-lock.yaml",
+  "아르곤_디자인.xml",
+  "아르곤_디자인.md",
+  "repomix-output.xml",
+  "한밭중고전자_전체코드.md",
+  "scripts/generate-full-codebase-md.mjs",
+]);
+
+const ALLOWED_EXTENSIONS = new Set([
+  ".ts",
+  ".tsx",
+  ".js",
+  ".mjs",
+  ".jsx",
+  ".json",
+  ".css",
+  ".md",
+  ".sql",
+]);
+
+function getLanguage(ext) {
+  switch (ext) {
+    case ".ts":
+      return "typescript";
+    case ".tsx":
+      return "tsx";
+    case ".js":
+    case ".mjs":
+      return "javascript";
+    case ".jsx":
+      return "jsx";
+    case ".json":
+      return "json";
+    case ".css":
+      return "css";
+    case ".md":
+      return "markdown";
+    case ".sql":
+      return "sql";
+    default:
+      return "text";
+  }
+}
+
+function getAllFiles(dir, fileList = []) {
+  const files = fs.readdirSync(dir);
+  for (const file of files) {
+    const fullPath = path.join(dir, file);
+    const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
+
+    if (fs.statSync(fullPath).isDirectory()) {
+      if (!IGNORED_DIRS.has(file)) {
+        getAllFiles(fullPath, fileList);
+      }
+    } else {
+      const ext = path.extname(file).toLowerCase();
+      if (ALLOWED_EXTENSIONS.has(ext) && !IGNORED_FILES.has(file) && !IGNORED_FILES.has(relPath)) {
+        fileList.push(relPath);
+      }
+    }
+  }
+  return fileList;
+}
+
+function getFileCategoryWeight(relPath) {
+  if (relPath === "package.json") return 1;
+  if (relPath === "next.config.ts" || relPath === "next.config.js") return 2;
+  if (relPath === "tsconfig.json") return 3;
+  if (relPath === "tailwind.config.js" || relPath === "tailwind.config.ts") return 4;
+  if (relPath === "app/globals.css") return 5;
+  if (relPath === "AGENTS.md") return 6;
+  if (relPath === "README.md") return 7;
+  if (relPath.startsWith("lib/")) return 10;
+  if (relPath.startsWith("components/ui/")) return 20;
+  if (relPath.startsWith("components/home/")) return 21;
+  if (relPath.startsWith("components/products/")) return 22;
+  if (relPath.startsWith("components/inquiry/")) return 23;
+  if (relPath.startsWith("components/showroom/")) return 24;
+  if (relPath.startsWith("components/")) return 29;
+  if (relPath.startsWith("app/api/")) return 35;
+  if (relPath.startsWith("app/")) return 30;
+  if (relPath.startsWith("supabase/")) return 40;
+  if (relPath.startsWith("scripts/")) return 50;
+  if (relPath.startsWith("docs/")) return 60;
+  return 99;
+}
+
+const allRelFiles = getAllFiles(ROOT_DIR).sort((a, b) => {
+  const weightA = getFileCategoryWeight(a);
+  const weightB = getFileCategoryWeight(b);
+  if (weightA !== weightB) return weightA - weightB;
+  return a.localeCompare(b);
+});
+
+console.log(`총 ${allRelFiles.length}개 소스코드 파일 수집됨.`);
+
+const lines = [];
+
+lines.push("# 한밭중고전자 (Hanbat Mall) 전체 소스코드 & 타 AI 주입용 통합 번들");
+lines.push("");
+lines.push("> **이 문서는 타 AI(Claude, ChatGPT, Gemini, Cursor 등)에게 한밭중고전자 프로젝트 전체를 한 번에 전달하여 즉시 이해하고 개발·수정할 수 있도록 만든 프롬프트 최적화 통합 명세서입니다.**");
+lines.push("> **별도 파일 격리 보장**: PDF 관련 프로젝트, 성경 앱 프로젝트와 완전히 분리된 **순수 한밭중고전자 홈페이지 전용** 단일 코드베이스 번들입니다.");
+lines.push("");
+lines.push(`- **생성 일시**: ${new Date().toISOString()}`);
+lines.push("- **적용 사이클**: Cycle 37 (구조 청사진 다이어그램 벤토 카드 UI 고도화 & 테이블·찬밧드 냉장고 좌우 수평 도어 판별 정밀화)");
+lines.push("- **검증 상태**: 8대 게이트(디자인 토큰, 배포 전 보안/SEO, 회귀 방지, UX 벤치마크, AI 상담 가드레일, tsc, eslint, next build) 100% PASS");
+lines.push("");
+lines.push("---");
+lines.push("");
+lines.push("## 🤖 타 AI 에이전트를 위한 핵심 지침 (System Instructions for AI)");
+lines.push("");
+lines.push("본 프로젝트 코드를 수정하거나 새로운 기능을 추가할 때 아래 4대 원칙을 반드시 준수해야 합니다:");
+lines.push("");
+lines.push("1. **도메인 단일 출처(SSOT) 규칙**: 매장명(한밭중고전자), 대표전화(`042-252-8949`), 주소(`대전 중구 대종로 637`), 무상 보증 정책(에어컨 8개월 / 주요 가전 4개월), 7일 교환 정책을 컴포넌트에 인라인 하드코딩하지 말고 반드시 `lib/site.ts`의 `STORE` 상수를 참조하세요.");
+lines.push("2. **디자인 토큰 규격 준수**: 임의 픽셀 폰트(`text-[..px]`) 사용 금지 (`text-hb-xs`, `text-hb-sm`, `text-hb-base`, `text-hb-lg` 토큰 사용). JSX 화면 노출 텍스트 이모지 사용 금지 (외부 의존성 없는 `components/ui/modern-icons.tsx` 또는 `lib/ui.tsx`의 SVG Icon 사용). Tailwind CSS v3 규격 준수.");
+lines.push("3. **Windows 환경 프로세스 안전성**: 개별 검증 스크립트를 수동으로 연달아 호출하지 말고, 단일 프로세스 트리 통합 러너인 `node scripts/run-all-verifications.mjs`를 실행하세요.");
+lines.push("4. **원자적 로컬 체크포인트**: 변경 사항이 8대 게이트를 100% 통과하면 `node scripts/git-checkpoint.mjs \"<작업설명>\"`으로 로컬 커밋을 생성하세요.");
+lines.push("");
+lines.push("---");
+lines.push("");
+lines.push("## 🛠️ 핵심 기술 스택 및 구조");
+lines.push("");
+lines.push("| 영역 | 기술 | 역할 |");
+lines.push("| :--- | :--- | :--- |");
+lines.push("| **Framework** | Next.js 16.4.3 (App Router) | Turbopack 번들러, React Server Components (RSC) 중심 |");
+lines.push("| **Library** | React 19.2.8 | React 19 동시성 모드, Server Actions |");
+lines.push("| **Language** | TypeScript 5.x | 엄격한 정적 타입 세이프티 (`tsc --noEmit` 0 errors 보장) |");
+lines.push("| **Styling** | Tailwind CSS v3.4.19 | 토스(TDS) Cool-Gray & 애플(HIG) 표준 디자인 토큰 체계 |");
+lines.push("| **Database** | Supabase PostgreSQL | Row Level Security (RLS) 및 Storage 객체 보안 격리 |");
+lines.push("| **AI Multimodal**| Google Gemini 2.5 / 3.8 Flash | 가전 사진 자동 판독(견적 추정) 및 4대 상담 분류 엔진 |");
+lines.push("| **O2O 통신** | SMS, Alimtalk, Telegram | IETF RFC 5724 표준 SMS 인텐트, 카카오톡 알림톡, 텔레그램 봇 |");
+lines.push("| **Verification**| 8대 통합 검증 러너 | `node scripts/run-all-verifications.mjs` |");
+lines.push("");
+lines.push("---");
+lines.push("");
+lines.push("## 📁 전체 파일 디렉터리 맵 (총 " + allRelFiles.length + "개 소스 파일)");
+lines.push("");
+lines.push("```text");
+for (const f of allRelFiles) {
+  lines.push(f);
+}
+lines.push("```");
+lines.push("");
+lines.push("---");
+lines.push("");
+lines.push("## 💻 전체 소스코드 (Full Source Code)");
+lines.push("");
+
+for (let i = 0; i < allRelFiles.length; i++) {
+  const relPath = allRelFiles[i];
+  const fullPath = path.join(ROOT_DIR, relPath);
+  const content = fs.readFileSync(fullPath, "utf8");
+  const ext = path.extname(relPath).toLowerCase();
+  const lang = getLanguage(ext);
+
+  lines.push(`### [${i + 1}/${allRelFiles.length}] \`${relPath}\``);
+  lines.push("");
+  lines.push(`\`\`\`${lang}`);
+  lines.push(content);
+  lines.push("```");
+  lines.push("");
+  lines.push("---");
+  lines.push("");
+}
+
+const finalMarkdown = lines.join("\n");
+
+// 1) 프로젝트 루트에 저장 (한밭중고전자_전체코드.md & 아르곤_디자인.md)
+fs.writeFileSync(OUTPUT_MD_PROJECT, finalMarkdown, "utf8");
+console.log(`✅ [1/4] 프로젝트 루트 저장 완료: ${OUTPUT_MD_PROJECT} (${(finalMarkdown.length / 1024).toFixed(1)} KB)`);
+
+fs.writeFileSync(OUTPUT_ARGON_MD_PROJECT, finalMarkdown, "utf8");
+console.log(`✅ [2/4] 프로젝트 루트 아르곤_디자인.md 저장 완료: ${OUTPUT_ARGON_MD_PROJECT}`);
+
+// 2) 바탕화면에 저장
+try {
+  fs.writeFileSync(OUTPUT_MD_DESKTOP, finalMarkdown, "utf8");
+  console.log(`✅ [3/4] 바탕화면 한밭중고전자_전체코드.md 저장 완료: ${OUTPUT_MD_DESKTOP}`);
+} catch (e) {
+  console.warn("바탕화면 저장 경고:", e.message);
+}
+
+try {
+  fs.writeFileSync(OUTPUT_ARGON_MD_DESKTOP, finalMarkdown, "utf8");
+  console.log(`✅ [4/4] 바탕화면 아르곤_디자인.md 저장 완료: ${OUTPUT_ARGON_MD_DESKTOP}`);
+} catch (e) {
+  console.warn("바탕화면 아르곤_디자인.md 저장 경고:", e.message);
+}
 
 ]]>
     </file>

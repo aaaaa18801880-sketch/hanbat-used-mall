@@ -6,6 +6,8 @@ const ROOT_DIR = process.cwd();
 const DESKTOP_DIR = "C:\\Users\\ABC\\Desktop";
 const OUTPUT_MD_PROJECT = path.join(ROOT_DIR, "한밭중고전자_전체코드.md");
 const OUTPUT_MD_DESKTOP = path.join(DESKTOP_DIR, "한밭중고전자_전체코드.md");
+const OUTPUT_ARGON_MD_PROJECT = path.join(ROOT_DIR, "아르곤_디자인.md");
+const OUTPUT_ARGON_MD_DESKTOP = path.join(DESKTOP_DIR, "아르곤_디자인.md");
 
 const IGNORED_DIRS = new Set([
   "node_modules",
@@ -23,6 +25,7 @@ const IGNORED_FILES = new Set([
   "yarn.lock",
   "pnpm-lock.yaml",
   "아르곤_디자인.xml",
+  "아르곤_디자인.md",
   "repomix-output.xml",
   "한밭중고전자_전체코드.md",
   "scripts/generate-full-codebase-md.mjs",
@@ -124,7 +127,7 @@ lines.push("> **이 문서는 타 AI(Claude, ChatGPT, Gemini, Cursor 등)에게 
 lines.push("> **별도 파일 격리 보장**: PDF 관련 프로젝트, 성경 앱 프로젝트와 완전히 분리된 **순수 한밭중고전자 홈페이지 전용** 단일 코드베이스 번들입니다.");
 lines.push("");
 lines.push(`- **생성 일시**: ${new Date().toISOString()}`);
-lines.push("- **적용 사이클**: Cycle 36 (카테고리 픽토그램 바 상단 인디케이터 & 벤토 카드 타일 비주얼 개선, 테이블 냉장고 좌우 청사진 지원)");
+lines.push("- **적용 사이클**: Cycle 37 (구조 청사진 다이어그램 벤토 카드 UI 고도화 & 테이블·찬밧드 냉장고 좌우 수평 도어 판별 정밀화)");
 lines.push("- **검증 상태**: 8대 게이트(디자인 토큰, 배포 전 보안/SEO, 회귀 방지, UX 벤치마크, AI 상담 가드레일, tsc, eslint, next build) 100% PASS");
 lines.push("");
 lines.push("---");
@@ -187,14 +190,24 @@ for (let i = 0; i < allRelFiles.length; i++) {
 
 const finalMarkdown = lines.join("\n");
 
-// 1) 프로젝트 루트에 저장
+// 1) 프로젝트 루트에 저장 (한밭중고전자_전체코드.md & 아르곤_디자인.md)
 fs.writeFileSync(OUTPUT_MD_PROJECT, finalMarkdown, "utf8");
-console.log(`✅ [1/2] 프로젝트 루트 저장 완료: ${OUTPUT_MD_PROJECT} (${(finalMarkdown.length / 1024).toFixed(1)} KB)`);
+console.log(`✅ [1/4] 프로젝트 루트 저장 완료: ${OUTPUT_MD_PROJECT} (${(finalMarkdown.length / 1024).toFixed(1)} KB)`);
+
+fs.writeFileSync(OUTPUT_ARGON_MD_PROJECT, finalMarkdown, "utf8");
+console.log(`✅ [2/4] 프로젝트 루트 아르곤_디자인.md 저장 완료: ${OUTPUT_ARGON_MD_PROJECT}`);
 
 // 2) 바탕화면에 저장
 try {
   fs.writeFileSync(OUTPUT_MD_DESKTOP, finalMarkdown, "utf8");
-  console.log(`✅ [2/2] 바탕화면 저장 완료: ${OUTPUT_MD_DESKTOP}`);
+  console.log(`✅ [3/4] 바탕화면 한밭중고전자_전체코드.md 저장 완료: ${OUTPUT_MD_DESKTOP}`);
 } catch (e) {
   console.warn("바탕화면 저장 경고:", e.message);
+}
+
+try {
+  fs.writeFileSync(OUTPUT_ARGON_MD_DESKTOP, finalMarkdown, "utf8");
+  console.log(`✅ [4/4] 바탕화면 아르곤_디자인.md 저장 완료: ${OUTPUT_ARGON_MD_DESKTOP}`);
+} catch (e) {
+  console.warn("바탕화면 아르곤_디자인.md 저장 경고:", e.message);
 }
