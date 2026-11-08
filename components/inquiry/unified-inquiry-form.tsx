@@ -1,7 +1,7 @@
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
@@ -195,13 +195,18 @@ export function UnifiedInquiryForm({
   /* 사진 첨부 및 Gemini 일괄 분석 상태 */
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
+  const filePreviewsRef = useRef<string[]>([]);
 
-  // 문의 폼 언마운트 시 메모리에 잔류하는 미리보기 Blob URL 일괄 해제
+  useEffect(() => {
+    filePreviewsRef.current = filePreviews;
+  }, [filePreviews]);
+
+  // 문의 폼 실제 언마운트 시에만 메모리에 잔류하는 미리보기 Blob URL 일괄 해제 (사진 추가 시 기존 미리보기 파기 방지)
   useEffect(() => {
     return () => {
-      revokeObjectUrls(filePreviews);
+      revokeObjectUrls(filePreviewsRef.current);
     };
-  }, [filePreviews]);
+  }, []);
   const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
     null
   );

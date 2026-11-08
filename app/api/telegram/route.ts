@@ -11,6 +11,8 @@ import {
   checkNotificationIdempotency,
   checkRateLimit,
   getClientIp,
+  markNotificationFailed,
+  markNotificationSent,
   verifyAdminRequest,
 } from "../../../lib/server-security";
 
@@ -18,6 +20,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const nowIso = new Date().toISOString();
+  let activeDedupKey = "";
 
   try {
     const ip = getClientIp(req);
@@ -220,6 +223,7 @@ export async function POST(req: NextRequest) {
     }
 
     const dedupKey = inquiryId || `${type}:${name}:${title}`;
+    activeDedupKey = dedupKey;
     const { isDuplicate } = checkNotificationIdempotency(
       dedupKey,
       3 * 60 * 1000,
@@ -269,6 +273,7 @@ export async function POST(req: NextRequest) {
     const resultJson = await res.json().catch(() => null);
 
     if (!res.ok || !resultJson?.ok) {
+      markNotificationFailed(dedupKey);
       const errorResult: NotificationDispatchResult = {
         channel: "telegram",
         status: "EXTERNAL_ERROR",
@@ -285,6 +290,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    markNotificationSent(dedupKey, 3 * 60 * 1000);
+
     const okResult: NotificationDispatchResult = {
       channel: "telegram",
       status: "SUCCESS",
@@ -300,6 +307,9 @@ export async function POST(req: NextRequest) {
       ...okResult,
     });
   } catch {
+    if (activeDedupKey) {
+      markNotificationFailed(activeDedupKey);
+    }
     console.error("텔레그램 알림 발송 중 예외 또는 타임아웃 발생");
     const retryResult: NotificationDispatchResult = {
       channel: "telegram",

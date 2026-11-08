@@ -1,10 +1,19 @@
 // 파일 경로: app/api/products/[id]/view/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient, isAuthorizedAdminUser } from "../../../../../lib/supabase";
+import {
+  createAnonServerClient,
+  createServerSupabaseClient,
+  isAuthorizedAdminUser,
+} from "../../../../../lib/supabase";
 import { checkRateLimit, getClientIp } from "../../../../../lib/server-security";
 
 export const runtime = "nodejs";
+
+function isValidProductId(id: string): boolean {
+  const trimmed = id.trim();
+  return trimmed.length > 0 && trimmed.length <= 64 && /^[a-zA-Z0-9_-]+$/.test(trimmed);
+}
 
 export async function POST(
   req: NextRequest,
@@ -12,12 +21,32 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
-    if (!id) {
+    if (!id || !isValidProductId(id)) {
       return NextResponse.json(
-        { error: "상품 ID가 필요합니다." },
+        { error: "유효한 상품 ID가 필요합니다." },
         { status: 400 }
       );
     }
+
+    // 관리자 토큰(Authorization: Bearer ...) 검증: 관리자 접속 시 DB 업데이트 없이 즉시 스킵
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.replace("Bearer ", "").trim();
+      if (token && token.length <= 4096) {
+        const authClient = createAnonServerClient(token);
+        const { data: userData } = await authClient.auth.getUser(token);
+        if (isAuthorizedAdminUser(userData?.user)) {
+          return NextResponse.json({
+            success: true,
+            skipped: "admin",
+          });
+        }
+      }
+    }
+
+    // DB 조회 이전에 IP + 상품 ID 기반 중복 조회 제한 선행 확인 (불필요한 DB Read 차단)
+    const ip = getClientIp(req);
+    const rate = checkRateLimit(`prod_view:${ip}:${id}`, 1, 10 * 60 * 1000);
 
     const supabase = createServerSupabaseClient(undefined, true);
     const { data: product, error: fetchErr } = await supabase
@@ -27,7 +56,6 @@ export async function POST(
       .single();
 
     if (fetchErr || !product) {
-      console.error("[product-view] 상품 조회 실패:", fetchErr?.message);
       return NextResponse.json(
         { error: "상품을 찾을 수 없습니다." },
         { status: 404 }
@@ -36,22 +64,6 @@ export async function POST(
 
     const currentViews = Number(product.views) || 0;
 
-    // 관리자 토큰(Authorization: Bearer ...) 검증: 관리자 접속 시 조회수 증가 스킵
-    const authHeader = req.headers.get("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.replace("Bearer ", "").trim();
-      const { data: userData } = await supabase.auth.getUser(token);
-      if (isAuthorizedAdminUser(userData?.user)) {
-        return NextResponse.json({
-          success: true,
-          skipped: "admin",
-          views: currentViews,
-        });
-      }
-    }
-
-    const ip = getClientIp(req);
-    const rate = checkRateLimit(`prod_view:${ip}:${id}`, 1, 10 * 60 * 1000);
     if (!rate.allowed) {
       return NextResponse.json({
         success: true,
@@ -60,27 +72,39 @@ export async function POST(
       });
     }
 
-    const nextViews = currentViews + 1;
-    const { error: updateErr } = await supabase
-      .from("products")
-      .update({ views: nextViews })
-      .eq("id", id);
+    let nextViews = currentViews + 1;
 
-    if (updateErr) {
-      console.error(
-        "[product-view] 조회수 업데이트 실패 (SUPABASE_SERVICE_ROLE_KEY 및 RLS 확인 필요):",
-        updateErr.message
-      );
-      return NextResponse.json(
-        { success: false, error: "조회수 반영 실패" },
-        { status: 500 }
-      );
+    // 1순위: PostgreSQL 원자적(Atomic) 증가 RPC 호출 시도 (Race Condition 방지)
+    const { data: rpcViews, error: rpcErr } = await supabase.rpc(
+      "increment_product_views",
+      { target_id: id }
+    );
+
+    if (!rpcErr && typeof rpcViews === "number") {
+      nextViews = rpcViews;
+    } else {
+      // 2순위: RPC 미설치 환경 호환을 위한 안전한 폴백 업데이트
+      const { error: updateErr } = await supabase
+        .from("products")
+        .update({ views: nextViews })
+        .eq("id", id);
+
+      if (updateErr) {
+        console.error("[product-view] 조회수 업데이트 실패:", updateErr.message);
+        return NextResponse.json(
+          { success: false, error: "조회수 반영 실패" },
+          { status: 500 }
+        );
+      }
     }
 
-    try {
-      revalidatePath(`/${id}`);
-    } catch {
-      // ignore revalidate error
+    // 매 조회마다 ISR 캐시를 파기하지 않고 최초 조회 또는 5회 단위로만 선택적 갱신 (서버 부하 절감)
+    if (nextViews <= 1 || nextViews % 5 === 0) {
+      try {
+        revalidatePath(`/${id}`);
+      } catch {
+        // ignore revalidate error
+      }
     }
 
     return NextResponse.json({ success: true, views: nextViews });

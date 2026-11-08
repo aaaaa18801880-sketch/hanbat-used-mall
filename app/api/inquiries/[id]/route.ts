@@ -10,10 +10,13 @@ import {
 } from "../../../../lib/site";
 import { createServerSupabaseClient } from "../../../../lib/supabase";
 import {
-  checkRateLimit,
+  checkInquiryPasswordRateLimit,
   getClientIp,
+  hashInquiryPasswordAsync,
+  recordInquiryPasswordFailure,
   verifyAdminRequest,
   verifyInquiryPassword,
+  verifyInquiryPasswordWithMeta,
 } from "../../../../lib/server-security";
 import { signInquiryImageLists } from "../../../../lib/inquiry-attachments";
 
@@ -21,26 +24,42 @@ export const runtime = "nodejs";
 
 const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
 
+const SAFE_INQUIRY_SELECT_COLUMNS =
+  "id, name, phone, inquiry_type, category, model, condition_grade, region, description, image_url, is_notice, status, admin_reply, created_at";
+
+function isValidInquiryId(id: string): boolean {
+  const trimmed = id.trim();
+  return trimmed.length > 0 && trimmed.length <= 64 && /^[a-zA-Z0-9_-]+$/.test(trimmed);
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
-    const ip = getClientIp(req);
-
-    const rate = checkRateLimit(`pw_verify:${ip}:${id}`, 5, 5 * 60 * 1000);
-    if (!rate.allowed) {
+    if (!isValidInquiryId(id)) {
       return NextResponse.json(
-        {
-          error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
-        },
-        { status: 429 }
+        { error: "유효하지 않은 문의글 식별자입니다." },
+        { status: 400 }
       );
     }
 
+    const ip = getClientIp(req);
     const adminCheck = await verifyAdminRequest(req);
     const isAdmin = adminCheck.ok;
+
+    if (!isAdmin) {
+      const rate = checkInquiryPasswordRateLimit(ip, id);
+      if (!rate.allowed) {
+        return NextResponse.json(
+          {
+            error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+          },
+          { status: 429 }
+        );
+      }
+    }
 
     const body = await req.json().catch(() => ({}));
     const inputPassword = String(body.password || "").trim();
@@ -62,12 +81,31 @@ export async function POST(
     const isNotice = Boolean(row.is_notice);
 
     if (!isNotice && !isAdmin) {
-      const matched = verifyInquiryPassword(inputPassword, row.password);
+      const pwResult = await verifyInquiryPasswordWithMeta(
+        inputPassword,
+        row.password
+      );
+      const matched =
+        pwResult.valid || verifyInquiryPassword(inputPassword, row.password);
       if (!matched) {
+        recordInquiryPasswordFailure(id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않습니다." },
           { status: 401 }
         );
+      }
+
+      // 레거시 평문 비밀번호 감지 시 scrypt 해시로 투명 마이그레이션
+      if (pwResult.isLegacyPlaintext) {
+        try {
+          const upgradedHash = await hashInquiryPasswordAsync(inputPassword);
+          await supabase
+            .from("purchase_requests")
+            .update({ password: upgradedHash })
+            .eq("id", id);
+        } catch {
+          // Non-blocking legacy password upgrade
+        }
       }
     }
 
@@ -111,6 +149,14 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    if (!isValidInquiryId(id)) {
+      return NextResponse.json(
+        { error: "유효하지 않은 문의글 식별자입니다." },
+        { status: 400 }
+      );
+    }
+
+    const ip = getClientIp(req);
     const adminCheck = await verifyAdminRequest(req);
     const isAdmin = adminCheck.ok;
 
@@ -120,6 +166,28 @@ export async function PATCH(
         { error: "잘못된 수정 요청입니다." },
         { status: 400 }
       );
+    }
+
+    const isStatusOrReplyUpdate =
+      typeof body.admin_reply === "string" || typeof body.status === "string";
+
+    if (isStatusOrReplyUpdate && !isAdmin) {
+      return NextResponse.json(
+        { error: "답변 등록 및 진행 상태 변경은 관리자 권한이 필요합니다." },
+        { status: 403 }
+      );
+    }
+
+    if (!isAdmin) {
+      const rate = checkInquiryPasswordRateLimit(ip, id);
+      if (!rate.allowed) {
+        return NextResponse.json(
+          {
+            error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+          },
+          { status: 429 }
+        );
+      }
     }
 
     const supabase = createServerSupabaseClient(adminCheck.accessToken);
@@ -137,15 +205,7 @@ export async function PATCH(
       );
     }
 
-    const isStatusOrReplyUpdate =
-      typeof body.admin_reply === "string" || typeof body.status === "string";
-
-    if (isStatusOrReplyUpdate && !isAdmin) {
-      return NextResponse.json(
-        { error: "답변 등록 및 진행 상태 변경은 관리자 권한이 필요합니다." },
-        { status: 403 }
-      );
-    }
+    const patch: Record<string, unknown> = {};
 
     if (!isAdmin) {
       if (existing.is_notice) {
@@ -155,7 +215,14 @@ export async function PATCH(
         );
       }
       const inputPassword = String(body.password || "").trim();
-      if (!verifyInquiryPassword(inputPassword, existing.password)) {
+      const pwResult = await verifyInquiryPasswordWithMeta(
+        inputPassword,
+        existing.password
+      );
+      const matched =
+        pwResult.valid || verifyInquiryPassword(inputPassword, existing.password);
+      if (!matched) {
+        recordInquiryPasswordFailure(id);
         return NextResponse.json(
           {
             error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
@@ -163,9 +230,11 @@ export async function PATCH(
           { status: 401 }
         );
       }
+      if (pwResult.isLegacyPlaintext) {
+        patch.password = await hashInquiryPasswordAsync(inputPassword);
+      }
     }
 
-    const patch: Record<string, unknown> = {};
     if (typeof body.category === "string") {
       patch.category = body.category.trim().slice(0, 120);
     }
@@ -191,37 +260,61 @@ export async function PATCH(
       patch.status = nextStatus;
     }
 
-    const { data: updated, error: updateError } = await supabase
+    if (Object.keys(patch).length === 0) {
+      return NextResponse.json(
+        { error: "수정할 항목이 없습니다." },
+        { status: 400 }
+      );
+    }
+
+    // [SEC-001] select("*") 대신 비밀번호 컬럼을 원천 배제한 안전한 컬럼만 조회
+    const { data: updatedRow, error: updateError } = await supabase
       .from("purchase_requests")
       .update(patch)
       .eq("id", id)
-      .select("*")
+      .select(SAFE_INQUIRY_SELECT_COLUMNS)
       .maybeSingle();
 
     if (updateError) {
-      console.error("DB 업데이트 에러 상세:", updateError.message);
+      console.error("[inquiries PATCH] DB 업데이트 오류:", updateError.message);
       return NextResponse.json(
-        { error: `DB 업데이트 실패: ${updateError.message}` },
+        { error: "문의글 수정 저장 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요." },
         { status: 500 }
       );
     }
 
-    if (!updated) {
+    if (!updatedRow) {
       return NextResponse.json(
-        { error: "해당 글을 수정할 권한(RLS)이 없거나 글을 찾을 수 없습니다." },
+        { error: "해당 글을 수정할 권한이 없거나 글을 찾을 수 없습니다." },
         { status: 403 }
       );
     }
+
+    const isNotice = Boolean(updatedRow.is_notice);
+    const updated = {
+      id: updatedRow.id,
+      name: isAdmin || isNotice ? updatedRow.name : maskName(updatedRow.name),
+      phone: isAdmin ? updatedRow.phone : null,
+      inquiry_type: updatedRow.inquiry_type,
+      category: updatedRow.category,
+      model: updatedRow.model || null,
+      condition_grade: updatedRow.condition_grade || null,
+      region: updatedRow.region || null,
+      description: updatedRow.description || "",
+      is_notice: isNotice,
+      status: updatedRow.status || "접수",
+      admin_reply: updatedRow.admin_reply || null,
+      created_at: updatedRow.created_at,
+    };
 
     return NextResponse.json({
       success: true,
       previousStatus: existing.status,
       updated,
     });
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "알 수 없는 오류";
+  } catch {
     return NextResponse.json(
-      { error: `서버 오류: ${msg}` },
+      { error: "문의글 수정 처리 중 서버 오류가 발생했습니다." },
       { status: 500 }
     );
   }
@@ -233,8 +326,28 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+    if (!isValidInquiryId(id)) {
+      return NextResponse.json(
+        { error: "유효하지 않은 문의글 식별자입니다." },
+        { status: 400 }
+      );
+    }
+
+    const ip = getClientIp(req);
     const adminCheck = await verifyAdminRequest(req);
     const isAdmin = adminCheck.ok;
+
+    if (!isAdmin) {
+      const rate = checkInquiryPasswordRateLimit(ip, id);
+      if (!rate.allowed) {
+        return NextResponse.json(
+          {
+            error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+          },
+          { status: 429 }
+        );
+      }
+    }
 
     const body = await req.json().catch(() => ({}));
     const inputPassword = String(body.password || "").trim();
@@ -242,7 +355,7 @@ export async function DELETE(
     const supabase = createServerSupabaseClient(adminCheck.accessToken);
     const { data: existing, error: fetchError } = await supabase
       .from("purchase_requests")
-      .select("*")
+      .select("id, password, is_notice, image_url, description")
       .eq("id", id)
       .single();
 
@@ -260,7 +373,14 @@ export async function DELETE(
           { status: 403 }
         );
       }
-      if (!verifyInquiryPassword(inputPassword, existing.password)) {
+      const pwResult = await verifyInquiryPasswordWithMeta(
+        inputPassword,
+        existing.password
+      );
+      const matched =
+        pwResult.valid || verifyInquiryPassword(inputPassword, existing.password);
+      if (!matched) {
+        recordInquiryPasswordFailure(id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않아 삭제할 수 없습니다." },
           { status: 401 }
@@ -274,8 +394,9 @@ export async function DELETE(
       .eq("id", id);
 
     if (deleteError) {
+      console.error("[inquiries DELETE] DB 삭제 오류:", deleteError.message);
       return NextResponse.json(
-        { error: `게시글 삭제 실패: ${deleteError.message}` },
+        { error: "게시글 삭제 중 서버 오류가 발생했습니다." },
         { status: 500 }
       );
     }

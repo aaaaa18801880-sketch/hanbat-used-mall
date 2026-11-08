@@ -53,12 +53,20 @@ export function createServerSupabaseClient(
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (serviceRoleKey && useServiceRole) {
     return createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
     });
   }
 
   return createClient(supabaseUrl, supabaseAnonKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
     global: accessToken
       ? {
           headers: {
@@ -67,6 +75,22 @@ export function createServerSupabaseClient(
         }
       : undefined,
   });
+}
+
+/**
+ * 최소 권한 원칙(Least Privilege)을 위한 Anon + 선택적 사용자 JWT 전용 서버 클라이언트
+ * - 관리자 JWT 검증(auth.getUser) 및 일반 권한 요청 시 Service Role 오남용을 방지합니다.
+ */
+export function createAnonServerClient(accessToken?: string): SupabaseClient {
+  return createServerSupabaseClient(accessToken, false);
+}
+
+/**
+ * 서버 백엔드 전용 Service Role 클라이언트
+ * - RLS 우회가 반드시 필요한 서버 내부 작업(비공개 문의 비밀번호 대조 등)에만 제한적으로 사용합니다.
+ */
+export function createServiceRoleClient(): SupabaseClient {
+  return createServerSupabaseClient(undefined, true);
 }
 
 export async function revalidateAdminCache(productId?: string | number): Promise<void> {

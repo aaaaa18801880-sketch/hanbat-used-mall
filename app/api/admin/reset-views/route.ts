@@ -17,7 +17,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const scope = req.nextUrl.searchParams.get("scope") || "recent";
+    const rawScope = req.nextUrl.searchParams.get("scope") || "recent";
+    const scope = rawScope === "all" ? "all" : "recent";
     const supabase = createServerSupabaseClient(adminCheck.accessToken, true);
 
     let query = supabase.from("products").update({ views: 0 }).gt("views", 0);
@@ -31,7 +32,10 @@ export async function POST(req: NextRequest) {
 
     if (error) {
       console.error("[reset-views] DB 업데이트 실패:", error.message);
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: "조회수 초기화 처리 중 데이터베이스 오류가 발생했습니다." },
+        { status: 500 }
+      );
     }
 
     try {
@@ -47,9 +51,9 @@ export async function POST(req: NextRequest) {
       resetCount: data?.length || 0,
       items: data,
     });
-  } catch (err: unknown) {
+  } catch {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Internal error" },
+      { error: "조회수 초기화 처리 중 서버 오류가 발생했습니다." },
       { status: 500 }
     );
   }

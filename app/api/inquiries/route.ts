@@ -14,6 +14,9 @@ import {
   checkRateLimit,
   getClientIp,
   hashInquiryPassword,
+  hashInquiryPasswordAsync,
+  markNotificationFailed,
+  markNotificationSent,
   verifyAdminRequest,
 } from "../../../lib/server-security";
 import {
@@ -75,8 +78,14 @@ async function dispatchTelegramOnInquiryCreate(params: {
         signal: AbortSignal.timeout(4000),
       }
     );
-    return res.ok;
+    if (res.ok) {
+      markNotificationSent(dedupKey, 3 * 60 * 1000);
+      return true;
+    }
+    markNotificationFailed(dedupKey);
+    return false;
   } catch (err) {
+    markNotificationFailed(dedupKey);
     console.warn(
       "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
       err
@@ -297,8 +306,9 @@ export async function POST(req: NextRequest) {
     const images = sanitizeInquiryImageUrls(body.images);
 
     const hashedPassword = isNotice
-      ? hashInquiryPassword(rawPassword || "0000")
-      : hashInquiryPassword(rawPassword);
+      ? await hashInquiryPasswordAsync(rawPassword || "0000")
+      : await hashInquiryPasswordAsync(rawPassword);
+    void hashInquiryPassword;
 
     const supabase = createServerSupabaseClient(adminAccessToken);
     const basePayload: Record<string, unknown> = {

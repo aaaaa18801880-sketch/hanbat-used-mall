@@ -221,13 +221,24 @@ export default function IntegratedAdminDashboard() {
     return () => sub.subscription.unsubscribe();
   }, [fetchAllAdminData]);
 
-  // 관리자 컴포넌트 언마운트 시 메모리에 잔류하는 모든 Blob Object URL 일괄 해제
+  const prodPreviewsRef = useRef<string[]>([]);
+  const delivPreviewsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    prodPreviewsRef.current = prodPreviews;
+  }, [prodPreviews]);
+
+  useEffect(() => {
+    delivPreviewsRef.current = delivPreviews;
+  }, [delivPreviews]);
+
+  // 관리자 컴포넌트 실제 언마운트 시에만 메모리에 잔류하는 모든 Blob Object URL 일괄 해제 (2번째 사진 추가/순서 변경 시 기존 Blob 파기 방지)
   useEffect(() => {
     return () => {
-      revokeObjectUrls(prodPreviews);
-      revokeObjectUrls(delivPreviews);
+      revokeObjectUrls(prodPreviewsRef.current);
+      revokeObjectUrls(delivPreviewsRef.current);
     };
-  }, [prodPreviews, delivPreviews]);
+  }, []);
 
   /* ───── 기본 운영 지표 계산 ───── */
   const metrics = useMemo(() => {
