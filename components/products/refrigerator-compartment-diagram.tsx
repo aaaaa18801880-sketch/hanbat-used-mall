@@ -1163,7 +1163,6 @@ export function RefrigeratorCompartmentDiagram({
                       <div className="h-1 bg-[#475569] rounded-full" />
                       <div className="h-1 bg-[#475569] rounded-full" />
                       <div className="h-1 bg-[#475569] rounded-full" />
-                      <div className="h-1 bg-[#475569] rounded-full" />
                     </div>
                     <div className="rounded bg-[#0E131B] border border-white/10 px-2.5 py-1 font-mono text-hb-xs text-[#38BDF8] tabular-nums">
                       {activeCompartment.tempRange}

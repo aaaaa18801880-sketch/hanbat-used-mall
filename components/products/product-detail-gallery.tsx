@@ -125,13 +125,28 @@ export function ProductDetailGallery({
     <>
       <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
         {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (상단 영문 바 제거) */}
-        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none">
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none ring-1 ring-inset ring-black/5">
+          {/* 앰비언트 스튜디오 블러 배경 레이어 (세로형 가전 여백을 스튜디오 조명으로 채움) */}
+          {displayImages[idx] && (
+            <div
+              className="absolute inset-0 overflow-hidden pointer-events-none select-none"
+              aria-hidden="true"
+            >
+              <SafeImg
+                src={displayImages[idx]}
+                alt=""
+                className="w-full h-full object-cover blur-2xl scale-110 opacity-20"
+              />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-black/10" />
+            </div>
+          )}
+
           <SafeImg
             key={displayImages[idx]}
             src={displayImages[idx]}
             alt={`${title} - 사진 ${idx + 1}`}
             eager
-            className={`w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.02] ${
+            className={`relative z-10 w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
               sold ? "grayscale opacity-75" : ""
             }`}
           />
@@ -218,6 +233,9 @@ export function ProductDetailGallery({
                     : "border-[#E2E6EC] opacity-65 hover:opacity-100"
                 }`}
               >
+                <span className="absolute top-1 left-1 z-10 rounded bg-[#141A23]/75 px-1.5 py-0.5 text-hb-xs font-mono font-bold text-white tabular-nums leading-none pointer-events-none">
+                  {i + 1}
+                </span>
                 <SafeImg
                   src={img}
                   alt=""

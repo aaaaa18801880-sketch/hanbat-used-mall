@@ -177,67 +177,60 @@ export function FeaturedProductsSection({
       className="border-b border-[#E2E6EC] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
     >
       <div className="hb-container">
-        {/* 클린 카탈로그 헤더 */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-5 border-b border-[#E2E6EC]">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#E8521A]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#E8521A]" />
-              <span>실시간 직영 쇼룸</span>
-              <span>·</span>
-              <span className="text-[#141A23] tabular-nums font-bold">
-                현재 구매 가능 총 {totalSellingCount}대
-              </span>
-            </div>
-            <div className="mt-2.5 flex flex-wrap items-baseline gap-2.5">
-              <h2
-                id="featured-heading"
-                className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] text-[#141A23] [text-wrap:balance]"
+        {/* 클린 카탈로그 헤더: 1줄 컴팩트 컨트롤 바 */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E6EC]">
+          {/* 좌측: 타이틀 + 건수 + (필터 해제 버튼) */}
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2
+              id="featured-heading"
+              className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23]"
+            >
+              {activeCategoryTitle}
+            </h2>
+            <span className="text-hb-sm sm:text-hb-base font-bold text-[#64748B] tabular-nums">
+              {filteredProducts.length}건
+            </span>
+            {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
+              <button
+                type="button"
+                onClick={() => {
+                  setVisibleCount(INITIAL_DISPLAY_LIMIT);
+                  onResetCategory();
+                }}
+                className="rounded-full bg-[#F1F3F6] px-2.5 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23] active:scale-[0.96] transition-[background-color,color,transform] duration-150 cursor-pointer"
               >
-                {activeCategoryTitle}
-              </h2>
-              <span className="text-hb-base font-bold text-[#64748B] tabular-nums">
-                {filteredProducts.length}건
-              </span>
-              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVisibleCount(INITIAL_DISPLAY_LIMIT);
-                    onResetCategory();
-                  }}
-                  className="ml-1 rounded-full bg-[#F1F3F6] px-3 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23] active:scale-[0.96] transition-[background-color,color,transform] duration-150 cursor-pointer"
-                >
-                  전체 품목 보기
-                </button>
-              )}
-            </div>
-            <p className="mt-1.5 text-hb-sm text-[#4E5968] [text-wrap:balance]">
-              대전 중촌동 1·2층 직영 매장에서 분해 고압세척과 시운전 검수를 마친 실매물입니다.
-            </p>
+                전체 품목 보기
+              </button>
+            )}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          {/* 우측: 안심 배지 + 전체 매물 링크 */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-3 py-1 text-hb-xs font-bold text-[#0F766E]">
+              <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#0D9488]" />
+              <span>전 품목 분해 고압세척 · 시운전 검수 완료</span>
+            </span>
             <Link
               href={galleryHref}
-              className="hb-btn-primary h-11 px-5 text-hb-sm active:scale-[0.96]"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150"
             >
               <span>상세 필터 · 전체 매물 보기</span>
-              <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />
+              <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FB923C]" />
             </Link>
           </div>
         </div>
 
-        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 (No Card-in-Card 평탄화) */}
+        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 */}
         {!loading && !error && (
-          <div className="mt-5 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="mt-4 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-3.5 sm:p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
                 name={categoryFact.icon}
-                className="w-9 h-9 shrink-0"
+                className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 text-[#141A23]"
               />
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white shrink-0">
+                  <span className="inline-flex items-center rounded-md bg-[#141A23] px-2 py-0.5 text-hb-xs font-bold text-white shrink-0">
                     {categoryFact.badge}
                   </span>
                   <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
@@ -247,7 +240,7 @@ export function FeaturedProductsSection({
               </div>
             </div>
 
-            <div className="pt-3 lg:pt-0 lg:pl-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-hb-xs shrink-0">
+            <div className="pt-2.5 lg:pt-0 lg:pl-4 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-hb-xs shrink-0">
               {categoryFact.points.map((pt) => (
                 <span
                   key={pt}

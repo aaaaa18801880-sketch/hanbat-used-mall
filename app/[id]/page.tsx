@@ -464,30 +464,48 @@ export default async function ProductDetailPage({
                 {product.title}
               </h1>
 
-              {/* 가격 하이라이트: 토스/애플 스토어 스타일 클린 대형 타이포그래피 + 소프트 보증 배지 */}
-              <div className="mt-4 pt-4 border-t border-[#F1F3F6] flex flex-wrap items-baseline justify-between gap-3">
-                <div>
-                  {sold ? (
-                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#94A3B8]">
-                      판매완료 · 유사 매물 상담 가능
-                    </span>
-                  ) : priced ? (
-                    <span className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tabular-nums tracking-[-0.03em]">
-                      {priceDisplay}
-                    </span>
-                  ) : (
-                    <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#E8521A] tabular-nums">
-                      {priceDisplay}
-                    </span>
-                  )}
-                  <p className="mt-1 text-hb-xs font-medium text-[#64748B]">
-                    세금계산서 · 현금영수증 · 카드결제 지원
-                  </p>
+              {/* 쇼룸 프라이스 콜아웃 박스 (가격, 세척·시운전 검수 완료 배지, 결제 증빙 안내 일체화) */}
+              <div className="mt-4 rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-4 space-y-3">
+                <div className="flex flex-wrap items-baseline justify-between gap-2.5">
+                  <div>
+                    {sold ? (
+                      <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#94A3B8]">
+                        판매완료 · 유사 매물 상담 가능
+                      </span>
+                    ) : priced ? (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tabular-nums tracking-[-0.03em]">
+                          {priceDisplay}
+                        </span>
+                        <span className="text-hb-xs font-semibold text-[#E8521A]">
+                          수량별·세트 할인 문의 가능
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#E8521A] tabular-nums">
+                          {priceDisplay}
+                        </span>
+                        <span className="text-hb-xs font-semibold text-[#0F766E]">
+                          수량별·세트 할인 문의
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-2.5 py-1 text-hb-xs font-bold text-[#0F766E] shrink-0 shadow-2xs">
+                    <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#0D9488]" />
+                    <span>세척·시운전 검수 완료</span>
+                  </span>
                 </div>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-3 py-1 text-hb-xs font-bold text-[#0F766E]">
-                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#0F766E]" />
-                  <span>세척·시운전 검수 완료</span>
-                </span>
+
+                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#E2E6EC] text-hb-xs text-[#64748B]">
+                  <span className="font-medium">
+                    세금계산서 · 현금영수증 · 카드결제 지원
+                  </span>
+                  <span className="font-semibold text-[#141A23]">
+                    100% 정식 증빙
+                  </span>
+                </div>
               </div>
 
               {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 (No Card-in-Card 평탄화 ListRow) */}

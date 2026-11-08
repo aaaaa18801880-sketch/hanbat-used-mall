@@ -332,10 +332,11 @@ export function ProductCard({
                 {priceText}
               </strong>
             ) : (
-              <strong className="block text-hb-base font-bold text-[#E8521A] truncate">
-                <span className="sm:hidden">견적 상담</span>
-                <span className="hidden sm:inline">{priceText}</span>
-              </strong>
+              <div className="inline-flex items-center gap-1.5 rounded-lg bg-[#FFF4EE] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] truncate shadow-2xs">
+                <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
+                <span className="sm:hidden truncate">견적 상담</span>
+                <span className="hidden sm:inline truncate">{priceText || "견적 상담 문의"}</span>
+              </div>
             )}
             {!sold && (
               <span className="hidden xs:inline-flex items-center gap-1 shrink-0 text-hb-xs font-semibold text-[#0F766E]">
@@ -353,13 +354,13 @@ export function ProductCard({
               specCapsules.map((cap) => (
                 <span
                   key={cap}
-                  className="inline-block rounded bg-[#F7F8FA] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-semibold text-[#334155] truncate whitespace-nowrap"
+                  className="inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap"
                 >
                   {cap}
                 </span>
               ))
             ) : (
-              <span className="inline-block rounded bg-[#F7F8FA] px-2 py-0.5 text-hb-xs font-medium text-[#64748B] truncate">
+              <span className="inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-semibold text-[#4E5968] truncate">
                 {specSummaryText}
               </span>
             )}
