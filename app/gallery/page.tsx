@@ -2390,7 +2390,7 @@ export default function GalleryPage() {
         )}
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={`sk-${idx}`}
@@ -2479,7 +2479,7 @@ export default function GalleryPage() {
         ) : (
           <>
             <h2 className="sr-only">판매 제품 목록</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5 items-stretch">
               {displayedProducts.map((product, idx) => (
                 <ProductCard
                   key={product.id}

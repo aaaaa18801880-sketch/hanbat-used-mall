@@ -396,10 +396,10 @@ export default async function ProductDetailPage({
           </div>
         </nav>
 
-        {/* 쇼룸 2컬럼 아키텍처 레이아웃: 좌측(사진 + 상세 제원서) / 우측(첫 화면 의사결정·상담 콘솔) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-9 items-start">
-          {/* 좌측 7컬럼: 1. 스튜디오 사진 뷰어 + 하단 상세 제원서 */}
-          <div className="lg:col-span-7 min-w-0 space-y-7">
+        {/* 쇼룸 2컬럼 아키텍처 레이아웃: 모바일(사진 -> BuyBox -> 구조도/제원서) / 데스크톱(좌측 상단 사진, 좌측 하단 제원서, 우측 5컬럼 Sticky BuyBox) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 lg:gap-9 items-start">
+          {/* 블록 1: 스튜디오 사진 갤러리 (모바일 1번째 노출, 데스크톱 좌측 상단) */}
+          <div className="lg:col-start-1 lg:col-span-7 min-w-0">
             <ProductDetailGallery
               id={String(product.id)}
               title={product.title}
@@ -411,24 +411,10 @@ export default async function ProductDetailPage({
               status={product.status}
               createdAt={product.created_at}
             />
-
-            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (상하단 2도어, 4도어, 김치냉장고 등) */}
-            <RefrigeratorCompartmentDiagram
-              title={product.title}
-              description={product.description}
-              category={categoryLabel}
-            />
-
-            {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
-            <ProductStructuredDescription description={product.description} />
-
-            {categoryLabel === "에어컨/냉난방기" && (
-              <AirconSetGuideBanner variant="card" />
-            )}
           </div>
 
-          {/* 우측 5컬럼: 2~7. 상품명·가격·상태·모델명·검수·핵심스펙·설치체크·즉시문의 콘솔 (Sticky) */}
-          <div className="lg:col-span-5 min-w-0 lg:sticky lg:top-24">
+          {/* 블록 2: 구매·문의 콘솔 BuyBox (모바일에서 사진 바로 다음 2번째로 즉시 노출, 데스크톱에서는 우측 5컬럼 Sticky) */}
+          <div className="lg:col-start-8 lg:col-span-5 lg:row-start-1 lg:row-span-2 min-w-0 self-start lg:sticky lg:top-24">
             <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs">
               {/* 상단 카테고리 & 등록일 헤더 */}
               <div className="flex flex-wrap items-center gap-2">
@@ -585,6 +571,23 @@ export default async function ProductDetailPage({
                 firstImageUrl={images[0] || null}
               />
             </div>
+          </div>
+
+          {/* 블록 3: 도어 구조도 + 상세 제원서 + 에어컨 안내 (모바일 3번째 노출, 데스크톱 좌측 갤러리 바로 아래) */}
+          <div className="lg:col-start-1 lg:col-span-7 min-w-0 space-y-6 sm:space-y-7">
+            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (상하단 2도어, 4도어, 김치냉장고 등) */}
+            <RefrigeratorCompartmentDiagram
+              title={product.title}
+              description={product.description}
+              category={categoryLabel}
+            />
+
+            {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
+            <ProductStructuredDescription description={product.description} />
+
+            {categoryLabel === "에어컨/냉난방기" && (
+              <AirconSetGuideBanner variant="card" />
+            )}
           </div>
         </div>
 

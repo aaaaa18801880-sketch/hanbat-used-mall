@@ -168,9 +168,9 @@ export function CategoryPictogramBar({
           </Link>
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 독 (8열 벤토 타일 — 말줄임표 잘림 제로) */}
+        {/* 전 품목 쇼룸 카탈로그 독 (태블릿 4열, 1280px+ 8열 벤토 타일 — 말줄임표 잘림 제로) */}
         <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2 sm:p-2.5 shadow-2xs">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2">
             {SHOWROOM_CATEGORIES.map((item) => {
               const isSelected = selectedKey === item.key;
               const count = categoryCounts?.[item.key];
@@ -182,7 +182,7 @@ export function CategoryPictogramBar({
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => handleCategoryClick(item)}
-                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-2.5 sm:p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                     isSelected
                       ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
                       : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"

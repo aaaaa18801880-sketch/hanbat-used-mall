@@ -260,7 +260,7 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
+            className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch"
             aria-hidden="true"
           >
             {Array.from({ length: 8 }).map((_, idx) => (
@@ -323,7 +323,7 @@ export function FeaturedProductsSection({
           </div>
         ) : (
           <>
-            <div className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch">
+            <div className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch">
               {displayedProducts.map((product, idx) => (
                 <ProductCard
                   key={product.id}

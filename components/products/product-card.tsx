@@ -222,7 +222,7 @@ export function ProductCard({
         {/* 좌상단 판매 상태 배지 & 외관 등급 */}
         {isSelectMode ? (
           <div
-            className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
+            className={`absolute left-2 top-2 sm:left-3 sm:top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
               isSelected
                 ? "border-[#E8521A] bg-[#E8521A] text-white"
                 : "border-[#CBD2DC] bg-white/95 text-transparent"
@@ -231,7 +231,7 @@ export function ProductCard({
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 flex-wrap">
+          <div className="absolute left-2 top-2 sm:left-3 sm:top-3 z-10 flex items-center gap-1.5 flex-wrap">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
@@ -296,7 +296,7 @@ export function ProductCard({
       </div>
 
       {/* 2. 카드 본문 (제목 2줄 높이 고정으로 행 전체 가격 위치 일직선 정렬) */}
-      <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-4 bg-white">
+      <div className="flex flex-1 flex-col justify-between p-3 sm:p-4 bg-white">
         <div>
           <div className="flex items-center justify-between gap-2 text-hb-xs">
             <span className="inline-flex items-center rounded bg-[#F1F3F6] px-2 py-0.5 font-semibold text-[#334155] truncate">
@@ -351,10 +351,12 @@ export function ProductCard({
         <div className="mt-3 pt-2.5 border-t border-[#F1F3F6] flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1 min-w-0 overflow-hidden">
             {specCapsules.length > 0 ? (
-              specCapsules.map((cap) => (
+              specCapsules.map((cap, capIdx) => (
                 <span
                   key={cap}
-                  className="inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap"
+                  className={`rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap ${
+                    capIdx > 0 ? "hidden sm:inline-block" : "inline-block"
+                  }`}
                 >
                   {cap}
                 </span>

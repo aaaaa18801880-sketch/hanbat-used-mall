@@ -113,7 +113,7 @@ export function DeliveryRegionChecker({ className = "" }: { className?: string }
               <p className="text-[#334155] leading-relaxed break-keep">{zone.buyback}</p>
             </div>
           </div>
-          <div className="px-5 py-2.5 bg-[#F7F8FA] text-hb-xs text-[#64748B] truncate">
+          <div className="px-5 py-2.5 bg-[#F7F8FA] text-hb-xs text-[#64748B] break-keep leading-relaxed">
             <strong className="text-[#141A23]">주요 배차 동네:</strong> {zone.areas}
           </div>
         </div>

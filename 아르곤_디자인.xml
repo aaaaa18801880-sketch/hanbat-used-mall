@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="hanbat-mall" generated_at="2026-11-08T12:40:49.197Z">
+<project name="hanbat-mall" generated_at="2026-11-08T13:56:53.130Z">
   <summary>
     <name>한밭중고전자(hanbat-mall)</name>
     <tech_stack>Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS, Supabase</tech_stack>
@@ -73,7 +73,7 @@ export default function ProductNotFound() {
 
 ]]>
     </file>
-    <file path="app/[id]/page.tsx" lines="703">
+    <file path="app/[id]/page.tsx" lines="706">
       <![CDATA[
 // 파일 경로: app/[id]/page.tsx
 import type { Metadata } from "next";
@@ -473,10 +473,10 @@ export default async function ProductDetailPage({
           </div>
         </nav>
 
-        {/* 쇼룸 2컬럼 아키텍처 레이아웃: 좌측(사진 + 상세 제원서) / 우측(첫 화면 의사결정·상담 콘솔) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-9 items-start">
-          {/* 좌측 7컬럼: 1. 스튜디오 사진 뷰어 + 하단 상세 제원서 */}
-          <div className="lg:col-span-7 min-w-0 space-y-7">
+        {/* 쇼룸 2컬럼 아키텍처 레이아웃: 모바일(사진 -> BuyBox -> 구조도/제원서) / 데스크톱(좌측 상단 사진, 좌측 하단 제원서, 우측 5컬럼 Sticky BuyBox) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-7 lg:gap-9 items-start">
+          {/* 블록 1: 스튜디오 사진 갤러리 (모바일 1번째 노출, 데스크톱 좌측 상단) */}
+          <div className="lg:col-start-1 lg:col-span-7 min-w-0">
             <ProductDetailGallery
               id={String(product.id)}
               title={product.title}
@@ -488,24 +488,10 @@ export default async function ProductDetailPage({
               status={product.status}
               createdAt={product.created_at}
             />
-
-            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (상하단 2도어, 4도어, 김치냉장고 등) */}
-            <RefrigeratorCompartmentDiagram
-              title={product.title}
-              description={product.description}
-              category={categoryLabel}
-            />
-
-            {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
-            <ProductStructuredDescription description={product.description} />
-
-            {categoryLabel === "에어컨/냉난방기" && (
-              <AirconSetGuideBanner variant="card" />
-            )}
           </div>
 
-          {/* 우측 5컬럼: 2~7. 상품명·가격·상태·모델명·검수·핵심스펙·설치체크·즉시문의 콘솔 (Sticky) */}
-          <div className="lg:col-span-5 min-w-0 lg:sticky lg:top-24">
+          {/* 블록 2: 구매·문의 콘솔 BuyBox (모바일에서 사진 바로 다음 2번째로 즉시 노출, 데스크톱에서는 우측 5컬럼 Sticky) */}
+          <div className="lg:col-start-8 lg:col-span-5 lg:row-start-1 lg:row-span-2 min-w-0 self-start lg:sticky lg:top-24">
             <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs">
               {/* 상단 카테고리 & 등록일 헤더 */}
               <div className="flex flex-wrap items-center gap-2">
@@ -662,6 +648,23 @@ export default async function ProductDetailPage({
                 firstImageUrl={images[0] || null}
               />
             </div>
+          </div>
+
+          {/* 블록 3: 도어 구조도 + 상세 제원서 + 에어컨 안내 (모바일 3번째 노출, 데스크톱 좌측 갤러리 바로 아래) */}
+          <div className="lg:col-start-1 lg:col-span-7 min-w-0 space-y-6 sm:space-y-7">
+            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (상하단 2도어, 4도어, 김치냉장고 등) */}
+            <RefrigeratorCompartmentDiagram
+              title={product.title}
+              description={product.description}
+              category={categoryLabel}
+            />
+
+            {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
+            <ProductStructuredDescription description={product.description} />
+
+            {categoryLabel === "에어컨/냉난방기" && (
+              <AirconSetGuideBanner variant="card" />
+            )}
           </div>
         </div>
 
@@ -8846,7 +8849,7 @@ export default function GalleryPage() {
         )}
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
             {Array.from({ length: 8 }).map((_, idx) => (
               <div
                 key={`sk-${idx}`}
@@ -8935,7 +8938,7 @@ export default function GalleryPage() {
         ) : (
           <>
             <h2 className="sr-only">판매 제품 목록</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 items-stretch">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5 items-stretch">
               {displayedProducts.map((product, idx) => (
                 <ProductCard
                   key={product.id}
@@ -13088,9 +13091,9 @@ export function CategoryPictogramBar({
           </Link>
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 독 (8열 벤토 타일 — 말줄임표 잘림 제로) */}
+        {/* 전 품목 쇼룸 카탈로그 독 (태블릿 4열, 1280px+ 8열 벤토 타일 — 말줄임표 잘림 제로) */}
         <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2 sm:p-2.5 shadow-2xs">
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2">
             {SHOWROOM_CATEGORIES.map((item) => {
               const isSelected = selectedKey === item.key;
               const count = categoryCounts?.[item.key];
@@ -13102,7 +13105,7 @@ export function CategoryPictogramBar({
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => handleCategoryClick(item)}
-                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-2.5 sm:p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                     isSelected
                       ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
                       : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
@@ -13305,7 +13308,7 @@ export function DeliveryRegionChecker({ className = "" }: { className?: string }
               <p className="text-[#334155] leading-relaxed break-keep">{zone.buyback}</p>
             </div>
           </div>
-          <div className="px-5 py-2.5 bg-[#F7F8FA] text-hb-xs text-[#64748B] truncate">
+          <div className="px-5 py-2.5 bg-[#F7F8FA] text-hb-xs text-[#64748B] break-keep leading-relaxed">
             <strong className="text-[#141A23]">주요 배차 동네:</strong> {zone.areas}
           </div>
         </div>
@@ -13607,7 +13610,7 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch"
+            className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch"
             aria-hidden="true"
           >
             {Array.from({ length: 8 }).map((_, idx) => (
@@ -13670,7 +13673,7 @@ export function FeaturedProductsSection({
           </div>
         ) : (
           <>
-            <div className="mt-7 grid grid-cols-2 gap-3.5 sm:gap-5 lg:grid-cols-4 items-stretch">
+            <div className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch">
               {displayedProducts.map((product, idx) => (
                 <ProductCard
                   key={product.id}
@@ -19329,7 +19332,7 @@ export function AirconGuideModal({
 
 ]]>
     </file>
-    <file path="components/products/product-card.tsx" lines="432">
+    <file path="components/products/product-card.tsx" lines="434">
       <![CDATA[
 "use client";
 
@@ -19555,7 +19558,7 @@ export function ProductCard({
         {/* 좌상단 판매 상태 배지 & 외관 등급 */}
         {isSelectMode ? (
           <div
-            className={`absolute left-3 top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
+            className={`absolute left-2 top-2 sm:left-3 sm:top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
               isSelected
                 ? "border-[#E8521A] bg-[#E8521A] text-white"
                 : "border-[#CBD2DC] bg-white/95 text-transparent"
@@ -19564,7 +19567,7 @@ export function ProductCard({
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
         ) : (
-          <div className="absolute left-3 top-3 z-10 flex items-center gap-1.5 flex-wrap">
+          <div className="absolute left-2 top-2 sm:left-3 sm:top-3 z-10 flex items-center gap-1.5 flex-wrap">
             <ProductStatusBadge
               status={product.status}
               createdAt={product.created_at}
@@ -19629,7 +19632,7 @@ export function ProductCard({
       </div>
 
       {/* 2. 카드 본문 (제목 2줄 높이 고정으로 행 전체 가격 위치 일직선 정렬) */}
-      <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-4 bg-white">
+      <div className="flex flex-1 flex-col justify-between p-3 sm:p-4 bg-white">
         <div>
           <div className="flex items-center justify-between gap-2 text-hb-xs">
             <span className="inline-flex items-center rounded bg-[#F1F3F6] px-2 py-0.5 font-semibold text-[#334155] truncate">
@@ -19684,10 +19687,12 @@ export function ProductCard({
         <div className="mt-3 pt-2.5 border-t border-[#F1F3F6] flex items-center justify-between gap-2 min-w-0">
           <div className="flex items-center gap-1 min-w-0 overflow-hidden">
             {specCapsules.length > 0 ? (
-              specCapsules.map((cap) => (
+              specCapsules.map((cap, capIdx) => (
                 <span
                   key={cap}
-                  className="inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap"
+                  className={`rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap ${
+                    capIdx > 0 ? "hidden sm:inline-block" : "inline-block"
+                  }`}
                 >
                   {cap}
                 </span>
@@ -30169,7 +30174,7 @@ export function FloatingQuickWing() {
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-2.5 2xl:right-5 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col items-center select-none"
+      className="fixed right-2.5 2xl:right-5 top-1/2 -translate-y-1/2 z-40 hidden min-[1400px]:flex flex-col items-center select-none"
     >
       <div className="w-[54px] 2xl:w-[58px] rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)] p-1.5 flex flex-col items-center gap-1">
         <a
@@ -30535,7 +30540,7 @@ export function MobileCtaBar({
         className="fixed inset-x-0 bottom-0 z-40 hb-glass pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
       >
         <div className="flex h-[58px] items-center justify-between gap-2 px-3">
-          <div className="min-w-0 flex items-center gap-2">
+          <div className="min-w-0 flex-1 flex items-center gap-2">
             {!sold && (
               <button
                 type="button"
@@ -30576,7 +30581,7 @@ export function MobileCtaBar({
                 <span>{inBasket ? "담김" : "견적함"}</span>
               </button>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <span className="block truncate text-hb-xs font-semibold text-[#64748B]">
                 {productContext.category}
               </span>
@@ -30611,7 +30616,7 @@ export function MobileCtaBar({
                 })
               }
               aria-label="문자 문의"
-              className="hidden xs:inline-flex h-10 items-center justify-center rounded-lg border border-[#E2E6EC] bg-white px-2.5 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
+              className="hidden sm:inline-flex h-10 items-center justify-center rounded-lg border border-[#E2E6EC] bg-white px-2.5 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
             >
               <span>문자</span>
             </a>

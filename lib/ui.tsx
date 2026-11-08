@@ -1004,7 +1004,7 @@ export function FloatingQuickWing() {
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-2.5 2xl:right-5 top-1/2 -translate-y-1/2 z-40 hidden xl:flex flex-col items-center select-none"
+      className="fixed right-2.5 2xl:right-5 top-1/2 -translate-y-1/2 z-40 hidden min-[1400px]:flex flex-col items-center select-none"
     >
       <div className="w-[54px] 2xl:w-[58px] rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)] p-1.5 flex flex-col items-center gap-1">
         <a
@@ -1370,7 +1370,7 @@ export function MobileCtaBar({
         className="fixed inset-x-0 bottom-0 z-40 hb-glass pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(14,26,43,0.08)] lg:hidden"
       >
         <div className="flex h-[58px] items-center justify-between gap-2 px-3">
-          <div className="min-w-0 flex items-center gap-2">
+          <div className="min-w-0 flex-1 flex items-center gap-2">
             {!sold && (
               <button
                 type="button"
@@ -1411,7 +1411,7 @@ export function MobileCtaBar({
                 <span>{inBasket ? "담김" : "견적함"}</span>
               </button>
             )}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <span className="block truncate text-hb-xs font-semibold text-[#64748B]">
                 {productContext.category}
               </span>
@@ -1446,7 +1446,7 @@ export function MobileCtaBar({
                 })
               }
               aria-label="문자 문의"
-              className="hidden xs:inline-flex h-10 items-center justify-center rounded-lg border border-[#E2E6EC] bg-white px-2.5 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
+              className="hidden sm:inline-flex h-10 items-center justify-center rounded-lg border border-[#E2E6EC] bg-white px-2.5 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
             >
               <span>문자</span>
             </a>
