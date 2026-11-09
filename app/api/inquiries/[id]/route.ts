@@ -8,15 +8,18 @@ import {
   maskName,
   STORAGE_BUCKETS,
 } from "../../../../lib/site";
-import { createServerSupabaseClient } from "../../../../lib/supabase";
+import {
+  createAnonServerClient,
+  createServiceRoleClient,
+} from "../../../../lib/supabase";
 import {
   checkInquiryPasswordRateLimit,
   getClientIp,
   hashInquiryPasswordAsync,
   recordInquiryPasswordFailure,
   verifyAdminRequest,
-  verifyInquiryPassword,
   verifyInquiryPasswordWithMeta,
+  verifySameOriginRequest,
 } from "../../../../lib/server-security";
 import { signInquiryImageLists } from "../../../../lib/inquiry-attachments";
 
@@ -25,7 +28,7 @@ export const runtime = "nodejs";
 const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
 
 const SAFE_INQUIRY_SELECT_COLUMNS =
-  "id, name, phone, inquiry_type, category, model, condition_grade, region, description, image_url, is_notice, status, admin_reply, created_at";
+  "id, name, phone, inquiry_type, category, model, condition_grade, region, description, images, image_url, is_notice, status, admin_reply, created_at";
 
 function isValidInquiryId(id: string): boolean {
   const trimmed = id.trim();
@@ -50,7 +53,7 @@ export async function POST(
     const isAdmin = adminCheck.ok;
 
     if (!isAdmin) {
-      const rate = checkInquiryPasswordRateLimit(ip, id);
+      const rate = await checkInquiryPasswordRateLimit(ip, id);
       if (!rate.allowed) {
         return NextResponse.json(
           {
@@ -64,7 +67,11 @@ export async function POST(
     const body = await req.json().catch(() => ({}));
     const inputPassword = String(body.password || "").trim();
 
-    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+    // [SEC-005] 관리자는 본인의 Bearer JWT(Anon Client)로 조회하고, 비관리자 비밀번호 대조 시에만 Service Role 사용
+    const supabase = isAdmin
+      ? createAnonServerClient(adminCheck.accessToken)
+      : createServiceRoleClient();
+
     const { data: row, error } = await supabase
       .from("purchase_requests")
       .select("*")
@@ -81,14 +88,13 @@ export async function POST(
     const isNotice = Boolean(row.is_notice);
 
     if (!isNotice && !isAdmin) {
+      // [SEC-003] 동기식 scryptSync 폴백을 완전히 제거하고 비동기 verifyInquiryPasswordWithMeta만 사용
       const pwResult = await verifyInquiryPasswordWithMeta(
         inputPassword,
         row.password
       );
-      const matched =
-        pwResult.valid || verifyInquiryPassword(inputPassword, row.password);
-      if (!matched) {
-        recordInquiryPasswordFailure(id);
+      if (!pwResult.valid) {
+        await recordInquiryPasswordFailure(id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않습니다." },
           { status: 401 }
@@ -148,6 +154,13 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!verifySameOriginRequest(req)) {
+      return NextResponse.json(
+        { error: "허용되지 않은 요청 출처입니다." },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     if (!isValidInquiryId(id)) {
       return NextResponse.json(
@@ -179,7 +192,7 @@ export async function PATCH(
     }
 
     if (!isAdmin) {
-      const rate = checkInquiryPasswordRateLimit(ip, id);
+      const rate = await checkInquiryPasswordRateLimit(ip, id);
       if (!rate.allowed) {
         return NextResponse.json(
           {
@@ -190,7 +203,10 @@ export async function PATCH(
       }
     }
 
-    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+    // [SEC-005] 관리자는 본인 JWT 권한으로, 일반 고객은 비밀번호 검증 후 서버 대리 수정
+    const supabase = isAdmin
+      ? createAnonServerClient(adminCheck.accessToken)
+      : createServiceRoleClient();
 
     const { data: existing, error: fetchError } = await supabase
       .from("purchase_requests")
@@ -215,14 +231,13 @@ export async function PATCH(
         );
       }
       const inputPassword = String(body.password || "").trim();
+      // [SEC-003] 비동기 verifyInquiryPasswordWithMeta 단일 경로 검증
       const pwResult = await verifyInquiryPasswordWithMeta(
         inputPassword,
         existing.password
       );
-      const matched =
-        pwResult.valid || verifyInquiryPassword(inputPassword, existing.password);
-      if (!matched) {
-        recordInquiryPasswordFailure(id);
+      if (!pwResult.valid) {
+        await recordInquiryPasswordFailure(id);
         return NextResponse.json(
           {
             error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
@@ -325,6 +340,13 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!verifySameOriginRequest(req)) {
+      return NextResponse.json(
+        { error: "허용되지 않은 요청 출처입니다." },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     if (!isValidInquiryId(id)) {
       return NextResponse.json(
@@ -338,7 +360,7 @@ export async function DELETE(
     const isAdmin = adminCheck.ok;
 
     if (!isAdmin) {
-      const rate = checkInquiryPasswordRateLimit(ip, id);
+      const rate = await checkInquiryPasswordRateLimit(ip, id);
       if (!rate.allowed) {
         return NextResponse.json(
           {
@@ -352,10 +374,15 @@ export async function DELETE(
     const body = await req.json().catch(() => ({}));
     const inputPassword = String(body.password || "").trim();
 
-    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+    // [SEC-005] 관리자는 본인 JWT 권한으로, 일반 고객은 비밀번호 검증 후 서버 대리 삭제
+    const supabase = isAdmin
+      ? createAnonServerClient(adminCheck.accessToken)
+      : createServiceRoleClient();
+
+    // images 배열 컬럼과 image_url 레거시 컬럼을 모두 조회하여 첨부파일 누락 없이 삭제
     const { data: existing, error: fetchError } = await supabase
       .from("purchase_requests")
-      .select("id, password, is_notice, image_url, description")
+      .select("id, password, is_notice, images, image_url, description")
       .eq("id", id)
       .single();
 
@@ -373,14 +400,13 @@ export async function DELETE(
           { status: 403 }
         );
       }
+      // [SEC-003] 비동기 verifyInquiryPasswordWithMeta 단일 경로 검증
       const pwResult = await verifyInquiryPasswordWithMeta(
         inputPassword,
         existing.password
       );
-      const matched =
-        pwResult.valid || verifyInquiryPassword(inputPassword, existing.password);
-      if (!matched) {
-        recordInquiryPasswordFailure(id);
+      if (!pwResult.valid) {
+        await recordInquiryPasswordFailure(id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않아 삭제할 수 없습니다." },
           { status: 401 }

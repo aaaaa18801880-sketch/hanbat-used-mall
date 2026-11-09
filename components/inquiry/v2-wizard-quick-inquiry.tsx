@@ -439,14 +439,14 @@ export function V2InquirySectionWithWizard({
 
     setSubmitting(true);
     try {
-      // 1. 사진 업로드 처리 (선택 첨부된 파일이 있는 경우)
+      // 1. 사진 업로드 처리 (선택 첨부된 파일이 있는 경우 - [SEC-002] inquiries/ 하위 경로 일관 적용)
       let uploadedUrls: string[] = [];
       if (selectedFiles.length > 0) {
         uploadedUrls = await compressAndUploadProductImages(selectedFiles, {
           maxWidth: 1400,
           quality: 0.8,
           bucket: STORAGE_BUCKETS.inquiryAttachments,
-          prefix: "inq",
+          prefix: "inquiries/inq",
         });
       }
 

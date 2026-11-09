@@ -31,21 +31,34 @@ AS $$
     OR coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '') = 'admin';
 $$;
 
--- 1-2. 고객 첨부 사진 전용 비공개 버킷 (공개 URL 접근 불가, 서버가 서명 URL로만 제공)
+-- 1-2. 고객 첨부 사진 전용 비공개 버킷 (공개 URL 접근 불가, 서버가 서명 URL로만 제공, 6MB 제한)
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-VALUES ('inquiry-attachments', 'inquiry-attachments', false, 10485760, ARRAY['image/jpeg', 'image/png', 'image/webp'])
+VALUES (
+  'inquiry-attachments',
+  'inquiry-attachments',
+  false,
+  6291456,
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']
+)
 ON CONFLICT (id) DO UPDATE
   SET public = false,
       file_size_limit = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
 
--- 1-3. 고객 첨부 사진 업로드 (고객이 문의 작성 시 브라우저에서 직접 업로드)
+-- 1-3. 고객 첨부 사진 업로드 (inquiries/ 하위 폴더 + 허용 이미지 확장자 + 파일명 길이로 엄격 제한)
+DROP POLICY IF EXISTS "Public Upload Inquiry Attachments" ON storage.objects;
 DROP POLICY IF EXISTS "storage_insert_inquiry_attachments_public" ON storage.objects;
 CREATE POLICY "storage_insert_inquiry_attachments_public"
 ON storage.objects
 FOR INSERT
-TO public
-WITH CHECK (bucket_id = 'inquiry-attachments');
+TO anon, authenticated
+WITH CHECK (
+  bucket_id = 'inquiry-attachments'
+  AND (storage.foldername(name))[1] = 'inquiries'
+  AND array_length(storage.foldername(name), 1) = 1
+  AND lower(storage.extension(name)) IN ('jpg', 'jpeg', 'png', 'webp', 'heic', 'heif')
+  AND length(name) <= 120
+);
 
 -- 1-4. 고객 첨부 사진 조회: 관리자와 서비스 롤만
 DROP POLICY IF EXISTS "storage_select_inquiry_attachments_staff" ON storage.objects;

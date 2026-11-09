@@ -1,7 +1,7 @@
 // 파일 경로: app/api/admin/reset-views/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createServerSupabaseClient } from "../../../../lib/supabase";
+import { createAnonServerClient } from "../../../../lib/supabase";
 import { verifyAdminRequest } from "../../../../lib/server-security";
 
 export const runtime = "nodejs";
@@ -19,7 +19,8 @@ export async function POST(req: NextRequest) {
 
     const rawScope = req.nextUrl.searchParams.get("scope") || "recent";
     const scope = rawScope === "all" ? "all" : "recent";
-    const supabase = createServerSupabaseClient(adminCheck.accessToken, true);
+    // [SEC-005] 검증된 관리자 본인의 JWT로 RLS(products_update_staff)를 통과하여 최소 권한 원칙 준수
+    const supabase = createAnonServerClient(adminCheck.accessToken);
 
     let query = supabase.from("products").update({ views: 0 }).gt("views", 0);
 

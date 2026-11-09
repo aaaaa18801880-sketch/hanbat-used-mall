@@ -11,14 +11,45 @@ function getPublicStorageBase(): string {
   return base ? `${base}/storage/v1/object/public/` : "";
 }
 
+/**
+ * Storage 객체 경로 검증 (Path Traversal 및 비정상 경로 차단)
+ * - 신규 표준 경로(inquiries/inq_...)와 기존 마이그레이션 경로(inq_...)를 모두 안전하게 허용합니다.
+ */
+export function isValidStorageObjectPath(objectPath: string): boolean {
+  if (!objectPath || objectPath.length > 160) return false;
+  if (
+    objectPath.includes("..") ||
+    objectPath.includes("//") ||
+    objectPath.includes("\\") ||
+    objectPath.startsWith("/")
+  ) {
+    return false;
+  }
+  return /^(?:inquiries\/)?[a-zA-Z0-9._-]+\.(?:jpg|jpeg|png|webp|heic|heif)$/i.test(
+    objectPath
+  );
+}
+
 export function isOwnStorageImageUrl(url: string): boolean {
   const base = getPublicStorageBase();
   if (!base || !url.startsWith(base)) return false;
   const rest = url.slice(base.length);
-  return (
-    rest.startsWith(`${STORAGE_BUCKETS.inquiries}/`) ||
-    rest.startsWith(`${STORAGE_BUCKETS.inquiryAttachments}/`)
-  );
+
+  for (const bucket of [
+    STORAGE_BUCKETS.inquiries,
+    STORAGE_BUCKETS.inquiryAttachments,
+  ]) {
+    const prefix = `${bucket}/`;
+    if (rest.startsWith(prefix)) {
+      const rawPath = rest.slice(prefix.length).split(/[?#]/)[0];
+      try {
+        return isValidStorageObjectPath(decodeURIComponent(rawPath));
+      } catch {
+        return false;
+      }
+    }
+  }
+  return false;
 }
 
 export function sanitizeInquiryImageUrls(values: unknown): string[] {
@@ -30,14 +61,15 @@ export function sanitizeInquiryImageUrls(values: unknown): string[] {
     .slice(0, MAX_IMAGES_PER_INQUIRY);
 }
 
-function getAttachmentPath(url: string): string | null {
+export function getAttachmentPath(url: string): string | null {
   const base = getPublicStorageBase();
   const prefix = `${base}${STORAGE_BUCKETS.inquiryAttachments}/`;
   if (!base || !url.startsWith(prefix)) return null;
   const encoded = url.slice(prefix.length).split(/[?#]/)[0];
   if (!encoded) return null;
   try {
-    return decodeURIComponent(encoded);
+    const decoded = decodeURIComponent(encoded);
+    return isValidStorageObjectPath(decoded) ? decoded : null;
   } catch {
     return null;
   }

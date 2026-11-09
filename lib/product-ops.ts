@@ -66,9 +66,15 @@ export async function compressAndUploadProductImage(
   const prefix = options?.prefix ?? "product";
 
   const blob = await compressImage(file, maxWidth, quality);
-  const fileName = `${prefix}_${Date.now()}_${Math.random()
+  const baseFileName = `${prefix}_${Date.now()}_${Math.random()
     .toString(36)
     .slice(2, 8)}.jpg`;
+  // [SEC-002] 고객 첨부 버킷(inquiry-attachments)은 RLS 폴더 정책(inquiries/*)과 일치하도록 경로 보장
+  const fileName =
+    bucket === STORAGE_BUCKETS.inquiryAttachments &&
+    !baseFileName.startsWith("inquiries/")
+      ? `inquiries/${baseFileName}`
+      : baseFileName;
 
   const { error } = await supabase.storage
     .from(bucket)

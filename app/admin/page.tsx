@@ -2380,7 +2380,9 @@ export default function IntegratedAdminDashboard() {
                           {item.title}
                         </p>
                         <p className="text-hb-xs text-[#64748B]">
-                          {new Date(item.created_at).toLocaleDateString("ko-KR")}
+                          {item.created_at
+                            ? new Date(item.created_at).toLocaleDateString("ko-KR")
+                            : "-"}
                         </p>
                       </div>
                       <button

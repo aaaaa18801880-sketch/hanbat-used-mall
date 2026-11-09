@@ -8,16 +8,19 @@ import {
   maskPhone,
   STORE,
 } from "../../../lib/site";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import {
+  createAnonServerClient,
+  createServiceRoleClient,
+} from "../../../lib/supabase";
 import {
   checkNotificationIdempotency,
   checkRateLimit,
   getClientIp,
-  hashInquiryPassword,
   hashInquiryPasswordAsync,
   markNotificationFailed,
   markNotificationSent,
   verifyAdminRequest,
+  verifySameOriginRequest,
 } from "../../../lib/server-security";
 import {
   sanitizeInquiryImageUrls,
@@ -44,7 +47,7 @@ async function dispatchTelegramOnInquiryCreate(params: {
 
   const idStr = params.inquiryId ? String(params.inquiryId).trim() : "";
   const dedupKey = idStr || `${params.type}:${params.name}:${params.title}`;
-  const { isDuplicate } = checkNotificationIdempotency(
+  const { isDuplicate } = await checkNotificationIdempotency(
     dedupKey,
     3 * 60 * 1000,
     false
@@ -79,13 +82,16 @@ async function dispatchTelegramOnInquiryCreate(params: {
       }
     );
     if (res.ok) {
-      markNotificationSent(dedupKey, 3 * 60 * 1000);
+      await markNotificationSent(dedupKey, 3 * 60 * 1000);
       return true;
     }
-    markNotificationFailed(dedupKey);
+    await markNotificationFailed(dedupKey, "telegram_http_error");
     return false;
   } catch (err) {
-    markNotificationFailed(dedupKey);
+    await markNotificationFailed(
+      dedupKey,
+      err instanceof Error ? err.message : "telegram_network_error"
+    );
     console.warn(
       "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
       err
@@ -104,7 +110,10 @@ export async function GET(req: NextRequest) {
     const effectiveLimit =
       limitParam > 0 && limitParam <= 300 ? limitParam : 200;
 
-    const supabase = createServerSupabaseClient(adminCheck.accessToken);
+    // [SEC-005] 관리자는 본인 JWT(Anon Client)로 조회하고, 비관리자 공개 게시판 마스킹 목록은 서버 전용 클라이언트로 조회
+    const supabase = isAdmin
+      ? createAnonServerClient(adminCheck.accessToken)
+      : createServiceRoleClient();
     const { data, error } = await supabase
       .from("purchase_requests")
       .select(
@@ -123,7 +132,10 @@ export async function GET(req: NextRequest) {
 
     const rows = data ?? [];
     const rawImageLists = rows.map((row) => extractInquiryImages(row));
-    const imageLists = await signInquiryImageLists(supabase, rawImageLists);
+    const signTargetLists = rows.map((row, idx) =>
+      isAdmin || Boolean(row.is_notice) ? rawImageLists[idx] : []
+    );
+    const imageLists = await signInquiryImageLists(supabase, signTargetLists);
 
     const sanitized = rows.map(
       (row: {
@@ -205,8 +217,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    if (!verifySameOriginRequest(req)) {
+      return NextResponse.json(
+        { error: "허용되지 않은 요청 출처입니다." },
+        { status: 403 }
+      );
+    }
+
     const ip = getClientIp(req);
-    const rate = checkRateLimit(`inquiry_create:${ip}`, 10, 60 * 1000);
+    const rate = await checkRateLimit(`inquiry_create:${ip}`, 10, 60 * 1000, {
+      failureMode: "fail-open",
+    });
     if (!rate.allowed) {
       return NextResponse.json(
         {
@@ -308,9 +329,11 @@ export async function POST(req: NextRequest) {
     const hashedPassword = isNotice
       ? await hashInquiryPasswordAsync(rawPassword || "0000")
       : await hashInquiryPasswordAsync(rawPassword);
-    void hashInquiryPassword;
 
-    const supabase = createServerSupabaseClient(adminAccessToken);
+    // [SEC-005] 관리자 공지 등록은 관리자 JWT(Anon Client)로, 일반 고객 문의 등록(RETURNING id 포함)은 서버 전용 클라이언트로 수행
+    const supabase = isNotice
+      ? createAnonServerClient(adminAccessToken)
+      : createServiceRoleClient();
     const basePayload: Record<string, unknown> = {
       name,
       phone,

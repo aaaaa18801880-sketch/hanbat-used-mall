@@ -633,9 +633,11 @@ export function UnifiedInquiryForm({
           : STORAGE_BUCKETS.inquiryAttachments;
         for (const file of selectedFiles) {
           const blob = await compressImage(file, 1400, 0.8);
-          const fileName = `inq_${Date.now()}_${Math.random()
+          const baseFileName = `inq_${Date.now()}_${Math.random()
             .toString(36)
             .slice(2, 8)}.jpg`;
+          // [SEC-002] 고객 첨부 버킷(inquiry-attachments)은 RLS 폴더 정책(inquiries/*)과 일치하도록 경로 지정
+          const fileName = isNotice ? baseFileName : `inquiries/${baseFileName}`;
           const { error: uploadErr } = await supabase.storage
             .from(uploadBucket)
             .upload(fileName, blob, { contentType: "image/jpeg" });

@@ -6,7 +6,10 @@ import {
   NOTIFICATION_STATUS,
   type NotificationDispatchResult,
 } from "../../../lib/site";
-import { createServerSupabaseClient } from "../../../lib/supabase";
+import {
+  createAnonServerClient,
+  createServiceRoleClient,
+} from "../../../lib/supabase";
 import {
   checkNotificationIdempotency,
   checkRateLimit,
@@ -24,7 +27,9 @@ export async function POST(req: NextRequest) {
 
   try {
     const ip = getClientIp(req);
-    const rate = checkRateLimit(`telegram_notify:${ip}`, 12, 60 * 1000);
+    const rate = await checkRateLimit(`telegram_notify:${ip}`, 12, 60 * 1000, {
+      failureMode: "fail-open",
+    });
     if (!rate.allowed) {
       const rateResult: NotificationDispatchResult = {
         channel: "telegram",
@@ -99,8 +104,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // inquiryId 기반으로 실제 DB 레코드 조회 (클라이언트 변조 및 허위 알림 방지)
-    const supabase = createServerSupabaseClient(adminAccessToken, true);
+    // [SEC-005] 관리자 수동 재발송 시에는 관리자 JWT(Anon Client)를, 일반 고객 폴백 대조 시에만 Service Role 사용
+    const supabase = adminAccessToken
+      ? createAnonServerClient(adminAccessToken)
+      : createServiceRoleClient();
     let dbInquiry: {
       id: string;
       name?: string | null;
@@ -224,7 +231,7 @@ export async function POST(req: NextRequest) {
 
     const dedupKey = inquiryId || `${type}:${name}:${title}`;
     activeDedupKey = dedupKey;
-    const { isDuplicate } = checkNotificationIdempotency(
+    const { isDuplicate } = await checkNotificationIdempotency(
       dedupKey,
       3 * 60 * 1000,
       forceRetry
@@ -273,7 +280,7 @@ export async function POST(req: NextRequest) {
     const resultJson = await res.json().catch(() => null);
 
     if (!res.ok || !resultJson?.ok) {
-      markNotificationFailed(dedupKey);
+      await markNotificationFailed(dedupKey, "telegram_api_error");
       const errorResult: NotificationDispatchResult = {
         channel: "telegram",
         status: "EXTERNAL_ERROR",
@@ -290,7 +297,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    markNotificationSent(dedupKey, 3 * 60 * 1000);
+    await markNotificationSent(dedupKey, 3 * 60 * 1000);
 
     const okResult: NotificationDispatchResult = {
       channel: "telegram",
@@ -308,7 +315,7 @@ export async function POST(req: NextRequest) {
     });
   } catch {
     if (activeDedupKey) {
-      markNotificationFailed(activeDedupKey);
+      await markNotificationFailed(activeDedupKey, "telegram_exception");
     }
     console.error("텔레그램 알림 발송 중 예외 또는 타임아웃 발생");
     const retryResult: NotificationDispatchResult = {

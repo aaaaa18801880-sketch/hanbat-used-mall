@@ -46,9 +46,15 @@ export async function getAdminAuthHeaders(): Promise<Record<string, string>> {
   };
 }
 
+/**
+ * 서버 라우트 핸들러 전용 Supabase 클라이언트 팩토리
+ * - [SEC-005] 최소 권한 원칙(Least Privilege)을 위해 기본값은 useServiceRole = false 입니다.
+ * - accessToken이 전달되면 Anon Key + 사용자 Bearer JWT로 동작하여 RLS 정책(is_hanbat_admin 등)을 그대로 따릅니다.
+ * - 비공개 테이블 대조 등 Service Role 권한이 반드시 필요한 작업만 createServiceRoleClient() 또는 useServiceRole=true를 명시적으로 호출합니다.
+ */
 export function createServerSupabaseClient(
   accessToken?: string,
-  useServiceRole = true
+  useServiceRole = false
 ): SupabaseClient {
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (serviceRoleKey && useServiceRole) {
@@ -79,7 +85,7 @@ export function createServerSupabaseClient(
 
 /**
  * 최소 권한 원칙(Least Privilege)을 위한 Anon + 선택적 사용자 JWT 전용 서버 클라이언트
- * - 관리자 JWT 검증(auth.getUser) 및 일반 권한 요청 시 Service Role 오남용을 방지합니다.
+ * - 관리자 JWT 검증(auth.getUser) 및 관리자 권한 RLS 작업에 사용합니다.
  */
 export function createAnonServerClient(accessToken?: string): SupabaseClient {
   return createServerSupabaseClient(accessToken, false);
@@ -87,7 +93,7 @@ export function createAnonServerClient(accessToken?: string): SupabaseClient {
 
 /**
  * 서버 백엔드 전용 Service Role 클라이언트
- * - RLS 우회가 반드시 필요한 서버 내부 작업(비공개 문의 비밀번호 대조 등)에만 제한적으로 사용합니다.
+ * - RLS 우회가 반드시 필요한 서버 내부 작업(비공개 문의 비밀번호 대조, 분산 Rate Limit/알림 멱등성 RPC 등)에만 제한적으로 사용합니다.
  */
 export function createServiceRoleClient(): SupabaseClient {
   return createServerSupabaseClient(undefined, true);

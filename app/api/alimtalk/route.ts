@@ -35,9 +35,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 2. IP 기반 요청 빈도 제어
+    // 2. IP 기반 요청 빈도 제어 (관리자 유료 발송 채널이므로 DB 장애 시 fail-closed)
     const ip = getClientIp(req);
-    const rate = checkRateLimit(`alimtalk_notify:${ip}`, 12, 60 * 1000);
+    const rate = await checkRateLimit(`alimtalk_notify:${ip}`, 12, 60 * 1000, {
+      failureMode: "fail-closed",
+    });
     if (!rate.allowed) {
       return NextResponse.json(
         {

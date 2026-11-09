@@ -26,10 +26,11 @@ export async function POST(req: NextRequest) {
     }
 
     const ip = getClientIp(req);
-    const rate = checkRateLimit(
+    const rate = await checkRateLimit(
       `analyze_delivery:${adminCheck.email || ip}`,
       10,
-      60 * 1000
+      60 * 1000,
+      { failureMode: "fail-closed" }
     );
     if (!rate.allowed) {
       return NextResponse.json(

@@ -22,6 +22,11 @@ const tasks = [
     args: ["scripts/verify-security-and-regression.mjs"],
   },
   {
+    name: "3-2. verify-engineering-audit",
+    cmd: nodeExe,
+    args: ["scripts/verify-engineering-audit.mjs"],
+  },
+  {
     name: "4. verify-ux-benchmark-upgrade",
     cmd: nodeExe,
     args: ["scripts/verify-ux-benchmark-upgrade.mjs"],

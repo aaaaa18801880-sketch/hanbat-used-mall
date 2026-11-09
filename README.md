@@ -12,9 +12,9 @@
 | :--- | :--- | :--- |
 | **Framework** | **Next.js 16.4.3 (App Router)** | Turbopack 기반 고속 번들링, Server Components 중심 아키텍처 |
 | **Library** | **React 19.2.8** | 최신 React 19 동시성 및 Server Actions 지원 |
-| **Language** | **TypeScript 5.x** | 엄격한 타입 세이프티 (`tsc --noEmit` 0 errors 보장) |
+| **Language** | **TypeScript 5.x (`strict: true`)** | 엄격한 Strict 타입 세이프티 (`tsc --noEmit` 0 errors 보장) |
 | **Design System** | **Tailwind CSS v3.4.19** | 토스(TDS) Cool-Gray & 애플(HIG) 기반 표준 디자인 토큰 체계 |
-| **Database** | **Supabase PostgreSQL** | Row Level Security (RLS) 및 Storage Buckets 안전 데이터 격리 |
+| **Database** | **Supabase PostgreSQL** | Row Level Security (RLS), 최소 권한 분리, Storage 비공개 서명 URL 격리 |
 | **AI Engine** | **Google Gemini 2.5 / 3.8 Flash** | 멀티모달 가전 사진 자동 판독(견적 추정) 및 4대 상담 분류 엔진 |
 | **Notification** | **SMS, Alimtalk, Telegram** | IETF RFC 5724 표준 SMS 인텐트, 카카오톡 알림톡, 텔레그램 봇 연동 |
 | **Icons** | **Pure Inline SVG Duotone** | 외부 패키지 없는 0-overhead 해상도 독립적 벡터 아이콘 시스템 |
@@ -34,10 +34,10 @@ node scripts/run-all-verifications.mjs
 ### 8대 검증 게이트 순서 및 역할
 1. `check-design-tokens.mjs` (0.4s) — 임의 픽셀 폰트(`text-[..px]`), JSX 화면 노출 이모지, Tailwind v3 미지원 클래스 0건 검증
 2. `verify-predeploy.mjs` (0.5s) — API 라우트 동적 옵션, Gemini API 키 폴백, 메타데이터/클라이언트 분리 점검
-3. `verify-security-and-regression.mjs` (0.4s) — 관리자 인증 보안(RLS, `verifyAdminRequest`), 올리브/웜톤 컬러 회귀 차단
+3. `verify-security-and-regression.mjs` & `verify-engineering-audit.mjs` (0.5s) — 관리자 인증(RLS, `verifyAdminRequest`), 비동기 `scrypt` 해싱, 분산 Rate Limit(SHA-256 해시 키 + `fail-open`/`fail-closed`), 알림 멱등성 상태 머신(`PENDING`/`SENT`/`FAILED`), 비공개 첨부파일 경로(`inquiries/*`), 보안 헤더(HSTS/CSP) 및 Strict TS 검증
 4. `verify-ux-benchmark-upgrade.mjs` (0.4s) — 갤러리 프리셋, 매물 상태 등급, 묶음 견적함, O2O 상담 연동 무결성 검증
 5. `test-analyze-inquiry.mjs` (0.3s) — AI 상담 분석 4대 유형 가드레일 및 과잉 추론 차단 테스트
-6. `tsc --noEmit` (2.5s) — TypeScript 정적 타입 분석 (0 errors)
+6. `tsc --noEmit` (2.5s) — TypeScript `strict: true` 정적 타입 분석 (0 errors)
 7. `eslint .` (15s) — Next.js 핵심 룰 정적 린트 분석 (0 errors, 0 warnings)
 8. `next build` (15s) — Next.js Turbopack 22개 전체 정적/동적 라우트 컴파일 및 번들 검증
 
@@ -96,9 +96,15 @@ hanbat-mall/
 ├── lib/                              # 핵심 도메인 로직 및 단일 출처 (SSOT)
 │   ├── site.ts                       # 매장 정보, 보증 정책, 통계, SMS 템플릿 SSOT
 │   ├── ui.tsx                        # 헤더, 푸터, 플로팅 독, SVG 아이콘 모음
-│   └── supabase.ts                   # Supabase 클라이언트 및 RLS 헬퍼
+│   ├── supabase.ts                   # Supabase 최소 권한(Anon / ServiceRole) 클라이언트 팩토리
+│   ├── server-security.ts            # 비동기 scrypt, 분산 Rate Limit, 알림 멱등성, 이미지 매직바이트 검증
+│   └── inquiry-attachments.ts        # 비공개 고객 첨부 사진 서명 URL 발급 및 경로 검증
+├── supabase/                         # DB RLS 보안 정책 및 원자적 RPC 마이그레이션 SQL
+│   ├── security-rls-policies.sql     # 테이블/스토리지 RLS 및 is_hanbat_admin 정책
+│   └── security-hardening-migration.sql # 원자적 조회수, 분산 Rate Limit, 알림 멱등성 RPC
 └── scripts/                          # 8대 게이트 검증 및 체크포인트 도구
     ├── run-all-verifications.mjs     # 8대 게이트 통합 러너
+    ├── verify-engineering-audit.mjs  # 엔지니어링 보안·안정성 감사 검증 스위트
     └── git-checkpoint.mjs            # 원자적 로컬 체크포인트 커밋 도구
 ```
 

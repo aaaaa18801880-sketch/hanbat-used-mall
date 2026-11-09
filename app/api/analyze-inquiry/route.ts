@@ -708,7 +708,9 @@ export async function POST(req: NextRequest) {
     }
 
     const ip = getClientIp(req);
-    const rate = checkRateLimit(`analyze_inquiry:${ip}`, 8, 60 * 1000);
+    const rate = await checkRateLimit(`analyze_inquiry:${ip}`, 8, 60 * 1000, {
+      failureMode: "fail-closed",
+    });
     if (!rate.allowed) {
       return NextResponse.json(
         {

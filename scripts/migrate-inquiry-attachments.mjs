@@ -121,30 +121,38 @@ if (bucketError) {
 
 console.log("실행 전 문의 테이블(images, image_url) 백업을 권장합니다.");
 
+function toTargetAttachmentPath(sourcePath) {
+  return sourcePath.startsWith("inquiries/")
+    ? sourcePath
+    : `inquiries/${sourcePath}`;
+}
+
 const moveState = new Map();
 for (const p of uniquePaths) {
+  const destPath = toTargetAttachmentPath(p);
   const { error } = await supabase.storage
     .from(FROM_BUCKET)
-    .move(p, p, { destinationBucket: TO_BUCKET });
+    .move(p, destPath, { destinationBucket: TO_BUCKET });
   if (!error) {
     moveState.set(p, "moved");
     continue;
   }
   const { error: alreadyError } = await supabase.storage
     .from(TO_BUCKET)
-    .createSignedUrl(p, 60);
+    .createSignedUrl(destPath, 60);
   if (!alreadyError) {
     moveState.set(p, "moved");
     continue;
   }
   moveState.set(p, "failed");
-  console.warn(`이동 실패: ${p} (${error.message})`);
+  console.warn(`이동 실패: ${p} -> ${destPath} (${error.message})`);
 }
 
 const rewrite = (url) => {
   const p = storagePathOf(url);
   if (!p || moveState.get(p) !== "moved") return url;
-  return url.replace(FROM_PREFIX, TO_PREFIX);
+  const destPath = toTargetAttachmentPath(p);
+  return url.replace(`${FROM_PREFIX}${p}`, `${TO_PREFIX}${destPath}`);
 };
 
 let rowsUpdated = 0;
@@ -175,9 +183,10 @@ for (const { row, movable } of targets) {
     rowsFailed += 1;
     console.warn(`문의 ${row.id} 갱신 실패 (${error.message}). 이 문의의 사진을 원래 버킷으로 되돌립니다.`);
     for (const p of movedHere) {
+      const destPath = toTargetAttachmentPath(p);
       await supabase.storage
         .from(TO_BUCKET)
-        .move(p, p, { destinationBucket: FROM_BUCKET });
+        .move(destPath, p, { destinationBucket: FROM_BUCKET });
       moveState.set(p, "failed");
     }
   } else {
@@ -188,7 +197,8 @@ for (const { row, movable } of targets) {
 let verified = 0;
 for (const [p, state] of moveState) {
   if (state !== "moved") continue;
-  const { error } = await supabase.storage.from(TO_BUCKET).createSignedUrl(p, 60);
+  const destPath = toTargetAttachmentPath(p);
+  const { error } = await supabase.storage.from(TO_BUCKET).createSignedUrl(destPath, 60);
   if (!error) verified += 1;
 }
 
