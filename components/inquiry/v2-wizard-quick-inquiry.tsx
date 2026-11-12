@@ -1,7 +1,7 @@
 // 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
   compressImage,
@@ -165,6 +165,7 @@ export function V2InquirySectionWithWizard({
   variant?: "card" | "embedded";
   onSuccess?: () => void;
 }) {
+  const uid = useId();
   const initialType = fixedType || defaultType;
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(initialType);
@@ -193,6 +194,7 @@ export function V2InquirySectionWithWizard({
     applianceCategory?: string;
     title?: string;
     modelNumber?: string;
+    conditionGrade?: string;
     summaryNote?: string;
     extractedFacts?: ExtractedFactItem[];
     missingInfo?: string[];
@@ -374,6 +376,7 @@ export function V2InquirySectionWithWizard({
         applianceCategory: data.applianceCategory,
         title: data.title,
         modelNumber: data.modelNumber,
+        conditionGrade: data.conditionGrade,
         summaryNote:
           data.summaryNote ||
           (data.estimatedYear ? `연식: ${data.estimatedYear}` : undefined),
@@ -497,6 +500,8 @@ export function V2InquirySectionWithWizard({
           category: autoTitle,
           region: region.trim() || "대전/기타",
           description: structuredDescription,
+          model: aiResult?.modelNumber || linkedProduct?.modelName || null,
+          condition_grade: aiResult?.conditionGrade || null,
           images: uploadedUrls,
           is_notice: false,
         }),
@@ -512,9 +517,11 @@ export function V2InquirySectionWithWizard({
         has_photos: uploadedUrls.length > 0,
       });
 
-      // 묶음 견적함 비우기
-      clearQuoteBasket();
-      setBasketItems([]);
+      // 구매/설치/대량 상담 접수 시에만 구매용 묶음 견적함 비우기 (매입 신청 시 유지)
+      if (inquiryType !== "내 물건 팔기") {
+        clearQuoteBasket();
+        setBasketItems([]);
+      }
 
       // 텔레그램 알림 클라이언트 폴백 (서버 즉시 알림 미도달 시)
       const newId = json.inquiryId || null;
@@ -634,7 +641,7 @@ export function V2InquirySectionWithWizard({
         {/* STEP 1: 상담 유형 & 품목 선택 */}
         {step === 1 && (
           <div className="space-y-4">
-            {basketItems.length > 0 && (
+            {!isSell && fixedType !== "내 물건 팔기" && basketItems.length > 0 && (
               <div className="rounded-lg border border-[#3B82F6]/30 bg-[#EFF6FF] p-3 text-hb-xs text-[#1E3A8A] flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
                   <Icon d={ICON.bag} className="w-4 h-4 text-[#2563EB] shrink-0" />
@@ -646,7 +653,7 @@ export function V2InquirySectionWithWizard({
                   type="button"
                   onClick={() => {
                     const summary = formatQuoteBasketSummary(basketItems);
-                    if (summary.hasCommercialItem) {
+                    if (!fixedType && summary.hasCommercialItem) {
                       setInquiryType("대량·업소용 상담");
                     }
                     if (summary.autoDescription) {
@@ -991,10 +998,11 @@ export function V2InquirySectionWithWizard({
             {/* 2. 지역 및 간단 메모 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="hb-label">
+                <label htmlFor={`${uid}-region`} className="hb-label">
                   {isSell ? "2. 방문 수거 지역 (구/동 단위 권장)" : "2. 배송/설치 지역 (동 단위 권장)"}
                 </label>
                 <input
+                  id={`${uid}-region`}
                   type="text"
                   value={region}
                   onChange={(e) => setRegion(e.target.value)}
@@ -1003,10 +1011,11 @@ export function V2InquirySectionWithWizard({
                 />
               </div>
               <div>
-                <label className="hb-label">
+                <label htmlFor={`${uid}-memo`} className="hb-label">
                   간단 메모 (희망 일정·세부 모델 등)
                 </label>
                 <input
+                  id={`${uid}-memo`}
                   type="text"
                   value={memo}
                   onChange={(e) => setMemo(e.target.value)}
@@ -1021,8 +1030,9 @@ export function V2InquirySectionWithWizard({
               <span className="hb-label">3. 신청자 정보 및 연락처 *</span>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="hb-label text-[#64748B]">성함 / 상호명 *</label>
+                  <label htmlFor={`${uid}-name`} className="hb-label text-[#64748B]">성함 / 상호명 *</label>
                   <input
+                    id={`${uid}-name`}
                     type="text"
                     required
                     value={name}
@@ -1032,8 +1042,9 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[#64748B]">연락처 *</label>
+                  <label htmlFor={`${uid}-phone`} className="hb-label text-[#64748B]">연락처 *</label>
                   <input
+                    id={`${uid}-phone`}
                     type="tel"
                     required
                     value={phone}
@@ -1043,13 +1054,16 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label className="hb-label text-[#64748B]">조회 비밀번호(4자+) *</label>
+                  <label htmlFor={`${uid}-password`} className="hb-label text-[#64748B]">조회 비밀번호(4자+) *</label>
                   <input
+                    id={`${uid}-password`}
                     type="password"
                     required
+                    minLength={4}
+                    maxLength={32}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="내 글 확인용"
+                    placeholder="내 글 확인용 (4~32자)"
                     className="hb-input mt-1 h-11"
                   />
                 </div>

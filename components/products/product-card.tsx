@@ -187,9 +187,9 @@ export function ProductCard({
   const specSummaryText =
     specCapsules.length > 0 ? specCapsules.join(" · ") : "세척·검수 완료";
 
-  const cardInner = (
+  return (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-[border-color,box-shadow,transform] duration-200 ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-[border-color,box-shadow,transform] duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] ${
         isSelected
           ? "border-[#E8521A] ring-2 ring-[#E8521A] bg-[#FFFDFB] shadow-card"
           : "border-[#E2E6EC] shadow-2xs hover:-translate-y-0.5 hover:border-[#94A3B8] hover:shadow-card"
@@ -319,7 +319,23 @@ export function ProductCard({
                 : "text-[#141A23] group-hover:text-[#E8521A]"
             }`}
           >
-            {product.title}
+            {onSelect ? (
+              <button
+                type="button"
+                aria-label={`${product.title} ${isSelectMode ? "선택" : "상세 보기"}`}
+                onClick={() => onSelect(product)}
+                className="text-left focus-visible:outline-none after:absolute after:inset-0 after:z-10 cursor-pointer"
+              >
+                {product.title}
+              </button>
+            ) : (
+              <Link
+                href={`/${product.id}`}
+                className="focus-visible:outline-none after:absolute after:inset-0 after:z-10"
+              >
+                {product.title}
+              </Link>
+            )}
           </h3>
 
           <div className="mt-2.5 flex items-baseline justify-between gap-2 min-w-0">
@@ -377,7 +393,7 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`relative z-20 shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
                   ? "bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]/40"
                   : "bg-[#F1F3F6] text-[#141A23] hover:bg-[#141A23] hover:text-white"
@@ -400,34 +416,5 @@ export function ProductCard({
         </div>
       </div>
     </article>
-  );
-
-  if (onSelect) {
-    return (
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={`${product.title} ${isSelectMode ? "선택" : "상세 보기"}`}
-        onClick={() => onSelect(product)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onSelect(product);
-          }
-        }}
-        className="block h-full w-full min-w-0 cursor-pointer text-left rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
-      >
-        {cardInner}
-      </div>
-    );
-  }
-
-  return (
-    <Link
-      href={`/${product.id}`}
-      className="block h-full min-w-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
-    >
-      {cardInner}
-    </Link>
   );
 }

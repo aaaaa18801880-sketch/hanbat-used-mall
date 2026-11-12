@@ -186,7 +186,9 @@ export default async function ProductDetailPage({
 
   const { data: relatedRows } = await supabase
     .from("products")
-    .select("*")
+    .select(
+      "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
+    )
     .neq("category", "배송인증")
     .neq("id", id)
     .eq("category", product.category)

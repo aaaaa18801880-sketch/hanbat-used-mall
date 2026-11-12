@@ -1,18 +1,15 @@
-"use client";
-
-import React, { useState } from "react";
+import React from "react";
 import { STORE, telHref } from "../../lib/site";
 import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
-  Modal,
-  SafeImg,
   Icon,
   ICON,
 } from "../../lib/ui";
 import { ModernApplianceIcon } from "../../components/ui/modern-icons";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
+import { PurchaseGuideLightbox } from "../../components/purchase/purchase-guide-lightbox";
 
 const BUYBACK_STEPS = [
   {
@@ -39,8 +36,6 @@ const BUYBACK_STEPS = [
 ] as const;
 
 export default function PurchasePage() {
-  const [guideOpen, setGuideOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
@@ -185,75 +180,10 @@ export default function PurchasePage() {
             </div>
 
             {/* 공식 매입 안내문 원본 보기 카드 (크롭 없이 object-contain) */}
-            <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs">
-              <div className="flex items-center justify-between gap-2 mb-3">
-                <div>
-                  <span className="text-hb-xs font-bold text-[#E8521A]">
-                    공식 매입 기준 안내문
-                  </span>
-                  <h3 className="text-hb-sm font-bold text-[#141A23]">
-                    한밭중고전자 매입 기준 안내문
-                  </h3>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setGuideOpen(true)}
-                  className="rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] px-2.5 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
-                >
-                  크게 보기
-                </button>
-              </div>
-              <button
-                type="button"
-                onClick={() => setGuideOpen(true)}
-                className="group relative block w-full overflow-hidden rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 text-left"
-              >
-                <div className="aspect-[4/3] w-full overflow-hidden flex items-center justify-center bg-white rounded-lg">
-                  <SafeImg
-                    src="/매입 안내문.png"
-                    alt="한밭중고전자 공식 매입 안내문"
-                    className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
-                  />
-                </div>
-                <p className="mt-2 text-center text-hb-xs font-semibold text-[#64748B] group-hover:text-[#141A23]">
-                  클릭하여 매입 가능 품목 및 체크사항 크게 보기
-                </p>
-              </button>
-            </div>
+            <PurchaseGuideLightbox />
           </aside>
         </div>
       </main>
-
-      {guideOpen && (
-        <Modal
-          label="한밭중고전자 공식 매입 안내문"
-          onClose={() => setGuideOpen(false)}
-          panelClassName="max-w-2xl"
-        >
-          <div className="overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E2E6EC] px-5 py-3.5 bg-[#141A23] text-white">
-              <h3 className="text-hb-base font-bold">
-                한밭중고전자 공식 매입 안내문
-              </h3>
-              <button
-                type="button"
-                onClick={() => setGuideOpen(false)}
-                aria-label="닫기"
-                className="rounded p-1 text-white/80 hover:bg-white/10 hover:text-white"
-              >
-                <Icon d={ICON.close} className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="max-h-[82vh] overflow-y-auto bg-[#F7F8FA] p-4 sm:p-6 flex justify-center">
-              <SafeImg
-                src="/매입 안내문.png"
-                alt="한밭중고전자 공식 매입 안내문 원본"
-                className="max-h-[74vh] w-auto object-contain rounded-lg border border-[#E2E6EC] bg-white"
-              />
-            </div>
-          </div>
-        </Modal>
-      )}
 
       <SiteFooter />
       <MobileCtaBar />

@@ -1091,7 +1091,9 @@ export default function GalleryPage() {
     try {
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select(
+          "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
+        )
         .neq("category", "배송인증")
         .order("created_at", { ascending: false })
         .limit(400);
