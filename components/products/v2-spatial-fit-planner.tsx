@@ -115,7 +115,7 @@ export function V2SpatialFitPlanner({
   const catLabel = normalizeProductCategory(category);
   const combinedText = `${title || ""}\n${description || ""}`;
 
-  const isProductThreePhase = /삼상|380\s*V/i.test(combinedText);
+  const isProductThreePhase = /삼상|3\s*상|380\s*V/i.test(combinedText);
   const isProductSinglePhase = /단상|220\s*V/i.test(combinedText);
 
   const [outdoorSpot, setOutdoorSpot] = useState<
