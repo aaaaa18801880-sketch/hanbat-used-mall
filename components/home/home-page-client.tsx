@@ -183,13 +183,6 @@ const FAQS = [
   },
 ] as const;
 
-const shortDate = (iso: string) => {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? ""
-    : `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")}`;
-};
-
 /* ════════════════════════════════════════════════════════════
    2. 메인 페이지 컴포넌트 (Modern Appliance Showroom 아키텍처)
    ════════════════════════════════════════════════════════════ */
@@ -379,7 +372,7 @@ export default function Home({
 
   const shownReviews = showAllReviews
     ? filteredReviews
-    : filteredReviews.slice(0, 6);
+    : filteredReviews.slice(0, 4);
 
   const openInquiry = useCallback(
     (type?: InquiryTypeValue, productTitle?: string) => {
@@ -1049,23 +1042,23 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [S6] 배송 · 설치 현장 기록 (#reviews-section) + 3대 품질 원칙 레저 (#usp-section)
+            [S6] 배송 · 설치 현장 기록 (#reviews-section)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="reviews-section"
-          className="border-b border-[#E2E6EC] bg-white py-12 sm:py-16 lg:py-20"
+          className="border-b border-[#E2E6EC] bg-white py-9 sm:py-11 lg:py-12"
           aria-labelledby="review-title"
         >
           <div className="hb-container">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between pb-6 border-b border-[#F1F3F6]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#F1F3F6]">
               <SectionHeading
                 eyebrow="직영 시공 기록"
                 title={<span id="review-title" className="[text-wrap:balance]">직영 배송 · 설치 현장 기록</span>}
-                desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송하고 설치한 실제 현장 사진입니다."
+                desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송·설치한 현장 사진입니다."
               />
               <div className="flex items-center gap-3 shrink-0">
                 {reviews.length > 0 && (
-                  <span className="text-hb-sm font-bold text-[#64748B] tabular-nums">
+                  <span className="text-hb-xs sm:text-hb-sm font-bold text-[#64748B] tabular-nums">
                     현장 기록{" "}
                     <strong className="text-[#141A23]">{reviews.length}</strong>건
                   </span>
@@ -1074,9 +1067,9 @@ export default function Home({
                   <button
                     type="button"
                     onClick={() => setReviewModalOpen(true)}
-                    className="hb-btn-primary h-10 px-4 text-hb-xs active:scale-[0.96]"
+                    className="hb-btn-primary h-9 px-3.5 text-hb-xs active:scale-[0.96]"
                   >
-                    <Icon d={ICON.plus} className="h-4 w-4" /> 인증사진 등록
+                    <Icon d={ICON.plus} className="h-3.5 w-3.5" /> 인증사진 등록
                   </button>
                 )}
               </div>
@@ -1084,7 +1077,7 @@ export default function Home({
 
             {/* [EVO-013] 시공 유형 분류 탭 */}
             {reviews.length > 0 && (
-              <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2.5">
                 <div
                   role="tablist"
                   aria-label="시공 현장 분류"
@@ -1095,7 +1088,7 @@ export default function Home({
                     role="tab"
                     aria-selected={reviewFilter === "all"}
                     onClick={() => setReviewFilter("all")}
-                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
+                    className={`rounded-lg px-3.5 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "all"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#334155] hover:text-[#141A23]"
@@ -1108,7 +1101,7 @@ export default function Home({
                     role="tab"
                     aria-selected={reviewFilter === "home"}
                     onClick={() => setReviewFilter("home")}
-                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
+                    className={`rounded-lg px-3.5 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "home"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#334155] hover:text-[#141A23]"
@@ -1121,7 +1114,7 @@ export default function Home({
                     role="tab"
                     aria-selected={reviewFilter === "commercial"}
                     onClick={() => setReviewFilter("commercial")}
-                    className={`rounded-lg px-4 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
+                    className={`rounded-lg px-3.5 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "commercial"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#334155] hover:text-[#141A23]"
@@ -1139,16 +1132,16 @@ export default function Home({
             )}
 
             {reviewsLoading ? (
-              <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
+              <div className="mt-5 grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="aspect-[4/3] animate-pulse rounded-lg bg-[#F1F3F6]"
+                    className="aspect-[16/10] animate-pulse rounded-xl bg-[#F1F3F6]"
                   />
                 ))}
               </div>
             ) : reviews.length === 0 ? (
-              <div className="mt-8 flex flex-col items-start gap-4 border-y border-[#E2E6EC] bg-[#F7F8FA] px-6 py-8 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-6 flex flex-col items-start gap-4 border-y border-[#E2E6EC] bg-[#F7F8FA] px-5 py-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-hb-base font-bold text-[#141A23]">
                     현장 사진을 정리하고 있습니다.
@@ -1161,25 +1154,25 @@ export default function Home({
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 shrink-0 px-4 text-hb-sm active:scale-[0.96]"
+                  className="hb-btn-kakao h-10 shrink-0 px-4 text-hb-sm active:scale-[0.96]"
                 >
                   <Icon d={ICON.chat} className="h-4 w-4" /> 카카오톡 문의
                 </a>
               </div>
             ) : (
               <>
-                <ul className="mt-6 flex gap-3.5 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 sm:gap-5 sm:overflow-visible sm:pb-0 lg:grid-cols-3">
+                <ul className="mt-5 flex gap-3 overflow-x-auto pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
                   {shownReviews.map((r) => {
                     const imgs = splitImages(r.image_url);
                     return (
                       <li
                         key={r.id}
-                        className="group relative flex w-[78vw] max-w-[320px] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs hover:border-[#CBD2DC] hover:shadow-card hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-150 sm:w-auto sm:max-w-none sm:shrink"
+                        className="group relative flex w-[68vw] max-w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-2xs hover:border-[#CBD2DC] hover:shadow-card hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-150 sm:w-auto sm:max-w-none sm:shrink"
                       >
                         <button
                           type="button"
                           onClick={() => setLightbox({ review: r, index: 0 })}
-                          className="relative block aspect-[4/3] w-full overflow-hidden bg-[#F1F3F6] cursor-pointer"
+                          className="relative block aspect-[16/10] w-full overflow-hidden bg-[#F1F3F6] cursor-pointer"
                           aria-label={`${r.title ?? "배송·설치"} 사진 크게 보기`}
                         >
                           <SafeImg
@@ -1188,24 +1181,21 @@ export default function Home({
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                           />
                           {imgs.length > 1 && (
-                            <span className="absolute right-2.5 top-2.5 z-10 rounded bg-[#141A23]/80 px-2 py-0.5 text-hb-xs font-semibold text-white tabular-nums">
+                            <span className="absolute right-2 top-2 z-10 rounded bg-[#141A23]/80 px-1.5 py-0.5 text-hb-xs font-semibold text-white tabular-nums">
                               +{imgs.length - 1}
                             </span>
                           )}
                         </button>
-                        <div className="flex items-center justify-between gap-2 bg-white px-3.5 py-3 border-t border-[#E2E6EC]">
-                          <p className="line-clamp-1 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors">
+                        <div className="bg-white px-3 py-2.5 border-t border-[#E2E6EC]">
+                          <p className="line-clamp-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors">
                             {r.title || "배송 및 설치 완료"}
                           </p>
-                          <span className="shrink-0 text-hb-xs text-[#64748B] tabular-nums">
-                            {shortDate(r.created_at)}
-                          </span>
                         </div>
                         {isAdmin && (
                           <button
                             type="button"
                             onClick={() => handleDeleteReview(r.id)}
-                            className="absolute left-2.5 top-2.5 z-20 rounded bg-white/95 px-2.5 py-1 text-hb-xs font-bold text-red-600 shadow"
+                            className="absolute left-2 top-2 z-20 rounded bg-white/95 px-2 py-0.5 text-hb-xs font-bold text-red-600 shadow"
                           >
                             삭제
                           </button>
@@ -1214,24 +1204,24 @@ export default function Home({
                     );
                   })}
                 </ul>
-                <div className="mt-2 flex sm:hidden items-center justify-center gap-1.5 text-hb-xs text-[#64748B]">
+                <div className="mt-1.5 flex sm:hidden items-center justify-center gap-1.5 text-hb-xs text-[#64748B]">
                   <Icon d={ICON.left} className="w-3.5 h-3.5 text-[#E8521A]" />
                   <span>좌우로 밀어서 현장 사진을 확인하세요 ({shownReviews.length}건)</span>
                   <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#E8521A]" />
                 </div>
-                {filteredReviews.length > 6 && (
-                  <div className="mt-8 text-center">
+                {filteredReviews.length > 4 && (
+                  <div className="mt-5 text-center">
                     <button
                       type="button"
                       onClick={() => setShowAllReviews((v) => !v)}
-                      className="hb-btn-outline h-11 px-7 text-hb-sm active:scale-[0.96]"
+                      className="hb-btn-outline h-10 px-5 text-hb-xs sm:text-hb-sm active:scale-[0.96]"
                     >
                       {showAllReviews
                         ? "현장 사진 접기"
-                        : `현장 사진 ${filteredReviews.length - 6}건 더 보기`}
+                        : `현장 사진 ${filteredReviews.length - 4}건 더 보기`}
                       <Icon
                         d={ICON.down}
-                        className={`h-4 w-4 transition-transform ${
+                        className={`h-3.5 w-3.5 transition-transform ${
                           showAllReviews ? "rotate-180" : ""
                         }`}
                       />
@@ -1240,32 +1230,6 @@ export default function Home({
                 )}
               </>
             )}
-
-            {/* 오프라인 1·2층 직영 쇼룸 안내 & 원클릭 길찾기 */}
-            <div className="mt-10 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <span className="inline-flex items-center rounded-full border border-[#E2E6EC] bg-white px-3 py-0.5 text-hb-xs font-bold text-[#E8521A] shadow-2xs">
-                  오프라인 1·2층 직영 매장
-                </span>
-                <h3 className="mt-2 text-hb-base sm:text-hb-lg font-bold text-[#141A23] [text-wrap:balance]">
-                  대전 중촌동 1·2층 직영 쇼룸에서 실물을 직접 확인하세요
-                </h3>
-                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#334155] [text-wrap:balance]">
-                  {STORE.roadAddress} · 매장 앞 전용 주차 무료 · 실물 전원 시운전 가능
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  trackEvent("open_showroom_modal", { location: "home_usp" });
-                  setVisitModalOpen(true);
-                }}
-                className="hb-btn-primary h-11 px-5 text-hb-xs sm:text-hb-sm shrink-0 font-bold justify-center active:scale-[0.96]"
-              >
-                <Icon d={ICON.pin} className="w-4 h-4 text-[#FB923C]" />
-                <span>쇼룸 방문 길찾기 · 실물 찜</span>
-              </button>
-            </div>
           </div>
         </section>
 
