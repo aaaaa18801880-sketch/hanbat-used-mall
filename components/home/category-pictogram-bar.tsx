@@ -108,10 +108,12 @@ export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
   categoryCounts,
+  embedded = false,
 }: {
   selectedKey?: PictogramKey;
   onSelectCategory?: (item: ShowroomCategoryItem) => void;
   categoryCounts?: Partial<Record<PictogramKey, number>>;
+  embedded?: boolean;
 }) {
   const handleCategoryClick = (item: ShowroomCategoryItem) => {
     trackEvent("filter_gallery", {
@@ -128,11 +130,13 @@ export function CategoryPictogramBar({
     }
   };
 
+  const Wrapper = embedded ? "div" : "section";
+
   return (
-    <section
+    <Wrapper
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="bg-white pt-8 pb-5 sm:pt-10 sm:pb-6"
+      className={embedded ? "bg-white pt-7 pb-3 sm:pt-9 sm:pb-4" : "bg-white pt-8 pb-5 sm:pt-10 sm:pb-6"}
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
@@ -244,6 +248,6 @@ export function CategoryPictogramBar({
             })}
         </div>
       </div>
-    </section>
+    </Wrapper>
   );
 }

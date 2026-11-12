@@ -120,6 +120,7 @@ export function FeaturedProductsSection({
   onRetry,
   selectedCategory,
   onResetCategory,
+  embedded = false,
 }: {
   products: ProductItem[];
   loading: boolean;
@@ -127,6 +128,7 @@ export function FeaturedProductsSection({
   onRetry: () => void;
   selectedCategory?: ShowroomCategoryItem;
   onResetCategory?: () => void;
+  embedded?: boolean;
 }) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
 
@@ -170,11 +172,17 @@ export function FeaturedProductsSection({
   const categoryFact =
     CATEGORY_QUALITY_FACTS[currentCategoryKey] || CATEGORY_QUALITY_FACTS.all;
 
+  const Wrapper = embedded ? "div" : "section";
+
   return (
-    <section
+    <Wrapper
       id="featured-products-section"
       aria-labelledby="featured-heading"
-      className="border-b border-[#E2E6EC] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
+      className={
+        embedded
+          ? "bg-white pt-4 pb-10 sm:pt-5 sm:pb-12"
+          : "border-b border-[#E2E6EC] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
+      }
     >
       <div className="hb-container">
         {/* 클린 카탈로그 헤더: 1줄 컴팩트 컨트롤 바 */}
@@ -364,6 +372,6 @@ export function FeaturedProductsSection({
           </>
         )}
       </div>
-    </section>
+    </Wrapper>
   );
 }
