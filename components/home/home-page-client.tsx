@@ -591,9 +591,9 @@ export default function Home({
           className="relative w-full border-b border-[#E2E6EC] hb-ambient-hero"
         >
           <div className="hb-container py-8 sm:py-11 lg:py-12">
-            <div className="grid items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 브리핑 아이브로우 + 에디토리얼 H1 + 시그니처 1행 듀얼 CTA + 3대 출고 원칙 레저 */}
-              <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
+            <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
+              {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 대형 시그니처 3버튼 액션 독 */}
+              <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
                   <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#E2E6EC] bg-white/95 px-3.5 py-1 text-hb-xs font-bold text-[#475569] shadow-2xs">
                     <span className="inline-block w-2 h-2 rounded-full bg-[#0D9488]" />
@@ -616,107 +616,87 @@ export default function Home({
                     <span className="text-[#E8521A]">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
-                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.72] text-[#475569] break-keep">
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후{" "}
                     <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
-                  {/* 1행 슬림 듀얼 CTA (입체 스페큘러 버튼 + 선명한 브랜드 대비) */}
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <Link
-                      href="/gallery"
-                      className="hb-btn-primary px-5 py-3.5 text-hb-sm sm:text-hb-base hover:-translate-y-0.5 hover:shadow-card-hover"
-                    >
-                      <span>실매물 확인</span>
-                      {sellingCount > 0 && (
-                        <span className="rounded-md bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white tabular-nums">
-                          {sellingCount}대
+                  {/* 대형 핵심 행동 버튼 3종 (가장 먼저 눈에 띄는 2대 CTA + 풀와이드 직통 전화 버튼) */}
+                  <div className="mt-6 space-y-3 max-w-2xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <Link
+                        href="/gallery"
+                        className="hb-btn-primary rounded-2xl px-5 py-4 sm:py-5 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover"
+                      >
+                        <div className="min-w-0">
+                          <span className="block text-hb-xs font-bold text-[#FF8A50]">
+                            세척·검수 완료 · 무상 A/S
+                          </span>
+                          <strong className="mt-0.5 flex items-center gap-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+                            <span>실매물 확인</span>
+                            {sellingCount > 0 && (
+                              <span className="rounded-md bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white tabular-nums">
+                                {sellingCount}대
+                              </span>
+                            )}
+                          </strong>
+                        </div>
+                        <span className="ml-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
+                          <Icon d={ICON.arrow} className="w-5 h-5" />
                         </span>
-                      )}
-                      <Icon d={ICON.arrow} className="w-4 h-4 text-white/85" />
-                    </Link>
+                      </Link>
 
-                    <button
-                      type="button"
-                      onClick={() => {
-                        trackEvent("begin_buyback_inquiry", {
-                          location: "hero_split_sell",
-                        });
-                        openInquiry("내 물건 팔기");
-                      }}
-                      className="hb-btn-accent px-5 py-3.5 text-hb-sm sm:text-hb-base hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
-                    >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/25 text-white">
-                        <Icon d={ICON.plus} className="w-3 h-3" />
-                      </span>
-                      <span>쓰던 가전 팔기</span>
-                    </button>
-                  </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          trackEvent("begin_buyback_inquiry", {
+                            location: "hero_split_sell",
+                          });
+                          openInquiry("내 물건 팔기");
+                        }}
+                        className="hb-btn-accent rounded-2xl px-5 py-4 sm:py-5 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
+                      >
+                        <div className="min-w-0">
+                          <span className="block text-hb-xs font-bold text-white/90">
+                            방문 수거 · 당일 현금 정산
+                          </span>
+                          <strong className="mt-0.5 block text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+                            쓰던 가전 팔기
+                          </strong>
+                        </div>
+                        <span className="ml-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
+                          <Icon d={ICON.arrow} className="w-5 h-5" />
+                        </span>
+                      </button>
+                    </div>
 
-                  {/* 빠른 보조 동선: B2B 배지 톤 통일 & 직통 전화 */}
-                  <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-hb-xs sm:text-hb-sm text-[#64748B]">
-                    <a
-                      href="#business-section"
-                      className="inline-flex items-center gap-1.5 font-bold text-[#141A23] hover:text-[#0369A1] transition-colors"
-                    >
-                      <span className="inline-block rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2 py-0.5 text-hb-xs font-bold text-[#0369A1]">
-                        B2B
-                      </span>
-                      <span>식당·카페 창업 납품 · 폐업 일괄정리 상담</span>
-                    </a>
                     <a
                       href={telHref(STORE.tel)}
-                      className="inline-flex items-center gap-1 font-bold text-[#E8521A] hover:text-[#CF4310] tabular-nums transition-colors"
+                      onClick={() =>
+                        trackEvent("click_tel_consult", {
+                          location: "hero_direct_phone_button",
+                        })
+                      }
+                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-[#CBD2DC] bg-white px-5 py-3.5 text-[#141A23] shadow-2xs hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
                     >
-                      <Icon d={ICON.phone} className="w-3.5 h-3.5" />
-                      <span>직통 {STORE.tel}</span>
-                      <Icon d={ICON.right} className="w-3.5 h-3.5" />
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE] text-[#E8521A]">
+                          <Icon d={ICON.phone} className="w-5 h-5" />
+                        </span>
+                        <div className="min-w-0">
+                          <span className="block text-hb-xs font-bold text-[#64748B]">
+                            전화 연결 · 재고 및 매입 바로 상담
+                          </span>
+                          <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23] tabular-nums tracking-tight">
+                            {STORE.tel}
+                          </strong>
+                        </div>
+                      </div>
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#F1F3F6] px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] group-hover:bg-[#141A23] group-hover:text-white transition-colors">
+                        <span>전화걸기</span>
+                        <Icon d={ICON.right} className="w-3.5 h-3.5" />
+                      </span>
                     </a>
-                  </div>
-                </div>
-
-                {/* 하단 3대 쇼룸 출고 원칙 (구분선 기반 인라인 레저 + 아이콘 베젤) */}
-                <div className="mt-7 pt-5 border-t border-[#E2E6EC]">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-[#E2E6EC]">
-                    <div className="min-w-0 flex items-center gap-3">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#CCFBF1] bg-[#F0FDFA]">
-                        <ModernApplianceIcon name="sparkle" className="w-6 h-6" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-hb-sm font-bold text-[#141A23] truncate">
-                          분해 고압세척 출고
-                        </p>
-                        <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
-                          냉매·누수 시운전 검수
-                        </p>
-                      </div>
-                    </div>
-                    <div className="min-w-0 sm:pl-4 flex items-center gap-3">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#BAE6FD] bg-[#F0F9FF]">
-                        <ModernApplianceIcon name="shield" className="w-6 h-6" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-hb-sm font-bold text-[#141A23] truncate">
-                          무상 A/S 책임 보증
-                        </p>
-                        <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
-                          에어컨 8개월·가전 4개월
-                        </p>
-                      </div>
-                    </div>
-                    <div className="min-w-0 sm:pl-4 flex items-center gap-3">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE]">
-                        <ModernApplianceIcon name="tax" className="w-6 h-6" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-hb-sm font-bold text-[#141A23] truncate">
-                          직배송·세금계산서
-                        </p>
-                        <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
-                          충청권 직배송·부가세 증빙
-                        </p>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1121,30 +1101,25 @@ export default function Home({
                     </div>
                   </div>
 
-                  {/* 길찾기 및 전화 안내 버튼 */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-1">
+                  {/* 지도 앱 길찾기 (차분한 2버튼 통합) */}
+                  <div className="grid grid-cols-2 gap-2 pt-1">
                     <a
                       href={STORE.naverMap}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hb-btn bg-[#027A3B] text-white hover:bg-[#026A33] active:scale-[0.96] h-10 text-hb-xs sm:text-hb-sm font-bold"
+                      className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold"
                     >
-                      네이버 지도 길찾기
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#03C75A]" />
+                      <span>네이버 지도 길찾기</span>
                     </a>
                     <a
                       href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="hb-btn-kakao h-10 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
+                      className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold"
                     >
-                      카카오맵 길찾기
-                    </a>
-                    <a
-                      href={telHref(STORE.tel)}
-                      className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold col-span-2 sm:col-span-1 active:scale-[0.96]"
-                    >
-                      <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
-                      <span>전화 길안내</span>
+                      <span className="inline-block w-2 h-2 rounded-full bg-[#F5C400]" />
+                      <span>카카오맵 길찾기</span>
                     </a>
                   </div>
                 </div>
@@ -1177,9 +1152,13 @@ export default function Home({
                       </div>
                     ) : (
                       <ul className="divide-y divide-[#E2E6EC]">
-                        {recent.map((r) => {
+                        {recent.slice(0, 4).map((r) => {
                           const isDone =
                             r.status === "답변완료" || r.status === "처리완료";
+                          const cleanCategory = (r.category || "상담 문의").replace(
+                            /^\[[^\]]+\]\s*/,
+                            ""
+                          );
                           return (
                             <li
                               key={r.id}
@@ -1193,7 +1172,7 @@ export default function Home({
                                   href="/inquiry"
                                   className="min-w-0 flex-1 truncate font-semibold text-[#141A23] hover:text-[#E8521A] transition-colors"
                                 >
-                                  {r.category || "상담 문의"}
+                                  {cleanCategory || "상담 문의"}
                                 </Link>
                               </div>
                               <div className="flex shrink-0 items-center gap-2 text-hb-xs">
@@ -1250,19 +1229,7 @@ export default function Home({
                     </a>
                   </div>
 
-                  <div className="mt-3 grid grid-cols-3 gap-2">
-                    <a
-                      href={telHref(STORE.tel)}
-                      onClick={() =>
-                        trackEvent("click_tel_consult", {
-                          location: "inquiry_aside",
-                        })
-                      }
-                      className="hb-btn-outline h-10 px-2 text-hb-xs font-semibold active:scale-[0.96]"
-                    >
-                      <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
-                      <span>전화 상담</span>
-                    </a>
+                  <div className="mt-3 grid grid-cols-2 gap-2">
                     <a
                       href={STORE.kakaoChat}
                       target="_blank"
@@ -1272,7 +1239,7 @@ export default function Home({
                           location: "inquiry_aside",
                         })
                       }
-                      className="hb-btn-kakao h-10 px-2 text-hb-xs font-semibold active:scale-[0.96]"
+                      className="hb-btn-kakao h-10 px-3 text-hb-xs font-bold active:scale-[0.96]"
                     >
                       <Icon d={ICON.chat} className="w-3.5 h-3.5" />
                       <span>카톡 상담</span>
@@ -1280,10 +1247,10 @@ export default function Home({
                     <button
                       type="button"
                       onClick={() => openInquiry("구매 문의")}
-                      className="hb-btn-accent h-10 px-2 text-hb-xs font-semibold cursor-pointer active:scale-[0.96]"
+                      className="hb-btn-accent h-10 px-3 text-hb-xs font-bold cursor-pointer active:scale-[0.96]"
                     >
                       <Icon d={ICON.pen} className="w-3.5 h-3.5" />
-                      <span>견적 접수</span>
+                      <span>1:1 견적 접수</span>
                     </button>
                   </div>
                 </div>

@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { STORE, telHref, smsHref, trackEvent, triggerQuickInquiry } from "../../lib/site";
+import { triggerQuickInquiry } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
 const ZONES = [
@@ -47,103 +47,76 @@ const ZONES = [
 export function DeliveryRegionChecker({ className = "" }: { className?: string }) {
   const [selectedId, setSelectedId] = useState<string>(ZONES[0].id);
   const zone = ZONES.find((z) => z.id === selectedId) || ZONES[0];
-  const smsDraft = `[${STORE.name} 지역 배차문의] 희망지역: ${zone.label} / 문의내용: `;
 
   return (
     <div
       aria-label="대전·세종·충청권 직배송 및 방문매입 가능 지역 1초 조회"
       className={`rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden shadow-2xs ${className}`}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 bg-[#F7F8FA] border-b border-[#E2E6EC]">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-[#141A23] text-white">
-            <Icon d={ICON.truck} className="w-4 h-4 text-[#FF8A50]" />
-          </span>
-          <h3 className="text-hb-base font-bold text-[#141A23]">
-            우리 동네 직배송 · 방문매입 배차 1초 조회
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 px-4 py-3 bg-[#F7F8FA] border-b border-[#E2E6EC]">
+        <div className="flex items-center gap-2 shrink-0">
+          <Icon d={ICON.truck} className="w-4 h-4 text-[#E8521A]" />
+          <h3 className="text-hb-sm font-bold text-[#141A23]">
+            지역별 직배송 · 방문매입 배차 조회
           </h3>
         </div>
-        <a
-          href={telHref(STORE.tel)}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD2DC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] active:scale-[0.96] transition-[border-color,transform] tabular-nums"
-        >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
-          <span>배차 직통 {STORE.tel}</span>
-        </a>
+
+        <div className="flex flex-wrap gap-1.5" role="tablist">
+          {ZONES.map((z) => {
+            const active = z.id === zone.id;
+            return (
+              <button
+                key={z.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setSelectedId(z.id)}
+                className={`rounded-lg px-3 py-1.5 text-hb-xs font-bold transition-[background-color,color,border-color,transform] duration-150 active:scale-[0.96] cursor-pointer ${
+                  active
+                    ? "bg-[#141A23] text-white shadow-2xs"
+                    : "bg-white text-[#475569] border border-[#E2E6EC] hover:border-[#CBD2DC] hover:text-[#141A23]"
+                }`}
+              >
+                {z.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      <div className="p-2 bg-[#F1F3F6] border-b border-[#E2E6EC] grid grid-cols-2 lg:grid-cols-4 gap-1.5" role="tablist">
-        {ZONES.map((z) => {
-          const active = z.id === zone.id;
-          return (
-            <button
-              key={z.id}
-              type="button"
-              role="tab"
-              aria-selected={active}
-              onClick={() => setSelectedId(z.id)}
-              className={`rounded-lg px-3 py-2 text-left transition-[background-color,color,transform] duration-150 active:scale-[0.96] cursor-pointer ${
-                active ? "bg-[#141A23] text-white shadow-xs" : "bg-white text-[#141A23] border border-[#E2E6EC]"
-              }`}
-            >
-              <strong className="block text-hb-xs font-bold truncate">{z.label}</strong>
-              <span className={`block text-hb-xs font-semibold truncate ${active ? "text-[#FF8A50]" : "text-[#64748B]"}`}>
-                {z.tag}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC]">
-        <div className="lg:col-span-8 divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
-          <div className="px-5 py-3 flex items-center justify-between gap-2">
-            <strong className="text-hb-sm font-bold text-[#141A23]">{zone.label}</strong>
+      <div className="px-4 py-3.5 sm:px-5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 text-hb-xs sm:text-hb-sm">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-2.5 py-0.5 text-hb-xs font-bold text-[#0F766E]">
               {zone.speed}
             </span>
+            <span className="text-hb-xs text-[#64748B] truncate">
+              {zone.areas}
+            </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC]">
-            <div className="p-4">
-              <span className="font-bold text-[#0F766E] block mb-1">구매 직배송 · 설치</span>
-              <p className="text-[#334155] leading-relaxed break-keep">{zone.delivery}</p>
-            </div>
-            <div className="p-4">
-              <span className="font-bold text-[#E8521A] block mb-1">방문매입 · 폐업철거</span>
-              <p className="text-[#334155] leading-relaxed break-keep">{zone.buyback}</p>
-            </div>
-          </div>
-          <div className="px-5 py-2.5 bg-[#F7F8FA] text-hb-xs text-[#64748B] break-keep leading-relaxed">
-            <strong className="text-[#141A23]">주요 배차 동네:</strong> {zone.areas}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1 text-hb-xs text-[#334155]">
+            <p className="truncate">
+              <strong className="text-[#0F766E]">직배송:</strong> {zone.delivery}
+            </p>
+            <p className="truncate">
+              <strong className="text-[#E8521A]">방문매입:</strong> {zone.buyback}
+            </p>
           </div>
         </div>
 
-        <div className="lg:col-span-4 p-4 bg-[#F7F8FA]/60 flex flex-col justify-center gap-2">
-          <button
-            type="button"
-            onClick={() => triggerQuickInquiry({ type: "구매 문의", envNote: `희망 배송지역: ${zone.label}` })}
-            className="hb-btn-primary h-10 w-full px-4 text-hb-xs font-bold justify-between cursor-pointer"
-          >
-            <span>이 지역 배송·구매 문의</span>
-            <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FF8A50]" />
-          </button>
-          <button
-            type="button"
-            onClick={() => triggerQuickInquiry({ type: "내 물건 팔기", envNote: `방문 수거 지역: ${zone.label}` })}
-            className="hb-btn-accent h-10 w-full px-4 text-hb-xs font-bold justify-between cursor-pointer"
-          >
-            <span>이 지역 방문매입 신청</span>
-            <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-          </button>
-          <a
-            href={smsHref(STORE.mobile, smsDraft)}
-            onClick={() => trackEvent("click_sms_consult", { location: "region_checker_sms" })}
-            className="hb-btn-outline h-9 w-full px-3 text-hb-xs font-bold justify-center"
-          >
-            <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />
-            <span>문자로 지역·사진 전송</span>
-          </a>
-        </div>
+        <button
+          type="button"
+          onClick={() =>
+            triggerQuickInquiry({
+              type: "구매 문의",
+              envNote: `희망 배송지역: ${zone.label}`,
+            })
+          }
+          className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold shrink-0 self-start lg:self-center cursor-pointer"
+        >
+          <span>이 지역 배차 문의</span>
+          <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#E8521A]" />
+        </button>
       </div>
     </div>
   );
