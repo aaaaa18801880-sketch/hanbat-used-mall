@@ -359,7 +359,8 @@ export function ProductCompareModal({
                       const tags = extractSpecCapsules(
                         item.title,
                         item.description,
-                        4
+                        4,
+                        item.category
                       );
                       return (
                         <td

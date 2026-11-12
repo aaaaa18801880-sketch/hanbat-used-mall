@@ -215,7 +215,8 @@ export function extractModelName(
 export function extractSpecCapsules(
   title?: string | null,
   description?: string | null,
-  maxTags = 3
+  maxTags = 3,
+  category?: string | null
 ): string[] {
   const combined = `${title ?? ""}\n${description ?? ""}`;
   if (!combined.trim()) return [];
@@ -228,10 +229,25 @@ export function extractSpecCapsules(
     }
   };
 
+  const normalizedCat = category ? normalizeProductCategory(category) : "";
+  const isAircon =
+    normalizedCat === "에어컨/냉난방기" ||
+    /에어컨|냉난방기|시스템에어컨|멀티에어컨/.test(title ?? "");
+
+  // 전기 규격 우선 표기: 3상 380V는 전 품목, 단상 220V는 에어컨·냉난방기에만 표기
+  const isThreePhase = /삼상|3\s*상|380\s*V/i.test(combined);
+  if (isThreePhase) {
+    addTag("3상 380V");
+  } else if (isAircon && /단상|220\s*V/i.test(combined)) {
+    addTag("단상 220V");
+  }
+
   const boxMatch = combined.match(/\b(25|30|45|65)\s*박스/);
   if (boxMatch) addTag(`${boxMatch[1]}박스`);
 
-  const pyeongMatch = combined.match(/\b(\d{1,2})\s*평(?:형)?\b/);
+  const pyeongMatch = combined.match(
+    /(?:^|[^\d.])(\d{1,3})\s*평(?:형)?(?=$|[^\w가-힣])/i
+  );
   if (pyeongMatch) addTag(`${pyeongMatch[1]}평형`);
 
   // 천 단위 콤마(예: 1,060L)가 있을 때 뒷자리 '060L'만 잘리는 현상 방지
@@ -266,7 +282,6 @@ export function extractSpecCapsules(
     { pattern: /2\s*in\s*1|투인원/i, label: "2in1" },
     { pattern: /냉난방/, label: "냉난방겸용" },
     { pattern: /인버터/, label: "인버터" },
-    { pattern: /삼상|3\s*상|380\s*V/i, label: "3상 380V" },
     { pattern: /에너지\s*효율\s*1등급|1등급/, label: "1등급" },
     { pattern: /4\s*도어|포도어/, label: "4도어" },
     { pattern: /양문형/, label: "양문형" },
@@ -1005,7 +1020,12 @@ export function generatePromoPostText(product: {
     ? "판매완료 (유사 모델 재고 문의)"
     : formatProductPrice(product.price, categoryLabel);
   const modelName = extractModelName(product.description, product.title);
-  const capsules = extractSpecCapsules(product.title, product.description, 4);
+  const capsules = extractSpecCapsules(
+    product.title,
+    product.description,
+    4,
+    product.category
+  );
   const parsed = parseProductDescription(product.description);
 
   const specLines: string[] = [];

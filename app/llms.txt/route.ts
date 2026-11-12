@@ -38,7 +38,7 @@ export async function GET() {
       const cat = normalizeProductCategory(p.category);
       const priceStr = formatProductPrice(p.price, cat);
       const model = extractModelName(p.description, p.title);
-      const specs = extractSpecCapsules(p.title, p.description, 3);
+      const specs = extractSpecCapsules(p.title, p.description, 3, p.category);
       return `- [${cat}] **${p.title}**${model ? ` (모델명: ${model})` : ""}${
         specs.length ? ` | 규격: ${specs.join(", ")}` : ""
       } | 판매가: **${priceStr}** | 상세: ${STORE.url}/${p.id}`;

@@ -82,7 +82,12 @@ export async function generateMetadata({
       ? "최대 4개월 보증(계약별)"
       : "계약조건별 보증";
   const modelName = extractModelName(product.description, product.title);
-  const capsules = extractSpecCapsules(product.title, product.description, 3);
+  const capsules = extractSpecCapsules(
+    product.title,
+    product.description,
+    3,
+    product.category
+  );
   const images = splitImages(product.image_url);
   const canonicalUrl = `${STORE.url}/${product.id}`;
 
@@ -164,7 +169,8 @@ export default async function ProductDetailPage({
   const specCapsules = extractSpecCapsules(
     product.title,
     product.description,
-    4
+    4,
+    product.category
   );
   const createdDate = product.created_at
     ? new Date(product.created_at).toLocaleDateString("ko-KR")

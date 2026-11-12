@@ -207,7 +207,8 @@ function ProductDetailModal({
   const specCapsules = extractSpecCapsules(
     product.title,
     product.description,
-    4
+    4,
+    product.category
   );
 
   const moveExistingImage = (fromIdx: number, toIdx: number) => {

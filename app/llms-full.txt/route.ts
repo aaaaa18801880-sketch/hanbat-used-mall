@@ -40,7 +40,7 @@ export async function GET() {
       const status = getProductStatusLabel(p.status);
       const price = formatProductPrice(p.price, cat);
       const model = extractModelName(p.description, p.title) || "매장 문의";
-      const capsules = extractSpecCapsules(p.title, p.description, 4);
+      const capsules = extractSpecCapsules(p.title, p.description, 4, p.category);
       const cleanDesc = (p.description ?? "").trim();
 
       return [

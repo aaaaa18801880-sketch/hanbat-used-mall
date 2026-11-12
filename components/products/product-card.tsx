@@ -138,7 +138,8 @@ export function ProductCard({
   const specCapsules = extractSpecCapsules(
     product.title,
     product.description,
-    2
+    2,
+    product.category
   );
 
   const [inBasket, setInBasket] = useState(false);
