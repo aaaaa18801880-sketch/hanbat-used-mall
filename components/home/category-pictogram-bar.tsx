@@ -132,7 +132,7 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="bg-white pt-9 pb-5 sm:pt-12 sm:pb-6"
+      className="bg-white pt-8 pb-5 sm:pt-10 sm:pb-6"
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}

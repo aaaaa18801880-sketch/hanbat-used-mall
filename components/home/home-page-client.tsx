@@ -596,45 +596,45 @@ export default function Home({
           aria-labelledby="hero-title"
           className="relative w-full border-b border-[#E2E6EC] hb-ambient-hero"
         >
-          <div className="hb-container py-10 sm:py-14 lg:py-16">
-            <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10 xl:gap-12">
-              {/* 좌측: 미니멀 헤드라인 + 1행 슬림 듀얼 CTA + 플랫 3대 출고 원칙 */}
-              <div className="lg:col-span-7 xl:col-span-6 min-w-0 flex flex-col justify-center">
+          <div className="hb-container py-8 sm:py-11 lg:py-12">
+            <div className="grid items-stretch gap-8 lg:grid-cols-12 lg:gap-10">
+              {/* 좌측 (7열): 브리핑 아이브로우 + 에디토리얼 H1 + 시그니처 1행 듀얼 CTA + 3대 출고 원칙 레저 */}
+              <div className="lg:col-span-7 min-w-0 flex flex-col justify-between">
                 <div>
-                  <div className="inline-flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#475569]">
+                  <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#E2E6EC] bg-white/95 px-3.5 py-1 text-hb-xs font-bold text-[#475569] shadow-2xs">
                     <span className="inline-block w-2 h-2 rounded-full bg-[#0D9488]" />
                     <span className="text-[#141A23]">대전 중촌동 1·2층 직영 쇼룸</span>
-                    <span className="text-[#94A3B8]">·</span>
+                    <span className="text-[#CBD2DC]">·</span>
                     <span>SINCE {STORE.since} ({OPERATING_YEARS}년 운영)</span>
                     {sellingCount > 0 && (
-                      <span className="text-[#E8521A] tabular-nums">
-                        · 실매물 {sellingCount}대 전시
+                      <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-2 py-0.5 text-[#E8521A] tabular-nums">
+                        실매물 {sellingCount}대
                       </span>
                     )}
                   </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-3.5 hb-fluid-h1 text-[#141A23] tracking-tight break-keep font-bold [text-wrap:balance]"
+                    className="mt-4 hb-fluid-h1 text-[#141A23] tracking-tight break-keep font-bold [text-wrap:balance]"
                   >
                     분해 고압세척과 시운전을 마친
                     <br />
                     검증된 중고가전 · 업소용 설비
                   </h1>
 
-                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#334155] break-keep">
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.68] text-[#334155] break-keep">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후 무상 A/S 보증과 함께 출고합니다.
                   </p>
 
-                  {/* 1행 슬림 듀얼 CTA (시각적 위계 및 매입 전환 동시 확보) */}
-                  <div className="mt-7 flex flex-wrap items-center gap-3">
+                  {/* 1행 슬림 듀얼 CTA (한밭 시그니처 딥 슬레이트 + 시그널 오렌지 대비) */}
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
                     <Link
                       href="/gallery"
-                      className="group inline-flex items-center gap-3 rounded-xl bg-[#141A23] px-5 py-3.5 text-hb-sm sm:text-hb-base font-bold text-white shadow-card hover:bg-[#1E2736] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.97]"
+                      className="group inline-flex items-center gap-2.5 rounded-xl bg-[#141A23] px-5 py-3.5 text-hb-sm sm:text-hb-base font-bold text-white shadow-card hover:bg-[#1E2736] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.97]"
                     >
                       <span>실매물 확인</span>
                       {sellingCount > 0 && (
-                        <span className="rounded-md bg-white/15 px-2 py-0.5 text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                        <span className="rounded-md bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white tabular-nums">
                           {sellingCount}대
                         </span>
                       )}
@@ -652,22 +652,22 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group inline-flex items-center gap-2.5 rounded-xl border border-[#E8521A]/35 bg-white px-5 py-3.5 text-hb-sm sm:text-hb-base font-bold text-[#141A23] shadow-2xs hover:border-[#E8521A] hover:bg-[#FFF4EE] hover:-translate-y-0.5 transition-[transform,border-color,background-color] duration-200 active:scale-[0.97] cursor-pointer"
+                      className="group inline-flex items-center gap-2.5 rounded-xl bg-[#E8521A] px-5 py-3.5 text-hb-sm sm:text-hb-base font-bold text-white shadow-card hover:bg-[#CF4310] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.97] cursor-pointer"
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#FFF4EE] text-[#E8521A] group-hover:bg-[#E8521A] group-hover:text-white transition-colors">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-200 group-hover:scale-105">
                         <Icon d={ICON.plus} className="w-3 h-3" />
                       </span>
                       <span>쓰던 가전 팔기</span>
                     </button>
                   </div>
 
-                  {/* 빠른 보조 동선: 업소 상담 & 직통 전화 */}
+                  {/* 빠른 보조 동선: B2B 배지 톤 통일 & 직통 전화 */}
                   <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-hb-xs sm:text-hb-sm text-[#64748B]">
                     <a
                       href="#business-section"
-                      className="inline-flex items-center gap-1.5 font-bold text-[#141A23] hover:text-[#E8521A] transition-colors"
+                      className="inline-flex items-center gap-1.5 font-bold text-[#141A23] hover:text-[#0369A1] transition-colors"
                     >
-                      <span className="inline-block rounded bg-[#141A23] px-2 py-0.5 text-hb-xs font-bold text-white">
+                      <span className="inline-block rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2 py-0.5 text-hb-xs font-bold text-[#0369A1]">
                         B2B
                       </span>
                       <span>식당·카페 창업 납품 · 폐업 일괄정리 상담</span>
@@ -683,38 +683,44 @@ export default function Home({
                   </div>
                 </div>
 
-                {/* 하단 3대 쇼룸 출고 원칙 (배경 박스 제거 → 구분선 기반 플랫 3열) */}
-                <div className="mt-8 pt-6 border-t border-[#E2E6EC]">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5">
-                    <div className="min-w-0 flex items-start gap-2.5">
-                      <ModernApplianceIcon name="sparkle" className="w-8 h-8 shrink-0" />
+                {/* 하단 3대 쇼룸 출고 원칙 (구분선 기반 인라인 레저 + 아이콘 베젤) */}
+                <div className="mt-7 pt-5 border-t border-[#E2E6EC]">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:divide-x sm:divide-[#E2E6EC]">
+                    <div className="min-w-0 flex items-center gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#CCFBF1] bg-[#F0FDFA]">
+                        <ModernApplianceIcon name="sparkle" className="w-6 h-6" />
+                      </div>
                       <div className="min-w-0">
                         <p className="text-hb-sm font-bold text-[#141A23] truncate">
                           분해 고압세척 출고
                         </p>
-                        <p className="mt-0.5 text-hb-xs text-[#64748B] break-keep">
-                          냉매·누수 시운전 검수 완료
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
+                          냉매·누수 시운전 검수
                         </p>
                       </div>
                     </div>
-                    <div className="min-w-0 flex items-start gap-2.5">
-                      <ModernApplianceIcon name="shield" className="w-8 h-8 shrink-0" />
+                    <div className="min-w-0 sm:pl-4 flex items-center gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#BAE6FD] bg-[#F0F9FF]">
+                        <ModernApplianceIcon name="shield" className="w-6 h-6" />
+                      </div>
                       <div className="min-w-0">
                         <p className="text-hb-sm font-bold text-[#141A23] truncate">
                           무상 A/S 책임 보증
                         </p>
-                        <p className="mt-0.5 text-hb-xs text-[#64748B] break-keep">
-                          에어컨 8개월·가전 4개월 보증
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
+                          에어컨 8개월·가전 4개월
                         </p>
                       </div>
                     </div>
-                    <div className="min-w-0 flex items-start gap-2.5">
-                      <ModernApplianceIcon name="tax" className="w-8 h-8 shrink-0" />
+                    <div className="min-w-0 sm:pl-4 flex items-center gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE]">
+                        <ModernApplianceIcon name="tax" className="w-6 h-6" />
+                      </div>
                       <div className="min-w-0">
                         <p className="text-hb-sm font-bold text-[#141A23] truncate">
                           직배송·세금계산서
                         </p>
-                        <p className="mt-0.5 text-hb-xs text-[#64748B] break-keep">
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
                           충청권 직배송·부가세 증빙
                         </p>
                       </div>
@@ -723,9 +729,9 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측: 3단 다이어트 직영 쇼룸 카드 (외관 사진 + 3열 스펙 + 주소/길찾기 단일 행) */}
-              <div className="lg:col-span-5 xl:col-span-6 min-w-0 flex flex-col rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#141A23]">
+              {/* 우측 (5열): 좌측과 높이를 맞춘 3단 컬러 쇼룸 카드 */}
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
+                <div className="relative aspect-[16/10] lg:aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
                     src="/store-exterior.jpg"
                     alt={`대전 중구 대전천서로 691-62(중촌동 144) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
@@ -745,26 +751,26 @@ export default function Home({
                   </div>
                 </div>
 
-                {/* 직영 쇼룸 3대 핵심 수치 스트립 */}
+                {/* 직영 쇼룸 3대 핵심 수치 스트립 (시그니처 3색 액센트) */}
                 <div className="grid grid-cols-3 divide-x divide-[#E2E6EC] border-t border-b border-[#E2E6EC] bg-white">
-                  <div className="py-3.5 px-3 sm:px-4">
-                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23] tabular-nums">
+                  <div className="py-3 px-3 sm:px-4">
+                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#0F766E] tabular-nums">
                       200대+
                     </span>
                     <span className="mt-0.5 block text-hb-xs font-medium text-[#64748B]">
                       1·2층 전시 규모
                     </span>
                   </div>
-                  <div className="py-3.5 px-3 sm:px-4">
-                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                  <div className="py-3 px-3 sm:px-4">
+                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#0369A1]">
                       전원 테스트
                     </span>
                     <span className="mt-0.5 block text-hb-xs font-medium text-[#64748B]">
                       현장 시운전 확인
                     </span>
                   </div>
-                  <div className="py-3.5 px-3 sm:px-4">
-                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                  <div className="py-3 px-3 sm:px-4">
+                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#E8521A]">
                       주차 가능
                     </span>
                     <span className="mt-0.5 block text-hb-xs font-medium text-[#64748B]">
@@ -773,11 +779,12 @@ export default function Home({
                   </div>
                 </div>
 
-                {/* 하단 단일 주소 + 길찾기 행 */}
-                <div className="px-4 py-3.5 sm:px-5 sm:py-4 bg-white flex items-center justify-between gap-3">
+                {/* 하단 단일 주소 + 길찾기 도크 (서페이스 톤 분리) */}
+                <div className="px-4 py-3.5 sm:px-5 bg-[#F7F8FA] flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-hb-sm font-bold text-[#141A23] truncate">
-                      {STORE.roadAddress}
+                    <p className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] truncate max-w-full">
+                      <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-[#E8521A]" />
+                      <span className="truncate">{STORE.roadAddress}</span>
                     </p>
                     <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
                       {STORE.addressNote} · {STORE.parking}
