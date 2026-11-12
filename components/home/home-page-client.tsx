@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import {
   supabase,
@@ -48,11 +49,25 @@ import {
   type ShowroomCategoryItem,
   type PictogramKey,
 } from "./category-pictogram-bar";
-import { AirconGuideModal } from "../products/aircon-set-guide-banner";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
-import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 import { DeliveryRegionChecker } from "./delivery-region-checker";
+
+const AirconGuideModal = dynamic(
+  () =>
+    import("../products/aircon-set-guide-banner").then(
+      (m) => m.AirconGuideModal
+    ),
+  { ssr: false }
+);
+
+const ShowroomVisitModal = dynamic(
+  () =>
+    import("../showroom/showroom-visit-modal").then(
+      (m) => m.ShowroomVisitModal
+    ),
+  { ssr: false }
+);
 
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
@@ -154,7 +169,7 @@ const FAQS = [
   {
     tag: "A/S 접수 · 보증 범위",
     q: "사용 중 문제가 생기면 무상 A/S는 어떻게 신청하며, 보증 기준은 무엇인가요?",
-    a: "대표전화(042-523-8179)나 카카오톡 채널로 증상을 알려주시면 담당 기사가 증상을 확인한 뒤 방문 수리 또는 동일 급 제품 교환으로 신속히 처리해 드립니다. 정상적인 사용 중 발생한 기기 기능 불량(냉매 누설, 콤프레샤·모터 불량 등)은 약정된 보증 기간 내 무상 처리되며, 고객 과실로 인한 파손이나 단순 소모품은 실비로 안내됩니다. (※ 무상 A/S 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 상이할 수 있으며, 거래 시 계약 조건을 기준으로 적용됩니다.)",
+    a: `대표전화(${STORE.tel})나 카카오톡 채널로 증상을 알려주시면 담당 기사가 증상을 확인한 뒤 방문 수리 또는 동일 급 제품 교환으로 신속히 처리해 드립니다. 정상적인 사용 중 발생한 기기 기능 불량(냉매 누설, 콤프레샤·모터 불량 등)은 약정된 보증 기간 내 무상 처리되며, 고객 과실로 인한 파손이나 단순 소모품은 실비로 안내됩니다. (※ 무상 A/S 기간 및 세부 적용 범위는 품목 특성 및 판매 계약서 약정에 따라 상이할 수 있으며, 거래 시 계약 조건을 기준으로 적용됩니다.)`,
   },
   {
     tag: "보상판매 · 기존 가전 철거",
@@ -169,7 +184,7 @@ const FAQS = [
   {
     tag: "에어컨 · 냉난방기 구매 안내",
     q: "에어컨이나 냉난방기 구매 시 실외기만 따로 단독 구매할 수 있나요?",
-    a: "한밭중고전자의 에어컨 및 냉난방기 제품은 원활한 냉난방 성능과 냉매 사이클 호환 보증을 위해 실내기와 실외기가 1:1 세트로 구성되어 판매됩니다. 실외기만 별도로 단독 구매하시는 것은 어려우며 반드시 세트 단위로 출고됩니다. 현장 평수와 배관 환경에 맞춘 최적 모델 상담은 대표전화(042-523-8179)나 카카오톡으로 편하게 문의해 주세요.",
+    a: `한밭중고전자의 에어컨 및 냉난방기 제품은 원활한 냉난방 성능과 냉매 사이클 호환 보증을 위해 실내기와 실외기가 1:1 세트로 구성되어 판매됩니다. 실외기만 별도로 단독 구매하시는 것은 어려우며 반드시 세트 단위로 출고됩니다. 현장 평수와 배관 환경에 맞춘 최적 모델 상담은 대표전화(${STORE.tel})나 카카오톡으로 편하게 문의해 주세요.`,
   },
   {
     tag: "결제 수단 · 세금계산서",
@@ -388,7 +403,7 @@ export default function Home({
   const handleCopyAddress = async () => {
     try {
       await navigator.clipboard.writeText(STORE.roadAddress);
-      toast.success("도로명 주소(대전천서로 691-62 1, 2층)가 복사되었습니다.");
+      toast.success(`도로명 주소(${STORE.roadAddress})가 복사되었습니다.`);
     } catch {
       toast.error("주소 복사에 실패했습니다.");
     }
@@ -701,12 +716,12 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 좌측과 높이를 맞춘 3단 컬러 쇼룸 카드 */}
+              {/* 우측 (5열): 대형 쇼룸 사진 + 주소/길찾기 단일 도크 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
-                <div className="relative aspect-[16/10] lg:aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
                     src="/store-exterior.jpg"
-                    alt={`대전 중구 대전천서로 691-62(중촌동 144) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
+                    alt={`${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
                     eager
                     className="h-full w-full object-cover object-center"
                   />
@@ -723,36 +738,8 @@ export default function Home({
                   </div>
                 </div>
 
-                {/* 직영 쇼룸 3대 핵심 수치 스트립 (시그니처 3색 액센트) */}
-                <div className="grid grid-cols-3 divide-x divide-[#E2E6EC] border-t border-b border-[#E2E6EC] bg-white">
-                  <div className="py-3 px-3 sm:px-4">
-                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#0F766E] tabular-nums">
-                      200대+
-                    </span>
-                    <span className="mt-0.5 block text-hb-xs font-medium text-[#64748B]">
-                      1·2층 전시 규모
-                    </span>
-                  </div>
-                  <div className="py-3 px-3 sm:px-4">
-                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#0369A1]">
-                      전원 테스트
-                    </span>
-                    <span className="mt-0.5 block text-hb-xs font-medium text-[#64748B]">
-                      현장 시운전 확인
-                    </span>
-                  </div>
-                  <div className="py-3 px-3 sm:px-4">
-                    <span className="block text-hb-base sm:text-hb-lg font-bold text-[#E8521A]">
-                      주차 가능
-                    </span>
-                    <span className="mt-0.5 block text-hb-xs font-medium text-[#64748B]">
-                      화물·승용 전용
-                    </span>
-                  </div>
-                </div>
-
-                {/* 하단 단일 주소 + 길찾기 도크 (서페이스 톤 분리) */}
-                <div className="px-4 py-3.5 sm:px-5 bg-[#F7F8FA] flex items-center justify-between gap-3">
+                {/* 하단 단일 주소 + 길찾기 도크 */}
+                <div className="border-t border-[#E2E6EC] px-4 py-3.5 sm:px-5 bg-[#F7F8FA] flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] truncate max-w-full">
                       <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-[#E8521A]" />

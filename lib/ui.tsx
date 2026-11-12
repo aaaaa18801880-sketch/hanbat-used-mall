@@ -2,11 +2,19 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { supabase, isAuthorizedAdminUser } from "./supabase";
-import { ProductCompareModal } from "../components/products/product-compare-modal";
 import { QuickInquiryModal } from "../components/inquiry/quick-inquiry-modal";
+
+const ProductCompareModal = dynamic(
+  () =>
+    import("../components/products/product-compare-modal").then(
+      (m) => m.ProductCompareModal
+    ),
+  { ssr: false }
+);
 import {
   STORE,
   telHref,
@@ -1004,9 +1012,9 @@ export function FloatingQuickWing() {
   return (
     <aside
       aria-label="빠른 상담 바로가기"
-      className="fixed right-2.5 2xl:right-5 top-1/2 -translate-y-1/2 z-40 hidden min-[1400px]:flex flex-col items-center select-none"
+      className="fixed left-[calc(50%+672px)] top-1/2 -translate-y-1/2 z-40 hidden min-[1520px]:flex flex-col items-center select-none"
     >
-      <div className="w-[54px] 2xl:w-[58px] rounded-3xl bg-white/90 backdrop-blur-2xl border border-white/80 shadow-[0_12px_40px_rgba(25,31,40,0.12)] p-1.5 flex flex-col items-center gap-1">
+      <div className="w-[72px] rounded-3xl bg-white/95 backdrop-blur-2xl border border-[#CBD2DC]/90 ring-1 ring-[#141A23]/5 shadow-[0_14px_38px_rgba(20,26,35,0.14)] p-2 flex flex-col items-center gap-1.5">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
@@ -1015,9 +1023,11 @@ export function FloatingQuickWing() {
             })
           }
           title={`대표전화 ${STORE.tel}`}
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95"
+          className="group w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#FFF4EE] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95"
         >
-          <Icon d={ICON.phone} className="w-4 h-4 text-[#E8521A]" />
+          <span className="grid h-9 w-9 place-items-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE] text-[#E8521A] group-hover:bg-[#E8521A] group-hover:text-white transition-colors">
+            <Icon d={ICON.phone} className="w-5 h-5" />
+          </span>
           <span className="text-hb-xs font-bold leading-none">전화</span>
         </a>
 
@@ -1031,10 +1041,10 @@ export function FloatingQuickWing() {
             })
           }
           title="카카오톡 상담"
-          className="w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95"
+          className="group w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#FEFCE8] transition-[background-color,color,transform] duration-150 active:scale-95"
         >
-          <span className="grid h-5 w-5 place-items-center rounded-lg bg-[#FEE500] text-[#191600]">
-            <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#FEE500] text-[#191600] shadow-2xs group-hover:brightness-95 transition">
+            <Icon d={ICON.chat} className="w-5 h-5" />
           </span>
           <span className="text-hb-xs font-bold leading-none">카톡</span>
         </a>
@@ -1043,18 +1053,20 @@ export function FloatingQuickWing() {
           type="button"
           onClick={() => handleInquiryClick("구매 문의")}
           title="견적 문의"
-          className="relative w-full py-2.5 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#141A23] hover:bg-[#FFF4EE] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
+          className="group relative w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
-          <Icon d={ICON.pen} className="w-4 h-4 text-[#E8521A]" />
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#141A23] text-white group-hover:bg-[#E8521A] transition-colors">
+            <Icon d={ICON.pen} className="w-4 h-4" />
+          </span>
           <span className="text-hb-xs font-bold leading-none">견적</span>
           {basketCount > 0 && (
-            <span className="absolute right-1 top-1 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#E8521A] px-1 text-hb-xs font-bold text-white tabular-nums">
+            <span className="absolute right-1.5 top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#E8521A] px-1 text-hb-xs font-bold text-white tabular-nums shadow-xs">
               {basketCount}
             </span>
           )}
         </button>
 
-        <div className="w-8 h-[1px] bg-[#E2E6EC] my-0.5" aria-hidden="true" />
+        <div className="w-10 h-[1px] bg-[#E2E6EC] my-0.5" aria-hidden="true" />
 
         <button
           type="button"
@@ -1062,8 +1074,8 @@ export function FloatingQuickWing() {
           title="맨 위로 이동"
           className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#141A23] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
-          <Icon d={ICON.up} className="w-3.5 h-3.5" />
-          <span className="text-hb-xs font-semibold leading-none">위로</span>
+          <Icon d={ICON.up} className="w-4 h-4" />
+          <span className="text-hb-xs font-bold leading-none">위로</span>
         </button>
       </div>
     </aside>

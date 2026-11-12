@@ -1,5 +1,4 @@
 // 파일 경로: components/ui/modern-icons.tsx
-"use client";
 
 import React from "react";
 

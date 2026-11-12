@@ -2,17 +2,32 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
+import dynamic from "next/dynamic";
 import { Modal, Icon, ICON } from "../../lib/ui";
 import {
   type LinkedProductContext,
 } from "./unified-inquiry-form";
-import { V2InquirySectionWithWizard } from "./v2-wizard-quick-inquiry";
 import {
   STORE,
   QUICK_INQUIRY_EVENT,
   type QuickInquiryDetail,
   type InquiryTypeValue,
 } from "../../lib/site";
+
+const V2InquirySectionWithWizard = dynamic(
+  () =>
+    import("./v2-wizard-quick-inquiry").then(
+      (m) => m.V2InquirySectionWithWizard
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="py-12 text-center text-hb-sm text-[#64748B]">
+        문의 양식을 불러오는 중입니다...
+      </div>
+    ),
+  }
+);
 
 export function QuickInquiryModal() {
   const [isOpen, setIsOpen] = useState(false);

@@ -386,7 +386,7 @@ export function ProductCard({
               <Icon
                 d={inBasket ? ICON.check : ICON.plus}
                 className={`h-3 w-3 ${
-                  inBasket ? "text-[#E8521A]" : "currentColor"
+                  inBasket ? "text-[#E8521A]" : "text-current"
                 }`}
               />
               <span>{inBasket ? "담김" : "담기"}</span>

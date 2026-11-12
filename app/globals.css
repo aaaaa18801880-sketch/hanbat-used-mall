@@ -109,7 +109,7 @@ body {
   }
 
   .hb-container {
-    @apply mx-auto w-full max-w-[1280px] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8;
   }
 
   .hb-glass {

@@ -59,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .select("id, created_at, category, status")
       .neq("category", "배송인증")
       .order("created_at", { ascending: false })
-      .limit(200);
+      .limit(1000);
 
     const productRoutes: MetadataRoute.Sitemap = (products ?? []).map((p) => {
       const sold = isProductSold(p.status);

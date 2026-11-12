@@ -322,11 +322,6 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" href="/icon-48.png" type="image/png" sizes="48x48" />
-        <link rel="icon" href="/icon-192.png" type="image/png" sizes="192x192" />
-        <link rel="icon" href="/icon-512.png" type="image/png" sizes="512x512" />
-        <link rel="apple-touch-icon" href="/apple-icon.png" sizes="180x180" />
         <link
           rel="alternate"
           type="text/plain"
@@ -366,6 +361,10 @@ export default function RootLayout({
             __html: serializeJsonLd(localBusinessJsonLd),
           }}
         />
+      </head>
+      <body>
+        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+        {children}
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
@@ -386,10 +385,6 @@ export default function RootLayout({
             `,
           }}
         />
-      </head>
-      <body>
-        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
-        {children}
       </body>
     </html>
   );
