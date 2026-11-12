@@ -132,11 +132,11 @@ export function CategoryPictogramBar({
     <section
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className="bg-white pt-6 pb-3 sm:pt-8"
+      className="bg-white pt-9 pb-5 sm:pt-12 sm:pb-6"
     >
       <div className="hb-container">
-        {/* 상단 쇼룸 카탈로그 컨트롤 바 (중복 버튼 제거 및 정돈) */}
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-3.5">
+        {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5">
           <div className="flex flex-wrap items-center gap-2.5">
             <span
               className="inline-block h-4 w-1.5 rounded-full bg-[#E8521A]"
@@ -146,7 +146,7 @@ export function CategoryPictogramBar({
               품목별 쇼룸 카탈로그
             </h2>
             {typeof categoryCounts?.all === "number" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#F1F3F6] px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] tabular-nums">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF4EE] border border-[#E8521A]/20 px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] tabular-nums">
                 <span>실매물</span>
                 <strong className="text-[#E8521A]">{categoryCounts.all}대</strong>
               </span>
@@ -168,26 +168,25 @@ export function CategoryPictogramBar({
           </Link>
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 독 (태블릿 4열, 1280px+ 8열 벤토 타일 — 말줄임표 잘림 제로) */}
-        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2 sm:p-2.5 shadow-2xs">
-          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2">
-            {SHOWROOM_CATEGORIES.map((item) => {
-              const isSelected = selectedKey === item.key;
-              const count = categoryCounts?.[item.key];
-              const isBiz = item.group === "biz";
+        {/* 전 품목 쇼룸 카탈로그 독 (외곽 회색 트레이 제거 → 여백 중심 개방형 8열 벤토 타일) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2.5 sm:gap-3">
+          {SHOWROOM_CATEGORIES.map((item) => {
+            const isSelected = selectedKey === item.key;
+            const count = categoryCounts?.[item.key];
+            const isBiz = item.group === "biz";
 
-              return (
-                <button
-                  key={item.key}
-                  type="button"
-                  aria-pressed={isSelected}
-                  onClick={() => handleCategoryClick(item)}
-                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-2.5 sm:p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
-                    isSelected
-                      ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
-                      : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
-                  }`}
-                >
+            return (
+              <button
+                key={item.key}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => handleCategoryClick(item)}
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 sm:p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                  isSelected
+                    ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                    : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
+                }`}
+              >
                   {/* 상단 행: 스쿼클 베젤 아이콘 + 우측 대수/B2B 배지 */}
                   <div className="flex items-start justify-between gap-1.5 w-full">
                     <div
@@ -259,7 +258,6 @@ export function CategoryPictogramBar({
                 </button>
               );
             })}
-          </div>
         </div>
       </div>
     </section>
