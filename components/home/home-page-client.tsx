@@ -615,22 +615,23 @@ export default function Home({
 
                   <h1
                     id="hero-title"
-                    className="mt-4 hb-fluid-h1 text-[#141A23] tracking-tight break-keep font-bold [text-wrap:balance]"
+                    className="mt-4 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
                   >
                     분해 고압세척과 시운전을 마친
                     <br />
-                    검증된 중고가전 · 업소용 설비
+                    <span className="text-[#E8521A]">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
-                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.68] text-[#334155] break-keep">
-                    가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후 무상 A/S 보증과 함께 출고합니다.
+                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.72] text-[#475569] break-keep">
+                    가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후{" "}
+                    <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
-                  {/* 1행 슬림 듀얼 CTA (한밭 시그니처 딥 슬레이트 + 시그널 오렌지 대비) */}
+                  {/* 1행 슬림 듀얼 CTA (입체 스페큘러 버튼 + 선명한 브랜드 대비) */}
                   <div className="mt-6 flex flex-wrap items-center gap-3">
                     <Link
                       href="/gallery"
-                      className="group inline-flex items-center gap-2.5 rounded-xl bg-[#141A23] px-5 py-3.5 text-hb-sm sm:text-hb-base font-bold text-white shadow-card hover:bg-[#1E2736] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.97]"
+                      className="hb-btn-primary px-5 py-3.5 text-hb-sm sm:text-hb-base hover:-translate-y-0.5 hover:shadow-card-hover"
                     >
                       <span>실매물 확인</span>
                       {sellingCount > 0 && (
@@ -638,10 +639,7 @@ export default function Home({
                           {sellingCount}대
                         </span>
                       )}
-                      <Icon
-                        d={ICON.arrow}
-                        className="w-4 h-4 text-white/80 group-hover:text-[#FF8A50] group-hover:translate-x-0.5 transition-[color,transform]"
-                      />
+                      <Icon d={ICON.arrow} className="w-4 h-4 text-white/85" />
                     </Link>
 
                     <button
@@ -652,9 +650,9 @@ export default function Home({
                         });
                         openInquiry("내 물건 팔기");
                       }}
-                      className="group inline-flex items-center gap-2.5 rounded-xl bg-[#E8521A] px-5 py-3.5 text-hb-sm sm:text-hb-base font-bold text-white shadow-card hover:bg-[#CF4310] hover:-translate-y-0.5 hover:shadow-card-hover transition-[transform,box-shadow,background-color] duration-200 active:scale-[0.97] cursor-pointer"
+                      className="hb-btn-accent px-5 py-3.5 text-hb-sm sm:text-hb-base hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
                     >
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/20 text-white transition-transform duration-200 group-hover:scale-105">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/25 text-white">
                         <Icon d={ICON.plus} className="w-3 h-3" />
                       </span>
                       <span>쓰던 가전 팔기</span>
@@ -799,12 +797,12 @@ export default function Home({
                       });
                       setVisitModalOpen(true);
                     }}
-                    className="group shrink-0 inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold text-white shadow-2xs hover:bg-[#E8521A] active:scale-[0.97] transition-[background-color,transform] duration-150 cursor-pointer"
+                    className="group shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] shadow-2xs hover:border-[#E8521A] hover:bg-[#E8521A] hover:text-white active:scale-[0.97] transition-[background-color,border-color,color,transform] duration-150 cursor-pointer"
                   >
                     <span>길찾기</span>
                     <Icon
                       d={ICON.right}
-                      className="w-3.5 h-3.5 transition-transform duration-150 group-hover:translate-x-0.5"
+                      className="w-3.5 h-3.5 text-[#E8521A] group-hover:text-white transition-[color,transform] duration-150 group-hover:translate-x-0.5"
                     />
                   </button>
                 </div>

@@ -121,9 +121,9 @@ body {
   }
 
   .hb-fluid-h1 {
-    font-size: clamp(1.6rem, 2.1vw + 1rem, 2.35rem);
-    line-height: 1.26;
-    letter-spacing: -0.032em;
+    font-size: clamp(1.65rem, 2.1vw + 1rem, 2.38rem);
+    line-height: 1.3;
+    letter-spacing: -0.024em;
     font-weight: 700;
     text-wrap: balance;
     word-break: keep-all;
@@ -192,8 +192,11 @@ body {
   }
 
   .hb-ambient-hero {
-    background-color: #f7f8fa;
-    background-image: linear-gradient(180deg, #ffffff 0%, #f7f8fa 100%);
+    background-color: #ffffff;
+    background-image:
+      radial-gradient(at 12% 18%, rgba(232, 82, 26, 0.055) 0px, transparent 48%),
+      radial-gradient(at 88% 12%, rgba(13, 148, 136, 0.065) 0px, transparent 50%),
+      linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
   }
 
   .hb-dark-mesh {
