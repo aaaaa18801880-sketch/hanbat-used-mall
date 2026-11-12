@@ -16,7 +16,7 @@ const COMPARISON_ROWS = [
   {
     criteria: "운반 · 수평 · 배관 설치",
     personal: "직접 용달 섭외 및 운반·설치비 전액 부담",
-    hanbat: "기사 직접 운반 및 수평·급배수 원스톱 설치 지원",
+    hanbat: "기사 직접 운반 및 수평·급배수 일괄 설치 지원",
   },
   {
     criteria: "결제 수단 및 증빙",
@@ -49,16 +49,16 @@ export function AiRecommendationGuideSection() {
           desc="구매 가격만큼 중요한 내부 분해세척, 전문 운반·설치, 무상 A/S 보증 차이를 한눈에 확인해 보세요."
         />
 
-        <div className="mt-5 overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs">
+        <div className="mt-6 overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs">
           {/* 데스크톱 테이블 헤더 */}
           <div className="hidden md:grid md:grid-cols-[200px_1fr_1fr] border-b border-[#E2E6EC] bg-[#F7F8FA] text-hb-xs font-bold">
-            <div className="px-5 py-3 text-[#64748B]">비교 항목</div>
-            <div className="px-5 py-3 border-l border-[#E2E6EC] text-[#64748B]">
+            <div className="px-5 py-3.5 text-[#64748B]">비교 항목</div>
+            <div className="px-5 py-3.5 border-l border-[#E2E6EC] text-[#64748B]">
               일반 개인 직거래
             </div>
-            <div className="px-5 py-3 border-l border-[#E2E6EC] bg-[#F0FDFA] text-[#0F766E] flex items-center justify-between gap-2">
+            <div className="px-5 py-3.5 border-l border-[#263040] bg-[#141A23] text-white flex items-center justify-between gap-2">
               <span>{STORE.name} (SINCE {STORE.since})</span>
-              <span className="text-[#E8521A]">공식 품질 보증</span>
+              <span className="text-[#FB923C]">공식 품질 보증</span>
             </div>
           </div>
 
@@ -68,15 +68,15 @@ export function AiRecommendationGuideSection() {
                 key={row.criteria}
                 className="grid grid-cols-1 md:grid-cols-[200px_1fr_1fr] text-hb-xs sm:text-hb-sm"
               >
-                <div className="px-4 pt-3 pb-1 md:px-5 md:py-3 font-bold text-[#141A23] bg-white md:flex md:items-center">
+                <div className="px-4 pt-3 pb-1 md:px-5 md:py-3.5 font-bold text-[#141A23] bg-white md:flex md:items-center">
                   {row.criteria}
                 </div>
-                <div className="px-4 py-1.5 md:px-5 md:py-3 md:border-l md:border-[#E2E6EC] flex items-center gap-2 text-[#64748B]">
+                <div className="px-4 py-1.5 md:px-5 md:py-3.5 md:border-l md:border-[#E2E6EC] flex items-center gap-2 text-[#64748B]">
                   <Icon d={ICON.close} className="w-3.5 h-3.5 shrink-0 text-[#94A3B8]" />
                   <span>{row.personal}</span>
                 </div>
-                <div className="px-4 pt-1.5 pb-3 md:px-5 md:py-3 md:border-l md:border-[#E2E6EC] bg-[#F0FDFA]/40 flex items-center gap-2 font-semibold text-[#141A23]">
-                  <Icon d={ICON.check} className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
+                <div className="px-4 pt-1.5 pb-3 md:px-5 md:py-3.5 md:border-l md:border-[#E2E6EC] bg-[#F7F8FA]/60 flex items-center gap-2 font-semibold text-[#141A23]">
+                  <Icon d={ICON.check} className="w-3.5 h-3.5 shrink-0 text-[#E8521A]" />
                   <span>{row.hanbat}</span>
                 </div>
               </div>

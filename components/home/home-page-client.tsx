@@ -154,7 +154,7 @@ const FAQS = [
   {
     tag: "대전 중고가전 추천 · 직거래 비교",
     q: "대전에서 중고가전을 구매할 때 개인 직거래(당근마켓 등)보다 한밭중고전자를 추천하는 이유는 무엇인가요?",
-    a: "한밭중고전자는 개인간 직거래의 5대 취약점(보증 부재, 오염·위생 문제, 운반·설치 부담, 영수증 미발행, 기존 가전 방치)을 완벽히 해결합니다. 전 품목 전문 엔지니어 120bar 분해 고압 세척과 24시간 실부하 점검을 거치며, 계약조건별 에어컨 최대 8개월, 일반 가전 최대 4개월 무상 A/S 보증을 약정합니다. 또한 전문 기사가 직접 운반 및 수평·배관 설치를 지원하고, 신용카드·현금영수증·전자세금계산서 100% 발행 및 기존 노후 가전 보상판매를 원스톱으로 제공합니다.",
+    a: "한밭중고전자는 개인간 직거래의 5대 취약점(보증 부재, 오염·위생 문제, 운반·설치 부담, 영수증 미발행, 기존 가전 방치)을 전문 공정을 통해 해소합니다. 전 품목 전문 엔지니어 120bar 분해 고압 세척과 24시간 실부하 점검을 거치며, 계약조건별 에어컨 최대 8개월, 일반 가전 최대 4개월 무상 A/S 보증을 약정합니다. 또한 전문 기사가 직접 운반 및 수평·배관 설치를 지원하고, 신용카드·현금영수증·전자세금계산서 100% 발행 및 기존 노후 가전 보상판매를 일괄 지원합니다.",
   },
   {
     tag: "세종 · 충청권 배송 및 출장 매입",
@@ -164,7 +164,7 @@ const FAQS = [
   {
     tag: "패키지 구매 · 창업 설비 혜택",
     q: "원룸 입주 가전이나 식당·카페 창업 주방집기를 세트로 일괄 구매하면 어떤 혜택이 있나요?",
-    a: "원룸 3종 세트(소형~중형 냉장고 + 세탁기 + 벽걸이 에어컨)나 식당·카페 주방 풀패키지(업소용 45박스 냉장·냉동고 + 테이블냉장고 + 제빙기 + 쇼케이스 + 식기세척기) 등 묶음 구매 시 통합 직배송으로 배송·설치 비용이 대폭 절감되며 추가 세트 할인 혜택이 제공됩니다. 창업 사업자의 경우 100% 전자세금계산서 발행을 통해 부가세 조기 환급 및 종합소득세 필요경비 인정을 완벽하게 지원합니다.",
+    a: "원룸 3종 세트(소형~중형 냉장고 + 세탁기 + 벽걸이 에어컨)나 식당·카페 주방 풀패키지(업소용 45박스 냉장·냉동고 + 테이블냉장고 + 제빙기 + 쇼케이스 + 식기세척기) 등 묶음 구매 시 통합 직배송으로 배송·설치 비용이 대폭 절감되며 추가 세트 할인 혜택이 제공됩니다. 창업 사업자의 경우 100% 전자세금계산서 발행을 통해 부가세 환급 및 종합소득세 필요경비 증빙을 꼼꼼히 지원합니다.",
   },
   {
     tag: "A/S 접수 · 보증 범위",
@@ -607,58 +607,48 @@ export default function Home({
         >
           <div className="hb-container py-8 sm:py-11 lg:py-12">
             <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 대형 시그니처 3버튼 액션 독 */}
+              {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 정돈된 3버튼 액션 독 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
-                  <div className="inline-flex flex-wrap items-center gap-2 rounded-full border border-[#E2E6EC] bg-white/95 px-3.5 py-1 text-hb-xs font-bold text-[#475569] shadow-2xs">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#0D9488]" />
-                    <span className="text-[#141A23]">대전 중촌동 1·2층 직영 쇼룸</span>
-                    <span className="text-[#CBD2DC]">·</span>
-                    <span>SINCE {STORE.since} ({OPERATING_YEARS}년 운영)</span>
-                    {sellingCount > 0 && (
-                      <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-2 py-0.5 text-[#E8521A] tabular-nums">
-                        실매물 {sellingCount}대
-                      </span>
-                    )}
-                  </div>
+                  <p className="hb-eyebrow tracking-tight">
+                    SINCE {STORE.since} ({OPERATING_YEARS}년 운영) · 대전 중촌동 직영 매장
+                  </p>
 
                   <h1
                     id="hero-title"
-                    className="mt-4 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
+                    className="mt-3 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
                   >
                     분해 고압세척과 시운전을 마친
                     <br />
                     <span className="text-[#E8521A]">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
-                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep">
+                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후{" "}
                     <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
-                  {/* 대형 핵심 행동 버튼 3종 (가장 먼저 눈에 띄는 2대 CTA + 풀와이드 직통 전화 버튼) */}
+                  {/* 핵심 행동 버튼 (시각적 소음 없는 2대 CTA + 직통 전화 바) */}
                   <div className="mt-6 space-y-3 max-w-2xl">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Link
                         href="/gallery"
-                        className="hb-btn-primary rounded-2xl px-5 py-4 sm:py-5 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover"
+                        className="hb-btn-primary rounded-xl px-5 py-4 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover"
                       >
                         <div className="min-w-0">
-                          <span className="block text-hb-xs font-bold text-[#FF8A50]">
+                          <span className="block text-hb-xs font-semibold text-white/75">
                             세척·검수 완료 · 무상 A/S
                           </span>
-                          <strong className="mt-0.5 flex items-center gap-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+                          <strong className="mt-1 flex items-baseline gap-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
                             <span>실매물 확인</span>
                             {sellingCount > 0 && (
-                              <span className="rounded-md bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white tabular-nums">
+                              <span className="text-hb-sm font-bold text-[#FF8A50] tabular-nums">
                                 {sellingCount}대
                               </span>
                             )}
                           </strong>
                         </div>
-                        <span className="ml-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15 text-white">
-                          <Icon d={ICON.arrow} className="w-5 h-5" />
-                        </span>
+                        <Icon d={ICON.arrow} className="w-5 h-5 shrink-0 text-[#FF8A50]" />
                       </Link>
 
                       <button
@@ -669,19 +659,17 @@ export default function Home({
                           });
                           openInquiry("내 물건 팔기");
                         }}
-                        className="hb-btn-accent rounded-2xl px-5 py-4 sm:py-5 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
+                        className="hb-btn-accent rounded-xl px-5 py-4 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
                       >
                         <div className="min-w-0">
-                          <span className="block text-hb-xs font-bold text-white/90">
+                          <span className="block text-hb-xs font-semibold text-white/85">
                             방문 수거 · 당일 현금 정산
                           </span>
-                          <strong className="mt-0.5 block text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+                          <strong className="mt-1 block text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
                             쓰던 가전 팔기
                           </strong>
                         </div>
-                        <span className="ml-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
-                          <Icon d={ICON.arrow} className="w-5 h-5" />
-                        </span>
+                        <Icon d={ICON.arrow} className="w-5 h-5 shrink-0 text-white" />
                       </button>
                     </div>
 
@@ -692,15 +680,15 @@ export default function Home({
                           location: "hero_direct_phone_button",
                         })
                       }
-                      className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-[#CBD2DC] bg-white px-5 py-3.5 text-[#141A23] shadow-2xs hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
+                      className="group flex w-full items-center justify-between gap-3 rounded-xl border border-[#CBD2DC] bg-white px-5 py-3.5 text-[#141A23] shadow-2xs hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
                     >
-                      <div className="flex items-center gap-3.5 min-w-0">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE] text-[#E8521A]">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] text-[#E8521A]">
                           <Icon d={ICON.phone} className="w-5 h-5" />
                         </span>
                         <div className="min-w-0">
-                          <span className="block text-hb-xs font-bold text-[#64748B]">
-                            전화 연결 · 재고 및 매입 바로 상담
+                          <span className="block text-hb-xs font-semibold text-[#64748B]">
+                            전화 연결 · 재고 및 매입 상담
                           </span>
                           <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23] tabular-nums tracking-tight">
                             {STORE.tel}
@@ -716,7 +704,7 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 대형 쇼룸 사진 + 주소/길찾기 단일 도크 */}
+              {/* 우측 (5열): 대형 쇼룸 사진 + 단일 주소/영업시간/길찾기 도크 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
@@ -725,28 +713,17 @@ export default function Home({
                     eager
                     className="h-full w-full object-cover object-center"
                   />
-
-                  {/* 좌상단 프로스티드 글래스 플로팅 배지 */}
-                  <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#141A23] shadow-xs">
-                    <span className="inline-block w-2 h-2 rounded-full bg-[#0D9488]" />
-                    <span>1·2층 직영 쇼룸</span>
-                  </div>
-
-                  {/* 우상단 영업시간 캡슐 */}
-                  <div className="absolute top-3 right-3 z-10 inline-flex items-center rounded-full bg-[#141A23]/80 backdrop-blur-md px-3 py-1 text-hb-xs font-semibold text-white tabular-nums">
-                    {STORE.hours}
-                  </div>
                 </div>
 
-                {/* 하단 단일 주소 + 길찾기 도크 */}
-                <div className="border-t border-[#E2E6EC] px-4 py-3.5 sm:px-5 bg-[#F7F8FA] flex items-center justify-between gap-3">
+                {/* 하단 단일 주소 + 영업시간 + 길찾기 도크 */}
+                <div className="border-t border-[#E2E6EC] px-4 py-4 sm:px-5 bg-[#F7F8FA] flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] truncate max-w-full">
                       <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-[#E8521A]" />
                       <span className="truncate">{STORE.roadAddress}</span>
                     </p>
-                    <p className="mt-0.5 text-hb-xs text-[#64748B] truncate">
-                      {STORE.addressNote} · {STORE.parking}
+                    <p className="mt-0.5 text-hb-xs text-[#64748B] truncate tabular-nums">
+                      1·2층 직영 매장 · {STORE.hours} · {STORE.parking}
                     </p>
                   </div>
 
@@ -808,12 +785,12 @@ export default function Home({
             <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
               {/* 좌측 (5열): 업소용 핵심 메시지 & 전용 CTA */}
               <div className="lg:col-span-5 min-w-0">
-                <span className="inline-block rounded-full bg-[#E8521A] px-3 py-1 text-hb-xs font-bold text-white tracking-wide">
-                  식당·카페 창업 & 업소용 설비
+                <span className="text-hb-xs sm:text-hb-sm font-bold text-[#FB923C]">
+                  업소용 설비 · 사업자 전용
                 </span>
                 <h2
                   id="business-title"
-                  className="mt-3.5 text-hb-2xl sm:text-hb-3xl font-bold text-white tracking-tight leading-[1.25] break-keep [text-wrap:balance]"
+                  className="mt-2.5 text-hb-2xl sm:text-hb-3xl font-bold text-white tracking-tight leading-[1.25] break-keep [text-wrap:balance]"
                 >
                   식당·카페 창업 설비 도입부터
                   <br />
@@ -937,47 +914,35 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (8열): 01→04 직관적 타임라인 연결형 4단계 스텝 카드 */}
+              {/* 우측 (8열): 01→04 정돈된 4단계 매입 스텝 카드 */}
               <div className="lg:col-span-8 min-w-0">
-                <ol className="relative grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <ol className="relative grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {SELL_STEPS.map((s, i) => {
                     const isLast = i === SELL_STEPS.length - 1;
                     return (
                       <li
                         key={s.t}
-                        className="relative flex items-start gap-3.5 rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#CBD2DC] hover:shadow-card transition-[border-color,box-shadow] duration-150 overflow-hidden"
+                        className="flex items-start gap-4 rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs hover:border-[#CBD2DC] hover:shadow-card transition-[border-color,box-shadow] duration-150"
                       >
-                        {/* 배경 은은한 대형 스텝 번호 워터마크 */}
-                        <span
-                          className={`absolute right-3.5 top-2 select-none font-mono text-hb-3xl sm:text-hb-4xl font-extrabold tracking-tighter tabular-nums pointer-events-none transition-colors ${
-                            isLast ? "text-[#E8521A]/10" : "text-[#141A23]/[0.05]"
-                          }`}
-                          aria-hidden="true"
-                        >
-                          {s.step}
-                        </span>
-
                         <DuotoneIcon
                           d={s.icon}
                           tone={isLast ? "orange" : "navy"}
                           size="sm"
                         />
-                        <div className="min-w-0 flex-1 relative z-10">
-                          <div className="flex items-center gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline gap-2">
                             <span
-                              className={`inline-flex items-center rounded-md px-2 py-0.5 font-mono text-hb-xs font-bold tabular-nums ${
-                                isLast
-                                  ? "bg-[#E8521A] text-white"
-                                  : "bg-[#F1F3F6] text-[#334155]"
+                              className={`font-mono text-hb-xs font-bold tabular-nums ${
+                                isLast ? "text-[#E8521A]" : "text-[#64748B]"
                               }`}
                             >
-                              {s.step}단계
+                              {s.step}
                             </span>
                             <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
                               {s.t}
                             </h3>
                           </div>
-                          <p className="mt-2 text-hb-sm leading-relaxed text-[#334155] break-keep">
+                          <p className="mt-1.5 text-hb-sm leading-relaxed text-[#4E5968] break-keep">
                             {s.d}
                           </p>
                         </div>

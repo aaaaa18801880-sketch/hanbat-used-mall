@@ -51,7 +51,7 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
   },
   washer: {
     badge: "세탁기·건조기 출고 기준",
-    headline: "세탁조 분해 세척 및 찌꺼기 완벽 제거 · 고속 탈수 진동 밸런스 검수",
+    headline: "세탁조 분해 세척 및 내부 잔여물 제거 · 고속 탈수 진동 밸런스 검수",
     points: [
       "세탁조 전면 분해 살균 및 내부 잔여물 세척",
       "고속 탈수 진동 밸런스 및 급수/배수 누수 시험",
@@ -204,15 +204,11 @@ export function FeaturedProductsSection({
             )}
           </div>
 
-          {/* 우측: 안심 배지 + 전체 매물 링크 */}
+          {/* 우측: 전체 매물 링크 */}
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-3 py-1 text-hb-xs font-bold text-[#0F766E]">
-              <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#0D9488]" />
-              <span>전 품목 분해 고압세척 · 시운전 검수 완료</span>
-            </span>
             <Link
               href={galleryHref}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-4 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150"
             >
               <span>상세 필터 · 전체 매물 보기</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FB923C]" />
@@ -220,35 +216,33 @@ export function FeaturedProductsSection({
           </div>
         </div>
 
-        {/* 선택 카테고리 특화 품질 보증 & 검수 브리프 배너 */}
+        {/* 선택 카테고리 특화 검수 기준 스트립 */}
         {!loading && !error && (
-          <div className="mt-4 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-3.5 sm:p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4 shadow-2xs">
+          <div className="mt-4 rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
                 name={categoryFact.icon}
-                className="w-8 h-8 sm:w-9 sm:h-9 shrink-0 text-[#141A23]"
+                className="w-8 h-8 shrink-0 text-[#141A23]"
               />
               <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center rounded-md bg-[#141A23] px-2 py-0.5 text-hb-xs font-bold text-white shrink-0">
-                    {categoryFact.badge}
-                  </span>
-                  <strong className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
-                    {categoryFact.headline}
-                  </strong>
-                </div>
+                <span className="block text-hb-xs font-bold text-[#E8521A]">
+                  {categoryFact.badge}
+                </span>
+                <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
+                  {categoryFact.headline}
+                </strong>
               </div>
             </div>
 
-            <div className="pt-2.5 lg:pt-0 lg:pl-4 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-hb-xs shrink-0">
+            <div className="pt-2.5 lg:pt-0 lg:pl-5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-hb-xs shrink-0">
               {categoryFact.points.map((pt) => (
                 <span
                   key={pt}
-                  className="inline-flex items-center gap-1.5 font-semibold text-[#141A23] tabular-nums"
+                  className="inline-flex items-center gap-1.5 font-semibold text-[#334155] tabular-nums"
                 >
                   <Icon
                     d={ICON.check}
-                    className="w-3.5 h-3.5 text-[#0D9488] shrink-0"
+                    className="w-3.5 h-3.5 text-[#E8521A] shrink-0"
                   />
                   <span>{pt}</span>
                 </span>

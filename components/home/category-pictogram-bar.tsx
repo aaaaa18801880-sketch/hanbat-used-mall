@@ -137,30 +137,22 @@ export function CategoryPictogramBar({
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span
-              className="inline-block h-4 w-1.5 rounded-full bg-[#E8521A]"
-              aria-hidden="true"
-            />
-            <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-[-0.02em]">
+          <div className="flex flex-wrap items-baseline gap-2.5">
+            <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-[-0.02em]">
               품목별 쇼룸 카탈로그
             </h2>
             {typeof categoryCounts?.all === "number" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF4EE] border border-[#E8521A]/20 px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] tabular-nums">
-                <span>실매물</span>
-                <strong className="text-[#E8521A]">{categoryCounts.all}대</strong>
+              <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#64748B] tabular-nums">
+                총 {categoryCounts.all}대 · 품목 선택 시 아래 매물 필터링
               </span>
             )}
-            <span className="hidden md:inline text-hb-xs font-medium text-[#64748B]">
-              · 품목을 선택하면 아래 전시장 매물이 즉시 필터링됩니다
-            </span>
           </div>
 
           <Link
             href="/gallery"
-            className="group inline-flex items-center gap-1.5 rounded-full border border-[#CBD2DC] bg-white px-3.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
+            className="group inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
           >
-            <span>상세 검색 · 갤러리 전체보기</span>
+            <span>갤러리 전체보기</span>
             <Icon
               d={ICON.right}
               className="w-3.5 h-3.5 text-[#E8521A] transition-transform duration-150 group-hover:translate-x-0.5"
@@ -168,7 +160,7 @@ export function CategoryPictogramBar({
           </Link>
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 독 (외곽 회색 트레이 제거 → 여백 중심 개방형 8열 벤토 타일) */}
+        {/* 전 품목 쇼룸 카탈로그 (2색 중립 표면 위계) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2.5 sm:gap-3">
           {SHOWROOM_CATEGORIES.map((item) => {
             const isSelected = selectedKey === item.key;
@@ -181,20 +173,18 @@ export function CategoryPictogramBar({
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => handleCategoryClick(item)}
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 sm:p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                   isSelected
                     ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
                     : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
                 }`}
               >
-                  {/* 상단 행: 스쿼클 베젤 아이콘 + 우측 대수/B2B 배지 */}
+                  {/* 상단 행: 아이콘 + 간결한 대수 표기 */}
                   <div className="flex items-start justify-between gap-1.5 w-full">
                     <div
                       className={`grid h-10 w-10 place-items-center rounded-xl border transition-colors duration-150 shrink-0 ${
                         isSelected
                           ? "bg-white/10 border-white/15"
-                          : isBiz
-                          ? "bg-[#F0F9FF]/70 border-[#BAE6FD]/60 group-hover:bg-[#F0F9FF]"
                           : "bg-[#F7F8FA] border-[#E2E6EC] group-hover:bg-[#F1F3F6]"
                       }`}
                     >
@@ -206,25 +196,23 @@ export function CategoryPictogramBar({
                     </div>
 
                     <span
-                      className={`rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 ${
+                      className={`font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 pt-1 ${
                         isSelected
-                          ? "bg-white/15 text-[#FF8A50] ring-1 ring-white/20"
+                          ? "text-[#FF8A50]"
                           : isBiz
-                          ? "bg-[#F0F9FF] border border-[#BAE6FD] text-[#0369A1]"
-                          : "bg-[#F1F3F6] text-[#334155]"
+                          ? "text-[#E8521A]"
+                          : "text-[#64748B]"
                       }`}
                     >
                       {typeof count === "number"
-                        ? isBiz
-                          ? `B2B ${count}`
-                          : `${count}대`
+                        ? `${count}대`
                         : isBiz
-                        ? "B2B"
-                        : "쇼룸"}
+                        ? "업소"
+                        : "전체"}
                     </span>
                   </div>
 
-                  {/* 하단 행: 품목명 + 잘리지 않는 깔끔한 서브라벨 */}
+                  {/* 하단 행: 품목명 + 서브라벨 */}
                   <div className="mt-3 min-w-0 w-full">
                     <strong
                       className={`block text-hb-sm font-bold tracking-tight truncate transition-colors duration-150 ${
@@ -237,14 +225,10 @@ export function CategoryPictogramBar({
                     </strong>
                     <span
                       className={`mt-0.5 block text-hb-xs font-medium truncate transition-colors duration-150 ${
-                        isSelected
-                          ? "text-white/80"
-                          : isBiz
-                          ? "text-[#0369A1]"
-                          : "text-[#64748B]"
+                        isSelected ? "text-white/75" : "text-[#64748B]"
                       }`}
                     >
-                      {item.subLabel}
+                      {isBiz ? `업소 · ${item.subLabel}` : item.subLabel}
                     </span>
                   </div>
 

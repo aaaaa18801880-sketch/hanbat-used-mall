@@ -2652,9 +2652,9 @@ export default function GalleryPage() {
                   판매 상품 등록
                 </h2>
                 {isAnalyzing && (
-                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-hb-xs font-bold bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0] animate-pulse">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#E8521A] animate-ping" />
-                    AI 작성 중
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-hb-xs font-bold bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#E8521A]" />
+                    사양 분석 중
                   </span>
                 )}
               </div>
@@ -2717,9 +2717,9 @@ export default function GalleryPage() {
                 />
 
                 {isAnalyzing && (
-                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF4EE] border border-[#FADCD0] rounded text-[#E8521A] text-hb-xs font-semibold animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-[#E8521A] animate-ping" />
-                    AI가 사진 속 명판과 제품 사양을 분석하고 있습니다...
+                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF4EE] border border-[#FADCD0] rounded-lg text-[#E8521A] text-hb-xs font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-[#E8521A] shrink-0" />
+                    사진 속 명판과 제품 사양을 분석하고 있습니다...
                   </div>
                 )}
 

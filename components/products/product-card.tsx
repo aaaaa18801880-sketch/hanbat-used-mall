@@ -348,7 +348,7 @@ export function ProductCard({
                 {priceText}
               </strong>
             ) : (
-              <div className="inline-flex items-center gap-1.5 rounded-lg bg-[#FFF4EE] border border-[#FADCD0] px-2.5 py-0.5 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] truncate shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] truncate">
                 <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
                 <span className="sm:hidden truncate">견적 상담</span>
                 <span className="hidden sm:inline truncate">{priceText || "견적 상담 문의"}</span>
