@@ -25,7 +25,6 @@ import {
 import {
   STORE,
   telHref,
-  smsHref,
   maskName,
   splitImages,
   compressImage,
@@ -33,7 +32,6 @@ import {
   MAX_FILE_MB,
   STORAGE_BUCKETS,
   isProductSold,
-  normalizeProductCategory,
   getInquiryTypeLabel,
   extractStorageFilesByBucket,
   trackEvent,
@@ -45,6 +43,7 @@ import { FeaturedProductsSection } from "./featured-products-section";
 import {
   CategoryPictogramBar,
   SHOWROOM_CATEGORIES,
+  matchesShowroomCategory,
   type ShowroomCategoryItem,
   type PictogramKey,
 } from "./category-pictogram-bar";
@@ -90,25 +89,6 @@ type InquiryRow = {
   is_notice: boolean | null;
   created_at: string;
 };
-
-const SELL_FLOW_ITEMS = [
-  { step: "01", label: "사진·명판 전송" },
-  { step: "02", label: "당일 시세 안내" },
-  { step: "03", label: "방문 확인·수거" },
-  { step: "04", label: "현장 즉시 입금" },
-] as const;
-
-const SELL_ELIGIBLE_CRITERIA = [
-  "제조 10년 이내 정상 작동 가정용 냉장고 · 세탁기 · 에어컨 · TV",
-  "업소용 45박스 · 쇼케이스 · 제빙기 등 식당/카페 설비 일괄 매입",
-  "최근 연식 · 외관 양호 · 실외기/부속 완비 시 우대 시세 적용",
-] as const;
-
-const SELL_EXCLUDED_CRITERIA = [
-  "작동 불능 · 심한 부식 · 침수 및 주요 부품이 파손된 기기",
-  "단순 생활폐기물 처리 대행 및 재판매가 어려운 초구형 모델",
-  "엘리베이터 없는 고층 · 천장형/벽걸이 철거 · 사다리차 시 비용 협의",
-] as const;
 
 const COMMERCIAL_EQUIP_MATRIX = [
   {
@@ -243,7 +223,6 @@ export default function Home({
     review: Review;
     index: number;
   } | null>(null);
-  const [guideModalOpen, setGuideModalOpen] = useState(false);
   const [airconModalOpen, setAirconModalOpen] = useState(false);
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
@@ -350,7 +329,7 @@ export default function Home({
 
   const sellingCount = activeProducts.length;
 
-  /* 카테고리별 실시간 재고 수량 계산 */
+  /* 카테고리별 실시간 재고 수량 계산 (상호 배타 1:1 집계) */
   const categoryCounts = useMemo<Partial<Record<PictogramKey, number>>>(() => {
     const src = activeProducts.length > 0 ? activeProducts : featuredProducts;
     if (src.length === 0) return {};
@@ -359,15 +338,9 @@ export default function Home({
     };
     for (const catItem of SHOWROOM_CATEGORIES) {
       if (catItem.key === "all") continue;
-      map[catItem.key] = src.filter((p) => {
-        const c = normalizeProductCategory(p.category);
-        if (c !== catItem.filterCategory) return false;
-        if (catItem.filterKeyword) {
-          const hay = `${p.title} ${p.description || ""}`.toLowerCase();
-          return hay.includes(catItem.filterKeyword.toLowerCase());
-        }
-        return true;
-      }).length;
+      map[catItem.key] = src.filter((p) =>
+        matchesShowroomCategory(p, catItem)
+      ).length;
     }
     return map;
   }, [activeProducts, featuredProducts]);
@@ -861,148 +834,47 @@ export default function Home({
             </div>
           </div>
 
-          {/* 하단 매입 가능/불가 기준 중심 매입 안내 밴드 (#sell-section) */}
+          {/* 하단 가전 팔기 한 줄 배너 — 상세 기준·사진 접수는 전용 매입 페이지(/purchase)로 분리 */}
           <div
             id="sell-section"
-            className="bg-[#F7F8FA] py-10 sm:py-14"
+            className="bg-[#F7F8FA] py-5 sm:py-6"
             aria-labelledby="sell-title"
           >
-            <div className="hb-container">
-              <div className="grid gap-7 lg:grid-cols-12 lg:gap-10 items-start">
-                {/* 좌측 (4열): 매입 핵심 안내 및 직접 행동 버튼 */}
-                <div className="lg:col-span-4 min-w-0">
-                  <span className="hb-eyebrow">당일 방문 매입 · 현장 정산</span>
+            <div className="hb-container flex flex-col gap-3.5 md:flex-row md:items-center md:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center rounded-full bg-[#FFF4EE] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#E8521A]">
+                    가전 · 설비 팔기
+                  </span>
                   <h2
                     id="sell-title"
-                    className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-tight leading-[1.25] break-keep [text-wrap:balance]"
+                    className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight"
                   >
-                    쓰던 가전, 사진만 보내주세요
+                    안 쓰는 가전·식당 폐업 설비 방문 매입
                   </h2>
-                  <p className="mt-2.5 text-hb-sm sm:text-hb-base text-[#334155] leading-relaxed break-keep [text-wrap:balance]">
-                    매입 가능 여부를 먼저 확인하신 뒤 사진과 모델명 명판을 보내주시면 당일 방문 수거 후 즉시 입금합니다.
-                  </p>
-
-                  <div className="mt-5 flex flex-col sm:flex-row lg:flex-col gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => openInquiry("내 물건 팔기")}
-                      className="hb-btn-accent h-11 px-5 text-hb-sm sm:text-hb-base font-bold justify-between cursor-pointer active:scale-[0.96]"
-                    >
-                      <span>방문 매입 견적 신청하기</span>
-                      <Icon d={ICON.arrow} className="h-4 w-4" />
-                    </button>
-                    <a
-                      href={STORE.kakaoChat}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hb-btn-kakao h-11 px-5 text-hb-sm sm:text-hb-base font-bold justify-between active:scale-[0.96]"
-                    >
-                      <span>카카오톡으로 사진 보내기</span>
-                      <Icon d={ICON.chat} className="h-4 w-4" />
-                    </a>
-                  </div>
-
-                  <div className="mt-3.5 flex flex-wrap items-center gap-4 text-hb-xs sm:text-hb-sm">
-                    <button
-                      type="button"
-                      onClick={() => setGuideModalOpen(true)}
-                      className="inline-flex items-center gap-1.5 font-bold text-[#334155] hover:text-[#141A23] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4 cursor-pointer"
-                    >
-                      <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#E8521A]" />
-                      <span>매입 사진 촬영 가이드</span>
-                    </button>
-                    <Link
-                      href="/purchase"
-                      className="inline-flex items-center gap-1 font-bold text-[#141A23] hover:text-[#E8521A] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4"
-                    >
-                      <span>전용 매입 신청 페이지 →</span>
-                    </Link>
-                  </div>
                 </div>
+                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#4E5968] break-keep">
+                  사진과 명판만 보내주시면 대전·세종·충청 당일 방문 수거 후 현장 즉시 입금해 드립니다.
+                </p>
+              </div>
 
-                {/* 우측 (8열): 매입 가능/우대 기준 vs 매입 불가/사전 확인 + 1줄 진행 흐름 */}
-                <div className="lg:col-span-8 min-w-0">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {/* 매입 가능 · 우대 기준 */}
-                    <div className="rounded-2xl border border-[#CBD2DC] bg-white p-5 shadow-2xs">
-                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
-                        <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
-                          매입 가능 · 우대 기준
-                        </h3>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 text-hb-xs font-bold text-[#047857] shrink-0">
-                          <Icon d={ICON.check} className="w-3 h-3" />
-                          <span>우선 매입</span>
-                        </span>
-                      </div>
-                      <ul className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm text-[#334155] leading-relaxed">
-                        {SELL_ELIGIBLE_CRITERIA.map((line) => (
-                          <li key={line} className="flex items-start gap-2 break-keep">
-                            <Icon
-                              d={ICON.check}
-                              className="w-4 h-4 text-[#E8521A] shrink-0 mt-0.5"
-                            />
-                            <span>{line}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* 매입 불가 · 사전 확인 필요 */}
-                    <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs">
-                      <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
-                        <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
-                          매입 불가 · 확인 필요
-                        </h3>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF7ED] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#C2410C] shrink-0">
-                          <Icon d={ICON.close} className="w-3 h-3" />
-                          <span>제외 · 협의</span>
-                        </span>
-                      </div>
-                      <ul className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm text-[#4E5968] leading-relaxed">
-                        {SELL_EXCLUDED_CRITERIA.map((line) => (
-                          <li key={line} className="flex items-start gap-2 break-keep">
-                            <Icon
-                              d={ICON.close}
-                              className="w-4 h-4 text-[#94A3B8] shrink-0 mt-0.5"
-                            />
-                            <span>{line}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* 압축된 1줄 매입 진행 순서 + 빠른 문자 전송 스트립 */}
-                  <div className="mt-3.5 rounded-xl border border-[#E2E6EC] bg-white px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-3">
-                    <ol className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-hb-xs font-bold text-[#334155]">
-                      {SELL_FLOW_ITEMS.map((item, idx) => (
-                        <React.Fragment key={item.step}>
-                          <li className="inline-flex items-center gap-1.5">
-                            <span className="font-mono text-[#E8521A] tabular-nums">
-                              {item.step}
-                            </span>
-                            <span className="text-[#141A23]">{item.label}</span>
-                          </li>
-                          {idx < SELL_FLOW_ITEMS.length - 1 && (
-                            <span className="text-[#CBD2DC]" aria-hidden="true">
-                              →
-                            </span>
-                          )}
-                        </React.Fragment>
-                      ))}
-                    </ol>
-
-                    <a
-                      href={smsHref(
-                        STORE.mobile,
-                        "[한밭중고전자 매입문의] 처분할 가전 사진과 지역을 보내주시면 빠르게 매입 견적을 안내해 드립니다."
-                      )}
-                      className="shrink-0 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] hover:underline tabular-nums active:scale-[0.96] transition-transform duration-150 inline-block"
-                    >
-                      문자({STORE.mobile}) 바로 전송 →
-                    </a>
-                  </div>
-                </div>
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Link
+                  href="/purchase"
+                  className="hb-btn-accent h-10 sm:h-11 px-4 sm:px-5 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
+                >
+                  <span>매입 기준 · 사진 견적 신청</span>
+                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                </Link>
+                <a
+                  href={STORE.kakaoChat}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hb-btn-kakao h-10 sm:h-11 px-4 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
+                >
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                  <span>카카오톡 사진 문의</span>
+                </a>
               </div>
             </div>
           </div>
@@ -1628,70 +1500,6 @@ export default function Home({
         onAdminClick={() => (isAdmin ? handleLogout() : setLoginOpen(true))}
       />
       <MobileCtaBar onInquiryClick={() => openInquiry("구매 문의")} />
-
-      {/* ── 매입 안내문 원본 비율 확대 모달 ── */}
-      {guideModalOpen && (
-        <Modal
-          open={guideModalOpen}
-          onClose={() => setGuideModalOpen(false)}
-          label="제품 매입 안내문 크게 보기"
-          panelClassName="max-w-4xl"
-          closeOnOverlayClick={false}
-        >
-          <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-3.5 text-white">
-              <div>
-                <h3 className="text-hb-base font-bold">
-                  {STORE.name} 제품 매입 안내문
-                </h3>
-                <p className="text-hb-xs text-white/70">
-                  촬영 가이드 및 매입 시 유의사항 안내
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setGuideModalOpen(false)}
-                aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded bg-white/10 text-white hover:bg-white/20 active:scale-[0.96] transition-[background-color,transform]"
-              >
-                <Icon d={ICON.close} className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto bg-[#F7F8FA] p-4 sm:p-6">
-              <SafeImg
-                src="/매입 안내문.png"
-                alt="제품 매입 시 고객 안내문 전체 이미지"
-                eager
-                className="mx-auto max-h-[72vh] w-auto max-w-full object-contain rounded-xl border border-[#E2E6EC] bg-white"
-              />
-            </div>
-            <div className="flex items-center justify-between gap-3 border-t border-[#E2E6EC] bg-white px-5 py-3.5">
-              <span className="text-hb-xs text-[#334155] hidden sm:inline">
-                안내문에 맞춰 사진을 보내주시면 정확한 견적 안내가 가능합니다.
-              </span>
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGuideModalOpen(false);
-                    openInquiry("내 물건 팔기");
-                  }}
-                  className="hb-btn-accent h-10 px-4 text-hb-sm active:scale-[0.96]"
-                >
-                  바로 매입 견적 신청하기
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGuideModalOpen(false)}
-                  className="hb-btn-outline h-10 px-4 text-hb-sm active:scale-[0.96]"
-                >
-                  닫기
-                </button>
-              </div>
-            </div>
-          </div>
-        </Modal>
-      )}
 
       {/* ── 에어컨/냉난방기 세트 구성 안내문 모달 ── */}
       {airconModalOpen && (

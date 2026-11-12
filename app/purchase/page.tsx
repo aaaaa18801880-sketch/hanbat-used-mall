@@ -1,5 +1,6 @@
 import React from "react";
 import { STORE, telHref } from "../../lib/site";
+import { serializeJsonLd } from "../../lib/json-ld";
 import {
   SiteHeader,
   SiteFooter,
@@ -10,6 +11,33 @@ import {
 import { ModernApplianceIcon } from "../../components/ui/modern-icons";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 import { PurchaseGuideLightbox } from "../../components/purchase/purchase-guide-lightbox";
+
+const SELL_ELIGIBLE_CRITERIA = [
+  "제조 10년 이내 정상 작동 가정용 냉장고 · 세탁기 · 에어컨 · TV",
+  "업소용 45박스 · 쇼케이스 · 제빙기 등 식당/카페 설비 일괄 매입",
+  "최근 연식 · 외관 양호 · 실외기/부속 완비 시 우대 시세 적용",
+] as const;
+
+const SELL_EXCLUDED_CRITERIA = [
+  "작동 불능 · 심한 부식 · 침수 및 주요 부품이 파손된 기기",
+  "단순 생활폐기물 처리 대행 및 재판매가 어려운 초구형 모델",
+  "엘리베이터 없는 고층 · 천장형/벽걸이 철거 · 사다리차 시 비용 협의",
+] as const;
+
+const BUYBACK_FAQS = [
+  {
+    q: "사진은 몇 장 정도 어떤 각도로 찍어서 보내야 하나요?",
+    a: "제품 전체 정면 사진 1장, 내부(또는 사용 상태) 사진 1장, 모델명·제조년월이 적힌 명판 스티커 근접 사진 1장 등 2~4장을 올려주시면 정확한 사전 시세 안내가 가능합니다.",
+  },
+  {
+    q: "방문 수거 가능 지역과 정산 방식이 궁금합니다.",
+    a: "대전 전역(중구·서구·유성구·동구·대덕구)과 세종시, 계룡·공주·논산·금산·옥천·청주 등 인근 충청권에 직영 차량이 출장 방문하며, 수거 확인 즉시 현장 계좌 입금 또는 현금으로 정산해 드립니다.",
+  },
+  {
+    q: "식당·카페 폐업이나 이전 시 대량 집기 철거도 함께 되나요?",
+    a: "네, 45박스·테이블냉장고·쇼케이스·제빙기·스탠드/천장형 냉난방기 등 업소용 설비 일괄 매입과 철거를 한 번에 진행합니다.",
+  },
+] as const;
 
 const BUYBACK_STEPS = [
   {
@@ -36,8 +64,47 @@ const BUYBACK_STEPS = [
 ] as const;
 
 export default function PurchasePage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Service",
+        name: `${STORE.name} 중고가전 · 업소용 폐업설비 방문 매입`,
+        serviceType: "중고가전 방문 매입 및 업소용 주방·냉난방 설비 일괄 철거",
+        provider: {
+          "@type": "LocalBusiness",
+          name: STORE.name,
+          telephone: STORE.tel,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: STORE.roadAddress,
+            addressLocality: "대전광역시",
+            addressCountry: "KR",
+          },
+          url: `${STORE.url}/purchase`,
+        },
+        areaServed: ["대전광역시", "세종특별자치시", "계룡시", "공주시", "논산시", "청주시"],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: BUYBACK_FAQS.map((item) => ({
+          "@type": "Question",
+          name: item.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: item.a,
+          },
+        })),
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
       <SiteHeader />
 
       {/* 상단 매입 전용 헤더 */}
@@ -100,6 +167,58 @@ export default function PurchasePage() {
               </div>
             </div>
           ))}
+        </section>
+
+        {/* 매입 가능/우대 기준 vs 매입 불가/사전 확인 카드 */}
+        <section
+          aria-label="매입 가능 및 제외 기준"
+          className="grid grid-cols-1 md:grid-cols-2 gap-4"
+        >
+          <div className="rounded-2xl border border-[#CBD2DC] bg-white p-5 sm:p-6 shadow-2xs">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
+              <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                매입 가능 · 우대 기준
+              </h2>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 text-hb-xs font-bold text-[#047857] shrink-0">
+                <Icon d={ICON.check} className="w-3 h-3" />
+                <span>우선 매입</span>
+              </span>
+            </div>
+            <ul className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm text-[#334155] leading-relaxed">
+              {SELL_ELIGIBLE_CRITERIA.map((line) => (
+                <li key={line} className="flex items-start gap-2 break-keep">
+                  <Icon
+                    d={ICON.check}
+                    className="w-4 h-4 text-[#E8521A] shrink-0 mt-0.5"
+                  />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
+              <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                매입 불가 · 사전 확인 필요
+              </h2>
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF7ED] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#C2410C] shrink-0">
+                <Icon d={ICON.close} className="w-3 h-3" />
+                <span>제외 · 협의</span>
+              </span>
+            </div>
+            <ul className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm text-[#4E5968] leading-relaxed">
+              {SELL_EXCLUDED_CRITERIA.map((line) => (
+                <li key={line} className="flex items-start gap-2 break-keep">
+                  <Icon
+                    d={ICON.close}
+                    className="w-4 h-4 text-[#94A3B8] shrink-0 mt-0.5"
+                  />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
 
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
@@ -183,6 +302,43 @@ export default function PurchasePage() {
             <PurchaseGuideLightbox />
           </aside>
         </div>
+
+        {/* 지역 매입 출장 범위 및 자주 묻는 질문 (지역 검색 SEO 섹션) */}
+        <section
+          aria-labelledby="purchase-faq-title"
+          className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#E2E6EC]">
+            <div>
+              <span className="hb-eyebrow">방문 매입 출장 권역 · FAQ</span>
+              <h2
+                id="purchase-faq-title"
+                className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#141A23]"
+              >
+                대전 · 세종 · 충청 방문 매입 안내
+              </h2>
+            </div>
+            <span className="text-hb-xs font-semibold text-[#64748B]">
+              대전 전역 · 세종 · 계룡 · 공주 · 논산 · 옥천 · 청주 출장 수거
+            </span>
+          </div>
+
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+            {BUYBACK_FAQS.map((item) => (
+              <div
+                key={item.q}
+                className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4"
+              >
+                <h3 className="text-hb-sm font-bold text-[#141A23] break-keep leading-snug">
+                  {item.q}
+                </h3>
+                <p className="mt-2 text-hb-xs sm:text-hb-sm text-[#4E5968] leading-relaxed break-keep">
+                  {item.a}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
       </main>
 
       <SiteFooter />

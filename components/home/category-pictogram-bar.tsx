@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { trackEvent } from "../../lib/site";
+import { trackEvent, normalizeProductCategory } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 import { ModernApplianceIcon, type ModernIconType } from "../ui/modern-icons";
 
@@ -104,6 +104,42 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   },
 ];
 
+/**
+ * 쇼룸 카테고리별 상호 배타(1:1) 매칭 SSOT
+ * — 업소용기기 세부 3분류(업소용 냉장고 / 쇼케이스 / 제빙기·주방설비)가 겹치지 않도록 분리해
+ *   세부 카테고리 합계가 항상 전체 매물 건수(all)와 일치하도록 보장합니다.
+ */
+export function matchesShowroomCategory(
+  product: {
+    category?: string | null;
+    title?: string | null;
+    description?: string | null;
+  },
+  catItem: ShowroomCategoryItem
+): boolean {
+  if (catItem.key === "all") return true;
+  if (normalizeProductCategory(product.category) !== catItem.filterCategory) {
+    return false;
+  }
+
+  if (catItem.filterCategory === "업소용기기") {
+    const hay = `${product.title || ""} ${product.description || ""}`.toLowerCase();
+    const isShowcase = hay.includes("쇼케이스");
+    const isBizFridge = hay.includes("냉장") && !isShowcase;
+
+    if (catItem.key === "showcase") return isShowcase;
+    if (catItem.key === "bizFridge") return isBizFridge;
+    if (catItem.key === "kitchen") return !isShowcase && !isBizFridge;
+  }
+
+  if (catItem.filterKeyword) {
+    const hay = `${product.title || ""} ${product.description || ""}`.toLowerCase();
+    return hay.includes(catItem.filterKeyword.toLowerCase());
+  }
+
+  return true;
+}
+
 export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
@@ -147,7 +183,7 @@ export function CategoryPictogramBar({
             </h2>
             {typeof categoryCounts?.all === "number" && (
               <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#64748B] tabular-nums">
-                총 {categoryCounts.all}대 · 품목 선택 시 아래 매물 필터링
+                총 {categoryCounts.all}건 · 품목 선택 시 아래 매물 필터링
               </span>
             )}
           </div>
@@ -209,7 +245,7 @@ export function CategoryPictogramBar({
                       }`}
                     >
                       {typeof count === "number"
-                        ? `${count}대`
+                        ? `${count}건`
                         : isBiz
                         ? "업소"
                         : "전체"}

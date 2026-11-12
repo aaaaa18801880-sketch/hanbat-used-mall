@@ -5,7 +5,6 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   isProductSold,
-  normalizeProductCategory,
   STORE,
   STORE_MERCHANT_POLICY,
   telHref,
@@ -15,7 +14,10 @@ import {
   ProductCard,
   type ProductItem,
 } from "../products/product-card";
-import type { ShowroomCategoryItem } from "./category-pictogram-bar";
+import {
+  matchesShowroomCategory,
+  type ShowroomCategoryItem,
+} from "./category-pictogram-bar";
 import {
   ModernApplianceIcon,
   type ModernIconType,
@@ -140,15 +142,7 @@ export function FeaturedProductsSection({
       return source;
     }
 
-    return source.filter((p) => {
-      const cat = normalizeProductCategory(p.category);
-      if (cat !== selectedCategory.filterCategory) return false;
-      if (selectedCategory.filterKeyword) {
-        const hay = `${p.title} ${p.description || ""}`.toLowerCase();
-        return hay.includes(selectedCategory.filterKeyword.toLowerCase());
-      }
-      return true;
-    });
+    return source.filter((p) => matchesShowroomCategory(p, selectedCategory));
   }, [products, selectedCategory]);
 
   const displayedProducts = useMemo(
@@ -364,7 +358,7 @@ export function FeaturedProductsSection({
                   href={galleryHref}
                   className="hb-btn-primary h-11 px-6 text-hb-sm font-bold active:scale-[0.96]"
                 >
-                  <span>전체 판매 제품 갤러리 ({totalSellingCount}대)</span>
+                  <span>전체 판매 제품 갤러리 ({totalSellingCount}건)</span>
                   <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />
                 </Link>
               </div>
