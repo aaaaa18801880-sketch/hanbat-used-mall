@@ -230,16 +230,38 @@ export function extractSpecCapsules(
   };
 
   const normalizedCat = category ? normalizeProductCategory(category) : "";
+  const isMisclassifiedAppliance = /전자레인지|광파오븐|세탁기|냉장고/.test(
+    title ?? ""
+  );
   const isAircon =
-    normalizedCat === "에어컨/냉난방기" ||
-    /에어컨|냉난방기|시스템에어컨|멀티에어컨/.test(title ?? "");
+    !isMisclassifiedAppliance &&
+    (normalizedCat === "에어컨/냉난방기" ||
+      /에어컨|냉난방기|시스템에어컨|멀티에어컨/.test(title ?? ""));
 
-  // 전기 규격 우선 표기: 3상 380V는 전 품목, 단상 220V는 에어컨·냉난방기에만 표기
-  const isThreePhase = /삼상|3\s*상|380\s*V/i.test(combined);
+  // 전기 규격 우선 표기:
+  // - 다른 제품군: 3상 380V가 필요한 모델만 표기
+  // - 에어컨/냉난방기: 단상 220V / 3상 380V 모두 최우선 표기
+  const isThreePhase = /삼상|3\s*상|3\s*[ØΦφ]|380\s*V/i.test(combined);
+  const hasSinglePhaseText = /단상|1\s*상|1\s*[ØΦφ]|220\s*V/i.test(combined);
+  const isSinglePhaseWallOrHome =
+    isAircon &&
+    (/CPV-Q1101P0/i.test(combined) ||
+      /벽걸이|창문형|2\s*in\s*1|투인원/i.test(title ?? "") ||
+      (/무풍|스탠드/.test(title ?? "") &&
+        !/30\s*평|36\s*평|40\s*평|50\s*평|60\s*평|63\s*평|80\s*평|천장|시스템|상업용|업소/.test(
+          combined
+        )));
+
   if (isThreePhase) {
     addTag("3상 380V");
-  } else if (isAircon && /단상|220\s*V/i.test(combined)) {
-    addTag("단상 220V");
+  } else if (isAircon) {
+    if (hasSinglePhaseText || isSinglePhaseWallOrHome) {
+      addTag("단상 220V");
+    } else if (/다량\s*보유|다양한\s*용량/.test(combined)) {
+      addTag("단상·3상 구비");
+    } else {
+      addTag("단상/3상 문의");
+    }
   }
 
   const boxMatch = combined.match(/\b(25|30|45|65)\s*박스/);
