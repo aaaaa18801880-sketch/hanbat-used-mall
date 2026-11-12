@@ -49,7 +49,6 @@ import {
 } from "./category-pictogram-bar";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
-import { DeliveryRegionChecker } from "./delivery-region-checker";
 
 const AirconGuideModal = dynamic(
   () =>
@@ -890,14 +889,12 @@ export default function Home({
         >
           <div className="hb-container">
             <SectionHeading
-              eyebrow="오프라인 매장 및 상담"
+              eyebrow="오프라인 매장 · 직배송 안내"
               title={<span id="cta-title" className="[text-wrap:balance]">오프라인 매장 오시는 길 및 실시간 문의</span>}
-              desc="대전 중촌동 매장에 방문해 실물을 직접 확인하시거나 전화·카톡·온라인 게시판으로 편하게 문의해 주세요."
+              desc="대전·세종·충청권 직배송 지원 및 중촌동 매장 실물 확인·현장 상차가 가능합니다."
             />
 
-            <DeliveryRegionChecker className="mt-5" />
-
-            <div className="mt-6 grid gap-5 lg:grid-cols-12 items-stretch">
+            <div className="mt-5 grid gap-5 lg:grid-cols-12 items-stretch">
               {/* 좌측 (7열): 오프라인 매장 지도 및 주소·편의시설 일체형 카드 (#location-section) */}
               <div
                 id="location-section"
