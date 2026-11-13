@@ -190,10 +190,10 @@ export function ProductCard({
 
   return (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition-[border-color,box-shadow,transform] duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] ${
+      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white hb-product-card transition-[border-color,box-shadow,transform] duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] ${
         isSelected
-          ? "border-[#E8521A] ring-2 ring-[#E8521A] bg-[#FFFDFB] shadow-card"
-          : "border-[#E2E6EC] shadow-2xs hover:-translate-y-0.5 hover:border-[#94A3B8] hover:shadow-card"
+          ? "border-[#E8521A] ring-2 ring-[#E8521A] bg-[#FFFDFB]"
+          : "border-[#E2E6EC] hover:-translate-y-0.5 hover:border-[#94A3B8]"
       }`}
     >
       {/* 1. 1:1 정방형 스튜디오 사진 영역 */}
@@ -214,7 +214,7 @@ export function ProductCard({
 
         {sold && (
           <div className="absolute inset-0 flex items-center justify-center bg-[#141A23]/45 backdrop-blur-[1px]">
-            <span className="rounded-full bg-[#141A23]/95 px-4 py-1.5 text-hb-xs font-bold tracking-wider text-white shadow-xs">
+            <span className="hb-trim rounded-full bg-[#141A23]/95 px-4 py-1.5 text-hb-xs font-bold tracking-wider text-white shadow-xs">
               판매완료
             </span>
           </div>
@@ -239,7 +239,7 @@ export function ProductCard({
               showNew={false}
             />
             {product.condition_grade && (
-              <span className="inline-flex items-center rounded-full bg-white/95 backdrop-blur-md px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] shadow-2xs">
+              <span className="hb-trim inline-flex items-center rounded-full bg-white/95 backdrop-blur-md px-2.5 py-1 text-hb-xs font-bold text-[#141A23] shadow-2xs">
                 {product.condition_grade.split(" ")[0]}
               </span>
             )}
@@ -296,11 +296,11 @@ export function ProductCard({
         )}
       </div>
 
-      {/* 2. 카드 본문 (제목 2줄 높이 고정으로 행 전체 가격 위치 일직선 정렬) */}
-      <div className="flex flex-1 flex-col justify-between p-3 sm:p-4 bg-white">
+      {/* 2. 카드 본문 (제목 2줄 높이 고정으로 행 전체 가격 위치 일직선 정렬 + @container 적응형 패딩) */}
+      <div className="flex flex-1 flex-col justify-between p-3 hb-card-body bg-white">
         <div>
           <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="inline-flex items-center rounded bg-[#F1F3F6] px-2 py-0.5 font-semibold text-[#334155] truncate">
+            <span className="hb-trim inline-flex items-center rounded bg-[#F1F3F6] px-2 py-1 font-semibold text-[#334155] truncate">
               {categoryLabel}
             </span>
             {modelName && (
@@ -314,7 +314,7 @@ export function ProductCard({
           </div>
 
           <h3
-            className={`mt-2 min-h-[2.8em] line-clamp-2 text-hb-sm sm:text-hb-base font-bold leading-[1.4] transition-colors break-keep ${
+            className={`mt-2 min-h-[2.8em] line-clamp-2 hb-card-title text-hb-sm font-bold leading-[1.4] transition-colors break-keep ${
               sold
                 ? "text-[#64748B]"
                 : "text-[#141A23] group-hover:text-[#E8521A]"
@@ -345,7 +345,7 @@ export function ProductCard({
                 판매완료 · 유사매물 문의
               </span>
             ) : priced ? (
-              <strong className="block text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tabular-nums tracking-tight truncate">
+              <strong className="block hb-card-price text-hb-lg font-bold text-[#141A23] tabular-nums tracking-tight truncate">
                 {priceText}
               </strong>
             ) : (
@@ -356,7 +356,7 @@ export function ProductCard({
               </div>
             )}
             {!sold && (
-              <span className="hidden xs:inline-flex items-center gap-1 shrink-0 text-hb-xs font-semibold text-[#0F766E]">
+              <span className="hb-trim hidden xs:inline-flex items-center gap-1 shrink-0 text-hb-xs font-semibold text-[#0F766E]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
                 <span>검수필</span>
               </span>
@@ -371,15 +371,15 @@ export function ProductCard({
               specCapsules.map((cap, capIdx) => (
                 <span
                   key={cap}
-                  className={`rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap ${
-                    capIdx > 0 ? "hidden sm:inline-block" : "inline-block"
+                  className={`hb-trim rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-1 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap ${
+                    capIdx > 0 ? "hb-card-cap-extra" : "inline-block"
                   }`}
                 >
                   {cap}
                 </span>
               ))
             ) : (
-              <span className="inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-semibold text-[#4E5968] truncate">
+              <span className="hb-trim inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-1 text-hb-xs font-semibold text-[#4E5968] truncate">
                 {specSummaryText}
               </span>
             )}
@@ -394,7 +394,7 @@ export function ProductCard({
               aria-label={`${inBasket ? "담김" : "견적함"} - ${
                 product.title
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`relative z-20 shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-hb-xs font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
+              className={`hb-trim relative z-20 shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
                   ? "bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]/40"
                   : "bg-[#F1F3F6] text-[#141A23] hover:bg-[#141A23] hover:text-white"

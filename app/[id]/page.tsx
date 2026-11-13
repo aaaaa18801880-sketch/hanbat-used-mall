@@ -15,6 +15,7 @@ import {
   normalizeProductCategory,
   formatProductPrice,
   hasProductPrice,
+  extractManufacturerBrand,
   extractModelName,
   extractSpecCapsules,
   getCategoryFaqs,
@@ -166,6 +167,7 @@ export default async function ProductDetailPage({
     : formatProductPrice(product.price, categoryLabel);
 
   const modelName = extractModelName(product.description, product.title);
+  const detectedBrand = extractManufacturerBrand(product.title, product.description);
   const specCapsules = extractSpecCapsules(
     product.title,
     product.description,
@@ -266,10 +268,15 @@ export default async function ProductDetailPage({
           `${STORE.name} ${categoryLabel} ${product.title} (작동 검수 완료 · ${warrantySummary})`,
         image: images.length > 0 ? images : [`${STORE.url}/og-image.jpg`],
         itemCondition: "https://schema.org/UsedCondition",
-        brand: {
-          "@type": "Organization",
-          name: STORE.name,
-        },
+        brand: detectedBrand
+          ? {
+              "@type": "Brand",
+              name: detectedBrand,
+            }
+          : {
+              "@type": "Organization",
+              name: STORE.name,
+            },
         ...(specCapsules.length > 0
           ? {
               additionalProperty: specCapsules.map((tag) => ({
@@ -361,7 +368,7 @@ export default async function ProductDetailPage({
 
       <SiteHeader />
 
-      <main className="hb-container py-5 sm:py-8 flex-1">
+      <main id="main-content" tabIndex={-1} className="hb-container py-5 sm:py-8 flex-1 focus:outline-none">
         {/* 상단 브레드크럼 및 공유 액션 */}
         <nav
           aria-label="경로 이동"

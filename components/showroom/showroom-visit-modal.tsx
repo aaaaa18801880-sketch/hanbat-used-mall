@@ -43,8 +43,6 @@ export function ShowroomVisitModal({
     VISIT_TIME_OPTIONS[0]
   );
 
-  if (!open) return null;
-
   const cat = product ? normalizeProductCategory(product.category) : "";
   const priceDisplay = product ? formatProductPrice(product.price, cat) : "";
   const smsBody = buildShowroomVisitSmsBody({

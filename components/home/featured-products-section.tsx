@@ -227,10 +227,10 @@ export function FeaturedProductsSection({
                 className="w-8 h-8 shrink-0 text-[#141A23]"
               />
               <div className="min-w-0">
-                <span className="block text-hb-xs font-bold text-[#E8521A]">
+                <span className="hb-trim block text-hb-xs font-bold text-[#E8521A]">
                   {categoryFact.badge}
                 </span>
-                <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
+                <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep [text-wrap:pretty]">
                   {categoryFact.headline}
                 </strong>
               </div>

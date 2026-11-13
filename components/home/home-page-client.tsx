@@ -168,6 +168,28 @@ const FAQS = [
   },
 ] as const;
 
+function handleTabListKeyDown<T extends string>(
+  e: React.KeyboardEvent<HTMLDivElement>,
+  keys: readonly T[],
+  current: T,
+  onChange: (next: T) => void
+) {
+  const idx = keys.indexOf(current);
+  if (idx < 0) return;
+
+  let nextIdx = idx;
+  if (e.key === "ArrowRight") nextIdx = (idx + 1) % keys.length;
+  else if (e.key === "ArrowLeft") nextIdx = (idx - 1 + keys.length) % keys.length;
+  else if (e.key === "Home") nextIdx = 0;
+  else if (e.key === "End") nextIdx = keys.length - 1;
+  else return;
+
+  e.preventDefault();
+  onChange(keys[nextIdx]);
+  const tabs = e.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]');
+  tabs[nextIdx]?.focus();
+}
+
 /* ════════════════════════════════════════════════════════════
    2. 메인 페이지 컴포넌트 (Modern Appliance Showroom 아키텍처)
    ════════════════════════════════════════════════════════════ */
@@ -571,7 +593,7 @@ export default function Home({
         )}
       </SiteHeader>
 
-      <main id="main-content" className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         {/* ════════════════════════════════════════════════════════════
             [S1] 쇼룸 아키텍처 히어로 (좌: 핵심 메시지 & 듀얼 액션 독 + 3대 지표 / 우: 직영 쇼룸 & 실시간 입고 매물 프리뷰)
             ════════════════════════════════════════════════════════════ */}
@@ -598,7 +620,7 @@ export default function Home({
                     <span className="text-[#E8521A]">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
-                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep">
+                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep [text-wrap:pretty]">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후{" "}
                     <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
@@ -680,12 +702,13 @@ export default function Home({
               </div>
 
               {/* 우측 (5열): 대형 쇼룸 사진 + 단일 주소/영업시간/길찾기 도크 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white hb-surface-card hover:translate-y-0">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
                     src="/store-exterior.jpg"
                     alt={`${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
                     eager
+                    priority="high"
                     className="h-full w-full object-cover object-center"
                   />
                 </div>
@@ -756,7 +779,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="business-section"
-          className="border-b border-[#E2E6EC]"
+          className="hb-below-fold border-b border-[#E2E6EC]"
           aria-labelledby="business-title"
         >
           {/* 상단 다크 네이비 B2B 쇼룸 밴드 */}
@@ -884,7 +907,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="inquiry-section"
-          className="border-b border-[#E2E6EC] bg-white py-8 sm:py-11"
+          className="hb-below-fold border-b border-[#E2E6EC] bg-white py-8 sm:py-11"
           aria-labelledby="cta-title"
         >
           <div className="hb-container">
@@ -1119,7 +1142,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="reviews-section"
-          className="border-b border-[#E2E6EC] bg-[#F7F8FA] py-8 sm:py-11"
+          className="hb-below-fold border-b border-[#E2E6EC] bg-[#F7F8FA] py-8 sm:py-11"
           aria-labelledby="review-title"
         >
           <div className="hb-container">
@@ -1154,14 +1177,23 @@ export default function Home({
                 <div
                   role="tablist"
                   aria-label="시공 현장 분류"
+                  onKeyDown={(e) =>
+                    handleTabListKeyDown(
+                      e,
+                      ["all", "home", "commercial"] as const,
+                      reviewFilter,
+                      setReviewFilter
+                    )
+                  }
                   className="inline-flex rounded-xl border border-[#E2E6EC] bg-white p-1"
                 >
                   <button
                     type="button"
                     role="tab"
+                    tabIndex={reviewFilter === "all" ? 0 : -1}
                     aria-selected={reviewFilter === "all"}
                     onClick={() => setReviewFilter("all")}
-                    className={`rounded-lg px-3.5 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
+                    className={`hb-tab-indicator hb-trim rounded-lg px-3.5 py-2 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "all"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#334155] hover:text-[#141A23]"
@@ -1172,9 +1204,10 @@ export default function Home({
                   <button
                     type="button"
                     role="tab"
+                    tabIndex={reviewFilter === "home" ? 0 : -1}
                     aria-selected={reviewFilter === "home"}
                     onClick={() => setReviewFilter("home")}
-                    className={`rounded-lg px-3.5 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
+                    className={`hb-tab-indicator hb-trim rounded-lg px-3.5 py-2 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "home"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#334155] hover:text-[#141A23]"
@@ -1185,9 +1218,10 @@ export default function Home({
                   <button
                     type="button"
                     role="tab"
+                    tabIndex={reviewFilter === "commercial" ? 0 : -1}
                     aria-selected={reviewFilter === "commercial"}
                     onClick={() => setReviewFilter("commercial")}
-                    className={`rounded-lg px-3.5 py-1.5 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
+                    className={`hb-tab-indicator hb-trim rounded-lg px-3.5 py-2 text-hb-xs font-bold active:scale-[0.96] transition-[background-color,color,transform] duration-150 ${
                       reviewFilter === "commercial"
                         ? "bg-[#141A23] text-white shadow-2xs"
                         : "text-[#334155] hover:text-[#141A23]"
@@ -1234,7 +1268,7 @@ export default function Home({
               </div>
             ) : (
               <>
-                <ul className="mt-5 flex gap-3 overflow-x-auto pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
+                <ul className="hb-hscroll-fade mt-5 flex gap-3 overflow-x-auto pb-3 pt-1 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:pb-0 lg:grid-cols-4">
                   {shownReviews.map((r) => {
                     const imgs = splitImages(r.image_url);
                     return (
@@ -1311,7 +1345,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="faq-section"
-          className="border-b border-[#E2E6EC] bg-white py-8 sm:py-11"
+          className="hb-below-fold border-b border-[#E2E6EC] bg-white py-8 sm:py-11"
           aria-labelledby="faq-title"
         >
           <div className="hb-container">
@@ -1331,13 +1365,22 @@ export default function Home({
                 className="flex flex-wrap items-center gap-2 shrink-0"
                 role="tablist"
                 aria-label="구매 안내 보기 전환"
+                onKeyDown={(e) =>
+                  handleTabListKeyDown(
+                    e,
+                    ["faq", "comparison"] as const,
+                    guideTab,
+                    setGuideTab
+                  )
+                }
               >
                 <button
                   type="button"
                   role="tab"
+                  tabIndex={guideTab === "faq" ? 0 : -1}
                   aria-selected={guideTab === "faq"}
                   onClick={() => setGuideTab("faq")}
-                  className={`rounded-xl px-4 py-2 text-hb-xs sm:text-hb-sm font-bold transition-colors cursor-pointer ${
+                  className={`hb-tab-indicator hb-trim rounded-xl px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold transition-colors cursor-pointer ${
                     guideTab === "faq"
                       ? "bg-[#141A23] text-white"
                       : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#4E5968] hover:text-[#141A23]"
@@ -1348,9 +1391,10 @@ export default function Home({
                 <button
                   type="button"
                   role="tab"
+                  tabIndex={guideTab === "comparison" ? 0 : -1}
                   aria-selected={guideTab === "comparison"}
                   onClick={() => setGuideTab("comparison")}
-                  className={`rounded-xl px-4 py-2 text-hb-xs sm:text-hb-sm font-bold transition-colors cursor-pointer ${
+                  className={`hb-tab-indicator hb-trim rounded-xl px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold transition-colors cursor-pointer ${
                     guideTab === "comparison"
                       ? "bg-[#141A23] text-white"
                       : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#4E5968] hover:text-[#141A23]"
@@ -1403,13 +1447,16 @@ export default function Home({
                             </span>
                           </button>
                         </h3>
-                        {open && (
-                          <div
-                            id={`faq-a-${i}`}
-                            role="region"
-                            aria-labelledby={`faq-q-${i}`}
-                            className="pb-3.5 pl-8 pr-2 text-hb-xs sm:text-hb-sm leading-[1.7] text-[#475569] break-keep"
-                          >
+                        <div
+                          id={`faq-a-${i}`}
+                          role="region"
+                          aria-labelledby={`faq-q-${i}`}
+                          aria-hidden={!open}
+                          data-open={open ? "true" : "false"}
+                          inert={!open}
+                          className="hb-faq-panel"
+                        >
+                          <div className="pb-3.5 pl-8 pr-2 text-hb-xs sm:text-hb-sm leading-[1.7] text-[#475569] break-keep [text-wrap:pretty]">
                             {f.a.includes(STORE.tel) ? (
                               <>
                                 {f.a.split(STORE.tel).map((part, pIdx, arr) => (
@@ -1449,7 +1496,7 @@ export default function Home({
                               </div>
                             )}
                           </div>
-                        )}
+                        </div>
                       </div>
                     );
                   })}

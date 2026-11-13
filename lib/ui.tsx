@@ -238,15 +238,17 @@ export function SafeImg({
   alt = "",
   className = "",
   eager = false,
+  priority,
   ...props
 }: Omit<
   React.ImgHTMLAttributes<HTMLImageElement>,
-  "src" | "alt" | "className"
+  "src" | "alt" | "className" | "fetchPriority"
 > & {
   src?: string | null;
   alt?: string;
   className?: string;
   eager?: boolean;
+  priority?: "high" | "low";
 }) {
   const [failedSrc, setFailedSrc] = useState<string | null | undefined>(
     undefined
@@ -272,7 +274,7 @@ export function SafeImg({
       src={src}
       alt={alt}
       loading={eager ? "eager" : "lazy"}
-      fetchPriority={eager ? "high" : "auto"}
+      fetchPriority={priority}
       decoding={eager ? "sync" : "async"}
       onError={() => setFailedSrc(src)}
       className={className}
@@ -329,14 +331,88 @@ export function SectionHeading({
 }
 
 /* ════════════════════════════════════════════════════════════
-   4. 접근성 강화 모달 컴포넌트
+   4. 접근성 강화 모달 컴포넌트 (Native Top-Layer <dialog>)
    ════════════════════════════════════════════════════════════ */
+let cachedDisplayTransitionSupport: boolean | undefined;
+
+function canTransitionDisplay(): boolean {
+  if (cachedDisplayTransitionSupport !== undefined) {
+    return cachedDisplayTransitionSupport;
+  }
+  if (
+    typeof window === "undefined" ||
+    !window.CSS?.supports?.("transition-behavior", "allow-discrete") ||
+    !document.body
+  ) {
+    return false;
+  }
+  const probe = document.createElement("div");
+  probe.style.cssText =
+    "transition: display 1s allow-discrete !important; display: block;";
+  document.body.appendChild(probe);
+  void getComputedStyle(probe).display;
+  probe.style.display = "none";
+  cachedDisplayTransitionSupport = getComputedStyle(probe).display === "block";
+  probe.remove();
+  return cachedDisplayTransitionSupport;
+}
+
+function supportsTopLayerExit(): boolean {
+  return Boolean(
+    typeof window !== "undefined" &&
+      window.CSS?.supports?.("overlay", "auto") &&
+      canTransitionDisplay()
+  );
+}
+
+async function waitForTopLayerAnimations(el: HTMLDialogElement) {
+  const animations =
+    typeof el.getAnimations === "function"
+      ? el.getAnimations({ subtree: true })
+      : [];
+  if (animations.length === 0) return;
+  await Promise.race([
+    Promise.allSettled(animations.map((a) => a.finished)),
+    new Promise((resolve) => setTimeout(resolve, 400)),
+  ]);
+}
+
+async function closeTopLayerElement(el: HTMLDialogElement) {
+  if (!el.open) return;
+
+  if (!supportsTopLayerExit()) {
+    el.setAttribute("data-closing", "");
+    await waitForTopLayerAnimations(el);
+    el.removeAttribute("data-closing");
+    if (el.open) el.close();
+    return;
+  }
+
+  el.close();
+  await waitForTopLayerAnimations(el);
+}
+
+function isOutsideDialogBounds(
+  clientX: number,
+  clientY: number,
+  dialog: HTMLDialogElement
+): boolean {
+  const rect = dialog.getBoundingClientRect();
+  return (
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  );
+}
+
 export function Modal({
   children,
   onClose,
   label = "대화상자",
   panelClassName = "",
   overlayClassName = "",
+  variant = "default",
   sheet = false,
   open = true,
   closeOnOverlayClick = true,
@@ -347,110 +423,133 @@ export function Modal({
   label?: string;
   panelClassName?: string;
   overlayClassName?: string;
+  variant?: "default" | "lightbox";
   sheet?: boolean;
   open?: boolean;
   closeOnOverlayClick?: boolean;
   closeOnEsc?: boolean;
 }) {
-  const panelRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const onCloseRef = useRef(onClose);
-  const isMouseDownOnOverlay = useRef(false);
+  const pressedOutsideRef = useRef(false);
+  const isDismissingRef = useRef(false);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [closing, setClosing] = useState(false);
+
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    setClosing(!open);
+  }
 
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
 
+  const dismissWithAnimation = useRef(async () => {
+    const dialog = dialogRef.current;
+    if (!dialog || isDismissingRef.current) return;
+    isDismissingRef.current = true;
+    setClosing(true);
+    try {
+      await closeTopLayerElement(dialog);
+    } finally {
+      isDismissingRef.current = false;
+      setClosing(false);
+    }
+    onCloseRef.current();
+  });
+
   useEffect(() => {
-    if (!open) return;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
 
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const timer = window.setTimeout(() => {
-      if (!panelRef.current) return;
-      const autoFocusEl = panelRef.current.querySelector<HTMLElement>(
-        "[autofocus], input:not([type='hidden']):not([disabled]), textarea:not([disabled]), select:not([disabled]), button:not([disabled]), [href]"
-      );
-      if (autoFocusEl) {
-        autoFocusEl.focus();
-      } else {
-        panelRef.current.focus();
+    if (open) {
+      isDismissingRef.current = false;
+      dialog.removeAttribute("data-closing");
+      if (!dialog.open) {
+        try {
+          dialog.showModal();
+        } catch {
+          // Ignore invalid dialog state during teardown
+        }
       }
-    }, 10);
+      return;
+    }
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (!closeOnEsc) return;
-        e.stopPropagation();
-        onCloseRef.current();
+    if (!isDismissingRef.current) {
+      let active = true;
+      void closeTopLayerElement(dialog).finally(() => {
+        if (active) setClosing(false);
+      });
+      return () => {
+        active = false;
+      };
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog || !open || !closeOnOverlayClick) return;
+    if ("closedBy" in HTMLDialogElement.prototype) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      pressedOutsideRef.current = isOutsideDialogBounds(
+        e.clientX,
+        e.clientY,
+        dialog
+      );
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (
+        pressedOutsideRef.current &&
+        isOutsideDialogBounds(e.clientX, e.clientY, dialog)
+      ) {
+        pressedOutsideRef.current = false;
+        void dismissWithAnimation.current();
         return;
       }
-
-      if (e.key === "Tab" && panelRef.current) {
-        const focusable = Array.from(
-          panelRef.current.querySelectorAll<HTMLElement>(
-            'a[href], button:not([disabled]), textarea:not([disabled]), input:not([type="hidden"]):not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-          )
-        );
-        if (focusable.length === 0) {
-          e.preventDefault();
-          return;
-        }
-        const first = focusable[0];
-        const last = focusable[focusable.length - 1];
-
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first.focus();
-        }
-      }
+      pressedOutsideRef.current = false;
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    dialog.addEventListener("pointerdown", handlePointerDown);
+    dialog.addEventListener("pointerup", handlePointerUp);
     return () => {
-      window.clearTimeout(timer);
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", handleKeyDown);
-      if (previouslyFocused && typeof previouslyFocused.focus === "function") {
-        previouslyFocused.focus();
-      }
+      dialog.removeEventListener("pointerdown", handlePointerDown);
+      dialog.removeEventListener("pointerup", handlePointerUp);
     };
-  }, [open, closeOnEsc]);
+  }, [open, closeOnOverlayClick]);
 
-  if (!open) return null;
+  const closedByValue =
+    closeOnOverlayClick && closeOnEsc
+      ? "any"
+      : closeOnEsc
+      ? "closerequest"
+      : "none";
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
+      <dialog
+      ref={dialogRef}
       aria-label={label}
-      className={`fixed inset-0 z-[70] flex justify-center overscroll-contain ${
-        sheet
-          ? "items-end sm:items-center p-0 sm:p-4"
-          : "items-center p-3 sm:p-6"
-      } bg-[#141A23]/65 backdrop-blur-xs ${overlayClassName}`}
-      onMouseDown={(e) => {
-        isMouseDownOnOverlay.current = e.target === e.currentTarget;
+      {...({ closedby: closedByValue } as Record<string, string>)}
+      data-variant={variant === "lightbox" ? "lightbox" : undefined}
+      data-overlay-hint={overlayClassName || undefined}
+      onCancel={(e) => {
+        e.preventDefault();
+        if (!closeOnEsc) return;
+        void dismissWithAnimation.current();
       }}
-      onClick={(e) => {
-        if (!closeOnOverlayClick) return;
-        if (!isMouseDownOnOverlay.current || e.target !== e.currentTarget) return;
-        onClose();
+      onClose={() => {
+        if (!isDismissingRef.current && open) {
+          onCloseRef.current();
+        }
       }}
+      className={`hb-dialog m-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] overflow-y-auto overscroll-contain bg-transparent p-0 border-0 rounded-2xl focus:outline-none ${
+        sheet ? "hb-dialog-sheet" : ""
+      } ${panelClassName}`}
     >
-      <div
-        ref={panelRef}
-        tabIndex={-1}
-        className={`w-full focus:outline-none overscroll-contain hb-modal-panel ${panelClassName}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {children}
-      </div>
-    </div>
+      {open || closing ? children : null}
+    </dialog>
   );
 }
 
@@ -477,6 +576,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [basketCount, setBasketCount] = useState(0);
+  const drawerRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
     const syncBasket = () => setBasketCount(getQuoteBasket().length);
@@ -490,16 +590,49 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (!menuOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMenuOpen(false);
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+
+    if (menuOpen) {
+      drawer.removeAttribute("data-closing");
+      if (!drawer.open) {
+        try {
+          drawer.showModal();
+        } catch {
+          // Ignore invalid dialog state during teardown
+        }
+      }
+      return;
+    }
+
+    if (drawer.open) {
+      void closeTopLayerElement(drawer);
+    }
+  }, [menuOpen]);
+
+  useEffect(() => {
+    const drawer = drawerRef.current;
+    if (!drawer || !menuOpen) return;
+    if ("closedBy" in HTMLDialogElement.prototype) return;
+
+    let pressedOutside = false;
+    const onPointerDown = (e: PointerEvent) => {
+      pressedOutside = isOutsideDialogBounds(e.clientX, e.clientY, drawer);
     };
-    window.addEventListener("keydown", onKeyDown);
+    const onPointerUp = (e: PointerEvent) => {
+      if (pressedOutside && isOutsideDialogBounds(e.clientX, e.clientY, drawer)) {
+        pressedOutside = false;
+        setMenuOpen(false);
+        return;
+      }
+      pressedOutside = false;
+    };
+
+    drawer.addEventListener("pointerdown", onPointerDown);
+    drawer.addEventListener("pointerup", onPointerUp);
     return () => {
-      document.body.style.overflow = prevOverflow;
-      window.removeEventListener("keydown", onKeyDown);
+      drawer.removeEventListener("pointerdown", onPointerDown);
+      drawer.removeEventListener("pointerup", onPointerUp);
     };
   }, [menuOpen]);
 
@@ -609,20 +742,21 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <div
-        id="main-content"
-        tabIndex={-1}
-        className="sr-only focus:outline-none"
-      />
 
-      {/* 모바일·태블릿 내비게이션 드로어 */}
-      {menuOpen && (
-        <div
-          className="fixed inset-0 z-[80] flex flex-col bg-white lg:hidden overscroll-contain"
-          role="dialog"
-          aria-modal="true"
-          aria-label="모바일 전체 메뉴"
-        >
+      {/* 모바일·태블릿 내비게이션 드로어 (Native Top-Layer <dialog>) */}
+      <dialog
+        ref={drawerRef}
+        aria-label="모바일 전체 메뉴"
+        {...({ closedby: "any" } as Record<string, string>)}
+        onCancel={(e) => {
+          e.preventDefault();
+          setMenuOpen(false);
+        }}
+        onClose={() => {
+          if (menuOpen) setMenuOpen(false);
+        }}
+        className="hb-drawer lg:hidden h-dvh w-full max-w-full bg-white p-0 border-0 overscroll-contain flex-col open:flex"
+      >
           <div className="flex h-[66px] items-center justify-between border-b border-[#E2E6EC] px-4 sm:px-6 bg-white">
             <Link
               href="/"
@@ -703,7 +837,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                 <p className="font-bold text-[#141A23]">
                   {STORE.name} 직영 매장
                 </p>
-                <span className="rounded bg-[#141A23] px-2 py-0.5 text-hb-xs font-bold text-white">
+                <span className="hb-trim rounded bg-[#141A23] px-2 py-1 text-hb-xs font-bold text-white">
                   {STORE.since}년 개업
                 </span>
               </div>
@@ -744,8 +878,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <Icon d={ICON.chat} className="w-4 h-4" /> 카톡 상담
             </a>
           </div>
-        </div>
-      )}
+      </dialog>
     </>
   );
 }
@@ -995,12 +1128,15 @@ export function FloatingQuickWing() {
     };
   }, []);
 
-  const handleInquiryClick = (type: InquiryTypeValue = "구매 문의") => {
+  const handleInquiryClick = (
+    type: InquiryTypeValue = "구매 문의",
+    useBundle = false
+  ) => {
     trackEvent("begin_buyback_inquiry", {
       category: type,
       location: "floating_quick_wing",
     });
-    triggerQuickInquiry({ type });
+    triggerQuickInquiry({ type, useBundle });
   };
 
   const scrollToTop = () => {
@@ -1051,8 +1187,12 @@ export function FloatingQuickWing() {
 
         <button
           type="button"
-          onClick={() => handleInquiryClick("구매 문의")}
-          title="견적 문의"
+          onClick={() => handleInquiryClick("구매 문의", basketCount > 0)}
+          title={
+            basketCount > 0
+              ? `담아둔 매물 ${basketCount}종 묶음 견적 문의`
+              : "견적 문의"
+          }
           className="group relative w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#141A23] text-white group-hover:bg-[#E8521A] transition-colors">
@@ -1552,7 +1692,10 @@ export function AdminLoginModal({
   const [adminPassword, setAdminPassword] = useState("");
   const [loggingIn, setLoggingIn] = useState(false);
 
-  if (!open) return null;
+  const handleClose = () => {
+    setAdminPassword("");
+    onClose();
+  };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1585,7 +1728,7 @@ export function AdminLoginModal({
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       label="관리자 로그인"
       panelClassName="max-w-sm"
     >
@@ -1611,7 +1754,10 @@ export function AdminLoginModal({
         </label>
         <input
           id="admin-shared-modal-email"
+          name="username"
           type="email"
+          autoComplete="username"
+          spellCheck={false}
           required
           value={adminEmail}
           onChange={(e) => setAdminEmail(e.target.value)}
@@ -1622,7 +1768,9 @@ export function AdminLoginModal({
         </label>
         <input
           id="admin-shared-modal-pw"
+          name="password"
           type="password"
+          autoComplete="current-password"
           required
           value={adminPassword}
           onChange={(e) => setAdminPassword(e.target.value)}

@@ -531,6 +531,16 @@ export function V2SpatialFitPlanner({
                 </button>
               ))}
             </div>
+            <input
+              id="door-slider"
+              type="range"
+              min={55}
+              max={130}
+              step={5}
+              value={myDoorCm}
+              onChange={(e) => setMyDoorCm(Number(e.target.value))}
+              className="w-full accent-[#0284C7] cursor-pointer"
+            />
             <div className="grid grid-cols-2 gap-2 pt-1">
               <button
                 type="button"

@@ -21,7 +21,7 @@ export default function GlobalErrorPage({
     <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
-      <main className="hb-container py-16 sm:py-24 flex-1 flex items-center justify-center">
+      <main id="main-content" tabIndex={-1} className="hb-container py-16 sm:py-24 flex-1 flex items-center justify-center focus:outline-none">
         <div className="max-w-md w-full rounded-2xl border border-[#E2E6EC] bg-white p-8 sm:p-10 text-center shadow-2xs">
           <p className="hb-eyebrow justify-center">일시적 오류 안내</p>
           <h1 className="mt-2 text-hb-xl font-bold text-[#141A23]">

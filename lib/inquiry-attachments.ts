@@ -30,20 +30,31 @@ export function isValidStorageObjectPath(objectPath: string): boolean {
   );
 }
 
-export function isOwnStorageImageUrl(url: string): boolean {
+export function isOwnStorageImageUrl(
+  url: string,
+  options?: { allowPublicBucket?: boolean }
+): boolean {
   const base = getPublicStorageBase();
   if (!base || !url.startsWith(base)) return false;
   const rest = url.slice(base.length);
+  const allowPublicBucket = options?.allowPublicBucket ?? true;
 
-  for (const bucket of [
-    STORAGE_BUCKETS.inquiries,
-    STORAGE_BUCKETS.inquiryAttachments,
-  ]) {
+  const buckets = allowPublicBucket
+    ? [STORAGE_BUCKETS.inquiries, STORAGE_BUCKETS.inquiryAttachments]
+    : [STORAGE_BUCKETS.inquiryAttachments];
+
+  for (const bucket of buckets) {
     const prefix = `${bucket}/`;
     if (rest.startsWith(prefix)) {
       const rawPath = rest.slice(prefix.length).split(/[?#]/)[0];
       try {
-        return isValidStorageObjectPath(decodeURIComponent(rawPath));
+        const decoded = decodeURIComponent(rawPath);
+        if (!isValidStorageObjectPath(decoded)) return false;
+        // 일반 고객 문의 첨부 등록 시에는 비공개 버킷 표준 폴더(inquiries/) 경로만 허용합니다.
+        if (!allowPublicBucket && !decoded.startsWith("inquiries/")) {
+          return false;
+        }
+        return true;
       } catch {
         return false;
       }
@@ -52,11 +63,15 @@ export function isOwnStorageImageUrl(url: string): boolean {
   return false;
 }
 
-export function sanitizeInquiryImageUrls(values: unknown): string[] {
+export function sanitizeInquiryImageUrls(
+  values: unknown,
+  options?: { allowPublicBucket?: boolean }
+): string[] {
   if (!Array.isArray(values)) return [];
   return values
     .filter(
-      (url): url is string => typeof url === "string" && isOwnStorageImageUrl(url)
+      (url): url is string =>
+        typeof url === "string" && isOwnStorageImageUrl(url, options)
     )
     .slice(0, MAX_IMAGES_PER_INQUIRY);
 }

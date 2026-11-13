@@ -475,9 +475,10 @@ export async function checkInquiryPasswordRateLimit(
     return lockout;
   }
 
+  // 조회 시에는 차감하지 않고 한도 초과 여부만 확인하며, 실제 실패 시점에만 차감합니다.
   return checkRateLimit(`pw_verify:${ip}:${inquiryId}`, 5, 5 * 60 * 1000, {
     failureMode: "fail-closed",
-    increment: true,
+    increment: false,
     rpcRunner: options?.rpcRunner,
   });
 }
@@ -487,6 +488,18 @@ export async function recordInquiryPasswordFailure(
   options?: Pick<RateLimitOptions, "rpcRunner">
 ): Promise<void> {
   await checkRateLimit(`pw_lockout:${inquiryId}`, 10, 15 * 60 * 1000, {
+    failureMode: "fail-closed",
+    increment: true,
+    rpcRunner: options?.rpcRunner,
+  });
+}
+
+export async function recordInquiryPasswordIpFailure(
+  ip: string,
+  inquiryId: string,
+  options?: Pick<RateLimitOptions, "rpcRunner">
+): Promise<void> {
+  await checkRateLimit(`pw_verify:${ip}:${inquiryId}`, 5, 5 * 60 * 1000, {
     failureMode: "fail-closed",
     increment: true,
     rpcRunner: options?.rpcRunner,

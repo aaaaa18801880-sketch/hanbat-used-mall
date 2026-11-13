@@ -47,9 +47,10 @@ async function dispatchTelegramOnInquiryCreate(params: {
 
   const idStr = params.inquiryId ? String(params.inquiryId).trim() : "";
   const dedupKey = idStr || `${params.type}:${params.name}:${params.title}`;
+  const TELEGRAM_DEDUP_WINDOW_MS = 10 * 60 * 1000;
   const { isDuplicate } = await checkNotificationIdempotency(
     dedupKey,
-    3 * 60 * 1000,
+    TELEGRAM_DEDUP_WINDOW_MS,
     false
   );
   if (isDuplicate) return true;
@@ -82,7 +83,7 @@ async function dispatchTelegramOnInquiryCreate(params: {
       }
     );
     if (res.ok) {
-      await markNotificationSent(dedupKey, 3 * 60 * 1000);
+      await markNotificationSent(dedupKey, TELEGRAM_DEDUP_WINDOW_MS);
       return true;
     }
     await markNotificationFailed(dedupKey, "telegram_http_error");
@@ -324,7 +325,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const images = sanitizeInquiryImageUrls(body.images);
+    // 일반 고객 문의는 비공개 첨부 버킷(inquiry-attachments/inquiries/...)만 허용하여 공용 버킷 참조 조작을 차단합니다.
+    const images = sanitizeInquiryImageUrls(body.images, {
+      allowPublicBucket: isNotice,
+    });
 
     const hashedPassword = isNotice
       ? await hashInquiryPasswordAsync(rawPassword || "0000")

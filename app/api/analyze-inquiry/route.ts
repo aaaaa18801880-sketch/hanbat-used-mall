@@ -15,6 +15,7 @@ import {
   checkRateLimit,
   getClientIp,
   validateServerImageFiles,
+  verifySameOriginRequest,
 } from "../../../lib/server-security";
 
 export const runtime = "nodejs";
@@ -699,8 +700,7 @@ export function sanitizeAnalysisResponse(
 
 export async function POST(req: NextRequest) {
   try {
-    const origin = req.headers.get("origin");
-    if (origin && origin !== new URL(req.url).origin) {
+    if (!verifySameOriginRequest(req)) {
       return NextResponse.json(
         { error: "허용되지 않은 요청 출처입니다." },
         { status: 403 }

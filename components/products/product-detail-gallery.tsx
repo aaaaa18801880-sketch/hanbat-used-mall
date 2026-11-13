@@ -4,7 +4,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Icon, ICON, SafeImg } from "../../lib/ui";
+import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
@@ -109,17 +109,13 @@ export function ProductDetailGallery({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isZoomOpen) {
-        setIsZoomOpen(false);
-        return;
-      }
       if (displayImages.length < 2) return;
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [displayImages.length, go, isZoomOpen]);
+  }, [displayImages.length, go]);
 
   return (
     <>
@@ -146,38 +142,38 @@ export function ProductDetailGallery({
             src={displayImages[idx]}
             alt={`${title} - 사진 ${idx + 1}`}
             eager
-            className={`relative z-10 w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
+            className={`relative z-0 w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
               sold ? "grayscale opacity-75" : ""
             }`}
           />
 
-          {displayImages[0] && (
+          {displayImages[idx] && (
             <button
               type="button"
               onClick={() => setIsZoomOpen(true)}
               aria-label="상품 사진 크게 보기"
               aria-haspopup="dialog"
               title="클릭하여 원본 비율 전체화면으로 확대"
-              className="absolute inset-0 z-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#E8521A]"
+              className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#E8521A]"
             >
               <span className="sr-only">상품 사진 크게 보기</span>
             </button>
           )}
 
-          <div className="absolute top-4 left-4 z-10">
+          <div className="absolute top-4 left-4 z-20 pointer-events-none">
             <ProductStatusBadge status={status} createdAt={createdAt} />
           </div>
 
           {sold && (
-            <div className="absolute inset-0 flex items-center justify-center bg-[#141A23]/55">
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#141A23]/55 pointer-events-none">
               <span className="px-5 py-2 rounded-full bg-[#141A23]/90 text-white text-hb-sm font-bold tracking-[0.15em] border border-white/20">
                 판매완료
               </span>
             </div>
           )}
 
-          {displayImages[0] && (
-            <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md text-[#141A23] shadow-xs text-hb-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
+          {displayImages[idx] && (
+            <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md text-[#141A23] shadow-xs text-hb-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
               <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#E8521A]" />
               <span>크게 보기</span>
             </div>
@@ -185,7 +181,7 @@ export function ProductDetailGallery({
 
           {/* 우하단 애플/당근 스타일 반투명 사진 순서 캡슐 */}
           {displayImages.length > 0 && (
-            <div className="absolute bottom-3.5 right-4 z-10 rounded-full bg-[#141A23]/75 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-white tabular-nums pointer-events-none">
+            <div className="absolute bottom-3.5 right-4 z-20 rounded-full bg-[#141A23]/75 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-white tabular-nums pointer-events-none">
               {idx + 1} / {displayImages.length}
             </div>
           )}
@@ -199,7 +195,7 @@ export function ProductDetailGallery({
                   go(-1);
                 }}
                 aria-label="이전 사진"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-30"
               >
                 <Icon d={ICON.left} className="w-5 h-5" />
               </button>
@@ -210,7 +206,7 @@ export function ProductDetailGallery({
                   go(1);
                 }}
                 aria-label="다음 사진"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-10"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-30"
               >
                 <Icon d={ICON.right} className="w-5 h-5" />
               </button>
@@ -247,16 +243,22 @@ export function ProductDetailGallery({
         )}
       </div>
 
-      {/* 전체화면 확대 라이트박스 */}
-      {isZoomOpen && (
+      {/* 전체화면 확대 라이트박스 (Top-Layer Dialog) */}
+      <Modal
+        open={isZoomOpen}
+        onClose={() => setIsZoomOpen(false)}
+        variant="lightbox"
+        label="상품 사진 전체화면 확대"
+        panelClassName="max-w-5xl w-full rounded-none overflow-visible"
+      >
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="상품 사진 전체화면 확대"
           onClick={() => setIsZoomOpen(false)}
-          className="fixed inset-0 z-[90] bg-black/95 flex flex-col items-center justify-center p-4 select-none"
+          className="relative flex flex-col items-center justify-center p-2 sm:p-4 select-none"
         >
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-20">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mb-3 flex w-full items-center justify-between text-white"
+          >
             <span className="text-hb-sm font-semibold bg-white/15 px-3.5 py-1 rounded-full tabular-nums">
               {idx + 1} / {displayImages.length}
             </span>
@@ -273,13 +275,13 @@ export function ProductDetailGallery({
 
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-full max-h-[82vh] flex items-center justify-center"
+            className="relative max-w-full max-h-[80vh] flex items-center justify-center"
           >
             <SafeImg
               src={displayImages[idx]}
               alt={title}
               eager
-              className="max-w-full max-h-[82vh] w-auto h-auto object-contain rounded"
+              className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded"
             />
           </div>
 
@@ -292,7 +294,7 @@ export function ProductDetailGallery({
                   go(-1);
                 }}
                 aria-label="이전 사진"
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
               >
                 <Icon d={ICON.left} className="w-6 h-6" />
               </button>
@@ -303,14 +305,14 @@ export function ProductDetailGallery({
                   go(1);
                 }}
                 aria-label="다음 사진"
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
               >
                 <Icon d={ICON.right} className="w-6 h-6" />
               </button>
             </>
           )}
         </div>
-      )}
+      </Modal>
     </>
   );
 }

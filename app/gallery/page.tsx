@@ -187,18 +187,13 @@ function ProductDetailModal({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isZoomOpen) {
-        e.stopPropagation();
-        setIsZoomOpen(false);
-        return;
-      }
       if (isEditing || displayImages.length < 2) return;
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [displayImages.length, go, isEditing, isZoomOpen]);
+  }, [displayImages.length, go, isEditing]);
 
   const currentStatus = isEditing ? editStatus : product.status;
   const sold = isProductSold(currentStatus);
@@ -436,8 +431,8 @@ function ProductDetailModal({
         onClose={handleCloseDetail}
         label={`${product.title} 상세 정보`}
         panelClassName="max-w-xl"
-        closeOnOverlayClick={!isEditing}
-        closeOnEsc={!isEditing}
+        closeOnOverlayClick={!isEditing && !isZoomOpen}
+        closeOnEsc={!isEditing && !isZoomOpen}
       >
         <div className="bg-white rounded-xl shadow-2xl border border-[#E2E6EC] flex flex-col overflow-hidden max-h-[90vh] w-full">
           {/* 모달 상단 헤더 */}
@@ -506,7 +501,7 @@ function ProductDetailModal({
             {!isEditing && (
               <>
                 <div
-                  onClick={() => displayImages[0] && setIsZoomOpen(true)}
+                  onClick={() => displayImages[idx] && setIsZoomOpen(true)}
                   className="relative w-full h-[300px] sm:h-[370px] bg-[#F7F8FA] border-b border-[#E2E6EC] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
                   title="클릭하여 전체화면으로 확대"
                 >
@@ -521,14 +516,15 @@ function ProductDetailModal({
                   />
 
                   {sold && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#141A23]/45">
+                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#141A23]/45 pointer-events-none">
                       <span className="px-5 py-2 rounded-sm bg-[#141A23]/90 text-white text-hb-sm font-bold tracking-[0.2em] border border-white/20">
                         판매완료
                       </span>
                     </div>
                   )}
 
-                  {displayImages[0] && (                    <div className="absolute top-3 right-3 bg-black/65 text-white text-hb-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
+                  {displayImages[idx] && (
+                    <div className="absolute top-3 right-3 z-10 bg-black/65 text-white text-hb-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
                       <Icon d={ICON.search} className="w-3.5 h-3.5" />
                       <span>클릭하여 확대</span>
                     </div>
@@ -959,17 +955,23 @@ function ProductDetailModal({
         </div>
       </Modal>
 
-      {/* 전체화면 확대 라이트박스 */}
-      {isZoomOpen && (
+      {/* 전체화면 확대 라이트박스 (Top-Layer Dialog) */}
+      <Modal
+        open={isZoomOpen}
+        onClose={() => setIsZoomOpen(false)}
+        variant="lightbox"
+        label="사진 전체화면 확대 보기"
+        panelClassName="max-w-5xl w-full rounded-none overflow-visible"
+      >
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="사진 전체화면 확대 보기"
           onClick={() => setIsZoomOpen(false)}
-          className="fixed inset-0 z-[90] bg-black/95 flex flex-col items-center justify-center p-4 select-none"
+          className="relative flex flex-col items-center justify-center p-2 sm:p-4 select-none"
         >
-          <div className="absolute top-4 left-4 right-4 flex items-center justify-between text-white z-20">
-            <span className="text-hb-sm font-semibold bg-white/15 px-3 py-1 rounded-full">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mb-3 flex w-full items-center justify-between text-white"
+          >
+            <span className="text-hb-sm font-semibold bg-white/15 px-3 py-1 rounded-full tabular-nums">
               {idx + 1} / {displayImages.length}
             </span>
             <button
@@ -985,13 +987,13 @@ function ProductDetailModal({
 
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative max-w-full max-h-[82vh] flex items-center justify-center"
+            className="relative max-w-full max-h-[80vh] flex items-center justify-center"
           >
             <SafeImg
               src={displayImages[idx]}
               alt={product.title}
               eager
-              className="max-w-full max-h-[82vh] w-auto h-auto object-contain rounded"
+              className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded"
             />
           </div>
 
@@ -1003,7 +1005,7 @@ function ProductDetailModal({
                   e.stopPropagation();
                   go(-1);
                 }}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
+                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
                 aria-label="이전 사진"
               >
                 <Icon d={ICON.left} className="w-6 h-6" />
@@ -1014,7 +1016,7 @@ function ProductDetailModal({
                   e.stopPropagation();
                   go(1);
                 }}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
+                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
                 aria-label="다음 사진"
               >
                 <Icon d={ICON.right} className="w-6 h-6" />
@@ -1022,7 +1024,7 @@ function ProductDetailModal({
             </>
           )}
         </div>
-      )}
+      </Modal>
     </>
   );
 }
@@ -1075,6 +1077,10 @@ export default function GalleryPage() {
     PRODUCT_CONDITION_GRADES[1]
   );
   const [productFiles, setProductFiles] = useState<File[]>([]);
+  const productFilesRef = useRef<File[]>([]);
+  useEffect(() => {
+    productFilesRef.current = productFiles;
+  }, [productFiles]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -1766,7 +1772,8 @@ export default function GalleryPage() {
       })
     );
 
-    const updatedFiles = [...productFiles, ...toned];
+    const updatedFiles = [...productFilesRef.current, ...toned];
+    productFilesRef.current = updatedFiles;
     setProductFiles(updatedFiles);
     setProductPreviews((prev) => [
       ...prev,
@@ -1783,7 +1790,11 @@ export default function GalleryPage() {
 
   const handleRemoveUploadFile = (index: number) => {
     URL.revokeObjectURL(productPreviews[index]);
-    setProductFiles((prev) => prev.filter((_, i) => i !== index));
+    setProductFiles((prev) => {
+      const next = prev.filter((_, i) => i !== index);
+      productFilesRef.current = next;
+      return next;
+    });
     setProductPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -1792,12 +1803,7 @@ export default function GalleryPage() {
     degrees = 90,
     isAuto = false
   ) => {
-    let targetFile: File | null = null;
-    setProductFiles((prev) => {
-      targetFile = prev[index] || null;
-      return prev;
-    });
-
+    const targetFile = productFilesRef.current[index] || null;
     if (!targetFile) return;
 
     try {
@@ -1805,6 +1811,7 @@ export default function GalleryPage() {
       setProductFiles((prev) => {
         const next = [...prev];
         if (index < next.length) next[index] = rotated;
+        productFilesRef.current = next;
         return next;
       });
 
@@ -1832,12 +1839,7 @@ export default function GalleryPage() {
     options: { degrees?: number; brightness?: number; contrast?: number; saturate?: number } = {},
     isAuto = false
   ) => {
-    let targetFile: File | null = null;
-    setProductFiles((prev) => {
-      targetFile = prev[index] || null;
-      return prev;
-    });
-
+    const targetFile = productFilesRef.current[index] || null;
     if (!targetFile) return;
 
     try {
@@ -1845,6 +1847,7 @@ export default function GalleryPage() {
       setProductFiles((prev) => {
         const next = [...prev];
         if (index < next.length) next[index] = enhanced;
+        productFilesRef.current = next;
         return next;
       });
 
@@ -2301,7 +2304,7 @@ export default function GalleryPage() {
       </div>
 
       {/* 메인 상품 그리드 */}
-      <main className="hb-container py-5 sm:py-8 flex-1">
+      <main id="main-content" tabIndex={-1} className="hb-container py-5 sm:py-8 flex-1 focus:outline-none">
         <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#F1F3F6]">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-hb-xs sm:text-hb-sm text-[#334155]">

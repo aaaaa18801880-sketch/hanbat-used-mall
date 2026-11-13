@@ -236,7 +236,7 @@ export function CategoryPictogramBar({
                     </div>
 
                     <span
-                      className={`font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 pt-1 ${
+                      className={`hb-trim font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 pt-1 ${
                         isSelected
                           ? "text-[#FF8A50]"
                           : isBiz

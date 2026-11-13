@@ -229,11 +229,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const TELEGRAM_DEDUP_WINDOW_MS = 10 * 60 * 1000;
     const dedupKey = inquiryId || `${type}:${name}:${title}`;
     activeDedupKey = dedupKey;
     const { isDuplicate } = await checkNotificationIdempotency(
       dedupKey,
-      3 * 60 * 1000,
+      TELEGRAM_DEDUP_WINDOW_MS,
       forceRetry
     );
 
@@ -297,7 +298,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await markNotificationSent(dedupKey, 3 * 60 * 1000);
+    await markNotificationSent(dedupKey, TELEGRAM_DEDUP_WINDOW_MS);
 
     const okResult: NotificationDispatchResult = {
       channel: "telegram",

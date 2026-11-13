@@ -63,8 +63,6 @@ export function QuickInquiryModal() {
     };
   }, [handleOpen]);
 
-  if (!isOpen) return null;
-
   return (
     <Modal
       open={isOpen}
@@ -105,7 +103,7 @@ export function QuickInquiryModal() {
         {/* 폼 본문 (스크롤 영역) */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#F7F8FA]">
           <V2InquirySectionWithWizard
-            key={`${inquiryType}_${linkedProduct?.productTitle || ""}`}
+            key={`${inquiryType}_${linkedProduct?.useBundle ? "bundle" : "single"}_${linkedProduct?.productTitle || ""}`}
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {

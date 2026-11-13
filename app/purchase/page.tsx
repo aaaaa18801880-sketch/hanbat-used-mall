@@ -137,7 +137,7 @@ export default function PurchasePage() {
         </div>
       </section>
 
-      <main className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8">
+      <main id="main-content" tabIndex={-1} className="hb-container py-7 sm:py-10 flex-1 space-y-6 sm:space-y-8 focus:outline-none">
         {/* 3단계 매입 진행 프로세스 일체형 아키텍처 바 */}
         <section
           aria-label="방문 매입 진행 절차"

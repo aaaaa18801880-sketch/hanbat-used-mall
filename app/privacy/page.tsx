@@ -17,7 +17,7 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
-      <main className="hb-container py-10 sm:py-14 flex-1">
+      <main id="main-content" tabIndex={-1} className="hb-container py-10 sm:py-14 flex-1 focus:outline-none">
         <div className="mx-auto max-w-3xl rounded-2xl border border-[#E2E6EC] bg-white p-6 sm:p-10 shadow-2xs">
           <p className="hb-eyebrow">개인정보 보호 정책</p>
           <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] pb-5 border-b border-[#E2E6EC]">

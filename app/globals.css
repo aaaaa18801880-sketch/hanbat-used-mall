@@ -4,6 +4,8 @@
 @tailwind utilities;
 
 :root {
+  interpolate-size: allow-keywords;
+
   /* 1. Primary: Precision Slate Navy */
   --hb-navy: #141a23;
   --hb-navy-hover: #1e2736;
@@ -45,8 +47,37 @@
   --hb-kakao-hover: #f2d900;
   --hb-kakao-text: #191600;
 
-  /* 5. Motion Easing Tokens */
+  /* 5. Layered Depth Shadows & Progressive Color-Space Interpolation */
+  --hb-shadow-card:
+    0 1px 2px rgba(20, 26, 35, 0.04),
+    0 6px 16px -6px rgba(20, 26, 35, 0.07);
+  --hb-shadow-card-hover:
+    0 2px 4px rgba(20, 26, 35, 0.05),
+    0 14px 28px -10px rgba(20, 26, 35, 0.14);
+  --in-oklab: ;
+  --in-oklch: ;
+
+  /* 6. Motion Easing Tokens */
   --hb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@supports (background: linear-gradient(in oklab, white, black)) {
+  :root {
+    --in-oklab: in oklab;
+    --in-oklch: in oklch;
+  }
+}
+
+@property --hb-fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --hb-fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
 }
 
 html {
@@ -93,21 +124,6 @@ body {
 }
 
 @layer components {
-  @keyframes hbModalEnter {
-    from {
-      opacity: 0;
-      transform: scale(0.97) translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1) translateY(0);
-    }
-  }
-
-  .hb-modal-panel {
-    animation: hbModalEnter 180ms var(--hb-ease-out, cubic-bezier(0.22, 1, 0.36, 1)) both;
-  }
-
   .hb-container {
     @apply mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8;
   }
@@ -130,15 +146,25 @@ body {
   }
 
   .hb-surface-card {
-    @apply rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-card hover:border-[#CBD2DC];
+    @apply rounded-2xl border border-[#E2E6EC] bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#CBD2DC];
+    box-shadow: var(--hb-shadow-card);
+  }
+
+  .hb-surface-card:hover {
+    box-shadow: var(--hb-shadow-card-hover);
   }
 
   .hb-label {
     @apply block text-hb-sm font-semibold tracking-[-0.01em] text-[#141A23];
   }
 
+  .hb-trim {
+    text-box: trim-both cap alphabetic;
+  }
+
   .hb-eyebrow {
     @apply inline-block text-hb-xs sm:text-hb-sm font-bold text-[#E8521A];
+    text-box: trim-both cap alphabetic;
   }
 
   .hb-input {
@@ -147,6 +173,7 @@ body {
 
   .hb-btn {
     @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold tracking-[-0.015em] transition-[transform,background-color,border-color,box-shadow,color] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    text-box: trim-both cap alphabetic;
   }
 
   .hb-btn > svg:last-child {
@@ -160,27 +187,27 @@ body {
   .hb-btn-primary {
     @apply hb-btn text-white;
     background-color: #141a23;
-    background-image: linear-gradient(135deg, #1e2736 0%, #141a23 100%);
+    background-image: linear-gradient(135deg var(--in-oklab), #1e2736 0%, #141a23 100%);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.16),
       0 2px 5px -1px rgba(20, 26, 35, 0.22);
   }
 
   .hb-btn-primary:hover {
-    background-image: linear-gradient(135deg, #273447 0%, #1a222e 100%);
+    background-image: linear-gradient(135deg var(--in-oklab), #273447 0%, #1a222e 100%);
   }
 
   .hb-btn-accent {
     @apply hb-btn text-white focus-visible:ring-[#E8521A];
     background-color: #e8521a;
-    background-image: linear-gradient(135deg, #f06429 0%, #cf4310 100%);
+    background-image: linear-gradient(135deg var(--in-oklch), #f06429 0%, #cf4310 100%);
     box-shadow:
       inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
       0 4px 12px -2px rgba(232, 82, 26, 0.28);
   }
 
   .hb-btn-accent:hover {
-    background-image: linear-gradient(135deg, #e0561c 0%, #b83a0c 100%);
+    background-image: linear-gradient(135deg var(--in-oklch), #e0561c 0%, #b83a0c 100%);
   }
 
   .hb-btn-outline {
@@ -194,28 +221,97 @@ body {
   .hb-ambient-hero {
     background-color: #ffffff;
     background-image:
-      radial-gradient(at 12% 18%, rgba(232, 82, 26, 0.055) 0px, transparent 48%),
-      radial-gradient(at 88% 12%, rgba(13, 148, 136, 0.065) 0px, transparent 50%),
-      linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+      radial-gradient(at 12% 18% var(--in-oklch), rgba(232, 82, 26, 0.06) 0px, transparent 48%),
+      radial-gradient(at 88% 12% var(--in-oklab), rgba(13, 148, 136, 0.065) 0px, transparent 50%),
+      linear-gradient(180deg var(--in-oklab), #ffffff 0%, #f8fafc 100%);
   }
 
   .hb-dark-mesh {
     background-color: #141a23;
     background-image:
-      radial-gradient(at 92% 12%, rgba(232, 82, 26, 0.2) 0px, transparent 45%),
-      radial-gradient(at 8% 88%, rgba(13, 148, 136, 0.16) 0px, transparent 50%),
-      linear-gradient(135deg, #1e2736 0%, #10151c 100%);
+      radial-gradient(at 92% 12% var(--in-oklch), rgba(232, 82, 26, 0.22) 0px, transparent 45%),
+      radial-gradient(at 8% 88% var(--in-oklab), rgba(13, 148, 136, 0.17) 0px, transparent 50%),
+      linear-gradient(135deg var(--in-oklab), #1e2736 0%, #10151c 100%);
   }
 
   .hb-studio-backdrop {
     background-color: #f3f5f8;
     background-image: radial-gradient(
-      circle at 50% 42%,
+      circle at 50% 42% var(--in-oklab),
       #ffffff 0%,
       #f5f7fa 62%,
       #eaeef4 100%
     );
     box-shadow: inset 0 -1px 0 0 rgba(20, 26, 35, 0.05);
+  }
+
+  .hb-below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 540px;
+  }
+
+  .hb-product-card {
+    container-type: inline-size;
+    box-shadow: var(--hb-shadow-card);
+  }
+
+  .hb-product-card:hover {
+    box-shadow: var(--hb-shadow-card-hover);
+  }
+
+  .hb-card-cap-extra {
+    display: none;
+  }
+
+  @container (min-width: 240px) {
+    .hb-card-body {
+      padding: 1rem;
+    }
+
+    .hb-card-title {
+      font-size: 1rem;
+      line-height: 1.45;
+    }
+
+    .hb-card-price {
+      font-size: 1.25rem;
+    }
+
+    .hb-card-cap-extra {
+      display: inline-block;
+    }
+  }
+
+  .hb-tab-indicator {
+    position: relative;
+  }
+
+  .hb-tab-indicator::after {
+    content: "";
+    position: absolute;
+    inset-inline: 14%;
+    bottom: 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 150ms ease, transform 150ms ease;
+    pointer-events: none;
+  }
+
+  .hb-tab-indicator[aria-selected="true"]::after {
+    border-bottom-color: #e8521a;
+  }
+
+  .hb-faq-panel {
+    height: 0;
+    opacity: 0;
+    overflow: clip;
+    transition:
+      height 240ms var(--hb-ease-out),
+      opacity 180ms ease-out;
+  }
+
+  .hb-faq-panel[data-open="true"] {
+    height: auto;
+    opacity: 1;
   }
 
   .scrollbar-none {
@@ -228,15 +324,206 @@ body {
   }
 }
 
+/* Native Top-Layer Dialog & Drawer Animations */
+dialog.hb-dialog {
+  max-width: none;
+  max-height: none;
+  color: inherit;
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 220ms;
+  transition-timing-function: var(--hb-ease-out);
+  transition-behavior: allow-discrete;
+}
+
+dialog.hb-dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.hb-dialog::backdrop {
+  background-color: rgba(20, 26, 35, 0);
+  backdrop-filter: blur(0px);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  transition-property: background-color, backdrop-filter, display, overlay;
+  transition-duration: 220ms;
+  transition-timing-function: var(--hb-ease-out);
+  transition-behavior: allow-discrete;
+}
+
+dialog.hb-dialog:is([open]):where(:not([data-closing])) {
+  opacity: 1;
+}
+
+dialog.hb-dialog:is([open]):where(:not([data-closing]))::backdrop {
+  background-color: rgba(20, 26, 35, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+dialog.hb-dialog[data-variant="lightbox"]:is([open]):where(:not([data-closing]))::backdrop {
+  background-color: rgba(0, 0, 0, 0.94);
+  backdrop-filter: blur(8px);
+}
+
+@starting-style {
+  dialog.hb-dialog:is([open]):where(:not([data-closing])) {
+    opacity: 0;
+  }
+
+  dialog.hb-dialog:is([open]):where(:not([data-closing]))::backdrop {
+    background-color: rgba(20, 26, 35, 0);
+    backdrop-filter: blur(0px);
+  }
+}
+
+@media (max-width: 639px) {
+  dialog.hb-dialog.hb-dialog-sheet {
+    width: 100%;
+    max-width: 100%;
+    margin: auto auto 0 auto;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+dialog.hb-drawer {
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  opacity: 0;
+  transition-property: opacity, transform, display, overlay;
+  transition-duration: 220ms;
+  transition-timing-function: var(--hb-ease-out);
+  transition-behavior: allow-discrete;
+}
+
+dialog.hb-drawer:modal {
+  overscroll-behavior: contain;
+}
+
+dialog.hb-drawer::backdrop {
+  background-color: rgba(20, 26, 35, 0);
+  overflow: hidden;
+  overscroll-behavior: contain;
+  transition-property: background-color, display, overlay;
+  transition-duration: 220ms;
+  transition-behavior: allow-discrete;
+}
+
+dialog.hb-drawer:is([open]):where(:not([data-closing])) {
+  opacity: 1;
+}
+
+dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
+  background-color: rgba(20, 26, 35, 0.45);
+}
+
+@starting-style {
+  dialog.hb-drawer:is([open]):where(:not([data-closing])) {
+    opacity: 0;
+  }
+
+  dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
+    background-color: rgba(20, 26, 35, 0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.hb-dialog {
+    transform: scale(0.97) translateY(6px);
+  }
+
+  dialog.hb-dialog:is([open]):where(:not([data-closing])) {
+    transform: scale(1) translateY(0);
+  }
+
+  dialog.hb-drawer {
+    transform: translateY(-8px);
+  }
+
+  dialog.hb-drawer:is([open]):where(:not([data-closing])) {
+    transform: translateY(0);
+  }
+
+  @starting-style {
+    dialog.hb-dialog:is([open]):where(:not([data-closing])) {
+      transform: scale(0.97) translateY(6px);
+    }
+
+    dialog.hb-drawer:is([open]):where(:not([data-closing])) {
+      transform: translateY(-8px);
+    }
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  @media (max-width: 639px) {
+    .hb-hscroll-fade {
+      --hb-fade-size: 28px;
+      scroll-padding-inline: var(--hb-fade-size);
+      mask:
+        linear-gradient(#000, #000) no-clip subtract,
+        linear-gradient(to right, #000, transparent) 0 0 / var(--hb-fade-start) 100% no-repeat no-clip,
+        linear-gradient(to right, transparent, #000) 100% 0 / var(--hb-fade-end) 100% no-repeat no-clip;
+      animation:
+        hbRevealFadeStart linear both,
+        hbHideFadeEnd linear both;
+      animation-timeline: scroll(self inline);
+      animation-range:
+        0 var(--hb-fade-size),
+        calc(100% - var(--hb-fade-size)) 100%;
+    }
+  }
+}
+
+@keyframes hbRevealFadeStart {
+  to {
+    --hb-fade-start: var(--hb-fade-size);
+  }
+}
+
+@keyframes hbHideFadeEnd {
+  from {
+    --hb-fade-end: var(--hb-fade-size);
+  }
+}
+
+@media (forced-colors: active) {
+  [role="tab"][aria-selected="true"],
+  [aria-pressed="true"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .hb-tab-indicator[aria-selected="true"]::after {
+    border-bottom-color: Highlight;
+  }
+
+  :focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+
+  dialog.hb-dialog,
+  dialog.hb-dialog::backdrop,
+  dialog.hb-drawer,
+  dialog.hb-drawer::backdrop {
+    transition-duration: 0.1s;
+  }
+
+  .hb-faq-panel {
+    transition-duration: 0.08s;
+  }
+
+  .hb-surface-card:hover,
+  .hb-product-card:hover,
+  .hb-btn:hover > svg:last-child {
+    transform: none;
   }
 }

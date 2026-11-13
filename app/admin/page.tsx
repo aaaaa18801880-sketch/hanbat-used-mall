@@ -1103,7 +1103,7 @@ export default function IntegratedAdminDashboard() {
 
   if (authChecking) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] text-hb-sm font-semibold text-[#4B5260]">
+      <main id="main-content" tabIndex={-1} className="min-h-screen flex items-center justify-center bg-[#F9FAFB] text-hb-sm font-semibold text-[#4B5260] focus:outline-none">
         관리자 권한을 확인하고 있습니다...
       </main>
     );
@@ -1111,7 +1111,7 @@ export default function IntegratedAdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <main className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-4 font-sans">
+      <main id="main-content" tabIndex={-1} className="min-h-screen flex items-center justify-center bg-[#F9FAFB] p-4 font-sans focus:outline-none">
         <div className="bg-white p-7 sm:p-9 rounded-xl shadow-card border border-[#E2E6EC] w-full max-w-sm">
           <div className="text-center mb-6">
             <span className="inline-block rounded-md bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-[#FF8A50]">
@@ -1126,9 +1126,15 @@ export default function IntegratedAdminDashboard() {
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="hb-label">관리자 이메일</label>
+              <label htmlFor="admin-login-email" className="hb-label">
+                관리자 이메일
+              </label>
               <input
+                id="admin-login-email"
+                name="username"
                 type="email"
+                autoComplete="username"
+                spellCheck={false}
                 required
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
@@ -1137,9 +1143,14 @@ export default function IntegratedAdminDashboard() {
               />
             </div>
             <div>
-              <label className="hb-label">비밀번호</label>
+              <label htmlFor="admin-login-pw" className="hb-label">
+                비밀번호
+              </label>
               <input
+                id="admin-login-pw"
+                name="password"
                 type="password"
+                autoComplete="current-password"
                 required
                 value={loginPw}
                 onChange={(e) => setLoginPw(e.target.value)}
@@ -1286,7 +1297,7 @@ export default function IntegratedAdminDashboard() {
         </div>
       </header>
 
-      <main className="hb-container py-6 sm:py-8 space-y-6 sm:space-y-8">
+      <main id="main-content" tabIndex={-1} className="hb-container py-6 sm:py-8 space-y-6 sm:space-y-8 focus:outline-none">
         {/* 1. 기본 운영 지표 카드 (클릭 시 해당 필터/탭으로 즉시 전환) */}
         <section
           aria-label="운영 지표 요약"

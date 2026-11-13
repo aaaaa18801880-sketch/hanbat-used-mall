@@ -67,6 +67,12 @@ export function createServerSupabaseClient(
     });
   }
 
+  if (useServiceRole && !serviceRoleKey && process.env.NODE_ENV === "production") {
+    console.warn(
+      "[supabase] SUPABASE_SERVICE_ROLE_KEY가 설정되지 않아 최소 권한 Anon 클라이언트로 폴백했습니다."
+    );
+  }
+
   return createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       persistSession: false,

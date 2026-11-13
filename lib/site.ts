@@ -181,6 +181,38 @@ export function formatProductPrice(
     : getInquiryLabel(category);
 }
 
+export function extractManufacturerBrand(
+  title?: string | null,
+  description?: string | null
+): string | null {
+  const combined = `${title ?? ""}\n${description ?? ""}`;
+  if (!combined.trim()) return null;
+
+  const BRAND_RULES: ReadonlyArray<[RegExp, string]> = [
+    [/삼성(?:전자)?|samsung|비스포크|bespoke|셰프컬렉션|그랑데|무풍|q9000/i, "삼성전자"],
+    [/\blg\b|엘지(?:전자)?|오브제|objet|트롬|tromm|디오스|dios|휘센|whisen|퓨리케어|스타일러/i, "LG전자"],
+    [/캐리어|carrier/i, "캐리어"],
+    [/위니아|딤채|winia|dimchae/i, "위니아"],
+    [/대우(?:전자)?|클라쎄|klasse|daewoo/i, "클라쎄(대우전자)"],
+    [/sk\s*매직|skmagic/i, "SK매직"],
+    [/하이얼|haier/i, "하이얼"],
+    [/라셀르|lasselle/i, "라셀르"],
+    [/우성(?:기업|냉동)?|woosung/i, "우성"],
+    [/부성|busung/i, "부성"],
+    [/한일(?:전기|전자)?|hanil/i, "한일"],
+    [/파세코|paseco/i, "파세코"],
+    [/신일|shinil/i, "신일"],
+    [/쿠쿠|cuckoo/i, "쿠쿠"],
+    [/코웨이|coway/i, "코웨이"],
+    [/아이콘|icevan|브레마|brema|호시자키|hoshizaki/i, "호시자키"],
+  ];
+
+  for (const [pattern, brand] of BRAND_RULES) {
+    if (pattern.test(combined)) return brand;
+  }
+  return null;
+}
+
 export function extractModelName(
   description?: string | null,
   title?: string | null

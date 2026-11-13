@@ -17,6 +17,7 @@ import {
   getClientIp,
   hashInquiryPasswordAsync,
   recordInquiryPasswordFailure,
+  recordInquiryPasswordIpFailure,
   verifyAdminRequest,
   verifyInquiryPasswordWithMeta,
   verifySameOriginRequest,
@@ -40,6 +41,13 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!verifySameOriginRequest(req)) {
+      return NextResponse.json(
+        { error: "허용되지 않은 요청 출처입니다." },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     if (!isValidInquiryId(id)) {
       return NextResponse.json(
@@ -95,6 +103,7 @@ export async function POST(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
+        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않습니다." },
           { status: 401 }
@@ -238,6 +247,7 @@ export async function PATCH(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
+        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           {
             error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
@@ -407,6 +417,7 @@ export async function DELETE(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
+        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않아 삭제할 수 없습니다." },
           { status: 401 }
@@ -427,7 +438,7 @@ export async function DELETE(
       );
     }
 
-    // 게시글 삭제 성공 시 연결된 Storage 이미지도 안전하게 파기 (개인정보 보호)
+    // 게시글 삭제 성공 시 다른 레코드에서 참조하지 않는 본인 첨부 Storage 이미지만 안전하게 파기
     try {
       const attachedImages = extractInquiryImages(existing);
       if (attachedImages.length > 0) {
@@ -436,20 +447,74 @@ export async function DELETE(
           productImages: prodFiles,
           attachments: attachmentFiles,
         } = extractStorageFilesByBucket(attachedImages);
-        if (inqFiles.length > 0) {
-          await supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .remove(inqFiles);
+
+        const cleanupClient = isAdmin ? supabase : createServiceRoleClient();
+        const { data: otherRows, error: refErr } = await cleanupClient
+          .from("purchase_requests")
+          .select("images, image_url")
+          .neq("id", id)
+          .limit(500);
+
+        const referencedPaths = new Set<string>();
+        let canVerifyRefs = !refErr;
+
+        if (canVerifyRefs) {
+          for (const row of otherRows ?? []) {
+            for (const url of extractInquiryImages(row)) {
+              const extracted = extractStorageFilesByBucket([url]);
+              [
+                ...extracted.inquiries,
+                ...extracted.productImages,
+                ...extracted.attachments,
+              ].forEach((p) => referencedPaths.add(p));
+            }
+          }
         }
-        if (prodFiles.length > 0) {
-          await supabase.storage
-            .from(STORAGE_BUCKETS.legacyProductImages)
-            .remove(prodFiles);
+
+        // 관리자 공지/레거시 공용 버킷 삭제 전에는 상품 테이블 참조 여부까지 함께 확인
+        if (isAdmin && canVerifyRefs && (inqFiles.length > 0 || prodFiles.length > 0)) {
+          const { data: prodRows, error: prodRefErr } = await cleanupClient
+            .from("products")
+            .select("image_url")
+            .limit(500);
+          if (prodRefErr) {
+            canVerifyRefs = false;
+          } else {
+            for (const pRow of prodRows ?? []) {
+              const raw = typeof pRow.image_url === "string" ? pRow.image_url : "";
+              if (!raw) continue;
+              const extracted = extractStorageFilesByBucket(raw.split(",").map((s) => s.trim()));
+              [...extracted.inquiries, ...extracted.productImages].forEach((p) =>
+                referencedPaths.add(p)
+              );
+            }
+          }
         }
-        if (attachmentFiles.length > 0) {
-          await supabase.storage
-            .from(STORAGE_BUCKETS.inquiryAttachments)
-            .remove(attachmentFiles);
+
+        if (canVerifyRefs) {
+          const unreferencedAttachments = attachmentFiles.filter(
+            (p) => !referencedPaths.has(p) && (isAdmin || p.startsWith("inquiries/"))
+          );
+          if (unreferencedAttachments.length > 0) {
+            await cleanupClient.storage
+              .from(STORAGE_BUCKETS.inquiryAttachments)
+              .remove(unreferencedAttachments);
+          }
+
+          if (isAdmin) {
+            const unreferencedInq = inqFiles.filter((p) => !referencedPaths.has(p));
+            if (unreferencedInq.length > 0) {
+              await cleanupClient.storage
+                .from(STORAGE_BUCKETS.inquiries)
+                .remove(unreferencedInq);
+            }
+            const unreferencedProd = prodFiles.filter((p) => !referencedPaths.has(p));
+            if (unreferencedProd.length > 0) {
+              await cleanupClient.storage
+                .from(STORAGE_BUCKETS.legacyProductImages)
+                .remove(unreferencedProd);
+            }
+          }
         }
       }
     } catch (storageErr) {

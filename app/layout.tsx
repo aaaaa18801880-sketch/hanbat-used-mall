@@ -11,6 +11,7 @@ const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
 export const metadata: Metadata = {
   metadataBase: new URL(STORE.url),
   applicationName: STORE.name,
+  referrer: "strict-origin-when-cross-origin",
   appleWebApp: {
     title: STORE.name,
     statusBarStyle: "default",
@@ -341,9 +342,10 @@ export default function RootLayout({
         />
         <link
           rel="stylesheet"
-          as="style"
-          crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+          integrity="sha384-GIdEBaqGN9mNkDkMkzMHW8EKUqtpPIe/sLj1X7DIrnc9uPtLROJgmuDlh+3rBw0j"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
         />
         <script
           type="application/ld+json"

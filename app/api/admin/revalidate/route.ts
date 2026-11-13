@@ -21,6 +21,9 @@ export async function POST(req: NextRequest) {
     try {
       revalidatePath("/");
       revalidatePath("/gallery");
+      revalidatePath("/sitemap.xml");
+      revalidatePath("/llms.txt");
+      revalidatePath("/llms-full.txt");
       if (id) {
         revalidatePath(`/${id}`);
       }
@@ -30,7 +33,14 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      revalidated: ["/", "/gallery", id ? `/${id}` : null].filter(Boolean),
+      revalidated: [
+        "/",
+        "/gallery",
+        "/sitemap.xml",
+        "/llms.txt",
+        "/llms-full.txt",
+        id ? `/${id}` : null,
+      ].filter(Boolean),
     });
   } catch (err: unknown) {
     return NextResponse.json(

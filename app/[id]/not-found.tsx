@@ -7,7 +7,7 @@ export default function ProductNotFound() {
   return (
     <div className="min-h-screen bg-[#F7F8FA] flex flex-col font-sans text-[#141A23]">
       <SiteHeader />
-      <main className="flex-1 flex items-center justify-center p-5">
+      <main id="main-content" tabIndex={-1} className="flex-1 flex items-center justify-center p-5 focus:outline-none">
         <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-2xs border border-[#E2E6EC] text-center max-w-md w-full">
           <p className="hb-eyebrow justify-center">재고 안내</p>
           <h1 className="mt-2 text-hb-xl font-bold text-[#141A23]">

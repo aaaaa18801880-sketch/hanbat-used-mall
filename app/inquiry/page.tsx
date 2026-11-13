@@ -258,16 +258,6 @@ export default function InquiryBoardPage() {
   }, []);
 
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && enlargedImage) {
-        setEnlargedImage(null);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [enlargedImage]);
-
   const noticeList = useMemo(
     () => inquiries.filter((i) => i.is_notice),
     [inquiries]
@@ -616,7 +606,7 @@ export default function InquiryBoardPage() {
         </div>
       </section>
 
-      <main className="hb-container py-7 sm:py-11 flex-1 w-full">
+      <main id="main-content" tabIndex={-1} className="hb-container py-7 sm:py-11 flex-1 w-full focus:outline-none">
         {/* 필터 탭 및 제목 검색 바 */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-5">
           <div
@@ -1096,6 +1086,7 @@ export default function InquiryBoardPage() {
           label="문의 상세"
           onClose={() => setIsDetailOpen(false)}
           panelClassName="max-w-2xl"
+          closeOnEsc={!enlargedImage}
         >
           <div className="bg-white rounded-xl shadow-2xl border border-[#E2E6EC] max-h-[90vh] flex flex-col w-full overflow-hidden">
             <div className="px-6 py-4 flex items-center justify-between bg-[#141A23] text-white">
@@ -1411,31 +1402,40 @@ export default function InquiryBoardPage() {
         </Modal>
       )}
 
-      {enlargedImage && (
+      <Modal
+        open={Boolean(enlargedImage)}
+        onClose={() => setEnlargedImage(null)}
+        variant="lightbox"
+        label="첨부 이미지 확대 보기"
+        panelClassName="max-w-5xl w-full rounded-none overflow-visible"
+      >
         <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="첨부 이미지 확대 보기"
           onClick={() => setEnlargedImage(null)}
-          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+          className="relative flex flex-col items-center justify-center p-2 sm:p-4 select-none"
         >
-          <button
-            type="button"
-            onClick={() => setEnlargedImage(null)}
-            aria-label="확대 이미지 닫기"
-            autoFocus
-            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-          >
-            <Icon d={ICON.close} className="w-6 h-6" />
-          </button>
-          <SafeImg
-            src={enlargedImage}
-            alt="확대 이미지"
-            eager
-            className="max-w-full max-h-[88vh] object-contain"
-          />
+          <div className="mb-3 flex w-full justify-end">
+            <button
+              type="button"
+              onClick={() => setEnlargedImage(null)}
+              aria-label="확대 이미지 닫기"
+              autoFocus
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <Icon d={ICON.close} className="w-6 h-6" />
+            </button>
+          </div>
+          {enlargedImage && (
+            <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
+              <SafeImg
+                src={enlargedImage}
+                alt="확대 이미지"
+                eager
+                className="max-w-full max-h-[82vh] object-contain rounded"
+              />
+            </div>
+          )}
         </div>
-      )}
+      </Modal>
 
       <AdminLoginModal
         open={isAdminAuthModalOpen}

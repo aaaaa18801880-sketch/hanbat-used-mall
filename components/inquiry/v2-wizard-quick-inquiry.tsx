@@ -337,6 +337,9 @@ export function V2InquirySectionWithWizard({
 
   const handleRemoveFile = (index: number) => {
     URL.revokeObjectURL(filePreviews[index]);
+    if (selectedFiles.length <= 1) {
+      setAiResult(null);
+    }
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     setFilePreviews((prev) => prev.filter((_, i) => i !== index));
   };
@@ -1033,7 +1036,9 @@ export function V2InquirySectionWithWizard({
                   <label htmlFor={`${uid}-name`} className="hb-label text-[#64748B]">성함 / 상호명 *</label>
                   <input
                     id={`${uid}-name`}
+                    name="contact_name"
                     type="text"
+                    autoComplete="name"
                     required
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -1045,7 +1050,9 @@ export function V2InquirySectionWithWizard({
                   <label htmlFor={`${uid}-phone`} className="hb-label text-[#64748B]">연락처 *</label>
                   <input
                     id={`${uid}-phone`}
+                    name="tel"
                     type="tel"
+                    autoComplete="tel"
                     required
                     value={phone}
                     onChange={(e) => setPhone(formatPhone(e.target.value))}
@@ -1057,7 +1064,9 @@ export function V2InquirySectionWithWizard({
                   <label htmlFor={`${uid}-password`} className="hb-label text-[#64748B]">조회 비밀번호(4자+) *</label>
                   <input
                     id={`${uid}-password`}
+                    name="new_password"
                     type="password"
+                    autoComplete="new-password"
                     required
                     minLength={4}
                     maxLength={32}
