@@ -1,22 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
   extractModelName,
   extractSpecCapsules,
   formatProductPrice,
-  getQuoteBasket,
+  getCategoryWarrantyInfo,
   hasProductPrice,
   isProductSold,
   normalizeProductCategory,
-  QUOTE_BASKET_EVENT,
   splitImages,
+  STORE,
   toggleQuoteBasketItem,
   trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, SafeImg } from "../../lib/ui";
+import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 
@@ -44,12 +44,7 @@ export function ProductTrustMicroStrip({
   const isHvac = normalizedCategory === "에어컨/냉난방기";
   const isMajorAppliance =
     normalizedCategory === "냉장고" || normalizedCategory === "세탁기/건조기";
-
-  const warrantyHighlight = isHvac
-    ? "에어컨류 계약조건별 최대 8개월"
-    : isMajorAppliance
-    ? "주요 가전 계약조건별 최대 4개월"
-    : "품목 및 계약조건에 따라 협의 적용";
+  const warrantyHighlight = getCategoryWarrantyInfo(normalizedCategory).detailLabel;
 
   const items = [
     {
@@ -80,7 +75,7 @@ export function ProductTrustMicroStrip({
 
   return (
     <section
-      aria-label="한밭중고전자 핵심 거래 보증 안내"
+      aria-label={`${STORE.name} 핵심 거래 보증 안내`}
       className={`rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden shadow-2xs ${className}`}
     >
       <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC]">
@@ -142,20 +137,7 @@ export function ProductCard({
     product.category
   );
 
-  const [inBasket, setInBasket] = useState(false);
-
-  useEffect(() => {
-    const sync = () => {
-      setInBasket(getQuoteBasket().some((x) => x.id === product.id));
-    };
-    sync();
-    window.addEventListener(QUOTE_BASKET_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, [product.id]);
+  const inBasket = useQuoteBasket().some((x) => x.id === product.id);
 
   const handleToggleBasket = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -299,8 +281,8 @@ export function ProductCard({
       {/* 2. 카드 본문 (제목 2줄 높이 고정으로 행 전체 가격 위치 일직선 정렬 + @container 적응형 패딩) */}
       <div className="flex flex-1 flex-col justify-between p-3 hb-card-body bg-white">
         <div>
-          <div className="flex items-center justify-between gap-2 text-hb-xs">
-            <span className="hb-trim inline-flex items-center rounded bg-[#F1F3F6] px-2 py-1 font-semibold text-[#334155] truncate">
+          <div className="flex items-center justify-between gap-2 text-hb-xs text-[#64748B]">
+            <span className="font-semibold truncate">
               {categoryLabel}
             </span>
             {modelName && (
@@ -355,35 +337,14 @@ export function ProductCard({
                 <span className="hidden sm:inline truncate">{priceText || "견적 상담 문의"}</span>
               </div>
             )}
-            {!sold && (
-              <span className="hb-trim hidden xs:inline-flex items-center gap-1 shrink-0 text-hb-xs font-semibold text-[#0F766E]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
-                <span>검수필</span>
-              </span>
-            )}
           </div>
         </div>
 
-        {/* 하단 스펙 캡슐 & 견적함 담기 버튼 */}
+        {/* 하단 스펙 요약 & 견적함 담기 버튼 */}
         <div className="mt-3 pt-2.5 border-t border-[#F1F3F6] flex items-center justify-between gap-2 min-w-0">
-          <div className="flex items-center gap-1 min-w-0 overflow-hidden">
-            {specCapsules.length > 0 ? (
-              specCapsules.map((cap, capIdx) => (
-                <span
-                  key={cap}
-                  className={`hb-trim rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-1 text-hb-xs font-bold text-[#141A23] truncate whitespace-nowrap ${
-                    capIdx > 0 ? "hb-card-cap-extra" : "inline-block"
-                  }`}
-                >
-                  {cap}
-                </span>
-              ))
-            ) : (
-              <span className="hb-trim inline-block rounded-md bg-[#F1F3F6] border border-[#E2E6EC] px-2 py-1 text-hb-xs font-semibold text-[#4E5968] truncate">
-                {specSummaryText}
-              </span>
-            )}
-          </div>
+          <p className="min-w-0 truncate text-hb-xs font-medium text-[#4E5968] tabular-nums">
+            {specSummaryText}
+          </p>
 
           {!isSelectMode && !sold ? (
             <button

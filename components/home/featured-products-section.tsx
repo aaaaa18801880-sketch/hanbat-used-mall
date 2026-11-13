@@ -4,6 +4,7 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import {
+  getCategoryWarrantyInfo,
   isProductSold,
   STORE,
   STORE_MERCHANT_POLICY,
@@ -30,14 +31,17 @@ interface CategoryQualityFact {
   icon: ModernIconType;
 }
 
+const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
+const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
+
 const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
   aircon: {
     badge: "에어컨·냉난방기 출고 기준",
-    headline: "완전 분해 고압 살균세척 · 실외기 콤프레셔 및 냉매 100% 압력 테스트",
+    headline: "완전 분해 고압 살균세척 · 실외기 콤프레셔 및 냉매 압력 테스트",
     points: [
       "분해 고압세척 및 열교환기 핀 살균 완료",
       "냉매 가스 누설 진공 시험 및 압축기 시운전",
-      "에어컨 계약조건별 최대 8개월 무상 A/S 보증",
+      AIRCON_WARRANTY.detailLabel,
     ],
     icon: "aircon",
   },
@@ -46,8 +50,8 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
     headline: "내부 선반·도어패킹 고온 스팀 클리닝 · 콤프레셔 냉각 사이클 시운전",
     points: [
       "선반·야채칸 분해 세척 및 탈취 소독 완료",
-      "콤프레셔 냉각 사이클 48시간 온도 측정 시험",
-      "주요 가전 계약조건별 최대 4개월 무상 A/S 보증",
+      "콤프레셔 냉각 사이클 온도 측정 시험",
+      MAJOR_WARRANTY.detailLabel,
     ],
     icon: "fridge",
   },
@@ -57,7 +61,7 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
     points: [
       "세탁조 전면 분해 살균 및 내부 잔여물 세척",
       "고속 탈수 진동 밸런스 및 급수/배수 누수 시험",
-      "주요 가전 계약조건별 최대 4개월 무상 A/S 보증",
+      MAJOR_WARRANTY.detailLabel,
     ],
     icon: "washer",
   },
@@ -77,7 +81,7 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
     points: [
       "상업용 콤프레셔 냉각 성능 및 가스 충전 완비",
       "즉시 식당 영업 투입 가능한 청결 소독 상태",
-      "사업자 세금계산서 100% 정식 발행 및 직배송",
+      "사업자 전자세금계산서 발행 및 직배송",
     ],
     icon: "biz-fridge",
   },
@@ -100,16 +104,6 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
       "창업 일괄 납품 및 사업자 세금계산서 발행",
     ],
     icon: "kitchen",
-  },
-  all: {
-    badge: "직영 쇼룸 안심 출고 기준",
-    headline: "전문 엔지니어 1:1 정밀 성능 점검 및 분해 고압세척을 마친 실매물",
-    points: [
-      "전 제품 입고 즉시 분해 고압세척 및 작동 점검",
-      "품목별 무상 A/S 책임 보증 (에어컨 8개월 / 주요가전 4개월)",
-      "대전·충청권 전문 엔지니어 직배송 및 현장 안착",
-    ],
-    icon: "shield",
   },
 };
 
@@ -158,13 +152,13 @@ export function FeaturedProductsSection({
   const activeCategoryTitle =
     selectedCategory && selectedCategory.key !== "all"
       ? `${selectedCategory.label} 전시 매물`
-      : "실시간 쇼룸 전시 매물";
+      : "쇼룸 전시 매물";
 
   const galleryHref = selectedCategory?.href || "/gallery";
 
   const currentCategoryKey = selectedCategory?.key || "all";
   const categoryFact =
-    CATEGORY_QUALITY_FACTS[currentCategoryKey] || CATEGORY_QUALITY_FACTS.all;
+    currentCategoryKey !== "all" ? CATEGORY_QUALITY_FACTS[currentCategoryKey] : undefined;
 
   const Wrapper = embedded ? "div" : "section";
 
@@ -219,7 +213,7 @@ export function FeaturedProductsSection({
         </div>
 
         {/* 선택 카테고리 특화 검수 기준 스트립 */}
-        {!loading && !error && (
+        {!loading && !error && categoryFact && (
           <div className="mt-4 rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
@@ -276,7 +270,7 @@ export function FeaturedProductsSection({
         ) : error ? (
           <div className="mt-7 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-8 sm:p-10 text-center">
             <p className="text-hb-base font-bold text-[#141A23]">
-              실시간 상품 목록을 불러오지 못했습니다.
+              상품 목록을 불러오지 못했습니다.
             </p>
             <p className="mt-1.5 text-hb-sm text-[#64748B]">
               네트워크 상태를 확인하시거나 잠시 후 다시 시도해 주세요.
@@ -340,7 +334,7 @@ export function FeaturedProductsSection({
                 <strong className="font-bold text-[#141A23] tabular-nums">
                   {filteredProducts.length}
                 </strong>
-                건 · 가격대 필터와 모델명 검색은 전체 갤러리에서 지원합니다.
+                건
               </p>
 
               <div className="flex flex-wrap items-center gap-2.5">

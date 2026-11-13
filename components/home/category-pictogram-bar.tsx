@@ -158,11 +158,9 @@ export function CategoryPictogramBar({
     });
     if (onSelectCategory) {
       onSelectCategory(item);
-      if (typeof document !== "undefined") {
-        document
-          .getElementById("featured-products-section")
-          ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
+      document
+        .getElementById("featured-products-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
   };
 
@@ -183,7 +181,7 @@ export function CategoryPictogramBar({
             </h2>
             {typeof categoryCounts?.all === "number" && (
               <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#64748B] tabular-nums">
-                총 {categoryCounts.all}건 · 품목 선택 시 아래 매물 필터링
+                총 {categoryCounts.all}건
               </span>
             )}
           </div>

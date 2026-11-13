@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  getProductStatusLabel,
+  normalizeProductStatus,
   isProductReserved,
   isProductSold,
   isRecentlyCreated,
@@ -19,14 +19,14 @@ export function ProductStatusBadge({
 }) {
   const sold = isProductSold(status);
   const reserved = isProductReserved(status);
-  const label = getProductStatusLabel(status);
+  const label = normalizeProductStatus(status);
 
   const isFresh = showNew && !sold && isRecentlyCreated(createdAt, 7);
 
   return (
     <div className={`inline-flex flex-wrap items-center gap-1.5 ${className}`}>
       <span
-        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-hb-xs font-semibold backdrop-blur-md shadow-xs ${
+        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-hb-xs font-semibold backdrop-blur-md shadow-xs ${
           sold
             ? "bg-[#334155]/90 text-white"
             : reserved
@@ -34,13 +34,6 @@ export function ProductStatusBadge({
             : "bg-[#141A23]/90 text-white"
         }`}
       >
-        {!sold && (
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              reserved ? "bg-white" : "bg-[#0D9488]"
-            }`}
-          />
-        )}
         <span>{label}</span>
       </span>
       {isFresh && (

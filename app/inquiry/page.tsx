@@ -2,11 +2,8 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import {
-  supabase,
-  isAuthorizedAdminUser,
-  getAdminAuthHeaders,
-} from "../../lib/supabase";
+import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
+import { useIsAdminSession } from "../../lib/use-admin-session";
 import toast from "react-hot-toast";
 import {
   STORE,
@@ -17,9 +14,12 @@ import {
   isBulkBizInquiry,
   getInquiryTypeLabel,
   INQUIRY_ADMIN_STATUS_OPTIONS,
-  parseStructuredInquiryDescription,
   type InquiryTypeValue,
 } from "../../lib/site";
+import {
+  INQUIRY_REPLY_TEMPLATES,
+  StructuredInquiryCard,
+} from "../../components/inquiry/structured-inquiry-card";
 import {
   Icon,
   ICON,
@@ -63,21 +63,6 @@ const TABS = [
   "기타 문의",
 ] as const;
 type Tab = (typeof TABS)[number];
-
-const REPLY_TEMPLATES = [
-  {
-    label: "매입 견적 안내",
-    text: `안녕하세요, ${STORE.name}입니다.\n남겨주신 매입 문의와 사진을 확인했습니다. 정확한 수거 일정 및 견적 안내를 위해 기재해주신 연락처로 곧 전화드리겠습니다. 감사합니다.`,
-  },
-  {
-    label: "구매·재고 안내",
-    text: `안녕하세요, ${STORE.name}입니다.\n문의하신 제품은 현재 매장 실물 확인 및 배송·설치 상담이 가능합니다. 설치 지역과 여건에 맞춰 담당자가 곧 연락드리겠습니다.`,
-  },
-  {
-    label: "방문 일정 조율",
-    text: `안녕하세요, ${STORE.name}입니다.\n요청하신 희망 방문 일정을 확인했습니다. 기사님 배차 스케줄을 확인한 뒤 오늘 중으로 유선 연락드리겠습니다.`,
-  },
-] as const;
 
 const typeStyle = (t?: string | null) =>
   isSellInquiry(t)
@@ -135,7 +120,7 @@ export default function InquiryBoardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("전체");
   const [keyword, setKeyword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAdminSession();
 
   /* 글쓰기 모달 및 상품 상세 연동 프리필 상태 */
   const [isWriteOpen, setIsWriteOpen] = useState(false);
@@ -166,7 +151,6 @@ export default function InquiryBoardPage() {
   const [isReplying, setIsReplying] = useState(false);
 
   const loadData = useCallback(async () => {
-    await Promise.resolve();
     setIsLoading(true);
     setLoadError(false);
     try {
@@ -184,34 +168,31 @@ export default function InquiryBoardPage() {
   }, []);
 
   useEffect(() => {
-    let firstAuthEvent = true;
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setIsAdmin(isAuthorizedAdminUser(session?.user));
-    };
-    checkSession();
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_e, session) => {
-        setIsAdmin(isAuthorizedAdminUser(session?.user));
-        // 최초 인증 이벤트는 아래 초기 로드와 중복되므로 건너뜁니다.
-        if (firstAuthEvent) {
-          firstAuthEvent = false;
-          return;
+    let active = true;
+    void (async () => {
+      try {
+        const headers = await getAdminAuthHeaders();
+        const res = await fetch("/api/inquiries", { headers });
+        if (!res.ok) throw new Error("목록 조회 실패");
+        const json = await res.json();
+        if (active) {
+          setInquiries((json.inquiries || []) as Inquiry[]);
+          setLoadError(false);
         }
-        void loadData();
+      } catch (error) {
+        console.error(error);
+        if (active) setLoadError(true);
+      } finally {
+        if (active) setIsLoading(false);
       }
-    );
-    queueMicrotask(() => {
-      void loadData();
-    });
-    return () => authListener.subscription.unsubscribe();
-  }, [loadData]);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [isAdmin]);
 
   /* 상품 상세 페이지(/gallery 또는 /[id])에서 넘어온 쿼리 파라미터 자동 프리필 */
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (
       params.get("write") === "1" ||
@@ -899,7 +880,9 @@ export default function InquiryBoardPage() {
             </p>
             <button
               type="button"
-              onClick={loadData}
+              onClick={() => {
+                void loadData();
+              }}
               className="hb-btn-primary h-10 px-5 text-hb-sm"
             >
               다시 시도
@@ -1136,93 +1119,12 @@ export default function InquiryBoardPage() {
                 </div>
               </div>
 
-              {selectedItem.description &&
-                (() => {
-                  const parsed = parseStructuredInquiryDescription(
-                    selectedItem.description
-                  );
-                  if (!parsed.isStructured) {
-                    return (
-                      <div className="bg-[#F7F8FA] p-4 rounded-xl border border-[#E2E6EC] whitespace-pre-wrap leading-relaxed">
-                        {selectedItem.description}
-                      </div>
-                    );
-                  }
-                  return (
-                    <div className="space-y-3">
-                      {(parsed.structuredLines.length > 0 ||
-                        parsed.bulkItems.length > 0) && (
-                        <div className="rounded-md border border-[#141A23]/15 bg-[#F8FAFC] p-4 text-hb-sm space-y-2">
-                          <strong className="text-hb-xs font-bold text-[#141A23] block">
-                            상담 확인 조건 (
-                            {getInquiryTypeLabel(selectedItem.inquiry_type)})
-                          </strong>
-                          {parsed.structuredLines.length > 0 && (
-                            <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                              {parsed.structuredLines.map((row, idx) => (
-                                <div key={row.label + idx} className="flex gap-2">
-                                  <dt className="font-bold text-[#334155] shrink-0">
-                                    {row.label}:
-                                  </dt>
-                                  <dd className="font-semibold text-[#141A23]">
-                                    {row.value}
-                                  </dd>
-                                </div>
-                              ))}
-                            </dl>
-                          )}
-                          {parsed.bulkItems.length > 0 && (
-                            <div className="pt-2 border-t border-[#E2E6EC]">
-                              <span className="text-hb-xs font-bold text-[#E8521A] block mb-1">
-                                요청 장비 및 수량
-                              </span>
-                              <ul className="space-y-1 text-hb-xs font-medium text-[#141A23]">
-                                {parsed.bulkItems.map((it, idx) => (
-                                  <li
-                                    key={idx}
-                                    className="bg-white px-2.5 py-1 rounded border border-[#E2E6EC]"
-                                  >
-                                    • {it}
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {parsed.customerContent && (
-                        <div className="bg-[#F7F8FA] p-4 rounded-xl border border-[#E2E6EC] whitespace-pre-wrap leading-relaxed">
-                          <span className="block text-hb-xs font-bold text-[#64748B] mb-1">
-                            문의 내용
-                          </span>
-                          {parsed.customerContent}
-                        </div>
-                      )}
-
-                      {isAdmin &&
-                        (parsed.aiSummaryLines.length > 0 ||
-                          parsed.missingAndQuestions.length > 0) && (
-                          <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-hb-xs text-amber-950 space-y-1">
-                            <strong className="block text-amber-900">
-                              AI 사진 판독 참고 요약 (관리자 확인용)
-                            </strong>
-                            {parsed.aiSummaryLines.map((line, idx) => (
-                              <p key={idx}>• {line}</p>
-                            ))}
-                            {parsed.missingAndQuestions.map((q, idx) => (
-                              <p
-                                key={idx}
-                                className="font-semibold text-[#E8521A]"
-                              >
-                                [확인 필요] {q}
-                              </p>
-                            ))}
-                          </div>
-                        )}
-                    </div>
-                  );
-                })()}
+              <StructuredInquiryCard
+                description={selectedItem.description}
+                isAdmin={isAdmin}
+                conditionHeading={`상담 확인 조건 (${getInquiryTypeLabel(selectedItem.inquiry_type)})`}
+                plainClassName="bg-[#F7F8FA] p-4 rounded-xl border border-[#E2E6EC] whitespace-pre-wrap leading-relaxed"
+              />
 
               {selectedItem.images && selectedItem.images.length > 0 && (
                 <div className="grid grid-cols-3 gap-2.5">
@@ -1280,7 +1182,7 @@ export default function InquiryBoardPage() {
                     <span className="text-hb-xs font-bold text-[#64748B] mr-1">
                       빠른 답변 템플릿:
                     </span>
-                    {REPLY_TEMPLATES.map((tpl) => (
+                    {INQUIRY_REPLY_TEMPLATES.map((tpl) => (
                       <button
                         key={tpl.label}
                         type="button"

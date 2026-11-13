@@ -5,19 +5,20 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import {
   supabase,
-  isAuthorizedAdminUser,
   getAdminAuthHeaders,
   revalidateAdminCache,
 } from "../../lib/supabase";
+import { useIsAdminSession } from "../../lib/use-admin-session";
 import {
   STORE,
   telHref,
   smsHref,
   splitImages,
   compressImage,
-  rotateImageFile,
   enhanceImageFile,
   PRODUCT_IMAGE_TONE_PRESET,
+  PRODUCT_IMAGE_TONE_EXTRA,
+  revokeObjectUrls,
   sanitizeOldManufactureYear,
   validateImageFiles,
   MAX_PHOTOS,
@@ -115,22 +116,6 @@ type StatusFilter = "all" | "selling" | "reserved" | "sold";
 
 const CATEGORIES_WITH_ALL = ["전체", ...PRODUCT_CATEGORIES] as const;
 const PAGE_STEP = 24;
-
-const EditIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    className="w-3.5 h-3.5"
-    aria-hidden="true"
-  >
-    <path d="M12 20h9" />
-    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-  </svg>
-);
 
 // removeProductImagesFromStorage imported from lib/product-ops
 
@@ -261,7 +246,7 @@ function ProductDetailModal({
   };
 
   const removeNewEditFile = (targetIdx: number) => {
-    URL.revokeObjectURL(editNewPreviews[targetIdx]);
+    revokeObjectUrls([editNewPreviews[targetIdx]]);
     setEditNewFiles((prev) => prev.filter((_, i) => i !== targetIdx));
     setEditNewPreviews((prev) => prev.filter((_, i) => i !== targetIdx));
   };
@@ -270,7 +255,7 @@ function ProductDetailModal({
     const file = editNewFiles[i];
     if (!file) return;
     try {
-      const rotated = await rotateImageFile(file, degrees);
+      const rotated = await enhanceImageFile(file, { degrees });
       setEditNewFiles((prev) => {
         const next = [...prev];
         next[i] = rotated;
@@ -278,7 +263,7 @@ function ProductDetailModal({
       });
       setEditNewPreviews((prev) => {
         const next = [...prev];
-        if (next[i]) URL.revokeObjectURL(next[i]);
+        if (next[i]) revokeObjectUrls([next[i]]);
         next[i] = URL.createObjectURL(rotated);
         return next;
       });
@@ -341,7 +326,7 @@ function ProductDetailModal({
         await removeProductImagesFromStorage(removedUrls);
       }
 
-      editNewPreviews.forEach((u) => URL.revokeObjectURL(u));
+      revokeObjectUrls(editNewPreviews);
       setEditNewFiles([]);
       setEditNewPreviews([]);
 
@@ -372,7 +357,7 @@ function ProductDetailModal({
   };
 
   const handleCancelEdit = () => {
-    editNewPreviews.forEach((u) => URL.revokeObjectURL(u));
+    revokeObjectUrls(editNewPreviews);
     setEditNewFiles([]);
     setEditNewPreviews([]);
     setEditExistingImages(images);
@@ -474,7 +459,7 @@ function ProductDetailModal({
                     onClick={() => setIsEditing(true)}
                     className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] bg-[#F1F3F6] hover:bg-[#E2E6EC] border border-[#E2E6EC] px-2.5 py-1.5 rounded transition-colors"
                   >
-                    <EditIcon /> 수정
+                    <Icon d={ICON.pen} className="w-3.5 h-3.5" /> 수정
                   </button>
                   <button
                     type="button"
@@ -921,10 +906,10 @@ function ProductDetailModal({
                   href={smsHref(
                     STORE.mobile,
                     sold
-                      ? `[한밭중고전자 유사매물문의] 판매완료된 '${product.title}'${
+                      ? `[${STORE.name} 유사매물문의] 판매완료된 '${product.title}'${
                           modelName ? ` (${modelName})` : ""
                         }와 비슷한 스펙의 현재 재고 문의드립니다.`
-                      : `[한밭중고전자 상품문의] ${product.title}${
+                      : `[${STORE.name} 상품문의] ${product.title}${
                           modelName ? ` (${modelName})` : ""
                         } 재고 및 배송·설치 견적 문의드립니다.`
                   )}
@@ -1032,6 +1017,19 @@ function ProductDetailModal({
 /* ════════════════════════════════════════════════════════════
    메인 갤러리 페이지 컴포넌트
    ════════════════════════════════════════════════════════════ */
+async function queryGalleryProducts(): Promise<ProductItem[]> {
+  const { data, error } = await supabase
+    .from("products")
+    .select(
+      "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
+    )
+    .neq("category", "배송인증")
+    .order("created_at", { ascending: false })
+    .limit(400);
+  if (error) throw error;
+  return (data ?? []) as ProductItem[];
+}
+
 export default function GalleryPage() {
   const initialProducts = useGalleryInitialProducts();
   const [products, setProducts] = useState<ProductItem[]>(
@@ -1039,7 +1037,7 @@ export default function GalleryPage() {
   );
   const [isLoading, setIsLoading] = useState(() => initialProducts === null);
   const [loadError, setLoadError] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAdminSession();
 
   /* 검색·필터·정렬·페이지네이션 상태 */
   const [activeCategory, setActiveCategory] = useState<string>("전체");
@@ -1055,6 +1053,7 @@ export default function GalleryPage() {
 
   /* 일괄 선택 관리 상태 */
   const [isSelectMode, setIsSelectMode] = useState(false);
+  const effectiveSelectMode = isAdmin && isSelectMode;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBulkLoading, setIsBulkLoading] = useState(false);
 
@@ -1092,20 +1091,15 @@ export default function GalleryPage() {
   const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
   const [foundSources, setFoundSources] = useState<string[]>([]);
 
-  const fetchProducts = useCallback(async (silent = false) => {
-    if (!silent) setIsLoading(true);
-    setLoadError(false);
+  const fetchProducts = useCallback(async (silent = false, showSpinner = false) => {
+    if (!silent && showSpinner) {
+      setIsLoading(true);
+      setLoadError(false);
+    }
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select(
-          "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
-        )
-        .neq("category", "배송인증")
-        .order("created_at", { ascending: false })
-        .limit(400);
-      if (error) throw error;
-      setProducts((data ?? []) as ProductItem[]);
+      const rows = await queryGalleryProducts();
+      setProducts(rows);
+      setLoadError(false);
     } catch (err) {
       console.error("제품 목록 조회 실패:", err);
       if (!silent) setLoadError(true);
@@ -1114,72 +1108,66 @@ export default function GalleryPage() {
     }
   }, []);
 
-  /* 초기 URL 쿼리 파싱 및 세션 감시 */
+  /* 초기 URL 쿼리 파싱 및 최초 데이터 조회 */
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      queueMicrotask(() => {
-        const catParam = params.get("category");
-        if (catParam) {
-          const normalized =
-            catParam === "전체" ? "전체" : normalizeProductCategory(catParam);
-          if ((CATEGORIES_WITH_ALL as readonly string[]).includes(normalized)) {
-            setActiveCategory(normalized);
-          }
-        }
-        const qParam = params.get("q");
-        if (qParam) setSearch(qParam);
-
-        const sortParam = params.get("sort") as SortOption | null;
-        if (
-          sortParam &&
-          ["latest", "views", "priceAsc", "priceDesc"].includes(sortParam)
-        ) {
-          setSort(sortParam);
-        }
-
-        const statusParam = params.get("status") as StatusFilter | null;
-        if (
-          statusParam &&
-          ["all", "selling", "reserved", "sold"].includes(statusParam)
-        ) {
-          setStatusFilter(statusParam);
-        }
-
-        const priceParam = params.get("price") as PriceRangeOption | null;
-        if (
-          priceParam &&
-          ["all", "under30", "30to70", "70to150", "over150"].includes(priceParam)
-        ) {
-          setPriceRange(priceParam);
-        }
-      });
-    }
-
-    supabase.auth
-      .getSession()
-      .then(({ data }) =>
-        setIsAdmin(isAuthorizedAdminUser(data.session?.user))
-      );
-
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        const authorized = isAuthorizedAdminUser(session?.user);
-        setIsAdmin(authorized);
-        if (!authorized) {
-          setIsSelectMode(false);
-          setSelectedIds(new Set());
+    const params = new URLSearchParams(window.location.search);
+    queueMicrotask(() => {
+      const catParam = params.get("category");
+      if (catParam) {
+        const normalized =
+          catParam === "전체" ? "전체" : normalizeProductCategory(catParam);
+        if ((CATEGORIES_WITH_ALL as readonly string[]).includes(normalized)) {
+          setActiveCategory(normalized);
         }
       }
-    );
+      const qParam = params.get("q");
+      if (qParam) setSearch(qParam);
 
-    if (initialProducts === null) {
-      queueMicrotask(() => {
-        void fetchProducts(false);
-      });
-    }
-    return () => authListener.subscription.unsubscribe();
-  }, [fetchProducts, initialProducts]);
+      const sortParam = params.get("sort") as SortOption | null;
+      if (
+        sortParam &&
+        ["latest", "views", "priceAsc", "priceDesc"].includes(sortParam)
+      ) {
+        setSort(sortParam);
+      }
+
+      const statusParam = params.get("status") as StatusFilter | null;
+      if (
+        statusParam &&
+        ["all", "selling", "reserved", "sold"].includes(statusParam)
+      ) {
+        setStatusFilter(statusParam);
+      }
+
+      const priceParam = params.get("price") as PriceRangeOption | null;
+      if (
+        priceParam &&
+        ["all", "under30", "30to70", "70to150", "over150"].includes(priceParam)
+      ) {
+        setPriceRange(priceParam);
+      }
+    });
+
+    if (initialProducts !== null) return;
+    let active = true;
+    void (async () => {
+      try {
+        const rows = await queryGalleryProducts();
+        if (active) {
+          setProducts(rows);
+          setLoadError(false);
+        }
+      } catch (err) {
+        console.error("제품 목록 조회 실패:", err);
+        if (active) setLoadError(true);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [initialProducts]);
 
   const hasPricedProducts = useMemo(
     () => products.some((p) => hasProductPrice(p.price)),
@@ -1189,7 +1177,6 @@ export default function GalleryPage() {
 
   /* 필터 상태 변경 시 URL 쿼리 파라미터 동기화 (새로고침 시 유지) */
   useEffect(() => {
-    if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
 
     if (activeCategory && activeCategory !== "전체") {
@@ -1563,7 +1550,8 @@ export default function GalleryPage() {
   const userManuallyRotatedRef = useRef<Set<number>>(new Set());
 
   const resetUploadForm = () => {
-    productPreviews.forEach((u) => URL.revokeObjectURL(u));
+    revokeObjectUrls(productPreviews);
+    productFilesRef.current = [];
     userManuallyRotatedRef.current.clear();
     setProductTitle("");
     setProductModel("");
@@ -1676,57 +1664,37 @@ export default function GalleryPage() {
       );
       setFoundSources(Array.isArray(cleanData.sourceUrls) ? cleanData.sourceUrls : []);
 
-      // AI가 감지한 사진 방향 및 실내 조명(광도·대비) 자동 최적화
+      // 업로드 시 이미 스튜디오 톤업이 적용되므로 AI는 방향 교정만 수행
       if (Array.isArray(data.imageRotations) && data.imageRotations.length > 0) {
         let rotatedCount = 0;
-        let enhancedLightCount = 0;
 
         try {
           for (const r of data.imageRotations as Array<{
             index?: unknown;
             rotate?: unknown;
-            brightness?: unknown;
-            contrast?: unknown;
           }>) {
             const idx = typeof r.index === "number" ? r.index - 1 : -1;
             const deg = typeof r.rotate === "number" ? r.rotate : 0;
-            const brightness = typeof r.brightness === "number" ? r.brightness : 1.0;
-            const contrast = typeof r.contrast === "number" ? r.contrast : 1.0;
 
             if (
               idx >= 0 &&
               idx < filesToAnalyze.length &&
-              !userManuallyRotatedRef.current.has(idx)
+              !userManuallyRotatedRef.current.has(idx) &&
+              deg > 0 &&
+              deg < 360
             ) {
-              const needsRotate = deg > 0 && deg < 360;
-              const needsLight = brightness > 1.02 || contrast > 1.02;
-
-              if (needsRotate || needsLight) {
-                await enhanceUploadFile(
-                  idx,
-                  {
-                    degrees: needsRotate ? deg : 0,
-                    brightness: needsLight ? brightness : 1.0,
-                    contrast: needsLight ? contrast : 1.0,
-                    saturate: needsLight ? 1.04 : 1.0,
-                  },
-                  true
-                );
-                if (needsRotate) rotatedCount++;
-                if (needsLight) enhancedLightCount++;
-              }
+              await enhanceUploadFile(idx, { degrees: deg }, true);
+              rotatedCount++;
             }
           }
 
-          if (rotatedCount > 0 && enhancedLightCount > 0) {
-            toast.success("AI가 사진 방향과 스튜디오 조명(광도·대비)을 자동 최적화했습니다.");
-          } else if (rotatedCount > 0) {
-            toast.success("AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다.");
-          } else if (enhancedLightCount > 0) {
-            toast.success("AI가 실내 조명을 보정하여 화사한 쇼룸 스튜디오 톤으로 최적화했습니다.");
+          if (rotatedCount > 0) {
+            toast.success(
+              "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다."
+            );
           }
         } catch (enhanceErr) {
-          console.warn("AI 자동 보정 적용 중 오류:", enhanceErr);
+          console.warn("AI 자동 회전 적용 중 오류:", enhanceErr);
         }
       }
 
@@ -1789,49 +1757,13 @@ export default function GalleryPage() {
   };
 
   const handleRemoveUploadFile = (index: number) => {
-    URL.revokeObjectURL(productPreviews[index]);
+    revokeObjectUrls([productPreviews[index]]);
     setProductFiles((prev) => {
       const next = prev.filter((_, i) => i !== index);
       productFilesRef.current = next;
       return next;
     });
     setProductPreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const rotateUploadFile = async (
-    index: number,
-    degrees = 90,
-    isAuto = false
-  ) => {
-    const targetFile = productFilesRef.current[index] || null;
-    if (!targetFile) return;
-
-    try {
-      const rotated = await rotateImageFile(targetFile, degrees);
-      setProductFiles((prev) => {
-        const next = [...prev];
-        if (index < next.length) next[index] = rotated;
-        productFilesRef.current = next;
-        return next;
-      });
-
-      setProductPreviews((prev) => {
-        const next = [...prev];
-        if (index < next.length) {
-          if (next[index]) URL.revokeObjectURL(next[index]);
-          next[index] = URL.createObjectURL(rotated);
-        }
-        return next;
-      });
-
-      if (!isAuto) {
-        userManuallyRotatedRef.current.add(index);
-        toast.success(`${index + 1}번 사진이 90° 회전되었습니다.`);
-      }
-    } catch (err) {
-      console.error("사진 회전 오류:", err);
-      if (!isAuto) toast.error("사진 회전에 실패했습니다.");
-    }
   };
 
   const enhanceUploadFile = async (
@@ -1842,6 +1774,7 @@ export default function GalleryPage() {
     const targetFile = productFilesRef.current[index] || null;
     if (!targetFile) return;
 
+    const isRotateAction = Boolean(options.degrees);
     try {
       const enhanced = await enhanceImageFile(targetFile, options);
       setProductFiles((prev) => {
@@ -1854,7 +1787,7 @@ export default function GalleryPage() {
       setProductPreviews((prev) => {
         const next = [...prev];
         if (index < next.length) {
-          if (next[index]) URL.revokeObjectURL(next[index]);
+          if (next[index]) revokeObjectUrls([next[index]]);
           next[index] = URL.createObjectURL(enhanced);
         }
         return next;
@@ -1862,11 +1795,19 @@ export default function GalleryPage() {
 
       if (!isAuto) {
         userManuallyRotatedRef.current.add(index);
-        toast.success(`${index + 1}번 사진이 스튜디오 조명(광도·대비) 보정되었습니다.`);
+        toast.success(
+          isRotateAction
+            ? `${index + 1}번 사진이 90° 회전되었습니다.`
+            : `${index + 1}번 사진이 한 단계 더 밝게 보정되었습니다.`
+        );
       }
     } catch (err) {
       console.error("사진 보정 오류:", err);
-      if (!isAuto) toast.error("사진 보정에 실패했습니다.");
+      if (!isAuto) {
+        toast.error(
+          isRotateAction ? "사진 회전에 실패했습니다." : "사진 보정에 실패했습니다."
+        );
+      }
     }
   };
 
@@ -1994,18 +1935,14 @@ export default function GalleryPage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#E8521A]">
-                <span className="inline-flex items-center rounded-full bg-[#FFF4EE] px-2.5 py-0.5">
-                  실시간 직영 쇼룸
-                </span>
-                <span className="text-[#CBD2DC]" aria-hidden="true">·</span>
-                <span className="text-[#334155]">
-                  대전 중촌동 직영 매장 실매물
-                </span>
+                <span>대전 중촌동 직영 매장</span>
                 {!isLoading && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#0D9488]/20 px-2.5 py-0.5 text-hb-xs font-bold text-[#0D9488] tabular-nums">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
-                    구매 가능 {sellingCount}건
-                  </span>
+                  <>
+                    <span className="text-[#CBD2DC]" aria-hidden="true">·</span>
+                    <span className="text-[#0D9488] tabular-nums">
+                      구매 가능 {sellingCount}건
+                    </span>
+                  </>
                 )}
               </div>
               <div className="mt-1 flex flex-wrap items-baseline gap-2.5">
@@ -2126,21 +2063,6 @@ export default function GalleryPage() {
 
             {/* 데스크톱 우측 인라인 필터 */}
             <div className="hidden lg:flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusFilter(statusFilter === "selling" ? "all" : "selling");
-                  setVisibleLimit(PAGE_STEP);
-                }}
-                className={`h-9 px-3.5 rounded-xl text-hb-xs font-bold border transition-colors cursor-pointer ${
-                  statusFilter === "selling"
-                    ? "bg-[#141A23] text-white border-[#141A23]"
-                    : "bg-white text-[#334155] border-[#E2E6EC] hover:border-[#141A23] hover:text-[#141A23]"
-                }`}
-              >
-                판매중만
-              </button>
-
               <select
                 value={statusFilter}
                 onChange={(e) => {
@@ -2320,41 +2242,6 @@ export default function GalleryPage() {
                 </>
               )}
             </p>
-            {/* 데스크톱 빠른 프리셋 링크 */}
-            <div className="hidden md:flex items-center gap-1.5 ml-2 pl-2 border-l border-[#E2E6EC]">
-              {SITUATION_PRESETS.map((preset) => {
-                const active =
-                  activeCategory === preset.category &&
-                  (!preset.keyword || search === preset.keyword);
-                const presetIcon =
-                  preset.label === "원룸·자취필수"
-                    ? ICON.building
-                    : preset.label === "카페·디저트창업"
-                    ? ICON.sparkles
-                    : preset.label === "식당·주방설비"
-                    ? ICON.layers
-                    : ICON.snowflake;
-                return (
-                  <button
-                    key={preset.label}
-                    type="button"
-                    onClick={() => {
-                      setActiveCategory(preset.category);
-                      setSearch(preset.keyword);
-                      setVisibleLimit(PAGE_STEP);
-                    }}
-                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 min-h-6 text-hb-xs font-semibold transition-colors cursor-pointer ${
-                      active
-                        ? "bg-[#E8521A] text-white"
-                        : "text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#141A23]"
-                    }`}
-                  >
-                    <Icon d={presetIcon} className="w-3 h-3" />
-                    <span>#{preset.label}</span>
-                  </button>
-                );
-              })}
-            </div>
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
@@ -2379,13 +2266,13 @@ export default function GalleryPage() {
                   setSelectedIds(new Set());
                 }}
                 className={`px-3 py-1 rounded text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
-                  isSelectMode
+                  effectiveSelectMode
                     ? "bg-[#E8521A] text-white border-[#E8521A]"
                     : "bg-white text-[#141A23] border-[#E2E6EC] hover:bg-[#F7F8FA]"
                 }`}
               >
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                {isSelectMode ? "선택 종료" : "일괄 관리"}
+                {effectiveSelectMode ? "선택 종료" : "일괄 관리"}
               </button>
             </div>
           )}
@@ -2421,7 +2308,7 @@ export default function GalleryPage() {
             </p>
             <button
               type="button"
-              onClick={() => void fetchProducts()}
+              onClick={() => void fetchProducts(false, true)}
               className="hb-btn-primary mt-5 h-10 px-5 text-hb-sm"
             >
               다시 불러오기
@@ -2463,7 +2350,7 @@ export default function GalleryPage() {
               <a
                 href={smsHref(
                   STORE.mobile,
-                  `[한밭중고전자 미등록재고문의] 홈페이지에서 '${
+                  `[${STORE.name} 미등록재고문의] 홈페이지에서 '${
                     search.trim() || activeCategory
                   }' 검색 후 문의드립니다. 매장 보유 재고와 사진 확인 가능할까요?`
                 )}
@@ -2491,9 +2378,9 @@ export default function GalleryPage() {
                   key={product.id}
                   product={product}
                   eager={idx < 2}
-                  onSelect={isSelectMode ? handleProductClick : undefined}
+                  onSelect={effectiveSelectMode ? handleProductClick : undefined}
                   onQuickView={handleProductClick}
-                  isSelectMode={isSelectMode}
+                  isSelectMode={effectiveSelectMode}
                   isSelected={selectedIds.has(product.id)}
                   isAdmin={isAdmin}
                   onDelete={handleDeleteProduct}
@@ -2554,7 +2441,7 @@ export default function GalleryPage() {
       </main>
 
       {/* 관리자 일괄 선택 플로팅 작업 바 */}
-      {isSelectMode && (
+      {effectiveSelectMode && (
         <div className="fixed bottom-16 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 bg-[#141A23]/95 text-white px-4 sm:px-6 py-3.5 rounded-xl shadow-2xl border border-white/15 max-w-[95vw] overflow-x-auto">
           <span className="text-hb-sm font-bold whitespace-nowrap">
             <strong className="text-[#FEE500]">{selectedIds.size}</strong>개 선택됨
@@ -2721,10 +2608,9 @@ export default function GalleryPage() {
                 />
 
                 {isAnalyzing && (
-                  <div className="mt-2.5 flex items-center gap-2 p-3 bg-[#FFF4EE] border border-[#FADCD0] rounded-lg text-[#E8521A] text-hb-xs font-semibold">
-                    <span className="w-2 h-2 rounded-full bg-[#E8521A] shrink-0" />
+                  <p className="mt-2.5 p-3 bg-[#FFF4EE] border border-[#FADCD0] rounded-lg text-[#E8521A] text-hb-xs font-semibold">
                     사진 속 명판과 제품 사양을 분석하고 있습니다...
-                  </div>
+                  </p>
                 )}
 
                 {productPreviews.length > 0 && (
@@ -2764,11 +2650,10 @@ export default function GalleryPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              enhanceUploadFile(index, { brightness: 1.14, contrast: 1.08, saturate: 1.04 });
-                              toast.success("스튜디오 화사한 조명 톤으로 보정되었습니다.");
-                            }}
-                            title="스튜디오 조명 톤업 (밝기+14%, 대비+8%)"
+                            onClick={() =>
+                              enhanceUploadFile(index, PRODUCT_IMAGE_TONE_EXTRA)
+                            }
+                            title="스튜디오 조명 톤업 (밝기+12%, 대비+4%)"
                             aria-label="스튜디오 조명 톤업"
                             className="absolute bottom-1.5 right-8 bg-black/75 hover:bg-[#E8521A] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
                           >
@@ -2777,7 +2662,7 @@ export default function GalleryPage() {
                           {/* 이미지 우하단 퀵 90도 회전 버튼 */}
                           <button
                             type="button"
-                            onClick={() => rotateUploadFile(index, 90)}
+                            onClick={() => enhanceUploadFile(index, { degrees: 90 })}
                             title="시계방향 90도 회전"
                             aria-label="시계방향 90도 회전"
                             className="absolute bottom-1.5 right-1.5 bg-black/75 hover:bg-[#E8521A] text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md transition-colors"
@@ -2786,15 +2671,6 @@ export default function GalleryPage() {
                           </button>
                         </div>
                         <div className="border-t border-[#E2E6EC] bg-white text-hb-xs font-bold text-[#334155]">
-                          <button
-                            type="button"
-                            onClick={() => rotateUploadFile(index, 90)}
-                            className="w-full py-1.5 flex items-center justify-center gap-1.5 text-[#141A23] hover:text-[#E8521A] hover:bg-[#FFF4EE] border-b border-[#E2E6EC] transition-colors"
-                            title="사진을 시계 방향으로 90도 회전합니다"
-                          >
-                            <Icon d={ICON.rotate} className="w-3.5 h-3.5 text-[#E8521A]" />
-                            <span>90° 회전</span>
-                          </button>
                           <div className="grid grid-cols-2 divide-x divide-[#E2E6EC]">
                             <button
                               type="button"
@@ -3040,7 +2916,6 @@ export default function GalleryPage() {
       <AdminLoginModal
         open={isAdminAuthModalOpen}
         onClose={() => setIsAdminAuthModalOpen(false)}
-        onSuccess={() => setIsAdmin(true)}
       />
     </div>
   );

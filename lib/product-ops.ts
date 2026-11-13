@@ -12,28 +12,22 @@ import {
 export async function removeProductImagesFromStorage(
   imageUrls: string[]
 ): Promise<{ deleted: string[]; errors: string[] }> {
-  const { inquiries, productImages } = extractStorageFilesByBucket(imageUrls);
+  const { inquiries, productImages, attachments } =
+    extractStorageFilesByBucket(imageUrls);
   const deleted: string[] = [];
   const errors: string[] = [];
 
-  if (inquiries.length > 0) {
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKETS.inquiries)
-      .remove(inquiries);
-    if (error) {
-      console.warn("Storage(inquiries) 이미지 삭제 실패:", error.message);
-      errors.push(error.message);
-    } else if (data) {
-      deleted.push(...data.map((d) => d.name));
-    }
-  }
+  const bucketsToClean: Array<[string, string[]]> = [
+    [STORAGE_BUCKETS.inquiries, inquiries],
+    [STORAGE_BUCKETS.legacyProductImages, productImages],
+    [STORAGE_BUCKETS.inquiryAttachments, attachments],
+  ];
 
-  if (productImages.length > 0) {
-    const { data, error } = await supabase.storage
-      .from(STORAGE_BUCKETS.legacyProductImages)
-      .remove(productImages);
+  for (const [bucket, paths] of bucketsToClean) {
+    if (paths.length === 0) continue;
+    const { data, error } = await supabase.storage.from(bucket).remove(paths);
     if (error) {
-      console.warn("Storage(product-images) 이미지 삭제 실패:", error.message);
+      console.warn(`Storage(${bucket}) 이미지 삭제 실패:`, error.message);
       errors.push(error.message);
     } else if (data) {
       deleted.push(...data.map((d) => d.name));
@@ -51,7 +45,7 @@ export const removeStorageImagesSafe = removeProductImagesFromStorage;
 /**
  * 단일 이미지 파일을 최적화 압축 후 Supabase Storage에 업로드하고 public URL을 반환하는 공통 헬퍼
  */
-export async function compressAndUploadProductImage(
+async function compressAndUploadProductImage(
   file: File,
   options?: {
     maxWidth?: number;

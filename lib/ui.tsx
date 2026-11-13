@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
@@ -24,17 +24,40 @@ import {
   copyQuoteBasketText,
   trackEvent,
   getQuoteBasket,
+  EMPTY_QUOTE_BASKET,
+  subscribeQuoteBasket,
   removeQuoteBasketItem,
   updateQuoteBasketItemQuantity,
   clearQuoteBasket,
   toggleQuoteBasketItem,
-  QUOTE_BASKET_EVENT,
   formatProductPrice,
   isProductSold,
   type QuoteBasketItem,
   triggerQuickInquiry,
   type InquiryTypeValue,
 } from "./site";
+
+const getServerQuoteBasketSnapshot = () => EMPTY_QUOTE_BASKET;
+
+export function useQuoteBasket(): QuoteBasketItem[] {
+  return useSyncExternalStore(
+    subscribeQuoteBasket,
+    getQuoteBasket,
+    getServerQuoteBasketSnapshot
+  );
+}
+
+export async function copyQuoteAndOpenKakao(
+  items: QuoteBasketItem[],
+  eventName: "click_quote_basket_kakao" | "click_quote_compare_kakao",
+  toastMessage: string,
+  duration = 4000
+): Promise<void> {
+  trackEvent(eventName, { count: items.length });
+  await copyQuoteBasketText(items);
+  toast.success(toastMessage, { duration });
+  window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+}
 
 /* ════════════════════════════════════════════════════════════
    1. 공통 아이콘 및 브랜드 로고 시스템
@@ -60,24 +83,15 @@ export const ICON = {
     "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
   pen: "M4 20h4L19 9l-4-4L4 16v4z",
   pin: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
-  clock: "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 6v6l4 2",
   menu: "M4 7h16M4 12h16M4 17h16",
   bag: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0",
   copy: "M9 9h11v11H9zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
-  share: "M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8m-4-6-4-4-4 4m4-4v13",
-  shield: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z",
   rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
   shieldCheck:
     "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4",
   sparkles:
     "M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z",
-  truck:
-    "M1 3h15v13H1z M16 8h4l3 3v5h-7V8z M5.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z M18.5 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   bolt: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
-  receipt:
-    "M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z M8 8h8 M8 12h8 M8 16h5",
-  wallet:
-    "M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z M16 14h.01 M4 7V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2",
   wrench:
     "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
   ruler:
@@ -87,8 +101,6 @@ export const ICON = {
   snowflake:
     "M12 2v20 M17 5l-5 5-5-5 M17 19l-5-5-5 5 M2 12h20 M5 7l5 5-5 5 M19 7l-5 5 5 5",
   layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
-  sliders:
-    "M4 21v-7 M4 10V3 M12 21v-9 M12 8V3 M20 21v-5 M20 12V3 M1 14h6 M9 8h6 M17 16h6",
   external:
     "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6 M15 3h6v6 M10 14L21 3",
   grid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
@@ -121,63 +133,7 @@ export function Icon({
   );
 }
 
-/**
- * 입체 듀오톤 아이콘 뱃지 컴포넌트 (DuotoneIcon)
- * - 2025~2026 Tactile Bento & Liquid Glass 디자인 시스템 전용 아이콘
- * - 15% 틴트 배경 + 인셋 하이라이트 + 테마별 정밀 스트로크
- */
-export function DuotoneIcon({
-  d,
-  tone = "navy",
-  size = "md",
-  className = "",
-  strokeWidth = 1.9,
-}: {
-  d: string;
-  tone?: "navy" | "orange" | "emerald" | "kakao" | "light";
-  size?: "sm" | "md" | "lg";
-  className?: string;
-  strokeWidth?: number;
-}) {
-  const toneClasses = {
-    navy: "bg-[#F1F3F6] text-[#141A23] border border-[#E2E6EC]",
-    orange:
-      "bg-[#FFF4EE] text-[#E8521A] border border-[#FADCD0]",
-    emerald:
-      "bg-[#F0FDFA] text-[#0F766E] border border-[#CCFBF1]",
-    kakao:
-      "bg-[#FEE500]/30 text-[#141A23] border border-[#FEE500]/50",
-    light:
-      "bg-white/15 text-white border border-white/20",
-  };
-
-  const sizeClasses = {
-    sm: "h-7 w-7 rounded-lg",
-    md: "h-9 w-9 rounded-xl",
-    lg: "h-11 w-11 rounded-xl",
-  };
-
-  const iconSizes = {
-    sm: "w-3.5 h-3.5",
-    md: "w-4 h-4",
-    lg: "w-5 h-5",
-  };
-
-  return (
-    <span
-      className={`inline-flex items-center justify-center shrink-0 ${sizeClasses[size]} ${toneClasses[tone]} ${className}`}
-    >
-      <Icon d={d} className={iconSizes[size]} strokeWidth={strokeWidth} />
-    </span>
-  );
-}
-
-/**
- * 한밭중고전자 벡터 브랜드 마크 (심볼 + 한글 워드마크)
- * - 가전 쇼룸과 H 이니셜을 결합한 견고한 심볼 마크와 선명한 한글 워드마크로 구성됩니다.
- * - 데스크톱 헤더, 모바일 헤더, 푸터, 파비콘에서 모두 일관된 비율과 선명도를 유지합니다.
- */
-export function HanbatBrandLogo({
+function HanbatBrandLogo({
   dark = false,
   size = "default",
 }: {
@@ -411,7 +367,6 @@ export function Modal({
   onClose,
   label = "대화상자",
   panelClassName = "",
-  overlayClassName = "",
   variant = "default",
   sheet = false,
   open = true,
@@ -422,7 +377,6 @@ export function Modal({
   onClose: () => void;
   label?: string;
   panelClassName?: string;
-  overlayClassName?: string;
   variant?: "default" | "lightbox";
   sheet?: boolean;
   open?: boolean;
@@ -533,7 +487,6 @@ export function Modal({
       aria-label={label}
       {...({ closedby: closedByValue } as Record<string, string>)}
       data-variant={variant === "lightbox" ? "lightbox" : undefined}
-      data-overlay-hint={overlayClassName || undefined}
       onCancel={(e) => {
         e.preventDefault();
         if (!closeOnEsc) return;
@@ -575,19 +528,8 @@ const DRAWER_QUICK_CATEGORIES = [
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const [basketCount, setBasketCount] = useState(0);
+  const basketCount = useQuoteBasket().length;
   const drawerRef = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const syncBasket = () => setBasketCount(getQuoteBasket().length);
-    syncBasket();
-    window.addEventListener(QUOTE_BASKET_EVENT, syncBasket);
-    window.addEventListener("storage", syncBasket);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, syncBasket);
-      window.removeEventListener("storage", syncBasket);
-    };
-  }, []);
 
   useEffect(() => {
     const drawer = drawerRef.current;
@@ -652,7 +594,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <Link
               href="/"
               className="inline-flex items-center py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
-              aria-label="한밭중고전자 홈으로 이동"
+              aria-label={`${STORE.name} 홈으로 이동`}
             >
               <HanbatBrandLogo />
             </Link>
@@ -886,21 +828,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
 /* ════════════════════════════════════════════════════════════
    6. 관심 매물 플로팅 견적함 바 (QuoteBasketFloatingBar)
    ════════════════════════════════════════════════════════════ */
-export function QuoteBasketFloatingBar() {
-  const [items, setItems] = useState<QuoteBasketItem[]>([]);
+function QuoteBasketFloatingBar() {
+  const items = useQuoteBasket();
   const [expanded, setExpanded] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
-
-  useEffect(() => {
-    const sync = () => setItems(getQuoteBasket());
-    sync();
-    window.addEventListener(QUOTE_BASKET_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
 
   if (items.length === 0) return null;
 
@@ -1016,15 +947,14 @@ export function QuoteBasketFloatingBar() {
               </a>
               <button
                 type="button"
-                onClick={async () => {
-                  trackEvent("click_quote_basket_kakao", { count: items.length });
-                  await copyQuoteBasketText(items);
-                  toast.success(
+                onClick={() =>
+                  void copyQuoteAndOpenKakao(
+                    items,
+                    "click_quote_basket_kakao",
                     "견적함 목록이 복사되었습니다! 카카오톡 상담창에 붙여넣기(Ctrl+V) 해주세요.",
-                    { duration: 4000 }
-                  );
-                  window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
-                }}
+                    4000
+                  )
+                }
                 className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FEE500] px-2.5 py-2 text-hb-xs font-bold text-[#191600] hover:bg-[#F2D900] transition-colors"
               >
                 <Icon d={ICON.chat} className="w-3.5 h-3.5" />
@@ -1076,15 +1006,14 @@ export function QuoteBasketFloatingBar() {
             </a>
             <button
               type="button"
-              onClick={async () => {
-                trackEvent("click_quote_basket_kakao", { count: items.length });
-                await copyQuoteBasketText(items);
-                toast.success(
+              onClick={() =>
+                void copyQuoteAndOpenKakao(
+                  items,
+                  "click_quote_basket_kakao",
                   "견적함 목록이 복사되었습니다! 카톡 대화창에 붙여넣기 해주세요.",
-                  { duration: 3500 }
-                );
-                window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
-              }}
+                  3500
+                )
+              }
               aria-label="카카오톡으로 묶음 견적 문의"
               className="grid h-8 w-8 place-items-center rounded-full bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] shrink-0"
             >
@@ -1114,19 +1043,8 @@ export function QuoteBasketFloatingBar() {
 /* ════════════════════════════════════════════════════════════
    6-2. 우측 슬림 아이콘 독 (FloatingQuickWing — 1280px+ 랩탑/데스크톱 퀵 독)
    ════════════════════════════════════════════════════════════ */
-export function FloatingQuickWing() {
-  const [basketCount, setBasketCount] = useState(0);
-
-  useEffect(() => {
-    const sync = () => setBasketCount(getQuoteBasket().length);
-    sync();
-    window.addEventListener(QUOTE_BASKET_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
+function FloatingQuickWing() {
+  const basketCount = useQuoteBasket().length;
 
   const handleInquiryClick = (
     type: InquiryTypeValue = "구매 문의",
@@ -1140,9 +1058,7 @@ export function FloatingQuickWing() {
   };
 
   const scrollToTop = () => {
-    if (typeof window !== "undefined") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
@@ -1373,7 +1289,7 @@ export function SiteFooter({
                       href="/gallery"
                       className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
-                      실시간 판매 제품 갤러리
+                      판매 제품 갤러리
                     </Link>
                   </li>
                   <li>
@@ -1465,7 +1381,7 @@ export function SiteFooter({
 /* ════════════════════════════════════════════════════════════
    8. 모바일 하단 고정 CTA 바 (최소 높이 52px 슬림 설계)
    ════════════════════════════════════════════════════════════ */
-export interface MobileProductCtaContext {
+interface MobileProductCtaContext {
   id: string;
   title: string;
   category: string;
@@ -1485,21 +1401,10 @@ export function MobileCtaBar({
   onInquiryClick?: () => void;
   productContext?: MobileProductCtaContext;
 }) {
-  const [inBasket, setInBasket] = useState(false);
-
-  useEffect(() => {
-    if (!productContext) return;
-    const sync = () => {
-      setInBasket(getQuoteBasket().some((x) => x.id === productContext.id));
-    };
-    sync();
-    window.addEventListener(QUOTE_BASKET_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, [productContext]);
+  const basketItems = useQuoteBasket();
+  const inBasket = productContext
+    ? basketItems.some((x) => x.id === productContext.id)
+    : false;
 
   if (productContext) {
     const sold = isProductSold(productContext.status);

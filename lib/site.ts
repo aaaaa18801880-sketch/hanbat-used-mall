@@ -23,6 +23,7 @@ export const STORE = {
   kakaoChat: "https://pf.kakao.com/_XmyrX/chat",
   cafe: "https://cafe.naver.com/hanbatmall",
   naverMap: "https://naver.me/F5DkWQ4z",
+  geo: { lat: 36.335503, lng: 127.406981 },
   daangnLocalProfile:
     "https://www.daangn.com/kr/local-profile/%ED%95%9C%EB%B0%AD%EC%A4%91%EA%B3%A0%EC%A0%84%EC%9E%90-gqg3ov17usci/",
 } as const;
@@ -43,6 +44,33 @@ export const STORE_MERCHANT_POLICY = {
   warrantyGeneral:
     "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)",
 } as const;
+
+export function getCategoryWarrantyInfo(category?: string | null): {
+  shortLabel: string;
+  compactLabel: string;
+  detailLabel: string;
+} {
+  const cat = normalizeProductCategory(category);
+  if (cat === "에어컨/냉난방기") {
+    return {
+      shortLabel: "최대 8개월 보증(계약별)",
+      compactLabel: "최대 8개월 무상보증",
+      detailLabel: STORE_MERCHANT_POLICY.warrantyAircon,
+    };
+  }
+  if (cat === "냉장고" || cat === "세탁기/건조기") {
+    return {
+      shortLabel: "최대 4개월 보증(계약별)",
+      compactLabel: "최대 4개월 무상보증",
+      detailLabel: STORE_MERCHANT_POLICY.warrantyMajor,
+    };
+  }
+  return {
+    shortLabel: "계약조건별 보증",
+    compactLabel: "계약별 무상보증 협의",
+    detailLabel: STORE_MERCHANT_POLICY.warrantyGeneral,
+  };
+}
 
 export const STORE_SHIPPING_POLICY = {
   currency: "KRW",
@@ -70,7 +98,7 @@ export const PRODUCT_STATUS = {
   SOLD: "판매완료",
 } as const;
 
-export type ProductStatusValue =
+type ProductStatusValue =
   (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
 
 export const PRODUCT_STATUS_LIST: readonly ProductStatusValue[] = [
@@ -88,8 +116,6 @@ export const PRODUCT_CATEGORIES = [
 ] as const;
 
 export type ProductCategoryValue = (typeof PRODUCT_CATEGORIES)[number];
-
-export const DELIVERY_REVIEW_CATEGORY = "배송인증" as const;
 
 export const PRODUCT_CONDITION_GRADES = [
   "S급 (새상품급)",
@@ -116,10 +142,6 @@ export function normalizeProductStatus(
   if (isProductSold(status)) return PRODUCT_STATUS.SOLD;
   if (isProductReserved(status)) return PRODUCT_STATUS.RESERVED;
   return PRODUCT_STATUS.SELLING;
-}
-
-export function getProductStatusLabel(status?: string | null): string {
-  return normalizeProductStatus(status);
 }
 
 export function normalizeProductCategory(
@@ -153,7 +175,7 @@ export function normalizeProductCategory(
   return "기타";
 }
 
-export function getInquiryLabel(category?: string | null): string {
+function getInquiryLabel(category?: string | null): string {
   const normalized = normalizeProductCategory(category);
   switch (normalized) {
     case "에어컨/냉난방기":
@@ -164,7 +186,7 @@ export function getInquiryLabel(category?: string | null): string {
     case "세탁기/건조기":
       return "배송·설치 맞춤 견적";
     default:
-      return "실시간 재고·특가 문의";
+      return "재고·특가 문의";
   }
 }
 
@@ -241,6 +263,19 @@ export function extractModelName(
     }
   }
 
+  return null;
+}
+
+export function extractWidthMmFromText(text: string): number | null {
+  const dimMatch = text.match(
+    /(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm|\b(\d{3,4})\s*[x×*]\s*\d{3,4}/i
+  );
+  if (dimMatch) {
+    const val = Number(dimMatch[1] || dimMatch[2]);
+    if (val >= 350 && val <= 3000) return val;
+  }
+  if (/45\s*박스/.test(text)) return 1260;
+  if (/25\s*박스|30\s*박스/.test(text)) return 650;
   return null;
 }
 
@@ -680,9 +715,9 @@ export function triggerQuickInquiry(detail?: QuickInquiryDetail): void {
 /* ════════════════════════════════════════════════════════════
    2. 관심 매물 견적함 (묶음 문의 · 수량 조절 · 비교 연동) localStorage 헬퍼
    ════════════════════════════════════════════════════════════ */
-export const QUOTE_BASKET_STORAGE_KEY = "hb_quote_basket_v1";
+const QUOTE_BASKET_STORAGE_KEY = "hb_quote_basket_v1";
 export const QUOTE_BASKET_EVENT = "hb-quote-basket-updated";
-export const MAX_QUOTE_BASKET_ITEMS = 8;
+const MAX_QUOTE_BASKET_ITEMS = 8;
 
 export interface QuoteBasketItem {
   id: string;
@@ -697,14 +732,27 @@ export interface QuoteBasketItem {
   imageUrl?: string | null;
 }
 
+export const EMPTY_QUOTE_BASKET: QuoteBasketItem[] = [];
+let cachedBasketRaw: string | null | undefined;
+let cachedBasketSnapshot: QuoteBasketItem[] = EMPTY_QUOTE_BASKET;
+
 export function getQuoteBasket(): QuoteBasketItem[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return EMPTY_QUOTE_BASKET;
   try {
     const raw = window.localStorage.getItem(QUOTE_BASKET_STORAGE_KEY);
-    if (!raw) return [];
+    if (raw === cachedBasketRaw) return cachedBasketSnapshot;
+    if (!raw) {
+      cachedBasketRaw = raw;
+      cachedBasketSnapshot = EMPTY_QUOTE_BASKET;
+      return EMPTY_QUOTE_BASKET;
+    }
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed
+    if (!Array.isArray(parsed)) {
+      cachedBasketRaw = raw;
+      cachedBasketSnapshot = EMPTY_QUOTE_BASKET;
+      return EMPTY_QUOTE_BASKET;
+    }
+    const next = parsed
       .filter(
         (item): item is QuoteBasketItem =>
           Boolean(
@@ -722,26 +770,36 @@ export function getQuoteBasket(): QuoteBasketItem[] {
             ? Math.min(99, Math.floor(item.quantity))
             : 1,
       }));
+    cachedBasketRaw = raw;
+    cachedBasketSnapshot = next;
+    return next;
   } catch {
-    return [];
+    return EMPTY_QUOTE_BASKET;
   }
+}
+
+export function subscribeQuoteBasket(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const onChange = () => listener();
+  window.addEventListener(QUOTE_BASKET_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(QUOTE_BASKET_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
 }
 
 function saveQuoteBasket(items: QuoteBasketItem[]): void {
   if (typeof window === "undefined") return;
   try {
-    window.localStorage.setItem(
-      QUOTE_BASKET_STORAGE_KEY,
-      JSON.stringify(items)
-    );
+    const serialized = JSON.stringify(items);
+    cachedBasketRaw = serialized;
+    cachedBasketSnapshot = items;
+    window.localStorage.setItem(QUOTE_BASKET_STORAGE_KEY, serialized);
     window.dispatchEvent(new CustomEvent(QUOTE_BASKET_EVENT));
   } catch {
     // 브라우저 로컬 스토리지 비활성화/용량 초과 시에도 사이트가 정상 동작하도록 무시
   }
-}
-
-export function isInQuoteBasket(productId: string): boolean {
-  return getQuoteBasket().some((item) => item.id === productId);
 }
 
 export function toggleQuoteBasketItem(item: QuoteBasketItem): {
@@ -897,11 +955,11 @@ export function formatQuoteBasketSummary(items: QuoteBasketItem[]): {
 }
 
 /* ════════════════════════════════════════════════════════════
-   2-2. [신규 기능 ④] 비로그인 최근 본 상품 (Recently Viewed) localStorage 헬퍼
+   2-2. 비로그인 최근 본 상품 (Recently Viewed) localStorage 헬퍼
    ════════════════════════════════════════════════════════════ */
-export const RECENT_VIEWED_STORAGE_KEY = "hb_recent_views_v1";
+const RECENT_VIEWED_STORAGE_KEY = "hb_recent_views_v1";
 export const RECENT_VIEWED_EVENT = "hb-recent-views-updated";
-export const MAX_RECENT_VIEWED_ITEMS = 10;
+const MAX_RECENT_VIEWED_ITEMS = 10;
 
 export interface RecentViewedItem {
   id: string;
@@ -915,14 +973,27 @@ export interface RecentViewedItem {
   viewedAt: number;
 }
 
+export const EMPTY_RECENT_VIEWED: RecentViewedItem[] = [];
+let cachedRecentRaw: string | null | undefined;
+let cachedRecentSnapshot: RecentViewedItem[] = EMPTY_RECENT_VIEWED;
+
 export function getRecentViewedProducts(): RecentViewedItem[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return EMPTY_RECENT_VIEWED;
   try {
     const raw = window.localStorage.getItem(RECENT_VIEWED_STORAGE_KEY);
-    if (!raw) return [];
+    if (raw === cachedRecentRaw) return cachedRecentSnapshot;
+    if (!raw) {
+      cachedRecentRaw = raw;
+      cachedRecentSnapshot = EMPTY_RECENT_VIEWED;
+      return EMPTY_RECENT_VIEWED;
+    }
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
+    if (!Array.isArray(parsed)) {
+      cachedRecentRaw = raw;
+      cachedRecentSnapshot = EMPTY_RECENT_VIEWED;
+      return EMPTY_RECENT_VIEWED;
+    }
+    const next = parsed.filter(
       (item): item is RecentViewedItem =>
         Boolean(
           item &&
@@ -930,9 +1001,23 @@ export function getRecentViewedProducts(): RecentViewedItem[] {
             typeof item.title === "string"
         )
     );
+    cachedRecentRaw = raw;
+    cachedRecentSnapshot = next;
+    return next;
   } catch {
-    return [];
+    return EMPTY_RECENT_VIEWED;
   }
+}
+
+export function subscribeRecentViewed(listener: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const onChange = () => listener();
+  window.addEventListener(RECENT_VIEWED_EVENT, onChange);
+  window.addEventListener("storage", onChange);
+  return () => {
+    window.removeEventListener(RECENT_VIEWED_EVENT, onChange);
+    window.removeEventListener("storage", onChange);
+  };
 }
 
 export function addRecentViewedProduct(
@@ -1113,7 +1198,7 @@ export function generatePromoPostText(product: {
     `[${STORE.name} 실매물 안내] ${product.title}`,
     "",
     `■ 판매 가격: ${priceText}`,
-    `■ 품목 분류: ${categoryLabel} (${getProductStatusLabel(product.status)})`,
+    `■ 품목 분류: ${categoryLabel} (${normalizeProductStatus(product.status)})`,
     ...(specLines.length > 0 ? ["", "[제품 주요 사양]", ...specLines] : []),
     ...(featureLines.length > 0
       ? ["", "[제품 특징 및 검수 상태]", ...featureLines]
@@ -1158,7 +1243,7 @@ export const INQUIRY_STATUS = {
   NOTICE: "공지",
 } as const;
 
-export type InquiryStatusValue =
+type InquiryStatusValue =
   (typeof INQUIRY_STATUS)[keyof typeof INQUIRY_STATUS];
 
 export const INQUIRY_ADMIN_STATUS_OPTIONS: ReadonlyArray<{
@@ -1241,8 +1326,8 @@ export const NOTIFICATION_STATUS = {
   RETRY_REQUIRED: "재시도 필요",
 } as const;
 
-export type NotificationStatusCode = keyof typeof NOTIFICATION_STATUS;
-export type NotificationStatusLabel =
+type NotificationStatusCode = keyof typeof NOTIFICATION_STATUS;
+type NotificationStatusLabel =
   (typeof NOTIFICATION_STATUS)[NotificationStatusCode];
 
 export interface NotificationDispatchResult {
@@ -1259,7 +1344,7 @@ export interface NotificationDispatchResult {
 /* ════════════════════════════════════════════════════════════
    6. 개인정보(PII) 원천 차단 GA4 이벤트 추적 유틸리티
    ════════════════════════════════════════════════════════════ */
-export type AnalyticsEventName =
+type AnalyticsEventName =
   | "view_item"
   | "search_products"
   | "add_to_quote_basket"
@@ -1386,8 +1471,37 @@ export function buildProductInquirySmsBody(product: {
   return `[${STORE.name} 상품문의] [${cat}] ${product.title.trim()}${modelPart}${pricePart} 실매물 재고 및 배송·설치 견적 문의드립니다.${linkPart}`;
 }
 
+export function buildProductInquiryHref(options: {
+  productId?: string | null;
+  title: string;
+  category?: string | null;
+  sold?: boolean;
+  modelName?: string | null;
+  envNote?: string | null;
+  customTitlePrefix?: string;
+}): string {
+  const cat = normalizeProductCategory(options.category);
+  const titlePrefix =
+    options.customTitlePrefix ||
+    (options.sold ? "[유사매물 재고문의]" : "[상품문의]");
+  const params = new URLSearchParams({
+    write: "1",
+    type: cat === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
+    ...(options.productId ? { productId: String(options.productId) } : {}),
+    title: `${titlePrefix} [${cat}] ${options.title}`.trim(),
+    category: cat,
+  });
+  if (options.modelName) {
+    params.set("model", options.modelName);
+  }
+  if (options.envNote) {
+    params.set("envNote", options.envNote);
+  }
+  return `/inquiry?${params.toString()}`;
+}
+
 /**
- * [EVO-014] 견적함(Quote Basket) 관심 매물 묶음 문자(SMS) 표준 본문 생성기 (SSOT)
+ * 견적함(Quote Basket) 관심 매물 묶음 문자(SMS) 표준 본문 생성기 (SSOT)
  */
 export function buildQuoteBasketSmsBody(items: QuoteBasketItem[]): string {
   if (!items || items.length === 0) {
@@ -1436,7 +1550,7 @@ export function buildQuoteBasketSmsBody(items: QuoteBasketItem[]): string {
 }
 
 /**
- * [EVO-014] 견적함 묶음 텍스트 클립보드 복사 헬퍼 (카카오톡 및 PC 문자 전송 지원)
+ * 견적함 묶음 텍스트 클립보드 복사 헬퍼 (카카오톡 및 PC 문자 전송 지원)
  */
 export async function copyQuoteBasketText(
   items: QuoteBasketItem[]
@@ -1454,11 +1568,12 @@ export async function copyQuoteBasketText(
 }
 
 /**
- * [EVO-015] 오프라인 직영 쇼룸 길찾기 및 층별 안내 단일 출처 (SSOT)
+ * 오프라인 직영 쇼룸 길찾기 및 층별 안내 단일 출처 (SSOT)
  */
 export const STORE_NAVIGATION = {
   naverMap: STORE.naverMap,
   kakaoMap: `https://map.kakao.com/link/search/${encodeURIComponent(STORE.name)}`,
+  kakaoTo: `https://map.kakao.com/link/to/${encodeURIComponent(STORE.name)},${STORE.geo.lat},${STORE.geo.lng}`,
   tmapUrl: `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(
     STORE.name + " " + STORE.roadAddress
   )}`,
@@ -1471,7 +1586,7 @@ export const STORE_NAVIGATION = {
 } as const;
 
 /**
- * [EVO-015] 쇼룸 방문 예약 & 실물 찜 문자(SMS) 표준 본문 생성기 (SSOT)
+ * 쇼룸 방문 예약 & 실물 찜 문자(SMS) 표준 본문 생성기 (SSOT)
  */
 export function buildShowroomVisitSmsBody(options?: {
   product?: {
@@ -1601,68 +1716,66 @@ export function validateImageFiles(
   return { ok, error };
 }
 
-export function compressImage(
-  file: File,
-  maxDim = 1280,
-  quality = 0.78
-): Promise<Blob> {
+function loadImageFromFile(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onerror = () => reject(new Error("파일을 읽지 못했습니다."));
     reader.onload = (event) => {
       const img = new window.Image();
       img.onerror = () => reject(new Error("이미지를 불러오지 못했습니다."));
-      img.onload = () => {
-        let { width, height } = img;
-        if (width > height) {
-          if (width > maxDim) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          }
-        } else if (height > maxDim) {
-          width = Math.round((width * maxDim) / height);
-          height = maxDim;
-        }
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve(file);
-          return;
-        }
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            canvas.width = 0;
-            canvas.height = 0;
-            if (blob) {
-              resolve(blob);
-            } else {
-              reject(new Error("이미지 압축에 실패했습니다."));
-            }
-          },
-          "image/jpeg",
-          quality
-        );
-      };
+      img.onload = () => resolve(img);
       img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   });
 }
 
-export interface ImageEnhanceOptions {
+export async function compressImage(
+  file: File,
+  maxDim = 1280,
+  quality = 0.78
+): Promise<Blob> {
+  const img = await loadImageFromFile(file);
+  let { width, height } = img;
+  if (width > height) {
+    if (width > maxDim) {
+      height = Math.round((height * maxDim) / width);
+      width = maxDim;
+    }
+  } else if (height > maxDim) {
+    width = Math.round((width * maxDim) / height);
+    height = maxDim;
+  }
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+  ctx.drawImage(img, 0, 0, width, height);
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        canvas.width = 0;
+        canvas.height = 0;
+        if (blob) resolve(blob);
+        else reject(new Error("이미지 압축에 실패했습니다."));
+      },
+      "image/jpeg",
+      quality
+    );
+  });
+}
+
+interface ImageEnhanceOptions {
   degrees?: number;
-  brightness?: number; // 1.0 = 원본, 1.15 = +15% 광도 증가
-  contrast?: number;   // 1.0 = 원본, 1.10 = +10% 대비 증가
-  saturate?: number;   // 1.0 = 원본, 1.05 = +5% 생생한 채도
+  brightness?: number;
+  contrast?: number;
+  saturate?: number;
   quality?: number;
 }
 
 /**
- * [EVO-016] 상품 사진 업로드 시 기본 자동 적용되는 '쇼룸 스튜디오 톤' 프리셋 (SSOT)
- * - 관리자가 톤업 버튼을 누르지 않아도 업로드 즉시 매장 조명 보정이 적용됩니다.
+ * 상품 사진 업로드 시 기본 자동 적용되는 '쇼룸 스튜디오 톤' 프리셋 (SSOT)
  */
 export const PRODUCT_IMAGE_TONE_PRESET = {
   brightness: 1.2,
@@ -1672,7 +1785,7 @@ export const PRODUCT_IMAGE_TONE_PRESET = {
 } as const satisfies ImageEnhanceOptions;
 
 /**
- * [EVO-016] 기본 톤업 위에 한 단계 더 밝게 보정하는 2차 톤업 프리셋 (원터치 스파클 버튼)
+ * 기본 톤업 위에 한 단계 더 밝게 보정하는 2차 톤업 프리셋 (원터치 스파클 버튼)
  */
 export const PRODUCT_IMAGE_TONE_EXTRA = {
   brightness: 1.12,
@@ -1682,11 +1795,9 @@ export const PRODUCT_IMAGE_TONE_EXTRA = {
 } as const satisfies ImageEnhanceOptions;
 
 /**
- * [스마트 쇼룸 리터칭 엔진]
- * 이미지 File을 캔버스를 통해 회전 및 스튜디오 광도·대비·선명화 필터를 적용하여
- * 추가 API 비용 없이 무손실 고화질 쇼룸 사진으로 변환
+ * 이미지 File을 캔버스를 통해 회전 및 스튜디오 광도·대비·선명화 필터를 적용하여 고화질 JPEG File로 변환
  */
-export function enhanceImageFile(
+export async function enhanceImageFile(
   file: File,
   options: ImageEnhanceOptions = {}
 ): Promise<File> {
@@ -1698,77 +1809,51 @@ export function enhanceImageFile(
     quality = 0.92,
   } = options;
 
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onerror = () => reject(new Error("파일을 읽지 못했습니다."));
-    reader.onload = (event) => {
-      const img = new window.Image();
-      img.onerror = () => reject(new Error("이미지를 불러오지 못했습니다."));
-      img.onload = () => {
-        const normalizedDeg = ((degrees % 360) + 360) % 360;
-        const needsRotate = normalizedDeg !== 0;
-        const needsFilter = brightness !== 1.0 || contrast !== 1.0 || saturate !== 1.0;
+  const normalizedDeg = ((degrees % 360) + 360) % 360;
+  const needsRotate = normalizedDeg !== 0;
+  const needsFilter = brightness !== 1.0 || contrast !== 1.0 || saturate !== 1.0;
+  if (!needsRotate && !needsFilter) return file;
 
-        if (!needsRotate && !needsFilter) {
+  const img = await loadImageFromFile(file);
+  const isSwap = normalizedDeg === 90 || normalizedDeg === 270;
+  const canvas = document.createElement("canvas");
+  canvas.width = isSwap ? img.height : img.width;
+  canvas.height = isSwap ? img.width : img.height;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return file;
+
+  if (needsFilter) {
+    ctx.filter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
+  }
+
+  ctx.translate(canvas.width / 2, canvas.height / 2);
+  if (needsRotate) {
+    ctx.rotate((normalizedDeg * Math.PI) / 180);
+  }
+  ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+  return new Promise((resolve) => {
+    canvas.toBlob(
+      (blob) => {
+        canvas.width = 0;
+        canvas.height = 0;
+        if (!blob) {
           resolve(file);
           return;
         }
-
-        const isSwap = normalizedDeg === 90 || normalizedDeg === 270;
-        const canvas = document.createElement("canvas");
-        canvas.width = isSwap ? img.height : img.width;
-        canvas.height = isSwap ? img.width : img.height;
-
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve(file);
-          return;
-        }
-
-        if (needsFilter) {
-          ctx.filter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
-        }
-
-        ctx.translate(canvas.width / 2, canvas.height / 2);
-        if (needsRotate) {
-          ctx.rotate((normalizedDeg * Math.PI) / 180);
-        }
-        ctx.drawImage(img, -img.width / 2, -img.height / 2);
-
-        canvas.toBlob(
-          (blob) => {
-            canvas.width = 0;
-            canvas.height = 0;
-            if (!blob) {
-              resolve(file);
-              return;
-            }
-            const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
-            const enhancedFile = new File([blob], cleanName, {
-              type: "image/jpeg",
-              lastModified: Date.now(),
-            });
-            resolve(enhancedFile);
-          },
-          "image/jpeg",
-          quality
+        const cleanName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+        resolve(
+          new File([blob], cleanName, {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          })
         );
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+      },
+      "image/jpeg",
+      quality
+    );
   });
-}
-
-/**
- * 이미지 File을 캔버스를 통해 지정된 각도(기본 90도 시계방향)로 회전하여 새로운 File 객체를 반환
- */
-export function rotateImageFile(
-  file: File,
-  degrees = 90,
-  quality = 0.92
-): Promise<File> {
-  return enhanceImageFile(file, { degrees, quality });
 }
 
 /**
@@ -1793,8 +1878,8 @@ export function revokeObjectUrls(
 /* ════════════════════════════════════════════════════════════
    8. 상담 유형별 AI 사진 분석 스키마 및 구조화 문의 포맷/파서
    ════════════════════════════════════════════════════════════ */
-export type FactSourceType = "사진 판독" | "고객 직접 입력";
-export type FactVerificationStatus =
+type FactSourceType = "사진 판독" | "고객 직접 입력";
+type FactVerificationStatus =
   | "확인됨"
   | "일부 판독(재확인 필요)"
   | "미확인";
@@ -1812,7 +1897,7 @@ export interface PhotoBreakdownItem {
   summary: string;
 }
 
-export interface PurchaseAnalysisData {
+interface PurchaseAnalysisData {
   photoTypes: string[];
   requestedProduct: string;
   confirmedSpecs: string[];
@@ -1820,7 +1905,7 @@ export interface PurchaseAnalysisData {
   purchaseRequirements: string[];
 }
 
-export interface SellAnalysisData {
+interface SellAnalysisData {
   manufacturer: string;
   manufacturingDate: string;
   safetyLabelReadability:
@@ -1851,7 +1936,7 @@ export interface BulkRequestedItem {
     | "추가 확인 필요";
 }
 
-export interface BulkElectricalInfo {
+interface BulkElectricalInfo {
   phaseType: "단상 220V" | "삼상 380V" | "모름/미확인";
   observedVoltage: string;
   contractPower: string;
@@ -1860,7 +1945,7 @@ export interface BulkElectricalInfo {
   notes: string;
 }
 
-export interface BulkInstallationInfo {
+interface BulkInstallationInfo {
   spaceLayout: string;
   utilities: string;
   accessRoute: string;
@@ -1868,14 +1953,14 @@ export interface BulkInstallationInfo {
   targetRegionAndSchedule: string;
 }
 
-export interface BulkAnalysisData {
+interface BulkAnalysisData {
   businessType: string;
   requestedItems: BulkRequestedItem[];
   electricalInfo: BulkElectricalInfo;
   installationInfo: BulkInstallationInfo;
 }
 
-export interface OtherAnalysisData {
+interface OtherAnalysisData {
   inquirySummary: string;
   observedItems: string[];
 }
@@ -1899,7 +1984,7 @@ export interface AnalyzeInquiryResponse {
   otherAnalysis?: OtherAnalysisData;
 }
 
-export interface StructuredInquiryPayload {
+interface StructuredInquiryPayload {
   inquiryType: InquiryTypeValue;
   customerContent: string;
   linkedProductUrl?: string;
@@ -1932,7 +2017,7 @@ export interface StructuredInquiryPayload {
   } | null;
 }
 
-export interface ParsedStructuredInquiry {
+interface ParsedStructuredInquiry {
   isStructured: boolean;
   customerContent: string;
   structuredLines: Array<{ label: string; value: string }>;

@@ -5,7 +5,7 @@ import React from "react";
 import { parseProductDescription } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
-export interface ProductStructuredDescriptionProps {
+interface ProductStructuredDescriptionProps {
   description: string | null | undefined;
   className?: string;
   variant?: "full" | "compact";
@@ -61,16 +61,10 @@ export function ProductStructuredDescription({
       {/* 상단 섹션 타이틀 (full 모드 전용) */}
       {!isCompact && (
         <div className="pb-4 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <span className="text-hb-xs font-bold text-[#E8521A]">
-              상세 제원 및 검수 소견
-            </span>
-            <h2 className="mt-1 text-hb-lg sm:text-hb-xl font-bold tracking-[-0.02em] text-[#141A23]">
-              상세 규격 · 제품 특징 · 검수 소견서
-            </h2>
-          </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F1F5F9] px-3 py-1 text-hb-xs font-bold text-[#334155]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[#0D9488]" />
+          <h2 className="text-hb-lg sm:text-hb-xl font-bold tracking-[-0.02em] text-[#141A23]">
+            상세 규격 · 제품 특징 · 검수 소견서
+          </h2>
+          <span className="rounded-full bg-[#F1F5F9] px-3 py-1 text-hb-xs font-bold text-[#334155]">
             직영 매장 입고 실물 기준
           </span>
         </div>

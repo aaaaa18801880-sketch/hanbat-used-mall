@@ -1,11 +1,6 @@
 // 파일 경로: app/api/telegram/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import {
-  getInquiryTypeLabel,
-  maskPhone,
-  NOTIFICATION_STATUS,
-  type NotificationDispatchResult,
-} from "../../../lib/site";
+import { NextRequest } from "next/server";
+import { getInquiryTypeLabel } from "../../../lib/site";
 import {
   createAnonServerClient,
   createServiceRoleClient,
@@ -18,12 +13,16 @@ import {
   markNotificationSent,
   verifyAdminRequest,
 } from "../../../lib/server-security";
+import {
+  notificationJson,
+  postTelegramInquiryMessage,
+  TELEGRAM_DEDUP_WINDOW_MS,
+} from "../../../lib/server-notifications";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   const nowIso = new Date().toISOString();
-  let activeDedupKey = "";
 
   try {
     const ip = getClientIp(req);
@@ -31,36 +30,26 @@ export async function POST(req: NextRequest) {
       failureMode: "fail-open",
     });
     if (!rate.allowed) {
-      const rateResult: NotificationDispatchResult = {
-        channel: "telegram",
+      return notificationJson("telegram", 429, {
+        success: false,
         status: "RETRY_REQUIRED",
-        statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
         sent: false,
         retryable: true,
         message: `알림 요청 제한을 초과했습니다. ${rate.retryAfterSec}초 후 재시도해 주세요.`,
         timestamp: nowIso,
-      };
-      return NextResponse.json(
-        { success: false, ...rateResult },
-        { status: 429 }
-      );
+      });
     }
 
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== "object") {
-      return NextResponse.json(
-        {
-          success: false,
-          channel: "telegram",
-          status: "EXTERNAL_ERROR",
-          statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-          sent: false,
-          retryable: false,
-          message: "잘못된 알림 요청 형식입니다.",
-          timestamp: nowIso,
-        },
-        { status: 400 }
-      );
+      return notificationJson("telegram", 400, {
+        success: false,
+        status: "EXTERNAL_ERROR",
+        sent: false,
+        retryable: false,
+        message: "잘못된 알림 요청 형식입니다.",
+        timestamp: nowIso,
+      });
     }
 
     const inquiryId = String(body.inquiryId || "").trim().slice(0, 64);
@@ -70,38 +59,26 @@ export async function POST(req: NextRequest) {
     if (forceRetry) {
       const adminCheck = await verifyAdminRequest(req);
       if (!adminCheck.ok) {
-        return NextResponse.json(
-          {
-            success: false,
-            channel: "telegram",
-            status: "EXTERNAL_ERROR",
-            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-            sent: false,
-            retryable: false,
-            message: adminCheck.error || "수동 재발송은 관리자 인증이 필요합니다.",
-            timestamp: nowIso,
-          },
-          { status: adminCheck.status }
-        );
+        return notificationJson("telegram", adminCheck.status, {
+          success: false,
+          status: "EXTERNAL_ERROR",
+          sent: false,
+          retryable: false,
+          message: adminCheck.error || "수동 재발송은 관리자 인증이 필요합니다.",
+          timestamp: nowIso,
+        });
       }
       adminAccessToken = adminCheck.accessToken;
-    } else {
+    } else if (!inquiryId) {
       // forceRetry가 없는 일반 호출은 반드시 유효한 inquiryId가 있어야 함 (외부 스팸 알림 차단)
-      if (!inquiryId) {
-        return NextResponse.json(
-          {
-            success: false,
-            channel: "telegram",
-            status: "EXTERNAL_ERROR",
-            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-            sent: false,
-            retryable: false,
-            message: "유효한 접수 번호(inquiryId)가 필요합니다.",
-            timestamp: nowIso,
-          },
-          { status: 400 }
-        );
-      }
+      return notificationJson("telegram", 400, {
+        success: false,
+        status: "EXTERNAL_ERROR",
+        sent: false,
+        retryable: false,
+        message: "유효한 접수 번호(inquiryId)가 필요합니다.",
+        timestamp: nowIso,
+      });
     }
 
     // [SEC-005] 관리자 수동 재발송 시에는 관리자 JWT(Anon Client)를, 일반 고객 폴백 대조 시에만 Service Role 사용
@@ -126,38 +103,28 @@ export async function POST(req: NextRequest) {
         .maybeSingle();
 
       if (dbErr || !data) {
-        return NextResponse.json(
-          {
-            success: false,
-            channel: "telegram",
-            status: "EXTERNAL_ERROR",
-            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-            sent: false,
-            retryable: false,
-            message: "존재하지 않는 접수 번호입니다.",
-            timestamp: nowIso,
-          },
-          { status: 404 }
-        );
+        return notificationJson("telegram", 404, {
+          success: false,
+          status: "EXTERNAL_ERROR",
+          sent: false,
+          retryable: false,
+          message: "존재하지 않는 접수 번호입니다.",
+          timestamp: nowIso,
+        });
       }
 
       dbInquiry = data;
 
       // 공지사항은 알림 대상 제외
       if (dbInquiry.is_notice) {
-        return NextResponse.json(
-          {
-            success: false,
-            channel: "telegram",
-            status: "EXTERNAL_ERROR",
-            statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-            sent: false,
-            retryable: false,
-            message: "공지사항은 알림 발송 대상이 아닙니다.",
-            timestamp: nowIso,
-          },
-          { status: 400 }
-        );
+        return notificationJson("telegram", 400, {
+          success: false,
+          status: "EXTERNAL_ERROR",
+          sent: false,
+          retryable: false,
+          message: "공지사항은 알림 발송 대상이 아닙니다.",
+          timestamp: nowIso,
+        });
       }
 
       // 일반 호출(!forceRetry)인 경우 최근 10분 이내에 생성된 문의인지 검증
@@ -165,19 +132,14 @@ export async function POST(req: NextRequest) {
         const createdAtMs = new Date(dbInquiry.created_at).getTime();
         const tenMinutesAgoMs = Date.now() - 10 * 60 * 1000;
         if (!isNaN(createdAtMs) && createdAtMs < tenMinutesAgoMs) {
-          return NextResponse.json(
-            {
-              success: false,
-              channel: "telegram",
-              status: "EXTERNAL_ERROR",
-              statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-              sent: false,
-              retryable: false,
-              message: "접수 후 10분이 지난 문의는 일반 알림을 재요청할 수 없습니다.",
-              timestamp: nowIso,
-            },
-            { status: 400 }
-          );
+          return notificationJson("telegram", 400, {
+            success: false,
+            status: "EXTERNAL_ERROR",
+            sent: false,
+            retryable: false,
+            message: "접수 후 10분이 지난 문의는 일반 알림을 재요청할 수 없습니다.",
+            timestamp: nowIso,
+          });
         }
       }
     }
@@ -189,148 +151,106 @@ export async function POST(req: NextRequest) {
     const title = String(dbInquiry?.category || body.title || "").trim().slice(0, 100);
 
     if (!name || !title) {
-      return NextResponse.json(
-        {
-          success: false,
-          channel: "telegram",
-          status: "EXTERNAL_ERROR",
-          statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
-          sent: false,
-          retryable: false,
-          message: "필수 알림 항목(고객명, 제목)이 누락되었습니다.",
-          timestamp: nowIso,
-        },
-        { status: 400 }
-      );
+      return notificationJson("telegram", 400, {
+        success: false,
+        status: "EXTERNAL_ERROR",
+        sent: false,
+        retryable: false,
+        message: "필수 알림 항목(고객명, 제목)이 누락되었습니다.",
+        timestamp: nowIso,
+      });
     }
 
-    const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-    const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-
-    if (!BOT_TOKEN || !CHAT_ID) {
-      const notConfiguredResult: NotificationDispatchResult = {
-        channel: "telegram",
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+    if (!botToken || !chatId) {
+      return notificationJson("telegram", 503, {
+        success: false,
+        skipped: true,
+        reason: "MISSING_TELEGRAM_ENV",
         status: "NOT_CONFIGURED",
-        statusLabel: NOTIFICATION_STATUS.NOT_CONFIGURED,
         sent: false,
         retryable: true,
         message:
           "텔레그램 환경변수(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)가 설정되지 않았습니다.",
         timestamp: nowIso,
-      };
-      return NextResponse.json(
-        {
-          success: false,
-          skipped: true,
-          reason: "MISSING_TELEGRAM_ENV",
-          ...notConfiguredResult,
-        },
-        { status: 503 }
-      );
+      });
     }
 
-    const TELEGRAM_DEDUP_WINDOW_MS = 10 * 60 * 1000;
     const dedupKey = inquiryId || `${type}:${name}:${title}`;
-    activeDedupKey = dedupKey;
     const { isDuplicate } = await checkNotificationIdempotency(
       dedupKey,
       TELEGRAM_DEDUP_WINDOW_MS,
       forceRetry
     );
-
     if (isDuplicate) {
-      const dedupResult: NotificationDispatchResult = {
-        channel: "telegram",
+      return notificationJson("telegram", 200, {
+        success: true,
         status: "SUCCESS",
-        statusLabel: NOTIFICATION_STATUS.SUCCESS,
         sent: true,
         retryable: false,
         deduplicated: true,
         message: "이미 동일한 문의 알림이 발송되어 중복 전송을 건너뛰었습니다.",
         timestamp: nowIso,
-      };
-      return NextResponse.json({ success: true, ...dedupResult });
+      });
     }
 
-    const maskedPhone = phone ? maskPhone(phone) : "미입력";
-    const message = [
-      "🚨 [한밭중고전자 신규 접수 알림]",
-      "",
-      `• 구분: ${type}`,
-      `• 접수자: ${name} (${maskedPhone})`,
-      `• 제목: ${title}`,
-      inquiryId ? `• 접수번호: #${inquiryId.slice(0, 8)}` : null,
-      "",
-      "🔒 개인정보 보호를 위해 전체 연락처와 첨부 사진은 홈페이지 관리자 대시보드(/admin)에서 확인해 주세요.",
-    ]
-      .filter(Boolean)
-      .join("\n");
-
-    const telegramUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-    const res = await fetch(telegramUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
-      }),
-      signal: AbortSignal.timeout(5000),
+    const result = await postTelegramInquiryMessage({
+      botToken,
+      chatId,
+      inquiryId,
+      name,
+      phone,
+      type,
+      title,
+      timeoutMs: 5000,
     });
 
-    const resultJson = await res.json().catch(() => null);
-
-    if (!res.ok || !resultJson?.ok) {
+    if (result.outcome === "http_error") {
       await markNotificationFailed(dedupKey, "telegram_api_error");
-      const errorResult: NotificationDispatchResult = {
-        channel: "telegram",
+      return notificationJson("telegram", 502, {
+        success: false,
         status: "EXTERNAL_ERROR",
-        statusLabel: NOTIFICATION_STATUS.EXTERNAL_ERROR,
         sent: false,
         retryable: true,
         message:
           "텔레그램 서버 응답 오류로 발송에 실패했습니다. 관리자 대시보드에서 재시도할 수 있습니다.",
         timestamp: nowIso,
-      };
-      return NextResponse.json(
-        { success: false, ...errorResult },
-        { status: 502 }
-      );
+      });
+    }
+
+    if (result.outcome === "exception") {
+      await markNotificationFailed(dedupKey, result.error);
+      console.error("텔레그램 알림 발송 중 예외 또는 타임아웃 발생");
+      return notificationJson("telegram", 500, {
+        success: false,
+        status: "RETRY_REQUIRED",
+        sent: false,
+        retryable: true,
+        message: "네트워크 지연 또는 타임아웃으로 알림 발송 재시도가 필요합니다.",
+        timestamp: nowIso,
+      });
     }
 
     await markNotificationSent(dedupKey, TELEGRAM_DEDUP_WINDOW_MS);
 
-    const okResult: NotificationDispatchResult = {
-      channel: "telegram",
+    return notificationJson("telegram", 200, {
+      success: true,
       status: "SUCCESS",
-      statusLabel: NOTIFICATION_STATUS.SUCCESS,
       sent: true,
       retryable: false,
       message: "텔레그램 알림이 정상 발송되었습니다.",
       timestamp: nowIso,
-    };
-
-    return NextResponse.json({
-      success: true,
-      ...okResult,
     });
   } catch {
-    if (activeDedupKey) {
-      await markNotificationFailed(activeDedupKey, "telegram_exception");
-    }
     console.error("텔레그램 알림 발송 중 예외 또는 타임아웃 발생");
-    const retryResult: NotificationDispatchResult = {
-      channel: "telegram",
+    return notificationJson("telegram", 500, {
+      success: false,
       status: "RETRY_REQUIRED",
-      statusLabel: NOTIFICATION_STATUS.RETRY_REQUIRED,
       sent: false,
       retryable: true,
       message: "네트워크 지연 또는 타임아웃으로 알림 발송 재시도가 필요합니다.",
       timestamp: nowIso,
-    };
-    return NextResponse.json(
-      { success: false, ...retryResult },
-      { status: 500 }
-    );
+    });
   }
 }

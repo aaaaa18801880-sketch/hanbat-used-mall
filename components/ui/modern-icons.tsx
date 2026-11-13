@@ -13,7 +13,6 @@ export type ModernIconType =
   | "kitchen"
   | "sell"
   | "closure"
-  | "startup"
   | "shield"
   | "sparkle"
   | "tax";
@@ -70,17 +69,6 @@ export function ModernApplianceIcon({
         className="relative z-10 h-full w-full transition-transform duration-300 ease-out group-hover:scale-[1.06]"
       >
         <defs>
-          <linearGradient
-            id={`navyGrad-${uid}`}
-            x1="8"
-            y1="6"
-            x2="40"
-            y2="42"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor={dark ? "#2A4365" : "#1E324F"} />
-            <stop offset="1" stopColor={dark ? "#1E2530" : "#191F28"} />
-          </linearGradient>
           <linearGradient
             id={`orangeGrad-${uid}`}
             x1="12"
@@ -524,35 +512,6 @@ export function ModernApplianceIcon({
               fill="#FFFFFF"
               stroke={primaryStroke}
               strokeWidth="2.2"
-            />
-          </>
-        )}
-
-        {/* 10. 식당·카페 창업 맞춤 세팅 */}
-        {name === "startup" && (
-          <>
-            <path
-              d="M8 20V39C8 40.1046 8.89543 41 10 41H38C39.1046 41 40 40.1046 40 39V20"
-              fill={secondaryFill}
-              stroke={primaryStroke}
-              strokeWidth="2.2"
-            />
-            <path
-              d="M5 19L9.5 9H38.5L43 19C43 21.5 40.5 23 38 23C35.5 23 33.5 21.5 33.5 19C33.5 21.5 31 23 28.5 23C26 23 24 21.5 24 19C24 21.5 21.5 23 19 23C16.5 23 14.5 21.5 14.5 19C14.5 21.5 12 23 9.5 23C7 23 5 21.5 5 19Z"
-              fill={`url(#orangeGrad-${uid})`}
-              stroke={primaryStroke}
-              strokeWidth="2.2"
-              strokeLinejoin="round"
-            />
-            <rect
-              x="19"
-              y="28"
-              width="10"
-              height="13"
-              rx="1.5"
-              fill="#FFFFFF"
-              stroke={primaryStroke}
-              strokeWidth="2"
             />
           </>
         )}

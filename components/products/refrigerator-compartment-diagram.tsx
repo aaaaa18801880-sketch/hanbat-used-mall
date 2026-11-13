@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Icon, ICON } from "../../lib/ui";
 
-export interface CompartmentInfo {
+interface CompartmentInfo {
   id: string;
   positionLabel: string;
   shortPos: string;
@@ -14,7 +14,7 @@ export interface CompartmentInfo {
   features?: string;
 }
 
-export interface RefrigeratorLayoutData {
+interface RefrigeratorLayoutData {
   type: "2door_vertical" | "4door_grid" | "kimchi_3tier" | "table_horizontal";
   title: string;
   subtitle: string;
@@ -26,7 +26,7 @@ export interface RefrigeratorLayoutData {
   hasMachineryRoom?: boolean;
 }
 
-export interface RefrigeratorCompartmentDiagramProps {
+interface RefrigeratorCompartmentDiagramProps {
   title: string;
   description?: string | null;
   category?: string | null;
@@ -37,10 +37,7 @@ function stripParens(text: string): string {
   return text.replace(/\s*\([^)]*\)/g, "").trim();
 }
 
-/**
- * 상품명(title)과 상세 설명(description)에서 냉장고 도어 구조 및 칸별 역할을 정확히 판별하는 헬퍼
- */
-export function detectRefrigeratorLayout(
+function detectRefrigeratorLayout(
   title: string,
   description?: string | null,
   category?: string | null
@@ -61,11 +58,7 @@ export function detectRefrigeratorLayout(
 
   // 2. 냉장고와 무관한 카테고리 배제
   const isExcludedCategory =
-    category === "세탁기/건조기" ||
-    category === "에어컨/냉난방기" ||
-    category === "TV/영상가전" ||
-    category === "주방/생활가전" ||
-    category === "배송인증";
+    category === "세탁기/건조기" || category === "에어컨/냉난방기";
 
   if (
     isExcludedCategory &&
@@ -169,7 +162,7 @@ export function detectRefrigeratorLayout(
       coolingType,
       coolingDesc:
         coolingType === "미지정"
-          ? "룸별 독립 냉각 기술로 김치와 식자재 고유의 풍미를 보존합니다."
+          ? "칸별 독립 냉각으로 냄새 섞임을 줄여 보관합니다."
           : coolingDesc,
       capacity: capacityStr,
       widthSpec: widthSpecStr,
@@ -637,7 +630,7 @@ export function detectRefrigeratorLayout(
       return {
         type: "2door_vertical",
         title: "2도어 독립 냉각 구조도 (상냉장 / 하냉동)",
-        subtitle: "상단 인체공학적 신선 냉장 + 하단 대용량 급속 냉동",
+        subtitle: "상단 신선 냉장실 + 하단 대용량 냉동실",
         coolingType,
         coolingDesc,
         capacity: capacityStr,
@@ -963,8 +956,8 @@ export function RefrigeratorCompartmentDiagram({
                   <span className="h-0.5 w-6 sm:w-8 rounded-full bg-[#475569]" />
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="font-mono text-hb-xs font-bold tracking-wider text-white/90">
-                    HANBAT CONTROL
+                  <span className="font-mono text-hb-xs font-bold text-white/90">
+                    도어 구획 안내
                   </span>
                   {layout.capacity && (
                     <span className="rounded bg-white/10 px-2 py-0.5 font-mono text-hb-xs font-bold text-[#E2E6EC] tabular-nums">
@@ -985,23 +978,11 @@ export function RefrigeratorCompartmentDiagram({
                 </div>
               </div>
 
-              {/* 우측: 디지털 LED 온도 디스플레이 */}
+              {/* 우측: 선택 구획 온도 안내 */}
               <div className="flex items-center gap-2 rounded-lg bg-[#0E131B] border border-white/15 px-3 py-1 font-mono tabular-nums shadow-inner shrink-0">
-                <div className="flex items-center gap-1.5">
-                  <span
-                    className={`h-2 w-2 rounded-full transition-colors duration-150 ${
-                      activeCompartment.role === "freezer"
-                        ? "bg-[#38BDF8] shadow-[0_0_8px_#38BDF8]"
-                        : activeCompartment.role === "fridge"
-                        ? "bg-[#2DD4BF] shadow-[0_0_8px_#2DD4BF]"
-                        : "bg-[#FF8A50] shadow-[0_0_8px_#FF8A50]"
-                    }`}
-                    aria-hidden="true"
-                  />
-                  <span className="text-hb-xs font-bold tracking-wider text-white/60">
-                    {activeCompartment.shortPos}
-                  </span>
-                </div>
+                <span className="text-hb-xs font-bold tracking-wider text-white/60">
+                  {activeCompartment.shortPos}
+                </span>
                 <span
                   className={`text-hb-sm sm:text-hb-base font-bold ${
                     activeCompartment.role === "freezer"
@@ -1021,14 +1002,11 @@ export function RefrigeratorCompartmentDiagram({
           {isTable && (
             <div className="rounded-t-xl border-2 border-[#94A3B8] bg-gradient-to-b from-white via-[#F1F3F6] to-[#E2E6EC] p-2.5 sm:p-3 mb-1.5 shadow-2xs">
               <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs">
-                <div className="flex items-center gap-1.5 font-bold text-[#141A23]">
-                  <span className="h-2 w-2 rounded-full bg-[#0D9488]" />
-                  <span>
-                    {isBanchan
-                      ? "상단 스텐 찬밧드(GN팬) 수납대 + 조리대"
-                      : "상판 스테인리스 조리 작업대 (WORKTOP)"}
-                  </span>
-                </div>
+                <span className="font-bold text-[#141A23]">
+                  {isBanchan
+                    ? "상단 스텐 찬밧드(GN팬) 수납대 + 조리대"
+                    : "상판 스테인리스 조리 작업대"}
+                </span>
                 <span className="font-mono font-bold text-[#64748B] tabular-nums">
                   {[layout.widthSpec, layout.capacity, layout.coolingType !== "미지정" ? layout.coolingType : null]
                     .filter(Boolean)
@@ -1148,12 +1126,9 @@ export function RefrigeratorCompartmentDiagram({
 
                 {layout.hasMachineryRoom && (
                   <div className="sm:col-span-3 rounded-lg border border-[#334155] bg-[#1E293B] p-3 flex sm:flex-col justify-between items-center text-center select-none shadow-inner">
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse" />
-                      <span className="font-mono text-hb-xs font-bold text-white/90">
-                        기계실 COMP
-                      </span>
-                    </div>
+                    <span className="font-mono text-hb-xs font-bold text-white/90">
+                      기계실
+                    </span>
                     <div
                       className="hidden sm:flex flex-col gap-1.5 w-full my-2.5 px-2"
                       aria-hidden="true"

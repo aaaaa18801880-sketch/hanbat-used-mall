@@ -6,48 +6,9 @@
 :root {
   interpolate-size: allow-keywords;
 
-  /* 1. Primary: Precision Slate Navy */
-  --hb-navy: #141a23;
-  --hb-navy-hover: #1e2736;
-  --hb-navy-subtle: #f1f5f9;
-  --hb-navy-oklch: oklch(21.5% 0.024 255);
-
-  /* 2. Brand Accent: Industrial Signal Orange */
-  --hb-orange: #e8521a;
-  --hb-orange-hover: #cf4310;
-  --hb-orange-subtle: #fff4ee;
-  --hb-orange-oklch: oklch(62.8% 0.194 38);
-
-  /* 3. Semantic Accents: Hygiene Teal & Technical Cyan */
-  --hb-teal: #0d9488;
-  --hb-teal-text: #0f766e;
-  --hb-teal-subtle: #f0fdfa;
-  --hb-teal-border: #ccfbf1;
-
-  --hb-cyan: #0284c7;
-  --hb-cyan-text: #0369a1;
-  --hb-cyan-subtle: #f0f9ff;
-  --hb-cyan-border: #bae6fd;
-
-  /* 4. Canvas & Surfaces */
   --hb-surface: #ffffff;
-  --hb-bg-subtle: #f7f8fa;
-  --hb-bg-warm: #f1f3f6;
-  --hb-bg-muted: #e2e6ec;
-
   --hb-text-primary: #141a23;
-  --hb-text-secondary: #334155;
-  --hb-text-muted: #64748b;
-  --hb-text-subtle: #94a3b8;
 
-  --hb-border: #e2e6ec;
-  --hb-border-strong: #cbd2dc;
-
-  --hb-kakao: #fee500;
-  --hb-kakao-hover: #f2d900;
-  --hb-kakao-text: #191600;
-
-  /* 5. Layered Depth Shadows & Progressive Color-Space Interpolation */
   --hb-shadow-card:
     0 1px 2px rgba(20, 26, 35, 0.04),
     0 6px 16px -6px rgba(20, 26, 35, 0.07);
@@ -57,7 +18,6 @@
   --in-oklab: ;
   --in-oklch: ;
 
-  /* 6. Motion Easing Tokens */
   --hb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -259,10 +219,6 @@ body {
     box-shadow: var(--hb-shadow-card-hover);
   }
 
-  .hb-card-cap-extra {
-    display: none;
-  }
-
   @container (min-width: 240px) {
     .hb-card-body {
       padding: 1rem;
@@ -275,10 +231,6 @@ body {
 
     .hb-card-price {
       font-size: 1.25rem;
-    }
-
-    .hb-card-cap-extra {
-      display: inline-block;
     }
   }
 

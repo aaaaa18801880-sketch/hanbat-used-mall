@@ -4,6 +4,8 @@
 import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import {
+  buildProductInquiryHref,
+  extractWidthMmFromText,
   normalizeProductCategory,
   smsHref,
   STORE,
@@ -11,7 +13,7 @@ import {
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
-export function extractDimensionsFromText(
+function extractDimensionsFromText(
   title?: string | null,
   description?: string | null,
   categoryRaw?: string | null
@@ -36,15 +38,6 @@ export function extractDimensionsFromText(
     }
   }
 
-  const widthMmMatch = text.match(/(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm/i);
-  if (widthMmMatch) {
-    return {
-      widthMm: Number(widthMmMatch[1]),
-      depthMm: 750,
-      heightMm: null,
-      isExact: true,
-    };
-  }
   const widthCmMatch = text.match(/(?:가로|폭)\s*[:：]?\s*(\d{2,3})\s*cm/i);
   if (widthCmMatch) {
     return {
@@ -55,11 +48,16 @@ export function extractDimensionsFromText(
     };
   }
 
-  if (/45\s*박스/.test(text)) {
-    return { widthMm: 1260, depthMm: 800, heightMm: 1900, isExact: false };
-  }
-  if (/25\s*박스|30\s*박스/.test(text)) {
-    return { widthMm: 650, depthMm: 800, heightMm: 1900, isExact: false };
+  const parsedWidthMm = extractWidthMmFromText(text);
+  if (parsedWidthMm) {
+    const isBox45 = /45\s*박스/.test(text);
+    const isBox2530 = /25\s*박스|30\s*박스/.test(text);
+    return {
+      widthMm: parsedWidthMm,
+      depthMm: isBox45 || isBox2530 ? 800 : 750,
+      heightMm: isBox45 || isBox2530 ? 1900 : null,
+      isExact: !isBox45 && !isBox2530,
+    };
   }
   if (/1800/.test(text)) {
     return { widthMm: 1800, depthMm: 750, heightMm: 850, isExact: false };
@@ -203,16 +201,15 @@ export function V2SpatialFitPlanner({
       );
     }
 
-    const smsBody = `[한밭중고전자 에어컨 설치견적 문의]\n• 상품: ${
+    const smsBody = `[${STORE.name} 에어컨 설치견적 문의]\n• 상품: ${
       title || "에어컨/냉난방기"
     }\n• 내 설치조건: ${envSummary}\n위 조건으로 기기값 포함 예상 설치 견적 문의드립니다.`;
 
-    const inquiryUrlParams = new URLSearchParams({
-      write: "1",
-      type: "구매 문의",
-      ...(productId ? { productId } : {}),
-      title: `[설치견적 문의] ${title || "에어컨/냉난방기"}`,
+    const inquiryHref = buildProductInquiryHref({
+      productId,
+      title: title || "에어컨/냉난방기",
       category: catLabel,
+      customTitlePrefix: "[설치견적 문의]",
       envNote: envSummary,
     });
 
@@ -222,7 +219,7 @@ export function V2SpatialFitPlanner({
         <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
           <span className="inline-flex items-center gap-1.5 rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2.5 py-1 text-hb-xs font-bold text-[#0369A1] whitespace-nowrap">
             <Icon d={ICON.snowflake} className="w-3.5 h-3.5 text-[#0369A1] shrink-0" />
-            <span>에어컨 설치비 · 전원 호환성 판별기</span>
+            <span>설치 환경 · 전원 호환 확인</span>
           </span>
           <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight">
             내 환경에선 어떤 추가 작업이 필요할까요?
@@ -381,7 +378,7 @@ export function V2SpatialFitPlanner({
               <span>이 조건으로 설치비 문자 문의</span>
             </a>
             <Link
-              href={`/inquiry?${inquiryUrlParams.toString()}`}
+              href={inquiryHref}
               className="hb-btn-primary h-11 px-4 text-hb-xs sm:text-hb-sm font-bold"
             >
               <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#FF8A50]" />
@@ -422,16 +419,15 @@ export function V2SpatialFitPlanner({
 
   const spaceEnvSummary = `설치벽면:${mySpaceCm}cm / ${doorStatusLabel} / 운반:${floorLabel}`;
 
-  const applianceSmsBody = `[한밭중고전자 배송·설치 문의]\n• 상품: ${
+  const applianceSmsBody = `[${STORE.name} 배송·설치 문의]\n• 상품: ${
     title || catLabel
   }\n• 내 공간·운반조건: ${spaceEnvSummary}\n위 조건으로 배송 및 설치 가능 여부 문의드립니다.`;
 
-  const applianceInquiryParams = new URLSearchParams({
-    write: "1",
-    type: catLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
-    ...(productId ? { productId } : {}),
-    title: `[배송·설치 문의] ${title || catLabel}`,
+  const applianceInquiryHref = buildProductInquiryHref({
+    productId,
+    title: title || catLabel,
     category: catLabel,
+    customTitlePrefix: "[배송·설치 문의]",
     envNote: spaceEnvSummary,
   });
 
@@ -442,7 +438,7 @@ export function V2SpatialFitPlanner({
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2.5 py-1 text-hb-xs font-bold text-[#0369A1] whitespace-nowrap">
             <Icon d={ICON.ruler} className="w-3.5 h-3.5 text-[#0369A1] shrink-0" />
-            <span>공간 · 문폭 · 운반 여건 판별기</span>
+            <span>설치 공간 · 운반 여건 확인</span>
           </span>
           <span className="rounded-full border border-[#E2E6EC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] whitespace-nowrap tabular-nums">
             {detected.isExact ? "실측 규격" : "표준 참고치"}: 가로 {productWidthCm}cm × 깊이 {productDepthCm}cm
@@ -643,7 +639,7 @@ export function V2SpatialFitPlanner({
             <span>이 조건으로 배송·설치 문자 문의</span>
           </a>
           <Link
-            href={`/inquiry?${applianceInquiryParams.toString()}`}
+            href={applianceInquiryHref}
             className="hb-btn-primary h-11 px-4 text-hb-xs sm:text-hb-sm font-bold"
           >
             <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#FF8A50]" />

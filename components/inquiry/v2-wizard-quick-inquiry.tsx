@@ -4,7 +4,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
-  compressImage,
   formatPhone,
   clearQuoteBasket,
   formatQuoteBasketSummary,
@@ -16,7 +15,6 @@ import {
   isValidPhone,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  type QuoteBasketItem,
   smsHref,
   STORAGE_BUCKETS,
   STORE,
@@ -25,7 +23,12 @@ import {
   validateImageFiles,
 } from "../../lib/site";
 import { compressAndUploadProductImages } from "../../lib/product-ops";
-import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
+import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
+import {
+  analyzeInquiryPhotos,
+  dispatchTelegramFallback,
+  INQUIRY_PHOTO_GUIDES,
+} from "../../lib/inquiry-client";
 import { type LinkedProductContext } from "./unified-inquiry-form";
 
 const WIZARD_ENV_CHIPS: Record<InquiryTypeValue, readonly string[]> = {
@@ -49,105 +52,6 @@ const WIZARD_ENV_CHIPS: Record<InquiryTypeValue, readonly string[]> = {
     "폐업 설비 일괄철거·매입",
   ],
   "기타 문의": ["A/S 보증 문의", "배송 일정 문의", "세금계산서·결제 문의"],
-};
-
-const PHOTO_GUIDE_DATA: Record<
-  InquiryTypeValue,
-  {
-    subtitle: string;
-    image: string;
-    tip: string;
-    steps: readonly { step: string; title: string; desc: string }[];
-  }
-> = {
-  "내 물건 팔기": {
-    subtitle: "KC인증 라벨 및 제조년월 확인 필수",
-    image: "/images/ai-photo-guide.png",
-    tip: "팁: 제조년월과 모델명이 표기된 명판 스티커를 선명하게 찍어주시면 방문 전 100% 확정 매입 견적을 산출해 드립니다.",
-    steps: [
-      {
-        step: "01",
-        title: "정면 전체 샷",
-        desc: "제품 외관과 도어 형태가 한눈에 보이게 촬영",
-      },
-      {
-        step: "02",
-        title: "모델명·제조년월 명판",
-        desc: "에너지효율등급 또는 정격 라벨 스티커 근접 촬영",
-      },
-      {
-        step: "03",
-        title: "특이사항·반출 동선",
-        desc: "흠집 부위나 계단·엘리베이터 등 참고 사진",
-      },
-    ],
-  },
-  "구매 문의": {
-    subtitle: "희망 제품 및 설치 공간 확인 권장",
-    image: "/images/photo-guide-buy.jpg",
-    tip: "팁: 들어갈 자리 사진이나 기존 가전 사진을 올려주시면 규격 적합 여부 및 사다리차 필요 여부를 사전에 안내해 드립니다.",
-    steps: [
-      {
-        step: "01",
-        title: "원하는 제품·모델",
-        desc: "찾으시는 가전 사진 또는 희망 모델명",
-      },
-      {
-        step: "02",
-        title: "설치할 공간 전경",
-        desc: "제품이 들어갈 자리와 가로·세로 여유 공간",
-      },
-      {
-        step: "03",
-        title: "주변 환경·반입 동선",
-        desc: "콘센트(단상/삼상), 배관, 현관문 폭 등",
-      },
-    ],
-  },
-  "대량·업소용 상담": {
-    subtitle: "주방 공간 및 분전반 사진 권장",
-    image: "/images/photo-guide-bulk.jpg",
-    tip: "팁: 분전반(차단기)과 주방 전경 사진을 함께 보내주시면 현장 방문 전 가장 최적화된 맞춤 견적과 동선을 제안해 드립니다.",
-    steps: [
-      {
-        step: "01",
-        title: "도입/처분 설비 목록",
-        desc: "필요한 업소용 장비 목록 또는 기존 장비",
-      },
-      {
-        step: "02",
-        title: "매장 분전반·전기",
-        desc: "단상(220V) / 삼상(380V) 차단기 용량",
-      },
-      {
-        step: "03",
-        title: "주방 공간·반입 동선",
-        desc: "설치할 주방 자리와 급배수·출입구 전경",
-      },
-    ],
-  },
-  "기타 문의": {
-    subtitle: "문의 부위 및 현장 확인 사진",
-    image: "/images/ai-photo-guide.png",
-    tip: "팁: 현장 사진이나 제품 상태 사진을 첨부해 주시면 담당자가 빠르게 파악하여 정확히 안내해 드립니다.",
-    steps: [
-      {
-        step: "01",
-        title: "제품 및 현장 사진",
-        desc: "확인이 필요한 제품 외관 및 증상 부위",
-      },
-      {
-        step: "02",
-        title: "모델명 라벨",
-        desc: "제품 측면/후면의 모델명 표기 스티커",
-      },
-      {
-        step: "03",
-        title: "기타 참고 자료",
-        desc: "배송지 환경 또는 참고 서류 사진",
-      },
-    ],
-  },
 };
 
 export function V2InquirySectionWithWizard({
@@ -189,7 +93,7 @@ export function V2InquirySectionWithWizard({
       : initialMemo
   );
   const [analyzingAi, setAnalyzingAi] = useState(false);
-  const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
+  const basketItems = useQuoteBasket();
   const [aiResult, setAiResult] = useState<{
     applianceCategory?: string;
     title?: string;
@@ -200,12 +104,6 @@ export function V2InquirySectionWithWizard({
     missingInfo?: string[];
     followUpQuestions?: string[];
   } | null>(null);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      setBasketItems(getQuoteBasket());
-    });
-  }, []);
 
   useEffect(() => {
     if (!linkedProduct) return;
@@ -291,7 +189,7 @@ export function V2InquirySectionWithWizard({
   const [showGuide, setShowGuide] = useState(false);
   const [zoomGuide, setZoomGuide] = useState(false);
   const guideInfo =
-    PHOTO_GUIDE_DATA[inquiryType] || PHOTO_GUIDE_DATA["내 물건 팔기"];
+    INQUIRY_PHOTO_GUIDES[inquiryType] || INQUIRY_PHOTO_GUIDES["내 물건 팔기"];
 
   const toggleCategory = (cat: string) => {
     setSelectedCategories((prev) =>
@@ -336,7 +234,7 @@ export function V2InquirySectionWithWizard({
   };
 
   const handleRemoveFile = (index: number) => {
-    URL.revokeObjectURL(filePreviews[index]);
+    revokeObjectUrls([filePreviews[index]]);
     if (selectedFiles.length <= 1) {
       setAiResult(null);
     }
@@ -351,38 +249,21 @@ export function V2InquirySectionWithWizard({
       "첨부된 사진을 AI가 분석하여 품목과 모델명을 추출 중입니다..."
     );
     try {
-      const formData = new FormData();
-      formData.append("inquiryType", inquiryType);
-      formData.append("userTitle", memo);
-      formData.append("userDescription", memo);
-      formData.append("userRegion", region);
-
-      for (const file of selectedFiles.slice(0, MAX_PHOTOS)) {
-        const compressedBlob = await compressImage(file, 1280, 0.8);
-        const optimizedFile = new File([compressedBlob], file.name, {
-          type: "image/jpeg",
-        });
-        formData.append("files", optimizedFile);
-      }
-
-      const res = await fetch("/api/analyze-inquiry", {
-        method: "POST",
-        body: formData,
+      const data = await analyzeInquiryPhotos({
+        files: selectedFiles,
+        inquiryType,
+        userTitle: memo,
+        userDescription: memo,
+        userRegion: region,
+        fallbackError: "AI 사진 분석에 실패했습니다.",
       });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || "AI 사진 분석에 실패했습니다.");
-      }
 
       setAiResult({
         applianceCategory: data.applianceCategory,
         title: data.title,
         modelNumber: data.modelNumber,
-        conditionGrade: data.conditionGrade,
-        summaryNote:
-          data.summaryNote ||
-          (data.estimatedYear ? `연식: ${data.estimatedYear}` : undefined),
+        conditionGrade: data.conditionGrade ?? undefined,
+        summaryNote: data.summaryNote ?? undefined,
         extractedFacts: Array.isArray(data.extractedFacts) ? data.extractedFacts : [],
         missingInfo: Array.isArray(data.missingInfo) ? data.missingInfo : [],
         followUpQuestions: Array.isArray(data.followUpQuestions) ? data.followUpQuestions : [],
@@ -403,7 +284,6 @@ export function V2InquirySectionWithWizard({
       if (data.title) aiDetails.push(data.title);
       if (data.modelNumber) aiDetails.push(`모델명: ${data.modelNumber}`);
       if (data.summaryNote) aiDetails.push(data.summaryNote);
-      else if (data.estimatedYear) aiDetails.push(`연식: ${data.estimatedYear}`);
       if (aiDetails.length > 0) {
         const aiText = `[AI 사진 판독: ${aiDetails.join(" / ")}]`;
         setMemo((prev) => (prev ? `${aiText}\n${prev}` : aiText));
@@ -523,23 +403,18 @@ export function V2InquirySectionWithWizard({
       // 구매/설치/대량 상담 접수 시에만 구매용 묶음 견적함 비우기 (매입 신청 시 유지)
       if (inquiryType !== "내 물건 팔기") {
         clearQuoteBasket();
-        setBasketItems([]);
       }
 
       // 텔레그램 알림 클라이언트 폴백 (서버 즉시 알림 미도달 시)
       const newId = json.inquiryId || null;
       if (!json.telegramNotified && newId) {
-        fetch("/api/telegram", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            inquiryId: newId,
-            name: name.trim(),
-            phone: phone.trim(),
-            type: inquiryType,
-            title: autoTitle,
-          }),
-        }).catch(() => {});
+        dispatchTelegramFallback({
+          inquiryId: newId,
+          name: name.trim(),
+          phone: phone.trim(),
+          type: inquiryType,
+          title: autoTitle,
+        });
       }
 
       // 메모리 해제 및 폼 초기화
@@ -575,71 +450,47 @@ export function V2InquirySectionWithWizard({
             : "rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
         }
       >
-        {/* 모던 스텝퍼(Stepper) UI */}
-        <div className="space-y-3 pb-2 border-b border-[#E2E6EC]">
-          <div className="flex items-center justify-between text-hb-xs font-bold">
-            <span className="text-[#E8521A] tabular-nums font-mono">{step}단계 / 3단계</span>
-            <span className="text-[#64748B]">
-              {step === 1
-                ? isSell
-                  ? "처분하실 품목을 선택해 주세요"
-                  : "상담 목적과 품목을 선택해 주세요"
-                : step === 2
-                ? "제품 사진 첨부 및 촬영 가이드 확인 (생략 가능)"
-                : "수거·현장 조건과 연락처를 입력해 주세요"}
-            </span>
-          </div>
-
-          {/* 3단계 스텝퍼 번호/체크 아이콘 인디케이터 */}
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { num: 1, label: "상담 유형·품목" },
-              { num: 2, label: "사진·가이드" },
-              { num: 3, label: "현장조건·접수" },
-            ].map((s) => {
-              const isPast = step > s.num;
-              const isCurrent = step === s.num;
-              return (
-                <div
-                  key={s.num}
-                  className={`flex items-center gap-2 rounded-lg p-2 transition-[color,background-color,border-color] duration-150 ${
+        {/* 3단계 인디케이터 */}
+        <ol className="grid grid-cols-3 gap-2 pb-3 border-b border-[#E2E6EC]">
+          {[
+            { num: 1, label: "상담 유형·품목" },
+            { num: 2, label: "사진·가이드" },
+            { num: 3, label: "현장조건·접수" },
+          ].map((s) => {
+            const isPast = step > s.num;
+            const isCurrent = step === s.num;
+            return (
+              <li
+                key={s.num}
+                aria-current={isCurrent ? "step" : undefined}
+                className={`flex items-center gap-2 rounded-lg p-2 transition-colors ${
+                  isCurrent
+                    ? "bg-[#141A23] text-white"
+                    : isPast
+                    ? "bg-[#FFF4EE] text-[#E8521A] border border-[#E8521A]/30"
+                    : "bg-[#F1F3F6] text-[#64748B]"
+                }`}
+              >
+                <span
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold tabular-nums ${
                     isCurrent
-                      ? "bg-[#141A23] text-white"
+                      ? "bg-[#FB923C] text-[#141A23]"
                       : isPast
-                      ? "bg-[#FFF4EE] text-[#E8521A] border border-[#E8521A]/30"
-                      : "bg-[#F1F3F6] text-[#64748B]"
+                      ? "bg-[#E8521A] text-white"
+                      : "bg-[#E2E6EC] text-[#64748B]"
                   }`}
                 >
-                  <span
-                    className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold ${
-                      isCurrent
-                        ? "bg-[#FB923C] text-[#141A23]"
-                        : isPast
-                        ? "bg-[#E8521A] text-white"
-                        : "bg-[#E2E6EC] text-[#64748B]"
-                    }`}
-                  >
-                    {isPast ? (
-                      <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                    ) : (
-                      s.num
-                    )}
-                  </span>
-                  <span className="truncate text-hb-xs font-bold">
-                    {s.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-[#F1F3F6]">
-            <div
-              style={{ width: `${(step / 3) * 100}%` }}
-              className="h-full bg-[#141A23] transition-[width] duration-300"
-            />
-          </div>
-        </div>
+                  {isPast ? (
+                    <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                  ) : (
+                    s.num
+                  )}
+                </span>
+                <span className="truncate text-hb-xs font-bold">{s.label}</span>
+              </li>
+            );
+          })}
+        </ol>
 
         {/* STEP 1: 상담 유형 & 품목 선택 */}
         {step === 1 && (
@@ -1102,7 +953,7 @@ export function V2InquirySectionWithWizard({
                 <a
                   href={smsHref(
                     STORE.mobile,
-                    `[한밭중고전자 ${inquiryType}] 품목: ${selectedCategories.join(
+                    `[${STORE.name} ${inquiryType}] 품목: ${selectedCategories.join(
                       ", "
                     )} / 조건: ${selectedChips.join(", ")} 문의드립니다.`
                   )}
@@ -1133,7 +984,6 @@ export function V2InquirySectionWithWizard({
           label="권장 촬영 참고 사진 가이드"
           onClose={() => setZoomGuide(false)}
           panelClassName="max-w-3xl w-full"
-          overlayClassName="z-[70]"
         >
           <div className="overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#E2E6EC] px-5 py-3.5 bg-[#141A23] text-white">

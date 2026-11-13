@@ -142,10 +142,6 @@ export function AirconSetGuideBanner({
                 alt="에어컨/냉난방기 실외기·실내기 세트 구성 안내문"
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               />
-              <span className="absolute bottom-2.5 right-2.5 inline-flex items-center gap-1.5 rounded-full bg-[#141A23]/85 px-3 py-1 text-hb-xs font-bold text-white shadow-xs">
-                <Icon d={ICON.search} className="w-3.5 h-3.5" />
-                <span>클릭하여 크게 보기</span>
-              </span>
             </div>
           </button>
         </div>

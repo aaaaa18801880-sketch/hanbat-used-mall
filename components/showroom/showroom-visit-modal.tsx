@@ -60,7 +60,7 @@ export function ShowroomVisitModal({
 
   const handleCopyAddress = async () => {
     try {
-      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(STORE.roadAddress);
         trackEvent("click_copy_address");
         toast.success("매장 도로명 주소가 복사되었습니다.");
@@ -75,7 +75,7 @@ export function ShowroomVisitModal({
       trackEvent("send_showroom_visit_kakao", {
         hasProduct: Boolean(product),
       });
-      if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+      if (navigator.clipboard?.writeText) {
         await navigator.clipboard.writeText(smsBody);
       }
       toast.success(
@@ -105,10 +105,10 @@ export function ShowroomVisitModal({
             </div>
             <div>
               <span className="text-hb-xs font-bold text-[#FF8A50]">
-                대전 중촌동 1·2층 직영 쇼룸
+                {STORE.jibunAddress} 1·2층 직영 쇼룸
               </span>
               <h2 className="text-hb-base sm:text-hb-lg font-bold text-white">
-                매장 방문 실물 확인 &amp; 1초 길찾기
+                매장 방문 예약 · 오시는 길 안내
               </h2>
             </div>
           </div>

@@ -8,7 +8,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 const DEFAULT_ADMIN_EMAILS = ["sunny3815@naver.com"];
 
-export function getAllowedAdminEmails(): string[] {
+function getAllowedAdminEmails(): string[] {
   const raw =
     process.env.ADMIN_EMAILS ||
     process.env.NEXT_PUBLIC_ADMIN_EMAILS ||
@@ -52,7 +52,7 @@ export async function getAdminAuthHeaders(): Promise<Record<string, string>> {
  * - accessToken이 전달되면 Anon Key + 사용자 Bearer JWT로 동작하여 RLS 정책(is_hanbat_admin 등)을 그대로 따릅니다.
  * - 비공개 테이블 대조 등 Service Role 권한이 반드시 필요한 작업만 createServiceRoleClient() 또는 useServiceRole=true를 명시적으로 호출합니다.
  */
-export function createServerSupabaseClient(
+function createServerSupabaseClient(
   accessToken?: string,
   useServiceRole = false
 ): SupabaseClient {

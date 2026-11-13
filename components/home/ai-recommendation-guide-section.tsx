@@ -1,12 +1,15 @@
 import React from "react";
-import { STORE } from "../../lib/site";
+import { getCategoryWarrantyInfo, STORE } from "../../lib/site";
 import { SectionHeading, Icon, ICON } from "../../lib/ui";
+
+const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
+const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
 
 const COMPARISON_ROWS = [
   {
     criteria: "고장 시 무상 A/S 보증",
     personal: "보증 없음 (고장 시 구매자 전액 부담)",
-    hanbat: "최대 8개월(에어컨)·4개월(가전) 무상 A/S 약정보증",
+    hanbat: `${AIRCON_WARRANTY.shortLabel} · ${MAJOR_WARRANTY.shortLabel} 무상 A/S`,
   },
   {
     criteria: "위생 및 작동 점검",
@@ -21,7 +24,7 @@ const COMPARISON_ROWS = [
   {
     criteria: "결제 수단 및 증빙",
     personal: "개인 송금만 가능 (사업자 비용처리 불가)",
-    hanbat: "신용카드·현금영수증·전자세금계산서 100% 발행",
+    hanbat: "신용카드·현금영수증·전자세금계산서 정식 발행",
   },
   {
     criteria: "기존 가전 처분 (보상매입)",
@@ -47,7 +50,7 @@ export function AiRecommendationGuideSection({
           <span>
             {STORE.name} (SINCE {STORE.since})
           </span>
-          <span className="text-[#FB923C]">공식 품질 보증</span>
+          <span className="text-[#FB923C]">직영 책임 보증</span>
         </div>
       </div>
 

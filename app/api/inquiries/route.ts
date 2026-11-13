@@ -4,8 +4,6 @@ import {
   extractInquiryImages,
   getInquiryTypeLabel,
   isValidPhone,
-  maskName,
-  maskPhone,
   STORE,
 } from "../../../lib/site";
 import {
@@ -26,80 +24,17 @@ import {
   sanitizeInquiryImageUrls,
   signInquiryImageLists,
 } from "../../../lib/inquiry-attachments";
+import {
+  postTelegramInquiryMessage,
+  TELEGRAM_DEDUP_WINDOW_MS,
+} from "../../../lib/server-notifications";
+import {
+  SAFE_INQUIRY_SELECT_COLUMNS,
+  toInquiryListItem,
+  type RawInquiryRow,
+} from "../../../lib/server-inquiries";
 
 export const runtime = "nodejs";
-
-/**
- * 신규 문의 DB 저장 직후 서버에서 직접 텔레그램 알림을 발송하는 내부 헬퍼
- * - 클라이언트가 창을 즉시 닫아도 알림이 유실되지 않도록 보장합니다.
- * - checkNotificationIdempotency를 공유하므로 클라이언트 측 후속 호출과 중복 발송되지 않습니다.
- */
-async function dispatchTelegramOnInquiryCreate(params: {
-  inquiryId: string | number | null;
-  name: string;
-  phone: string;
-  type: string;
-  title: string;
-}): Promise<boolean> {
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-  if (!BOT_TOKEN || !CHAT_ID) return false;
-
-  const idStr = params.inquiryId ? String(params.inquiryId).trim() : "";
-  const dedupKey = idStr || `${params.type}:${params.name}:${params.title}`;
-  const TELEGRAM_DEDUP_WINDOW_MS = 10 * 60 * 1000;
-  const { isDuplicate } = await checkNotificationIdempotency(
-    dedupKey,
-    TELEGRAM_DEDUP_WINDOW_MS,
-    false
-  );
-  if (isDuplicate) return true;
-
-  const maskedPhone = params.phone ? maskPhone(params.phone) : "미입력";
-  const message = [
-    "🚨 [한밭중고전자 신규 접수 알림]",
-    "",
-    `• 구분: ${params.type}`,
-    `• 접수자: ${params.name} (${maskedPhone})`,
-    `• 제목: ${params.title}`,
-    idStr ? `• 접수번호: #${idStr.slice(0, 8)}` : null,
-    "",
-    "🔒 개인정보 보호를 위해 전체 연락처와 첨부 사진은 홈페이지 관리자 대시보드(/admin)에서 확인해 주세요.",
-  ]
-    .filter(Boolean)
-    .join("\n");
-
-  try {
-    const res = await fetch(
-      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: message,
-        }),
-        signal: AbortSignal.timeout(4000),
-      }
-    );
-    if (res.ok) {
-      await markNotificationSent(dedupKey, TELEGRAM_DEDUP_WINDOW_MS);
-      return true;
-    }
-    await markNotificationFailed(dedupKey, "telegram_http_error");
-    return false;
-  } catch (err) {
-    await markNotificationFailed(
-      dedupKey,
-      err instanceof Error ? err.message : "telegram_network_error"
-    );
-    console.warn(
-      "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
-      err
-    );
-    return false;
-  }
-}
 
 export async function GET(req: NextRequest) {
   try {
@@ -117,9 +52,7 @@ export async function GET(req: NextRequest) {
       : createServiceRoleClient();
     const { data, error } = await supabase
       .from("purchase_requests")
-      .select(
-        "id, name, phone, inquiry_type, category, model, condition_grade, region, description, images, image_url, is_notice, status, admin_reply, created_at"
-      )
+      .select(SAFE_INQUIRY_SELECT_COLUMNS)
       .order("created_at", { ascending: false })
       .limit(effectiveLimit);
 
@@ -131,80 +64,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const rows = data ?? [];
+    const rows = (data ?? []) as RawInquiryRow[];
     const rawImageLists = rows.map((row) => extractInquiryImages(row));
     const signTargetLists = rows.map((row, idx) =>
       isAdmin || Boolean(row.is_notice) ? rawImageLists[idx] : []
     );
     const imageLists = await signInquiryImageLists(supabase, signTargetLists);
 
-    const sanitized = rows.map(
-      (row: {
-        id: number | string;
-        name?: string | null;
-        phone?: string | null;
-        inquiry_type?: string | null;
-        category?: string | null;
-        model?: string | null;
-        condition_grade?: string | null;
-        region?: string | null;
-        description?: string | null;
-        images?: unknown;
-        image_url?: unknown;
-        is_notice?: boolean | null;
-        status?: string | null;
-        admin_reply?: string | null;
-        created_at?: string | null;
-      }, index) => {
-        const rawImages = rawImageLists[index];
-        const normalizedImages = imageLists[index];
-        const isNotice = Boolean(row.is_notice);
-        const rawTitle =
-          row.category ||
-          (row.model ? `${row.model} 매입 문의` : "문의드립니다.");
-
-        if (isAdmin) {
-          return {
-            id: row.id,
-            name: row.name || "고객",
-            masked_name: maskName(row.name),
-            phone: row.phone || "",
-            inquiry_type:
-              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의"),
-            category: rawTitle,
-            model: row.model || null,
-            condition_grade: row.condition_grade || null,
-            region: row.region || null,
-            description: row.description || "",
-            images: normalizedImages,
-            has_images: rawImages.length > 0,
-            is_notice: isNotice,
-            status: row.status || "접수",
-            admin_reply: row.admin_reply || null,
-            created_at: row.created_at,
-          };
-        }
-
-        return {
-          id: row.id,
-          name: isNotice ? row.name || STORE.name : maskName(row.name),
-          masked_name: maskName(row.name),
-          phone: null,
-          inquiry_type: isNotice
-            ? "공지사항"
-            : getInquiryTypeLabel(
-                row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
-              ),
-          category: rawTitle,
-          description: isNotice ? row.description || "" : null,
-          images: isNotice ? normalizedImages : [],
-          has_images: rawImages.length > 0,
-          is_notice: isNotice,
-          status: row.status || (isNotice ? "공지" : "접수"),
-          admin_reply: null,
-          created_at: row.created_at,
-        };
-      }
+    const sanitized = rows.map((row, index) =>
+      toInquiryListItem(row, {
+        isAdmin,
+        images: imageLists[index],
+        hasImages: rawImageLists[index].length > 0,
+      })
     );
 
     return NextResponse.json({ inquiries: sanitized, isAdmin });
@@ -386,13 +258,49 @@ export async function POST(req: NextRequest) {
     // 일반 고객 문의인 경우 서버에서 즉시 텔레그램 알림 발송 (창 닫힘으로 인한 알림 유실 방지)
     let telegramNotified = false;
     if (!isNotice) {
-      telegramNotified = await dispatchTelegramOnInquiryCreate({
-        inquiryId: createdId,
-        name,
-        phone,
-        type: getInquiryTypeLabel(inquiryType),
-        title,
-      });
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+      const displayType = getInquiryTypeLabel(inquiryType);
+      const dedupKey = createdId
+        ? String(createdId).trim()
+        : `${displayType}:${name}:${title}`;
+
+      if (botToken && chatId) {
+        const { isDuplicate } = await checkNotificationIdempotency(
+          dedupKey,
+          TELEGRAM_DEDUP_WINDOW_MS
+        );
+        if (isDuplicate) {
+          telegramNotified = true;
+        } else {
+          const telegramRes = await postTelegramInquiryMessage({
+            botToken,
+            chatId,
+            inquiryId: createdId,
+            name,
+            phone,
+            type: displayType,
+            title,
+            timeoutMs: 4000,
+          });
+          if (telegramRes.outcome === "sent") {
+            await markNotificationSent(dedupKey, TELEGRAM_DEDUP_WINDOW_MS);
+            telegramNotified = true;
+          } else {
+            const failReason =
+              telegramRes.outcome === "exception"
+                ? telegramRes.error
+                : "telegram_api_error";
+            await markNotificationFailed(dedupKey, failReason);
+            if (telegramRes.outcome === "exception") {
+              console.warn(
+                "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
+                failReason
+              );
+            }
+          }
+        }
+      }
     }
 
     return NextResponse.json({

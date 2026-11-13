@@ -24,16 +24,15 @@ import {
   formatProductPrice,
   splitImages,
   compressImage,
-  rotateImageFile,
   enhanceImageFile,
   PRODUCT_IMAGE_TONE_PRESET,
   PRODUCT_IMAGE_TONE_EXTRA,
   sanitizeOldManufactureYear,
   validateImageFiles,
+  MAX_PHOTOS,
   extractModelName,
   extractInquiryImages,
   generatePromoPostText,
-  parseStructuredInquiryDescription,
   getDaysSinceCreated,
   matchesSearchQuery,
   type NotificationDispatchResult,
@@ -46,6 +45,10 @@ import {
   removeStorageImagesSafe,
   compressAndUploadProductImages,
 } from "../../lib/product-ops";
+import {
+  INQUIRY_REPLY_TEMPLATES,
+  StructuredInquiryCard,
+} from "../../components/inquiry/structured-inquiry-card";
 
 type AdminTab = "overview" | "inquiries" | "products" | "delivery" | "notifications";
 
@@ -89,21 +92,6 @@ interface AdminInquiryRow {
   admin_reply?: string | null;
   created_at: string;
 }
-
-const ADMIN_REPLY_TEMPLATES = [
-  {
-    label: "매입 견적 안내",
-    text: `안녕하세요, ${STORE.name}입니다.\n남겨주신 매입 문의와 사진을 확인했습니다. 정확한 수거 일정 및 견적 안내를 위해 기재해주신 연락처로 곧 전화드리겠습니다. 감사합니다.`,
-  },
-  {
-    label: "구매·재고 안내",
-    text: `안녕하세요, ${STORE.name}입니다.\n문의하신 제품은 현재 매장 실물 확인 및 배송·설치 상담이 가능합니다. 설치 지역과 여건에 맞춰 담당자가 곧 연락드리겠습니다.`,
-  },
-  {
-    label: "방문 일정 조율",
-    text: `안녕하세요, ${STORE.name}입니다.\n요청하신 희망 방문 일정을 확인했습니다. 기사님 배차 스케줄을 확인한 뒤 오늘 중으로 유선 연락드리겠습니다.`,
-  },
-] as const;
 
 export default function IntegratedAdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
@@ -221,8 +209,13 @@ export default function IntegratedAdminDashboard() {
     return () => sub.subscription.unsubscribe();
   }, [fetchAllAdminData]);
 
+  const prodFilesRef = useRef<File[]>([]);
   const prodPreviewsRef = useRef<string[]>([]);
   const delivPreviewsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    prodFilesRef.current = prodFiles;
+  }, [prodFiles]);
 
   useEffect(() => {
     prodPreviewsRef.current = prodPreviews;
@@ -519,92 +512,66 @@ export default function IntegratedAdminDashboard() {
   /* ───── Gemini AI 상품 사진 분석 (3계층 분리 + 5년 경과 연식 블라인드 + 자동 회전) ───── */
   const adminUserRotatedRef = useRef<Set<number>>(new Set());
 
-  const rotateProdFile = async (
-    index: number,
-    degrees = 90,
-    isAuto = false
-  ) => {
-    let targetFile: File | null = null;
-    setProdFiles((prev) => {
-      targetFile = prev[index] || null;
-      return prev;
-    });
-    if (!targetFile) return;
-
-    try {
-      const rotated = await rotateImageFile(targetFile, degrees);
-      setProdFiles((prev) => {
-        const next = [...prev];
-        if (index < next.length) next[index] = rotated;
-        return next;
-      });
-      setProdPreviews((prev) => {
-        const next = [...prev];
-        if (index < next.length) {
-          if (next[index]) URL.revokeObjectURL(next[index]);
-          next[index] = URL.createObjectURL(rotated);
-        }
-        return next;
-      });
-      if (!isAuto) {
-        adminUserRotatedRef.current.add(index);
-        toast.success(`${index + 1}번 사진이 90° 회전되었습니다.`);
-      }
-    } catch {
-      if (!isAuto) toast.error("사진 회전에 실패했습니다.");
-    }
-  };
-
   const enhanceProdFile = async (
     index: number,
     options: { degrees?: number; brightness?: number; contrast?: number; saturate?: number } = {},
     isAuto = false
   ) => {
-    let targetFile: File | null = null;
-    setProdFiles((prev) => {
-      targetFile = prev[index] || null;
-      return prev;
-    });
+    const targetFile = prodFilesRef.current[index];
     if (!targetFile) return;
 
+    const isRotateAction = Boolean(options.degrees);
     try {
       const enhanced = await enhanceImageFile(targetFile, options);
-      setProdFiles((prev) => {
-        const next = [...prev];
-        if (index < next.length) next[index] = enhanced;
-        return next;
-      });
+      const nextFiles = [...prodFilesRef.current];
+      if (index < nextFiles.length) {
+        nextFiles[index] = enhanced;
+        prodFilesRef.current = nextFiles;
+        setProdFiles(nextFiles);
+      }
+
+      const prevUrl = prodPreviewsRef.current[index];
+      if (prevUrl) revokeObjectUrls([prevUrl]);
+      const nextPreviewUrl = URL.createObjectURL(enhanced);
       setProdPreviews((prev) => {
         const next = [...prev];
-        if (index < next.length) {
-          if (next[index]) URL.revokeObjectURL(next[index]);
-          next[index] = URL.createObjectURL(enhanced);
-        }
+        if (index < next.length) next[index] = nextPreviewUrl;
         return next;
       });
+
       if (!isAuto) {
         adminUserRotatedRef.current.add(index);
-        toast.success(`${index + 1}번 사진을 한 단계 더 밝게 보정했습니다.`);
+        toast.success(
+          isRotateAction
+            ? `${index + 1}번 사진이 90° 회전되었습니다.`
+            : `${index + 1}번 사진을 한 단계 더 밝게 보정했습니다.`
+        );
       }
     } catch {
-      if (!isAuto) toast.error("사진 보정에 실패했습니다.");
+      if (!isAuto) {
+        toast.error(
+          isRotateAction ? "사진 회전에 실패했습니다." : "사진 보정에 실패했습니다."
+        );
+      }
     }
   };
 
   const removeProdFile = (index: number) => {
-    revokeObjectUrls([prodPreviews[index]]);
-    setProdFiles((prev) => prev.filter((_, i) => i !== index));
+    const prevUrl = prodPreviewsRef.current[index];
+    if (prevUrl) revokeObjectUrls([prevUrl]);
+    const nextFiles = prodFilesRef.current.filter((_, i) => i !== index);
+    prodFilesRef.current = nextFiles;
+    setProdFiles(nextFiles);
     setProdPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const moveProdFile = (fromIdx: number, toIdx: number) => {
-    if (toIdx < 0 || toIdx >= prodFiles.length) return;
-    setProdFiles((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, moved);
-      return next;
-    });
+    if (toIdx < 0 || toIdx >= prodFilesRef.current.length) return;
+    const nextFiles = [...prodFilesRef.current];
+    const [moved] = nextFiles.splice(fromIdx, 1);
+    nextFiles.splice(toIdx, 0, moved);
+    prodFilesRef.current = nextFiles;
+    setProdFiles(nextFiles);
     setProdPreviews((prev) => {
       const next = [...prev];
       const [moved] = next.splice(fromIdx, 1);
@@ -614,12 +581,12 @@ export default function IntegratedAdminDashboard() {
   };
 
   const makePrimaryProdFile = (targetIdx: number) => {
-    if (targetIdx <= 0 || targetIdx >= prodFiles.length) return;
-    setProdFiles((prev) => {
-      const next = [...prev];
-      const [picked] = next.splice(targetIdx, 1);
-      return [picked, ...next];
-    });
+    if (targetIdx <= 0 || targetIdx >= prodFilesRef.current.length) return;
+    const nextFiles = [...prodFilesRef.current];
+    const [picked] = nextFiles.splice(targetIdx, 1);
+    const reordered = [picked, ...nextFiles];
+    prodFilesRef.current = reordered;
+    setProdFiles(reordered);
     setProdPreviews((prev) => {
       const next = [...prev];
       const [picked] = next.splice(targetIdx, 1);
@@ -648,7 +615,7 @@ export default function IntegratedAdminDashboard() {
       formData.append("category", prodCategory);
       formData.append("searchSpecs", useSearchSpecs ? "true" : "false");
 
-      for (const f of filesToAnalyze.slice(0, 3)) {
+      for (const f of filesToAnalyze.slice(0, MAX_PHOTOS)) {
         const blob = await compressImage(f, 1080, 0.72);
         formData.append(
           "files",
@@ -741,9 +708,10 @@ export default function IntegratedAdminDashboard() {
     const picked = Array.from(e.target.files);
     e.target.value = "";
     adminUserRotatedRef.current.clear();
-    const remaining = 3 - (editingExistingImages.length + prodFiles.length);
+    const remaining =
+      MAX_PHOTOS - (editingExistingImages.length + prodFilesRef.current.length);
     if (remaining <= 0) {
-      toast.error("상품 사진은 최대 3장까지 등록할 수 있습니다.");
+      toast.error(`상품 사진은 최대 ${MAX_PHOTOS}장까지 등록할 수 있습니다.`);
       return;
     }
     const { ok, error } = validateImageFiles(picked, remaining);
@@ -761,7 +729,10 @@ export default function IntegratedAdminDashboard() {
       })
     );
 
-    setProdFiles((prev) => [...prev, ...toned]);
+    const hadFilesBefore = prodFilesRef.current.length > 0;
+    const nextFiles = [...prodFilesRef.current, ...toned];
+    prodFilesRef.current = nextFiles;
+    setProdFiles(nextFiles);
     setProdPreviews((prev) => [
       ...prev,
       ...toned.map((f) => URL.createObjectURL(f)),
@@ -770,14 +741,15 @@ export default function IntegratedAdminDashboard() {
       `사진 ${toned.length}장에 쇼룸 스튜디오 톤업(밝기 +20%)을 자동 적용했습니다.`
     );
 
-    if (prodFiles.length === 0 && ok.length > 0 && !editingProductId) {
+    if (!hadFilesBefore && ok.length > 0 && !editingProductId) {
       // AI 판독은 보정 전 원본 기준으로 수행 (방향·밝기 판단 정확도 유지)
       runGeminiProductAnalysis(ok);
     }
   };
 
   const resetProductForm = () => {
-    revokeObjectUrls(prodPreviews);
+    revokeObjectUrls(prodPreviewsRef.current);
+    prodFilesRef.current = [];
     adminUserRotatedRef.current.clear();
     setEditingProductId(null);
     setEditingExistingImages([]);
@@ -818,12 +790,7 @@ export default function IntegratedAdminDashboard() {
 
   // URL 딥링크 (?search= 또는 ?edit=) 감지 및 원클릭 상품 수정 자동 전환
   useEffect(() => {
-    if (
-      typeof window === "undefined" ||
-      products.length === 0 ||
-      handledDeepLinkRef.current
-    )
-      return;
+    if (products.length === 0 || handledDeepLinkRef.current) return;
     const urlParams = new URLSearchParams(window.location.search);
     const searchTarget = urlParams.get("search") || urlParams.get("edit");
     if (!searchTarget) return;
@@ -1118,7 +1085,7 @@ export default function IntegratedAdminDashboard() {
               관리자 콘솔
             </span>
             <h1 className="mt-2 text-hb-xl font-extrabold text-[#141A23] tracking-[-0.02em]">
-              한밭중고전자 통합 관리자
+              {STORE.name} 통합 관리자
             </h1>
             <p className="mt-1 text-hb-sm text-[#6B7280]">
               인가된 관리자 계정으로 로그인해야 접근할 수 있습니다.
@@ -1190,7 +1157,7 @@ export default function IntegratedAdminDashboard() {
                 ADMIN
               </span>
               <h1 className="text-hb-lg sm:text-hb-xl font-extrabold tracking-[-0.02em]">
-                한밭중고전자 통합 운영 대시보드
+                {STORE.name} 통합 운영 대시보드
               </h1>
             </div>
             <p className="text-hb-xs text-white/65 mt-0.5 font-mono">
@@ -1453,7 +1420,15 @@ export default function IntegratedAdminDashboard() {
                                 우선 확인
                               </span>
                             )}
-                            <span className="rounded-sm bg-[#141A23] px-2.5 py-0.5 text-hb-xs font-bold text-white">
+                            <span
+                              className={`rounded-sm px-2.5 py-0.5 text-hb-xs font-bold ${
+                                req.is_notice
+                                  ? "bg-[#141A23] text-white"
+                                  : INQUIRY_ADMIN_STATUS_OPTIONS.find(
+                                      (o) => o.value === (req.status || "접수")
+                                    )?.badgeClass || "bg-[#141A23] text-white"
+                              }`}
+                            >
                               {req.is_notice ? "공지" : req.status || "접수"}
                             </span>
                             <span className="rounded-sm bg-[#F2F0EC] px-2 py-0.5 text-hb-xs font-bold text-[#4B5260]">
@@ -1559,96 +1534,12 @@ export default function IntegratedAdminDashboard() {
                         </div>
                       </div>
 
-                      {req.description &&
-                        (() => {
-                          const parsed = parseStructuredInquiryDescription(
-                            req.description
-                          );
-                          if (!parsed.isStructured) {
-                            return (
-                              <div className="mt-3 rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E2E6EC]">
-                                {req.description}
-                              </div>
-                            );
-                          }
-                          return (
-                            <div className="mt-3 space-y-2.5">
-                              {(parsed.structuredLines.length > 0 ||
-                                parsed.bulkItems.length > 0) && (
-                                <div className="rounded-md border border-[#141A23]/20 bg-[#F8FAFC] p-3.5 text-hb-sm space-y-2">
-                                  <strong className="text-hb-xs font-extrabold text-[#141A23] block">
-                                    고객 확인 상담 조건 ({req.inquiry_type})
-                                  </strong>
-                                  {parsed.structuredLines.length > 0 && (
-                                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                                      {parsed.structuredLines.map(
-                                        (row, idx) => (
-                                          <div
-                                            key={row.label + idx}
-                                            className="flex gap-2"
-                                          >
-                                            <dt className="font-bold text-[#4B5260] shrink-0">
-                                              {row.label}:
-                                            </dt>
-                                            <dd className="font-semibold text-[#141A23]">
-                                              {row.value}
-                                            </dd>
-                                          </div>
-                                        )
-                                      )}
-                                    </dl>
-                                  )}
-                                  {parsed.bulkItems.length > 0 && (
-                                    <div className="pt-1.5 border-t border-[#E2E6EC]">
-                                      <span className="text-hb-xs font-bold text-[#E8521A] block mb-1">
-                                        요청 장비 및 희망 수량 목록
-                                      </span>
-                                      <ul className="space-y-1 text-hb-xs font-medium text-[#141A23]">
-                                        {parsed.bulkItems.map((it, idx) => (
-                                          <li
-                                            key={idx}
-                                            className="bg-white px-2.5 py-1 rounded border border-[#E2E6EC]"
-                                          >
-                                            • {it}
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-
-                              {parsed.customerContent && (
-                                <div className="rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E2E6EC]">
-                                  <span className="block text-hb-xs font-bold text-[#6B7280] mb-1">
-                                    고객 작성 본문
-                                  </span>
-                                  {parsed.customerContent}
-                                </div>
-                              )}
-
-                              {(parsed.aiSummaryLines.length > 0 ||
-                                parsed.missingAndQuestions.length > 0) && (
-                                <div className="rounded border border-amber-200 bg-amber-50/70 p-3 text-hb-xs text-amber-950 space-y-1">
-                                  <strong className="block text-amber-900">
-                                    AI 사진 판독 참고 요약 (고객 확정 사실과 구분하여 확인하세요)
-                                  </strong>
-                                  {parsed.aiSummaryLines.map((line, idx) => (
-                                    <p key={idx}>• {line}</p>
-                                  ))}
-                                  {parsed.missingAndQuestions.map((q, idx) => (
-                                    <p
-                                      key={idx}
-                                      className="font-semibold text-[#E8521A]"
-                                    >
-                                      {q}
-                                    </p>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })()}
+                      <StructuredInquiryCard
+                        description={req.description}
+                        isAdmin
+                        conditionHeading={`고객 확인 상담 조건 (${req.inquiry_type})`}
+                        plainClassName="mt-3 rounded bg-[#F9FAFB] p-3.5 text-hb-sm text-[#1F2530] whitespace-pre-wrap leading-relaxed border border-[#E2E6EC]"
+                      />
 
                       {imgs.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-2">
@@ -1686,7 +1577,7 @@ export default function IntegratedAdminDashboard() {
                             <span className="text-hb-xs font-bold text-[#6B7280] mr-1">
                               빠른 답변 템플릿:
                             </span>
-                            {ADMIN_REPLY_TEMPLATES.map((tpl) => (
+                            {INQUIRY_REPLY_TEMPLATES.map((tpl) => (
                               <button
                                 key={tpl.label}
                                 type="button"
@@ -1819,7 +1710,9 @@ export default function IntegratedAdminDashboard() {
 
                 <div>
                   <label className="hb-label">
-                    {editingProductId ? "추가할 상품 사진" : "상품 사진 (최대 3장)"}
+                    {editingProductId
+                      ? "추가할 상품 사진"
+                      : `상품 사진 (최대 ${MAX_PHOTOS}장)`}
                   </label>
                   <div className="mt-1 mb-2 flex items-center justify-between rounded border border-[#E2E6EC] bg-[#F9FAFB] p-2.5 text-hb-xs">
                     <label className="flex items-center gap-2 font-semibold text-[#141A23] cursor-pointer">
@@ -1857,7 +1750,7 @@ export default function IntegratedAdminDashboard() {
                   </p>
 
                   {analyzingProduct && (
-                    <p className="mt-2 rounded bg-[#FFF4EE] p-2.5 text-hb-xs font-bold text-[#E8521A] animate-pulse">
+                    <p className="mt-2 rounded bg-[#FFF4EE] p-2.5 text-hb-xs font-bold text-[#E8521A]">
                       AI가 사진 판독 및 사양 초안을 작성 중입니다...
                     </p>
                   )}
@@ -1913,7 +1806,7 @@ export default function IntegratedAdminDashboard() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => rotateProdFile(index, 90)}
+                              onClick={() => enhanceProdFile(index, { degrees: 90 })}
                               title="시계방향 90도 회전"
                               aria-label="시계방향 90도 회전"
                               className="absolute bottom-1 right-1 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#E8521A]"

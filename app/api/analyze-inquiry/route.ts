@@ -1,6 +1,5 @@
 // 파일 경로: app/api/analyze-inquiry/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import {
   PRODUCT_CATEGORIES,
   normalizeProductCategory,
@@ -14,9 +13,13 @@ import {
 import {
   checkRateLimit,
   getClientIp,
-  validateServerImageFiles,
   verifySameOriginRequest,
 } from "../../../lib/server-security";
+import {
+  extractValidatedImageParts,
+  generateGeminiWithFallback,
+  parseGeminiJsonObject,
+} from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
 
@@ -318,7 +321,7 @@ function cleanStringArray(val: unknown, maxItems = 8, maxLen = 200): string[] {
     .slice(0, maxItems);
 }
 
-export function sanitizeAnalysisResponse(
+function sanitizeAnalysisResponse(
   raw: Record<string, unknown>,
   ctx: UserInputContext
 ): AnalyzeInquiryResponse {
@@ -732,19 +735,13 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const entries = formData.getAll("files");
-    const files = entries.filter((item): item is File => item instanceof File);
-
-    const fileValidation = await validateServerImageFiles(files, {
+    const imgResult = await extractValidatedImageParts(formData, {
       maxFiles: MAX_FILES,
       maxFileSizeBytes: MAX_FILE_SIZE,
+      fallbackErrorMessage: "유효한 사진 파일을 첨부해 주세요.",
     });
-
-    if (!fileValidation.ok || !fileValidation.validated) {
-      return NextResponse.json(
-        { error: fileValidation.error || "유효한 사진 파일을 첨부해 주세요." },
-        { status: 400 }
-      );
+    if (!imgResult.ok) {
+      return NextResponse.json({ error: imgResult.error }, { status: 400 });
     }
 
     const inquiryType = normalizeInquiryType(
@@ -753,7 +750,7 @@ export async function POST(req: NextRequest) {
 
     const ctx: UserInputContext = {
       inquiryType,
-      photoCount: fileValidation.validated.length,
+      photoCount: imgResult.count,
       userTitle: cleanText(formData.get("userTitle"), 100),
       userModel: cleanText(formData.get("userModel"), 60),
       userRegion: cleanText(formData.get("userRegion"), 80),
@@ -772,62 +769,16 @@ export async function POST(req: NextRequest) {
         ? buildOtherPrompt(ctx)
         : buildSellPrompt(ctx);
 
-    const imageParts = fileValidation.validated.map((item) => ({
-      inlineData: {
-        mimeType: item.mimeType,
-        data: item.base64,
-      },
-    }));
+    const { text: responseText } = await generateGeminiWithFallback({
+      apiKey,
+      defaultModel: DEFAULT_GEMINI_MODEL,
+      fallbackModel: FALLBACK_GEMINI_MODEL,
+      prompt,
+      imageParts: imgResult.imageParts,
+    });
 
-    const ai = new GoogleGenAI({ apiKey });
-    let response;
-
-    try {
-      response = await ai.models.generateContent({
-        model: DEFAULT_GEMINI_MODEL,
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }, ...imageParts],
-          },
-        ],
-        config: { responseMimeType: "application/json" },
-      });
-    } catch (modelErr: unknown) {
-      const msg =
-        modelErr instanceof Error ? modelErr.message : String(modelErr || "");
-      if (
-        DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
-        (msg.includes("404") ||
-          msg.toLowerCase().includes("not found") ||
-          msg.toLowerCase().includes("not supported"))
-      ) {
-        response = await ai.models.generateContent({
-          model: FALLBACK_GEMINI_MODEL,
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }, ...imageParts],
-            },
-          ],
-          config: { responseMimeType: "application/json" },
-        });
-      } else {
-        throw modelErr;
-      }
-    }
-
-    const responseText = response.text?.trim() || "";
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-    let rawParsed: Record<string, unknown> = {};
-
-    if (jsonMatch) {
-      try {
-        rawParsed = JSON.parse(jsonMatch[0]);
-      } catch {
-        console.warn("[analyze-inquiry] JSON 파싱 폴백 처리");
-      }
-    }
+    const { parsed } = parseGeminiJsonObject(responseText);
+    const rawParsed: Record<string, unknown> = parsed ?? {};
 
     const sanitized = sanitizeAnalysisResponse(rawParsed, ctx);
     return NextResponse.json(sanitized);

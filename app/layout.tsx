@@ -187,12 +187,12 @@ export default function RootLayout({
     photo: {
       "@type": "ImageObject",
       url: `${STORE.url}/store-exterior.jpg`,
-      caption: "한밭중고전자 대전 중구 중촌동 1·2층 직영 대형 전시장 실물 외관 및 전용 주차장 전경",
+      caption: `${STORE.name} ${STORE.jibunAddress} 1·2층 직영 대형 전시장 실물 외관 및 전용 주차장 전경`,
     },
     primaryImageOfPage: {
       "@type": "ImageObject",
       url: `${STORE.url}/store-exterior.jpg`,
-      caption: "한밭중고전자 대전 본점 직영 쇼룸 실물 외관",
+      caption: `${STORE.name} 대전 본점 직영 쇼룸 실물 외관`,
     },
     logo: `${STORE.url}/icon-512.png`,
     telephone: STORE.tel,
@@ -211,8 +211,8 @@ export default function RootLayout({
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 36.335503,
-      longitude: 127.406981,
+      latitude: STORE.geo.lat,
+      longitude: STORE.geo.lng,
     },
     areaServed: [
       { "@type": "City", name: "대전광역시" },
@@ -273,7 +273,7 @@ export default function RootLayout({
     ],
     hasOfferCatalog: {
       "@type": "OfferCatalog",
-      name: "한밭중고전자 가정용·업소용 취급 품목 카탈로그",
+      name: `${STORE.name} 가정용·업소용 취급 품목 카탈로그`,
       itemListElement: [
         {
           "@type": "OfferCatalog",

@@ -5,7 +5,7 @@ import {
   STORE_MERCHANT_POLICY,
   formatProductPrice,
   normalizeProductCategory,
-  getProductStatusLabel,
+  normalizeProductStatus,
   extractModelName,
   extractSpecCapsules,
   isProductSold,
@@ -37,7 +37,7 @@ export async function GET() {
 
     const blocks = productList.map((p, idx) => {
       const cat = normalizeProductCategory(p.category);
-      const status = getProductStatusLabel(p.status);
+      const status = normalizeProductStatus(p.status);
       const price = formatProductPrice(p.price, cat);
       const model = extractModelName(p.description, p.title) || "매장 문의";
       const capsules = extractSpecCapsules(p.title, p.description, 4, p.category);

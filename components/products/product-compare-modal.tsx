@@ -1,48 +1,42 @@
 // 파일 경로: components/products/product-compare-modal.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import {
   STORE,
   smsHref,
   buildQuoteBasketSmsBody,
-  copyQuoteBasketText,
   trackEvent,
   clearRecentViewedProducts,
+  EMPTY_RECENT_VIEWED,
   extractModelName,
   extractSpecCapsules,
+  extractWidthMmFromText,
   formatProductPrice,
-  getProductStatusLabel,
+  getCategoryWarrantyInfo,
   getRecentViewedProducts,
   isProductSold,
   normalizeProductCategory,
+  normalizeProductStatus,
   parseProductDescription,
-  RECENT_VIEWED_EVENT,
   removeRecentViewedProduct,
+  subscribeRecentViewed,
   type QuoteBasketItem,
-  type RecentViewedItem,
   updateQuoteBasketItemQuantity,
   removeQuoteBasketItem,
 } from "../../lib/site";
-import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
+import {
+  copyQuoteAndOpenKakao,
+  Icon,
+  ICON,
+  Modal,
+  SafeImg,
+} from "../../lib/ui";
 import { V2SpatialFitPlanner } from "./v2-spatial-fit-planner";
 
 function extractWidthMmFromItem(item: QuoteBasketItem): number | null {
-  const text = `${item.title || ""}\n${item.description || ""}`;
-  // 1) 명시적 가로/폭 mm 패턴 또는 가로×세로×높이 첫 숫자 추출
-  const dimMatch = text.match(
-    /(?:가로|폭)\s*[:：]?\s*(\d{3,4})\s*mm|\b(\d{3,4})\s*[x×*]\s*\d{3,4}/i
-  );
-  if (dimMatch) {
-    const val = Number(dimMatch[1] || dimMatch[2]);
-    if (val >= 350 && val <= 3000) return val;
-  }
-  // 2) 업소용 표준 박스 규격 참고치
-  if (/45\s*박스/.test(text)) return 1260;
-  if (/25\s*박스|30\s*박스/.test(text)) return 650;
-  return null;
+  return extractWidthMmFromText(`${item.title || ""}\n${item.description || ""}`);
 }
 
 export function ProductCompareModal({
@@ -77,13 +71,8 @@ export function ProductCompareModal({
     )
   ).slice(0, 6);
 
-  const getWarrantyText = (catRaw: string) => {
-    const cat = normalizeProductCategory(catRaw);
-    if (cat === "에어컨/냉난방기") return "계약조건별 최대 8개월";
-    if (cat === "냉장고" || cat === "세탁기/건조기")
-      return "계약조건별 최대 4개월";
-    return "품목·계약조건별 협의";
-  };
+  const getWarrantyText = (catRaw: string) =>
+    getCategoryWarrantyInfo(catRaw).compactLabel;
 
   return (
     <Modal
@@ -296,7 +285,7 @@ export function ProductCompareModal({
                           {normalizeProductCategory(item.category)}
                         </span>
                         <span className="ml-1.5 inline-block rounded bg-[#F7F8FA] border border-[#E2E6EC] px-1.5 py-0.5 text-hb-xs font-bold text-[#334155]">
-                          {getProductStatusLabel(item.status)}
+                          {normalizeProductStatus(item.status)}
                         </span>
                       </td>
                     ))}
@@ -464,17 +453,14 @@ export function ProductCompareModal({
             </a>
             <button
               type="button"
-              onClick={async () => {
-                trackEvent("click_quote_compare_kakao", {
-                  count: compareItems.length,
-                });
-                await copyQuoteBasketText(compareItems);
-                toast.success(
+              onClick={() =>
+                void copyQuoteAndOpenKakao(
+                  compareItems,
+                  "click_quote_compare_kakao",
                   "비교 매물 목록이 복사되었습니다! 카카오톡 상담창에 붙여넣기(Ctrl+V) 해주세요.",
-                  { duration: 4000 }
-                );
-                window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
-              }}
+                  4000
+                )
+              }
               className="inline-flex items-center gap-1.5 rounded-lg bg-[#FEE500] px-3.5 h-10 text-hb-sm font-bold text-[#191600] hover:bg-[#F2D900] transition-colors"
             >
               <Icon d={ICON.chat} className="w-4 h-4" />
@@ -499,6 +485,8 @@ export function ProductCompareModal({
  * [신규 기능 ④] 비로그인 최근 본 매물 가로 스트립 컴포넌트
  * - /gallery 및 /[id] 하단에 배치되어 최근 조회한 매물로 즉시 복귀할 수 있습니다.
  */
+const getServerRecentSnapshot = () => EMPTY_RECENT_VIEWED;
+
 export function RecentViewedStrip({
   excludeId,
   className = "",
@@ -506,21 +494,14 @@ export function RecentViewedStrip({
   excludeId?: string;
   className?: string;
 }) {
-  const [items, setItems] = useState<RecentViewedItem[]>([]);
-
-  useEffect(() => {
-    const sync = () => {
-      const all = getRecentViewedProducts();
-      setItems(excludeId ? all.filter((x) => x.id !== excludeId) : all);
-    };
-    sync();
-    window.addEventListener(RECENT_VIEWED_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(RECENT_VIEWED_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, [excludeId]);
+  const allItems = useSyncExternalStore(
+    subscribeRecentViewed,
+    getRecentViewedProducts,
+    getServerRecentSnapshot
+  );
+  const items = excludeId
+    ? allItems.filter((x) => x.id !== excludeId)
+    : allItems;
 
   if (items.length === 0) return null;
 
@@ -531,7 +512,6 @@ export function RecentViewedStrip({
     >
       <div className="flex items-center justify-between gap-2 mb-3">
         <div className="flex items-center gap-2">
-          <span className="h-2 w-2 rounded-full bg-[#E8521A]" />
           <h2 className="text-hb-base font-bold text-[#141A23]">
             최근 본 매물 ({items.length})
           </h2>

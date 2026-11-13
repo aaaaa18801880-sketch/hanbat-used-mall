@@ -1,16 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
 import {
   PRODUCT_CATEGORIES,
+  STORE,
   normalizeProductCategory,
   sanitizeOldManufactureYear,
 } from "../../../lib/site";
 import {
   checkRateLimit,
   getClientIp,
-  validateServerImageFiles,
   verifyAdminRequest,
 } from "../../../lib/server-security";
+import {
+  extractValidatedImageParts,
+  generateGeminiWithFallback,
+  parseGeminiJsonObject,
+} from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
 
@@ -18,46 +22,12 @@ const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 // 요구사항 6 준수: 기존 사이트 내부의 Gemini API 모델 ID("gemini-3.8-flash") 유지
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
 
 function cleanAndParseAIJson(responseText: string): Record<string, unknown> {
-  if (!responseText || typeof responseText !== "string") {
-    return {};
-  }
-
-  // 1. 마크다운 코드블록 제거
-  let cleaned = responseText.trim();
-  cleaned = cleaned.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
-
-  // 최외곽 { ... } 추출
-  const firstBrace = cleaned.indexOf("{");
-  const lastBrace = cleaned.lastIndexOf("}");
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
-  }
-
-  // 시도 1: 표준 JSON 파싱
-  try {
-    const parsed = JSON.parse(cleaned);
-    if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
-  } catch {
-    // 실패 시 보정 시도로 진행
-  }
-
-  // 시도 2: JSON 문자열 값 내부의 비이스케이프 줄바꿈/탭 보정 후 파싱
-  try {
-    const sanitized = cleaned.replace(
-      /"((?:[^"\\]|\\.)*)"/g,
-      (match) => {
-        return match
-          .replace(/(?<!\\)\r?\n/g, "\\n")
-          .replace(/(?<!\\)\t/g, "\\t");
-      }
-    );
-    const parsed = JSON.parse(sanitized);
-    if (parsed && typeof parsed === "object") return parsed as Record<string, unknown>;
-  } catch {
-    // 실패 시 정규식 필드 추출 폴백으로 진행
-  }
+  const { parsed, cleaned } = parseGeminiJsonObject(responseText);
+  if (parsed) return parsed;
+  if (!cleaned) return {};
 
   // 시도 3: 정규식 필드별 복원 추출 (응답이 일부 잘리거나 구문 오류가 있어도 핵심 필드 살림)
   const fallback: Record<string, unknown> = {};
@@ -187,22 +157,14 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const multipleFiles = formData.getAll("files");
-    const entries = multipleFiles.length
-      ? multipleFiles
-      : formData.getAll("file");
-    const files = entries.filter((item): item is File => item instanceof File);
-
-    const fileValidation = await validateServerImageFiles(files, {
+    const imgResult = await extractValidatedImageParts(formData, {
       maxFiles: MAX_FILES,
       maxFileSizeBytes: MAX_FILE_SIZE,
+      fallbackErrorMessage: "유효하지 않은 이미지 파일입니다.",
+      supportSingleFileField: true,
     });
-
-    if (!fileValidation.ok || !fileValidation.validated) {
-      return NextResponse.json(
-        { error: fileValidation.error || "유효하지 않은 이미지 파일입니다." },
-        { status: 400 }
-      );
+    if (!imgResult.ok) {
+      return NextResponse.json({ error: imgResult.error }, { status: 400 });
     }
 
     const categoryValue = formData.get("category");
@@ -216,7 +178,7 @@ export async function POST(req: NextRequest) {
 
     const prompt = `
 ## 역할
-당신은 중고 가전 및 업소용 주방기기를 전문적으로 판매하는 '한밭중고전자'의 상품 상세페이지 전문 카피라이터입니다.
+당신은 중고 가전 및 업소용 주방기기를 전문적으로 판매하는 '${STORE.name}'의 상품 상세페이지 전문 카피라이터입니다.
 제품 정보를 단순히 나열하는 데 그치지 않고, 소비자가 제품의 용도와 장점을 이해하고 구매 및 설치 여부를 합리적으로 판단할 수 있도록 핵심만 간결하고 명확하게 작성합니다.
 
 ## 핵심 작성 원칙
@@ -306,15 +268,6 @@ export async function POST(req: NextRequest) {
 }
 `;
 
-    const imageParts = fileValidation.validated.map((item) => ({
-      inlineData: {
-        mimeType: item.mimeType,
-        data: item.base64,
-      },
-    }));
-
-    const ai = new GoogleGenAI({ apiKey });
-
     // 초고속 처리: 불필요한 사족 방지 및 충분한 출력 버퍼(4096 토큰)로 응답 잘림 방지
     const config = useSearch
       ? {
@@ -328,50 +281,15 @@ export async function POST(req: NextRequest) {
           maxOutputTokens: 4096,
         };
 
-    const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
-    let modelUsed = DEFAULT_GEMINI_MODEL;
-    let response;
-
-    try {
-      response = await ai.models.generateContent({
-        model: DEFAULT_GEMINI_MODEL,
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }, ...imageParts],
-          },
-        ],
+    const { text: responseText, modelUsed, response } =
+      await generateGeminiWithFallback({
+        apiKey,
+        defaultModel: DEFAULT_GEMINI_MODEL,
+        fallbackModel: FALLBACK_GEMINI_MODEL,
+        prompt,
+        imageParts: imgResult.imageParts,
         config,
       });
-    } catch (modelErr: unknown) {
-      const msg =
-        modelErr instanceof Error
-          ? modelErr.message
-          : String(modelErr || "");
-      if (
-        DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
-        (msg.includes("404") ||
-          msg.toLowerCase().includes("not found") ||
-          msg.toLowerCase().includes("not supported"))
-      ) {
-        modelUsed = FALLBACK_GEMINI_MODEL;
-        response = await ai.models.generateContent({
-          model: FALLBACK_GEMINI_MODEL,
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }, ...imageParts],
-            },
-          ],
-          config,
-        });
-      } else {
-        throw modelErr;
-      }
-    }
-
-
-    const responseText = response.text?.trim() || "";
     const rawParsed = cleanAndParseAIJson(responseText);
 
     const aiCategory =

@@ -21,7 +21,6 @@ import {
   isValidPhone,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  QUOTE_BASKET_EVENT,
   type QuoteBasketItem,
   removeQuoteBasketItem,
   updateQuoteBasketItemQuantity,
@@ -33,7 +32,12 @@ import {
   validateImageFiles,
   revokeObjectUrls,
 } from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
+import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
+import {
+  analyzeInquiryPhotos,
+  dispatchTelegramFallback,
+  INQUIRY_PHOTO_GUIDES,
+} from "../../lib/inquiry-client";
 import { AirconSetGuideBanner } from "../products/aircon-set-guide-banner";
 
 export type SubmissionPhase =
@@ -52,60 +56,6 @@ export interface LinkedProductContext {
   useBundle?: boolean;
   envNote?: string;
 }
-
-const SELL_PHOTO_GUIDE_STEPS = [
-  {
-    step: "01",
-    title: "정면 전체 샷",
-    desc: "제품 외관과 도어 형태가 한눈에 보이게 촬영",
-  },
-  {
-    step: "02",
-    title: "모델명·제조년월 명판",
-    desc: "에너지효율등급 또는 정격 명판 스티커 근접 촬영",
-  },
-  {
-    step: "03",
-    title: "특이사항·반출 경로",
-    desc: "흠집 부위나 계단·출입문 등 참고 사진",
-  },
-] as const;
-
-const BUY_PHOTO_GUIDE_STEPS = [
-  {
-    step: "01",
-    title: "희망 제품 또는 설치 공간",
-    desc: "찾으시는 제품 사진이나 들어갈 자리 전경 촬영",
-  },
-  {
-    step: "02",
-    title: "전원 · 급배수 · 배관",
-    desc: "콘센트(단상/삼상) 또는 배관 타공 위치",
-  },
-  {
-    step: "03",
-    title: "반입 동선 참고 사진",
-    desc: "출입구 폭이나 계단·엘리베이터 등 참고 사진",
-  },
-] as const;
-
-const BULK_PHOTO_GUIDE_STEPS = [
-  {
-    step: "01",
-    title: "도입/처분 장비 또는 도면",
-    desc: "필요한 업소용 설비 참고 사진 또는 기존 장비 사진",
-  },
-  {
-    step: "02",
-    title: "매장 분전반 · 전원 환경",
-    desc: "단상/삼상 차단기 용량이나 콘센트 위치 사진",
-  },
-  {
-    step: "03",
-    title: "주방 공간 · 반입 동선",
-    desc: "설치할 주방 자리와 급배수·출입구 전경",
-  },
-] as const;
 
 const QUICK_BULK_EQUIPMENT_PRESETS = [
   "업소용 45박스 냉장/냉동고",
@@ -139,6 +89,12 @@ export function UnifiedInquiryForm({
 }) {
   const initialType = fixedType || defaultType;
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>(initialType);
+  const [prevInitialType, setPrevInitialType] =
+    useState<InquiryTypeValue>(initialType);
+  if (prevInitialType !== initialType) {
+    setPrevInitialType(initialType);
+    setInquiryType(initialType);
+  }
   const [isNotice, setIsNotice] = useState(false);
 
   const [name, setName] = useState(isAdmin && isNotice ? STORE.name : "");
@@ -189,7 +145,7 @@ export function UnifiedInquiryForm({
   const [accessAndRemoval, setAccessAndRemoval] = useState("");
 
   /* 견적함 연동 상태 */
-  const [basketItems, setBasketItems] = useState<QuoteBasketItem[]>([]);
+  const basketItems = useQuoteBasket();
   const [bundleApplied, setBundleApplied] = useState(false);
 
   /* 사진 첨부 및 Gemini 일괄 분석 상태 */
@@ -253,26 +209,6 @@ export function UnifiedInquiryForm({
 
   
   useEffect(() => {
-    const syncBasket = () => {
-      const current = getQuoteBasket();
-      setBasketItems(current);
-    };
-    syncBasket();
-    window.addEventListener(QUOTE_BASKET_EVENT, syncBasket);
-    window.addEventListener("storage", syncBasket);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, syncBasket);
-      window.removeEventListener("storage", syncBasket);
-    };
-  }, []);
-
-  useEffect(() => {
-    queueMicrotask(() => {
-      setInquiryType(fixedType || defaultType);
-    });
-  }, [defaultType, fixedType]);
-
-  useEffect(() => {
     queueMicrotask(() => {
       if (!linkedProduct) {
         setTitle((prev) =>
@@ -320,14 +256,11 @@ export function UnifiedInquiryForm({
     phase === "retrying" ||
     isAnalyzingPhotos;
 
-  const photoGuideSteps = isBulk
-    ? BULK_PHOTO_GUIDE_STEPS
-    : isSell
-    ? SELL_PHOTO_GUIDE_STEPS
-    : BUY_PHOTO_GUIDE_STEPS;
+  const photoGuide =
+    INQUIRY_PHOTO_GUIDES[inquiryType] || INQUIRY_PHOTO_GUIDES["구매 문의"];
 
   /* 현재 선택된 상담 유형 및 입력 제목에 맞춘 직통 문자(SMS) 본문 프리필 */
-  const smsBodyDraft = `[한밭중고전자 ${inquiryType}] ${
+  const smsBodyDraft = `[${STORE.name} ${inquiryType}] ${
     title.trim() ? `${title.trim()} / ` : ""
   }지역·품목·사진을 함께 보내주시면 빠르게 견적을 안내해 드립니다.`;
 
@@ -375,36 +308,20 @@ export function UnifiedInquiryForm({
     );
 
     try {
-      const formData = new FormData();
-      formData.append("inquiryType", inquiryType);
-      formData.append("userTitle", title);
-      formData.append("userModel", model);
-      formData.append("userRegion", region);
-      formData.append("userDescription", description);
-      formData.append("userBusinessType", businessType);
-      formData.append("userElectrical", electricalPhase);
-      formData.append("userVoltageUpgrade", voltageUpgrade);
-
-      for (const file of selectedFiles.slice(0, MAX_PHOTOS)) {
-        const compressedBlob = await compressImage(file, 1280, 0.8);
-        const optimizedFile = new File([compressedBlob], file.name, {
-          type: "image/jpeg",
-        });
-        formData.append("files", optimizedFile);
-      }
-
-      const res = await fetch("/api/analyze-inquiry", {
-        method: "POST",
-        body: formData,
+      const data = await analyzeInquiryPhotos({
+        files: selectedFiles,
+        inquiryType,
+        userTitle: title,
+        userModel: model,
+        userRegion: region,
+        userDescription: description,
+        userBusinessType: businessType,
+        userElectrical: electricalPhase,
+        userVoltageUpgrade: voltageUpgrade,
+        fallbackError: "사진 자동 분석에 실패했습니다. 직접 입력해 주세요.",
       });
-
-      const data = (await res.json().catch(() => ({}))) as AnalyzeInquiryResponse & {
-        error?: string;
-      };
-      if (!res.ok || !data.success) {
-        throw new Error(
-          data.error || "사진 자동 분석에 실패했습니다. 직접 입력해 주세요."
-        );
+      if (!data.success) {
+        throw new Error("사진 자동 분석에 실패했습니다. 직접 입력해 주세요.");
       }
 
       setAiResult(data);
@@ -658,7 +575,7 @@ export function UnifiedInquiryForm({
       const finalCustomerContent = description.trim()
         ? description.trim()
         : isSell
-        ? `[방문 매입 견적 요청] ${applianceCategory} ${title.trim()} 최고가 방문 매입 견적 및 수거 일정 안내를 요청합니다.`
+        ? `[방문 매입 견적 요청] ${applianceCategory} ${title.trim()} 방문 매입 견적 및 수거 일정 안내를 요청합니다.`
         : "";
 
       const structuredDescription = isNotice
@@ -747,17 +664,13 @@ export function UnifiedInquiryForm({
 
       // 서버에서 텔레그램 즉시 발송이 실패한 경우에만 클라이언트 폴백 호출
       if (!isNotice && !resJson.telegramNotified && newId) {
-        fetch("/api/telegram", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            inquiryId: newId,
-            name: name.trim(),
-            phone,
-            type: inquiryType,
-            title: finalTitle,
-          }),
-        }).catch(() => {});
+        dispatchTelegramFallback({
+          inquiryId: newId,
+          name: name.trim(),
+          phone,
+          type: inquiryType,
+          title: finalTitle,
+        });
       }
 
       if (onSuccess) {
@@ -961,7 +874,7 @@ export function UnifiedInquiryForm({
                 사진과 수거 지역만 남겨주시면
               </strong>{" "}
               <span className="text-[#334155]">
-                확인 후 최고가 방문 매입 견적과 수거 일정을 빠르게 안내해 드립니다.
+                확인 후 방문 매입 견적과 수거 일정을 빠르게 안내해 드립니다.
               </span>
             </div>
           </div>
@@ -1268,22 +1181,20 @@ export function UnifiedInquiryForm({
           </p>
         </div>
 
-        {/* 접이식 AI 권장 촬영 가이드 (일러스트 배너 + 3단계 설명) */}
+        {/* 접이식 권장 촬영 가이드 */}
         {!isNotice && !isOther && showPhotoGuide && (
           <div className="overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-2xs">
-            {/* 사용자 제작 AI 가이드 배너 */}
             <div className="relative w-full overflow-hidden bg-[#F7F8FA] border-b border-[#E2E6EC]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/ai-photo-guide.png"
-                alt="사진만 올리면 AI가 상품 설명을 작성해 드려요 - 권장 촬영 가이드"
-                className="w-full h-auto object-contain block"
+              <SafeImg
+                src={photoGuide.image}
+                alt={`${inquiryType} 권장 촬영 가이드`}
+                className="w-full max-h-[220px] object-contain block mx-auto"
               />
             </div>
-            <ol className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-3.5 bg-white text-hb-xs">
-              {photoGuideSteps.map((g) => (
-                <li key={g.step} className="flex items-start gap-2">
-                  <span className="shrink-0 rounded bg-[#141A23] px-1.5 py-0.5 text-hb-xs font-bold text-white">
+            <ol className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC] bg-white text-hb-xs">
+              {photoGuide.steps.map((g) => (
+                <li key={g.step} className="flex items-start gap-2 p-3.5">
+                  <span className="shrink-0 rounded bg-[#141A23] px-1.5 py-0.5 text-hb-xs font-bold text-white tabular-nums">
                     {g.step}
                   </span>
                   <div>

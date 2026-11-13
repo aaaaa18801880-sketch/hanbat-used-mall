@@ -2,7 +2,11 @@
 "use client";
 
 import React from "react";
-import { normalizeProductCategory } from "../../lib/site";
+import {
+  getCategoryWarrantyInfo,
+  normalizeProductCategory,
+  STORE,
+} from "../../lib/site";
 import { Icon, ICON } from "../../lib/ui";
 
 interface BuyerConcernItem {
@@ -88,7 +92,7 @@ function getBuyerConcernItems(
         answerTitle: "전문 기사 직접 운반 · 주방 배치 · 수평 및 전원 연결",
         badge: "직배송 · 현장 안착",
         tone: "teal",
-        desc: "용달차를 따로 부르실 필요 없이 한밭중고전자 배송팀이 매장 주방 원하시는 자리까지 반입하여 수평 조절과 시운전까지 마쳐 드립니다.",
+        desc: `용달차를 따로 부르실 필요 없이 ${STORE.name} 배송팀이 매장 주방 원하시는 자리까지 반입하여 수평 조절과 시운전까지 마쳐 드립니다.`,
       },
     ];
   }
@@ -145,31 +149,22 @@ export function V2VisualInspectionViewer({
   const catLabel = normalizeProductCategory(category);
   const items = getBuyerConcernItems(catLabel);
   const displayGrade = conditionGrade || "A급 (검수완료)";
-  const warrantyText =
-    catLabel === "에어컨/냉난방기"
-      ? "최대 8개월 무상보증"
-      : "최대 4개월 무상보증";
+  const warrantyText = getCategoryWarrantyInfo(catLabel).compactLabel;
 
   return (
     <div className="hb-surface-card flex h-full flex-col justify-between overflow-hidden">
-      {/* 상단 헤더 (중첩 박스 없이 하단 보더로만 분리) */}
+      {/* 상단 헤더 */}
       <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="rounded-md bg-[#141A23] px-2.5 py-1 text-hb-xs font-bold text-white whitespace-nowrap">
-              안심 출고 검수 리포트
-            </span>
-            <span className="rounded-md border border-[#CCFBF1] bg-[#F0FDFA] px-2.5 py-1 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
-              {catLabel}
-            </span>
-          </div>
-
-          <span className="rounded-full border border-[#FADCD0] bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#E8521A] whitespace-nowrap tabular-nums">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs">
+          <span className="font-bold text-[#0F766E]">
+            출고 전 검수 리포트 · {catLabel}
+          </span>
+          <span className="font-bold text-[#E8521A] tabular-nums">
             {displayGrade} · {warrantyText}
           </span>
         </div>
 
-        <h3 className="mt-3 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight">
+        <h3 className="mt-2.5 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight">
           중고 구매 전 가장 걱정되는 4가지, 이렇게 해결합니다
         </h3>
         <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#334155]">
@@ -177,72 +172,45 @@ export function V2VisualInspectionViewer({
         </p>
       </div>
 
-      {/* 본문 2×2 에디토리얼 그리드 (No Card-in-Card: 얇은 구분선과 여백만 사용) */}
+      {/* 본문 2×2 에디토리얼 그리드 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC] flex-1">
-        <div className="divide-y divide-[#E2E6EC]">
-          {items.slice(0, 2).map((item) => (
-            <div key={item.no} className="p-5 sm:p-6 space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
-                  검수 {item.no}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold whitespace-nowrap ${
-                    TONE_BADGE_STYLE[item.tone]
-                  }`}
-                >
-                  <Icon d={ICON.check} className="w-3 h-3 shrink-0" />
-                  <span>{item.badge}</span>
-                </span>
+        {[items.slice(0, 2), items.slice(2, 4)].map((colItems, colIdx) => (
+          <div key={colIdx} className="divide-y divide-[#E2E6EC]">
+            {colItems.map((item) => (
+              <div key={item.no} className="p-5 sm:p-6 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
+                    검수 {item.no}
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold whitespace-nowrap ${
+                      TONE_BADGE_STYLE[item.tone]
+                    }`}
+                  >
+                    <Icon d={ICON.check} className="w-3 h-3 shrink-0" />
+                    <span>{item.badge}</span>
+                  </span>
+                </div>
+                <p className="text-hb-xs font-bold text-[#E8521A] leading-snug break-keep">
+                  Q. {item.question}
+                </p>
+                <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug break-keep">
+                  {item.answerTitle}
+                </h4>
+                <p className="text-hb-xs sm:text-hb-sm leading-[1.65] text-[#334155] break-keep pt-0.5">
+                  {item.desc}
+                </p>
               </div>
-              <p className="text-hb-xs font-bold text-[#E8521A] leading-snug break-keep">
-                Q. {item.question}
-              </p>
-              <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug break-keep">
-                {item.answerTitle}
-              </h4>
-              <p className="text-hb-xs sm:text-hb-sm leading-[1.65] text-[#334155] break-keep pt-0.5">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
-
-        <div className="divide-y divide-[#E2E6EC]">
-          {items.slice(2, 4).map((item) => (
-            <div key={item.no} className="p-5 sm:p-6 space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
-                  검수 {item.no}
-                </span>
-                <span
-                  className={`inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-hb-xs font-bold whitespace-nowrap ${
-                    TONE_BADGE_STYLE[item.tone]
-                  }`}
-                >
-                  <Icon d={ICON.check} className="w-3 h-3 shrink-0" />
-                  <span>{item.badge}</span>
-                </span>
-              </div>
-              <p className="text-hb-xs font-bold text-[#E8521A] leading-snug break-keep">
-                Q. {item.question}
-              </p>
-              <h4 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug break-keep">
-                {item.answerTitle}
-              </h4>
-              <p className="text-hb-xs sm:text-hb-sm leading-[1.65] text-[#334155] break-keep pt-0.5">
-                {item.desc}
-              </p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ))}
       </div>
 
       {/* 하단 푸터 스트립 */}
       <div className="border-t border-[#E2E6EC] bg-[#F7F8FA] px-5 py-3.5 text-hb-xs text-[#334155] flex items-center gap-2">
         <Icon d={ICON.pin} className="w-4 h-4 text-[#0D9488] shrink-0" />
         <span className="break-keep">
-          <strong>대전 중촌동 1·2층 직영 쇼룸 상시 개방:</strong> 매장에 방문하시면 구매 전 직접 전원을 켜고 냉기·작동 상태를 확인하실 수 있습니다.
+          <strong>{STORE.jibunAddress} 1·2층 직영 쇼룸 상시 개방:</strong> 매장에 방문하시면 구매 전 직접 전원을 켜고 냉기·작동 상태를 확인하실 수 있습니다.
         </span>
       </div>
     </div>

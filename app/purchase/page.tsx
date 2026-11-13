@@ -122,17 +122,9 @@ export default function PurchasePage() {
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <span className="rounded-xl border border-[#E2E6EC] bg-[#F1F3F6] px-3.5 py-2 text-hb-xs font-bold text-[#141A23]">
-                가정용 · 업소용 전 품목
-              </span>
-              <span className="rounded-xl border border-[#E2E6EC] bg-[#F1F3F6] px-3.5 py-2 text-hb-xs font-bold text-[#141A23]">
-                전문 기사 직접 철거·수거
-              </span>
-              <span className="rounded-xl border border-[#E8521A]/30 bg-[#FFF4EE] px-3.5 py-2 text-hb-xs font-bold text-[#E8521A]">
-                현장 즉시 정산
-              </span>
-            </div>
+            <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#64748B] shrink-0">
+              가정용·업소용 전 품목 · 기사 직접 철거·수거 · 현장 즉시 정산
+            </p>
           </div>
         </div>
       </section>
@@ -230,7 +222,7 @@ export default function PurchasePage() {
                   온라인 매입 견적 신청서
                 </h2>
                 <p className="mt-1 text-hb-sm text-[#64748B]">
-                  사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 최고가 견적과 수거 일정을 빠르게 안내해 드립니다.
+                  사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 매입 견적과 수거 일정을 안내해 드립니다.
                 </p>
               </div>
               <span className="rounded-lg bg-[#F7F8FA] border border-[#E2E6EC] px-3 py-1 text-hb-xs font-bold text-[#141A23]">
@@ -249,8 +241,7 @@ export default function PurchasePage() {
           {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}
           <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
             <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs">
-              <span className="hb-eyebrow">급매 · 폐업 직통 상담</span>
-              <h2 className="mt-1.5 text-hb-lg font-bold text-[#141A23]">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
                 급매 · 폐업 일괄 정리 직통 상담
               </h2>
               <p className="mt-2 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
@@ -309,15 +300,12 @@ export default function PurchasePage() {
           className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#E2E6EC]">
-            <div>
-              <span className="hb-eyebrow">방문 매입 출장 권역 · FAQ</span>
-              <h2
-                id="purchase-faq-title"
-                className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#141A23]"
-              >
-                대전 · 세종 · 충청 방문 매입 안내
-              </h2>
-            </div>
+            <h2
+              id="purchase-faq-title"
+              className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]"
+            >
+              대전 · 세종 · 충청 방문 매입 안내
+            </h2>
             <span className="text-hb-xs font-semibold text-[#64748B]">
               대전 전역 · 세종 · 계룡 · 공주 · 논산 · 옥천 · 청주 출장 수거
             </span>

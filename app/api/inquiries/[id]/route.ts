@@ -3,9 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   extractInquiryImages,
   extractStorageFilesByBucket,
-  getInquiryTypeLabel,
   INQUIRY_STATUS,
-  maskName,
   STORAGE_BUCKETS,
 } from "../../../../lib/site";
 import {
@@ -23,18 +21,19 @@ import {
   verifySameOriginRequest,
 } from "../../../../lib/server-security";
 import { signInquiryImageLists } from "../../../../lib/inquiry-attachments";
+import {
+  SAFE_INQUIRY_SELECT_COLUMNS,
+  toInquiryDetailItem,
+} from "../../../../lib/server-inquiries";
 
 export const runtime = "nodejs";
-
-const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
-
-const SAFE_INQUIRY_SELECT_COLUMNS =
-  "id, name, phone, inquiry_type, category, model, condition_grade, region, description, images, image_url, is_notice, status, admin_reply, created_at";
 
 function isValidInquiryId(id: string): boolean {
   const trimmed = id.trim();
   return trimmed.length > 0 && trimmed.length <= 64 && /^[a-zA-Z0-9_-]+$/.test(trimmed);
 }
+
+const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
 
 export async function POST(
   req: NextRequest,
@@ -129,26 +128,7 @@ export async function POST(
     ]);
 
     return NextResponse.json({
-      inquiry: {
-        id: row.id,
-        name: isAdmin || isNotice ? row.name : maskName(row.name),
-        phone: isAdmin ? row.phone : null,
-        inquiry_type: isNotice
-          ? "공지사항"
-          : getInquiryTypeLabel(
-              row.inquiry_type || (row.region ? "내 물건 팔기" : "기타 문의")
-            ),
-        category: row.category || "문의 내용",
-        model: row.model || null,
-        condition_grade: row.condition_grade || null,
-        region: row.region || null,
-        description: row.description || "",
-        images,
-        is_notice: isNotice,
-        status: row.status || "접수",
-        admin_reply: row.admin_reply || null,
-        created_at: row.created_at,
-      },
+      inquiry: toInquiryDetailItem(row, { isAdmin, images }),
     });
   } catch {
     return NextResponse.json(
@@ -315,22 +295,10 @@ export async function PATCH(
       );
     }
 
-    const isNotice = Boolean(updatedRow.is_notice);
-    const updated = {
-      id: updatedRow.id,
-      name: isAdmin || isNotice ? updatedRow.name : maskName(updatedRow.name),
-      phone: isAdmin ? updatedRow.phone : null,
-      inquiry_type: updatedRow.inquiry_type,
-      category: updatedRow.category,
-      model: updatedRow.model || null,
-      condition_grade: updatedRow.condition_grade || null,
-      region: updatedRow.region || null,
-      description: updatedRow.description || "",
-      is_notice: isNotice,
-      status: updatedRow.status || "접수",
-      admin_reply: updatedRow.admin_reply || null,
-      created_at: updatedRow.created_at,
-    };
+    const updated = toInquiryDetailItem(updatedRow, {
+      isAdmin,
+      preserveRawType: true,
+    });
 
     return NextResponse.json({
       success: true,

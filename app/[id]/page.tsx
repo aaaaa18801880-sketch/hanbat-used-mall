@@ -11,7 +11,8 @@ import {
   STORE_SHIPPING_POLICY,
   splitImages,
   isProductSold,
-  getProductStatusLabel,
+  getCategoryWarrantyInfo,
+  buildProductInquiryHref,
   normalizeProductCategory,
   formatProductPrice,
   hasProductPrice,
@@ -76,12 +77,7 @@ export async function generateMetadata({
   const priceLabel = sold
     ? "판매완료"
     : formatProductPrice(product.price, categoryLabel);
-  const warrantyLabel =
-    categoryLabel === "에어컨/냉난방기"
-      ? "최대 8개월 보증(계약별)"
-      : categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기"
-      ? "최대 4개월 보증(계약별)"
-      : "계약조건별 보증";
+  const warrantyLabel = getCategoryWarrantyInfo(categoryLabel).compactLabel;
   const modelName = extractModelName(product.description, product.title);
   const capsules = extractSpecCapsules(
     product.title,
@@ -109,7 +105,7 @@ export async function generateMetadata({
     `${product.title}${modelName ? ` (모델명: ${modelName})` : ""}`,
     capsules.length > 0 ? `핵심규격: ${capsules.join("/")}.` : "",
     cleanDesc ||
-      `분해 고압 세척 및 작동 검수 완료. 대전 중촌동 직영 매장 실물 확인 및 직배송·설치·세금계산서 발행 가능.`,
+      `분해 고압 세척 및 작동 검수 완료. ${STORE.name} 직영 매장 실물 확인 및 직배송·설치·세금계산서 발행 가능.`,
   ]
     .filter(Boolean)
     .join(" ")
@@ -158,7 +154,6 @@ export default async function ProductDetailPage({
 
   const images = splitImages(product.image_url);
   const sold = isProductSold(product.status);
-  const statusLabel = getProductStatusLabel(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
   const isB2B = categoryLabel === "업소용기기" || categoryLabel === "에어컨/냉난방기";
   const priced = hasProductPrice(product.price);
@@ -178,19 +173,13 @@ export default async function ProductDetailPage({
     ? new Date(product.created_at).toLocaleDateString("ko-KR")
     : null;
 
-  const inquiryParams = new URLSearchParams({
-    write: "1",
-    type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
+  const inquiryHref = buildProductInquiryHref({
     productId: String(product.id),
-    title: sold
-      ? `[유사매물 재고문의] [${categoryLabel}] ${product.title}`
-      : `[상품문의] [${categoryLabel}] ${product.title}`,
+    title: product.title,
     category: categoryLabel,
+    sold,
+    modelName,
   });
-  if (modelName) {
-    inquiryParams.set("model", modelName);
-  }
-  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
   const { data: relatedRows } = await supabase
     .from("products")
@@ -205,14 +194,7 @@ export default async function ProductDetailPage({
 
   const relatedProducts = (relatedRows ?? []) as ProductItem[];
 
-  const isHvacDetail = categoryLabel === "에어컨/냉난방기";
-  const isMajorApplianceDetail =
-    categoryLabel === "냉장고" || categoryLabel === "세탁기/건조기";
-  const warrantySummary = isHvacDetail
-    ? STORE_MERCHANT_POLICY.warrantyAircon
-    : isMajorApplianceDetail
-    ? STORE_MERCHANT_POLICY.warrantyMajor
-    : STORE_MERCHANT_POLICY.warrantyGeneral;
+  const warrantySummary = getCategoryWarrantyInfo(categoryLabel).detailLabel;
 
   const categoryFaqs = getCategoryFaqs(categoryLabel, sold);
   const createdTimestamp = product.created_at
@@ -443,15 +425,6 @@ export default async function ProductDetailPage({
                 >
                   {categoryLabel}
                 </Link>
-                <span
-                  className={`rounded-md px-2 py-0.5 text-hb-xs font-bold ${
-                    sold
-                      ? "bg-[#F1F3F6] text-[#64748B]"
-                      : "bg-[#FFF4EE] text-[#E8521A]"
-                  }`}
-                >
-                  {statusLabel}
-                </span>
                 <div className="ml-auto flex items-center gap-2.5 text-hb-xs text-[#64748B] tabular-nums">
                   {createdDate && <span>등록 {createdDate}</span>}
                   {typeof product.views === "number" && (
@@ -493,9 +466,8 @@ export default async function ProductDetailPage({
                       </div>
                     )}
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0FDFA] border border-[#CCFBF1] px-2.5 py-1 text-hb-xs font-bold text-[#0F766E] shrink-0 shadow-2xs">
-                    <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#0D9488]" />
-                    <span>세척·시운전 검수 완료</span>
+                  <span className="text-hb-xs font-semibold text-[#0F766E] shrink-0">
+                    세척·시운전 검수 완료
                   </span>
                 </div>
 
@@ -504,12 +476,12 @@ export default async function ProductDetailPage({
                     세금계산서 · 현금영수증 · 카드결제 지원
                   </span>
                   <span className="font-semibold text-[#141A23]">
-                    100% 정식 증빙
+                    정식 증빙 발행
                   </span>
                 </div>
               </div>
 
-              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 (No Card-in-Card 평탄화 ListRow) */}
+              {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 */}
               <dl className="mt-4 border-y border-[#E2E6EC] divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
                 <div className="flex items-center justify-between gap-3 py-3">
                   <dt className="font-semibold text-[#64748B] shrink-0">
@@ -524,17 +496,10 @@ export default async function ProductDetailPage({
                   <dt className="font-semibold text-[#64748B] shrink-0">
                     외관 · 상태 등급
                   </dt>
-                  <dd className="font-semibold text-[#141A23] text-right flex items-center justify-end gap-1.5">
-                    {product.condition_grade ? (
-                      <>
-                        <span className="inline-flex items-center rounded-md bg-[#FFF4EE] border border-[#FADCD0] px-2 py-0.5 text-hb-xs font-bold text-[#E8521A]">
-                          {product.condition_grade}
-                        </span>
-                        <span>작동 점검 완료</span>
-                      </>
-                    ) : (
-                      <span>작동 점검·세척 완료</span>
-                    )}
+                  <dd className="font-semibold text-[#141A23] text-right">
+                    {product.condition_grade
+                      ? `${product.condition_grade} · 작동 점검 완료`
+                      : "작동 점검·세척 완료"}
                   </dd>
                 </div>
 
@@ -543,11 +508,7 @@ export default async function ProductDetailPage({
                     검수 · 보증 기준
                   </dt>
                   <dd className="font-semibold text-[#141A23] text-right tabular-nums">
-                    {isHvacDetail
-                      ? "무상 A/S 최대 8개월 보증"
-                      : isMajorApplianceDetail
-                      ? "무상 A/S 최대 4개월 보증"
-                      : "작동 점검 완료 (계약별 보증)"}
+                    {warrantySummary}
                   </dd>
                 </div>
 
@@ -556,15 +517,8 @@ export default async function ProductDetailPage({
                     <dt className="font-semibold text-[#64748B] shrink-0">
                       핵심 스펙 요약
                     </dt>
-                    <dd className="flex flex-wrap justify-end gap-1.5">
-                      {specCapsules.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-md bg-[#F1F3F6] px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23] tabular-nums"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                    <dd className="text-right text-hb-xs font-semibold text-[#141A23] tabular-nums">
+                      {specCapsules.join(" · ")}
                     </dd>
                   </div>
                 )}
@@ -612,14 +566,11 @@ export default async function ProductDetailPage({
           className="mt-12 pt-8 border-t border-[#E2E6EC]"
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <span className="text-hb-xs font-bold text-[#E8521A]">검수 기준 및 설치 환경 체크</span>
-              <h2 className="mt-1 text-hb-xl font-bold text-[#141A23]">
-                출고 전 정밀 검수 내역 &amp; 우리 집 설치 환경 체크
-              </h2>
-            </div>
+            <h2 className="text-hb-xl font-bold text-[#141A23]">
+              출고 전 정밀 검수 내역 &amp; 우리 집 설치 환경 체크
+            </h2>
             <p className="text-hb-xs text-[#64748B]">
-              한밭중고전자 전문 엔지니어의 4대 핵심 검수 내역과 우리 집 설치 가능 여부를 한눈에 확인하세요.
+              {STORE.name} 전문 엔지니어의 4대 핵심 검수 내역과 설치 가능 여부를 확인하세요.
             </p>
           </div>
 
@@ -641,12 +592,9 @@ export default async function ProductDetailPage({
         {relatedProducts.length > 0 && (
           <section className="mt-12 pt-8 border-t border-[#E2E6EC]">
             <div className="flex items-center justify-between mb-5">
-              <div>
-                <p className="text-hb-xs font-bold text-[#E8521A]">동일 카테고리 추천 매물</p>
-                <h2 className="mt-1 text-hb-xl font-bold text-[#141A23]">
-                  같은 카테고리의 다른 실매물
-                </h2>
-              </div>
+              <h2 className="text-hb-xl font-bold text-[#141A23]">
+                같은 카테고리의 다른 실매물
+              </h2>
               <Link
                 href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
                 className="text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4"
@@ -668,12 +616,9 @@ export default async function ProductDetailPage({
           className="mt-12 pt-8 border-t border-[#E2E6EC]"
         >
           <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#E2E6EC]">
-            <div>
-              <span className="text-hb-xs font-bold text-[#E8521A]">품목별 자주 묻는 질문</span>
-              <h2 className="mt-1 text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
-                {categoryLabel} 구매 · 설치 자주 묻는 질문
-              </h2>
-            </div>
+            <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
+              {categoryLabel} 구매 · 설치 자주 묻는 질문
+            </h2>
             <Link
               href="/#faq-section"
               className="text-hb-xs font-bold text-[#64748B] hover:text-[#141A23] underline underline-offset-4"

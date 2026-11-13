@@ -30,7 +30,7 @@ export function isValidStorageObjectPath(objectPath: string): boolean {
   );
 }
 
-export function isOwnStorageImageUrl(
+function isOwnStorageImageUrl(
   url: string,
   options?: { allowPublicBucket?: boolean }
 ): boolean {
@@ -76,7 +76,7 @@ export function sanitizeInquiryImageUrls(
     .slice(0, MAX_IMAGES_PER_INQUIRY);
 }
 
-export function getAttachmentPath(url: string): string | null {
+function getAttachmentPath(url: string): string | null {
   const base = getPublicStorageBase();
   const prefix = `${base}${STORAGE_BUCKETS.inquiryAttachments}/`;
   if (!base || !url.startsWith(prefix)) return null;

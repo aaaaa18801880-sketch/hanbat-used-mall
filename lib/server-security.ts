@@ -73,10 +73,6 @@ export async function verifyAdminRequest(req: NextRequest | Request): Promise<{
 const HASH_PREFIX = "scrypt$";
 const MAX_PASSWORD_INPUT_LENGTH = 128;
 
-export function isScryptHashedPassword(value?: string | null): boolean {
-  return typeof value === "string" && value.trim().startsWith(HASH_PREFIX);
-}
-
 export async function hashInquiryPasswordAsync(
   plainPassword: string
 ): Promise<string> {
@@ -136,9 +132,9 @@ interface RateBucket {
   resetAt: number;
 }
 
-export type RateLimitFailureMode = "fail-open" | "fail-closed";
+type RateLimitFailureMode = "fail-open" | "fail-closed";
 
-export interface RateLimitOptions {
+interface RateLimitOptions {
   failureMode?: RateLimitFailureMode;
   increment?: boolean;
   rpcRunner?: (
@@ -153,7 +149,7 @@ export interface RateLimitOptions {
 const MAX_RATE_BUCKETS = 5000;
 const rateBuckets = new Map<string, RateBucket>();
 
-export type NotificationAttemptStatus = "PENDING" | "SENT" | "FAILED";
+type NotificationAttemptStatus = "PENDING" | "SENT" | "FAILED";
 
 interface NotificationDedupEntry {
   status: NotificationAttemptStatus;
@@ -666,18 +662,6 @@ export async function markNotificationFailed(
       // Non-blocking fallback
     }
   }
-}
-
-export function getNotificationIdempotencyState(
-  dedupKey: string,
-  channel = "telegram"
-): NotificationDedupEntry | null {
-  const hashedKey = hashNotificationDedupKey(dedupKey, channel);
-  const entry =
-    notificationDedupCache.get(hashedKey) ??
-    notificationDedupCache.get(dedupKey);
-  if (!entry || Date.now() > entry.expiresAt) return null;
-  return entry;
 }
 
 const ALLOWED_MIME_TYPES = new Set([

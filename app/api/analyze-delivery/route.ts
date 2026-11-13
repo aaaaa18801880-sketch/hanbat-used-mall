@@ -1,12 +1,16 @@
 // 파일 경로: app/api/analyze-delivery/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
+import { STORE } from "../../../lib/site";
 import {
   checkRateLimit,
   getClientIp,
-  validateServerImageFiles,
   verifyAdminRequest,
 } from "../../../lib/server-security";
+import {
+  extractValidatedImageParts,
+  generateGeminiWithFallback,
+  parseGeminiJsonObject,
+} from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
 
@@ -55,29 +59,18 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
-    const multipleFiles = formData.getAll("files");
-    const entries = multipleFiles.length
-      ? multipleFiles
-      : formData.getAll("file");
-    const files = entries.filter((item): item is File => item instanceof File);
-
-    const fileValidation = await validateServerImageFiles(files, {
+    const imgResult = await extractValidatedImageParts(formData, {
       maxFiles: MAX_FILES,
       maxFileSizeBytes: MAX_FILE_SIZE,
+      fallbackErrorMessage: "배송/설치 사진을 올바르게 첨부해 주세요.",
+      supportSingleFileField: true,
     });
-
-    if (!fileValidation.ok || !fileValidation.validated) {
-      return NextResponse.json(
-        {
-          error:
-            fileValidation.error || "배송/설치 사진을 올바르게 첨부해 주세요.",
-        },
-        { status: 400 }
-      );
+    if (!imgResult.ok) {
+      return NextResponse.json({ error: imgResult.error }, { status: 400 });
     }
 
     const prompt = `
-당신은 대전 중고가전/업소용 주방기기 전문 매장 '한밭중고전자'의 배송·설치 사례 등록 보조자입니다.
+당신은 대전 중고가전/업소용 주방기기 전문 매장 '${STORE.name}'의 배송·설치 사례 등록 보조자입니다.
 첨부된 현장 사진에서 실제로 확인할 수 있는 '제품 유형'과 '설치/운반 상황'에만 근거하여 [배송·설치 사례 제목 초안]을 1문장(18~38자 내외)으로 작성하세요.
 
 [절대 준수 지침 - 임의 창작 금지]
@@ -93,81 +86,34 @@ export async function POST(req: NextRequest) {
 }
 `;
 
-    const imageParts = fileValidation.validated.map((item) => ({
-      inlineData: {
-        mimeType: item.mimeType,
-        data: item.base64,
-      },
-    }));
+    const { text: responseText, modelUsed } = await generateGeminiWithFallback({
+      apiKey,
+      defaultModel: DEFAULT_GEMINI_MODEL,
+      fallbackModel: FALLBACK_GEMINI_MODEL,
+      prompt,
+      imageParts: imgResult.imageParts,
+    });
 
-    const ai = new GoogleGenAI({ apiKey });
-    let modelUsed = DEFAULT_GEMINI_MODEL;
-    let response;
-
-    try {
-      response = await ai.models.generateContent({
-        model: DEFAULT_GEMINI_MODEL,
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: prompt }, ...imageParts],
-          },
-        ],
-        config: { responseMimeType: "application/json" },
-      });
-    } catch (modelErr: unknown) {
-      const msg =
-        modelErr instanceof Error
-          ? modelErr.message
-          : String(modelErr || "");
-      if (
-        DEFAULT_GEMINI_MODEL !== FALLBACK_GEMINI_MODEL &&
-        (msg.includes("404") ||
-          msg.toLowerCase().includes("not found") ||
-          msg.toLowerCase().includes("not supported"))
-      ) {
-        modelUsed = FALLBACK_GEMINI_MODEL;
-        response = await ai.models.generateContent({
-          model: FALLBACK_GEMINI_MODEL,
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }, ...imageParts],
-            },
-          ],
-          config: { responseMimeType: "application/json" },
-        });
-      } else {
-        throw modelErr;
-      }
-    }
-
-    const responseText = response.text?.trim() || "";
-    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    const { parsed: raw } = parseGeminiJsonObject(responseText);
     let parsedTitle = "중고가전 현장 배송 및 배치 사례";
     let observedElements: string[] = [];
     let needsReview: string[] = [
       "AI가 작성한 제목 초안입니다. 실제 배송 지역이나 제품명을 확인 후 게시해 주세요.",
     ];
 
-    if (jsonMatch) {
-      try {
-        const raw = JSON.parse(jsonMatch[0]);
-        if (raw.title && typeof raw.title === "string") {
-          parsedTitle = raw.title.trim();
-        }
-        if (Array.isArray(raw.observedElements)) {
-          observedElements = raw.observedElements
-            .map((x: unknown) => String(x).trim())
-            .filter(Boolean);
-        }
-        if (Array.isArray(raw.needsReview) && raw.needsReview.length > 0) {
-          needsReview = raw.needsReview
-            .map((x: unknown) => String(x).trim())
-            .filter(Boolean);
-        }
-      } catch {
-        console.warn("배송 사진 제목 JSON 파싱 보정");
+    if (raw) {
+      if (raw.title && typeof raw.title === "string") {
+        parsedTitle = raw.title.trim();
+      }
+      if (Array.isArray(raw.observedElements)) {
+        observedElements = raw.observedElements
+          .map((x: unknown) => String(x).trim())
+          .filter(Boolean);
+      }
+      if (Array.isArray(raw.needsReview) && raw.needsReview.length > 0) {
+        needsReview = raw.needsReview
+          .map((x: unknown) => String(x).trim())
+          .filter(Boolean);
       }
     }
 

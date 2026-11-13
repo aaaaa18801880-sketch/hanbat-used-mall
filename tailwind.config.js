@@ -45,25 +45,6 @@ module.exports = {
           "sans-serif",
         ],
       },
-      colors: {
-        hb: {
-          navy: "var(--hb-navy)",
-          "navy-hover": "var(--hb-navy-hover)",
-          "navy-subtle": "var(--hb-navy-subtle)",
-          orange: "var(--hb-orange)",
-          "orange-hover": "var(--hb-orange-hover)",
-          "orange-subtle": "var(--hb-orange-subtle)",
-          teal: "var(--hb-teal)",
-          "teal-subtle": "var(--hb-teal-subtle)",
-          cyan: "var(--hb-cyan)",
-          "cyan-subtle": "var(--hb-cyan-subtle)",
-          warm: "var(--hb-bg-warm)",
-          muted: "var(--hb-bg-muted)",
-          surface: "var(--hb-surface)",
-          border: "var(--hb-border)",
-          "border-strong": "var(--hb-border-strong)",
-        },
-      },
       boxShadow: {
         "2xs": "0 1px 2px 0 rgba(20, 26, 35, 0.03)",
         xs: "0 2px 6px -1px rgba(20, 26, 35, 0.05)",
@@ -74,9 +55,6 @@ module.exports = {
           "0 20px 44px -10px rgba(20, 26, 35, 0.24), 0 4px 14px -2px rgba(20, 26, 35, 0.1)",
         "glass-sm":
           "0 4px 20px -4px rgba(20, 26, 35, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
-      },
-      backdropBlur: {
-        xs: "2px",
       },
     },
   },

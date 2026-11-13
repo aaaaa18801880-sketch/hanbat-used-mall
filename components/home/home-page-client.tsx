@@ -5,11 +5,8 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
-import {
-  supabase,
-  isAuthorizedAdminUser,
-  getAdminAuthHeaders,
-} from "../../lib/supabase";
+import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
+import { useIsAdminSession } from "../../lib/use-admin-session";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
   Icon,
@@ -24,20 +21,26 @@ import {
 } from "../../lib/ui";
 import {
   STORE,
+  STORE_NAVIGATION,
+  INQUIRY_STATUS,
   telHref,
   maskName,
   splitImages,
   compressImage,
+  revokeObjectUrls,
   MAX_REVIEW_PHOTOS,
   MAX_FILE_MB,
   STORAGE_BUCKETS,
   isProductSold,
   getInquiryTypeLabel,
-  extractStorageFilesByBucket,
   trackEvent,
   type InquiryTypeValue,
   triggerQuickInquiry,
 } from "../../lib/site";
+import {
+  compressAndUploadProductImages,
+  removeProductImagesFromStorage,
+} from "../../lib/product-ops";
 import { type ProductItem } from "../products/product-card";
 import { FeaturedProductsSection } from "./featured-products-section";
 import {
@@ -123,18 +126,18 @@ const COMMERCIAL_EQUIP_MATRIX = [
 const FAQS = [
   {
     tag: "대전 중고가전 추천 · 직거래 비교",
-    q: "대전에서 중고가전을 구매할 때 개인 직거래(당근마켓 등)보다 한밭중고전자를 추천하는 이유는 무엇인가요?",
-    a: "한밭중고전자는 개인간 직거래의 5대 취약점(보증 부재, 오염·위생 문제, 운반·설치 부담, 영수증 미발행, 기존 가전 방치)을 전문 공정을 통해 해소합니다. 전 품목 전문 엔지니어 120bar 분해 고압 세척과 24시간 실부하 점검을 거치며, 계약조건별 에어컨 최대 8개월, 일반 가전 최대 4개월 무상 A/S 보증을 약정합니다. 또한 전문 기사가 직접 운반 및 수평·배관 설치를 지원하고, 신용카드·현금영수증·전자세금계산서 100% 발행 및 기존 노후 가전 보상판매를 일괄 지원합니다.",
+    q: `대전에서 중고가전을 구매할 때 개인 직거래(당근마켓 등)보다 ${STORE.name}를 추천하는 이유는 무엇인가요?`,
+    a: `${STORE.name}는 개인간 직거래의 5대 취약점(보증 부재, 오염·위생 문제, 운반·설치 부담, 영수증 미발행, 기존 가전 방치)을 전문 공정을 통해 해소합니다. 전 품목 전문 엔지니어 120bar 분해 고압 세척과 24시간 실부하 점검을 거치며, 계약조건별 에어컨 최대 8개월, 일반 가전 최대 4개월 무상 A/S 보증을 약정합니다. 또한 전문 기사가 직접 운반 및 수평·배관 설치를 지원하고, 신용카드·현금영수증·전자세금계산서 발행 및 기존 노후 가전 보상판매를 일괄 지원합니다.`,
   },
   {
     tag: "세종 · 충청권 배송 및 출장 매입",
     q: "대전 외에 세종, 청주, 천안, 계룡, 공주, 논산 등 충청권 인근 지역도 직배송 및 방문 매입이 가능한가요?",
-    a: "네, 적극 지원합니다. 한밭중고전자는 대전 전 지역은 물론 세종특별자치시, 청주시, 천안시, 공주시, 계룡시, 논산시 등 충청권 전역에 전문 기사 직배송 및 현장 방문 매입(가정 이사 가전 처분 및 식당·카페 폐업 주방집기 일괄 철거)을 진행하고 있습니다. 그 외 지역도 전국 안전 화물 배송을 지원합니다.",
+    a: `네, 지원합니다. ${STORE.name}는 대전 전 지역은 물론 세종특별자치시, 청주시, 천안시, 공주시, 계룡시, 논산시 등 충청권 전역에 전문 기사 직배송 및 현장 방문 매입(가정 이사 가전 처분 및 식당·카페 폐업 주방집기 일괄 철거)을 진행하고 있습니다. 그 외 지역도 전국 화물 배송을 지원합니다.`,
   },
   {
     tag: "패키지 구매 · 창업 설비 혜택",
     q: "원룸 입주 가전이나 식당·카페 창업 주방집기를 세트로 일괄 구매하면 어떤 혜택이 있나요?",
-    a: "원룸 3종 세트(소형~중형 냉장고 + 세탁기 + 벽걸이 에어컨)나 식당·카페 주방 풀패키지(업소용 45박스 냉장·냉동고 + 테이블냉장고 + 제빙기 + 쇼케이스 + 식기세척기) 등 묶음 구매 시 통합 직배송으로 배송·설치 비용이 대폭 절감되며 추가 세트 할인 혜택이 제공됩니다. 창업 사업자의 경우 100% 전자세금계산서 발행을 통해 부가세 환급 및 종합소득세 필요경비 증빙을 꼼꼼히 지원합니다.",
+    a: "원룸 3종 세트(소형~중형 냉장고 + 세탁기 + 벽걸이 에어컨)나 식당·카페 주방 풀패키지(업소용 45박스 냉장·냉동고 + 테이블냉장고 + 제빙기 + 쇼케이스 + 식기세척기) 등 묶음 구매 시 통합 직배송으로 배송·설치 비용이 절감되며 추가 세트 할인 혜택이 제공됩니다. 창업 사업자의 경우 전자세금계산서 발행을 통해 부가세 환급 및 종합소득세 필요경비 증빙을 지원합니다.",
   },
   {
     tag: "A/S 접수 · 보증 범위",
@@ -154,12 +157,12 @@ const FAQS = [
   {
     tag: "에어컨 · 냉난방기 구매 안내",
     q: "에어컨이나 냉난방기 구매 시 실외기만 따로 단독 구매할 수 있나요?",
-    a: `한밭중고전자의 에어컨 및 냉난방기 제품은 원활한 냉난방 성능과 냉매 사이클 호환 보증을 위해 실내기와 실외기가 1:1 세트로 구성되어 판매됩니다. 실외기만 별도로 단독 구매하시는 것은 어려우며 반드시 세트 단위로 출고됩니다. 현장 평수와 배관 환경에 맞춘 최적 모델 상담은 대표전화(${STORE.tel})나 카카오톡으로 편하게 문의해 주세요.`,
+    a: `${STORE.name}의 에어컨 및 냉난방기 제품은 원활한 냉난방 성능과 냉매 사이클 호환 보증을 위해 실내기와 실외기가 1:1 세트로 구성되어 판매됩니다. 실외기만 별도로 단독 구매하시는 것은 어려우며 반드시 세트 단위로 출고됩니다. 현장 평수와 배관 환경에 맞춘 최적 모델 상담은 대표전화(${STORE.tel})나 카카오톡으로 편하게 문의해 주세요.`,
   },
   {
     tag: "결제 수단 · 세금계산서",
     q: "오프라인 매장 방문 없이 비대면 구매도 가능한가요? 결제 방법과 증빙 서류가 궁금합니다.",
-    a: "매장 직접 방문(대전 중구 중촌동 144)은 물론, 바쁘신 분들을 위해 실물 상세 사진·작동 영상을 카톡으로 먼저 확인하신 뒤 비대면 주문도 가능합니다. 계좌이체, 신용카드 결제, 현금영수증 및 사업자 전자세금계산서 발행을 모두 지원합니다.",
+    a: `매장 직접 방문(${STORE.jibunAddress})은 물론, 바쁘신 분들을 위해 실물 상세 사진·작동 영상을 카톡으로 먼저 확인하신 뒤 비대면 주문도 가능합니다. 계좌이체, 신용카드 결제, 현금영수증 및 사업자 전자세금계산서 발행을 모두 지원합니다.`,
   },
   {
     tag: "빠른 매입 사진 촬영 팁",
@@ -219,7 +222,7 @@ export default function Home({
     initialReviews === null
   );
   const [recent, setRecent] = useState<InquiryRow[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isAdmin = useIsAdminSession();
 
   /* UI 인터랙션 상태 (FAQ 기본 닫힘) */
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -257,90 +260,111 @@ export default function Home({
   const [uploadingReview, setUploadingReview] = useState(false);
   const [isAnalyzingReview, setIsAnalyzingReview] = useState(false);
 
-  /* ── 1) 실시간 판매 매물 로드 ── */
-  const loadFeaturedProducts = useCallback(async () => {
-    await Promise.resolve();
-    setProductsLoading(true);
-    setProductsError(false);
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .neq("category", "배송인증")
-        .order("created_at", { ascending: false })
-        .limit(300);
+  /* ── 1) 판매 매물 로드 ── */
+  const fetchFeaturedList = useCallback(async (): Promise<ProductItem[]> => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .neq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(300);
 
-      if (error) throw error;
-      const rows = (data ?? []) as ProductItem[];
-      rows.sort((a, b) => {
-        const soldA = isProductSold(a.status) ? 1 : 0;
-        const soldB = isProductSold(b.status) ? 1 : 0;
-        return soldA - soldB;
-      });
-      setFeaturedProducts(rows);
+    if (error) throw error;
+    const rows = (data ?? []) as ProductItem[];
+    rows.sort((a, b) => {
+      const soldA = isProductSold(a.status) ? 1 : 0;
+      const soldB = isProductSold(b.status) ? 1 : 0;
+      return soldA - soldB;
+    });
+    return rows;
+  }, []);
+
+  const loadFeaturedProducts = useCallback(async () => {
+    try {
+      setFeaturedProducts(await fetchFeaturedList());
     } catch (err) {
       console.error("추천 매물 로드 실패:", err);
       setProductsError(true);
     } finally {
       setProductsLoading(false);
     }
-  }, []);
+  }, [fetchFeaturedList]);
 
   /* ── 2) 배송·설치 인증 사진 로드 (상한선 24건) ── */
+  const fetchReviewsList = useCallback(async (): Promise<Review[]> => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("id, title, image_url, created_at")
+      .eq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(24);
+    if (error) throw error;
+    return (data ?? []) as Review[];
+  }, []);
+
   const loadReviews = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("id, title, image_url, created_at")
-        .eq("category", "배송인증")
-        .order("created_at", { ascending: false })
-        .limit(24);
-      if (error) throw error;
-      setReviews((data ?? []) as Review[]);
+      setReviews(await fetchReviewsList());
     } catch (err) {
       console.error("인증사진 불러오기 실패:", err);
     } finally {
       setReviewsLoading(false);
     }
-  }, []);
+  }, [fetchReviewsList]);
 
   /* ── 3) 최근 문의 현황 로드 ── */
-  const loadRecent = useCallback(async () => {
-    try {
-      const res = await fetch("/api/inquiries?limit=8");
-      if (!res.ok) {
-        setRecent([]);
-        return;
-      }
-      const json = await res.json();
-      const rows = (json.inquiries ?? []) as InquiryRow[];
-      setRecent(rows.filter((r) => !r.is_notice).slice(0, 5));
-    } catch {
-      setRecent([]);
-    }
+  const fetchRecentList = useCallback(async (): Promise<InquiryRow[]> => {
+    const res = await fetch("/api/inquiries?limit=8");
+    if (!res.ok) return [];
+    const json = await res.json();
+    const rows = (json.inquiries ?? []) as InquiryRow[];
+    return rows.filter((r) => !r.is_notice).slice(0, 5);
   }, []);
 
   useEffect(() => {
-    queueMicrotask(() => {
-      if (initialProducts === null) void loadFeaturedProducts();
-      if (initialReviews === null) void loadReviews();
-      void loadRecent();
-    });
-    supabase.auth
-      .getSession()
-      .then(({ data }) =>
-        setIsAdmin(isAuthorizedAdminUser(data.session?.user))
-      );
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
-      setIsAdmin(isAuthorizedAdminUser(session?.user))
-    );
-    return () => sub.subscription.unsubscribe();
+    let active = true;
+    if (initialProducts === null) {
+      void (async () => {
+        try {
+          const rows = await fetchFeaturedList();
+          if (active) setFeaturedProducts(rows);
+        } catch (err) {
+          console.error("추천 매물 로드 실패:", err);
+          if (active) setProductsError(true);
+        } finally {
+          if (active) setProductsLoading(false);
+        }
+      })();
+    }
+    if (initialReviews === null) {
+      void (async () => {
+        try {
+          const rows = await fetchReviewsList();
+          if (active) setReviews(rows);
+        } catch (err) {
+          console.error("인증사진 불러오기 실패:", err);
+        } finally {
+          if (active) setReviewsLoading(false);
+        }
+      })();
+    }
+    void (async () => {
+      try {
+        const rows = await fetchRecentList();
+        if (active) setRecent(rows);
+      } catch {
+        if (active) setRecent([]);
+      }
+    })();
+    return () => {
+      active = false;
+    };
   }, [
     initialProducts,
     initialReviews,
-    loadFeaturedProducts,
-    loadReviews,
-    loadRecent,
+    fetchFeaturedList,
+    fetchReviewsList,
+    fetchRecentList,
   ]);
 
   const activeProducts = useMemo(
@@ -456,7 +480,7 @@ export default function Home({
       (f) => f.type.startsWith("image/") && f.size <= MAX_FILE_MB * 1024 * 1024
     );
     const files = [...reviewFiles, ...valid].slice(0, MAX_REVIEW_PHOTOS);
-    reviewPreviews.forEach((u) => URL.revokeObjectURL(u));
+    revokeObjectUrls(reviewPreviews);
     setReviewFiles(files);
     setReviewPreviews(files.map((f) => URL.createObjectURL(f)));
 
@@ -470,7 +494,7 @@ export default function Home({
     setReviewTitle("");
     setReviewFiles([]);
     setReviewPreviews((prev) => {
-      prev.forEach((u) => URL.revokeObjectURL(u));
+      revokeObjectUrls(prev);
       return [];
     });
     setIsAnalyzingReview(false);
@@ -483,22 +507,12 @@ export default function Home({
       return toast.error("사진을 1장 이상 선택해 주세요.");
     setUploadingReview(true);
     try {
-      const urls: string[] = [];
-      for (const f of reviewFiles) {
-        const blob = await compressImage(f, 1600, 0.82);
-        const fileName = `delivery_${Date.now()}_${Math.random()
-          .toString(36)
-          .slice(2, 8)}.jpg`;
-        const { error: upErr } = await supabase.storage
-          .from(STORAGE_BUCKETS.inquiries)
-          .upload(fileName, blob, { contentType: "image/jpeg" });
-        if (upErr) throw upErr;
-        urls.push(
-          supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .getPublicUrl(fileName).data.publicUrl
-        );
-      }
+      const urls = await compressAndUploadProductImages(reviewFiles, {
+        maxWidth: 1600,
+        quality: 0.82,
+        bucket: STORAGE_BUCKETS.inquiries,
+        prefix: "delivery",
+      });
 
       const { error } = await supabase.from("products").insert({
         title: reviewTitle.trim(),
@@ -526,14 +540,7 @@ export default function Home({
       if (error) throw error;
 
       if (target?.image_url) {
-        const { inquiries: inqFiles } = extractStorageFilesByBucket(
-          splitImages(target.image_url)
-        );
-        if (inqFiles.length > 0) {
-          await supabase.storage
-            .from(STORAGE_BUCKETS.inquiries)
-            .remove(inqFiles);
-        }
+        await removeProductImagesFromStorage(splitImages(target.image_url));
       }
 
       toast.success("삭제했습니다.");
@@ -608,7 +615,7 @@ export default function Home({
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
                   <p className="hb-eyebrow tracking-tight">
-                    SINCE {STORE.since} ({OPERATING_YEARS}년 운영) · 대전 중촌동 직영 매장
+                    SINCE {STORE.since} ({OPERATING_YEARS}년 운영) · {STORE.jibunAddress} 직영 매장
                   </p>
 
                   <h1
@@ -768,7 +775,11 @@ export default function Home({
             products={featuredProducts}
             loading={productsLoading}
             error={productsError}
-            onRetry={loadFeaturedProducts}
+            onRetry={() => {
+              setProductsLoading(true);
+              setProductsError(false);
+              void loadFeaturedProducts();
+            }}
             selectedCategory={selectedCategory}
             onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
           />
@@ -912,9 +923,8 @@ export default function Home({
         >
           <div className="hb-container">
             <SectionHeading
-              eyebrow="오프라인 매장 · 직배송 안내"
-              title={<span id="cta-title" className="[text-wrap:balance]">오프라인 매장 오시는 길 및 실시간 문의</span>}
-              desc="대전·세종·충청권 직배송 지원 및 중촌동 매장 실물 확인·현장 상차가 가능합니다."
+              title={<span id="cta-title" className="[text-wrap:balance]">오프라인 매장 오시는 길 및 1:1 문의</span>}
+              desc="대전·세종·충청권 직배송 지원 및 매장 실물 확인·현장 상차가 가능합니다."
             />
 
             <div className="mt-5 grid gap-5 lg:grid-cols-12 items-stretch">
@@ -926,7 +936,7 @@ export default function Home({
               >
                 <div className="relative h-[200px] sm:h-[225px] w-full bg-[#F1F3F6]">
                   <iframe
-                    title="한밭중고전자 매장 위치 지도"
+                    title={`${STORE.name} 매장 위치 지도`}
                     src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
@@ -939,12 +949,9 @@ export default function Home({
                   {/* 상단 주소 및 주소 복사 */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
                     <div className="min-w-0">
-                      <span className="text-hb-xs font-bold text-[#E8521A]">
-                        대전 중촌동 오프라인 매장
-                      </span>
                       <h3
                         id="location-title"
-                        className="mt-0.5 text-hb-base sm:text-hb-lg font-bold text-[#141A23] break-keep [text-wrap:balance]"
+                        className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] break-keep [text-wrap:balance]"
                       >
                         {STORE.roadAddress}
                       </h3>
@@ -963,23 +970,13 @@ export default function Home({
                     </button>
                   </div>
 
-                  {/* 쇼룸 방문 3대 핵심 요약 (슬림 인라인 스트립) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-3 border-t border-[#E2E6EC] text-hb-xs">
-                    <div className="rounded-lg bg-[#F7F8FA] px-3 py-2">
-                      <span className="font-bold text-[#0F766E] block">전용 주차 8대</span>
-                      <span className="text-[#64748B]">1톤 화물 진입 수월</span>
-                    </div>
-                    <div className="rounded-lg bg-[#F7F8FA] px-3 py-2">
-                      <span className="font-bold text-[#0369A1] block">현장 전원 점검</span>
-                      <span className="text-[#64748B]">확인 후 당일 상차</span>
-                    </div>
-                    <div className="rounded-lg bg-[#F7F8FA] px-3 py-2">
-                      <span className="font-bold text-[#E8521A] block">중촌고가교 밑</span>
-                      <span className="text-[#64748B]">버스정류장 도보 2분</span>
-                    </div>
-                  </div>
+                  {/* 쇼룸 방문 핵심 요약 */}
+                  <p className="pt-3 border-t border-[#E2E6EC] text-hb-xs text-[#475569] leading-relaxed">
+                    <strong className="font-semibold text-[#141A23]">전용 주차 8대</strong>(1톤 화물 진입 수월) ·{" "}
+                    <strong className="font-semibold text-[#141A23]">현장 전원 점검</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
+                  </p>
 
-                  {/* 지도 앱 길찾기 (차분한 2버튼 통합) */}
+                  {/* 지도 앱 길찾기 */}
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <a
                       href={STORE.naverMap}
@@ -987,23 +984,21 @@ export default function Home({
                       rel="noopener noreferrer"
                       className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold"
                     >
-                      <span className="inline-block w-2 h-2 rounded-full bg-[#03C75A]" />
                       <span>네이버 지도 길찾기</span>
                     </a>
                     <a
-                      href="https://map.kakao.com/link/to/한밭중고전자,36.335503,127.406981"
+                      href={STORE_NAVIGATION.kakaoTo}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold"
                     >
-                      <span className="inline-block w-2 h-2 rounded-full bg-[#F5C400]" />
                       <span>카카오맵 길찾기</span>
                     </a>
                   </div>
                 </div>
               </div>
 
-              {/* 우측 (5열): 실시간 접수 문의 현황 + 빠른 상담 연결 바 */}
+              {/* 우측 (5열): 최근 접수 문의 현황 + 빠른 상담 연결 바 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between space-y-3.5">
                 <div className="rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 flex-1 flex flex-col justify-between shadow-2xs">
                   <div>
@@ -1022,7 +1017,7 @@ export default function Home({
                     {recent.length === 0 ? (
                       <div className="py-3.5 text-hb-xs text-[#334155] space-y-1.5">
                         <p className="font-bold text-[#141A23]">
-                          비밀번호로 보호되는 실시간 1:1 견적 게시판입니다.
+                          비밀번호로 보호되는 1:1 비공개 견적 게시판입니다.
                         </p>
                         <p className="text-[#64748B] leading-relaxed break-keep">
                           가전 구매 재고 확인, 방문 매입, 식당·카페 업소용 묶음 견적을 남겨주시면 신속히 안내해 드립니다.
@@ -1032,7 +1027,8 @@ export default function Home({
                       <ul className="divide-y divide-[#E2E6EC]">
                         {recent.slice(0, 4).map((r) => {
                           const isDone =
-                            r.status === "답변완료" || r.status === "처리완료";
+                            r.status === INQUIRY_STATUS.ANSWERED ||
+                            r.status === INQUIRY_STATUS.COMPLETED;
                           const cleanCategory = (r.category || "상담 문의").replace(
                             /^\[[^\]]+\]\s*/,
                             ""
@@ -1064,7 +1060,7 @@ export default function Home({
                                       : "bg-[#FFF4EE] text-[#E8521A] border border-[#E8521A]/20"
                                   }`}
                                 >
-                                  {r.status ?? "접수중"}
+                                  {r.status ?? INQUIRY_STATUS.RECEIVED}
                                 </span>
                               </div>
                             </li>
@@ -1148,9 +1144,8 @@ export default function Home({
           <div className="hb-container">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#E2E6EC]">
               <SectionHeading
-                eyebrow="직영 시공 기록"
                 title={<span id="review-title" className="[text-wrap:balance]">직영 배송 · 설치 현장 기록</span>}
-                desc="가정집부터 식당·카페·사무실까지 한밭중고전자가 직접 배송·설치한 현장 사진입니다."
+                desc={`가정집부터 식당·카페·사무실까지 ${STORE.name}가 직접 배송·설치한 현장 사진입니다.`}
               />
               <div className="flex items-center gap-3 shrink-0">
                 {reviews.length > 0 && (
@@ -1351,13 +1346,12 @@ export default function Home({
           <div className="hb-container">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between pb-5 border-b border-[#E2E6EC]">
               <SectionHeading
-                eyebrow="구매 전 안심 안내"
                 title={
                   <span id="faq-title" className="[text-wrap:balance]">
                     자주 묻는 질문 · 직영 매장 비교
                   </span>
                 }
-                desc="A/S 보증·배송·설치 안내와 개인 직거래 대비 차이를 한 화면에서 전환해 확인하세요."
+                desc="A/S 보증·배송·설치 안내와 개인 직거래 대비 차이를 확인해 보세요."
               />
 
               <div
@@ -1678,7 +1672,6 @@ export default function Home({
       <AdminLoginModal
         open={loginOpen}
         onClose={() => setLoginOpen(false)}
-        onSuccess={() => setIsAdmin(true)}
       />
 
       {/* ── 배송·설치 인증사진 등록 모달 (관리자) ── */}
@@ -1711,7 +1704,7 @@ export default function Home({
                 제목
               </label>
               {isAnalyzingReview && (
-                <span className="text-hb-xs font-semibold text-[#E8521A] animate-pulse">
+                <span className="text-hb-xs font-semibold text-[#E8521A]">
                   AI 제목 초안 생성 중...
                 </span>
               )}

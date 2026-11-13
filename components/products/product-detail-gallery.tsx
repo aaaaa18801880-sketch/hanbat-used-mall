@@ -4,17 +4,16 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
+import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
 import {
   addRecentViewedProduct,
+  buildProductInquiryHref,
   buildProductInquirySmsBody,
   generatePromoPostText,
-  getQuoteBasket,
   isProductSold,
-  QUOTE_BASKET_EVENT,
   smsHref,
   STORE,
   telHref,
@@ -63,8 +62,7 @@ export function ProductDetailGallery({
     });
 
     // 상세 페이지 직접 유입 및 조회수 집계 (sessionStorage "viewed_products" JSON 배열 기준 1회 집계)
-    if (typeof window !== "undefined") {
-      try {
+    try {
         const raw = sessionStorage.getItem("viewed_products");
         const list: string[] = raw ? JSON.parse(raw) : [];
         if (!list.includes(String(id))) {
@@ -96,7 +94,6 @@ export function ProductDetailGallery({
           });
         }
       } catch {}
-    }
   }, [id, title, category, price, status, conditionGrade, modelName, images]);
 
   const go = useCallback(
@@ -348,9 +345,6 @@ export function CopyProductLinkButton({
   );
 }
 
-/**
- * [신규 기능] 상품 상세 페이지에서 견적함에 담기/빼기 토글 버튼
- */
 export function QuoteBasketButton({
   item,
   className = "",
@@ -360,20 +354,7 @@ export function QuoteBasketButton({
   className?: string;
   compact?: boolean;
 }) {
-  const [inBasket, setInBasket] = useState(false);
-
-  useEffect(() => {
-    const sync = () => {
-      setInBasket(getQuoteBasket().some((x) => x.id === item.id));
-    };
-    sync();
-    window.addEventListener(QUOTE_BASKET_EVENT, sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener(QUOTE_BASKET_EVENT, sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, [item.id]);
+  const inBasket = useQuoteBasket().some((x) => x.id === item.id);
 
   const handleToggle = () => {
     const res = toggleQuoteBasketItem(item);
@@ -521,19 +502,13 @@ export function InteractiveChecklistAndCta({
   modelName: string | null;
   firstImageUrl: string | null;
 }) {
-  const inquiryParams = new URLSearchParams({
-    write: "1",
-    type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
-    productId: String(product.id),
-    title: sold
-      ? `[유사매물 재고문의] [${categoryLabel}] ${product.title}`
-      : `[상품문의] [${categoryLabel}] ${product.title}`,
+  const inquiryHref = buildProductInquiryHref({
+    productId: product.id,
+    title: product.title,
     category: categoryLabel,
+    sold,
+    modelName,
   });
-  if (modelName) {
-    inquiryParams.set("model", modelName);
-  }
-  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
   const smsBody = buildProductInquirySmsBody({
     id: product.id,
@@ -577,7 +552,7 @@ export function InteractiveChecklistAndCta({
               </span>
             </div>
             <p className="text-hb-xs text-white/85 font-medium leading-none mt-1 truncate">
-              실시간 재고 확인 · 빠른 방문/배송 상담 (터치 즉시 연결)
+              재고 확인 · 방문 및 배송 상담
             </p>
           </div>
         </div>
@@ -592,7 +567,7 @@ export function InteractiveChecklistAndCta({
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
-        aria-label={`${STORE.name} 카카오톡 1:1 실시간 상담창 열기 (새 창)`}
+        aria-label={`${STORE.name} 카카오톡 1:1 상담창 열기 (새 창)`}
         className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -659,7 +634,7 @@ export function InteractiveChecklistAndCta({
           </Link>
         </div>
 
-        {/* 4순위: [EVO-015] 직영 매장 방문 실물 확인 & 1초 내비 길찾기 (독 하단 소프트 바) */}
+        {/* 4순위: 직영 매장 방문 확인 · 길찾기 */}
         <button
           type="button"
           onClick={() => {
@@ -673,10 +648,10 @@ export function InteractiveChecklistAndCta({
         >
           <div className="flex items-center gap-2 min-w-0">
             <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
-            <span className="truncate">대전 중촌동 직영 매장 실물 확인 · 1초 길찾기</span>
+            <span className="truncate">{STORE.jibunAddress} 직영 매장 방문 · 길찾기</span>
           </div>
           <span className="text-hb-xs font-bold text-[#E8521A] shrink-0 ml-1">
-            실물 찜 →
+            예약 · 길찾기 →
           </span>
         </button>
       </div>
