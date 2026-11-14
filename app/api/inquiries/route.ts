@@ -1,7 +1,6 @@
 // 파일 경로: app/api/inquiries/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import {
-  extractInquiryImages,
   getInquiryTypeLabel,
   INQUIRY_TYPES,
   isValidPhone,
@@ -21,19 +20,12 @@ import {
   verifyAdminRequest,
   verifySameOriginRequest,
 } from "../../../lib/server-security";
-import {
-  sanitizeInquiryImageUrls,
-  signInquiryImageLists,
-} from "../../../lib/inquiry-attachments";
+import { sanitizeInquiryImageUrls } from "../../../lib/inquiry-attachments";
 import {
   postTelegramInquiryMessage,
   TELEGRAM_DEDUP_WINDOW_MS,
 } from "../../../lib/server-notifications";
-import {
-  SAFE_INQUIRY_SELECT_COLUMNS,
-  toInquiryListItem,
-  type RawInquiryRow,
-} from "../../../lib/server-inquiries";
+import { fetchSanitizedInquiryList } from "../../../lib/server-inquiries";
 
 export const runtime = "nodejs";
 
@@ -48,40 +40,21 @@ export async function GET(req: NextRequest) {
       limitParam > 0 && limitParam <= 300 ? limitParam : 200;
 
     // [SEC-005] 관리자는 본인 JWT(Anon Client)로 조회하고, 비관리자 공개 게시판 마스킹 목록은 서버 전용 클라이언트로 조회
-    const supabase = isAdmin
-      ? createAnonServerClient(adminCheck.accessToken)
-      : createServiceRoleClient();
-    const { data, error } = await supabase
-      .from("purchase_requests")
-      .select(SAFE_INQUIRY_SELECT_COLUMNS)
-      .order("created_at", { ascending: false })
-      .limit(effectiveLimit);
+    const { inquiries, error } = await fetchSanitizedInquiryList({
+      isAdmin,
+      limit: effectiveLimit,
+      accessToken: adminCheck.accessToken,
+    });
 
     if (error) {
-      console.error("문의 목록 조회 오류:", error.message);
       return NextResponse.json(
         { error: "문의 목록을 불러오지 못했습니다." },
         { status: 500 }
       );
     }
 
-    const rows = (data ?? []) as RawInquiryRow[];
-    const rawImageLists = rows.map((row) => extractInquiryImages(row));
-    const signTargetLists = rows.map((row, idx) =>
-      isAdmin || Boolean(row.is_notice) ? rawImageLists[idx] : []
-    );
-    const imageLists = await signInquiryImageLists(supabase, signTargetLists);
-
-    const sanitized = rows.map((row, index) =>
-      toInquiryListItem(row, {
-        isAdmin,
-        images: imageLists[index],
-        hasImages: rawImageLists[index].length > 0,
-      })
-    );
-
     return NextResponse.json(
-      { inquiries: sanitized, isAdmin },
+      { inquiries, isAdmin },
       {
         headers: {
           "Cache-Control": "no-store, private",

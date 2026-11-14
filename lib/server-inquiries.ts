@@ -1,4 +1,11 @@
-import { getInquiryTypeLabel, maskName, STORE } from "./site";
+import {
+  extractInquiryImages,
+  getInquiryTypeLabel,
+  maskName,
+  STORE,
+} from "./site";
+import { createAnonServerClient, createServiceRoleClient } from "./supabase";
+import { signInquiryImageLists } from "./inquiry-attachments";
 
 export const SAFE_INQUIRY_SELECT_COLUMNS =
   "id, name, phone, inquiry_type, category, model, condition_grade, region, description, images, image_url, is_notice, status, admin_reply, created_at";
@@ -118,4 +125,92 @@ export function toInquiryDetailItem(
   return options.images !== undefined
     ? { ...base, images: options.images }
     : base;
+}
+
+export interface SanitizedInquiryListItem {
+  id: number | string;
+  name: string;
+  masked_name: string;
+  phone: string | null;
+  inquiry_type: string;
+  category: string;
+  model?: string | null;
+  condition_grade?: string | null;
+  region?: string | null;
+  description: string | null;
+  images: string[];
+  has_images: boolean;
+  is_notice: boolean;
+  status: string;
+  admin_reply: string | null;
+  created_at: string | null | undefined;
+}
+
+/**
+ * 문의 게시판(공개 마스킹 / 관리자 전체) 목록 조회·서명 URL 발급 공용 서버 로더
+ */
+export async function fetchSanitizedInquiryList(options: {
+  isAdmin: boolean;
+  limit?: number;
+  accessToken?: string;
+}): Promise<{
+  inquiries: SanitizedInquiryListItem[];
+  error: { message: string } | null;
+}> {
+  const effectiveLimit =
+    options.limit && options.limit > 0 && options.limit <= 300
+      ? options.limit
+      : 200;
+
+  const supabase = options.isAdmin
+    ? createAnonServerClient(options.accessToken)
+    : createServiceRoleClient();
+
+  const { data, error } = await supabase
+    .from("purchase_requests")
+    .select(SAFE_INQUIRY_SELECT_COLUMNS)
+    .order("created_at", { ascending: false })
+    .limit(effectiveLimit);
+
+  if (error) {
+    console.error("문의 목록 조회 오류:", error.message);
+    return { inquiries: [], error: { message: error.message } };
+  }
+
+  const rows = (data ?? []) as RawInquiryRow[];
+  const rawImageLists = rows.map((row) => extractInquiryImages(row));
+  const signTargetLists = rows.map((row, idx) =>
+    options.isAdmin || Boolean(row.is_notice) ? rawImageLists[idx] : []
+  );
+  const imageLists = await signInquiryImageLists(supabase, signTargetLists);
+
+  const sanitized = rows.map((row, index) =>
+    toInquiryListItem(row, {
+      isAdmin: options.isAdmin,
+      images: imageLists[index],
+      hasImages: rawImageLists[index].length > 0,
+    })
+  ) as SanitizedInquiryListItem[];
+
+  return { inquiries: sanitized, error: null };
+}
+
+/**
+ * SSR(/inquiry) 초기 렌더링용 안전 공개 문의 목록 로더
+ */
+export async function fetchInitialPublicInquiries(
+  limit = 200
+): Promise<{ inquiries: SanitizedInquiryListItem[]; loaded: boolean }> {
+  try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      return { inquiries: [], loaded: false };
+    }
+    const { inquiries, error } = await fetchSanitizedInquiryList({
+      isAdmin: false,
+      limit,
+    });
+    return { inquiries, loaded: !error };
+  } catch {
+    return { inquiries: [], loaded: false };
+  }
 }

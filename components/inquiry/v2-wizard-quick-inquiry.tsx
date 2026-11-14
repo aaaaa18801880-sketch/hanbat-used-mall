@@ -20,15 +20,17 @@ import {
   STORE,
   trackEvent,
   type InquiryTypeValue,
-  validateImageFiles,
 } from "../../lib/site";
 import { compressAndUploadProductImages } from "../../lib/product-ops";
-import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
+import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
 import {
   analyzeInquiryPhotos,
   dispatchTelegramFallback,
   INQUIRY_PHOTO_GUIDES,
+  postInquirySubmission,
+  prepareInquiryFileAdditions,
 } from "../../lib/inquiry-client";
+import { InquiryPhotoGuideModal } from "./inquiry-photo-guide-modal";
 import { type LinkedProductContext } from "./unified-inquiry-form";
 
 const WIZARD_ENV_CHIPS: Record<InquiryTypeValue, readonly string[]> = {
@@ -219,23 +221,15 @@ export function V2InquirySectionWithWizard({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!picked.length) return;
-
-    const remaining = MAX_PHOTOS - selectedFiles.length;
-    if (remaining <= 0) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 첨부할 수 있습니다.`);
-      return;
-    }
-
-    const { ok, error } = validateImageFiles(picked, remaining);
+    const { files: ok, previews, error } = prepareInquiryFileAdditions(
+      picked,
+      selectedFiles.length
+    );
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
     setSelectedFiles((prev) => [...prev, ...ok]);
-    setFilePreviews((prev) => [
-      ...prev,
-      ...ok.map((f) => URL.createObjectURL(f)),
-    ]);
+    setFilePreviews((prev) => [...prev, ...previews]);
   };
 
   const handleRemoveFile = (index: number) => {
@@ -377,10 +371,8 @@ export function V2InquirySectionWithWizard({
           : null,
       });
 
-      const res = await fetch("/api/inquiries", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const resJson = await postInquirySubmission({
+        payload: {
           name: name.trim(),
           phone: phone.trim(),
           password: password.trim(),
@@ -392,13 +384,9 @@ export function V2InquirySectionWithWizard({
           condition_grade: aiResult?.conditionGrade || null,
           images: uploadedUrls,
           is_notice: false,
-        }),
+        },
+        fallbackError: "접수 중 오류가 발생했습니다.",
       });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "접수 중 오류가 발생했습니다.");
-      }
 
       trackEvent("submit_inquiry_success", {
         inquiry_type: inquiryType,
@@ -411,8 +399,8 @@ export function V2InquirySectionWithWizard({
       }
 
       // 텔레그램 알림 클라이언트 폴백 (서버 즉시 알림 미도달 시)
-      const newId = json.inquiryId || null;
-      if (!json.telegramNotified && newId) {
+      const newId = resJson.inquiryId;
+      if (!resJson.telegramNotified && newId) {
         dispatchTelegramFallback({
           inquiryId: newId,
           name: name.trim(),
@@ -1017,42 +1005,12 @@ export function V2InquirySectionWithWizard({
         )}
       </form>
 
-      {zoomGuide && (
-        <Modal
-          label="권장 촬영 참고 사진 가이드"
-          onClose={() => setZoomGuide(false)}
-          panelClassName="max-w-3xl w-full"
-        >
-          <div className="overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-[#E2E6EC] px-5 py-3.5 bg-[#141A23] text-white">
-              <div className="flex items-center gap-2">
-                <Icon d={ICON.camera} className="w-4 h-4 text-[#E8521A]" />
-                <h3 className="text-hb-sm font-bold text-white">
-                  권장 촬영 참고 사진 가이드
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setZoomGuide(false)}
-                aria-label="닫기"
-                className="rounded p-1 text-white/80 hover:bg-white/10 hover:text-white"
-              >
-                <Icon d={ICON.close} className="h-5 w-5" />
-              </button>
-            </div>
-            <div className="max-h-[80vh] overflow-y-auto bg-[#F7F8FA] p-4 flex flex-col items-center gap-3">
-              <SafeImg
-                src={guideInfo.image}
-                alt="권장 촬영 참고 사진 가이드 원본"
-                className="max-h-[65vh] w-auto object-contain rounded-lg border border-[#E2E6EC] bg-white shadow-xs"
-              />
-              <p className="text-hb-xs text-[#64748B] text-center max-w-lg leading-relaxed">
-                {guideInfo.tip}
-              </p>
-            </div>
-          </div>
-        </Modal>
-      )}
+      <InquiryPhotoGuideModal
+        open={zoomGuide}
+        onClose={() => setZoomGuide(false)}
+        imageSrc={guideInfo.image}
+        tip={guideInfo.tip}
+      />
     </div>
   );
 }

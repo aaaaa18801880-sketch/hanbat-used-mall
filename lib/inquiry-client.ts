@@ -1,6 +1,7 @@
 import {
   compressImage,
   MAX_PHOTOS,
+  validateImageFiles,
   type AnalyzeInquiryResponse,
   type InquiryTypeValue,
 } from "./site";
@@ -181,4 +182,68 @@ export function dispatchTelegramFallback(payload: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   }).catch(() => {});
+}
+
+/**
+ * Validate newly picked photo files against remaining slots and generate preview Object URLs.
+ */
+export function prepareInquiryFileAdditions(
+  picked: File[],
+  currentCount: number
+): { files: File[]; previews: string[]; error?: string } {
+  if (!picked.length) return { files: [], previews: [] };
+  const remaining = MAX_PHOTOS - currentCount;
+  if (remaining <= 0) {
+    return {
+      files: [],
+      previews: [],
+      error: `사진은 최대 ${MAX_PHOTOS}장까지 첨부할 수 있습니다.`,
+    };
+  }
+  const { ok, error } = validateImageFiles(picked, remaining);
+  return {
+    files: ok,
+    previews: ok.map((f) => URL.createObjectURL(f)),
+    error: error || undefined,
+  };
+}
+
+/**
+ * Submit an inquiry payload to POST /api/inquiries and return normalized confirmation fields.
+ */
+export async function postInquirySubmission(params: {
+  payload: Record<string, unknown>;
+  headers?: Record<string, string>;
+  fallbackError?: string;
+}): Promise<{
+  inquiryId: string | null;
+  telegramNotified: boolean;
+  createdAt?: string;
+}> {
+  const res = await fetch("/api/inquiries", {
+    method: "POST",
+    headers: { ...(params.headers ?? {}), "Content-Type": "application/json" },
+    body: JSON.stringify(params.payload),
+  });
+
+  const resJson = (await res.json().catch(() => ({}))) as {
+    success?: boolean;
+    error?: string;
+    inquiryId?: string | number | null;
+    telegramNotified?: boolean;
+    createdAt?: string;
+  };
+  if (!res.ok || !resJson.success) {
+    throw new Error(
+      resJson.error ||
+        params.fallbackError ||
+        "문의 접수 저장에 실패했습니다. 잠시 후 다시 시도해 주세요."
+    );
+  }
+
+  return {
+    inquiryId: resJson.inquiryId ? String(resJson.inquiryId) : null,
+    telegramNotified: Boolean(resJson.telegramNotified),
+    createdAt: resJson.createdAt,
+  };
 }

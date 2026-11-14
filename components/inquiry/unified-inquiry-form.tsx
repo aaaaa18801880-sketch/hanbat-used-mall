@@ -29,7 +29,6 @@ import {
   STORAGE_BUCKETS,
   STORE,
   trackEvent,
-  validateImageFiles,
   revokeObjectUrls,
 } from "../../lib/site";
 import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
@@ -37,6 +36,8 @@ import {
   analyzeInquiryPhotos,
   dispatchTelegramFallback,
   INQUIRY_PHOTO_GUIDES,
+  postInquirySubmission,
+  prepareInquiryFileAdditions,
 } from "../../lib/inquiry-client";
 import { AirconSetGuideBanner } from "../products/aircon-set-guide-banner";
 
@@ -267,23 +268,15 @@ export function UnifiedInquiryForm({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
     e.target.value = "";
-    if (!picked.length) return;
-
-    const remaining = MAX_PHOTOS - selectedFiles.length;
-    if (remaining <= 0) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 첨부할 수 있습니다.`);
-      return;
-    }
-
-    const { ok, error } = validateImageFiles(picked, remaining);
+    const { files: ok, previews, error } = prepareInquiryFileAdditions(
+      picked,
+      selectedFiles.length
+    );
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
     setSelectedFiles((prev) => [...prev, ...ok]);
-    setFilePreviews((prev) => [
-      ...prev,
-      ...ok.map((f) => URL.createObjectURL(f)),
-    ]);
+    setFilePreviews((prev) => [...prev, ...previews]);
     setCachedUploadedUrls(null);
   };
 
@@ -618,10 +611,9 @@ export function UnifiedInquiryForm({
           : title.trim();
 
       const authHeaders = isNotice ? await getAdminAuthHeaders() : {};
-      const res = await fetch("/api/inquiries", {
-        method: "POST",
-        headers: { ...authHeaders, "Content-Type": "application/json" },
-        body: JSON.stringify({
+      const resJson = await postInquirySubmission({
+        headers: authHeaders,
+        payload: {
           name: isNotice ? name.trim() || STORE.name : name.trim(),
           phone: isNotice ? phone.trim() || STORE.tel : phone,
           password: isNotice ? "0000" : password.trim(),
@@ -634,16 +626,8 @@ export function UnifiedInquiryForm({
           description: structuredDescription,
           images: uploadedUrls,
           is_notice: isNotice,
-        }),
+        },
       });
-
-      const resJson = await res.json().catch(() => ({}));
-      if (!res.ok || !resJson.success) {
-        throw new Error(
-          resJson.error ||
-            "문의 접수 저장에 실패했습니다. 잠시 후 다시 시도해 주세요."
-        );
-      }
 
       const newId = resJson.inquiryId || null;
       setCreatedInquiryId(newId);

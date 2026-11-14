@@ -1,0 +1,1372 @@
+"use client";
+
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import Link from "next/link";
+import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
+import { useIsAdminSession } from "../../lib/use-admin-session";
+import toast from "react-hot-toast";
+import {
+  STORE,
+  telHref,
+  maskName,
+  isSellInquiry,
+  isBuyInquiry,
+  isBulkBizInquiry,
+  getInquiryTypeLabel,
+  INQUIRY_ADMIN_STATUS_OPTIONS,
+  type InquiryTypeValue,
+} from "../../lib/site";
+import {
+  INQUIRY_REPLY_TEMPLATES,
+  StructuredInquiryCard,
+} from "./structured-inquiry-card";
+import {
+  Icon,
+  ICON,
+  SafeImg,
+  Modal,
+  SiteHeader,
+  SiteFooter,
+  MobileCtaBar,
+  AdminLoginModal,
+} from "../../lib/ui";
+import {
+  UnifiedInquiryForm,
+  type LinkedProductContext,
+} from "./unified-inquiry-form";
+
+export interface Inquiry {
+  id: string;
+  name: string | null;
+  masked_name?: string;
+  phone: string | null;
+  inquiry_type: string | null;
+  category: string | null;
+  model?: string | null;
+  condition_grade?: string | null;
+  region?: string | null;
+  description: string | null;
+  images: string[] | null;
+  has_images?: boolean;
+  is_notice: boolean | null;
+  status: string | null;
+  admin_reply: string | null;
+  created_at: string | null | undefined;
+}
+
+const ITEMS_PER_PAGE = 10;
+const TABS = [
+  "전체",
+  "구매 문의",
+  "내 물건 팔기",
+  "대량·업소용 상담",
+  "기타 문의",
+] as const;
+type Tab = (typeof TABS)[number];
+
+const typeStyle = (t?: string | null) =>
+  isSellInquiry(t)
+    ? "bg-[#FFF4EE] text-[#E8521A]"
+    : isBulkBizInquiry(t)
+    ? "bg-amber-100 text-amber-900"
+    : isBuyInquiry(t)
+    ? "bg-[#F1F3F6] text-[#141A23]"
+    : "bg-[#F7F8FA] text-[#334155]";
+
+const formatDate = (dateStr?: string | null) => {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return d.getFullYear() === new Date().getFullYear()
+    ? `${mm}-${dd}`
+    : `${String(d.getFullYear()).slice(2)}-${mm}-${dd}`;
+};
+
+function StatusBadge({
+  status,
+  notice,
+}: {
+  status: string | null;
+  notice?: boolean;
+}) {
+  if (notice) return <span className="text-neutral-400">-</span>;
+  const s = status || "접수";
+  const matched = INQUIRY_ADMIN_STATUS_OPTIONS.find((o) => o.value === s);
+  return (
+    <span
+      className={`inline-block px-2.5 py-1 rounded-[4px] text-hb-xs font-bold whitespace-nowrap ${
+        matched ? matched.badgeClass : "bg-[#F1F3F6] text-[#334155]"
+      }`}
+    >
+      {s}
+    </span>
+  );
+}
+
+function pageWindow(current: number, total: number) {
+  const pages: (number | "…")[] = [];
+  for (let p = 1; p <= total; p++) {
+    if (p === 1 || p === total || Math.abs(p - current) <= 1) pages.push(p);
+    else if (pages[pages.length - 1] !== "…") pages.push("…");
+  }
+  return pages;
+}
+
+export function InquiryBoardClient({
+  initialInquiries = [],
+  initialLoaded = false,
+}: {
+  initialInquiries?: Inquiry[];
+  initialLoaded?: boolean;
+}) {
+  const [inquiries, setInquiries] = useState<Inquiry[]>(initialInquiries);
+  const [isLoading, setIsLoading] = useState(!initialLoaded);
+  const [loadError, setLoadError] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>("전체");
+  const [keyword, setKeyword] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const isAdmin = useIsAdminSession();
+
+  /* 글쓰기 모달 및 상품 상세 연동 프리필 상태 */
+  const [isWriteOpen, setIsWriteOpen] = useState(false);
+  const [writeDefaultType, setWriteDefaultType] =
+    useState<InquiryTypeValue>("내 물건 팔기");
+  const [linkedProduct, setLinkedProduct] =
+    useState<LinkedProductContext | null>(null);
+
+  /* 상세 / 비밀번호 검증 / 수정 */
+  const [selectedItem, setSelectedItem] = useState<Inquiry | null>(null);
+  const [verifiedPassword, setVerifiedPassword] = useState("");
+  const [isPwModalOpen, setIsPwModalOpen] = useState(false);
+  const [isVerifyingPw, setIsVerifyingPw] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [inputPw, setInputPw] = useState("");
+  const [showVerifyPassword, setShowVerifyPassword] = useState(false);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editContent, setEditContent] = useState("");
+  const [editInquiryType, setEditInquiryType] = useState("");
+  const [editUpdating, setEditUpdating] = useState(false);
+
+  /* 관리자 */
+  const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
+  const [replyContent, setReplyContent] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError(false);
+    try {
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch("/api/inquiries", { headers });
+      if (!res.ok) throw new Error("목록 조회 실패");
+      const json = await res.json();
+      setInquiries((json.inquiries || []) as Inquiry[]);
+    } catch (error) {
+      console.error(error);
+      setLoadError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const wasAdminRef = React.useRef(isAdmin);
+
+  useEffect(() => {
+    const adminChanged = wasAdminRef.current !== isAdmin;
+    wasAdminRef.current = isAdmin;
+    if (!adminChanged && initialLoaded && !isAdmin) return;
+    let active = true;
+    void (async () => {
+      try {
+        const headers = await getAdminAuthHeaders();
+        const res = await fetch("/api/inquiries", { headers });
+        if (!res.ok) throw new Error("목록 조회 실패");
+        const json = await res.json();
+        if (active) {
+          setInquiries((json.inquiries || []) as Inquiry[]);
+          setLoadError(false);
+        }
+      } catch (error) {
+        console.error(error);
+        if (active) setLoadError(true);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [isAdmin, initialLoaded]);
+
+  /* 상품 상세 페이지(/gallery 또는 /[id])에서 넘어온 쿼리 파라미터 자동 프리필 */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get("write") === "1" ||
+      params.get("bundle") === "1" ||
+      params.get("title")
+    ) {
+      queueMicrotask(() => {
+        const isBundle = params.get("bundle") === "1";
+        const rawType = params.get("type");
+        const qType =
+          rawType === "buy"
+            ? "구매 문의"
+            : rawType === "bulk"
+              ? "대량·업소용 상담"
+              : rawType === "sell"
+                ? "내 물건 팔기"
+                : rawType === "other"
+                  ? "기타 문의"
+                  : rawType;
+        const qTitle = params.get("title") || "";
+        const qModel = params.get("model") || "";
+        const qCategory = params.get("category") || "";
+        const qProductId = params.get("productId") || "";
+        const qEnvNote = params.get("envNote") || "";
+
+        if (
+          qType === "구매 문의" ||
+          qType === "내 물건 팔기" ||
+          qType === "대량·업소용 상담" ||
+          qType === "기타 문의"
+        ) {
+          setWriteDefaultType(qType);
+        } else if (isBundle) {
+          setWriteDefaultType("대량·업소용 상담");
+        } else if (qTitle || qProductId) {
+          setWriteDefaultType("구매 문의");
+        } else {
+          setWriteDefaultType("내 물건 팔기");
+        }
+
+        if (isBundle || qTitle || qModel || qProductId || qEnvNote) {
+          setLinkedProduct({
+            productId: qProductId || undefined,
+            productTitle: qTitle || undefined,
+            modelName: qModel || undefined,
+            category: qCategory || undefined,
+            useBundle: isBundle,
+            envNote: qEnvNote || undefined,
+          });
+        }
+        setIsWriteOpen(true);
+      });
+    }
+  }, []);
+
+
+  const noticeList = useMemo(
+    () => inquiries.filter((i) => i.is_notice),
+    [inquiries]
+  );
+  const regularList = useMemo(
+    () => inquiries.filter((i) => !i.is_notice),
+    [inquiries]
+  );
+
+  const tabCounts = useMemo(
+    () => ({
+      전체: regularList.length,
+      "구매 문의": regularList.filter((i) => isBuyInquiry(i.inquiry_type))
+        .length,
+      "내 물건 팔기": regularList.filter((i) => isSellInquiry(i.inquiry_type))
+        .length,
+      "대량·업소용 상담": regularList.filter((i) =>
+        isBulkBizInquiry(i.inquiry_type)
+      ).length,
+      "기타 문의": regularList.filter(
+        (i) =>
+          !isBuyInquiry(i.inquiry_type) &&
+          !isSellInquiry(i.inquiry_type) &&
+          !isBulkBizInquiry(i.inquiry_type)
+      ).length,
+    }),
+    [regularList]
+  );
+
+  const filteredList = useMemo(() => {
+    const q = keyword.trim().toLowerCase();
+    return regularList.filter((item) => {
+      const tabOk =
+        activeTab === "전체" ||
+        (activeTab === "구매 문의" && isBuyInquiry(item.inquiry_type)) ||
+        (activeTab === "내 물건 팔기" && isSellInquiry(item.inquiry_type)) ||
+        (activeTab === "대량·업소용 상담" &&
+          isBulkBizInquiry(item.inquiry_type)) ||
+        (activeTab === "기타 문의" &&
+          !isBuyInquiry(item.inquiry_type) &&
+          !isSellInquiry(item.inquiry_type) &&
+          !isBulkBizInquiry(item.inquiry_type));
+      return tabOk && (!q || (item.category || "").toLowerCase().includes(q));
+    });
+  }, [regularList, activeTab, keyword]);
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredList.length / ITEMS_PER_PAGE)
+  );
+  const safePage = Math.min(currentPage, totalPages);
+  const currentItems = filteredList.slice(
+    (safePage - 1) * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
+  );
+  const showNotices =
+    noticeList.length > 0 && !keyword.trim() && activeTab === "전체";
+
+  const goPage = (p: number) => {
+    setCurrentPage(p);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleOpenWrite = () => {
+    setLinkedProduct(null);
+    const nextDefaultType: InquiryTypeValue =
+      activeTab === "구매 문의" ||
+      activeTab === "내 물건 팔기" ||
+      activeTab === "대량·업소용 상담" ||
+      activeTab === "기타 문의"
+        ? activeTab
+        : "내 물건 팔기";
+    setWriteDefaultType(nextDefaultType);
+    setIsWriteOpen(true);
+  };
+
+  const handleItemClick = async (item: Inquiry) => {
+    setSelectedItem(item);
+    setInputPw("");
+    setVerifiedPassword("");
+    setShowVerifyPassword(false);
+
+    if (item.is_notice) {
+      setReplyContent(item.admin_reply || "");
+      setIsDetailOpen(true);
+      return;
+    }
+
+    if (isAdmin) {
+      try {
+        const headers = await getAdminAuthHeaders();
+        const res = await fetch(`/api/inquiries/${item.id}`, {
+          method: "POST",
+          headers: { ...headers, "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          setSelectedItem(json.inquiry);
+          setReplyContent(json.inquiry.admin_reply || "");
+          setIsDetailOpen(true);
+          return;
+        }
+      } catch {
+        // 폴백
+      }
+    }
+
+    setIsPwModalOpen(true);
+  };
+
+  const handleVerifyPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+    setIsVerifyingPw(true);
+    try {
+      const res = await fetch(`/api/inquiries/${selectedItem.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: inputPw.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.inquiry) {
+        toast.error(json.error || "비밀번호가 일치하지 않습니다.");
+        return;
+      }
+      setSelectedItem(json.inquiry);
+      setVerifiedPassword(inputPw.trim());
+      setReplyContent(json.inquiry.admin_reply || "");
+      setIsPwModalOpen(false);
+      setIsDetailOpen(true);
+    } catch {
+      toast.error("비밀번호 확인 중 오류가 발생했습니다.");
+    } finally {
+      setIsVerifyingPw(false);
+    }
+  };
+
+  const handleReplySubmit = async () => {
+    if (!selectedItem) return;
+    if (!replyContent.trim()) {
+      toast.error("답변 내용을 입력해 주세요.");
+      return;
+    }
+    setIsReplying(true);
+    try {
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch(`/api/inquiries/${selectedItem.id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "답변완료",
+          admin_reply: replyContent.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "답변 등록 실패");
+
+      toast.success("답변이 성공적으로 등록되었습니다.");
+      setSelectedItem({
+        ...selectedItem,
+        status: "답변완료",
+        admin_reply: replyContent.trim(),
+      });
+      await loadData();
+    } catch (error: unknown) {
+      toast.error(
+        "답변 등록 실패: " +
+          (error instanceof Error ? error.message : "알 수 없는 오류")
+      );
+    } finally {
+      setIsReplying(false);
+    }
+  };
+
+  const handleStatusUpdate = async (id: string, newStatus: string) => {
+    try {
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch(`/api/inquiries/${id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "상태 변경 실패");
+
+      setInquiries((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, status: newStatus } : i))
+      );
+      setSelectedItem((prev) =>
+        prev ? { ...prev, status: newStatus } : prev
+      );
+      toast.success(`진행 상태가 '${newStatus}'(으)로 변경되었습니다.`);
+    } catch (err: unknown) {
+      toast.error(
+        "상태 업데이트 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류")
+      );
+    }
+  };
+
+  const handleAdminLogout = async () => {
+    if (confirm("관리자 모드를 종료하시겠습니까?")) {
+      await supabase.auth.signOut();
+      toast.success("관리자 모드가 종료되었습니다.");
+    }
+  };
+
+  const handleOpenEdit = () => {
+    if (!selectedItem) return;
+    setEditTitle(selectedItem.category || "");
+    setEditContent(selectedItem.description || "");
+    setEditInquiryType(selectedItem.inquiry_type || "내 물건 팔기");
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedItem) return;
+    setEditUpdating(true);
+    const nextType = selectedItem.is_notice ? "공지사항" : editInquiryType;
+
+    try {
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch(`/api/inquiries/${selectedItem.id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          password: verifiedPassword,
+          category: editTitle.trim(),
+          description: editContent.trim(),
+          inquiry_type: nextType,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "수정 실패");
+
+      toast.success("성공적으로 수정되었습니다.");
+      setSelectedItem({
+        ...selectedItem,
+        category: editTitle.trim(),
+        description: editContent.trim(),
+        inquiry_type: nextType,
+      });
+      setIsEditOpen(false);
+      loadData();
+    } catch (err: unknown) {
+      toast.error(
+        "수정 실패: " +
+          (err instanceof Error ? err.message : "알 수 없는 오류")
+      );
+    } finally {
+      setEditUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!selectedItem) return;
+    if (!confirm("정말 이 글을 삭제하시겠습니까? (복구 불가능)")) return;
+    const id = selectedItem.id;
+    try {
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch(`/api/inquiries/${id}`, {
+        method: "DELETE",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ password: verifiedPassword }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "삭제 실패");
+
+      setInquiries((prev) => prev.filter((i) => i.id !== id));
+      setIsDetailOpen(false);
+      toast.success("삭제했습니다.");
+    } catch (err: unknown) {
+      toast.error(
+        (err instanceof Error && err.message) || "삭제하지 못했습니다."
+      );
+      loadData();
+    }
+  };
+
+  const canManage = !!selectedItem && (isAdmin || !selectedItem.is_notice);
+  const rowTitle = (item: Inquiry) => item.category || "문의드립니다.";
+  const hasImages = (item: Inquiry) =>
+    Boolean(item.has_images || (item.images && item.images.length > 0));
+
+  return (
+    <div className="min-h-screen bg-[#F7F8FA] text-[#141A23] font-sans flex flex-col">
+      <SiteHeader>
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className="hidden sm:inline-flex items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23]"
+          >
+            통합 관리자 대시보드
+          </Link>
+        )}
+        <button
+          type="button"
+          onClick={handleOpenWrite}
+          className="hb-btn-primary h-10 sm:h-11 px-4 text-hb-sm whitespace-nowrap"
+        >
+          문의 글쓰기
+        </button>
+      </SiteHeader>
+
+      {/* 상단 게시판 헤더 */}
+      <section className="bg-[#F7F8FA] border-b border-[#E2E6EC]">
+        <div className="hb-container py-9 sm:py-12">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+            <div>
+              <div className="inline-flex items-center gap-2 mb-2">
+                <span className="hb-eyebrow">구매 · 매입 · 업소용 상담 게시판</span>
+                <span className="text-hb-xs text-[#E2E6EC]" aria-hidden="true">|</span>
+                <span className="text-hb-xs font-semibold text-[#64748B]">
+                  비밀번호 보호 안전 열람
+                </span>
+              </div>
+              <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2]">
+                고객 문의 · 매입 신청 게시판
+              </h1>
+              <p className="mt-2.5 text-hb-base text-[#334155] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
+                남겨주신 구매 상담과 매입 신청은 비밀번호로 안전하게 열람하실 수 있습니다.
+                <br className="hidden sm:inline" /> 빠른 상담이 필요하신 경우 직통 대표전화로 연락해 주세요.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleOpenWrite}
+                className="hb-btn-accent h-11 px-5 text-hb-sm"
+              >
+                <Icon d={ICON.plus} className="w-4 h-4" />
+                <span>문의 · 매입 신청 작성</span>
+              </button>
+              <a
+                href={telHref(STORE.tel)}
+                className="hb-btn-outline h-11 px-4 text-hb-sm tabular-nums"
+              >
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
+                <span>전화 {STORE.tel}</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main id="main-content" tabIndex={-1} className="hb-container py-7 sm:py-11 flex-1 w-full focus:outline-none">
+        {/* 필터 탭 및 제목 검색 바 */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-5">
+          <div
+            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0"
+            role="tablist"
+            aria-label="문의 구분 필터"
+          >
+            {TABS.map((tab) => {
+              const active = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    setCurrentPage(1);
+                  }}
+                  className={`px-3 sm:px-3.5 py-2 rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap border transition-colors shrink-0 ${
+                    active
+                      ? "bg-[#141A23] text-white border-[#141A23] shadow-2xs"
+                      : "bg-white text-[#334155] border-[#E2E6EC] hover:border-[#141A23]/40 hover:bg-[#F7F8FA]"
+                  }`}
+                >
+                  {tab}
+                  <span
+                    className={`ml-1.5 text-hb-xs tabular-nums ${
+                      active ? "text-[#FB923C]" : "text-[#64748B]"
+                    }`}
+                  >
+                    {tabCounts[tab] || 0}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="relative flex-1 md:flex-none">
+              <input
+                type="search"
+                value={keyword}
+                onChange={(e) => {
+                  setKeyword(e.target.value);
+                  setCurrentPage(1);
+                }}
+                placeholder="제목·품목 검색"
+                aria-label="제목 검색"
+                className="h-10 w-full md:w-[230px] rounded-lg border border-[#CBD2DC] bg-white px-3 pl-9 pr-8 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none">
+                <Icon d={ICON.search} className="w-4 h-4" />
+              </span>
+              {keyword.trim() !== "" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeyword("");
+                    setCurrentPage(1);
+                  }}
+                  aria-label="검색어 지우기"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#141A23]"
+                >
+                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleOpenWrite}
+              className="hb-btn-primary h-10 px-4 text-hb-sm whitespace-nowrap"
+            >
+              <Icon d={ICON.plus} className="w-4 h-4" />
+              <span>글쓰기</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 데스크톱 테이블 */}
+        <div className="hidden md:block overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-card">
+          <table className="w-full text-hb-sm text-center text-[#141A23]">
+            <thead className="bg-[#F7F8FA] text-[#64748B] text-hb-xs font-bold border-b border-[#E2E6EC]">
+              <tr className="h-12">
+                <th className="w-20">번호</th>
+                <th className="w-32">구분</th>
+                <th className="text-left px-5">제목</th>
+                <th className="w-28">진행상태</th>
+                <th className="w-28">작성자</th>
+                <th className="w-28">등록일</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#F1F3F6]">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={`sk-${i}`} className="h-14 animate-pulse">
+                    <td colSpan={6} className="px-5">
+                      <div className="h-4 bg-[#F1F3F6] rounded w-full" />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <>
+                  {showNotices &&
+                    noticeList.map((notice) => (
+                      <tr
+                        key={notice.id}
+                        onClick={() => handleItemClick(notice)}
+                        className="bg-[#FFF4EE] hover:bg-[#FADCD0] transition-colors h-14 cursor-pointer"
+                      >
+                        <td>
+                          <span className="bg-[#E8521A] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
+                            공지
+                          </span>
+                        </td>
+                        <td>
+                          <span className="inline-block px-2.5 py-1 rounded text-hb-xs font-bold text-[#E8521A]">
+                            공지사항
+                          </span>
+                        </td>
+                        <td className="px-5 text-left font-bold text-[#141A23]">
+                          <div className="flex items-center gap-2">
+                            <Icon
+                              d={ICON.bell}
+                              className="w-4 h-4 text-[#E8521A] shrink-0"
+                            />
+                            <span className="truncate">{notice.category}</span>
+                            {hasImages(notice) && (
+                              <Icon
+                                d={ICON.image}
+                                className="w-4 h-4 text-[#E8521A] shrink-0"
+                              />
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <StatusBadge status={null} notice />
+                        </td>
+                        <td className="font-bold text-[#E8521A]">
+                          {notice.name}
+                        </td>
+                        <td className="text-[#64748B] tabular-nums">
+                          {formatDate(notice.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  {currentItems.map((item, index) => (
+                    <tr
+                      key={item.id}
+                      onClick={() => handleItemClick(item)}
+                      className="hover:bg-[#F7F8FA] transition-colors h-14 cursor-pointer"
+                    >
+                      <td className="text-[#64748B] tabular-nums">
+                        {filteredList.length -
+                          ((safePage - 1) * ITEMS_PER_PAGE + index)}
+                      </td>
+                      <td>
+                        <span
+                          className={`inline-block px-2.5 py-1 rounded-md text-hb-xs font-bold whitespace-nowrap ${typeStyle(
+                            item.inquiry_type
+                          )}`}
+                        >
+                          {getInquiryTypeLabel(item.inquiry_type)}
+                        </span>
+                      </td>
+                      <td className="px-5 text-left">
+                        <div className="flex items-center gap-2 font-bold text-[#141A23]">
+                          {!isAdmin && (
+                            <Icon
+                              d={ICON.lock}
+                              className="w-3.5 h-3.5 text-[#64748B] shrink-0"
+                            />
+                          )}
+                          <span className="truncate">{rowTitle(item)}</span>
+                          {hasImages(item) && (
+                            <Icon
+                              d={ICON.image}
+                              className="w-4 h-4 text-[#64748B] shrink-0"
+                            />
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <StatusBadge status={item.status} />
+                      </td>
+                      <td className="text-[#334155] font-medium">
+                        {item.masked_name || maskName(item.name)}
+                      </td>
+                      <td className="text-[#64748B] text-hb-xs tabular-nums">
+                        {formatDate(item.created_at)}
+                      </td>
+                    </tr>
+                  ))}
+                </>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* 모바일 리스트 */}
+        <ul className="md:hidden space-y-2.5">
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => (
+              <li
+                key={`msk-${i}`}
+                className="h-24 bg-white rounded-xl border border-[#E2E6EC] animate-pulse"
+              />
+            ))
+          ) : (
+            <>
+              {showNotices &&
+                noticeList.map((notice) => (
+                  <li key={notice.id}>
+                    <button
+                      type="button"
+                      onClick={() => handleItemClick(notice)}
+                      className="w-full text-left bg-[#FFF4EE] border border-[#FADCD0] rounded-xl p-4 hover:bg-[#FADCD0] transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="bg-[#E8521A] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
+                          공지사항
+                        </span>
+                        <span className="text-hb-xs text-[#64748B] tabular-nums">
+                          {formatDate(notice.created_at)}
+                        </span>
+                      </div>
+                      <p className="font-bold text-[#141A23] text-hb-base line-clamp-2 flex items-center gap-1.5">
+                        <Icon
+                          d={ICON.bell}
+                          className="w-4 h-4 text-[#E8521A] shrink-0"
+                        />
+                        <span>{notice.category}</span>
+                      </p>
+                    </button>
+                  </li>
+                ))}
+              {currentItems.map((item) => (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleItemClick(item)}
+                    className="w-full text-left bg-white border border-[#E2E6EC] rounded-xl p-4 hover:border-[#141A23] transition-colors shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span
+                        className={`px-2 py-0.5 rounded-md text-hb-xs font-bold ${typeStyle(
+                          item.inquiry_type
+                        )}`}
+                      >
+                        {getInquiryTypeLabel(item.inquiry_type)}
+                      </span>
+                      <StatusBadge status={item.status} />
+                    </div>
+                    <p className="font-bold text-[#141A23] text-hb-base line-clamp-2 flex items-center gap-1.5">
+                      {!isAdmin && (
+                        <Icon
+                          d={ICON.lock}
+                          className="w-3.5 h-3.5 text-[#64748B] shrink-0"
+                        />
+                      )}
+                      <span>{rowTitle(item)}</span>
+                      {hasImages(item) && (
+                        <Icon
+                          d={ICON.image}
+                          className="w-4 h-4 text-[#64748B] shrink-0"
+                        />
+                      )}
+                    </p>
+                    <div className="mt-2.5 pt-2 border-t border-[#F1F3F6] flex items-center justify-between text-hb-xs text-[#64748B]">
+                      <span className="font-medium text-[#334155]">
+                        {item.masked_name || maskName(item.name)}
+                      </span>
+                      <span className="tabular-nums">
+                        {formatDate(item.created_at)}
+                      </span>
+                    </div>
+                  </button>
+                </li>
+              ))}
+            </>
+          )}
+        </ul>
+
+        {/* 에러 및 빈 목록 상태 안내 */}
+        {!isLoading && loadError && (
+          <div className="mt-6 py-14 text-center bg-white rounded-2xl border border-[#E2E6EC]">
+            <p className="text-[#141A23] font-bold mb-4">
+              문의 목록을 불러오지 못했습니다.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                void loadData();
+              }}
+              className="hb-btn-primary h-10 px-5 text-hb-sm"
+            >
+              다시 시도
+            </button>
+          </div>
+        )}
+
+        {!isLoading &&
+          !loadError &&
+          currentItems.length === 0 &&
+          (!showNotices || noticeList.length === 0) && (
+            <div className="mt-6 py-16 text-center bg-white rounded-2xl border border-[#E2E6EC] text-hb-sm">
+              <p className="text-[#141A23] font-bold mb-1 text-hb-base">
+                {keyword.trim()
+                  ? "검색 조건에 맞는 문의글이 없습니다."
+                  : "아직 등록된 문의 내역이 없습니다."}
+              </p>
+              <p className="text-[#64748B]">
+                궁금하신 점이나 매입 견적 문의를 남겨주시면 빠르게 안내해 드립니다.
+              </p>
+              <button
+                type="button"
+                onClick={handleOpenWrite}
+                className="hb-btn-accent mt-5 h-10 px-5 text-hb-sm"
+              >
+                첫 문의 · 매입 신청 남기기
+              </button>
+            </div>
+          )}
+
+        {totalPages > 1 && !isLoading && (
+          <nav
+            className="flex justify-center items-center gap-1.5 mt-8"
+            aria-label="페이지 이동"
+          >
+            <button
+              type="button"
+              onClick={() => goPage(Math.max(safePage - 1, 1))}
+              disabled={safePage === 1}
+              aria-label="이전 페이지"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E2E6EC] bg-white text-[#334155] disabled:opacity-30"
+            >
+              <Icon d={ICON.left} className="w-4 h-4" />
+            </button>
+            {pageWindow(safePage, totalPages).map((p, i) =>
+              p === "…" ? (
+                <span key={`e${i}`} className="w-6 text-center text-[#94A3B8]">
+                  …
+                </span>
+              ) : (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => goPage(p)}
+                  className={`w-9 h-9 rounded-lg text-hb-sm font-semibold tabular-nums ${
+                    safePage === p
+                      ? "bg-[#141A23] text-white"
+                      : "border border-[#E2E6EC] bg-white text-[#334155] hover:border-[#141A23]"
+                  }`}
+                >
+                  {p}
+                </button>
+              )
+            )}
+            <button
+              type="button"
+              onClick={() => goPage(Math.min(safePage + 1, totalPages))}
+              disabled={safePage === totalPages}
+              aria-label="다음 페이지"
+              className="w-9 h-9 flex items-center justify-center rounded-lg border border-[#E2E6EC] bg-white text-[#334155] disabled:opacity-30"
+            >
+              <Icon d={ICON.right} className="w-4 h-4" />
+            </button>
+          </nav>
+        )}
+      </main>
+
+      <SiteFooter
+        isAdmin={isAdmin}
+        onAdminClick={() =>
+          isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true)
+        }
+      />
+      <MobileCtaBar onInquiryClick={handleOpenWrite} />
+
+      {/* 글쓰기 모달 */}
+      {isWriteOpen && (
+        <Modal
+          label="문의 및 매입 신청 작성"
+          onClose={() => setIsWriteOpen(false)}
+          panelClassName="max-w-2xl"
+          closeOnOverlayClick={false}
+          closeOnEsc={false}
+        >
+          <div className="bg-white max-h-[92vh] overflow-y-auto rounded-xl shadow-2xl border border-[#E2E6EC] w-full">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E2E6EC] sticky top-0 bg-white z-10">
+              <h2 className="text-hb-lg font-bold text-[#141A23]">
+                문의 · 매입 신청 작성
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsWriteOpen(false)}
+                className="grid h-8 w-8 place-items-center text-[#64748B] hover:text-[#141A23]"
+                aria-label="닫기"
+              >
+                <Icon d={ICON.close} className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <UnifiedInquiryForm
+                defaultType={writeDefaultType}
+                linkedProduct={linkedProduct}
+                isAdmin={isAdmin}
+                allowNoticeToggle={isAdmin}
+                onSuccess={() => {
+                  loadData();
+                }}
+                onCancel={() => setIsWriteOpen(false)}
+              />
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* 비밀번호 확인 모달 (비밀번호 표시 체크박스 복구 완료) */}
+      {isPwModalOpen && (
+        <Modal
+          label="비밀글 열람"
+          onClose={() => setIsPwModalOpen(false)}
+          panelClassName="max-w-sm"
+        >
+          <div className="bg-white rounded-xl shadow-xl border border-[#E2E6EC] p-6 sm:p-8 text-center w-full">
+            <h3 className="font-bold text-[#141A23] text-hb-lg mb-1.5">
+              비밀글 열람
+            </h3>
+            <p className="text-hb-sm text-[#64748B] mb-5">
+              작성 시 설정하신 조회용 비밀번호를 입력해 주세요.
+            </p>
+            <form onSubmit={handleVerifyPassword} className="space-y-4">
+              <div>
+                <input
+                  type={showVerifyPassword ? "text" : "password"}
+                  value={inputPw}
+                  onChange={(e) => setInputPw(e.target.value)}
+                  placeholder="비밀번호 입력"
+                  required
+                  autoFocus
+                  className="hb-input text-center tracking-widest"
+                />
+                <label className="mt-2 inline-flex items-center gap-1.5 text-hb-xs text-[#64748B] cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={showVerifyPassword}
+                    onChange={(e) => setShowVerifyPassword(e.target.checked)}
+                    className="h-3.5 w-3.5 accent-[#141A23]"
+                  />
+                  <span>비밀번호 문자 표시</span>
+                </label>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsPwModalOpen(false)}
+                  className="hb-btn-outline w-1/2 h-11 text-hb-sm"
+                >
+                  취소
+                </button>
+                <button
+                  type="submit"
+                  disabled={isVerifyingPw}
+                  className="hb-btn-primary w-1/2 h-11 text-hb-sm"
+                >
+                  {isVerifyingPw ? "확인 중..." : "확인"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </Modal>
+      )}
+
+      {/* 상세 보기 모달 (관리자 빠른 답변 템플릿 추가) */}
+      {isDetailOpen && selectedItem && (
+        <Modal
+          label="문의 상세"
+          onClose={() => setIsDetailOpen(false)}
+          panelClassName="max-w-2xl"
+          closeOnEsc={!enlargedImage}
+        >
+          <div className="bg-white rounded-xl shadow-2xl border border-[#E2E6EC] max-h-[90vh] flex flex-col w-full overflow-hidden">
+            <div className="px-6 py-4 flex items-center justify-between bg-[#141A23] text-white">
+              <span className="text-hb-xs font-bold bg-white/15 px-2.5 py-1 rounded-sm">
+                {getInquiryTypeLabel(selectedItem.inquiry_type)}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsDetailOpen(false)}
+                aria-label="닫기"
+              >
+                <Icon d={ICON.close} className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-5 text-hb-base">
+              <div className="border-b border-[#F1F3F6] pb-4">
+                <h2 className="text-hb-xl font-bold text-[#141A23] mb-2">
+                  {selectedItem.category}
+                </h2>
+                <div className="flex flex-wrap gap-4 text-hb-sm text-[#64748B]">
+                  <span>
+                    작성자:{" "}
+                    <strong className="text-[#141A23]">
+                      {isAdmin || selectedItem.is_notice
+                        ? selectedItem.name
+                        : maskName(selectedItem.name)}
+                    </strong>
+                  </span>
+                  {isAdmin && selectedItem.phone && (
+                    <span>
+                      연락처:{" "}
+                      <a
+                        href={telHref(selectedItem.phone)}
+                        className="font-bold text-[#141A23] underline"
+                      >
+                        {selectedItem.phone}
+                      </a>
+                    </span>
+                  )}
+                  <span>
+                    진행상태:{" "}
+                    <strong className="text-[#E8521A]">
+                      {selectedItem.status || "접수"}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+
+              <StructuredInquiryCard
+                description={selectedItem.description}
+                isAdmin={isAdmin}
+                conditionHeading={`상담 확인 조건 (${getInquiryTypeLabel(selectedItem.inquiry_type)})`}
+                plainClassName="bg-[#F7F8FA] p-4 rounded-xl border border-[#E2E6EC] whitespace-pre-wrap leading-relaxed"
+              />
+
+              {selectedItem.images && selectedItem.images.length > 0 && (
+                <div className="grid grid-cols-3 gap-2.5">
+                  {selectedItem.images.map((imgUrl, idx) => (
+                    <button
+                      key={imgUrl + idx}
+                      type="button"
+                      onClick={() => setEnlargedImage(imgUrl)}
+                      className="aspect-square rounded-lg overflow-hidden border border-[#E2E6EC] bg-[#F1F3F6]"
+                    >
+                      <SafeImg
+                        src={imgUrl}
+                        alt={`첨부사진 ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {selectedItem.admin_reply && (
+                <div className="bg-[#FFF4EE] rounded-md p-5 border border-[#FADCD0]">
+                  <h3 className="font-bold text-[#141A23] text-hb-sm mb-2">
+                    {STORE.name} 공식 답변
+                  </h3>
+                  <p className="text-hb-sm text-[#334155] whitespace-pre-wrap leading-relaxed">
+                    {selectedItem.admin_reply}
+                  </p>
+                </div>
+              )}
+
+              {!selectedItem.is_notice && isAdmin && (
+                <div className="bg-[#F7F8FA] rounded-md p-4 border border-[#E2E6EC] space-y-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label className="text-hb-sm font-bold text-[#141A23]">
+                      진행 상태 명시적 변경
+                    </label>
+                    <select
+                      value={selectedItem.status || "접수"}
+                      onChange={(e) =>
+                        handleStatusUpdate(selectedItem.id, e.target.value)
+                      }
+                      className="rounded border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-sm font-bold text-[#141A23]"
+                    >
+                      {INQUIRY_ADMIN_STATUS_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label} — {opt.desc}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 자주 쓰는 답변 템플릿 버튼 */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-hb-xs font-bold text-[#64748B] mr-1">
+                      빠른 답변 템플릿:
+                    </span>
+                    {INQUIRY_REPLY_TEMPLATES.map((tpl) => (
+                      <button
+                        key={tpl.label}
+                        type="button"
+                        onClick={() => setReplyContent(tpl.text)}
+                        className="rounded border border-[#E2E6EC] bg-white px-2.5 py-1 text-hb-xs font-semibold text-[#141A23] hover:border-[#141A23]"
+                      >
+                        + {tpl.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    value={replyContent}
+                    onChange={(e) => setReplyContent(e.target.value)}
+                    rows={3}
+                    placeholder="고객에게 남길 답변 내용을 입력해 주세요."
+                    className="hb-input text-hb-sm"
+                  />
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={handleReplySubmit}
+                      disabled={isReplying}
+                      className="hb-btn-primary h-10 px-5 text-hb-sm"
+                    >
+                      {isReplying ? "저장 중..." : "답변 저장 및 답변완료 처리"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-4 border-t border-[#E2E6EC]">
+                <div className="flex gap-2">
+                  {canManage && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleOpenEdit}
+                        className="hb-btn-outline h-10 px-4 text-hb-sm"
+                      >
+                        수정
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleDelete}
+                        className="rounded border border-red-200 bg-red-50 px-4 h-10 text-hb-sm font-bold text-red-600"
+                      >
+                        삭제
+                      </button>
+                    </>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsDetailOpen(false)}
+                  className="hb-btn-primary h-10 px-6 text-hb-sm"
+                >
+                  닫기
+                </button>
+              </div>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* 게시글 수정 모달 */}
+      {isEditOpen && (
+        <Modal
+          label="게시글 수정"
+          onClose={() => setIsEditOpen(false)}
+          panelClassName="max-w-lg"
+          closeOnOverlayClick={false}
+          closeOnEsc={false}
+        >
+          <form
+            onSubmit={handleEditSubmit}
+            className="bg-white rounded-xl p-6 shadow-2xl border border-[#E2E6EC] space-y-4"
+          >
+            <h3 className="text-hb-lg font-bold text-[#141A23]">
+              게시글 수정
+            </h3>
+            <div>
+              <label className="hb-label">제목</label>
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                required
+                className="hb-input mt-1"
+              />
+            </div>
+            <div>
+              <label className="hb-label">내용</label>
+              <textarea
+                rows={5}
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                required
+                className="hb-input mt-1"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-3">
+              <button
+                type="button"
+                onClick={() => setIsEditOpen(false)}
+                className="hb-btn-outline h-10 px-5 text-hb-sm"
+              >
+                취소
+              </button>
+              <button
+                type="submit"
+                disabled={editUpdating}
+                className="hb-btn-primary h-10 px-6 text-hb-sm"
+              >
+                {editUpdating ? "수정 중..." : "수정 완료"}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      <Modal
+        open={Boolean(enlargedImage)}
+        onClose={() => setEnlargedImage(null)}
+        variant="lightbox"
+        label="첨부 이미지 확대 보기"
+        panelClassName="max-w-5xl w-full rounded-none overflow-visible"
+      >
+        <div
+          onClick={() => setEnlargedImage(null)}
+          className="relative flex flex-col items-center justify-center p-2 sm:p-4 select-none"
+        >
+          <div className="mb-3 flex w-full justify-end">
+            <button
+              type="button"
+              onClick={() => setEnlargedImage(null)}
+              aria-label="확대 이미지 닫기"
+              autoFocus
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+            >
+              <Icon d={ICON.close} className="w-6 h-6" />
+            </button>
+          </div>
+          {enlargedImage && (
+            <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
+              <SafeImg
+                src={enlargedImage}
+                alt="확대 이미지"
+                eager
+                className="max-w-full max-h-[82vh] object-contain rounded"
+              />
+            </div>
+          )}
+        </div>
+      </Modal>
+
+      <AdminLoginModal
+        open={isAdminAuthModalOpen}
+        onClose={() => setIsAdminAuthModalOpen(false)}
+        onSuccess={() => {
+          loadData();
+        }}
+      />
+    </div>
+  );
+}

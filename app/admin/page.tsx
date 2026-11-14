@@ -49,49 +49,14 @@ import {
   INQUIRY_REPLY_TEMPLATES,
   StructuredInquiryCard,
 } from "../../components/inquiry/structured-inquiry-card";
-
-type AdminTab = "overview" | "inquiries" | "products" | "delivery" | "notifications";
-
-interface AdminProductRow {
-  id: string;
-  title: string;
-  price?: number | null;
-  category?: string | null;
-  condition_grade?: string | null;
-  status?: string | null;
-  description?: string | null;
-  image_url?: string | null;
-  views?: number | null;
-  created_at?: string | null;
-}
-
-interface AdminDeliveryRow {
-  id: string;
-  title: string;
-  description?: string | null;
-  image_url?: string | null;
-  created_at?: string | null;
-}
-
-interface AdminInquiryRow {
-  id: string;
-  name: string;
-  masked_name?: string;
-  phone: string;
-  inquiry_type: string;
-  category: string;
-  model?: string | null;
-  condition_grade?: string | null;
-  region?: string | null;
-  description?: string | null;
-  images?: string[];
-  image_url?: string | null;
-  has_images?: boolean;
-  is_notice?: boolean;
-  status: string;
-  admin_reply?: string | null;
-  created_at: string;
-}
+import {
+  type AdminTab,
+  type AdminProductRow,
+  type AdminDeliveryRow,
+  type AdminInquiryRow,
+} from "../../components/admin/admin-types";
+import { AdminDeliveryTab } from "../../components/admin/admin-delivery-tab";
+import { AdminNotificationsTab } from "../../components/admin/admin-notifications-tab";
 
 export default function IntegratedAdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
@@ -2198,231 +2163,28 @@ export default function IntegratedAdminDashboard() {
 
         {/* 4. 탭별 본문: DELIVERY */}
         {activeTab === "delivery" && (
-          <div className="grid gap-8 lg:grid-cols-12 items-start">
-            <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                배송·설치 현장 사례 등록 (AI 제목 보조)
-              </h2>
-              <p className="text-hb-xs text-[#6B7280]">
-                사진에서 확인되는 제품 유형과 설치 상황에 근거해 제목 초안을 생성합니다. 확인 후 수정하여 게시하세요.
-              </p>
-
-              <form onSubmit={handleSaveDeliveryCase} className="space-y-4">
-                <div>
-                  <label className="hb-label">현장 사진 선택 (최대 5장)</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    disabled={analyzingDelivery}
-                    onChange={handleDeliveryFilesChange}
-                    className="mt-1 w-full text-hb-xs"
-                  />
-                </div>
-
-                {(delivObserved.length > 0 || delivReviewNotes.length > 0) && (
-                  <div className="rounded-lg border border-[#E2E6EC] bg-[#F9FAFB] p-3 text-hb-xs space-y-1.5">
-                    {delivObserved.length > 0 && (
-                      <p>
-                        <strong>판독된 요소:</strong>{" "}
-                        {delivObserved.join(", ")}
-                      </p>
-                    )}
-                    {delivReviewNotes.map((n, i) => (
-                      <p key={i} className="text-amber-800 font-semibold">
-                        {n}
-                      </p>
-                    ))}
-                  </div>
-                )}
-
-                <div>
-                  <label className="hb-label">
-                    배송·설치 사례 제목 (수정 가능) *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={delivTitle}
-                    onChange={(e) => setDelivTitle(e.target.value)}
-                    placeholder="사진 첨부 시 AI가 초안을 작성합니다"
-                    className="hb-input mt-1"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={savingDelivery || analyzingDelivery}
-                  className="hb-btn-primary h-11 w-full text-hb-sm"
-                >
-                  {savingDelivery ? "등록 중..." : "제목 확인 완료 및 게시하기"}
-                </button>
-              </form>
-            </section>
-
-            <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                등록된 배송·설치 사례 ({deliveryCases.length}건)
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {deliveryCases.map((item) => {
-                  const imgs = splitImages(item.image_url);
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex items-center gap-3 rounded-lg border border-[#E2E6EC] p-3"
-                    >
-                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#F1F3F6]">
-                        <SafeImg
-                          src={imgs[0]}
-                          alt={item.title}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-hb-sm font-bold text-[#141A23]">
-                          {item.title}
-                        </p>
-                        <p className="text-hb-xs text-[#64748B]">
-                          {item.created_at
-                            ? new Date(item.created_at).toLocaleDateString("ko-KR")
-                            : "-"}
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleDeleteDeliveryCase(item.id, item.title)
-                        }
-                        className="rounded border border-red-200 bg-red-50 px-2.5 py-1 text-hb-xs font-bold text-red-600"
-                      >
-                        삭제
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
+          <AdminDeliveryTab
+            analyzingDelivery={analyzingDelivery}
+            savingDelivery={savingDelivery}
+            delivObserved={delivObserved}
+            delivReviewNotes={delivReviewNotes}
+            delivTitle={delivTitle}
+            setDelivTitle={setDelivTitle}
+            deliveryCases={deliveryCases}
+            onDeliveryFilesChange={handleDeliveryFilesChange}
+            onSaveDeliveryCase={handleSaveDeliveryCase}
+            onDeleteDeliveryCase={handleDeleteDeliveryCase}
+          />
         )}
 
         {/* 5. 탭별 본문: NOTIFICATIONS */}
         {activeTab === "notifications" && (
-          <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 space-y-5 shadow-2xs">
-            <div>
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
-                외부 알림(Telegram / 알림톡) 발송 상태 관리 및 재시도
-              </h2>
-              <p className="mt-1 text-hb-sm text-[#6B7280]">
-                환경변수 미설정이나 외부 서버 오류 시 거짓 성공으로 표시하지 않고,{" "}
-                <strong>
-                  [발송 대기 / 발송 성공 / 설정 미완료 / 외부 서비스 오류 / 재시도 필요]
-                </strong>{" "}
-                5가지 상태로 정확히 구분합니다.
-              </p>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-hb-sm border-t border-[#E2E6EC]">
-                <thead className="bg-[#F9FAFB] text-[#6B7280] border-b border-[#E2E6EC]">
-                  <tr>
-                    <th className="py-3 px-4">접수일시 / 고객명</th>
-                    <th className="py-3 px-4">구분 / 제목</th>
-                    <th className="py-3 px-4">Telegram 알림 상태</th>
-                    <th className="py-3 px-4">알림톡 연동 상태</th>
-                    <th className="py-3 px-4 text-right">수동 발송 / 재시도</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#E2E6EC]">
-                  {inquiries
-                    .filter((i) => !i.is_notice)
-                    .slice(0, 15)
-                    .map((inq) => {
-                      const tg = notificationLogs[`telegram:${inq.id}`];
-                      const alim = notificationLogs[`alimtalk:${inq.id}`];
-                      return (
-                        <tr key={inq.id}>
-                          <td className="py-3 px-4">
-                            <strong className="text-[#141A23]">{inq.name}</strong>
-                            <span className="block text-hb-xs text-[#64748B]">
-                              {new Date(inq.created_at).toLocaleDateString("ko-KR")}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className="text-hb-xs font-bold text-[#E8521A] block">
-                              {inq.inquiry_type}
-                            </span>
-                            <span className="truncate block max-w-xs">
-                              {inq.category}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4">
-                            {tg ? (
-                              <div>
-                                <span
-                                  className={`inline-block rounded px-2 py-0.5 text-hb-xs font-bold ${
-                                    tg.sent
-                                      ? "bg-emerald-100 text-emerald-800"
-                                      : "bg-amber-100 text-amber-900"
-                                  }`}
-                                >
-                                  {tg.statusLabel}
-                                </span>
-                                <p className="mt-1 text-hb-xs text-[#6B7280]">
-                                  {tg.message}
-                                </p>
-                              </div>
-                            ) : (
-                              <span className="text-hb-xs text-[#64748B]">
-                                발송 대기 / 이력 미조회
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4">
-                            {alim ? (
-                              <div>
-                                <span className="inline-block rounded bg-neutral-200 px-2 py-0.5 text-hb-xs font-bold text-neutral-700">
-                                  {alim.statusLabel}
-                                </span>
-                                <p className="mt-1 text-hb-xs text-[#6B7280]">
-                                  {alim.message}
-                                </p>
-                              </div>
-                            ) : (
-                              <span className="inline-block rounded bg-amber-50 border border-amber-200 px-2 py-0.5 text-hb-xs font-bold text-amber-800">
-                                연동 준비중 (Telegram 활성)
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-                            <button
-                              type="button"
-                              disabled={busyActionId === `notify-telegram-${inq.id}`}
-                              onClick={() =>
-                                handleManualNotificationDispatch("telegram", inq)
-                              }
-                              className="rounded bg-[#141A23] px-3 py-1.5 text-hb-xs font-bold text-white hover:bg-[#1E2736] disabled:opacity-50"
-                            >
-                              Telegram 재발송
-                            </button>
-                            <button
-                              type="button"
-                              disabled={busyActionId === `notify-alimtalk-${inq.id}`}
-                              onClick={() =>
-                                handleManualNotificationDispatch("alimtalk", inq)
-                              }
-                              className="rounded border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#4B5260] hover:bg-[#F9FAFB] disabled:opacity-50"
-                            >
-                              알림톡 상태 점검
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-            </div>
-          </section>
+          <AdminNotificationsTab
+            inquiries={inquiries}
+            notificationLogs={notificationLogs}
+            busyActionId={busyActionId}
+            onManualDispatch={handleManualNotificationDispatch}
+          />
         )}
       </main>
     </div>

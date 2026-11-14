@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import {
   extractModelName,
@@ -125,6 +126,13 @@ export function ProductCard({
   eager?: boolean;
 }) {
   const images = splitImages(product.image_url);
+  const primaryImage = images[0];
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const canUseNextImage =
+    Boolean(primaryImage) &&
+    failedSrc !== primaryImage &&
+    (primaryImage.startsWith("/") ||
+      /^https:\/\/[a-z0-9-]+\.supabase\.co\//i.test(primaryImage));
   const sold = isProductSold(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
   const priced = hasProductPrice(product.price);
@@ -180,14 +188,29 @@ export function ProductCard({
     >
       {/* 1. 1:1 정방형 스튜디오 사진 영역 */}
       <div className="relative aspect-square w-full overflow-hidden hb-studio-backdrop">
-        <SafeImg
-          src={images[0]}
-          alt={product.title}
-          eager={eager}
-          className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] ${
-            sold ? "grayscale opacity-65" : ""
-          }`}
-        />
+        {canUseNextImage && primaryImage ? (
+          <Image
+            key={primaryImage}
+            src={primaryImage}
+            alt={product.title}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={eager}
+            onError={() => setFailedSrc(primaryImage)}
+            className={`object-cover transition-transform duration-300 group-hover:scale-[1.03] ${
+              sold ? "grayscale opacity-65" : ""
+            }`}
+          />
+        ) : (
+          <SafeImg
+            src={primaryImage}
+            alt={product.title}
+            eager={eager}
+            className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] ${
+              sold ? "grayscale opacity-65" : ""
+            }`}
+          />
+        )}
 
         <div
           className="pointer-events-none absolute inset-0 z-10 ring-1 ring-inset ring-black/[0.04]"

@@ -30,7 +30,7 @@ export function PurchaseGuideLightbox() {
         >
           <div className="aspect-[4/3] w-full overflow-hidden flex items-center justify-center bg-white rounded-lg">
             <SafeImg
-              src="/매입 안내문.png"
+              src="/매입-안내문.webp"
               alt={`${STORE.name} 공식 매입 안내문`}
               className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.02]"
             />
@@ -60,7 +60,7 @@ export function PurchaseGuideLightbox() {
             </div>
             <div className="max-h-[82vh] overflow-y-auto bg-[#F7F8FA] p-4 sm:p-6 flex justify-center">
               <SafeImg
-                src="/매입 안내문.png"
+                src="/매입-안내문.webp"
                 alt={`${STORE.name} 공식 매입 안내문 원본`}
                 className="max-h-[74vh] w-auto object-contain rounded-lg border border-[#E2E6EC] bg-white"
               />
