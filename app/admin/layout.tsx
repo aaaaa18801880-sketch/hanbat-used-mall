@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "통합 관리자 대시보드",
+  alternates: {
+    canonical: "/admin",
+  },
   robots: {
     index: false,
     follow: false,

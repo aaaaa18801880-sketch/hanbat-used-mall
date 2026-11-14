@@ -983,6 +983,12 @@ export function V2InquirySectionWithWizard({
                       ", "
                     )} / 조건: ${selectedChips.join(", ")} 문의드립니다.`
                   )}
+                  onClick={() =>
+                    trackEvent("click_sms_consult", {
+                      location: "v2_inquiry_wizard",
+                      inquiry_type: inquiryType,
+                    })
+                  }
                   className="hb-btn-outline h-11 px-4 text-hb-sm"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />

@@ -1,12 +1,18 @@
 // 파일 경로: app/page.tsx
 import { supabase } from "../lib/supabase";
 import { isProductSold } from "../lib/site";
+import { INFO_GUIDE_ARTICLES } from "../lib/info-guides";
 import Home, { type Review } from "../components/home/home-page-client";
 import type { ProductItem } from "../components/products/product-card";
 
 export const revalidate = 300;
 
 export default async function Page() {
+  const latestGuides = INFO_GUIDE_ARTICLES.slice(0, 4).map(
+    ({ slug, category, title }) => ({ slug, category, title })
+  );
+  const guideTotalCount = INFO_GUIDE_ARTICLES.length;
+
   const [productsResult, reviewsResult] = await Promise.all([
     supabase
       .from("products")
@@ -40,6 +46,11 @@ export default async function Page() {
     : ((reviewsResult.data ?? []) as Review[]);
 
   return (
-    <Home initialProducts={initialProducts} initialReviews={initialReviews} />
+    <Home
+      initialProducts={initialProducts}
+      initialReviews={initialReviews}
+      guideTotalCount={guideTotalCount}
+      latestGuides={latestGuides}
+    />
   );
 }

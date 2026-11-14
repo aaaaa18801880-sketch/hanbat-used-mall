@@ -50,6 +50,12 @@ export function ProductDetailGallery({
 
   useEffect(() => {
     if (!id) return;
+    trackEvent("view_item", {
+      id: String(id),
+      category: category || "기타",
+      model: modelName || undefined,
+      price: price ?? undefined,
+    });
     addRecentViewedProduct({
       id,
       title,
@@ -107,6 +113,16 @@ export function ProductDetailGallery({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (displayImages.length < 2) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
     };

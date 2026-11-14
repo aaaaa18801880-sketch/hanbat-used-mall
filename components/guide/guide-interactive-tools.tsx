@@ -2,36 +2,14 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { STORE } from "../../lib/site";
+import { STORE, trackEvent } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
+import {
+  SLUG_TO_GUIDE_TOOL,
+  hasGuideInteractiveTool,
+} from "../../lib/guides/tool-slugs";
 
-type GuideToolKind =
-  | "aircon-sizing"
-  | "power-contract"
-  | "clearance-entry"
-  | "energy-payback";
-
-const SLUG_TO_TOOL: Record<string, GuideToolKind> = {
-  // 1. 에어컨 냉방 평형 & 전압/전선 판정기
-  "aircon-pyeong-sizing-cafe-restaurant": "aircon-sizing",
-  "aircon-single-large-vs-multi-split": "aircon-sizing",
-  "aircon-relocation-cost-variables": "aircon-sizing",
-  "aircon-how-it-works-and-parts": "aircon-sizing",
-  "why-ceiling-aircon-install-costs-more": "aircon-sizing",
-  "why-no-outdoor-unit-on-walkway-defrost": "aircon-sizing",
-  "fixed-speed-vs-inverter-aircon": "aircon-sizing",
-  // 2. 매장 계약전력(kW) 부하 시뮬레이터
-  "voltage-220v-vs-380v": "power-contract",
-  "startup-closure-docs-and-power": "power-contract",
-  "electricity-bill-capacity-and-kepco": "power-contract",
-  "commercial-induction-plug-vs-breaker": "power-contract",
-  // 3. 출입문 통로·사다리차 진입 판정기
-  "ladder-truck-and-clearance": "clearance-entry",
-  "why-never-lay-fridge-flat-moving": "clearance-entry",
-  // 4. 에너지 라벨 kWh & 차액 회수기간 계산기
-  "energy-efficiency-rating-myth-and-kwh": "energy-payback",
-  "inverter-aircon-24h-on-vs-off-electricity": "energy-payback",
-};
+export { hasGuideInteractiveTool };
 
 function ToolActionCtas({
   galleryHref,
@@ -60,6 +38,12 @@ function ToolActionCtas({
     <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
       <Link
         href={galleryHref}
+        onClick={() =>
+          trackEvent("click_guide_tool_action", {
+            action: "gallery",
+            category: inquiryCategory,
+          })
+        }
         className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#141A23] px-3 py-2 text-hb-xs font-bold text-white hover:bg-[#1E293B] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8521A]"
       >
         <Icon d={ICON.bag} className="w-3.5 h-3.5 shrink-0" />
@@ -67,6 +51,13 @@ function ToolActionCtas({
       </Link>
       <Link
         href={inquiryHref}
+        onClick={() =>
+          trackEvent("click_guide_tool_action", {
+            action: "inquiry",
+            category: inquiryCategory,
+            inquiry_type: inquiryType,
+          })
+        }
         className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#E8521A] bg-[#FFF4EE] px-3 py-2 text-hb-xs font-bold text-[#C84312] hover:bg-[#FFE8DC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8521A]"
       >
         <Icon d={ICON.chat} className="w-3.5 h-3.5 shrink-0" />
@@ -74,10 +65,6 @@ function ToolActionCtas({
       </Link>
     </div>
   );
-}
-
-export function hasGuideInteractiveTool(slug: string): boolean {
-  return slug in SLUG_TO_TOOL;
 }
 
 /* ------------------------------------------------------------------ */
@@ -1083,7 +1070,7 @@ function EnergyPaybackTool() {
 /*  외부 Export 진입점                                                  */
 /* ------------------------------------------------------------------ */
 export function GuideInteractiveTool({ slug }: { slug: string }): React.ReactElement | null {
-  const kind = SLUG_TO_TOOL[slug];
+  const kind = SLUG_TO_GUIDE_TOOL[slug];
   if (!kind) return null;
 
   switch (kind) {

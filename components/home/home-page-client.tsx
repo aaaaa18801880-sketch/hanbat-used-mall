@@ -7,7 +7,6 @@ import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
 import { useIsAdminSession } from "../../lib/use-admin-session";
-import { INFO_GUIDE_ARTICLES } from "../../lib/info-guides";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
   Icon,
@@ -197,12 +196,22 @@ function handleTabListKeyDown<T extends string>(
 /* ════════════════════════════════════════════════════════════
    2. 메인 페이지 컴포넌트 (Modern Appliance Showroom 아키텍처)
    ════════════════════════════════════════════════════════════ */
+export type GuidePreviewSummary = {
+  slug: string;
+  category: string;
+  title: string;
+};
+
 export default function Home({
   initialProducts,
   initialReviews,
+  guideTotalCount = 0,
+  latestGuides = [],
 }: {
   initialProducts: ProductItem[] | null;
   initialReviews: Review[] | null;
+  guideTotalCount?: number;
+  latestGuides?: readonly GuidePreviewSummary[];
 }) {
   /* 실시간 판매 매물 상태 (서버 초기값이 있으면 즉시 렌더링) */
   const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>(
@@ -1534,7 +1543,7 @@ export default function Home({
             <div className="mt-7 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
                 <div>
-                  <p className="text-hb-xs font-bold text-[#E8521A]">
+                  <p className="text-hb-xs font-bold text-[#C84312]">
                     가전 · 전기 · 설치 정보 게시판
                   </p>
                   <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] [text-wrap:balance]">
@@ -1543,15 +1552,15 @@ export default function Home({
                 </div>
                 <Link
                   href="/guide"
-                  className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] whitespace-nowrap shrink-0 underline underline-offset-4"
+                  className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#C84312] whitespace-nowrap shrink-0 underline underline-offset-4"
                 >
-                  <span>정보 게시판 전체 보기 ({INFO_GUIDE_ARTICLES.length})</span>
+                  <span>정보 게시판 전체 보기 ({guideTotalCount})</span>
                   <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
                 </Link>
               </div>
 
               <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                {INFO_GUIDE_ARTICLES.slice(0, 4).map((article) => (
+                {latestGuides.map((article) => (
                   <Link
                     key={article.slug}
                     href={`/guide/${article.slug}`}

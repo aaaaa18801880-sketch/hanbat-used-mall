@@ -926,7 +926,7 @@ function QuoteBasketFloatingBar() {
                     type="button"
                     onClick={() => removeQuoteBasketItem(item.id)}
                     aria-label={`${item.title} 견적함에서 제거`}
-                    className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-red-600 hover:text-white"
+                    className="relative grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-red-600 hover:text-white before:absolute before:-inset-2 before:content-['']"
                   >
                     <Icon d={ICON.close} className="w-3 h-3" />
                   </button>
@@ -1051,8 +1051,15 @@ function FloatingQuickWing() {
     type: InquiryTypeValue = "구매 문의",
     useBundle = false
   ) => {
-    trackEvent("begin_buyback_inquiry", {
+    const eventName =
+      type === "내 물건 팔기"
+        ? "begin_buyback_inquiry"
+        : type === "대량·업소용 상담"
+          ? "begin_bulk_inquiry"
+          : "begin_buy_inquiry";
+    trackEvent(eventName, {
       category: type,
+      use_bundle: useBundle,
       location: "floating_quick_wing",
     });
     triggerQuickInquiry({ type, useBundle });
@@ -1574,7 +1581,7 @@ export function MobileCtaBar({
         <button
           type="button"
           onClick={() => {
-            trackEvent("begin_buyback_inquiry", {
+            trackEvent("begin_buy_inquiry", {
               location: "mobile_cta_bar",
             });
             if (onInquiryClick) {

@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { serializeJsonLd } from "../../lib/json-ld";
@@ -43,8 +44,13 @@ import { ProductStructuredDescription } from "../../components/products/product-
 import { RecentViewedStrip } from "../../components/products/product-compare-modal";
 import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
 import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
-import { RefrigeratorCompartmentDiagram } from "../../components/products/refrigerator-compartment-diagram";
 import { getInfoGuidesForProductCategory } from "../../lib/info-guides";
+
+const RefrigeratorCompartmentDiagram = dynamic(() =>
+  import("../../components/products/refrigerator-compartment-diagram").then(
+    (m) => m.RefrigeratorCompartmentDiagram
+  )
+);
 
 export const revalidate = 300;
 
@@ -444,7 +450,7 @@ export default async function ProductDetailPage({
                 <div className="flex flex-wrap items-baseline justify-between gap-2.5">
                   <div>
                     {sold ? (
-                      <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#94A3B8]">
+                      <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#475569]">
                         판매완료 · 유사 매물 상담 가능
                       </span>
                     ) : priced ? (
@@ -452,13 +458,13 @@ export default async function ProductDetailPage({
                         <span className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tabular-nums tracking-[-0.03em]">
                           {priceDisplay}
                         </span>
-                        <span className="text-hb-xs font-semibold text-[#E8521A]">
+                        <span className="text-hb-xs font-semibold text-[#C84312]">
                           수량별·세트 할인 문의 가능
                         </span>
                       </div>
                     ) : (
                       <div className="flex items-baseline gap-2">
-                        <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#E8521A] tabular-nums">
+                        <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#C84312] tabular-nums">
                           {priceDisplay}
                         </span>
                         <span className="text-hb-xs font-semibold text-[#0F766E]">

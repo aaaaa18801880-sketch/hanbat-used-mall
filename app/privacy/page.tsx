@@ -10,6 +10,12 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/privacy",
   },
+  openGraph: {
+    title: `개인정보처리방침 | ${STORE.name}`,
+    description: `${STORE.name} 홈페이지의 고객 상담 및 매입 견적 신청 관련 개인정보 수집·이용 및 보호 방침 안내입니다.`,
+    url: "/privacy",
+    type: "website",
+  },
 };
 
 export default function PrivacyPage() {

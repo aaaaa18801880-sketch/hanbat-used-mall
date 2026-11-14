@@ -717,8 +717,17 @@ export function InquiryBoardClient({
                     noticeList.map((notice) => (
                       <tr
                         key={notice.id}
+                        tabIndex={0}
+                        role="button"
+                        aria-label={`공지사항 상세 보기: ${notice.category}`}
                         onClick={() => handleItemClick(notice)}
-                        className="bg-[#FFF4EE] hover:bg-[#FADCD0] transition-colors h-14 cursor-pointer"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ") {
+                            e.preventDefault();
+                            handleItemClick(notice);
+                          }
+                        }}
+                        className="bg-[#FFF4EE] hover:bg-[#FADCD0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C84312] transition-colors h-14 cursor-pointer"
                       >
                         <td>
                           <span className="bg-[#E8521A] text-white text-hb-xs font-bold px-2 py-0.5 rounded">
@@ -759,8 +768,17 @@ export function InquiryBoardClient({
                   {currentItems.map((item, index) => (
                     <tr
                       key={item.id}
+                      tabIndex={0}
+                      role="button"
+                      aria-label={`문의 상세 보기: ${rowTitle(item)}`}
                       onClick={() => handleItemClick(item)}
-                      className="hover:bg-[#F7F8FA] transition-colors h-14 cursor-pointer"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          handleItemClick(item);
+                        }
+                      }}
+                      className="hover:bg-[#F7F8FA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors h-14 cursor-pointer"
                     >
                       <td className="text-[#64748B] tabular-nums">
                         {filteredList.length -
@@ -1101,6 +1119,7 @@ export function InquiryBoardClient({
                 type="button"
                 onClick={() => setIsDetailOpen(false)}
                 aria-label="닫기"
+                className="grid h-11 w-11 -mr-2 place-items-center rounded-lg text-white/90 hover:bg-white/10 hover:text-white transition-colors"
               >
                 <Icon d={ICON.close} className="w-5 h-5" />
               </button>

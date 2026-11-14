@@ -24,7 +24,12 @@ export function DiagramFigure({
           {badgeLabel}
         </span>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-[#CBD5E1] bg-white p-2 sm:p-3 shadow-2xs">
+      <div
+        tabIndex={0}
+        role="region"
+        aria-label={`${title} 가로 스크롤 도해`}
+        className="overflow-x-auto rounded-xl border border-[#CBD5E1] bg-white p-2 sm:p-3 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+      >
         {children}
       </div>
       <figcaption className="mt-2.5 text-hb-xs text-[#475569] leading-[1.6] [text-wrap:pretty]">

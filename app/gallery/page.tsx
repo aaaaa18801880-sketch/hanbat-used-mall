@@ -173,6 +173,16 @@ function ProductDetailModal({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isEditing || displayImages.length < 2) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
     };
@@ -1042,6 +1052,18 @@ export default function GalleryPage() {
   /* 검색·필터·정렬·페이지네이션 상태 */
   const [activeCategory, setActiveCategory] = useState<string>("전체");
   const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const trimmed = search.trim();
+    if (trimmed.length < 2) return;
+    const timer = window.setTimeout(() => {
+      trackEvent("search_products", {
+        query_length: trimmed.length,
+        category: activeCategory,
+      });
+    }, 650);
+    return () => window.clearTimeout(timer);
+  }, [search, activeCategory]);
   const [sort, setSort] = useState<SortOption>("latest");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");

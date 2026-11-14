@@ -10,6 +10,20 @@ module.exports = {
       screens: {
         xs: "375px",
       },
+      colors: {
+        hb: {
+          navy: "#141A23",
+          "navy-hover": "#1E2736",
+          brand: "#E8521A",
+          "brand-text": "#C84312",
+          surface: "#FFFFFF",
+          "surface-muted": "#F7F8FA",
+          border: "#E2E6EC",
+          "text-primary": "#141A23",
+          "text-secondary": "#334155",
+          "text-muted": "#475569",
+        },
+      },
       fontSize: {
         "hb-xs": ["12px", { lineHeight: "1.45", letterSpacing: "-0.01em" }],
         "hb-sm": ["14px", { lineHeight: "1.52", letterSpacing: "-0.014em" }],

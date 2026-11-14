@@ -141,7 +141,7 @@ function PhotoHotspotDiagram({
                 aria-pressed={lockedId === spot.id}
                 aria-label={`${spot.partName} — ${spot.title}`}
                 style={{ left: spot.pinLeft, top: spot.pinTop }}
-                className={`absolute -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full border-2 border-white font-mono text-hb-xs font-extrabold text-white shadow-md transition-transform duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
+                className={`absolute -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-full border-2 border-white font-mono text-hb-xs font-extrabold text-white shadow-md transition-transform duration-150 cursor-pointer before:absolute before:-inset-2 before:rounded-full before:content-[''] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white ${
                   style.accentBg
                 } ${isActive ? "h-8 w-8 sm:h-9 sm:w-9 scale-110 z-20" : "h-7 w-7 sm:h-8 sm:w-8 z-10 hover:scale-110"}`}
               >

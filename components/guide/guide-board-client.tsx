@@ -11,7 +11,7 @@ import {
 } from "../../lib/info-guides";
 import { STORE, telHref, trackEvent } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
-import { hasGuideInteractiveTool } from "./guide-interactive-tools";
+import { hasGuideInteractiveTool } from "../../lib/guides/tool-slugs";
 
 function GuideAssetBadges({ article }: { article: InfoGuideArticle }) {
   const hasDiagram = article.sections.some((s) => Boolean(s.diagram));
