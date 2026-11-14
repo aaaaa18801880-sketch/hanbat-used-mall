@@ -32,6 +32,7 @@ import {
   type ProductItem,
 } from "../../../components/products/product-card";
 import { GuideSectionDiagram } from "../../../components/guide/guide-diagrams";
+import { GuideInteractiveTool } from "../../../components/guide/guide-interactive-tools";
 
 export const revalidate = 1800; // 30분 ISR로 실시간 추천 매물 최신 유지
 
@@ -305,6 +306,27 @@ export default async function GuideDetailPage({
               </figure>
             )}
 
+            {/* 핵심 기준 3가지 */}
+            {article.keyPoints.length > 0 && (
+              <div className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5 space-y-2.5">
+                <p className="text-hb-xs font-bold tracking-tight text-[#475569]">
+                  현장 핵심 기준 3가지
+                </p>
+                <ol className="space-y-2 text-hb-sm text-[#141A23] leading-[1.6]">
+                  {article.keyPoints.map((point, kpIdx) => (
+                    <li key={kpIdx} className="flex items-start gap-2.5">
+                      <span className="font-mono text-hb-xs font-bold text-[#E8521A] tabular-nums pt-0.5 shrink-0">
+                        {String(kpIdx + 1).padStart(2, "0")}
+                      </span>
+                      <span className="font-medium break-keep [text-wrap:pretty]">
+                        {point}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
             {/* 본문 목차 */}
             {article.sections.length > 2 && (
               <nav
@@ -331,13 +353,16 @@ export default async function GuideDetailPage({
               {article.sections.map((section, sectionIdx) => {
                 const tableCaptionId = `guide-table-${article.slug}-${sectionIdx}`;
                 return (
+                <React.Fragment key={section.heading}>
                 <section
                   id={`section-${sectionIdx + 1}`}
-                  key={section.heading}
                   className="scroll-mt-24 space-y-4 pt-2 border-t border-[#F1F3F6] first:border-t-0 first:pt-0"
                 >
-                  <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] leading-snug break-keep [text-wrap:balance]">
-                    {section.heading}
+                  <h2 className="flex items-baseline gap-2.5 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] leading-snug break-keep [text-wrap:balance]">
+                    <span className="font-mono text-hb-sm font-bold text-[#E8521A] tabular-nums shrink-0">
+                      {String(sectionIdx + 1).padStart(2, "0")}
+                    </span>
+                    <span>{section.heading}</span>
                   </h2>
 
                   <div className="space-y-3.5 max-w-[68ch] text-hb-base text-[#334155] leading-[1.72]">
@@ -446,6 +471,8 @@ export default async function GuideDetailPage({
                     </div>
                   )}
                 </section>
+                {sectionIdx === 0 && <GuideInteractiveTool slug={article.slug} />}
+                </React.Fragment>
                 );
               })}
             </div>

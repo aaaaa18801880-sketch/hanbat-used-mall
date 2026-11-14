@@ -11,6 +11,35 @@ import {
 } from "../../lib/info-guides";
 import { STORE, telHref, trackEvent } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
+import { hasGuideInteractiveTool } from "./guide-interactive-tools";
+
+function GuideAssetBadges({ article }: { article: InfoGuideArticle }) {
+  const hasDiagram = article.sections.some((s) => Boolean(s.diagram));
+  const hasTable = article.sections.some((s) => Boolean(s.table));
+  const hasTool = hasGuideInteractiveTool(article.slug);
+
+  if (!hasDiagram && !hasTable && !hasTool) return null;
+
+  return (
+    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+      {hasDiagram && (
+        <span className="inline-flex items-center rounded-md border border-[#E2E6EC] bg-[#F8FAFC] px-1.5 py-0.5 text-hb-xs font-medium text-[#475569]">
+          도해
+        </span>
+      )}
+      {hasTable && (
+        <span className="inline-flex items-center rounded-md border border-[#E2E6EC] bg-[#F8FAFC] px-1.5 py-0.5 text-hb-xs font-medium text-[#475569]">
+          비교표
+        </span>
+      )}
+      {hasTool && (
+        <span className="inline-flex items-center rounded-md border border-[#CBD5E1] bg-white px-1.5 py-0.5 text-hb-xs font-bold text-[#141A23]">
+          계산기
+        </span>
+      )}
+    </div>
+  );
+}
 
 function parseInitialCategory(
   raw: string | null
@@ -136,6 +165,7 @@ export function GuideBoardClient({
               <p className="text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.55] line-clamp-2 [text-wrap:pretty]">
                 {article.summary}
               </p>
+              <GuideAssetBadges article={article} />
             </Link>
           ))}
         </div>
@@ -304,6 +334,7 @@ export function GuideBoardClient({
                       <p className="mt-1 max-w-[68ch] text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.6] line-clamp-2 [text-wrap:pretty]">
                         {article.summary}
                       </p>
+                      <GuideAssetBadges article={article} />
                     </div>
 
                     {/* 화살표 */}
