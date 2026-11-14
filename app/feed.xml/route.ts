@@ -17,12 +17,17 @@ function escapeXml(value: string): string {
 export async function GET() {
   const buildDate = new Date().toUTCString();
 
-  const itemsXml = INFO_GUIDE_ARTICLES.map((article) => {
+  const sortedArticles = [...INFO_GUIDE_ARTICLES].sort((a, b) => {
+    const dateDiff = b.updatedAt.localeCompare(a.updatedAt);
+    return dateDiff !== 0 ? dateDiff : b.number - a.number;
+  });
+
+  const itemsXml = sortedArticles.map((article) => {
     const link = `${STORE.url}/guide/${article.slug}`;
     const pubDate = new Date(`${article.updatedAt}T09:00:00+09:00`).toUTCString();
     const fullDesc = `${article.summary} [핵심 정리] 1) ${article.keyPoints[0]} 2) ${article.keyPoints[1]} 3) ${article.keyPoints[2]}`;
     const imageTag = article.heroImage
-      ? `<enclosure url="${escapeXml(`${STORE.url}${article.heroImage.src}`)}" type="image/jpeg" length="0" />`
+      ? `<enclosure url="${escapeXml(`${STORE.url}${article.heroImage.src}`)}" type="image/jpeg" />`
       : "";
 
     return `    <item>
@@ -43,7 +48,7 @@ export async function GET() {
     <link>${escapeXml(`${STORE.url}/guide`)}</link>
     <atom:link href="${escapeXml(`${STORE.url}/feed.xml`)}" rel="self" type="application/rss+xml" />
     <description>${escapeXml(
-      `${STORE.since}년 개업 ${STORE.name} 현장 전문가가 정리한 에어컨 원리·PCB·제상기능·220V/380V 전기·창폐업 서류·사다리차 실측 가이드`
+      `${STORE.since}년 개업 ${STORE.name} 현장 전문가가 정리한 총 ${INFO_GUIDE_ARTICLES.length}편 가전·에어컨 원리·실외기 PCB·220V/380V 전기·창폐업 서류·배관·에너지 효율 실전 가이드`
     )}</description>
     <language>ko-KR</language>
     <lastBuildDate>${buildDate}</lastBuildDate>

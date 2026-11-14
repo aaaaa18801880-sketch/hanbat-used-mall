@@ -327,12 +327,6 @@ export default function RootLayout({
         <link
           rel="alternate"
           type="text/plain"
-          href="/llms.txt"
-          title={`${STORE.name} AI Search & LLM Guide`}
-        />
-        <link
-          rel="alternate"
-          type="text/plain"
           href="/llms-full.txt"
           title={`${STORE.name} Full Inventory Feed for AI`}
         />

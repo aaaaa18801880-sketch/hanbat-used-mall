@@ -2119,9 +2119,12 @@ export default function GalleryPage() {
             </div>
           </div>
 
-          {/* 확장 행: 상황별 프리셋 4종 + 모바일 필터 3종 (토글 열림 시 노출) */}
-          {mobileFilterOpen && (
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2 pt-2 border-t border-[#F1F3F6]">
+          {/* 확장 행: 상황별 프리셋 4종 (데스크톱 상시 노출 · 모바일 토글 연동) */}
+          <div
+            className={`${
+              mobileFilterOpen ? "flex" : "hidden lg:flex"
+            } flex-col lg:flex-row lg:items-center justify-between gap-2 pt-2 border-t border-[#F1F3F6]`}
+          >
               <div className="relative min-w-0 flex-1">
                 <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-6 sm:pr-0 text-hb-xs">
                   <span className="shrink-0 font-bold text-[#64748B] mr-1">
@@ -2221,7 +2224,6 @@ export default function GalleryPage() {
                 </select>
               </div>
             </div>
-          )}
         </div>
       </div>
 

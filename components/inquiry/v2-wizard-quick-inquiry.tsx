@@ -182,8 +182,9 @@ export function V2InquirySectionWithWizard({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [agreed, setAgreed] = useState(true);
+  const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
   /* 촬영 참고 가이드 토글 및 확대 보기 상태 */
   const [showGuide, setShowGuide] = useState(false);
@@ -199,7 +200,11 @@ export function V2InquirySectionWithWizard({
 
   const goToPhotoStep = () => {
     if (selectedCategories.length === 0) {
-      toast.error("처분하실 품목을 1개 이상 선택해 주세요.");
+      toast.error(
+        inquiryType === "내 물건 팔기"
+          ? "처분하실 품목을 1개 이상 선택해 주세요."
+          : "상담하실 품목을 1개 이상 선택해 주세요."
+      );
       return;
     }
     setStep(2);
@@ -381,7 +386,7 @@ export function V2InquirySectionWithWizard({
           password: password.trim(),
           inquiry_type: inquiryType,
           category: autoTitle,
-          region: region.trim() || "대전/기타",
+          region: region.trim() || "대전/충청",
           description: structuredDescription,
           model: aiResult?.modelNumber || linkedProduct?.modelName || null,
           condition_grade: aiResult?.conditionGrade || null,
@@ -417,17 +422,18 @@ export function V2InquirySectionWithWizard({
         });
       }
 
-      // 메모리 해제 및 폼 초기화
+      // 메모리 해제 및 완료 상태 전환 (모달 2초 닫힘 전 빈 폼 깜빡임 방지)
       revokeObjectUrls(filePreviews);
       toast.success(
         inquiryType === "내 물건 팔기"
           ? "매입 견적 신청이 정상 접수되었습니다!"
           : "견적 상담 접수가 정상 완료되었습니다!"
       );
-      setStep(1);
       setMemo("");
       setSelectedFiles([]);
       setFilePreviews([]);
+      setAgreed(false);
+      setSubmittedSuccess(true);
       onSuccess?.();
     } catch (err: unknown) {
       toast.error(
@@ -439,6 +445,38 @@ export function V2InquirySectionWithWizard({
   };
 
   const isSell = inquiryType === "내 물건 팔기";
+
+  if (submittedSuccess) {
+    return (
+      <div className="rounded-2xl border border-[#CCFBF1] bg-white p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]">
+          <Icon d={ICON.check} className="w-6 h-6" />
+        </div>
+        <div className="space-y-1.5">
+          <h3 className="text-hb-lg font-bold text-[#141A23]">
+            {isSell ? "매입 견적 신청이 접수되었습니다" : "견적 상담이 접수되었습니다"}
+          </h3>
+          <p className="text-hb-sm text-[#475569] leading-relaxed">
+            담당 엔지니어가 남기신 내용을 확인한 뒤 순차적으로 연락드리겠습니다.
+          </p>
+        </div>
+        {variant === "embedded" && (
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setSubmittedSuccess(false);
+                setStep(1);
+              }}
+              className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
+            >
+              새 문의 작성하기
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={variant === "embedded" ? "" : "space-y-4"}>

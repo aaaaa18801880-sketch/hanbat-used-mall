@@ -92,6 +92,11 @@ export async function POST(req: NextRequest) {
       fallbackModel: FALLBACK_GEMINI_MODEL,
       prompt,
       imageParts: imgResult.imageParts,
+      config: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+        maxOutputTokens: 2048,
+      },
     });
 
     const { parsed: raw } = parseGeminiJsonObject(responseText);

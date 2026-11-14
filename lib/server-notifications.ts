@@ -62,7 +62,9 @@ export async function postTelegramInquiryMessage(params: {
   title: string;
   timeoutMs?: number;
 }): Promise<
-  { outcome: "sent" } | { outcome: "http_error" } | { outcome: "exception"; error: string }
+  | { outcome: "sent" }
+  | { outcome: "http_error"; statusCode: number; detail?: string }
+  | { outcome: "exception"; error: string }
 > {
   const idStr = params.inquiryId ? String(params.inquiryId).trim() : "";
   const maskedPhone = params.phone ? maskPhone(params.phone) : "미입력";
@@ -79,28 +81,50 @@ export async function postTelegramInquiryMessage(params: {
     .filter(Boolean)
     .join("\n");
 
-  try {
-    const res = await fetch(
-      `https://api.telegram.org/bot${params.botToken}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: params.chatId,
-          text: message,
-        }),
-        signal: AbortSignal.timeout(params.timeoutMs ?? 4500),
+  const payload = JSON.stringify({
+    chat_id: params.chatId,
+    text: message,
+  });
+
+  const maxAttempts = 2;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(
+        `https://api.telegram.org/bot${params.botToken}/sendMessage`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          signal: AbortSignal.timeout(params.timeoutMs ?? 4500),
+        }
+      );
+      const resultJson = await res.json().catch(() => null);
+      if (res.ok && resultJson?.ok !== false) {
+        return { outcome: "sent" };
       }
-    );
-    const resultJson = await res.json().catch(() => null);
-    if (res.ok && resultJson?.ok !== false) {
-      return { outcome: "sent" };
+
+      const isTransientHttp = res.status === 429 || res.status >= 500;
+      if (attempt < maxAttempts && isTransientHttp) {
+        await new Promise((r) => setTimeout(r, 300));
+        continue;
+      }
+
+      const detail =
+        typeof resultJson?.description === "string"
+          ? resultJson.description.slice(0, 120)
+          : undefined;
+      return { outcome: "http_error", statusCode: res.status, detail };
+    } catch (err) {
+      if (attempt < maxAttempts) {
+        await new Promise((r) => setTimeout(r, 300));
+        continue;
+      }
+      return {
+        outcome: "exception",
+        error: err instanceof Error ? err.message : "telegram_network_error",
+      };
     }
-    return { outcome: "http_error" };
-  } catch (err) {
-    return {
-      outcome: "exception",
-      error: err instanceof Error ? err.message : "telegram_network_error",
-    };
   }
+
+  return { outcome: "http_error", statusCode: 500 };
 }

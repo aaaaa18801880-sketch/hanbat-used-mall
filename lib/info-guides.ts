@@ -155,7 +155,7 @@ export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
           items: [
             "매장용은 부가 기능보다 냉매 호환성과 부품 수급이 꾸준한 주력 연식 모델이 유지관리에 유리합니다.",
             "중고 제품이라도 출고 전 질소 압력 체크(누설 점검)와 연속 냉방 테스트를 거쳤는지 확인하세요.",
-            `사후 문제 발생 시 콜센터 장기 대기 대신 직접 설치한 매장이 신속히 대응할 수 있는 보증 조건(${STORE.name} ${STORE_MERCHANT_POLICY.warrantyAircon})을 함께 살피는 편이 안전합니다.`,
+            `사후 문제 발생 시 콜센터 장기 대기 대신 직접 설치한 매장이 신속히 대응할 수 있는 보증 조건(${STORE.name} · ${STORE_MERCHANT_POLICY.warrantyAircon})을 함께 살피는 편이 안전합니다.`,
           ],
         },
       },
@@ -578,7 +578,7 @@ export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     keyPoints: [
       "식당·카페 창업 시 주방설비와 냉난방기를 검증된 중고로 세팅하면 새 제품 대비 초기 시설비를 40~60% 낮춰 운영 자금 여유를 확보할 수 있습니다.",
       "개인 직거래는 용달 섭외와 운반 부담이 크고, 겉으로 보이지 않는 냉매 누설이나 내부 오염, 거래 후 보증 공백 위험이 있습니다.",
-      `직영 매장은 분해 세척과 연속 시운전, 기사 직접 운반·설치, 무상 보증(에어컨 ${STORE_MERCHANT_POLICY.warrantyAircon}, 일반 가전 ${STORE_MERCHANT_POLICY.warrantyMajor}) 및 세금계산서 발행을 한 번에 처리합니다.`,
+      `직영 매장은 분해 세척과 연속 시운전, 기사 직접 운반·설치, 무상 보증(${STORE_MERCHANT_POLICY.warrantyAircon}, ${STORE_MERCHANT_POLICY.warrantyMajor}) 및 세금계산서 발행을 한 번에 처리합니다.`,
     ],
     sections: [
       {
@@ -615,7 +615,7 @@ export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
               "고장 · 사후 A/S",
               "제조사 보증 (성수기 대기 김)",
               "거래 후 보증 없음 (수리비 전액 본인 부담)",
-              `계약 기준 에어컨 ${STORE_MERCHANT_POLICY.warrantyAircon}, 일반 가전 ${STORE_MERCHANT_POLICY.warrantyMajor} 무상 A/S`,
+              `계약 기준 ${STORE_MERCHANT_POLICY.warrantyAircon}, ${STORE_MERCHANT_POLICY.warrantyMajor} 무상 A/S`,
             ],
             [
               "운반 및 설치",
@@ -2370,7 +2370,7 @@ export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     ],
     keyPoints: [
       "비표준 맞춤 제작 사이즈, A/S 망이 없는 저가 직구 장비, 3상 380V 소형 기기는 다음 매장에서 재사용하기 어려워 매입 시 감가가 크거나 매입이 어렵습니다.",
-      "수요가 꾸준한 1100mm 45박스, 1200·1500·1800 테이블 냉장고, 단상 220V 30~40평형 냉난방기가 처분 시 가격 방어에 유리합니다.",
+      "수요가 꾸준한 1260mm 45박스, 1200·1500·1800 테이블 냉장고, 단상 220V 30~40평형 냉난방기가 처분 시 가격 방어에 유리합니다.",
       "옆면 제조년월·모델 명판 스티커를 훼손하지 않고, 에어컨 철거 시 펌프다운으로 냉매를 회수해 두어야 정상 매입가를 받을 수 있습니다.",
     ],
     sections: [
@@ -2392,7 +2392,7 @@ export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
           rows: [
             [
               "주방 냉장고 규격",
-              "폭 1100mm(45박스), 1200·1500·1800 테이블 냉장고",
+              "폭 1260mm(45박스), 1200·1500·1800 테이블 냉장고",
               "벽면 맞춰 특수 주문 제작한 비규격 사이즈, 좁은 출입구 통과 불가 대형 일체형",
             ],
             [
@@ -2426,7 +2426,7 @@ export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
       },
       {
         label: "폐업 · 처분 무료 견적 신청",
-        href: "/sell",
+        href: "/purchase",
         variant: "outline",
       },
     ],

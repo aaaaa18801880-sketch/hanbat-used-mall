@@ -291,18 +291,33 @@ export function getClientIp(req: NextRequest | Request): string {
  * [SEC-006] 상태 변경(POST/PATCH/DELETE) API에 대한 Cross-Origin(CSRF) 요청 검증
  */
 export function verifySameOriginRequest(req: NextRequest | Request): boolean {
+  if (req.headers.get("sec-fetch-site") === "cross-site") return false;
   const origin = req.headers.get("origin");
-  if (!origin) return true;
+  const referer = req.headers.get("referer");
   try {
     const reqOrigin = new URL(req.url).origin;
-    if (origin === reqOrigin) return true;
-    const host =
-      req.headers.get("x-forwarded-host") || req.headers.get("host");
-    if (host) {
-      const originHost = new URL(origin).host;
-      if (originHost === host) return true;
-    }
-    return false;
+    const directHost = req.headers.get("host");
+    const isAllowedCandidate = (rawUrl: string): boolean => {
+      const parsed = new URL(rawUrl);
+      if (parsed.origin === reqOrigin) return true;
+      if (directHost && parsed.host === directHost) return true;
+      const forwardedHost = req.headers.get("x-forwarded-host");
+      if (
+        forwardedHost &&
+        forwardedHost === parsed.host &&
+        (forwardedHost === directHost ||
+          forwardedHost === "hanbatmall.com" ||
+          forwardedHost === "www.hanbatmall.com" ||
+          forwardedHost.endsWith(".vercel.app"))
+      ) {
+        return true;
+      }
+      return false;
+    };
+
+    if (origin) return isAllowedCandidate(origin);
+    if (referer) return isAllowedCandidate(referer);
+    return true;
   } catch {
     return false;
   }
@@ -399,6 +414,12 @@ export async function checkRateLimit(
       : null);
 
   if (!runner) {
+    if (failureMode === "fail-closed" && process.env.NODE_ENV === "production") {
+      console.error(
+        "[security] checkRateLimit fail-closed: RPC runner unavailable in production"
+      );
+      return { allowed: false, retryAfterSec: 30 };
+    }
     return checkRateLimitMemory(hashedKey, maxAttempts, windowMs, increment);
   }
 
@@ -422,6 +443,7 @@ export async function checkRateLimit(
         const retryAfterSec = Math.max(0, Number(row.retry_after_sec) || 0);
         const currentCount = Math.max(0, Number(row.current_count) || 0);
         const now = Date.now();
+        pruneRateBuckets(now);
         rateBuckets.set(hashedKey, {
           count: currentCount,
           resetAt:
@@ -432,6 +454,13 @@ export async function checkRateLimit(
     }
 
     if (error && isRpcMissingError(error)) {
+      console.warn(
+        "[security] check_rate_limit_atomic RPC 누락:",
+        error.code || error.message || "missing_rpc"
+      );
+      if (failureMode === "fail-closed" && process.env.NODE_ENV === "production") {
+        return { allowed: false, retryAfterSec: 30 };
+      }
       return checkRateLimitMemory(hashedKey, maxAttempts, windowMs, increment);
     }
 
@@ -439,7 +468,11 @@ export async function checkRateLimit(
       return { allowed: false, retryAfterSec: 30 };
     }
     return checkRateLimitMemory(hashedKey, maxAttempts, windowMs, increment);
-  } catch {
+  } catch (err) {
+    console.error(
+      "[security] checkRateLimit RPC 예외:",
+      err instanceof Error ? err.message : "unknown_rpc_error"
+    );
     if (failureMode === "fail-closed") {
       return { allowed: false, retryAfterSec: 30 };
     }

@@ -31,6 +31,7 @@ const V2InquirySectionWithWizard = dynamic(
 
 export function QuickInquiryModal() {
   const [isOpen, setIsOpen] = useState(false);
+  const [openSession, setOpenSession] = useState(0);
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>("구매 문의");
   const [linkedProduct, setLinkedProduct] = useState<LinkedProductContext | null>(null);
 
@@ -53,6 +54,7 @@ export function QuickInquiryModal() {
     } else {
       setLinkedProduct(null);
     }
+    setOpenSession((prev) => prev + 1);
     setIsOpen(true);
   }, []);
 
@@ -103,7 +105,7 @@ export function QuickInquiryModal() {
         {/* 폼 본문 (스크롤 영역) */}
         <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#F7F8FA]">
           <V2InquirySectionWithWizard
-            key={`${inquiryType}_${linkedProduct?.useBundle ? "bundle" : "single"}_${linkedProduct?.productTitle || ""}`}
+            key={`${openSession}_${inquiryType}_${linkedProduct?.useBundle ? "bundle" : "single"}_${linkedProduct?.productTitle || ""}`}
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {

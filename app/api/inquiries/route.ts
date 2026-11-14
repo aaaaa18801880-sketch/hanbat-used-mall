@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   extractInquiryImages,
   getInquiryTypeLabel,
+  INQUIRY_TYPES,
   isValidPhone,
   STORE,
 } from "../../../lib/site";
@@ -79,7 +80,15 @@ export async function GET(req: NextRequest) {
       })
     );
 
-    return NextResponse.json({ inquiries: sanitized, isAdmin });
+    return NextResponse.json(
+      { inquiries: sanitized, isAdmin },
+      {
+        headers: {
+          "Cache-Control": "no-store, private",
+          Vary: "Authorization",
+        },
+      }
+    );
   } catch {
     return NextResponse.json(
       { error: "문의 목록 조회 중 서버 오류가 발생했습니다." },
@@ -138,11 +147,19 @@ export async function POST(req: NextRequest) {
     const description = String(body.description || body.content || "")
       .trim()
       .slice(0, 5000);
-    const inquiryType = isNotice
-      ? "공지사항"
-      : String(body.inquiry_type || "내 물건 팔기")
-          .trim()
-          .slice(0, 40);
+    const rawInquiryType = String(body.inquiry_type || "내 물건 팔기")
+      .trim()
+      .slice(0, 40);
+    if (
+      !isNotice &&
+      !(INQUIRY_TYPES as readonly string[]).includes(rawInquiryType)
+    ) {
+      return NextResponse.json(
+        { error: "허용되지 않는 문의 유형입니다." },
+        { status: 400 }
+      );
+    }
+    const inquiryType = isNotice ? "공지사항" : rawInquiryType;
     const name = isNotice
       ? String(body.name || STORE.name)
           .trim()
@@ -290,9 +307,14 @@ export async function POST(req: NextRequest) {
             const failReason =
               telegramRes.outcome === "exception"
                 ? telegramRes.error
-                : "telegram_api_error";
+                : `telegram_http_${telegramRes.statusCode}`;
             await markNotificationFailed(dedupKey, failReason);
-            if (telegramRes.outcome === "exception") {
+            if (telegramRes.outcome === "http_error") {
+              console.error(
+                `[inquiries POST] 서버 측 텔레그램 HTTP 오류 (status=${telegramRes.statusCode}):`,
+                telegramRes.detail || "no_detail"
+              );
+            } else {
               console.warn(
                 "[inquiries POST] 서버 측 텔레그램 즉시 알림 실패(클라이언트 폴백 대기):",
                 failReason

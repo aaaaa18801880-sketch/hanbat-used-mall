@@ -641,7 +641,7 @@ function PowerContractTool() {
 /* ------------------------------------------------------------------ */
 const APPLIANCE_SIZE_PRESETS = [
   { id: "side-by-side", label: "양문형 냉장고 (800L급)", width: 912, depth: 820, doorDetachDepth: 730, tallNoLay: true },
-  { id: "box45", label: "45박스 업소용 냉장고", width: 1100, depth: 800, doorDetachDepth: 735, tallNoLay: true },
+  { id: "box45", label: "45박스 업소용 냉장고", width: 1260, depth: 800, doorDetachDepth: 735, tallNoLay: true },
   { id: "washer24", label: "대형 드럼세탁기 (24kg)", width: 686, depth: 820, doorDetachDepth: 750, tallNoLay: false },
   { id: "aircon-stand", label: "중대형 스탠드 에어컨", width: 520, depth: 340, doorDetachDepth: 340, tallNoLay: true },
 ] as const;

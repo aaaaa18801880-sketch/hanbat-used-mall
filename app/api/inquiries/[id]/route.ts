@@ -4,6 +4,7 @@ import {
   extractInquiryImages,
   extractStorageFilesByBucket,
   INQUIRY_STATUS,
+  INQUIRY_TYPES,
   STORAGE_BUCKETS,
 } from "../../../../lib/site";
 import {
@@ -127,9 +128,17 @@ export async function POST(
       extractInquiryImages(row),
     ]);
 
-    return NextResponse.json({
-      inquiry: toInquiryDetailItem(row, { isAdmin, images }),
-    });
+    return NextResponse.json(
+      {
+        inquiry: toInquiryDetailItem(row, { isAdmin, images }),
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store, private",
+          Vary: "Authorization",
+        },
+      }
+    );
   } catch {
     return NextResponse.json(
       { error: "문의글 열람 처리 중 서버 오류가 발생했습니다." },
@@ -247,9 +256,18 @@ export async function PATCH(
       patch.description = body.description.trim().slice(0, 5000);
     }
     if (typeof body.inquiry_type === "string") {
-      patch.inquiry_type = existing.is_notice
-        ? "공지사항"
-        : body.inquiry_type.trim().slice(0, 40);
+      if (existing.is_notice) {
+        patch.inquiry_type = "공지사항";
+      } else {
+        const nextType = body.inquiry_type.trim().slice(0, 40);
+        if (!(INQUIRY_TYPES as readonly string[]).includes(nextType)) {
+          return NextResponse.json(
+            { error: "허용되지 않는 문의 유형입니다." },
+            { status: 400 }
+          );
+        }
+        patch.inquiry_type = nextType;
+      }
     }
     if (isAdmin && typeof body.admin_reply === "string") {
       patch.admin_reply = body.admin_reply.trim().slice(0, 5000);
@@ -417,17 +435,26 @@ export async function DELETE(
         } = extractStorageFilesByBucket(attachedImages);
 
         const cleanupClient = isAdmin ? supabase : createServiceRoleClient();
-        const { data: otherRows, error: refErr } = await cleanupClient
-          .from("purchase_requests")
-          .select("images, image_url")
-          .neq("id", id)
-          .limit(500);
-
         const referencedPaths = new Set<string>();
-        let canVerifyRefs = !refErr;
+        let canVerifyRefs = true;
+        const pageSize = 500;
+        const maxPages = 40;
 
-        if (canVerifyRefs) {
-          for (const row of otherRows ?? []) {
+        for (let page = 0; page < maxPages; page++) {
+          const from = page * pageSize;
+          const { data: otherRows, error: refErr } = await cleanupClient
+            .from("purchase_requests")
+            .select("id, images, image_url")
+            .neq("id", id)
+            .order("id", { ascending: true })
+            .range(from, from + pageSize - 1);
+
+          if (refErr) {
+            canVerifyRefs = false;
+            break;
+          }
+          const rows = otherRows ?? [];
+          for (const row of rows) {
             for (const url of extractInquiryImages(row)) {
               const extracted = extractStorageFilesByBucket([url]);
               [
@@ -437,18 +464,26 @@ export async function DELETE(
               ].forEach((p) => referencedPaths.add(p));
             }
           }
+          if (rows.length < pageSize) break;
+          if (page === maxPages - 1) canVerifyRefs = false;
         }
 
         // 관리자 공지/레거시 공용 버킷 삭제 전에는 상품 테이블 참조 여부까지 함께 확인
         if (isAdmin && canVerifyRefs && (inqFiles.length > 0 || prodFiles.length > 0)) {
-          const { data: prodRows, error: prodRefErr } = await cleanupClient
-            .from("products")
-            .select("image_url")
-            .limit(500);
-          if (prodRefErr) {
-            canVerifyRefs = false;
-          } else {
-            for (const pRow of prodRows ?? []) {
+          for (let page = 0; page < maxPages; page++) {
+            const from = page * pageSize;
+            const { data: prodRows, error: prodRefErr } = await cleanupClient
+              .from("products")
+              .select("id, image_url")
+              .order("id", { ascending: true })
+              .range(from, from + pageSize - 1);
+
+            if (prodRefErr) {
+              canVerifyRefs = false;
+              break;
+            }
+            const pRows = prodRows ?? [];
+            for (const pRow of pRows) {
               const raw = typeof pRow.image_url === "string" ? pRow.image_url : "";
               if (!raw) continue;
               const extracted = extractStorageFilesByBucket(raw.split(",").map((s) => s.trim()));
@@ -456,6 +491,8 @@ export async function DELETE(
                 referencedPaths.add(p)
               );
             }
+            if (pRows.length < pageSize) break;
+            if (page === maxPages - 1) canVerifyRefs = false;
           }
         }
 

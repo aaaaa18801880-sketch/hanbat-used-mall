@@ -2321,7 +2321,7 @@ function ApplianceResaleValueDiagram() {
   return (
     <DiagramFigure
       title="나중에 되팔 때 제값 받는 표준 규격 도면 vs 감가·매입 불가 유형"
-      caption="폐업이나 업종 변경까지 고려한다면 표준 가로 규격(45박스 1100mm, 테이블 1200·1500·1800mm)과 단상 220V 정식 모델을 선택하고, 철거 시 냉매 회수(펌프다운) 후 배관을 분리해야 감가 손실이 줄어듭니다."
+      caption="폐업이나 업종 변경까지 고려한다면 표준 가로 규격(45박스 1260mm, 테이블 1200·1500·1800mm)과 단상 220V 정식 모델을 선택하고, 철거 시 냉매 회수(펌프다운) 후 배관을 분리해야 감가 손실이 줄어듭니다."
     >
       <svg
         viewBox="0 0 760 284"
@@ -2347,7 +2347,7 @@ function ApplianceResaleValueDiagram() {
         </text>
         <line x1="62" y1="90" x2="146" y2="90" stroke="#0F766E" strokeWidth="1" />
         <text x="104" y="88" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#0F766E">
-          W 1100mm
+          W 1260mm
         </text>
         <rect x="62" y="94" width="84" height="58" rx="3" fill="#FFFFFF" stroke="#334155" strokeWidth="1.4" />
         <line x1="104" y1="94" x2="104" y2="152" stroke="#64748B" strokeWidth="1" />

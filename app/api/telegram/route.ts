@@ -207,7 +207,14 @@ export async function POST(req: NextRequest) {
     });
 
     if (result.outcome === "http_error") {
-      await markNotificationFailed(dedupKey, "telegram_api_error");
+      await markNotificationFailed(
+        dedupKey,
+        `telegram_http_${result.statusCode}`
+      );
+      console.error(
+        `[telegram POST] 텔레그램 HTTP 오류 (status=${result.statusCode}):`,
+        result.detail || "no_detail"
+      );
       return notificationJson("telegram", 502, {
         success: false,
         status: "EXTERNAL_ERROR",

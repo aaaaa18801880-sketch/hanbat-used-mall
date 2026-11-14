@@ -125,11 +125,10 @@ USING (
 CREATE POLICY "purchase_requests_insert_customer_or_staff"
 ON public.purchase_requests
 FOR INSERT
-TO public
+TO authenticated, service_role
 WITH CHECK (
   (SELECT auth.role()) = 'service_role' OR
-  (SELECT public.is_hanbat_admin()) OR
-  (is_notice IS NOT TRUE AND admin_reply IS NULL AND (status IS NULL OR status = '접수'))
+  (SELECT public.is_hanbat_admin())
 );
 
 CREATE POLICY "purchase_requests_update_staff"

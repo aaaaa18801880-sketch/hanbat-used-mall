@@ -27,7 +27,7 @@ function getAllowedAdminEmails(): string[] {
  * - 등록된 관리자 이메일 화이트리스트에 포함된 계정만 관리자로 인가합니다.
  */
 export function isAuthorizedAdminUser(user?: User | null): boolean {
-  if (!user || !user.email) return false;
+  if (!user || !user.email || !user.email_confirmed_at) return false;
 
   const appRole = user.app_metadata && user.app_metadata.role;
   if (appRole === "admin") return true;
@@ -67,9 +67,9 @@ function createServerSupabaseClient(
     });
   }
 
-  if (useServiceRole && !serviceRoleKey && process.env.NODE_ENV === "production") {
-    console.warn(
-      "[supabase] SUPABASE_SERVICE_ROLE_KEY가 설정되지 않아 최소 권한 Anon 클라이언트로 폴백했습니다."
+  if (useServiceRole && !serviceRoleKey) {
+    throw new Error(
+      "[supabase] SUPABASE_SERVICE_ROLE_KEY 환경변수가 설정되지 않아 서버 권한 요청을 처리할 수 없습니다."
     );
   }
 

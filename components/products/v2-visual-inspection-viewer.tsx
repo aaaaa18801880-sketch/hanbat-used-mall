@@ -44,8 +44,8 @@ function getBuyerConcernItems(
       {
         no: "03",
         question: "설치하고 얼마 안 돼서 고장 나면 수리비가 들지 않나요?",
-        answerTitle: "개인 직거래와 다른 최대 8개월 무상 A/S 책임 보증",
-        badge: "최대 8개월 보증",
+        answerTitle: `개인 직거래와 다른 ${getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel} 책임 보증`,
+        badge: getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel,
         tone: "orange",
         desc: "정상 사용 중 기기 기능 불량(콤프레샤·기판·냉매 누설 등) 발생 시 매장 전문 기사가 직접 방문 수리 또는 동급 제품으로 교환해 드립니다.",
       },
@@ -81,10 +81,10 @@ function getBuyerConcernItems(
       {
         no: "03",
         question: "중고 주방기기도 세금계산서 발행과 무상 A/S가 되나요?",
-        answerTitle: "전자세금계산서 100% 발행 & 계약 조건별 최대 4개월 보증",
-        badge: "세금계산서 · 무상A/S",
+        answerTitle: `전자세금계산서 100% 발행 & ${getCategoryWarrantyInfo("업소용기기").compactLabel}`,
+        badge: "세금계산서 · 보증 협의",
         tone: "orange",
-        desc: "창업 비용 처리를 위한 전자세금계산서·카드결제·현금영수증을 모두 지원하며, 출고 후 초기 작동 불량에 대해 무상 A/S를 책임 보증합니다.",
+        desc: "창업 비용 처리를 위한 전자세금계산서·카드결제·현금영수증을 모두 지원하며, 업소용 주방설비 보증·A/S 기준을 계약서에 명확히 안내해 드립니다.",
       },
       {
         no: "04",
@@ -117,8 +117,8 @@ function getBuyerConcernItems(
     {
       no: "03",
       question: "사서 쓰다가 고장 나면 개인 직거래처럼 내 돈으로 고쳐야 하나요?",
-      answerTitle: "주요 가정용 가전 최대 4개월 무상 A/S 책임 보증",
-      badge: "최대 4개월 보증",
+      answerTitle: `주요 가정용 가전 ${getCategoryWarrantyInfo("냉장고").compactLabel}`,
+      badge: getCategoryWarrantyInfo("냉장고").compactLabel,
       tone: "orange",
       desc: "개인 중고거래의 가장 큰 불안인 '거래 직후 고장' 걱정을 덜어드리도록, 보증 기간 내 기능 불량 발생 시 무상 수리 또는 동급 교환을 보장합니다.",
     },

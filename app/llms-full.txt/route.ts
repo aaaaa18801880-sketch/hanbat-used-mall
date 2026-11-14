@@ -27,11 +27,11 @@ export async function GET() {
       .from("products")
       .select("*")
       .neq("category", "배송인증")
+      .neq("status", "판매완료")
       .order("created_at", { ascending: false })
-      .limit(120);
+      .limit(500);
 
-    const productList = products ?? [];
-    const sellingItems = productList.filter((p) => !isProductSold(p.status));
+    const sellingItems = (products ?? []).filter((p) => !isProductSold(p.status));
     totalSellingCount = sellingItems.length;
 
     for (const p of sellingItems) {
@@ -39,7 +39,7 @@ export async function GET() {
       categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
     }
 
-    const blocks = productList.map((p, idx) => {
+    const blocks = sellingItems.slice(0, 200).map((p, idx) => {
       const cat = normalizeProductCategory(p.category);
       const status = normalizeProductStatus(p.status);
       const price = formatProductPrice(p.price, cat);

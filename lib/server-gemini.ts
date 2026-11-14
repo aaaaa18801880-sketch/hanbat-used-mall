@@ -76,7 +76,13 @@ export async function generateGeminiWithFallback(options: {
       parts: [{ text: options.prompt }, ...options.imageParts],
     },
   ];
-  const config = options.config ?? { responseMimeType: "application/json" };
+  const baseConfig = options.config ?? { responseMimeType: "application/json" };
+  const primaryConfig = {
+    ...baseConfig,
+    abortSignal:
+      (baseConfig.abortSignal as AbortSignal | undefined) ??
+      AbortSignal.timeout(20000),
+  };
 
   let modelUsed = options.defaultModel;
   let response;
@@ -85,22 +91,34 @@ export async function generateGeminiWithFallback(options: {
     response = await ai.models.generateContent({
       model: options.defaultModel,
       contents,
-      config,
+      config: primaryConfig,
     });
   } catch (modelErr: unknown) {
     const msg =
       modelErr instanceof Error ? modelErr.message : String(modelErr || "");
-    if (
-      options.defaultModel !== options.fallbackModel &&
-      (msg.includes("404") ||
-        msg.toLowerCase().includes("not found") ||
-        msg.toLowerCase().includes("not supported"))
-    ) {
+    const lowerMsg = msg.toLowerCase();
+    const isRetryableWithFallback =
+      msg.includes("404") ||
+      msg.includes("429") ||
+      msg.includes("503") ||
+      lowerMsg.includes("not found") ||
+      lowerMsg.includes("not supported") ||
+      lowerMsg.includes("resource_exhausted") ||
+      lowerMsg.includes("unavailable") ||
+      lowerMsg.includes("timeout") ||
+      lowerMsg.includes("aborted") ||
+      (modelErr instanceof Error &&
+        (modelErr.name === "TimeoutError" || modelErr.name === "AbortError"));
+
+    if (options.defaultModel !== options.fallbackModel && isRetryableWithFallback) {
       modelUsed = options.fallbackModel;
       response = await ai.models.generateContent({
         model: options.fallbackModel,
         contents,
-        config,
+        config: {
+          ...baseConfig,
+          abortSignal: AbortSignal.timeout(20000),
+        },
       });
     } else {
       throw modelErr;

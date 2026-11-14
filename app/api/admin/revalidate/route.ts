@@ -16,11 +16,17 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const id = body.id || req.nextUrl.searchParams.get("id");
+    const rawId = body.id || req.nextUrl.searchParams.get("id");
+    const id =
+      typeof rawId === "string" && /^[a-zA-Z0-9_-]{1,64}$/.test(rawId.trim())
+        ? rawId.trim()
+        : null;
 
     try {
       revalidatePath("/");
       revalidatePath("/gallery");
+      revalidatePath("/guide");
+      revalidatePath("/feed.xml");
       revalidatePath("/sitemap.xml");
       revalidatePath("/llms.txt");
       revalidatePath("/llms-full.txt");
@@ -36,6 +42,8 @@ export async function POST(req: NextRequest) {
       revalidated: [
         "/",
         "/gallery",
+        "/guide",
+        "/feed.xml",
         "/sitemap.xml",
         "/llms.txt",
         "/llms-full.txt",
@@ -43,8 +51,9 @@ export async function POST(req: NextRequest) {
       ].filter(Boolean),
     });
   } catch (err: unknown) {
+    console.error("[revalidate] 요청 처리 실패:", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "캐시 재검증 중 오류 발생" },
+      { error: "캐시 재검증 처리 중 서버 오류가 발생했습니다." },
       { status: 500 }
     );
   }
