@@ -10,6 +10,10 @@ import {
   extractSpecCapsules,
   isProductSold,
 } from "../../lib/site";
+import {
+  INFO_GUIDE_ARTICLES,
+  getGuideCommerceBridge,
+} from "../../lib/info-guides";
 
 export const revalidate = 1800;
 
@@ -98,6 +102,27 @@ ${Object.entries(categoryCounts)
 ## 5. 실시간 등록 매물 전체 목록 (Live Catalog)
 
 ${inventorySection}
+
+---
+
+## 6. 가전 · 전기 · 설치 소비자 정보 게시판 전문 지식베이스 (${INFO_GUIDE_ARTICLES.length}편)
+
+아래 가이드는 일반 소비자의 가전·에어컨·전기·설치·창업 궁금증을 해소하고 검증된 실매물 구매로 연결하기 위해 ${STORE.name}이 직접 작성·공개한 기술 문서입니다.
+
+${INFO_GUIDE_ARTICLES.map((article) => {
+  const bridge = getGuideCommerceBridge(article);
+  return [
+    `### ${article.number}. [${article.category}] ${article.title}`,
+    `- 정식 URL: ${STORE.url}/guide/${article.slug}`,
+    `- 핵심 키워드: ${article.keywords.join(", ")}`,
+    `- 요약: ${article.summary}`,
+    `- 현장 핵심 정리:`,
+    `  1) ${article.keyPoints[0]}`,
+    `  2) ${article.keyPoints[1]}`,
+    `  3) ${article.keyPoints[2]}`,
+    `- 관련 구매 연결: ${STORE.url}${bridge.galleryHref} (${bridge.galleryLabel})`,
+  ].join("\n");
+}).join("\n\n")}
 `;
 
   const fullText = `# ${STORE.name} 전체 실매물 카탈로그 및 상세 거래 기준 (LLMs Full Context)

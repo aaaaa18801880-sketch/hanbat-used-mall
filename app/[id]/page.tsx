@@ -44,6 +44,7 @@ import { RecentViewedStrip } from "../../components/products/product-compare-mod
 import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
 import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
 import { RefrigeratorCompartmentDiagram } from "../../components/products/refrigerator-compartment-diagram";
+import { getInfoGuidesForProductCategory } from "../../lib/info-guides";
 
 export const revalidate = 300;
 
@@ -639,6 +640,54 @@ export default async function ProductDetailPage({
               </div>
             ))}
           </dl>
+        </section>
+
+        {/* 구매 전 함께 확인하는 현장 실무 가이드 (상품-정보 게시판 내부 연결) */}
+        <section
+          aria-label="구매 전 확인해야 할 현장 실무 가이드"
+          className="mt-10 pt-8 border-t border-[#E2E6EC]"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+            <div className="space-y-1">
+              <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
+                {categoryLabel} 구매 전 꼭 보고 가시는 현장 실무 가이드
+              </h2>
+              <p className="text-hb-xs text-[#64748B]">
+                전압·출입구 문폭·설치 기준을 미리 확인하시면 반품이나 추가 공사비 없이 안전하게 설치할 수 있습니다.
+              </p>
+            </div>
+            <Link
+              href="/guide"
+              className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4 shrink-0"
+            >
+              정보 게시판 전체 보기 →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+            {getInfoGuidesForProductCategory(categoryLabel, 3).map((guide) => (
+              <Link
+                key={guide.slug}
+                href={`/guide/${guide.slug}`}
+                className="group rounded-2xl border border-[#E2E6EC] bg-white p-4 shadow-2xs hover:border-[#141A23] transition-colors flex flex-col justify-between gap-2.5"
+              >
+                <div>
+                  <span className="text-hb-xs font-bold text-[#E8521A]">
+                    {guide.category}
+                  </span>
+                  <h3 className="mt-1 text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep line-clamp-2">
+                    {guide.title}
+                  </h3>
+                  <p className="mt-1.5 text-hb-xs text-[#475569] leading-[1.55] line-clamp-2">
+                    {guide.summary}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A]">
+                  <span>가이드 읽기</span>
+                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                </span>
+              </Link>
+            ))}
+          </div>
         </section>
 
         {/* [기능 4] 비로그인 최근 본 매물 스트립 */}

@@ -1,5 +1,9 @@
 // 파일 경로: lib/info-guides.ts
-import { STORE } from "./site";
+import {
+  STORE,
+  STORE_MERCHANT_POLICY,
+  type ProductCategoryValue,
+} from "./site";
 import type { GuideDiagramId } from "../components/guide/guide-diagrams";
 
 export type InfoGuideCategory =
@@ -1234,4 +1238,165 @@ export function getRelatedInfoGuides(
     (a) => a.slug !== current.slug && a.category !== current.category
   );
   return [...sameCategory, ...others].slice(0, limit);
+}
+
+/**
+ * 정보 글 주제와 가장 밀접한 실제 판매 상품 카테고리를 매핑합니다.
+ * (정보 검색으로 유입된 소비자를 실제 검수 매물 탐색·구매로 자연스럽게 연결하기 위함)
+ */
+export function getRecommendedProductCategories(
+  article: InfoGuideArticle
+): readonly ProductCategoryValue[] {
+  if (
+    article.category === "에어컨 · A/S" ||
+    article.category === "에어컨 · 원리/설치" ||
+    article.slug === "voltage-220v-vs-380v"
+  ) {
+    return ["에어컨/냉난방기", "업소용기기"];
+  }
+  if (
+    article.slug === "startup-closure-docs-and-power" ||
+    article.slug === "electricity-bill-capacity-and-kepco"
+  ) {
+    return ["업소용기기", "에어컨/냉난방기", "냉장고"];
+  }
+  if (article.slug === "ladder-truck-and-clearance") {
+    return ["냉장고", "업소용기기", "세탁기/건조기"];
+  }
+  return ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기"];
+}
+
+export function getGuideCommerceBridge(article: InfoGuideArticle): {
+  primaryCategory: ProductCategoryValue;
+  heading: string;
+  description: string;
+  galleryHref: string;
+  galleryLabel: string;
+} {
+  const categories = getRecommendedProductCategories(article);
+  const primaryCategory = categories[0];
+
+  if (primaryCategory === "에어컨/냉난방기") {
+    return {
+      primaryCategory,
+      heading: "분해 세척·시운전 검수를 마친 추천 에어컨·냉난방기 실매물",
+      description: `${STORE.name} 전시장에 입고된 제품 중 냉매 압력·PCB·배수 점검을 통과한 실매물입니다. ${STORE_MERCHANT_POLICY.warrantyAircon} 기준으로 출고하며 대전·세종·충청 직영 설치 및 전국 화물 배송 상담이 가능합니다.`,
+      galleryHref: `/gallery?category=${encodeURIComponent("에어컨/냉난방기")}`,
+      galleryLabel: "에어컨·냉난방기 전체 재고 보기",
+    };
+  }
+
+  if (primaryCategory === "업소용기기") {
+    return {
+      primaryCategory,
+      heading: "창업·업장용 45박스·쇼케이스·주방설비 추천 실매물",
+      description: `전력·설비 조건 확인 후 바로 들여놓을 수 있는 검수 완료 업소용 주방·냉장 매물입니다. 사업자 전자세금계산서 100% 발행 및 묶음 배송 할인 견적을 지원합니다.`,
+      galleryHref: `/gallery?category=${encodeURIComponent("업소용기기")}`,
+      galleryLabel: "업소용기기 전체 재고 보기",
+    };
+  }
+
+  if (primaryCategory === "냉장고") {
+    return {
+      primaryCategory,
+      heading: "문폭·사다리차 상담과 함께 바로 출고 가능한 냉장고·대형가전",
+      description: `고압 세척·가스켓 밀폐 점검을 마친 대형·가정용 매물입니다. 구매 전 출입구·코너 사진만 주시면 반입 가능 여부와 사다리차 필요 유무를 먼저 확인해 드립니다.`,
+      galleryHref: `/gallery?category=${encodeURIComponent("냉장고")}`,
+      galleryLabel: "냉장고·김치냉장고 전체 보기",
+    };
+  }
+
+  return {
+    primaryCategory,
+    heading: `${STORE.name} 전시장 최신 검수 완료 실매물`,
+    description: `${STORE.name}에서 전문 엔지니어 점검 및 세척을 완료한 실매물입니다. ${STORE_MERCHANT_POLICY.warrantyMajor} 기준으로 사후 보증을 지원합니다.`,
+    galleryHref: "/gallery",
+    galleryLabel: "전체 판매 제품 보기",
+  };
+}
+
+/**
+ * 상품 상세 페이지([id])에서 해당 품목 구매 전 읽으면 좋은 현장 가이드를 반환합니다.
+ */
+export function getInfoGuidesForProductCategory(
+  category: ProductCategoryValue,
+  limit = 3
+): InfoGuideArticle[] {
+  const prioritySlugs: Record<ProductCategoryValue, readonly string[]> = {
+    "에어컨/냉난방기": [
+      "voltage-220v-vs-380v",
+      "fixed-speed-vs-inverter-aircon",
+      "new-aircon-repair-delay",
+      "why-ceiling-aircon-install-costs-more",
+    ],
+    냉장고: [
+      "ladder-truck-and-clearance",
+      "why-used-over-new-and-store-over-p2p",
+      "appliance-buyback-no-deduction-guide",
+    ],
+    "세탁기/건조기": [
+      "ladder-truck-and-clearance",
+      "why-used-over-new-and-store-over-p2p",
+      "appliance-buyback-no-deduction-guide",
+    ],
+    업소용기기: [
+      "startup-closure-docs-and-power",
+      "electricity-bill-capacity-and-kepco",
+      "ladder-truck-and-clearance",
+    ],
+    기타: [
+      "why-used-over-new-and-store-over-p2p",
+      "ladder-truck-and-clearance",
+      "appliance-buyback-no-deduction-guide",
+    ],
+  };
+
+  const order = prioritySlugs[category] ?? prioritySlugs["기타"];
+  const picked = order
+    .map((slug) => getInfoGuideBySlug(slug))
+    .filter((item): item is InfoGuideArticle => Boolean(item));
+
+  if (picked.length >= limit) {
+    return picked.slice(0, limit);
+  }
+  const existingSlugs = new Set(picked.map((p) => p.slug));
+  const fallback = INFO_GUIDE_ARTICLES.filter((a) => !existingSlugs.has(a.slug));
+  return [...picked, ...fallback].slice(0, limit);
+}
+
+/**
+ * 구글 및 AI 검색엔진(FAQPage Schema + 본문 visible Q&A 100% 일치)용 핵심 문답 생성
+ */
+export function getGuideSearchFaqs(
+  article: InfoGuideArticle
+): ReadonlyArray<{ q: string; a: string }> {
+  const isAirconTopic =
+    article.category === "에어컨 · A/S" ||
+    article.category === "에어컨 · 원리/설치" ||
+    article.slug === "voltage-220v-vs-380v";
+
+  const mainQuestion =
+    article.title.endsWith("?") || article.title.endsWith("까?")
+      ? article.title
+      : `${article.title}의 핵심 기준은 무엇인가요?`;
+
+  return [
+    {
+      q: mainQuestion,
+      a: `${article.summary} 특히 ${article.keyPoints[0]}`,
+    },
+    {
+      q: "구매·설치 현장에서 낭패를 피하려면 무엇을 먼저 점검해야 하나요?",
+      a: `${article.keyPoints[1]} 또한 ${article.keyPoints[2]}`,
+    },
+    isAirconTopic
+      ? {
+          q: `이 기준에 맞는 검수 완료 중고 에어컨·냉난방기를 ${STORE.name}에서 구매하면 보증과 배송은 어떻게 되나요?`,
+          a: `${STORE.name}(${STORE.roadAddress})에서는 출고 전 120bar 분해 고압 세척과 냉매·시운전 점검을 완료하며, ${STORE_MERCHANT_POLICY.warrantyAircon} 기준으로 사후 관리를 약정합니다. 대전·세종·충청은 직영 기사 배송·설치를, 그 외 지역은 화물·용달 배송 및 사전 영상·사진 확인 상담을 지원합니다.`,
+        }
+      : {
+          q: `${STORE.name}에서 관련 가전·업소용 설비를 구매하거나 처분할 때 세금계산서·배송 지원이 가능한가요?`,
+          a: `네. ${STORE.name}은 ${STORE.since}년부터 운영 중인 직영 전시장으로 ${STORE_MERCHANT_POLICY.warrantyMajor}과 정식 사업자 전자세금계산서 발행을 지원합니다. 대전·세종·충청 직영 기사 운반·설치뿐만 아니라 전국 화물 발송 및 기존 노후 가전 보상매입도 한 번에 상담하실 수 있습니다.`,
+        },
+  ];
 }

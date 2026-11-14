@@ -3,12 +3,21 @@ import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { STORE, telHref } from "../../../lib/site";
+import { supabase } from "../../../lib/supabase";
+import {
+  STORE,
+  isProductSold,
+  normalizeProductCategory,
+  telHref,
+} from "../../../lib/site";
 import { serializeJsonLd } from "../../../lib/json-ld";
 import {
   INFO_GUIDE_ARTICLES,
   getAdjacentInfoGuides,
+  getGuideCommerceBridge,
+  getGuideSearchFaqs,
   getInfoGuideBySlug,
+  getRecommendedProductCategories,
   getRelatedInfoGuides,
 } from "../../../lib/info-guides";
 import {
@@ -19,7 +28,72 @@ import {
   Icon,
   ICON,
 } from "../../../lib/ui";
+import {
+  ProductCard,
+  type ProductItem,
+} from "../../../components/products/product-card";
 import { GuideSectionDiagram } from "../../../components/guide/guide-diagrams";
+
+export const revalidate = 1800; // 30분 ISR로 실시간 추천 매물 최신 유지
+
+async function fetchGuideRecommendedProducts(
+  categories: readonly string[],
+  limit = 4
+): Promise<{ items: ProductItem[]; primaryCategoryCount: number }> {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
+      )
+      .neq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(120);
+
+    if (error || !data) {
+      return { items: [], primaryCategoryCount: 0 };
+    }
+
+    const activeItems = (data as ProductItem[]).filter(
+      (item) => !isProductSold(item.status)
+    );
+    const primaryCat = categories[0];
+    const primaryCategoryCount = activeItems.filter(
+      (item) => normalizeProductCategory(item.category) === primaryCat
+    ).length;
+
+    const picked: ProductItem[] = [];
+    const pickedIds = new Set<string>();
+
+    for (const targetCat of categories) {
+      for (const item of activeItems) {
+        if (picked.length >= limit) break;
+        if (
+          !pickedIds.has(item.id) &&
+          normalizeProductCategory(item.category) === targetCat
+        ) {
+          picked.push(item);
+          pickedIds.add(item.id);
+        }
+      }
+    }
+
+    for (const item of activeItems) {
+      if (picked.length >= limit) break;
+      if (!pickedIds.has(item.id)) {
+        picked.push(item);
+        pickedIds.add(item.id);
+      }
+    }
+
+    return {
+      items: picked,
+      primaryCategoryCount,
+    };
+  } catch {
+    return { items: [], primaryCategoryCount: 0 };
+  }
+}
 
 export function generateStaticParams() {
   return INFO_GUIDE_ARTICLES.map((article) => ({ slug: article.slug }));
@@ -91,7 +165,15 @@ export default async function GuideDetailPage({
 
   const { prev, next } = getAdjacentInfoGuides(article.slug);
   const relatedArticles = getRelatedInfoGuides(article, 3);
+  const recommendedCategories = getRecommendedProductCategories(article);
+  const bridge = getGuideCommerceBridge(article);
+  const searchFaqs = getGuideSearchFaqs(article);
+  const { items: recommendedProducts, primaryCategoryCount } =
+    await fetchGuideRecommendedProducts(recommendedCategories, 4);
   const canonicalUrl = `${STORE.url}/guide/${article.slug}`;
+  const articleImageUrl = article.heroImage
+    ? `${STORE.url}${article.heroImage.src}`
+    : `${STORE.url}/og-image.jpg`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -100,6 +182,8 @@ export default async function GuideDetailPage({
         "@type": "Article",
         headline: article.title,
         description: article.summary,
+        keywords: article.keywords.join(", "),
+        image: [articleImageUrl],
         datePublished: article.updatedAt,
         dateModified: article.updatedAt,
         articleSection: article.category,
@@ -122,6 +206,17 @@ export default async function GuideDetailPage({
             url: `${STORE.url}/icon-512.png`,
           },
         },
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: searchFaqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.q,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.a,
+          },
+        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -263,14 +358,61 @@ export default async function GuideDetailPage({
               </ol>
             </section>
 
+            {/* 본문 목차 (빠른 이동 + 검색 스니펫 앵커) & 실매물 연결 띠 */}
+            <div className="space-y-3">
+              <nav
+                aria-label="본문 목차 바로가기"
+                className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-4 py-3"
+              >
+                <p className="text-hb-xs font-bold text-[#64748B] mb-2">
+                  이 글의 목차
+                </p>
+                <ol className="flex flex-wrap gap-2">
+                  {article.sections.map((section, idx) => (
+                    <li key={section.heading}>
+                      <a
+                        href={`#section-${idx + 1}`}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white px-2.5 py-1.5 text-hb-xs font-semibold text-[#141A23] hover:border-[#E8521A] hover:text-[#E8521A] transition-colors"
+                      >
+                        <span className="font-mono text-[#E8521A] tabular-nums">
+                          {idx + 1}.
+                        </span>
+                        <span className="line-clamp-1">{section.heading}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </nav>
+
+              {primaryCategoryCount > 0 && (
+                <div className="rounded-xl border border-[#CCFBF1] bg-[#F0FDFA] px-4 py-3 flex flex-wrap items-center justify-between gap-2.5">
+                  <p className="text-hb-xs sm:text-hb-sm text-[#134E4A] font-medium">
+                    현재 {STORE.name} 전시장에{" "}
+                    <strong className="font-bold text-[#0F766E]">
+                      검수·세척 완료된 {bridge.primaryCategory} {primaryCategoryCount}대
+                    </strong>
+                    가 바로 출고 대기 중입니다.
+                  </p>
+                  <a
+                    href="#guide-recommended-products"
+                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0F766E] hover:underline underline-offset-4 shrink-0"
+                  >
+                    <span>아래 추천 매물 바로 보기</span>
+                    <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
+            </div>
+
             {/* 본문 섹션들 */}
             <div className="space-y-8">
               {article.sections.map((section, sectionIdx) => {
                 const tableCaptionId = `guide-table-${article.slug}-${sectionIdx}`;
                 return (
                 <section
+                  id={`section-${sectionIdx + 1}`}
                   key={section.heading}
-                  className="space-y-4 pt-2 border-t border-[#F1F3F6] first:border-t-0 first:pt-0"
+                  className="scroll-mt-24 space-y-4 pt-2 border-t border-[#F1F3F6] first:border-t-0 first:pt-0"
                 >
                   <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] leading-snug break-keep [text-wrap:balance]">
                     {section.heading}
@@ -386,6 +528,34 @@ export default async function GuideDetailPage({
               })}
             </div>
 
+            {/* 구글·AI 검색 문답 일치용 핵심 Q&A */}
+            <section
+              aria-label="한눈에 보는 핵심 질의응답"
+              className="pt-6 border-t border-[#E2E6EC] space-y-3.5"
+            >
+              <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                이 주제와 관련해 소비자들이 자주 묻는 핵심 질문
+              </h2>
+              <dl className="space-y-2.5">
+                {searchFaqs.map((faq) => (
+                  <div
+                    key={faq.q}
+                    className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4"
+                  >
+                    <dt className="flex items-start gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23] break-keep">
+                      <span className="text-[#E8521A] font-bold shrink-0">
+                        Q.
+                      </span>
+                      <span>{faq.q}</span>
+                    </dt>
+                    <dd className="mt-1.5 pl-5 text-hb-xs sm:text-hb-sm text-[#334155] leading-[1.65] [text-wrap:pretty]">
+                      {faq.a}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+
             {/* 하단 맞춤 행동 유도 */}
             <div className="pt-6 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -470,6 +640,13 @@ export default async function GuideDetailPage({
                 분전함, 현관문, 설치할 위치 사진을 보내주시면 기사님이 220V/380V 여부와 반입 가능 여부를 바로 안내해 드립니다.
               </p>
               <div className="flex flex-col gap-2 pt-1">
+                <Link
+                  href={bridge.galleryHref}
+                  className="hb-btn bg-[#E8521A] text-white hover:bg-[#D14410] min-h-[42px] px-4 py-2 text-hb-sm"
+                >
+                  <Icon d={ICON.bag} className="w-4 h-4" />
+                  <span>{bridge.primaryCategory} 실매물 보기</span>
+                </Link>
                 <a
                   href={telHref(STORE.tel)}
                   className="hb-btn bg-white text-[#141A23] hover:bg-[#F1F3F6] min-h-[42px] px-4 py-2 text-hb-sm tabular-nums"
@@ -521,6 +698,83 @@ export default async function GuideDetailPage({
             </div>
           </aside>
         </div>
+
+        {/* 글 읽은 소비자 → 실매물 구매 전환 섹션 */}
+        <section
+          id="guide-recommended-products"
+          aria-label="이 글과 관련된 검수 완료 실매물"
+          className="hb-container mt-8 sm:mt-10 scroll-mt-24"
+        >
+          <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs space-y-5">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-[#E2E6EC]">
+              <div className="space-y-2">
+                <p className="hb-eyebrow">검증된 실매물 · 바로 구매 연결</p>
+                <h2 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] leading-snug [text-wrap:balance]">
+                  {bridge.heading}
+                </h2>
+                <p className="max-w-[68ch] text-hb-sm text-[#475569] leading-[1.65] [text-wrap:pretty]">
+                  {bridge.description}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                <Link
+                  href={bridge.galleryHref}
+                  className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
+                >
+                  <span>{bridge.galleryLabel}</span>
+                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
+                </Link>
+                <Link
+                  href="/inquiry?write=1&type=buy"
+                  className="hb-btn-outline min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
+                >
+                  <span>맞춤 매물 · 타지역 배송 문의</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* 구매 신뢰 4대 포인트 */}
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-hb-xs text-[#334155]">
+              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
+                <Icon d={ICON.check} className="w-4 h-4 text-[#0F766E] shrink-0" />
+                <span>120bar 분해 세척 · 24시간 시운전</span>
+              </li>
+              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
+                <Icon d={ICON.shieldCheck} className="w-4 h-4 text-[#E8521A] shrink-0" />
+                <span>에어컨 8개월 · 일반 4개월 무상 A/S</span>
+              </li>
+              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
+                <Icon d={ICON.pin} className="w-4 h-4 text-[#1D4ED8] shrink-0" />
+                <span>충청권 직영 설치 · 전국 화물 상담</span>
+              </li>
+              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
+                <Icon d={ICON.sparkles} className="w-4 h-4 text-[#141A23] shrink-0" />
+                <span>전자세금계산서 · 카드 · 보상판매</span>
+              </li>
+            </ul>
+
+            {recommendedProducts.length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+                {recommendedProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <p className="text-hb-sm text-[#334155]">
+                  전시장 실시간 재고를 불러오거나 바로 상담을 원하시면 전체 매물 갤러리에서 최신 입고 제품을 확인하실 수 있습니다.
+                </p>
+                <Link
+                  href={bridge.galleryHref}
+                  className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-sm shrink-0"
+                >
+                  <span>전체 매물 보러가기</span>
+                </Link>
+              </div>
+            )}
+          </div>
+        </section>
       </main>
 
       <SiteFooter />

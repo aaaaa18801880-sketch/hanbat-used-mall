@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/gallery", "/purchase", "/inquiry", "/guide", "/llms.txt", "/llms-full.txt"],
+        allow: ["/", "/gallery", "/purchase", "/inquiry", "/guide", "/feed.xml", "/llms.txt", "/llms-full.txt"],
         disallow: ["/admin", "/api/"],
       },
       {
@@ -27,7 +27,7 @@ export default function robots(): MetadataRoute.Robots {
           "Bingbot",
           "Yeti",
         ],
-        allow: ["/", "/gallery", "/purchase", "/inquiry", "/guide", "/llms.txt", "/llms-full.txt"],
+        allow: ["/", "/gallery", "/purchase", "/inquiry", "/guide", "/feed.xml", "/llms.txt", "/llms-full.txt"],
         disallow: ["/admin", "/api/"],
       },
     ],
