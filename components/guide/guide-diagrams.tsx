@@ -23,7 +23,15 @@ export type GuideDiagramId =
   | "icemaker-heat-rejection"
   | "commercial-dishwasher-setup"
   | "refrigerant-leak-myth"
-  | "aircon-pyeong-sizing";
+  | "aircon-pyeong-sizing"
+  | "dryer-heatpump-condenser"
+  | "kimchi-fridge-cooling"
+  | "inverter-duty-cycle-curve"
+  | "aircon-drain-leak-causes"
+  | "aircon-pipe-copper-vs-alu"
+  | "showcase-condensation-drain"
+  | "appliance-resale-value-factors"
+  | "energy-grade-revision-curve";
 
 function DiagramFigure({
   title,
@@ -2002,6 +2010,782 @@ function AirconPyeongSizingDiagram() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  21. 히트펌프 건조기 vs 히터식 & 콘덴서 막힘 점검 도해 (22번 글)        */
+/* ------------------------------------------------------------------ */
+function DryerHeatpumpCondenserDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="히트펌프 건조기 순환 원리와 중고 구매 시 '콘덴서(열교환기) 보풀 막힘' 위치"
+      caption="히트펌프식은 저온 제습으로 옷감 손상과 전기요금이 적지만, 열교환기 핀 사이에 젖은 보풀이 떡지면 건조 시간 폭증·꿉꿉한 냄새·물고임이 생깁니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          히터식 건조기와 히트펌프 건조기 열순환 차이 및 하단 콘덴서 보풀 막힘 지점 비교 도해
+        </title>
+
+        {/* 좌측: 히터식 */}
+        <rect x="16" y="14" width="352" height="222" rx="12" fill="#FFFFFF" stroke="#E2E6EC" strokeWidth="1.5" />
+        <rect x="28" y="26" width="126" height="26" rx="13" fill="#FFF4EE" />
+        <text x="91" y="43" textAnchor="middle" fontSize="11" fontWeight="700" fill="#C2410C">
+          구형 · 보급형 히터식
+        </text>
+        <rect x="34" y="68" width="144" height="58" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="106" y="92" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
+          고온 열선 (70~80도)
+        </text>
+        <text x="106" y="110" textAnchor="middle" fontSize="9.5" fill="#475569">
+          전력 소모 큼 · 옷감 수축
+        </text>
+        <path d="M180 97 L214 97" stroke="#DC2626" strokeWidth="2.5" />
+        <polygon points="212,92 222,97 212,102" fill="#DC2626" />
+        <rect x="224" y="68" width="128" height="58" rx="8" fill="#F8FAFC" stroke="#CBD5E1" />
+        <text x="288" y="92" textAnchor="middle" fontSize="11" fontWeight="700" fill="#141A23">
+          배기 덕트 / 콘덴싱
+        </text>
+        <text x="288" y="110" textAnchor="middle" fontSize="9.5" fill="#64748B">
+          실내 온도·습기 상승 주의
+        </text>
+        <rect x="34" y="146" width="318" height="74" rx="8" fill="#F8FAFC" stroke="#E2E6EC" />
+        <text x="50" y="168" fontSize="10.5" fontWeight="700" fill="#141A23">
+          현장 평가 요약
+        </text>
+        <text x="50" y="188" fontSize="10" fill="#475569">
+          - 초기 건조 속도는 빠르나 월 전기요금이 높고
+        </text>
+        <text x="50" y="205" fontSize="10" fill="#475569">
+          - 배기호스 환경·면 소재 위주 단기 사용에 제한적 유리
+        </text>
+
+        {/* 우측: 히트펌프식 */}
+        <rect x="392" y="14" width="352" height="222" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <rect x="404" y="26" width="144" height="26" rx="13" fill="#ECFDF5" />
+        <text x="476" y="43" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0F766E">
+          인버터 히트펌프식 (대세)
+        </text>
+        <rect x="408" y="68" width="146" height="62" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
+        <text x="481" y="90" textAnchor="middle" fontSize="11" fontWeight="700" fill="#065F46">
+          저온 제습 순환 (50~60도)
+        </text>
+        <text x="481" y="110" textAnchor="middle" fontSize="9.5" fill="#047857">
+          전기료 약 1/2 · 옷감 수축 적음
+        </text>
+        <path d="M556 99 L588 99" stroke="#0F766E" strokeWidth="2.5" />
+        <polygon points="586,94 596,99 586,104" fill="#0F766E" />
+        <rect x="598" y="68" width="132" height="62" rx="8" fill="#FEF2F2" stroke="#EF4444" strokeWidth="1.8" />
+        <text x="664" y="89" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          핵심 점검: 콘덴서
+        </text>
+        <text x="664" y="106" textAnchor="middle" fontSize="9.5" fill="#334155">
+          (열교환기 알루미늄 핀)
+        </text>
+        <text x="664" y="121" textAnchor="middle" fontSize="9" fill="#DC2626">
+          보풀·먼지 막힘 1순위
+        </text>
+        <rect x="408" y="146" width="322" height="74" rx="8" fill="#F0FDF4" stroke="#BBF7D0" />
+        <text x="424" y="168" fontSize="10.5" fontWeight="700" fill="#141A23">
+          중고 직거래 시 실패 피하는 핵심 확인
+        </text>
+        <text x="424" y="188" fontSize="10" fill="#334155">
+          1) 하단 커버 열고 손전등 비춰 핀 사이 보풀 떡짐 확인
+        </text>
+        <text x="424" y="205" fontSize="10" fill="#334155">
+          2) 자동세척 모델이라도 물 안 빠지면 악취·모터 부식 유발
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  22. 중고 김치냉장고 뚜껑형 vs 스탠드형 & 부식 점검 도해 (23번 글)        */
+/* ------------------------------------------------------------------ */
+function KimchiFridgeCoolingDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="김치냉장고 뚜껑형(직접냉각) vs 스탠드형(순환냉각)과 중고 치명상 체크 위치"
+      caption="김치 국물 염분이 내통 하단 모서리로 스며 알루미늄/동 냉각배관을 부식시키면 냉매 누설로 수리비가 본체 값만큼 나옵니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          김치냉장고 뚜껑형과 스탠드형 냉각 구조 비교 및 내통 모서리 부식·가스켓 점검 포인트 도해
+        </title>
+
+        {/* 좌측: 뚜껑형 */}
+        <rect x="16" y="14" width="354" height="222" rx="12" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="34" y="42" fontSize="12.5" fontWeight="700" fill="#1D4ED8">
+          1. 뚜껑형 (위에서 여는 직접냉각)
+        </text>
+        <rect x="50" y="64" width="128" height="96" rx="8" fill="#EFF6FF" stroke="#3B82F6" strokeWidth="2.5" />
+        <text x="114" y="96" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
+          찬 공기 가둠
+        </text>
+        <text x="114" y="114" textAnchor="middle" fontSize="9.5" fill="#475569">
+          5면 내벽 직접 냉각
+        </text>
+        <text x="114" y="132" textAnchor="middle" fontSize="9.5" fill="#0F766E">
+          열어도 냉기 손실 적음
+        </text>
+        <circle cx="62" cy="148" r="7" fill="#DC2626" />
+        <circle cx="166" cy="148" r="7" fill="#DC2626" />
+
+        <text x="196" y="84" fontSize="10.5" fontWeight="700" fill="#141A23">
+          장점: 장기 보관·전력 효율 최상
+        </text>
+        <text x="196" y="106" fontSize="10" fill="#334155">
+          - 정온 유지 정밀하고 성에 제거 시
+        </text>
+        <text x="196" y="122" fontSize="10" fill="#334155">
+          김치 아삭함 보존력 최고
+        </text>
+        <text x="196" y="144" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          치명 점검: 내통 바닥 모서리
+        </text>
+        <text x="196" y="162" fontSize="9.5" fill="#475569">
+          김치국물 염분 고여 핀홀 부식(냉매샘)
+        </text>
+        <rect x="34" y="180" width="318" height="42" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="193" y="205" textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC2626">
+          필수 확인: 붉은 녹 자국·바닥 부풀음·벽면 성에 고르지 않음 = 구매 보류
+        </text>
+
+        {/* 우측: 스탠드형 */}
+        <rect x="390" y="14" width="354" height="222" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <text x="408" y="42" fontSize="12.5" fontWeight="700" fill="#0F766E">
+          2. 스탠드형 (앞으로 여는 간냉·멀티형)
+        </text>
+        <rect x="410" y="64" width="110" height="96" rx="8" fill="#F0FDF4" stroke="#10B981" strokeWidth="2" />
+        <line x1="410" y1="98" x2="520" y2="98" stroke="#6EE7B7" strokeWidth="1.5" />
+        <line x1="410" y1="130" x2="520" y2="130" stroke="#6EE7B7" strokeWidth="1.5" />
+        <text x="465" y="85" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#065F46">
+          상칸: 팬 순환
+        </text>
+        <text x="465" y="118" textAnchor="middle" fontSize="9.5" fill="#065F46">
+          중칸: 서랍
+        </text>
+        <text x="465" y="150" textAnchor="middle" fontSize="9.5" fill="#065F46">
+          하칸: 서랍
+        </text>
+
+        <text x="536" y="84" fontSize="10.5" fontWeight="700" fill="#141A23">
+          장점: 허리 부담 적고 성에 거의 없음
+        </text>
+        <text x="536" y="106" fontSize="10" fill="#334155">
+          - 상·중·하 칸별 냉동/야채/쌀 전환
+        </text>
+        <text x="536" y="122" fontSize="10" fill="#334155">
+          - 공간 면적 작고 수납 동선 편리
+        </text>
+        <text x="536" y="144" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          치명 점검: 서랍 레일·고무 패킹
+        </text>
+        <text x="536" y="162" fontSize="9.5" fill="#475569">
+          틈 들뜨면 성에·결로·온도 상승
+        </text>
+        <rect x="408" y="180" width="318" height="42" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="567" y="205" textAnchor="middle" fontSize="10" fontWeight="700" fill="#C2410C">
+          필수 확인: 모든 서랍 4면 가스켓 밀착 + 각 칸 온도 하강 실측 확인
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  23. 인버터 에어컨 24시간 vs 껐다켜기 전력 곡선 도해 (24번 글)         */
+/* ------------------------------------------------------------------ */
+function InverterDutyCycleDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="인버터 에어컨을 켰다 껐다 반복할 때 vs 일정 온도로 유지할 때 전력 소모 그래프"
+      caption="더워진 실온을 다시 낮추는 첫 30분 구간이 유지 운전 때보다 전기를 3~5배 더 씁니다. 단, 4시간 이상 긴 외출이나 정속형 모델은 끄는 것이 유리합니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          인버터 에어컨 초기 기동 피크 전력과 유지 운전 전력 비교 및 외출 시간 기준표 도해
+        </title>
+
+        {/* 그래프 박스 */}
+        <rect x="16" y="14" width="440" height="222" rx="12" fill="#FFFFFF" stroke="#E2E6EC" strokeWidth="1.5" />
+        <text x="34" y="38" fontSize="12" fontWeight="700" fill="#141A23">
+          시간에 따른 인버터 컴프레샤 소비전력 패턴
+        </text>
+        {/* 축 */}
+        <line x1="54" y1="60" x2="54" y2="196" stroke="#94A3B8" strokeWidth="1.5" />
+        <line x1="54" y1="196" x2="430" y2="196" stroke="#94A3B8" strokeWidth="1.5" />
+        <text x="38" y="72" fontSize="9.5" fill="#64748B">
+          높음
+        </text>
+        <text x="38" y="186" fontSize="9.5" fill="#64748B">
+          낮음
+        </text>
+        <text x="412" y="212" fontSize="9.5" fill="#64748B">
+          시간
+        </text>
+
+        {/* 곡선 1: 껐다 켰다 (빨간 톱니 피크) */}
+        <path
+          d="M60 190 L82 68 L130 74 L145 140 L165 192 L205 192 L226 68 L272 74 L288 145 L308 192 L348 192 L370 68 L416 74"
+          fill="none"
+          stroke="#DC2626"
+          strokeWidth="2.5"
+          strokeDasharray="6 3"
+        />
+        {/* 곡선 2: 유지 운전 (초록 완만) */}
+        <path
+          d="M60 190 L82 72 L130 90 L165 164 L420 168"
+          fill="none"
+          stroke="#0F766E"
+          strokeWidth="3"
+        />
+
+        {/* 범례 */}
+        <rect x="66" y="206" width="16" height="4" fill="#0F766E" />
+        <text x="88" y="212" fontSize="10" fontWeight="700" fill="#0F766E">
+          연속 유지 운전 (희망온도 25~26도 도달 후 저전력 순항)
+        </text>
+        <rect x="66" y="222" width="16" height="4" fill="#DC2626" />
+        <text x="88" y="228" fontSize="10" fontWeight="700" fill="#DC2626">
+          1~2시간마다 껐다 켜기 (기동 피크 반복으로 전력 누적 상승)
+        </text>
+
+        {/* 우측 요약 가이드 */}
+        <rect x="472" y="14" width="272" height="222" rx="12" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
+        <text x="490" y="40" fontSize="12" fontWeight="700" fill="#141A23">
+          현실 기준별 BEST 운전법
+        </text>
+        <rect x="488" y="54" width="240" height="50" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
+        <text x="502" y="74" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          외출 2시간 이하 · 인버터형
+        </text>
+        <text x="502" y="93" fontSize="10" fill="#334155">
+          켜두기 (1~2도 올려두면 가장 절약)
+        </text>
+
+        <rect x="488" y="114" width="240" height="50" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="502" y="134" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
+          외출 4시간 이상 / 정속형 구형
+        </text>
+        <text x="502" y="153" fontSize="10" fill="#334155">
+          반드시 전원 끄기 (정속형은 켜둔 채 못 줄임)
+        </text>
+
+        <rect x="488" y="174" width="240" height="50" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="502" y="194" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          제습 vs 냉방 전기세 진실
+        </text>
+        <text x="502" y="213" fontSize="10" fill="#334155">
+          초반엔 냉방 강풍 · 유지 때 자동·제습 유리
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  24. 에어컨 실내기 물 뚝뚝 누수 4대 원인 단면도 (25번 글)             */
+/* ------------------------------------------------------------------ */
+function AirconDrainLeakDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="에어컨 실내기에서 물이 뚝뚝 떨어질 때 4대 원인 구분 단면도"
+      caption="에어컨이 시원하면 대부분 드레인 호스 막힘·역구배 문제이고, 바람까지 미지근하면서 얼음 조각이 떨어지면 냉매 부족(동결 해동 누수) 신호입니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          에어컨 실내기 누수 4가지 원인인 드레인 막힘, 배수호스 역구배, 배수펌프 고장, 열교환기 결빙 도해
+        </title>
+
+        {/* 1 */}
+        <rect x="16" y="18" width="172" height="214" rx="10" fill="#FFFFFF" stroke="#E2E6EC" strokeWidth="1.5" />
+        <rect x="28" y="30" width="26" height="26" rx="13" fill="#1D4ED8" />
+        <text x="41" y="48" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          1
+        </text>
+        <text x="64" y="48" fontSize="11.5" fontWeight="700" fill="#141A23">
+          드레인 물때 막힘
+        </text>
+        <rect x="30" y="70" width="144" height="58" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="102" y="95" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
+          물받이·호스 입구
+        </text>
+        <text x="102" y="114" textAnchor="middle" fontSize="9.5" fill="#475569">
+          곰팡이 젤리(슬라임)
+        </text>
+        <text x="28" y="152" fontSize="10" fontWeight="700" fill="#141A23">
+          특징: 가장 흔한 1위
+        </text>
+        <text x="28" y="172" fontSize="9.5" fill="#334155">
+          찬바람은 정상인데 실내기
+        </text>
+        <text x="28" y="188" fontSize="9.5" fill="#334155">
+          아래·벽면으로 물이 넘침
+        </text>
+        <text x="28" y="212" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          해결: 분해세척·호스 석션
+        </text>
+
+        {/* 2 */}
+        <rect x="200" y="18" width="172" height="214" rx="10" fill="#FFFFFF" stroke="#E2E6EC" strokeWidth="1.5" />
+        <rect x="212" y="30" width="26" height="26" rx="13" fill="#0F766E" />
+        <text x="225" y="48" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          2
+        </text>
+        <text x="248" y="48" fontSize="11.5" fontWeight="700" fill="#141A23">
+          배수호스 역구배·꺾임
+        </text>
+        <rect x="214" y="70" width="144" height="58" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
+        <path d="M230 92 Q268 118 295 88 Q322 76 346 106" fill="none" stroke="#0F766E" strokeWidth="4" />
+        <text x="286" y="118" textAnchor="middle" fontSize="9" fill="#065F46">
+          호스 끝 물통 잠김·처짐
+        </text>
+        <text x="212" y="152" fontSize="10" fontWeight="700" fill="#141A23">
+          특징: 설치·청소 직후 발생
+        </text>
+        <text x="212" y="172" fontSize="9.5" fill="#334155">
+          호스가 U자로 처지거나
+        </text>
+        <text x="212" y="188" fontSize="9.5" fill="#334155">
+          물통 수위에 끝이 잠김
+        </text>
+        <text x="212" y="212" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          해결: 내리막 경사 재정리
+        </text>
+
+        {/* 3 */}
+        <rect x="384" y="18" width="172" height="214" rx="10" fill="#FFFFFF" stroke="#E2E6EC" strokeWidth="1.5" />
+        <rect x="396" y="30" width="26" height="26" rx="13" fill="#E8521A" />
+        <text x="409" y="48" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          3
+        </text>
+        <text x="432" y="48" fontSize="11.5" fontWeight="700" fill="#141A23">
+          배수 펌프 고장 (천장형)
+        </text>
+        <rect x="398" y="70" width="144" height="58" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="470" y="95" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          드레인 펌프 · 수위센서
+        </text>
+        <text x="470" y="114" textAnchor="middle" fontSize="9.5" fill="#475569">
+          플로트 스위치 고착
+        </text>
+        <text x="396" y="152" fontSize="10" fontWeight="700" fill="#141A23">
+          특징: 천장 텍스 젖어듦
+        </text>
+        <text x="396" y="172" fontSize="9.5" fill="#334155">
+          스탠드형 외부 배수펌프
+        </text>
+        <text x="396" y="188" fontSize="9.5" fill="#334155">
+          전원 빠짐·모터 수명 다함
+        </text>
+        <text x="396" y="212" fontSize="9.5" fontWeight="700" fill="#C2410C">
+          해결: 센서 청소·펌프 교체
+        </text>
+
+        {/* 4 */}
+        <rect x="568" y="18" width="176" height="214" rx="10" fill="#FFFFFF" stroke="#EF4444" strokeWidth="1.5" />
+        <rect x="580" y="30" width="26" height="26" rx="13" fill="#DC2626" />
+        <text x="593" y="48" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          4
+        </text>
+        <text x="616" y="48" fontSize="11.5" fontWeight="700" fill="#DC2626">
+          냉각핀 결빙 후 녹음
+        </text>
+        <rect x="582" y="70" width="148" height="58" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="656" y="95" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          핀에 얼음 덩어리 생성
+        </text>
+        <text x="656" y="114" textAnchor="middle" fontSize="9.5" fill="#475569">
+          전원 끄면 물폭탄 낙하
+        </text>
+        <text x="580" y="152" fontSize="10" fontWeight="700" fill="#DC2626">
+          특징: 바람 약함·미지근
+        </text>
+        <text x="580" y="172" fontSize="9.5" fill="#334155">
+          필터 먼지 꽉 막힘 또는
+        </text>
+        <text x="580" y="188" fontSize="9.5" fill="#334155">
+          냉매 부족(누설) 시 발생
+        </text>
+        <text x="580" y="212" fontSize="9.5" fontWeight="700" fill="#DC2626">
+          해결: 필터 세척·누설 수리
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  25. 알루미늄 배관 vs 동배관 & 매립배관 재사용 비교 도해 (26번 글)     */
+/* ------------------------------------------------------------------ */
+function AirconPipeComparisonDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="에어컨 이전설치 시 동배관 vs 알루미늄 배관 & 아파트 매립배관 재사용 위험"
+      caption="저가 알루미늄(또는 2중 합금) 배관은 철거 후 재사용하려고 다시 조이면 끝부분이 갈라져 냉매가 샙니다. 매립배관도 이전 오일 혼입을 막아야 안전합니다."
+    >
+      <svg
+        viewBox="0 0 760 246"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          에어컨 동배관, 알루미늄 배관 재사용 불가 사유, 아파트 매립배관 질소 세척 필요성 비교 도해
+        </title>
+
+        {/* 동배관 */}
+        <rect x="16" y="16" width="234" height="214" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <text x="34" y="42" fontSize="12.5" fontWeight="700" fill="#0F766E">
+          1. 순수 동(구리) 배관
+        </text>
+        <rect x="34" y="58" width="198" height="36" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
+        <text x="133" y="81" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#065F46">
+          연성 높고 부식·열팽창 내구성 최상
+        </text>
+        <text x="34" y="118" fontSize="10" fill="#334155">
+          - 수명 10~15년 이상 안정
+        </text>
+        <text x="34" y="138" fontSize="10" fill="#334155">
+          - 꺾이거나 찍히지 않았고 길이가
+        </text>
+        <text x="34" y="154" fontSize="10" fill="#334155">
+          맞으면 끝단 재확관 후 재사용 가능
+        </text>
+        <text x="34" y="182" fontSize="10" fontWeight="700" fill="#0F766E">
+          한밭 기준: 정품 KS 동배관만 사용
+        </text>
+        <text x="34" y="200" fontSize="9.5" fill="#475569">
+          (신규 설치·중고 이전 모두 표준 시공)
+        </text>
+
+        {/* 알루미늄 배관 */}
+        <rect x="263" y="16" width="234" height="214" rx="12" fill="#FFFFFF" stroke="#DC2626" strokeWidth="1.5" />
+        <text x="281" y="42" fontSize="12.5" fontWeight="700" fill="#DC2626">
+          2. 알루미늄(합금) 배관
+        </text>
+        <rect x="281" y="58" width="198" height="36" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="380" y="81" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          1회성 강도 · 재가공 시 크랙 위험
+        </text>
+        <text x="281" y="118" fontSize="10" fill="#334155">
+          - 원가 절감형 스마트링크/저가 배관
+        </text>
+        <text x="281" y="138" fontSize="10" fill="#334155">
+          - 철거할 때 한번 풀면 금속 피로로
+        </text>
+        <text x="281" y="154" fontSize="10" fill="#334155">
+          다시 조여도 미세 누설 잦음
+        </text>
+        <text x="281" y="182" fontSize="10" fontWeight="700" fill="#DC2626">
+          결론: 이전설치 시 재사용 절대 금물
+        </text>
+        <text x="281" y="200" fontSize="9.5" fill="#475569">
+          (새 동배관 교체가 수리비 막는 지름길)
+        </text>
+
+        {/* 매립배관 */}
+        <rect x="510" y="16" width="234" height="214" rx="12" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="528" y="42" fontSize="12.5" fontWeight="700" fill="#1D4ED8">
+          3. 아파트 매립배관 주의점
+        </text>
+        <rect x="528" y="58" width="198" height="36" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="627" y="81" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
+          질소 세척 + 기밀 압력 테스트 필수
+        </text>
+        <text x="528" y="118" fontSize="10" fill="#334155">
+          - 이전 세입자 구형 냉매(R-22) 오일과
+        </text>
+        <text x="528" y="134" fontSize="10" fill="#334155">
+          신형 R-410A/R-32 오일 섞이면 고장
+        </text>
+        <text x="528" y="154" fontSize="10" fill="#334155">
+          - 벽 속 꺾임·누설 먼저 검사 필요
+        </text>
+        <text x="528" y="182" fontSize="10" fontWeight="700" fill="#1D4ED8">
+          체크: 배관 구경(mm) 일치 확인
+        </text>
+        <text x="528" y="200" fontSize="9.5" fill="#475569">
+          (특히 구형 R-22에서 인버터 교체 시 필수)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  26. 음료 쇼케이스 결로·자연증발 & 토핑냉장고 체크 도해 (27번 글)     */
+/* ------------------------------------------------------------------ */
+function ShowcaseCondensationDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 음료 쇼케이스·반찬(토핑) 냉장고 고장 전 3대 점검 포인트"
+      caption="유리문 쇼케이스는 하단 자연증발 접시 넘침과 페어글라스 결로가 잦고, 토핑냉장고는 바(홀) 하부에 가둬둘 때 방열 불량으로 가장 많이 고장 납니다."
+    >
+      <svg
+        viewBox="0 0 760 246"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          음료 쇼케이스 유리 결로·증발접시 확인 및 반찬 토핑 냉장고 방열 점검 3포인트 도해
+        </title>
+
+        {/* Point 1 */}
+        <rect x="16" y="18" width="234" height="210" rx="12" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="34" y="46" fontSize="12" fontWeight="700" fill="#1D4ED8">
+          ① 페어글라스(복층유리) 결로
+        </text>
+        <rect x="34" y="64" width="198" height="58" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="133" y="88" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
+          유리 사이 진공·질소 실링 파손
+        </text>
+        <text x="133" y="108" textAnchor="middle" fontSize="9.5" fill="#475569">
+          유리 내부에 뿌연 김이 차고 안 닦임
+        </text>
+        <text x="34" y="148" fontSize="10" fill="#334155">
+          - 외부 습도가 높거나 유리 밀봉이
+        </text>
+        <text x="34" y="166" fontSize="10" fill="#334155">
+          깨지면 안쪽이 뿌옇게 흐려짐
+        </text>
+        <text x="34" y="196" fontSize="10" fontWeight="700" fill="#0F766E">
+          확인: 도어 열선(히터)·패킹 밀착 확인
+        </text>
+
+        {/* Point 2 */}
+        <rect x="263" y="18" width="234" height="210" rx="12" fill="#FFFFFF" stroke="#E8521A" strokeWidth="1.5" />
+        <text x="281" y="46" fontSize="12" fontWeight="700" fill="#C2410C">
+          ② 하단 자연증발 접시 넘침
+        </text>
+        <rect x="281" y="64" width="198" height="58" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="380" y="88" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          제상수 받아 핫가스로 증발하는 구조
+        </text>
+        <text x="380" y="108" textAnchor="middle" fontSize="9.5" fill="#475569">
+          장마철·문 잦은 개폐 시 바닥 물 고임
+        </text>
+        <text x="281" y="148" fontSize="10" fill="#334155">
+          - 고장이 아니라 증발 한계 초과 또는
+        </text>
+        <text x="281" y="166" fontSize="10" fill="#334155">
+          물받이 호스 이탈·수평 틀어짐
+        </text>
+        <text x="281" y="196" fontSize="10" fontWeight="700" fill="#C2410C">
+          팁: 습한 주방·테이크아웃은 배수연결 권장
+        </text>
+
+        {/* Point 3 */}
+        <rect x="510" y="18" width="234" height="210" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <text x="528" y="46" fontSize="12" fontWeight="700" fill="#0F766E">
+          ③ 토핑/테이블 냉장고 매립 열기
+        </text>
+        <rect x="528" y="64" width="198" height="58" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
+        <text x="627" y="88" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#065F46">
+          목공 카운터 안 꽉 끼우면 과열
+        </text>
+        <text x="627" y="108" textAnchor="middle" fontSize="9.5" fill="#475569">
+          측면·후면 최소 10cm 통풍구 필수
+        </text>
+        <text x="528" y="148" fontSize="10" fill="#334155">
+          - 바트 뚜껑 안 덮고 영업하면 성에
+        </text>
+        <text x="528" y="166" fontSize="10" fill="#334155">
+          과다로 컴프레샤 연속 가동 부하
+        </text>
+        <text x="528" y="196" fontSize="10" fontWeight="700" fill="#0F766E">
+          팁: 전면 흡입/배출형인지 사전 체크
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  27. 창·폐업 시 중고 매입가 방어되는 규격 vs 감가 요인 도해 (28번 글)     */
+/* ------------------------------------------------------------------ */
+function ApplianceResaleValueDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="나중에 되팔 때 제값(환금성) 받는 규격 vs 매입 거절·대폭 감가되는 장비 차이"
+      caption="폐업이나 업종 변경 가능성까지 생각한다면 처음 들일 때부터 시장 표준 규격·전압·국내 정식 A/S 모델을 고르는 것이 가장 큰 재테크입니다."
+    >
+      <svg
+        viewBox="0 0 760 246"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          창업 가전 재판매 환금성 높은 표준 규격 제품과 매입 감가·불가 비표준 제품 비교 도해
+        </title>
+
+        {/* 좌측: 제값 */}
+        <rect x="16" y="16" width="356" height="214" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <rect x="30" y="28" width="160" height="26" rx="13" fill="#ECFDF5" />
+        <text x="110" y="45" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0F766E">
+          환금성 최상 · 고가 매입 대상
+        </text>
+        <text x="34" y="80" fontSize="11" fontWeight="700" fill="#141A23">
+          1. 표준 사이즈 (1100mm 45박스 · 1200/1500 테이블)
+        </text>
+        <text x="46" y="98" fontSize="9.5" fill="#475569">
+          어떤 식당·카페에도 딱 들어가 회전율 최상
+        </text>
+        <text x="34" y="124" fontSize="11" fontWeight="700" fill="#141A23">
+          2. 단상 220V 인버터 냉난방기 (30~40평형 이하)
+        </text>
+        <text x="46" y="142" fontSize="9.5" fill="#475569">
+          삼상 승압 없는 일반 상가 대부분에서 즉시 수요 존재
+        </text>
+        <text x="34" y="168" fontSize="11" fontWeight="700" fill="#141A23">
+          3. 부품 수급 쉬운 국내 주요 브랜드 + 제작년월 3~5년 내
+        </text>
+        <text x="46" y="186" fontSize="9.5" fill="#475569">
+          삼성·LG·캐리어·라셀르·유니크·우성·카이저·이호 등
+        </text>
+        <text x="34" y="212" fontSize="10" fontWeight="700" fill="#0F766E">
+          결론: 1~2년 쓰고 처분해도 중고 감가 손실 최소화
+        </text>
+
+        {/* 우측: 감가·불가 */}
+        <rect x="388" y="16" width="356" height="214" rx="12" fill="#FFFFFF" stroke="#DC2626" strokeWidth="1.5" />
+        <rect x="402" y="28" width="166" height="26" rx="13" fill="#FEF2F2" />
+        <text x="485" y="45" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
+          대폭 감가 · 매입 불가 위험군
+        </text>
+        <text x="406" y="80" fontSize="11" fontWeight="700" fill="#141A23">
+          1. 특대형 맞춤 제작 냉장고 / 비규격 수입 직구 장비
+        </text>
+        <text x="418" y="98" fontSize="9.5" fill="#475569">
+          문·엘리베이터 안 들어가고 고장 시 부품 수급 불가
+        </text>
+        <text x="406" y="124" fontSize="11" fontWeight="700" fill="#141A23">
+          2. 소형 매장용인데 3상 380V 전용 기기 · 50Hz 해외기기
+        </text>
+        <text x="418" y="142" fontSize="9.5" fill="#475569">
+          구매자가 전기 증설 없인 못 써서 재판매 수요 극감
+        </text>
+        <text x="406" y="168" fontSize="11" fontWeight="700" fill="#141A23">
+          3. 명판(제조년월/모델스티커) 훼손 + 철거 시 배관 절단 방치
+        </text>
+        <text x="418" y="186" fontSize="9.5" fill="#475569">
+          펌프다운(냉매 회수) 없이 가스 날리고 배관 끊으면 감가
+        </text>
+        <text x="406" y="212" fontSize="10" fontWeight="700" fill="#DC2626">
+          주의: 철거·폐기 비용만 드는 애물단지 전락 가능
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  28. 에너지효율 법적 기준 상향 & 등급 역전 현상 도해 (29번 글)         */
+/* ------------------------------------------------------------------ */
+function EnergyGradeRevisionDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="법적 등급 기준 상향에 따른 '구형 1등급 vs 최신 3~4등급' 효율 역전과 라벨 읽는 법"
+      caption="에너지소비효율등급은 구매일이 아니라 제조 당시 기준법으로 매겨집니다. 기준 개편 후 나온 3~4등급이 옛날 1등급보다 실제 전기(kWh)를 덜 먹는 경우가 많습니다."
+    >
+      <svg
+        viewBox="0 0 760 256"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          에너지소비효율등급 기준 상향 개정에 따른 과거 1등급과 신형 3~5등급 소비전력 역전 비교 도해
+        </title>
+
+        {/* 상단 타임라인 비교 */}
+        <rect x="16" y="14" width="356" height="128" rx="10" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
+        <text x="34" y="38" fontSize="11.5" fontWeight="700" fill="#475569">
+          과거 기준 라벨 (예: 2018년 개편 이전)
+        </text>
+        <rect x="34" y="52" width="110" height="32" rx="6" fill="#0F766E" />
+        <text x="89" y="73" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          표기: 1등급
+        </text>
+        <text x="158" y="65" fontSize="10.5" fontWeight="700" fill="#141A23">
+          당시 느슨한 잣대 적용
+        </text>
+        <text x="158" y="83" fontSize="10" fill="#475569">
+          현행 개정 기준으로 다시 재면
+        </text>
+        <text x="34" y="114" fontSize="11" fontWeight="700" fill="#C2410C">
+          현행 기준 환산 시 3~4등급 이하 · 월 소비전력 오히려 더 높음
+        </text>
+
+        <path d="M376 78 L398 78" stroke="#64748B" strokeWidth="2.5" />
+        <polygon points="396,73 406,78 396,83" fill="#64748B" />
+
+        <rect x="408" y="14" width="336" height="128" rx="10" fill="#ECFDF5" stroke="#10B981" strokeWidth="1.5" />
+        <text x="426" y="38" fontSize="11.5" fontWeight="700" fill="#065F46">
+          개정 후 최신 기준 라벨 (기준 대폭 상향)
+        </text>
+        <rect x="426" y="52" width="116" height="32" rx="6" fill="#1D4ED8" />
+        <text x="484" y="73" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          표기: 3~4등급
+        </text>
+        <text x="556" y="65" fontSize="10.5" fontWeight="700" fill="#141A23">
+          강화된 기준 + 인버터
+        </text>
+        <text x="556" y="83" fontSize="10" fill="#334155">
+          (과거 저효율 5등급은 퇴출)
+        </text>
+        <text x="426" y="114" fontSize="11" fontWeight="700" fill="#0F766E">
+          실제 연간/월간 kWh 소비량은 구형 1등급보다 적거나 동등
+        </text>
+
+        {/* 하단: 왜 4·5등급이 성능이 더 나을 때도 있을까? */}
+        <rect x="16" y="154" width="728" height="88" rx="10" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
+        <text x="34" y="178" fontSize="11.5" fontWeight="700" fill="#C2410C">
+          추가 팩트: TV·고기능 가전에서 4~5등급이 체감 성능·가성비가 나은 3가지 이유
+        </text>
+        <text x="34" y="200" fontSize="10" fill="#334155">
+          1) 등급 시험용 절전 제한 없음: TV는 1등급 맞추려 화면 밝기를 낮추는 반면, 고휘도 OLED/대형 패널은 4~5등급이어도 화질·밝기 우수
+        </text>
+        <text x="34" y="218" fontSize="10" fill="#334155">
+          2) 고출력·편의사양 탑재: 얼음정수기·디스펜서·쾌속냉방 고풍량 모델은 기능 전력 때문에 3~4등급을 받지만 실성능 쾌적함 뛰어남
+        </text>
+        <text x="34" y="236" fontSize="10" fontWeight="700" fill="#141A23">
+          3) 결론: 단순 등급 숫자보다 라벨 하단의 [연간/월간 소비전력량(kWh)]과 [제조년월] + [구매 가격 차이]를 함께 비교하는 게 정확!
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
     case "aircon-repair-timeline":
@@ -2044,5 +2828,21 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <RefrigerantLeakMythDiagram />;
     case "aircon-pyeong-sizing":
       return <AirconPyeongSizingDiagram />;
+    case "dryer-heatpump-condenser":
+      return <DryerHeatpumpCondenserDiagram />;
+    case "kimchi-fridge-cooling":
+      return <KimchiFridgeCoolingDiagram />;
+    case "inverter-duty-cycle-curve":
+      return <InverterDutyCycleDiagram />;
+    case "aircon-drain-leak-causes":
+      return <AirconDrainLeakDiagram />;
+    case "aircon-pipe-copper-vs-alu":
+      return <AirconPipeComparisonDiagram />;
+    case "showcase-condensation-drain":
+      return <ShowcaseCondensationDiagram />;
+    case "appliance-resale-value-factors":
+      return <ApplianceResaleValueDiagram />;
+    case "energy-grade-revision-curve":
+      return <EnergyGradeRevisionDiagram />;
   }
 }
