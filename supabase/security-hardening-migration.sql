@@ -27,7 +27,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.increment_product_views(text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.increment_product_views(text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.increment_product_views(text) TO service_role;
 
 -- ----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.check_rate_limit_atomic(text, integer, integer, boolean) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.check_rate_limit_atomic(text, integer, integer, boolean) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.check_rate_limit_atomic(text, integer, integer, boolean) TO service_role;
 
 -- ----------------------------------------------------------------------------
@@ -232,10 +232,10 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.claim_notification_idempotency(text, text, integer, integer, boolean) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.claim_notification_idempotency(text, text, integer, integer, boolean) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_notification_idempotency(text, text, integer, integer, boolean) TO service_role;
 
-REVOKE ALL ON FUNCTION public.complete_notification_idempotency(text, text, integer, text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.complete_notification_idempotency(text, text, integer, text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.complete_notification_idempotency(text, text, integer, text) TO service_role;
 
 -- ----------------------------------------------------------------------------
