@@ -15,7 +15,15 @@ export type GuideDiagramId =
   | "pcb-failure-causes"
   | "ceiling-vs-stand-install"
   | "defrost-cycle-walkway"
-  | "fixed-speed-vs-inverter";
+  | "fixed-speed-vs-inverter"
+  | "fridge-freezer-airflow"
+  | "washer-tub-inspection"
+  | "fridge-tilt-oil-return"
+  | "commercial-45box-cooling"
+  | "icemaker-heat-rejection"
+  | "commercial-dishwasher-setup"
+  | "refrigerant-leak-myth"
+  | "aircon-pyeong-sizing";
 
 function DiagramFigure({
   title,
@@ -1275,6 +1283,725 @@ function FixedSpeedVsInverterDiagram() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  13. 냉장고 냉동실 정상 · 냉장실 미지근 원인 단면 도해 (14번 글)      */
+/* ------------------------------------------------------------------ */
+function FridgeFreezerAirflowDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="냉동실은 얼어있는데 냉장실만 안 시원한 이유 (덕트 결빙 단면)"
+      caption="냉장고는 대부분 냉동실 뒤판에서 만든 영하의 바람을 통로(덕트)와 팬으로 냉장실에 나눠 보내기 때문에 제상이 안 되면 냉장실부터 미지근해집니다."
+    >
+      <svg
+        viewBox="0 0 760 278"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          정상 작동 시 냉기 순환과 증발기 성에 막힘 시 냉장실 온도 상승 단면 비교 도해
+        </title>
+
+        {/* 좌측: 정상 순환 */}
+        <rect x="16" y="14" width="350" height="250" rx="12" fill="#F0FDFA" stroke="#5EEAD4" strokeWidth="1.5" />
+        <text x="34" y="38" fontSize="12.5" fontWeight="700" fill="#0F766E">
+          정상 순환 (제상 정상 · 바람길 열림)
+        </text>
+
+        <rect x="44" y="54" width="134" height="170" rx="8" fill="#FFFFFF" stroke="#141A23" strokeWidth="1.5" />
+        <line x1="44" y1="126" x2="178" y2="126" stroke="#141A23" strokeWidth="1.5" />
+        <text x="111" y="76" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1D4ED8">
+          냉동실 (-18℃)
+        </text>
+        <text x="111" y="96" textAnchor="middle" fontSize="9.5" fill="#475569">
+          냉각기 + 송풍팬
+        </text>
+        <path d="M111 104 L111 154" stroke="#0F766E" strokeWidth="3" />
+        <polygon points="111,162 105,152 117,152" fill="#0F766E" />
+        <text x="111" y="182" textAnchor="middle" fontSize="11" fontWeight="700" fill="#0F766E">
+          냉장실 (+3℃)
+        </text>
+        <text x="111" y="202" textAnchor="middle" fontSize="9.5" fill="#475569">
+          덕트로 찬바람 통과
+        </text>
+
+        <rect x="192" y="54" width="158" height="170" rx="8" fill="#FFFFFF" stroke="#CCFBF1" />
+        <text x="204" y="78" fontSize="11" fontWeight="700" fill="#141A23">
+          정상 제상 사이클
+        </text>
+        <text x="204" y="102" fontSize="10" fill="#334155">
+          1. 냉각기에서 찬바람 생성
+        </text>
+        <text x="204" y="124" fontSize="10" fill="#334155">
+          2. 8~12시간마다 히터가
+        </text>
+        <text x="204" y="140" fontSize="10" fill="#334155">
+          성애를 자동 녹여 배출
+        </text>
+        <text x="204" y="166" fontSize="10" fontWeight="700" fill="#0F766E">
+          3. 바람 통로가 막히지 않아
+        </text>
+        <text x="204" y="184" fontSize="10" fontWeight="700" fill="#0F766E">
+          상·하칸 모두 일정 냉각
+        </text>
+
+        {/* 우측: 제상 고장 */}
+        <rect x="394" y="14" width="350" height="250" rx="12" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
+        <text x="412" y="38" fontSize="12.5" fontWeight="700" fill="#DC2626">
+          고장 진행 (성애 얼음 막힘 · 냉장실 미지근)
+        </text>
+
+        <rect x="422" y="54" width="134" height="170" rx="8" fill="#FFFFFF" stroke="#141A23" strokeWidth="1.5" />
+        <line x1="422" y1="126" x2="556" y2="126" stroke="#141A23" strokeWidth="1.5" />
+        <text x="489" y="76" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1D4ED8">
+          냉동실 (-18℃ 유지)
+        </text>
+        <rect x="444" y="100" width="90" height="24" rx="4" fill="#93C5FD" />
+        <text x="489" y="116" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1E3A8A">
+          얼음 성에 통로 폐쇄
+        </text>
+        <text x="489" y="180" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
+          냉장실 (+12℃ 이상)
+        </text>
+        <text x="489" y="200" textAnchor="middle" fontSize="9.5" fill="#DC2626">
+          바람 안 넘어와 음식 상함
+        </text>
+
+        <rect x="570" y="54" width="158" height="170" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="582" y="78" fontSize="11" fontWeight="700" fill="#DC2626">
+          3대 핵심 고장 부위
+        </text>
+        <text x="582" y="104" fontSize="10" fill="#334155">
+          • 제상 히터 / 온도 퓨즈 단선
+        </text>
+        <text x="582" y="126" fontSize="10" fill="#334155">
+          • 송풍 팬모터 얼어 고착
+        </text>
+        <text x="582" y="148" fontSize="10" fill="#334155">
+          • 문짝 패킹 뜸(습기 유입)
+        </text>
+        <text x="582" y="178" fontSize="10" fontWeight="700" fill="#C2410C">
+          코드 빼고 24h 녹인 뒤 재발 시
+        </text>
+        <text x="582" y="196" fontSize="10" fontWeight="700" fill="#C2410C">
+          부품 고장 (수리/교체 검토)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  14. 통돌이·드럼 중고 직거래 함정 vs 분해세척 도해 (15번 글)         */
+/* ------------------------------------------------------------------ */
+function WasherTubInspectionDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="세탁기 겉만 닦은 직거래에서 안 보이는 3곳 vs 120bar 분해 검수"
+      caption="세탁기는 겉면이 깨끗해도 세탁조 바깥 곰팡이·하부 스파이더 베어링·배수 펌프 상태를 열어보지 않으면 알 수 없습니다."
+    >
+      <svg
+        viewBox="0 0 760 258"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          중고 세탁기 직거래 시 숨은 고장 포인트 3가지와 전문 분해 세척 비교
+        </title>
+
+        <rect x="16" y="14" width="350" height="230" rx="12" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
+        <text x="34" y="38" fontSize="12.5" fontWeight="700" fill="#DC2626">
+          개인 직거래 · 단순 청소 제품 (숨은 리스크)
+        </text>
+
+        <rect x="34" y="54" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="48" y="75" fontSize="11" fontWeight="700" fill="#141A23">
+          1. 세탁조 바깥통 검은 물때 · 곰팡이
+        </text>
+        <text x="48" y="95" fontSize="10" fill="#475569">
+          통 안쪽만 닦아 안 보이지만 빨래 후 검은 가루·악취 발생
+        </text>
+
+        <rect x="34" y="114" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="48" y="135" fontSize="11" fontWeight="700" fill="#141A23">
+          2. 하부 스파이더 · 베어링 부식
+        </text>
+        <text x="48" y="155" fontSize="10" fill="#475569">
+          물 채운 탈수 테스트 없이 구매 시 헬리콥터 굉음 발생
+        </text>
+
+        <rect x="34" y="174" width="314" height="54" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="48" y="195" fontSize="11" fontWeight="700" fill="#141A23">
+          3. 배수펌프 찌꺼기 막힘 · 쇼바 노후
+        </text>
+        <text x="48" y="215" fontSize="10" fill="#475569">
+          동전·섬유 찌꺼기 낌 및 탈수 시 세탁기 전체 흔들림·에러
+        </text>
+
+        <rect x="394" y="14" width="350" height="230" rx="12" fill="#F0FDFA" stroke="#5EEAD4" strokeWidth="1.5" />
+        <text x="412" y="38" fontSize="12.5" fontWeight="700" fill="#0F766E">
+          {STORE.name} 120bar 분해 세척 · 실부하 검수
+        </text>
+
+        <rect x="412" y="54" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#CCFBF1" />
+        <text x="426" y="75" fontSize="11" fontWeight="700" fill="#0F766E">
+          1. 내조·외조 완전 탈거 120bar 고압 살균
+        </text>
+        <text x="426" y="95" fontSize="10" fill="#334155">
+          스파이더 날개·세제 투입구까지 완전 분해 세척 완료
+        </text>
+
+        <rect x="412" y="114" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#CCFBF1" />
+        <text x="426" y="135" fontSize="11" fontWeight="700" fill="#0F766E">
+          2. 고속 탈수 진동 · 배수 펌프 실부하 통과
+        </text>
+        <text x="426" y="155" fontSize="10" fill="#334155">
+          베어링 소음 및 급수·배수 밸브 누수 여부 연속 테스트
+        </text>
+
+        <rect x="412" y="174" width="314" height="54" rx="8" fill="#FFF4EE" stroke="#FDBA74" />
+        <text x="426" y="195" fontSize="11" fontWeight="700" fill="#C2410C">
+          3. 기사 수평 설치 + 최대 4개월 무상 A/S
+        </text>
+        <text x="426" y="215" fontSize="10" fill="#334155">
+          설치 당일 수평·배수 확인 및 계약 조건별 보증 지원
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  15. 냉장고 눕혀 운반 금지 & 오일 역류 안정 도해 (16번 글)            */
+/* ------------------------------------------------------------------ */
+function FridgeTiltOilReturnDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="냉장고를 눕혀 옮기면 안 되는 이유 (컴프레서 오일 역류 원리)"
+      caption="하단 압축기 내부에 담긴 냉동 오일이 배관으로 역류한 상태에서 바로 전원을 켜면 압축기 윤활 부족·손상으로 수명이 급감합니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          냉장고를 수직으로 운반할 때와 눕혀서 운반할 때 컴프레서 오일 역류 차이 도해
+        </title>
+
+        {/* 좌측: 눕혀 운반 */}
+        <rect x="16" y="14" width="350" height="222" rx="12" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
+        <text x="34" y="38" fontSize="12.5" fontWeight="700" fill="#DC2626">
+          X. 승용차·SUV에 눕혀서 운반 시
+        </text>
+
+        {/* 눕혀진 냉장고 모식도 */}
+        <rect x="52" y="64" width="166" height="68" rx="6" fill="#FFFFFF" stroke="#141A23" strokeWidth="1.5" />
+        <circle cx="82" cy="98" r="18" fill="#FEE2E2" stroke="#DC2626" strokeWidth="1.5" />
+        <text x="82" y="102" textAnchor="middle" fontSize="9" fontWeight="700" fill="#DC2626">
+          압축기
+        </text>
+        <path d="M100 92 L198 92" stroke="#DC2626" strokeWidth="4" strokeDasharray="6 3" />
+        <text x="152" y="84" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#DC2626">
+          오일이 냉매 배관으로 역류!
+        </text>
+
+        <rect x="34" y="148" width="314" height="72" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="48" y="168" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          바로 전원 꽂으면 오일 없이 가동 → 콤프레샤 손상
+        </text>
+        <text x="48" y="188" fontSize="10" fill="#334155">
+          • 내부 선반·도어 힌지 파손 및 외관 찌그러짐 동반
+        </text>
+        <text x="48" y="206" fontSize="10" fontWeight="700" fill="#C2410C">
+          • 부득이 눕혔다면 세운 뒤 최소 12~24시간 대기 후 통전
+        </text>
+
+        {/* 우측: 수직 운반 */}
+        <rect x="394" y="14" width="350" height="222" rx="12" fill="#F0FDFA" stroke="#5EEAD4" strokeWidth="1.5" />
+        <text x="412" y="38" fontSize="12.5" fontWeight="700" fill="#0F766E">
+          O. 탑차 수직 세워 운반 (직영 기사 운반 표준)
+        </text>
+
+        {/* 세워진 냉장고 모식도 */}
+        <rect x="444" y="54" width="68" height="106" rx="6" fill="#FFFFFF" stroke="#141A23" strokeWidth="1.5" />
+        <circle cx="478" cy="134" r="16" fill="#CCFBF1" stroke="#0F766E" strokeWidth="1.5" />
+        <text x="478" y="138" textAnchor="middle" fontSize="9" fontWeight="700" fill="#0F766E">
+          오일 바닥
+        </text>
+        <text x="530" y="92" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          오일이 컴프레서 바닥에
+        </text>
+        <text x="530" y="110" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          안정적으로 유지됨
+        </text>
+        <text x="530" y="132" fontSize="10" fill="#475569">
+          (계단 이동 시 45도 이하 살짝 기울임)
+        </text>
+
+        <rect x="412" y="168" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#CCFBF1" />
+        <text x="426" y="188" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          설치 후 약 2~3시간(겨울 3~4시간) 안정 뒤 가동 권장
+        </text>
+        <text x="426" y="206" fontSize="10" fill="#334155">
+          수평 맞추고 정격 콘센트 단독 연결 (멀티탭 과열 금지)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  16. 업소용 45박스 직냉식 vs 간냉식 & 주방 배치 도해 (17번 글)       */
+/* ------------------------------------------------------------------ */
+function Commercial45BoxCoolingDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 45박스 냉장·냉동고 직냉식 vs 간냉식 비교 & 주방 열기 주의"
+      caption="식자재 수분 보존이 중요한 육류·신선재료는 직냉식, 문 여닫음이 잦은 홀·음료·급속냉각은 간냉식이 유리하며 화구와는 반드시 거리를 둬야 합니다."
+    >
+      <svg
+        viewBox="0 0 760 272"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          업소용 45박스 직냉식과 간냉식의 냉각 원리 비교 및 주방 화구 이격 안내 도해
+        </title>
+
+        {/* 직냉식 */}
+        <rect x="16" y="14" width="350" height="174" rx="12" fill="#EFF6FF" stroke="#93C5FD" strokeWidth="1.5" />
+        <text x="34" y="38" fontSize="12.5" fontWeight="700" fill="#1D4ED8">
+          직냉식 (벽면 파이프 자연 대류 냉각)
+        </text>
+        <text x="34" y="64" fontSize="10.5" fill="#141A23">
+          • 원리: 내벽 속 냉매관이 직접 차가워져 조용히 식힘
+        </text>
+        <text x="34" y="86" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          • 장점: 바람이 안 불어 고기·야채 수분이 덜 마름 / 구조 단순
+        </text>
+        <text x="34" y="108" fontSize="10.5" fill="#DC2626">
+          • 주의: 냉동 칸 벽면에 성에가 생겨 주기적으로 긁어줘야 함
+        </text>
+        <text x="34" y="132" fontSize="10.5" fill="#334155">
+          • 주의: 아날로그 다이얼 눈금(강/약) 높이면 냉장실 식자재 어는 경우
+        </text>
+        <rect x="34" y="146" width="314" height="30" rx="6" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="191" y="165" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1D4ED8">
+          추천 업종: 정육점 · 한식 반찬 보관 · 소음 민감 조용한 주방
+        </text>
+
+        {/* 간냉식 */}
+        <rect x="394" y="14" width="350" height="174" rx="12" fill="#FFF4EE" stroke="#FDBA74" strokeWidth="1.5" />
+        <text x="412" y="38" fontSize="12.5" fontWeight="700" fill="#C2410C">
+          간냉식 (내부 송풍 팬 강제 냉기 순환)
+        </text>
+        <text x="412" y="64" fontSize="10.5" fill="#141A23">
+          • 원리: 숨은 냉각기 + 팬으로 칸마다 찬바람을 강하게 뿜음
+        </text>
+        <text x="412" y="86" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          • 장점: 자동 제상으로 성에 안 낌 / 문 자주 열어도 온도 회복 빠름
+        </text>
+        <text x="412" y="108" fontSize="10.5" fill="#DC2626">
+          • 주의: 냉기 팬 앞을 박스·비닐로 막으면 냉각 순환 차단됨
+        </text>
+        <text x="412" y="132" fontSize="10.5" fill="#334155">
+          • 주의: 마르는 식자재는 반드시 밀폐 용기/랩 보관 필요
+        </text>
+        <rect x="412" y="146" width="314" height="30" rx="6" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="569" y="165" textAnchor="middle" fontSize="10" fontWeight="700" fill="#C2410C">
+          추천 업종: 바쁜 식당 메인 주방 · 카페 · 술집 급속 냉각
+        </text>
+
+        {/* 하단 공통 주방 배치 */}
+        <rect x="16" y="198" width="728" height="60" rx="10" fill="#141A23" />
+        <text x="380" y="222" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#FF8A50">
+          직냉식·간냉식 공통 고장 예방 수칙
+        </text>
+        <text x="380" y="244" textAnchor="middle" fontSize="10.5" fill="#FFFFFF">
+          1) 화구(가스불·튀김기)에서 50cm 이상 이격 2) 상부·하부 기계실 앞 가림막 금지 3) 하단 응축기 먼지망 월 1회 청소
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  17. 제빙기 얼음 안 얼 때 4대 원인 도해 (18번 글)                      */
+/* ------------------------------------------------------------------ */
+function IcemakerHeatRejectionDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 제빙기 얼음이 안 얼거나 얇게 나올 때 현장 점검 4포인트"
+      caption="제빙기 불량의 절반 이상은 냉동 고장이 아니라 더운 주방 온도·벽 밀착 방열 불량·먼지망 막힘·정수필터 수압 저하 때문입니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          업소용 제빙기 제빙 불량 원인 4가지(방열 통풍, 응축기 먼지, 수온·수압, 펌프·커튼 스케일) 도해
+        </title>
+
+        <rect x="16" y="16" width="170" height="218" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="101" y="42" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#DC2626">
+          1. 주변 고온 · 밀착
+        </text>
+        <text x="101" y="68" textAnchor="middle" fontSize="10" fill="#334155">
+          상온 32℃ 초과 주방이나
+        </text>
+        <text x="101" y="86" textAnchor="middle" fontSize="10" fill="#334155">
+          싱크대·벽에 바짝 붙인
+        </text>
+        <text x="101" y="104" textAnchor="middle" fontSize="10" fill="#334155">
+          공랭식 열 방출 막힘
+        </text>
+        <rect x="28" y="132" width="146" height="84" rx="6" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="101" y="162" textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC2626">
+          최소 15~20cm 통풍 확보
+        </text>
+        <text x="101" y="186" textAnchor="middle" fontSize="9.5" fill="#475569">
+          (밀폐 카운터 내 매립 시
+        </text>
+        <text x="101" y="202" textAnchor="middle" fontSize="9.5" fill="#475569">
+          전면 흡배기형·수랭식 필수)
+        </text>
+
+        <rect x="200" y="16" width="170" height="218" rx="10" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="285" y="42" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#C2410C">
+          2. 콘덴서 먼지 뭉침
+        </text>
+        <text x="285" y="68" textAnchor="middle" fontSize="10" fill="#334155">
+          카페 바닥 원두 가루·기름때가
+        </text>
+        <text x="285" y="86" textAnchor="middle" fontSize="10" fill="#334155">
+          하부 촘촘한 냉각 핀에
+        </text>
+        <text x="285" y="104" textAnchor="middle" fontSize="10" fill="#334155">
+          부직포처럼 두껍게 막힘
+        </text>
+        <rect x="212" y="132" width="146" height="84" rx="6" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="285" y="162" textAnchor="middle" fontSize="10" fontWeight="700" fill="#C2410C">
+          제빙 시간 2배 지연
+        </text>
+        <text x="285" y="186" textAnchor="middle" fontSize="9.5" fill="#475569">
+          월 1~2회 브러시/청소기 청소
+        </text>
+        <text x="285" y="202" textAnchor="middle" fontSize="9.5" fill="#475569">
+          만으로 정상 복구 다수
+        </text>
+
+        <rect x="384" y="16" width="170" height="218" rx="10" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="469" y="42" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#1D4ED8">
+          3. 필터 막힘 · 뜨거운 물
+        </text>
+        <text x="469" y="68" textAnchor="middle" fontSize="10" fill="#334155">
+          정수기 필터 교체 시기 지나
+        </text>
+        <text x="469" y="86" textAnchor="middle" fontSize="10" fill="#334155">
+          수압 급감 또는 여름철
+        </text>
+        <text x="469" y="104" textAnchor="middle" fontSize="10" fill="#334155">
+          급수 온도 상승으로 미결빙
+        </text>
+        <rect x="396" y="132" width="146" height="84" rx="6" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="469" y="162" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1D4ED8">
+          얇고 구멍 뚫린 얼음
+        </text>
+        <text x="469" y="186" textAnchor="middle" fontSize="9.5" fill="#475569">
+          정수 필터 주기적 교체 및
+        </text>
+        <text x="469" y="202" textAnchor="middle" fontSize="9.5" fill="#475569">
+          급수 밸브 개방 상태 확인
+        </text>
+
+        <rect x="568" y="16" width="176" height="218" rx="10" fill="#F0FDFA" stroke="#5EEAD4" />
+        <text x="656" y="42" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#0F766E">
+          4. 스케일 · 센서 오작동
+        </text>
+        <text x="656" y="68" textAnchor="middle" fontSize="10" fill="#334155">
+          수조 물때로 워터펌프 막힘,
+        </text>
+        <text x="656" y="86" textAnchor="middle" fontSize="10" fill="#334155">
+          만빙 감지 커튼 스위치에
+        </text>
+        <text x="656" y="104" textAnchor="middle" fontSize="10" fill="#334155">
+          얼음 걸림 시 작동 정지
+        </text>
+        <rect x="580" y="132" width="152" height="84" rx="6" fill="#FFFFFF" stroke="#CCFBF1" />
+        <text x="656" y="162" textAnchor="middle" fontSize="10" fontWeight="700" fill="#0F766E">
+          정기 살균 및 스케일 제거
+        </text>
+        <text x="656" y="186" textAnchor="middle" fontSize="9.5" fill="#475569">
+          매장 출고 전 고압 스팀과
+        </text>
+        <text x="656" y="202" textAnchor="middle" fontSize="9.5" fill="#475569">
+          연속 제빙 테스트 완료
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  18. 업소용 식기세척기 3대 필수 인프라 도해 (19번 글)                  */
+/* ------------------------------------------------------------------ */
+function CommercialDishwasherSetupDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 도어형 식기세척기 설치 전 필수 3대 인프라 (온수·전기·배수)"
+      caption="식기세척기는 본체만 사오면 안 돌아갑니다. 60℃ 이상 온수기, 3~5kW 전용 전원, 본체보다 낮은 바닥 배수구가 세트로 갖춰져야 정상 작동합니다."
+    >
+      <svg
+        viewBox="0 0 760 254"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          업소용 식기세척기와 전용 전기 온수기, 전용 차단기 배선, 자연배수 바닥 높이 연결 조건 도해
+        </title>
+
+        {/* 중앙 식기세척기 본체 */}
+        <rect x="290" y="34" width="180" height="170" rx="12" fill="#141A23" />
+        <text x="380" y="72" textAnchor="middle" fontSize="13" fontWeight="700" fill="#FFFFFF">
+          업소용 도어형
+        </text>
+        <text x="380" y="94" textAnchor="middle" fontSize="13" fontWeight="700" fill="#FFFFFF">
+          식기세척기
+        </text>
+        <rect x="308" y="114" width="144" height="70" rx="8" fill="#1E293B" stroke="#475569" />
+        <text x="380" y="140" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#FF8A50">
+          헹굼 80℃+ 살균 고압
+        </text>
+        <text x="380" y="160" textAnchor="middle" fontSize="10" fill="#CBD5E1">
+          소비전력 약 3.5~5.5kW
+        </text>
+
+        {/* 1. 온수기 */}
+        <rect x="16" y="20" width="234" height="96" rx="10" fill="#EFF6FF" stroke="#93C5FD" strokeWidth="1.5" />
+        <text x="32" y="44" fontSize="11.5" fontWeight="700" fill="#1D4ED8">
+          1. 전용 온수기 (50~80L 권장)
+        </text>
+        <text x="32" y="66" fontSize="10" fill="#334155">
+          찬물만 넣으면 세척기 내부 히터가
+        </text>
+        <text x="32" y="84" fontSize="10" fill="#334155">
+          계속 데우느라 대기 길어지고 기름 안 씻김
+        </text>
+        <text x="32" y="102" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
+          (수압 약한 매장은 가압펌프 추가 필요)
+        </text>
+        <path d="M250 68 L286 68" stroke="#1D4ED8" strokeWidth="2.5" />
+
+        {/* 2. 전용 전기 */}
+        <rect x="16" y="134" width="234" height="98" rx="10" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
+        <text x="32" y="158" fontSize="11.5" fontWeight="700" fill="#C2410C">
+          2. 전용 차단기 직결 전기 (220V/380V)
+        </text>
+        <text x="32" y="180" fontSize="10" fill="#334155">
+          일반 콘센트·멀티탭 꽂으면 차단기 트립
+        </text>
+        <text x="32" y="198" fontSize="10" fill="#334155">
+          매물 명판의 단상(220V)·삼상(380V)과
+        </text>
+        <text x="32" y="216" fontSize="10" fontWeight="700" fill="#C2410C">
+          차단기 30~40A 전선 굵기 사전 확인
+        </text>
+        <path d="M250 180 L286 180" stroke="#E8521A" strokeWidth="2.5" />
+
+        {/* 3. 배수 & 세제 */}
+        <rect x="510" y="20" width="234" height="96" rx="10" fill="#F0FDFA" stroke="#5EEAD4" strokeWidth="1.5" />
+        <text x="526" y="44" fontSize="11.5" fontWeight="700" fill="#0F766E">
+          3. 바닥 배수구 높이 (자연배수 확인)
+        </text>
+        <text x="526" y="66" fontSize="10" fill="#334155">
+          펌프 내장형이 아닌 자연배수 방식은
+        </text>
+        <text x="526" y="84" fontSize="10" fill="#334155">
+          세척기 배수 출구보다 주방 바닥 배수구가
+        </text>
+        <text x="526" y="102" fontSize="10" fontWeight="700" fill="#0F766E">
+          더 낮아야 물이 역류하지 않습니다
+        </text>
+        <path d="M474 68 L506 68" stroke="#0F766E" strokeWidth="2.5" />
+
+        {/* 4. 세제/린스 공급 */}
+        <rect x="510" y="134" width="234" height="98" rx="10" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
+        <text x="526" y="158" fontSize="11.5" fontWeight="700" fill="#141A23">
+          4. 세제·린스 자동 공급기 호스 점검
+        </text>
+        <text x="526" y="180" fontSize="10" fill="#334155">
+          전용 액체 세제·린스 공급기 호스
+        </text>
+        <text x="526" y="198" fontSize="10" fill="#334155">
+          연결 및 랙 크기(500×500)와
+        </text>
+        <text x="526" y="216" fontSize="10" fill="#475569">
+          앞/뒤 싱크대 작업 동선 확인 필수
+        </text>
+        <path d="M474 180 L506 180" stroke="#64748B" strokeWidth="2.5" />
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  19. 에어컨 냉매(가스) 소모품 오해 & 3대 누설 지점 도해 (20번 글)      */
+/* ------------------------------------------------------------------ */
+function RefrigerantLeakMythDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="에어컨 냉매(가스)는 소모품이 아닙니다 — 실제 누설이 생기는 3대 지점"
+      caption="에어컨 가스가 줄었다면 100% 어딘가 미세하게 새는 구멍이 있는 것이므로 단순 보충만 반복하면 오일이 말라 콤프레샤가 타버립니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          에어컨 폐쇄 냉매 배관에서 실제 냉매 누설이 발생하는 연결 너트, 배관 꺾임, 서비스 밸브 코어 3곳 도해
+        </title>
+
+        {/* 상단 사실 배너 */}
+        <rect x="16" y="12" width="728" height="44" rx="8" fill="#141A23" />
+        <text x="380" y="39" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
+          정상 밀폐 배관에서는 10년이 지나도 냉매 가스가 자연 소모되지 않습니다 (부족 = 100% 누설)
+        </text>
+
+        {/* 배관 연결 흐름도 */}
+        <rect x="24" y="76" width="144" height="82" rx="10" fill="#EFF6FF" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="96" y="114" textAnchor="middle" fontSize="12" fontWeight="700" fill="#1D4ED8">
+          실내기
+        </text>
+        <text x="96" y="134" textAnchor="middle" fontSize="9.5" fill="#475569">
+          내부 동관 용접부
+        </text>
+
+        <line x1="168" y1="117" x2="592" y2="117" stroke="#64748B" strokeWidth="6" />
+
+        <rect x="592" y="76" width="144" height="82" rx="10" fill="#FFF7ED" stroke="#E8521A" strokeWidth="1.5" />
+        <text x="664" y="114" textAnchor="middle" fontSize="12" fontWeight="700" fill="#C2410C">
+          실외기
+        </text>
+        <text x="664" y="134" textAnchor="middle" fontSize="9.5" fill="#475569">
+          서비스 밸브 포트
+        </text>
+
+        {/* 누설 지점 3곳 핀 */}
+        <circle cx="220" cy="117" r="9" fill="#DC2626" />
+        <circle cx="380" cy="117" r="9" fill="#DC2626" />
+        <circle cx="566" cy="117" r="9" fill="#DC2626" />
+
+        <rect x="16" y="172" width="232" height="66" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="132" y="194" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
+          ① 플레어 너트 나사산 풀림·균열
+        </text>
+        <text x="132" y="216" textAnchor="middle" fontSize="10" fill="#334155">
+          이전·재설치 시 나팔 가공 불량 · 진동 풀림
+        </text>
+
+        <rect x="264" y="172" width="232" height="66" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="380" y="194" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
+          ② 동배관 꺾임 · 알루미늄 연결 부식
+        </text>
+        <text x="380" y="216" textAnchor="middle" fontSize="10" fill="#334155">
+          외벽 노출 배관 크랙 또는 저가 혼합배관 산화
+        </text>
+
+        <rect x="512" y="172" width="232" height="66" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="628" y="194" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
+          ③ 실외기 서비스 밸브 코어 미세 누설
+        </text>
+        <text x="628" y="216" textAnchor="middle" fontSize="10" fill="#334155">
+          주입구 고무패킹(무시핀) 경화로 조금씩 새어나감
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  20. 공간 환경별 적정 에어컨 평형 보정 공식 도해 (21번 글)             */
+/* ------------------------------------------------------------------ */
+function AirconPyeongSizingDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="똑같은 '실평수 20평(66㎡)'인데 환경별로 필요한 에어컨 평형 차이"
+      caption="바닥 면적만 보고 평형에 딱 맞춰 사면 남향 통유리 카페나 화구 열기가 있는 식당은 한여름 내내 실내가 미지근해집니다."
+    >
+      <svg
+        viewBox="0 0 760 256"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          전용 20평 공간에서 일반 가정 사무실, 남향 통유리 카페, 불 쓰는 식당·높은 천장별 권장 에어컨 평형 막대 도해
+        </title>
+
+        <text x="20" y="34" fontSize="12.5" fontWeight="700" fill="#141A23">
+          기준 공간: 바닥 실평수 20평 (66㎡) 기준 실제 권장 냉방 평형 비교
+        </text>
+
+        {/* Row 1 */}
+        <rect x="20" y="54" width="210" height="46" rx="8" fill="#F8FAFC" stroke="#CBD5E1" />
+        <text x="34" y="74" fontSize="11" fontWeight="700" fill="#141A23">
+          1. 일반 가정 · 사무실 (×1.0)
+        </text>
+        <text x="34" y="91" fontSize="9.5" fill="#475569">
+          천고 2.4m 이하 · 직사광선 적은 공간
+        </text>
+        <rect x="246" y="64" width="210" height="26" rx="6" fill="#0F766E" />
+        <text x="468" y="82" fontSize="11.5" fontWeight="700" fill="#0F766E">
+          18 ~ 23평형 (단상 220V 가능)
+        </text>
+
+        {/* Row 2 */}
+        <rect x="20" y="114" width="210" height="46" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="34" y="134" fontSize="11" fontWeight="700" fill="#1D4ED8">
+          2. 통유리 카페 · 오픈 문 상가 (×1.4)
+        </text>
+        <text x="34" y="151" fontSize="9.5" fill="#475569">
+          서향·남향 햇빛 · 커피머신 열기 유입
+        </text>
+        <rect x="246" y="124" width="300" height="26" rx="6" fill="#1D4ED8" />
+        <text x="558" y="142" fontSize="11.5" fontWeight="700" fill="#1D4ED8">
+          28 ~ 32평형 권장
+        </text>
+
+        {/* Row 3 */}
+        <rect x="20" y="174" width="210" height="54" rx="8" fill="#FFF4EE" stroke="#FDBA74" />
+        <text x="34" y="194" fontSize="11" fontWeight="700" fill="#C2410C">
+          3. 고깃집·화구 식당 · 높은 천장 (×1.7)
+        </text>
+        <text x="34" y="212" fontSize="9.5" fill="#475569">
+          천고 3.5m+ 또는 가스불·튀김기 상시 가동
+        </text>
+        <rect x="246" y="186" width="380" height="26" rx="6" fill="#E8521A" />
+        <text x="636" y="204" fontSize="11.5" fontWeight="700" fill="#C2410C">
+          36 ~ 40평형 (380V 확인)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
     case "aircon-repair-timeline":
@@ -1301,5 +2028,21 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <DefrostCycleWalkwayDiagram />;
     case "fixed-speed-vs-inverter":
       return <FixedSpeedVsInverterDiagram />;
+    case "fridge-freezer-airflow":
+      return <FridgeFreezerAirflowDiagram />;
+    case "washer-tub-inspection":
+      return <WasherTubInspectionDiagram />;
+    case "fridge-tilt-oil-return":
+      return <FridgeTiltOilReturnDiagram />;
+    case "commercial-45box-cooling":
+      return <Commercial45BoxCoolingDiagram />;
+    case "icemaker-heat-rejection":
+      return <IcemakerHeatRejectionDiagram />;
+    case "commercial-dishwasher-setup":
+      return <CommercialDishwasherSetupDiagram />;
+    case "refrigerant-leak-myth":
+      return <RefrigerantLeakMythDiagram />;
+    case "aircon-pyeong-sizing":
+      return <AirconPyeongSizingDiagram />;
   }
 }

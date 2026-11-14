@@ -26,6 +26,10 @@ function getCategoryBadgeClass(category: InfoGuideArticle["category"]): string {
       return "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]";
     case "에어컨 · 원리/설치":
       return "border-[#C7D2FE] bg-[#EEF2FF] text-[#4338CA]";
+    case "냉장고 · 세탁기":
+      return "border-[#A5F3FC] bg-[#ECFEFF] text-[#0E7490]";
+    case "업소용 주방설비":
+      return "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]";
     case "전기 · 220V/380V":
       return "border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]";
     case "창업 · 폐업":
