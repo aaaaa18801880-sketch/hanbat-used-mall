@@ -2,6 +2,12 @@
 import React, { useId } from "react";
 import { STORE, STORE_MERCHANT_POLICY } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
+import {
+  AirconPipeComparisonPhotoDiagram,
+  OutdoorUnitWeatherproofPhotoDiagram,
+  PcbPhotoFailureDiagram,
+  WasherInspectionPhotoDiagram,
+} from "./guide-photo-hotspot-diagram";
 
 export type GuideDiagramId =
   | "aircon-repair-timeline"
@@ -37,10 +43,12 @@ export type GuideDiagramId =
 function DiagramFigure({
   title,
   caption,
+  badgeLabel = "기술 도해 · 단면/계통도",
   children,
 }: {
   title: string;
   caption: string;
+  badgeLabel?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -51,7 +59,7 @@ function DiagramFigure({
           <span>{title}</span>
         </p>
         <span className="inline-flex items-center rounded-md border border-[#E2E6EC] bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#475569] shrink-0">
-          기술 도해 · 단면/계통도
+          {badgeLabel}
         </span>
       </div>
       <div className="overflow-x-auto rounded-xl border border-[#CBD5E1] bg-white p-2 sm:p-3 shadow-2xs">
@@ -931,253 +939,28 @@ function AirconCyclePartsDiagram() {
 /*  8. 실외기 방수·내충격 단면 구조도 (9번 글)                          */
 /* ------------------------------------------------------------------ */
 function OutdoorUnitWeatherproofDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="에어컨 실외기 내부 방수·방진 설계 vs 실제 고장 예외"
-      caption="비·바람은 상판 구조와 바닥 배수 구멍, 상부 밀폐 코팅 기판으로 막아내지만, 고압 세척·바닥 침수·실외기실 열기 축적에는 취약합니다."
+      title="에어컨 실외기 내부 방수·방진 보호 구조와 고장 예외 위치"
+      badgeLabel="실사 구조 · 방수 구역"
+      caption="상판 겹침 지붕·수직 밀폐 전장함·방수 실링 팬모터·용접 밀폐 압축기가 빗물을 차단하지만, 위에서 고압수를 쏘거나 바닥 수위가 올라 침수되는 경우 및 루버창 닫힘 과열에는 취약합니다. 번호를 눌러 구조를 확인하세요."
     >
-      <svg
-        viewBox="0 0 760 272"
-        role="img"
-        aria-labelledby={titleId}
-        className="w-full min-w-[600px] h-auto select-none"
-      >
-        <title id={titleId}>
-          실외기 내부 단면 방수 코팅, 상단 PCB 위치, 하단 물빠짐 홀, 방진 고무와 주의 예외 사항 도해
-        </title>
-
-        {/* 빗방울 표현 */}
-        <text x="240" y="22" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
-          자연 비·눈 (상판 겹침 구조로 빗물 차단 및 하단 배수)
-        </text>
-        <path d="M90 26 L84 36 M160 26 L154 36 M230 26 L224 36 M310 26 L304 36 M390 26 L384 36" stroke="#60A5FA" strokeWidth="2" />
-
-        {/* 실외기 외함 */}
-        <rect x="28" y="42" width="424" height="202" rx="10" fill="#F8FAFC" stroke="#141A23" strokeWidth="2" />
-        {/* 상단 방수 덮개 */}
-        <rect x="24" y="38" width="432" height="18" rx="4" fill="#1E293B" />
-        <text x="240" y="51" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
-          아연도금 강판 · 분체 도장 방수 상판 (직접 낙수 유입 차단)
-        </text>
-
-        {/* 좌측 열교환기 & 팬 영역 */}
-        <rect x="44" y="68" width="220" height="148" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
-        <circle cx="154" cy="134" r="48" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="2" />
-        <circle cx="154" cy="134" r="10" fill="#1E293B" />
-        <path d="M154 90 Q176 112 154 134 Q132 112 154 90 M154 178 Q176 156 154 134 Q132 156 154 178 M110 134 Q132 112 154 134 Q132 156 110 134 M198 134 Q176 112 154 134 Q176 156 198 134" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1" />
-        <text x="154" y="202" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
-          방열 알루미늄 핀 + 밀폐 팬모터
-        </text>
-
-        {/* 우측 상단 PCB 구획 */}
-        <rect x="278" y="68" width="158" height="72" rx="8" fill="#FFF4EE" stroke="#E8521A" strokeWidth="1.5" />
-        <text x="357" y="88" textAnchor="middle" fontSize="11" fontWeight="700" fill="#C2410C">
-          상부 밀폐 PCB · 단자함
-        </text>
-        <text x="357" y="106" textAnchor="middle" fontSize="9.5" fill="#475569">
-          가장 높은 곳에 거꾸로 수직 배치
-        </text>
-        <text x="357" y="122" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#0F766E">
-          실리콘 방습 코팅 적용
-        </text>
-
-        {/* 우측 하단 컴프레서 + 방진고무 */}
-        <rect x="292" y="150" width="130" height="58" rx="10" fill="#FFFFFF" stroke="#141A23" strokeWidth="1.5" />
-        <text x="357" y="174" textAnchor="middle" fontSize="11" fontWeight="700" fill="#141A23">
-          완전 밀폐 압축기
-        </text>
-        <text x="357" y="192" textAnchor="middle" fontSize="9.5" fill="#475569">
-          철제 용접 쉘 (내부 수분 차단)
-        </text>
-        {/* 방진고무 */}
-        <rect x="308" y="208" width="24" height="10" rx="2" fill="#475569" />
-        <rect x="382" y="208" width="24" height="10" rx="2" fill="#475569" />
-        <text x="357" y="232" textAnchor="middle" fontSize="10" fontWeight="700" fill="#334155">
-          하부 방진 고무 (충격·진동 흡수)
-        </text>
-
-        {/* 하단 물빠짐 홀 */}
-        <path d="M84 244 L84 260 M154 244 L154 260 M224 244 L224 260" stroke="#3B82F6" strokeWidth="2" strokeDasharray="3 3" />
-        <text x="154" y="266" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1D4ED8">
-          바닥 배수 홀로 빗물 즉시 배출
-        </text>
-
-        {/* 우측: 실제 고장이 나는 3가지 예외 */}
-        <rect x="472" y="38" width="272" height="206" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
-        <text x="488" y="60" fontSize="12" fontWeight="700" fill="#DC2626">
-          실외기 고장을 부르는 3대 예외 상황
-        </text>
-
-        <rect x="488" y="72" width="240" height="48" rx="7" fill="#FFFFFF" stroke="#FECACA" />
-        <text x="500" y="92" fontSize="10.5" fontWeight="700" fill="#141A23">
-          1. 위·전면에서 고압 호스 물 직분사
-        </text>
-        <text x="500" y="109" fontSize="9.5" fill="#475569">
-          틈새 역류로 상단 PCB·팬 베어링 침수 위험
-        </text>
-
-        <rect x="488" y="128" width="240" height="48" rx="7" fill="#FFFFFF" stroke="#FECACA" />
-        <text x="500" y="148" fontSize="10.5" fontWeight="700" fill="#141A23">
-          2. 폭우 시 바닥 수위 상승 · 침수
-        </text>
-        <text x="500" y="165" fontSize="9.5" fill="#475569">
-          반지하·저지대 바닥 거치 시 모터·단자 수몰
-        </text>
-
-        <rect x="488" y="184" width="240" height="48" rx="7" fill="#FFFFFF" stroke="#FECACA" />
-        <text x="500" y="204" fontSize="10.5" fontWeight="700" fill="#141A23">
-          3. 밀폐된 실외기실 열기 축적 (루버 닫힘)
-        </text>
-        <text x="500" y="221" fontSize="9.5" fill="#475569">
-          열풍 순환 안 돼 내부 70도+ 과열 차단
-        </text>
-      </svg>
+      <OutdoorUnitWeatherproofPhotoDiagram />
     </DiagramFigure>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/*  9. PCB 역할 및 4대 고장 원인 도해 (10번 글)                          */
+/*  9. PCB 역할 및 4대 고장 원인 실사 + 핀 오버레이 (10번 글)             */
 /* ------------------------------------------------------------------ */
 function PcbFailureCausesDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="실외기 인버터 PCB 회로 기판 레이아웃과 4대 손상 위치"
-      caption="인버터 PCB는 전원 EMI 필터, 대형 전해콘덴서, 방열판 부착 IPM 파워모듈, 통신 IC로 구성되며 서지·고열·습기·벌레 쇼트 시 해당 구역이 타거나 단선됩니다."
+      title="실외기 인버터 PCB 실제 구조와 4대 손상 위치"
+      badgeLabel="실사 구조 · 부위별 진단"
+      caption="인버터 PCB는 좌측 전원·EMI·퓨즈(01), 중앙 대형 전해콘덴서(02), 알루미늄 방열판·IPM 모듈(03), 우측 제어 MCU·커넥터(04)로 나뉘며, 사진 위 번호나 카드를 누르면 해당 회로 구역을 확인할 수 있습니다."
     >
-      <svg
-        viewBox="0 0 760 286"
-        role="img"
-        aria-labelledby={titleId}
-        className="w-full min-w-[560px] h-auto select-none"
-      >
-        <title id={titleId}>
-          실외기 인버터 PCB 기판 레이아웃 모식도 및 서지, 고온 과열, 결로 부식, 벌레 합선 연결 위치 도해
-        </title>
-
-        {/* 상단: 실제 PCB 기판 레이아웃 모식도 */}
-        <rect x="24" y="12" width="712" height="104" rx="10" fill="#0F2922" stroke="#10B981" strokeWidth="1.5" />
-        <text x="40" y="30" fontSize="10.5" fontWeight="700" fill="#A7F3D0">
-          실외기 인버터 메인 PCB 기판 구조 모식도 (방습 실리콘 코팅 적용)
-        </text>
-
-        {/* 구역 1: 전원 입력 + EMI + 퓨즈 */}
-        <rect x="40" y="42" width="144" height="60" rx="6" fill="#1E293B" stroke="#FCA5A5" strokeWidth="1.5" />
-        <rect x="50" y="52" width="38" height="16" rx="2" fill="#DC2626" />
-        <text x="69" y="64" textAnchor="middle" fontSize="9" fontWeight="700" fill="#FFFFFF">
-          FUSE
-        </text>
-        <circle cx="110" cy="60" r="10" fill="#F59E0B" />
-        <circle cx="144" cy="60" r="10" fill="#3B82F6" />
-        <text x="112" y="90" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FECACA">
-          전원 입력 · EMI · 서지부
-        </text>
-
-        {/* 구역 2: 대형 전해콘덴서 */}
-        <rect x="200" y="42" width="150" height="60" rx="6" fill="#1E293B" stroke="#FDBA74" strokeWidth="1.5" />
-        <circle cx="236" cy="60" r="13" fill="#475569" stroke="#CBD5E1" strokeWidth="1.5" />
-        <circle cx="274" cy="60" r="13" fill="#475569" stroke="#CBD5E1" strokeWidth="1.5" />
-        <circle cx="312" cy="60" r="13" fill="#475569" stroke="#CBD5E1" strokeWidth="1.5" />
-        <text x="275" y="90" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FED7AA">
-          DC 평활 전해콘덴서 뱅크
-        </text>
-
-        {/* 구역 3: 방열판 + IPM 파워모듈 */}
-        <rect x="366" y="42" width="170" height="60" rx="6" fill="#334155" stroke="#93C5FD" strokeWidth="1.5" />
-        <rect x="380" y="50" width="142" height="22" rx="3" fill="#CBD5E1" />
-        <text x="451" y="65" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#141A23">
-          알루미늄 방열판 + IPM 모듈
-        </text>
-        <text x="451" y="90" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#DBEAFE">
-          압축기 3상 주파수 가변 구동
-        </text>
-
-        {/* 구역 4: MCU + 커넥터/통신 */}
-        <rect x="552" y="42" width="168" height="60" rx="6" fill="#1E293B" stroke="#94A3B8" strokeWidth="1.5" />
-        <rect x="568" y="50" width="38" height="24" rx="3" fill="#0F172A" stroke="#6EE7B7" />
-        <text x="587" y="65" textAnchor="middle" fontSize="9" fontWeight="700" fill="#6EE7B7">
-          MCU
-        </text>
-        <rect x="622" y="52" width="84" height="18" rx="2" fill="#F8FAFC" />
-        <text x="664" y="64" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#141A23">
-          센서 · 통신 핀단자
-        </text>
-        <text x="636" y="90" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#E2E8F0">
-          뒷면 동박 · 고압 단자 노출부
-        </text>
-
-        {/* 지시 연결선 */}
-        <line x1="112" y1="116" x2="100" y2="146" stroke="#DC2626" strokeWidth="1.5" strokeDasharray="3 2" />
-        <line x1="275" y1="116" x2="286" y2="146" stroke="#E8521A" strokeWidth="1.5" strokeDasharray="3 2" />
-        <line x1="451" y1="116" x2="472" y2="146" stroke="#1D4ED8" strokeWidth="1.5" strokeDasharray="3 2" />
-        <line x1="650" y1="116" x2="659" y2="146" stroke="#475569" strokeWidth="1.5" strokeDasharray="3 2" />
-
-        {/* 원인 1 */}
-        <rect x="16" y="146" width="168" height="126" rx="10" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
-        <text x="100" y="168" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#DC2626">
-          1. 전력 서지 · 과전류
-        </text>
-        <text x="100" y="188" textAnchor="middle" fontSize="10" fill="#334155">
-          낙뢰·정전 후 복전 충격
-        </text>
-        <text x="100" y="206" textAnchor="middle" fontSize="10" fill="#334155">
-          불안정한 건물 분전함 전압
-        </text>
-        <rect x="28" y="224" width="144" height="36" rx="6" fill="#FFFFFF" stroke="#FECACA" />
-        <text x="100" y="246" textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC2626">
-          퓨즈·IPM 모듈 동시 소손
-        </text>
-
-        {/* 원인 2 */}
-        <rect x="202" y="146" width="168" height="126" rx="10" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
-        <text x="286" y="168" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#C2410C">
-          2. 고온 · 통풍 불량
-        </text>
-        <text x="286" y="188" textAnchor="middle" fontSize="10" fill="#334155">
-          실외기실 루버창 닫고 가동
-        </text>
-        <text x="286" y="206" textAnchor="middle" fontSize="10" fill="#334155">
-          기판 주변 70도 이상 과열
-        </text>
-        <rect x="214" y="224" width="144" height="36" rx="6" fill="#FFFFFF" stroke="#FED7AA" />
-        <text x="286" y="246" textAnchor="middle" fontSize="10" fontWeight="700" fill="#C2410C">
-          콘덴서 부풀음 · 방열 저하
-        </text>
-
-        {/* 원인 3 */}
-        <rect x="388" y="146" width="168" height="126" rx="10" fill="#EFF6FF" stroke="#93C5FD" strokeWidth="1.5" />
-        <text x="472" y="168" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#1D4ED8">
-          3. 습기 · 결로 부식
-        </text>
-        <text x="472" y="188" textAnchor="middle" fontSize="10" fill="#334155">
-          고압 세척 물 튐·배관 결로
-        </text>
-        <text x="472" y="206" textAnchor="middle" fontSize="10" fill="#334155">
-          커넥터 핀 산화·습기 침투
-        </text>
-        <rect x="400" y="224" width="144" height="36" rx="6" fill="#FFFFFF" stroke="#BFDBFE" />
-        <text x="472" y="246" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1D4ED8">
-          동박 패턴 부식 · 통신 에러
-        </text>
-
-        {/* 원인 4 */}
-        <rect x="574" y="146" width="170" height="126" rx="10" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
-        <text x="659" y="168" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#141A23">
-          4. 개미 · 벌레 유입 쇼트
-        </text>
-        <text x="659" y="188" textAnchor="middle" fontSize="10" fill="#334155">
-          대기전력 미열 찾아 침투
-        </text>
-        <text x="659" y="206" textAnchor="middle" fontSize="10" fill="#334155">
-          전원 핀 사이 몸체로 접촉
-        </text>
-        <rect x="586" y="224" width="146" height="36" rx="6" fill="#FFFFFF" stroke="#E2E6EC" />
-        <text x="659" y="246" textAnchor="middle" fontSize="10" fontWeight="700" fill="#141A23">
-          트래킹 합선 · 보드 검게 탐
-        </text>
-      </svg>
+      <PcbPhotoFailureDiagram />
     </DiagramFigure>
   );
 }
@@ -1623,136 +1406,13 @@ function FridgeFreezerAirflowDiagram() {
 /*  14. 통돌이·드럼 중고 직거래 함정 vs 분해세척 도해 (15번 글)         */
 /* ------------------------------------------------------------------ */
 function WasherTubInspectionDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="통돌이 · 드럼 세탁기 내부 단면도와 직거래 현장 손 점검 위치"
-      caption="겉면이 깨끗해도 통돌이 서스펜션 댐퍼 처짐, 드럼 후면 스파이더·베어링 유격, 외조·패킹 내부 물때는 손으로 눌러보고 젖혀보지 않으면 확인이 어렵습니다."
+      title="중고 세탁기 구매 전 손으로 확인하는 3대 핵심 점검 위치"
+      badgeLabel="실사 점검 · 직거래 체크"
+      caption={`${STORE.name} 출고 매물은 내·외조 고압세척 및 급수·탈수·배수 부하 시운전을 거쳐 출고됩니다. 개인 직거래나 매장 방문 시 도어 고무패킹(01), 세탁조·베어링 유격(02), 배수펌프 거름망(03)을 직접 눌러 확인하세요.`}
     >
-      <svg
-        viewBox="0 0 760 296"
-        role="img"
-        aria-labelledby={titleId}
-        className="w-full min-w-[560px] h-auto select-none"
-      >
-        <title id={titleId}>
-          통돌이 세탁기 외조·내조·댐퍼 수직 단면도와 드럼 세탁기 도어패킹·스파이더 축·배수펌프 측면 단면도
-        </title>
-
-        {/* 좌측: 통돌이 수직 단면 */}
-        <rect x="16" y="14" width="352" height="268" rx="12" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
-        <text x="32" y="38" fontSize="12.5" fontWeight="700" fill="#141A23">
-          1. 통돌이 세탁기 수직 단면 (댐퍼 반동 &amp; 외조 오염)
-        </text>
-
-        {/* 통돌이 외함 */}
-        <rect x="36" y="54" width="132" height="156" rx="6" fill="#FFFFFF" stroke="#141A23" strokeWidth="2" />
-        {/* 외조 */}
-        <rect x="52" y="68" width="100" height="114" rx="4" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
-        {/* 내조 */}
-        <rect x="64" y="76" width="76" height="94" rx="3" fill="#EFF6FF" stroke="#1D4ED8" strokeWidth="1.5" />
-        {/* 댐퍼 봉 2개 */}
-        <line x1="46" y1="68" x2="54" y2="196" stroke="#E8521A" strokeWidth="3" />
-        <line x1="158" y1="68" x2="150" y2="196" stroke="#E8521A" strokeWidth="3" />
-        {/* 손으로 누르는 화살표 */}
-        <path d="M102 48 L102 98" stroke="#141A23" strokeWidth="2.5" />
-        <polygon points="102,104 97,95 107,95" fill="#141A23" />
-        <text x="102" y="124" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          눌렀다 떼기
-        </text>
-        <text x="102" y="160" textAnchor="middle" fontSize="9" fontWeight="700" fill="#DC2626">
-          외조 틈 물때
-        </text>
-
-        {/* 지시 설명 */}
-        <rect x="180" y="54" width="174" height="72" rx="8" fill="#FFFFFF" stroke="#E2E6EC" />
-        <text x="190" y="73" fontSize="10.5" fontWeight="700" fill="#C2410C">
-          ① 4귀퉁이 댐퍼(쇼바) 탄성
-        </text>
-        <text x="190" y="90" fontSize="9.5" fill="#334155">
-          한 번 올라오고 바로 멈춰야 정상
-        </text>
-        <text x="190" y="106" fontSize="9.5" fill="#DC2626">
-          계속 출렁거리면 탈수 시 쿵쾅/에러
-        </text>
-
-        <rect x="180" y="134" width="174" height="76" rx="8" fill="#FFFFFF" stroke="#FECACA" />
-        <text x="190" y="153" fontSize="10.5" fontWeight="700" fill="#DC2626">
-          ② 내·외조 사이 검은 물때
-        </text>
-        <text x="190" y="170" fontSize="9.5" fill="#334155">
-          스텐 통 바깥·펄세이터 밑은
-        </text>
-        <text x="190" y="186" fontSize="9.5" fill="#334155">
-          분해하지 않으면 세척 불가 영역
-        </text>
-
-        <rect x="32" y="220" width="320" height="48" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
-        <text x="44" y="240" fontSize="10" fontWeight="700" fill="#065F46">
-          확인 기준: 탈수 테스트 시 벽면 부딪힘(UE 에러) 여부 확인
-        </text>
-        <text x="44" y="256" fontSize="9.5" fill="#047857">
-          분해 고압세척 시 외조·펄세이터·세제함 찌꺼기 동시 제거
-        </text>
-
-        {/* 우측: 드럼 측면 단면 */}
-        <rect x="392" y="14" width="352" height="268" rx="12" fill="#FFFBF7" stroke="#FDBA74" strokeWidth="1.5" />
-        <text x="408" y="38" fontSize="12.5" fontWeight="700" fill="#C2410C">
-          2. 드럼 세탁기 측면 단면 (스파이더 · 패킹 · 펌프)
-        </text>
-
-        {/* 드럼 본체 측면 */}
-        <rect x="410" y="54" width="144" height="156" rx="6" fill="#FFFFFF" stroke="#141A23" strokeWidth="2" />
-        {/* 도어 + 패킹 */}
-        <rect x="404" y="84" width="14" height="74" rx="4" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.5" />
-        <rect x="418" y="86" width="10" height="70" fill="#FEF2F2" stroke="#DC2626" />
-        {/* 드럼 내통 */}
-        <rect x="428" y="76" width="84" height="88" rx="6" fill="#EFF6FF" stroke="#1D4ED8" strokeWidth="1.5" />
-        {/* 후면 스파이더 축 + 베어링 */}
-        <path d="M512 96 L528 120 L512 144" fill="none" stroke="#E8521A" strokeWidth="3.5" />
-        <rect x="526" y="112" width="18" height="16" rx="2" fill="#E8521A" />
-        {/* 흔들기 화살표 */}
-        <path d="M446 92 L446 112" stroke="#141A23" strokeWidth="2" />
-        <text x="470" y="124" textAnchor="middle" fontSize="9" fontWeight="700" fill="#1D4ED8">
-          상하 유격 흔들기
-        </text>
-        {/* 하부 배수펌프 */}
-        <rect x="424" y="178" width="96" height="22" rx="3" fill="#F1F5F9" stroke="#64748B" />
-        <text x="472" y="193" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#334155">
-          하부 배수펌프 거름망
-        </text>
-
-        {/* 우측 설명 카드 */}
-        <rect x="566" y="54" width="162" height="72" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
-        <text x="576" y="73" fontSize="10.5" fontWeight="700" fill="#DC2626">
-          ① 후면 스파이더·베어링
-        </text>
-        <text x="576" y="90" fontSize="9.5" fill="#334155">
-          드럼 앞쪽을 위아래로 들 때
-        </text>
-        <text x="576" y="106" fontSize="9.5" fill="#DC2626">
-          달각 유격·갈림음 시 수리비 큼
-        </text>
-
-        <rect x="566" y="134" width="162" height="76" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
-        <text x="576" y="153" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
-          ② 도어 고무패킹 주름
-        </text>
-        <text x="576" y="170" fontSize="9.5" fill="#334155">
-          고무 틈새를 손으로 젖혀
-        </text>
-        <text x="576" y="186" fontSize="9.5" fill="#334155">
-          물고임·곰팡이·찢어짐 확인
-        </text>
-
-        <rect x="408" y="220" width="320" height="48" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
-        <text x="420" y="240" fontSize="10" fontWeight="700" fill="#C2410C">
-          확인 기준: 수평계 맞춤 + 급수·고속탈수·배수펌프 연속 점검
-        </text>
-        <text x="420" y="256" fontSize="9.5" fill="#475569">
-          {STORE.name} 출고 매물은 내·외조 고압세척 및 부하 시운전 완료
-        </text>
-      </svg>
+      <WasherInspectionPhotoDiagram />
     </DiagramFigure>
   );
 }
@@ -2867,124 +2527,13 @@ function AirconDrainLeakDiagram() {
 /*  25. 알루미늄 배관 vs 동배관 & 매립배관 재사용 비교 도해 (26번 글)     */
 /* ------------------------------------------------------------------ */
 function AirconPipeComparisonDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="동배관 플레어 체결 단면 vs 알루미늄 균열 단면 & 아파트 매립배관 기밀 검사"
-      caption="순수 동관은 꺾임이 없으면 끝단을 잘라 재확관해 쓸 수 있지만, 알루미늄 합금관은 재체결 시 나팔 끝단이 찢어지기 쉽습니다. 아파트 매립배관은 질소 세척과 40kgf/cm² 기밀 시험이 먼저입니다."
+      title="순수 KS 동배관 vs 백화·크랙 발생한 알루미늄 배관 실물 비교"
+      badgeLabel="실사 비교 · 단면·부식"
+      caption="순수 동관(01)은 꺾임이 없으면 끝단을 절단해 재확관할 수 있지만, 알루미늄 합금관(02)은 재체결 시 나팔 끝단이 찢어지거나 보온재 안에서 점부식이 진행되기 쉽습니다. 절단 단면(03) 확인 및 매립배관 40kgf/cm² 질소 기밀 검사가 필수입니다."
     >
-      <svg
-        viewBox="0 0 760 282"
-        role="img"
-        aria-labelledby={titleId}
-        className="w-full min-w-[560px] h-auto select-none"
-      >
-        <title id={titleId}>
-          동배관 플레어 너트 밀착 단면, 알루미늄 배관 나팔 균열 단면, 매립배관 질소 세척·압력 게이지 점검 도해
-        </title>
-
-        {/* 1. 동배관 */}
-        <rect x="16" y="14" width="234" height="254" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
-        <text x="32" y="38" fontSize="12" fontWeight="700" fill="#0F766E">
-          1. 순수 KS 동(구리) 배관
-        </text>
-        {/* 동관 플레어 단면 */}
-        <rect x="32" y="50" width="202" height="72" rx="8" fill="#ECFDF5" stroke="#6EE7B7" />
-        <path d="M52 78 L112 78 L128 68 M52 94 L112 94 L128 104" fill="none" stroke="#B45309" strokeWidth="4" />
-        <rect x="128" y="68" width="22" height="36" rx="2" fill="#0F766E" />
-        <text x="188" y="84" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#065F46">
-          나팔(플레어)
-        </text>
-        <text x="188" y="99" textAnchor="middle" fontSize="9" fill="#047857">
-          연성 우수·밀착
-        </text>
-
-        <text x="32" y="146" fontSize="10" fill="#334155">
-          • 연성 높아 부식·진동 내구성 우수
-        </text>
-        <text x="32" y="166" fontSize="10" fill="#334155">
-          • 꺾임·찌그러짐 없고 길이 맞으면
-        </text>
-        <text x="32" y="182" fontSize="10" fill="#334155">
-          끝단 절단 → 재확관 후 재사용 가능
-        </text>
-        <rect x="32" y="200" width="202" height="52" rx="6" fill="#F0FDF4" stroke="#BBF7D0" />
-        <text x="133" y="222" textAnchor="middle" fontSize="10" fontWeight="700" fill="#0F766E">
-          {STORE.name} 기준: KS 동배관
-        </text>
-        <text x="133" y="240" textAnchor="middle" fontSize="9.5" fill="#475569">
-          신규·이전설치 모두 동관 표준 시공
-        </text>
-
-        {/* 2. 알루미늄 배관 */}
-        <rect x="263" y="14" width="234" height="254" rx="12" fill="#FFFFFF" stroke="#DC2626" strokeWidth="1.5" />
-        <text x="279" y="38" fontSize="12" fontWeight="700" fill="#DC2626">
-          2. 알루미늄(합금) 배관
-        </text>
-        {/* 알루미늄 균열 단면 */}
-        <rect x="279" y="50" width="202" height="72" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
-        <path d="M299 78 L359 78 L374 66 M299 94 L359 94 L374 106" fill="none" stroke="#64748B" strokeWidth="4" />
-        <path d="M366 64 L378 78 L368 88" fill="none" stroke="#DC2626" strokeWidth="2.5" />
-        <text x="430" y="84" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#DC2626">
-          끝단 미세 크랙
-        </text>
-        <text x="430" y="99" textAnchor="middle" fontSize="9" fill="#B91C1C">
-          재조임 시 냉매샘
-        </text>
-
-        <text x="279" y="146" fontSize="10" fill="#334155">
-          • 원가 절감형 스마트링크/합금관
-        </text>
-        <text x="279" y="166" fontSize="10" fill="#334155">
-          • 1회 체결 후 재분해·재체결하면
-        </text>
-        <text x="279" y="182" fontSize="10" fill="#334155">
-          금속 피로·산화로 미세 누설 빈번
-        </text>
-        <rect x="279" y="200" width="202" height="52" rx="6" fill="#FEF2F2" stroke="#FECACA" />
-        <text x="380" y="222" textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC2626">
-          이전 설치 시 재사용 비권장
-        </text>
-        <text x="380" y="240" textAnchor="middle" fontSize="9.5" fill="#475569">
-          새 동관 교체가 재충전비 방어에 유리
-        </text>
-
-        {/* 3. 매립배관 */}
-        <rect x="510" y="14" width="234" height="254" rx="12" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="1.5" />
-        <text x="526" y="38" fontSize="12" fontWeight="700" fill="#1D4ED8">
-          3. 아파트 벽체 매립배관
-        </text>
-        {/* 질소 세척 + 게이지 모식 */}
-        <rect x="526" y="50" width="202" height="72" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
-        <circle cx="566" cy="86" r="22" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="2" />
-        <line x1="566" y1="86" x2="578" y2="74" stroke="#DC2626" strokeWidth="2.5" />
-        <text x="566" y="102" textAnchor="middle" fontSize="8" fontWeight="700" fill="#1D4ED8">
-          40bar
-        </text>
-        <text x="656" y="80" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          질소 고압 퍼지 +
-        </text>
-        <text x="656" y="96" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          기밀 압력 유지시험
-        </text>
-
-        <text x="526" y="146" fontSize="10" fill="#334155">
-          • 구형(R-22) 광유 오일과 인버터
-        </text>
-        <text x="526" y="162" fontSize="10" fill="#334155">
-          (R-410A/R-32) 오일 혼입 시 고장
-        </text>
-        <text x="526" y="182" fontSize="10" fill="#334155">
-          • 벽 속 누설·배관 구경(mm) 먼저 확인
-        </text>
-        <rect x="526" y="200" width="202" height="52" rx="6" fill="#EFF6FF" stroke="#BFDBFE" />
-        <text x="627" y="222" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1D4ED8">
-          사전 공정: 질소 세척 + 용접검사
-        </text>
-        <text x="627" y="240" textAnchor="middle" fontSize="9.5" fill="#475569">
-          오일 제거 없이 연결 시 압축기 손상
-        </text>
-      </svg>
+      <AirconPipeComparisonPhotoDiagram />
     </DiagramFigure>
   );
 }
