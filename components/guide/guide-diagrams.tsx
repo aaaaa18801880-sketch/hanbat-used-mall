@@ -148,16 +148,16 @@ function AirconRepairTimelineDiagram() {
 
         <rect x="392" y="164" width="352" height="90" rx="10" fill="#F0FDFA" stroke="#99F6E4" />
         <text x="406" y="186" fontSize="12" fontWeight="700" fill="#0F766E">
-          {STORE.name} 검증 연식 · 직영 A/S 체계
+          정속형 · 부품 수급 원활한 주력 연식
         </text>
         <text x="406" y="206" fontSize="11" fill="#334155">
-          부품 수급 흔한 주력 모델 + 출고 전 실부하·질소압력 테스트
+          공용 릴레이·콘덴서·팬모터 위주의 비교적 단순한 배선
         </text>
         <text x="406" y="224" fontSize="11" fill="#334155">
-          • 기본 성능 위주의 검증된 구조로 잔고장 리스크 축소
+          • 시중 자재 보유량이 많아 당일~2일 내 수리 가능 확률 높음
         </text>
         <text x="406" y="242" fontSize="11" fill="#0F766E" fontWeight="600">
-          • 계약조건별 최대 8개월 무상 A/S (매장 기사 직접 대응)
+          • 성수기 영업 공백이 치명적인 매장일수록 유리한 구조
         </text>
       </svg>
     </DiagramFigure>
@@ -168,7 +168,7 @@ function VoltageBreakerDiagram() {
   const titleId = useId();
   return (
     <DiagramFigure
-      title="분전함(두꺼비집) 열었을 때 10초 자가 판별 도해 — 단상 220V vs 삼상 380V"
+      title="분전함(두꺼비집) 차단기 가닥수로 보는 단상 220V vs 삼상 380V 구분"
       caption="상가 계약 전 분전함 메인 차단기에 들어오는 전선 가닥 수를 먼저 세어 보세요. 삼상 380V 에어컨은 220V 전용 매장에서 작동하지 않습니다."
     >
       <svg
@@ -1451,20 +1451,20 @@ function WasherTubInspectionDiagram() {
 
         <rect x="394" y="14" width="350" height="230" rx="12" fill="#F0FDFA" stroke="#5EEAD4" strokeWidth="1.5" />
         <text x="412" y="38" fontSize="12.5" fontWeight="700" fill="#0F766E">
-          {STORE.name} 120bar 분해 세척 · 실부하 검수
+          전문 매장 분해 세척 · 실부하 검수 기준
         </text>
 
         <rect x="412" y="54" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#CCFBF1" />
         <text x="426" y="75" fontSize="11" fontWeight="700" fill="#0F766E">
-          1. 내조·외조 완전 탈거 120bar 고압 살균
+          1. 내조·외조 완전 탈거 고압 세척
         </text>
         <text x="426" y="95" fontSize="10" fill="#334155">
-          스파이더 날개·세제 투입구까지 완전 분해 세척 완료
+          스파이더 날개·세제 투입구까지 분해해 찌꺼기 제거
         </text>
 
         <rect x="412" y="114" width="314" height="52" rx="8" fill="#FFFFFF" stroke="#CCFBF1" />
         <text x="426" y="135" fontSize="11" fontWeight="700" fill="#0F766E">
-          2. 고속 탈수 진동 · 배수 펌프 실부하 통과
+          2. 고속 탈수 진동 · 배수 펌프 부하 확인
         </text>
         <text x="426" y="155" fontSize="10" fill="#334155">
           베어링 소음 및 급수·배수 밸브 누수 여부 연속 테스트
@@ -1472,10 +1472,10 @@ function WasherTubInspectionDiagram() {
 
         <rect x="412" y="174" width="314" height="54" rx="8" fill="#FFF4EE" stroke="#FDBA74" />
         <text x="426" y="195" fontSize="11" fontWeight="700" fill="#C2410C">
-          3. 기사 수평 설치 + 최대 4개월 무상 A/S
+          3. 설치 후 수평 조절 · 초기 A/S 보장
         </text>
         <text x="426" y="215" fontSize="10" fill="#334155">
-          설치 당일 수평·배수 확인 및 계약 조건별 보증 지원
+          수평계 맞춤 및 배수호스 연결 뒤 초기 불량 책임 대응
         </text>
       </svg>
     </DiagramFigure>
@@ -1596,10 +1596,10 @@ function Commercial45BoxCoolingDiagram() {
           • 장점: 바람이 안 불어 고기·야채 수분이 덜 마름 / 구조 단순
         </text>
         <text x="34" y="108" fontSize="10.5" fill="#DC2626">
-          • 주의: 냉동 칸 벽면에 성에가 생겨 주기적으로 긁어줘야 함
+          • 단점: 냉동 칸 벽면에 성에가 생겨 주기적 제상 필요
         </text>
         <text x="34" y="132" fontSize="10.5" fill="#334155">
-          • 주의: 아날로그 다이얼 눈금(강/약) 높이면 냉장실 식자재 어는 경우
+          • 참고: 다이얼 눈금(강/약) 높이면 냉장 칸 식자재 어는 경우 있음
         </text>
         <rect x="34" y="146" width="314" height="30" rx="6" fill="#FFFFFF" stroke="#BFDBFE" />
         <text x="191" y="165" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1D4ED8">
@@ -1618,10 +1618,10 @@ function Commercial45BoxCoolingDiagram() {
           • 장점: 자동 제상으로 성에 안 낌 / 문 자주 열어도 온도 회복 빠름
         </text>
         <text x="412" y="108" fontSize="10.5" fill="#DC2626">
-          • 주의: 냉기 팬 앞을 박스·비닐로 막으면 냉각 순환 차단됨
+          • 단점: 냉기 팬 앞을 박스·비닐로 막으면 냉각 순환 차단됨
         </text>
         <text x="412" y="132" fontSize="10.5" fill="#334155">
-          • 주의: 마르는 식자재는 반드시 밀폐 용기/랩 보관 필요
+          • 참고: 수분 날아가기 쉬운 식재료는 랩·밀폐 용기 보관 권장
         </text>
         <rect x="412" y="146" width="314" height="30" rx="6" fill="#FFFFFF" stroke="#FED7AA" />
         <text x="569" y="165" textAnchor="middle" fontSize="10" fontWeight="700" fill="#C2410C">
@@ -1768,8 +1768,8 @@ function CommercialDishwasherSetupDiagram() {
   const titleId = useId();
   return (
     <DiagramFigure
-      title="업소용 도어형 식기세척기 설치 전 필수 3대 인프라 (온수·전기·배수)"
-      caption="식기세척기는 본체만 사오면 안 돌아갑니다. 60℃ 이상 온수기, 3~5kW 전용 전원, 본체보다 낮은 바닥 배수구가 세트로 갖춰져야 정상 작동합니다."
+      title="업소용 도어형 식기세척기 설치 전 온수·전기·배수 조건"
+      caption="식기세척기는 본체만 놓는다고 작동하지 않습니다. 60℃ 이상 온수기, 3~5kW 전용 전원, 본체보다 낮은 바닥 배수구가 함께 준비돼야 합니다."
     >
       <svg
         viewBox="0 0 760 254"
@@ -1872,8 +1872,8 @@ function RefrigerantLeakMythDiagram() {
   const titleId = useId();
   return (
     <DiagramFigure
-      title="에어컨 냉매(가스)는 소모품이 아닙니다 — 실제 누설이 생기는 3대 지점"
-      caption="에어컨 가스가 줄었다면 100% 어딘가 미세하게 새는 구멍이 있는 것이므로 단순 보충만 반복하면 오일이 말라 콤프레샤가 타버립니다."
+      title="에어컨 냉매 배관 누설 지점"
+      caption="가스가 줄었다면 어딘가 미세하게 새는 부위가 있다는 신호이므로, 누설 부위를 잡지 않고 충전만 반복하면 오일이 말라 컴프레샤가 손상됩니다."
     >
       <svg
         viewBox="0 0 760 250"
@@ -1882,13 +1882,13 @@ function RefrigerantLeakMythDiagram() {
         className="w-full min-w-[600px] h-auto select-none"
       >
         <title id={titleId}>
-          에어컨 폐쇄 냉매 배관에서 실제 냉매 누설이 발생하는 연결 너트, 배관 꺾임, 서비스 밸브 코어 3곳 도해
+          에어컨 폐쇄 냉매 배관에서 냉매 누설이 발생하는 연결 너트, 배관 꺾임, 서비스 밸브 코어 3곳 도해
         </title>
 
         {/* 상단 사실 배너 */}
         <rect x="16" y="12" width="728" height="44" rx="8" fill="#141A23" />
         <text x="380" y="39" textAnchor="middle" fontSize="12" fontWeight="700" fill="#FFFFFF">
-          정상 밀폐 배관에서는 10년이 지나도 냉매 가스가 자연 소모되지 않습니다 (부족 = 100% 누설)
+          밀폐 배관이 온전하면 냉매는 자연 소모되지 않습니다 (냉매 부족 = 어딘가 누설 발생)
         </text>
 
         {/* 배관 연결 흐름도 */}
@@ -2142,23 +2142,23 @@ function KimchiFridgeCoolingDiagram() {
         <circle cx="166" cy="148" r="7" fill="#DC2626" />
 
         <text x="196" y="84" fontSize="10.5" fontWeight="700" fill="#141A23">
-          장점: 장기 보관·전력 효율 최상
+          특징: 장기 김치 보관·정온 유지 유리
         </text>
         <text x="196" y="106" fontSize="10" fill="#334155">
-          - 정온 유지 정밀하고 성에 제거 시
+          - 온도 편차 작고 전력 소모가 적은 편
         </text>
         <text x="196" y="122" fontSize="10" fill="#334155">
-          김치 아삭함 보존력 최고
+          - 다만 주기적인 내벽 성에 제거 필요
         </text>
         <text x="196" y="144" fontSize="10.5" fontWeight="700" fill="#DC2626">
-          치명 점검: 내통 바닥 모서리
+          점검 위치: 내통 바닥 모서리
         </text>
         <text x="196" y="162" fontSize="9.5" fill="#475569">
           김치국물 염분 고여 핀홀 부식(냉매샘)
         </text>
         <rect x="34" y="180" width="318" height="42" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
         <text x="193" y="205" textAnchor="middle" fontSize="10" fontWeight="700" fill="#DC2626">
-          필수 확인: 붉은 녹 자국·바닥 부풀음·벽면 성에 고르지 않음 = 구매 보류
+          붉은 녹 자국 · 바닥 부풀음 · 성에 한쪽 쏠림 시 주의
         </text>
 
         {/* 우측: 스탠드형 */}
@@ -2180,7 +2180,7 @@ function KimchiFridgeCoolingDiagram() {
         </text>
 
         <text x="536" y="84" fontSize="10.5" fontWeight="700" fill="#141A23">
-          장점: 허리 부담 적고 성에 거의 없음
+          특징: 허리 부담 적고 성에 거의 없음
         </text>
         <text x="536" y="106" fontSize="10" fill="#334155">
           - 상·중·하 칸별 냉동/야채/쌀 전환
@@ -2189,14 +2189,14 @@ function KimchiFridgeCoolingDiagram() {
           - 공간 면적 작고 수납 동선 편리
         </text>
         <text x="536" y="144" fontSize="10.5" fontWeight="700" fill="#C2410C">
-          치명 점검: 서랍 레일·고무 패킹
+          점검 위치: 서랍 레일 · 고무 패킹
         </text>
         <text x="536" y="162" fontSize="9.5" fill="#475569">
           틈 들뜨면 성에·결로·온도 상승
         </text>
         <rect x="408" y="180" width="318" height="42" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
         <text x="567" y="205" textAnchor="middle" fontSize="10" fontWeight="700" fill="#C2410C">
-          필수 확인: 모든 서랍 4면 가스켓 밀착 + 각 칸 온도 하강 실측 확인
+          서랍 4면 가스켓 밀착 상태 + 각 칸 온도 하강 여부 확인
         </text>
       </svg>
     </DiagramFigure>
@@ -2679,28 +2679,28 @@ function ApplianceResaleValueDiagram() {
         <rect x="388" y="16" width="356" height="214" rx="12" fill="#FFFFFF" stroke="#DC2626" strokeWidth="1.5" />
         <rect x="402" y="28" width="166" height="26" rx="13" fill="#FEF2F2" />
         <text x="485" y="45" textAnchor="middle" fontSize="11" fontWeight="700" fill="#DC2626">
-          대폭 감가 · 매입 불가 위험군
+          감가 폭 크거나 매입 어려운 기기
         </text>
         <text x="406" y="80" fontSize="11" fontWeight="700" fill="#141A23">
           1. 특대형 맞춤 제작 냉장고 / 비규격 수입 직구 장비
         </text>
         <text x="418" y="98" fontSize="9.5" fill="#475569">
-          문·엘리베이터 안 들어가고 고장 시 부품 수급 불가
+          문·엘리베이터 반출 어렵고 고장 시 부품 수급 불가
         </text>
         <text x="406" y="124" fontSize="11" fontWeight="700" fill="#141A23">
           2. 소형 매장용인데 3상 380V 전용 기기 · 50Hz 해외기기
         </text>
         <text x="418" y="142" fontSize="9.5" fill="#475569">
-          구매자가 전기 증설 없인 못 써서 재판매 수요 극감
+          일반 상가에서 전기 증설 없이 못 써 재판매 수요 적음
         </text>
         <text x="406" y="168" fontSize="11" fontWeight="700" fill="#141A23">
-          3. 명판(제조년월/모델스티커) 훼손 + 철거 시 배관 절단 방치
+          3. 명판(제조년월/모델스티커) 훼손 + 배관 절단 방치
         </text>
         <text x="418" y="186" fontSize="9.5" fill="#475569">
-          펌프다운(냉매 회수) 없이 가스 날리고 배관 끊으면 감가
+          펌프다운(냉매 회수) 없이 가스 빼고 배관 자르면 감가
         </text>
         <text x="406" y="212" fontSize="10" fontWeight="700" fill="#DC2626">
-          주의: 철거·폐기 비용만 드는 애물단지 전락 가능
+          정리: 철거·폐기 비용만 부담해야 하는 경우가 많음
         </text>
       </svg>
     </DiagramFigure>
@@ -2767,19 +2767,19 @@ function EnergyGradeRevisionDiagram() {
           실제 연간/월간 kWh 소비량은 구형 1등급보다 적거나 동등
         </text>
 
-        {/* 하단: 왜 4·5등급이 성능이 더 나을 때도 있을까? */}
+        {/* 하단: 4·5등급 제품이 실제 사용에서 유리한 경우 */}
         <rect x="16" y="154" width="728" height="88" rx="10" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
         <text x="34" y="178" fontSize="11.5" fontWeight="700" fill="#C2410C">
-          추가 팩트: TV·고기능 가전에서 4~5등급이 체감 성능·가성비가 나은 3가지 이유
+          고기능·대형 모델에서 4·5등급이 실성능이나 가성비가 나은 경우
         </text>
         <text x="34" y="200" fontSize="10" fill="#334155">
-          1) 등급 시험용 절전 제한 없음: TV는 1등급 맞추려 화면 밝기를 낮추는 반면, 고휘도 OLED/대형 패널은 4~5등급이어도 화질·밝기 우수
+          • 등급 시험용 출력 제한 없음: TV는 1등급 기준을 맞추려 기본 밝기를 낮추는 반면, 고휘도 패널은 4~5등급이어도 화질·밝기가 여유로움
         </text>
         <text x="34" y="218" fontSize="10" fill="#334155">
-          2) 고출력·편의사양 탑재: 얼음정수기·디스펜서·쾌속냉방 고풍량 모델은 기능 전력 때문에 3~4등급을 받지만 실성능 쾌적함 뛰어남
+          • 부가 기능 탑재: 얼음정수기·디스펜서·쾌속냉방 고풍량 모델은 기능 소비전력 때문에 3~4등급을 받아도 실제 사용 만족도가 높음
         </text>
         <text x="34" y="236" fontSize="10" fontWeight="700" fill="#141A23">
-          3) 결론: 단순 등급 숫자보다 라벨 하단의 [연간/월간 소비전력량(kWh)]과 [제조년월] + [구매 가격 차이]를 함께 비교하는 게 정확!
+          등급 숫자만 보지 말고 라벨 하단의 월간·연간 소비전력량(kWh), 제조년월, 구매 가격 차이를 함께 비교하는 편이 정확함
         </text>
       </svg>
     </DiagramFigure>

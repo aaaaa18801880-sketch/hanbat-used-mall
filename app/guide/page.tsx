@@ -15,22 +15,15 @@ import {
 import { GuideBoardClient } from "../../components/guide/guide-board-client";
 
 export const metadata: Metadata = {
-  title: "가전 · 전기 · 설치 정보 게시판 (220V·380V, 사다리차, 창·폐업 가이드)",
+  title: "가전 · 전기 · 설치 정보 게시판",
   description:
-    "신형 에어컨 수리가 오래 걸리는 이유, 단상 220V와 삼상 380V 차이, 식당·카페 창·폐업 서류와 필요 전기 용량(kW), 한전 승압, 사다리차·출입구 실측 기준까지 현장 기사가 알기 쉽게 정리한 정보 게시판입니다.",
+    "에어컨 설치·고장 원인, 220V·380V 전기 구분, 창·폐업 준비와 사다리차·가전 관리 기준을 매장 현장 경험으로 정리한 게시판입니다.",
   keywords: [
-    "220V 380V 차이",
-    "대형 에어컨 삼상 전기",
-    "식당 창업 전기 용량",
-    "한전 승압 증설 비용",
-    "사다리차 호출 기준",
-    "신형 에어컨 수리 기간",
-    "에어컨 PCB 고장",
-    "천장형 에어컨 설치비",
-    "냉난방기 제상 기능",
-    "정속형 인버터 차이",
-    "대전 중고가전 정보",
     "한밭중고전자 정보 게시판",
+    "에어컨 설치 고장 정보",
+    "220V 380V 차이",
+    "사다리차 출입구 실측",
+    "업소용 냉장고 제빙기 관리",
   ],
   alternates: {
     canonical: `${STORE.url}/guide`,
@@ -42,7 +35,7 @@ export const metadata: Metadata = {
     siteName: STORE.name,
     title: `가전 · 전기 · 설치 정보 게시판 | ${STORE.name}`,
     description:
-      "에어컨 수리·220V/380V 전기·한전 승압·창폐업 서류·사다리차 실측·중고가전 구매 요령까지 소비자에게 꼭 필요한 실전 정보를 모았습니다.",
+      "에어컨·냉장고·세탁기·업소용 주방설비를 들이거나 수리하기 전 확인해 두면 좋은 현장 기준을 모았습니다.",
     images: [
       {
         url: `${STORE.url}/og-image.jpg`,
@@ -80,8 +73,6 @@ function GuideBoardStaticFallback() {
 }
 
 export default function GuideBoardPage() {
-  const operatingYears = new Date().getFullYear() - STORE.since;
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -89,7 +80,7 @@ export default function GuideBoardPage() {
         "@type": "CollectionPage",
         name: `가전 · 전기 · 설치 정보 게시판 | ${STORE.name}`,
         description:
-          "대전 한밭중고전자 현장 경험으로 정리한 에어컨 A/S, 220V/380V 전기, 한전 승압, 창·폐업 서류, 사다리차 실측 가이드",
+          "대전 한밭중고전자 매장에서 직접 설치·점검하며 정리한 에어컨 A/S, 전기 용량, 사다리차, 가전 관리 안내",
         url: `${STORE.url}/guide`,
         mainEntity: {
           "@type": "ItemList",
@@ -149,15 +140,13 @@ export default function GuideBoardPage() {
             </nav>
 
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-              <div className="space-y-2.5">
-                <p className="hb-eyebrow">
-                  {STORE.since}년 개업 ({operatingYears}년차 현장 실무) · 소비자 가이드
-                </p>
+              <div className="space-y-2">
+                <p className="hb-eyebrow">{STORE.name} 현장 메모</p>
                 <h1 className="hb-fluid-h1 text-[#141A23]">
                   가전 · 전기 · 설치 정보 게시판
                 </h1>
-                <p className="max-w-[68ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
-                  에어컨 수리가 오래 걸리는 이유, 220V와 380V 삼상 전기 차이, 창·폐업 서류와 필요 전력 계산, 한전 승압, 사다리차와 문폭 실측까지 배송·설치 현장에서 직접 겪은 실전 기준을 정리해 드립니다.
+                <p className="max-w-[64ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
+                  매장에서 직접 설치하고 수리하며 손님들이 가장 자주 물어보는 내용들을 모았습니다. 구매나 설치 전에 전기·공간 조건을 가늠할 때 참고해 보세요.
                 </p>
               </div>
 

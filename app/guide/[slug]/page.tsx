@@ -15,7 +15,6 @@ import {
   INFO_GUIDE_ARTICLES,
   getAdjacentInfoGuides,
   getGuideCommerceBridge,
-  getGuideSearchFaqs,
   getInfoGuideBySlug,
   getRecommendedProductCategories,
   getRelatedInfoGuides,
@@ -39,7 +38,7 @@ export const revalidate = 1800; // 30분 ISR로 실시간 추천 매물 최신 �
 async function fetchGuideRecommendedProducts(
   categories: readonly string[],
   limit = 4
-): Promise<{ items: ProductItem[]; primaryCategoryCount: number }> {
+): Promise<ProductItem[]> {
   try {
     const { data, error } = await supabase
       .from("products")
@@ -51,16 +50,12 @@ async function fetchGuideRecommendedProducts(
       .limit(120);
 
     if (error || !data) {
-      return { items: [], primaryCategoryCount: 0 };
+      return [];
     }
 
     const activeItems = (data as ProductItem[]).filter(
       (item) => !isProductSold(item.status)
     );
-    const primaryCat = categories[0];
-    const primaryCategoryCount = activeItems.filter(
-      (item) => normalizeProductCategory(item.category) === primaryCat
-    ).length;
 
     const picked: ProductItem[] = [];
     const pickedIds = new Set<string>();
@@ -86,12 +81,9 @@ async function fetchGuideRecommendedProducts(
       }
     }
 
-    return {
-      items: picked,
-      primaryCategoryCount,
-    };
+    return picked;
   } catch {
-    return { items: [], primaryCategoryCount: 0 };
+    return [];
   }
 }
 
@@ -167,9 +159,10 @@ export default async function GuideDetailPage({
   const relatedArticles = getRelatedInfoGuides(article, 3);
   const recommendedCategories = getRecommendedProductCategories(article);
   const bridge = getGuideCommerceBridge(article);
-  const searchFaqs = getGuideSearchFaqs(article);
-  const { items: recommendedProducts, primaryCategoryCount } =
-    await fetchGuideRecommendedProducts(recommendedCategories, 4);
+  const recommendedProducts = await fetchGuideRecommendedProducts(
+    recommendedCategories,
+    4
+  );
   const canonicalUrl = `${STORE.url}/guide/${article.slug}`;
   const articleImageUrl = article.heroImage
     ? `${STORE.url}${article.heroImage.src}`
@@ -206,17 +199,6 @@ export default async function GuideDetailPage({
             url: `${STORE.url}/icon-512.png`,
           },
         },
-      },
-      {
-        "@type": "FAQPage",
-        mainEntity: searchFaqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.q,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: faq.a,
-          },
-        })),
       },
       {
         "@type": "BreadcrumbList",
@@ -281,18 +263,12 @@ export default async function GuideDetailPage({
             </nav>
 
             <div className="max-w-[72ch]">
-              <div className="flex flex-wrap items-center gap-2.5 mb-3 text-hb-xs font-semibold text-[#64748B]">
+              <div className="flex flex-wrap items-center gap-2 mb-3 text-hb-xs font-semibold text-[#64748B]">
                 <span className="hb-trim inline-flex items-center rounded-md border border-[#E2E6EC] bg-[#F7F8FA] px-2.5 py-1 font-bold text-[#141A23]">
                   {article.category}
                 </span>
-                <span className="font-mono tabular-nums">
-                  No.{String(article.number).padStart(2, "0")}
-                </span>
-                <span>·</span>
-                <span className="tabular-nums">{article.readMinutes}분 읽기</span>
-                <span>·</span>
                 <time dateTime={article.updatedAt} className="tabular-nums">
-                  기준일 {article.updatedAt}
+                  {article.updatedAt}
                 </time>
               </div>
 
@@ -308,7 +284,7 @@ export default async function GuideDetailPage({
         {/* 본문 + 사이드바 그리드 */}
         <div className="hb-container pt-6 sm:pt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 lg:gap-8 items-start">
           {/* 왼쪽 본문 컬럼 */}
-          <article className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-8 shadow-2xs space-y-8">
+          <article className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-8 shadow-2xs space-y-7">
             {article.heroImage && (
               <figure className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] overflow-hidden">
                 <SafeImg
@@ -329,80 +305,26 @@ export default async function GuideDetailPage({
               </figure>
             )}
 
-            {/* 현장 핵심 3줄 요약 박스 */}
-            <section
-              aria-label="현장 핵심 정리"
-              className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-4 sm:p-5"
-            >
-              <div className="flex items-center gap-2 mb-3">
-                <Icon
-                  d={ICON.shieldCheck}
-                  className="w-4 h-4 text-[#E8521A] shrink-0"
-                />
-                <h2 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] [text-wrap:balance]">
-                  바쁘신 분들을 위한 현장 핵심 3줄 정리
-                </h2>
-              </div>
-              <ol className="space-y-2 text-hb-sm text-[#1E293B] leading-[1.6]">
-                {article.keyPoints.map((point, idx) => (
-                  <li
-                    key={idx}
-                    className="flex items-start gap-2.5 [text-wrap:pretty]"
-                  >
-                    <span className="font-mono text-hb-xs font-bold text-[#E8521A] pt-0.5 shrink-0 tabular-nums">
-                      0{idx + 1}.
-                    </span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-
-            {/* 본문 목차 (빠른 이동 + 검색 스니펫 앵커) & 실매물 연결 띠 */}
-            <div className="space-y-3">
+            {/* 본문 목차 */}
+            {article.sections.length > 2 && (
               <nav
-                aria-label="본문 목차 바로가기"
-                className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-4 py-3"
+                aria-label="본문 목차"
+                className="flex flex-wrap items-center gap-1.5 border-b border-[#F1F3F6] pb-4"
               >
-                <p className="text-hb-xs font-bold text-[#64748B] mb-2">
-                  이 글의 목차
-                </p>
-                <ol className="flex flex-wrap gap-2">
-                  {article.sections.map((section, idx) => (
-                    <li key={section.heading}>
-                      <a
-                        href={`#section-${idx + 1}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white px-2.5 py-1.5 text-hb-xs font-semibold text-[#141A23] hover:border-[#E8521A] hover:text-[#E8521A] transition-colors"
-                      >
-                        <span className="font-mono text-[#E8521A] tabular-nums">
-                          {idx + 1}.
-                        </span>
-                        <span className="line-clamp-1">{section.heading}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-
-              {primaryCategoryCount > 0 && (
-                <div className="rounded-xl border border-[#CCFBF1] bg-[#F0FDFA] px-4 py-3 flex flex-wrap items-center justify-between gap-2.5">
-                  <p className="text-hb-xs sm:text-hb-sm text-[#134E4A] font-medium">
-                    현재 {STORE.name} 전시장에{" "}
-                    <strong className="font-bold text-[#0F766E]">
-                      검수·세척 완료된 {bridge.primaryCategory} {primaryCategoryCount}대
-                    </strong>
-                    가 바로 출고 대기 중입니다.
-                  </p>
+                {article.sections.map((section, idx) => (
                   <a
-                    href="#guide-recommended-products"
-                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0F766E] hover:underline underline-offset-4 shrink-0"
+                    key={section.heading}
+                    href={`#section-${idx + 1}`}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#F7F8FA] px-2.5 py-1 text-hb-xs font-semibold text-[#334155] hover:bg-[#FFF4EE] hover:text-[#E8521A] transition-colors"
                   >
-                    <span>아래 추천 매물 바로 보기</span>
-                    <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                    <span className="font-mono text-[#E8521A] tabular-nums">
+                      {idx + 1}.
+                    </span>
+                    <span className="line-clamp-1">{section.heading}</span>
                   </a>
-                </div>
-              )}
-            </div>
+                ))}
+              </nav>
+            )}
 
             {/* 본문 섹션들 */}
             <div className="space-y-8">
@@ -528,34 +450,6 @@ export default async function GuideDetailPage({
               })}
             </div>
 
-            {/* 구글·AI 검색 문답 일치용 핵심 Q&A */}
-            <section
-              aria-label="한눈에 보는 핵심 질의응답"
-              className="pt-6 border-t border-[#E2E6EC] space-y-3.5"
-            >
-              <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
-                이 주제와 관련해 소비자들이 자주 묻는 핵심 질문
-              </h2>
-              <dl className="space-y-2.5">
-                {searchFaqs.map((faq) => (
-                  <div
-                    key={faq.q}
-                    className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4"
-                  >
-                    <dt className="flex items-start gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23] break-keep">
-                      <span className="text-[#E8521A] font-bold shrink-0">
-                        Q.
-                      </span>
-                      <span>{faq.q}</span>
-                    </dt>
-                    <dd className="mt-1.5 pl-5 text-hb-xs sm:text-hb-sm text-[#334155] leading-[1.65] [text-wrap:pretty]">
-                      {faq.a}
-                    </dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-
             {/* 하단 맞춤 행동 유도 */}
             <div className="pt-6 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2.5">
@@ -627,17 +521,17 @@ export default async function GuideDetailPage({
             )}
           </article>
 
-          {/* 오른쪽 사이드바: 현장 상담 + 연관 글 */}
+          {/* 오른쪽 사이드바: 매장 문의 + 연관 글 */}
           <aside className="space-y-4 lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-[#263040] bg-[#141A23] p-5 text-white space-y-3.5">
+            <div className="rounded-2xl border border-[#263040] bg-[#141A23] p-5 text-white space-y-3">
               <p className="text-hb-xs font-bold text-[#FF8A50]">
-                {STORE.name} 현장 상담
+                {STORE.name} 설치·구매 문의
               </p>
               <h2 className="text-hb-base sm:text-hb-lg font-bold leading-snug [text-wrap:balance]">
-                전기·설치 공간이 헷갈리면 사진 한 장으로 바로 확인하세요
+                분전함·출입구 사진으로 설치 여부 확인하기
               </h2>
               <p className="text-hb-xs sm:text-hb-sm text-white/75 leading-[1.6] [text-wrap:pretty]">
-                분전함, 현관문, 설치할 위치 사진을 보내주시면 기사님이 220V/380V 여부와 반입 가능 여부를 바로 안내해 드립니다.
+                현장 사진이나 궁금한 증상을 남겨주시면 맞는 제품과 설치 가능 여부를 먼저 확인해 드립니다.
               </p>
               <div className="flex flex-col gap-2 pt-1">
                 <Link
@@ -645,14 +539,14 @@ export default async function GuideDetailPage({
                   className="hb-btn bg-[#E8521A] text-white hover:bg-[#D14410] min-h-[42px] px-4 py-2 text-hb-sm"
                 >
                   <Icon d={ICON.bag} className="w-4 h-4" />
-                  <span>{bridge.primaryCategory} 실매물 보기</span>
+                  <span>{bridge.primaryCategory} 매물 보기</span>
                 </Link>
                 <a
                   href={telHref(STORE.tel)}
                   className="hb-btn bg-white text-[#141A23] hover:bg-[#F1F3F6] min-h-[42px] px-4 py-2 text-hb-sm tabular-nums"
                 >
                   <Icon d={ICON.phone} className="w-4 h-4 text-[#E8521A]" />
-                  <span>전화 상담 {STORE.tel}</span>
+                  <span>{STORE.tel}</span>
                 </a>
                 <a
                   href={STORE.kakaoChat}
@@ -661,7 +555,7 @@ export default async function GuideDetailPage({
                   className="hb-btn-kakao min-h-[42px] px-4 py-2 text-hb-sm"
                 >
                   <Icon d={ICON.chat} className="w-4 h-4" />
-                  <span>카카오톡 사진 상담</span>
+                  <span>카카오톡 문의</span>
                 </a>
               </div>
             </div>
@@ -669,7 +563,7 @@ export default async function GuideDetailPage({
             <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-hb-sm font-bold text-[#141A23]">
-                  함께 읽으면 좋은 정보
+                  다른 정보 글
                 </h2>
                 <Link
                   href="/guide"
@@ -699,20 +593,19 @@ export default async function GuideDetailPage({
           </aside>
         </div>
 
-        {/* 글 읽은 소비자 → 실매물 구매 전환 섹션 */}
+        {/* 관련 매물 섹션 */}
         <section
           id="guide-recommended-products"
-          aria-label="이 글과 관련된 검수 완료 실매물"
+          aria-label="관련 매물"
           className="hb-container mt-8 sm:mt-10 scroll-mt-24"
         >
           <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs space-y-5">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-5 border-b border-[#E2E6EC]">
-              <div className="space-y-2">
-                <p className="hb-eyebrow">검증된 실매물 · 바로 구매 연결</p>
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4 border-b border-[#E2E6EC]">
+              <div className="space-y-1.5">
                 <h2 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] leading-snug [text-wrap:balance]">
                   {bridge.heading}
                 </h2>
-                <p className="max-w-[68ch] text-hb-sm text-[#475569] leading-[1.65] [text-wrap:pretty]">
+                <p className="max-w-[64ch] text-hb-sm text-[#475569] leading-[1.6] [text-wrap:pretty]">
                   {bridge.description}
                 </p>
               </div>
@@ -720,39 +613,19 @@ export default async function GuideDetailPage({
               <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <Link
                   href={bridge.galleryHref}
-                  className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
+                  className="hb-btn-primary min-h-[40px] px-4 py-2 text-hb-xs sm:text-hb-sm"
                 >
                   <span>{bridge.galleryLabel}</span>
                   <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
                 </Link>
                 <Link
                   href="/inquiry?write=1&type=buy"
-                  className="hb-btn-outline min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
+                  className="hb-btn-outline min-h-[40px] px-4 py-2 text-hb-xs sm:text-hb-sm"
                 >
-                  <span>맞춤 매물 · 타지역 배송 문의</span>
+                  <span>직접 문의하기</span>
                 </Link>
               </div>
             </div>
-
-            {/* 구매 신뢰 4대 포인트 */}
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 text-hb-xs text-[#334155]">
-              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
-                <Icon d={ICON.check} className="w-4 h-4 text-[#0F766E] shrink-0" />
-                <span>120bar 분해 세척 · 24시간 시운전</span>
-              </li>
-              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
-                <Icon d={ICON.shieldCheck} className="w-4 h-4 text-[#E8521A] shrink-0" />
-                <span>에어컨 8개월 · 일반 4개월 무상 A/S</span>
-              </li>
-              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
-                <Icon d={ICON.pin} className="w-4 h-4 text-[#1D4ED8] shrink-0" />
-                <span>충청권 직영 설치 · 전국 화물 상담</span>
-              </li>
-              <li className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2.5 font-semibold flex items-center gap-2">
-                <Icon d={ICON.sparkles} className="w-4 h-4 text-[#141A23] shrink-0" />
-                <span>전자세금계산서 · 카드 · 보상판매</span>
-              </li>
-            </ul>
 
             {recommendedProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
@@ -763,11 +636,11 @@ export default async function GuideDetailPage({
             ) : (
               <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <p className="text-hb-sm text-[#334155]">
-                  전시장 실시간 재고를 불러오거나 바로 상담을 원하시면 전체 매물 갤러리에서 최신 입고 제품을 확인하실 수 있습니다.
+                  전시장 실시간 재고는 전체 매물 갤러리에서 확인하실 수 있습니다.
                 </p>
                 <Link
                   href={bridge.galleryHref}
-                  className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-sm shrink-0"
+                  className="hb-btn-primary min-h-[40px] px-4 py-2 text-hb-sm shrink-0"
                 >
                   <span>전체 매물 보러가기</span>
                 </Link>

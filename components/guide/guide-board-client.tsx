@@ -23,21 +23,16 @@ function parseInitialCategory(
 function getCategoryBadgeClass(category: InfoGuideArticle["category"]): string {
   switch (category) {
     case "에어컨 · A/S":
-      return "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]";
     case "에어컨 · 원리/설치":
-      return "border-[#C7D2FE] bg-[#EEF2FF] text-[#4338CA]";
-    case "냉장고 · 세탁기":
-      return "border-[#A5F3FC] bg-[#ECFEFF] text-[#0E7490]";
-    case "업소용 주방설비":
-      return "border-[#FDE68A] bg-[#FFFBEB] text-[#B45309]";
+      return "border-[#DBEAFE] bg-[#F8FAFC] text-[#1E40AF]";
     case "전기 · 220V/380V":
-      return "border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]";
+    case "업소용 주방설비":
+      return "border-[#FED7AA] bg-[#FFFBF5] text-[#9A3412]";
+    case "냉장고 · 세탁기":
     case "창업 · 폐업":
-      return "border-[#99F6E4] bg-[#F0FDFA] text-[#0F766E]";
     case "배송 · 사다리차":
-      return "border-[#CBD5E1] bg-[#F8FAFC] text-[#334155]";
     case "중고 구매 팁":
-      return "border-[#E2E6EC] bg-[#F1F3F6] text-[#141A23]";
+      return "border-[#E2E6EC] bg-[#F8FAFC] text-[#334155]";
   }
 }
 
@@ -108,55 +103,39 @@ export function GuideBoardClient({
 
   return (
     <div className="space-y-7 sm:space-y-9">
-      {/* 1. 많이 찾는 핵심 필독 가이드 3선 */}
+      {/* 1. 많이 찾는 안내 3선 */}
       <section aria-labelledby="pinned-guides-heading">
         <div className="flex items-center justify-between gap-2 mb-3">
           <h2
             id="pinned-guides-heading"
             className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] [text-wrap:balance]"
           >
-            상담 전에 가장 많이 찾아보는 핵심 안내
+            자주 찾는 필독 안내
           </h2>
-          <span className="text-hb-xs font-semibold text-[#64748B]">
-            현장 기준 실전 정리
-          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {pinnedArticles.map((article) => (
             <Link
               key={article.slug}
               href={`/guide/${article.slug}`}
-              className="group hb-surface-card p-4 sm:p-5 flex flex-col justify-between gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+              className="group hb-surface-card p-4 sm:p-5 flex flex-col justify-between gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
             >
               <div>
-                <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <span
-                    className={`hb-trim inline-flex items-center rounded-md border px-2 py-1 text-hb-xs font-bold ${getCategoryBadgeClass(
-                      article.category
-                    )}`}
-                  >
-                    {article.category}
-                  </span>
-                  <span className="text-hb-xs font-medium text-[#64748B] tabular-nums">
-                    {article.readMinutes}분 읽기
-                  </span>
-                </div>
+                <span
+                  className={`hb-trim inline-flex items-center rounded-md border px-2 py-0.5 text-hb-xs font-bold mb-2 ${getCategoryBadgeClass(
+                    article.category
+                  )}`}
+                >
+                  {article.category}
+                </span>
                 <h3 className="text-hb-base font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep [text-wrap:balance]">
                   {article.title}
                 </h3>
-                <p className="mt-2 text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.6] line-clamp-2 [text-wrap:pretty]">
-                  {article.keyPoints[0]}
-                </p>
               </div>
-
-              <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A] pt-2 border-t border-[#F1F3F6]">
-                <span>자세히 읽기</span>
-                <Icon
-                  d={ICON.arrow}
-                  className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5"
-                />
-              </span>
+              <p className="text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.55] line-clamp-2 [text-wrap:pretty]">
+                {article.summary}
+              </p>
             </Link>
           ))}
         </div>
@@ -214,7 +193,7 @@ export function GuideBoardClient({
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="주제 검색 (예: 380V, 승압, 사다리차, 서류)"
+              placeholder="주제 검색 (예: 380V, 냉장고, 제빙기, 누수)"
               className="hb-input pl-10 pr-9"
             />
             {searchQuery && (
@@ -248,16 +227,16 @@ export function GuideBoardClient({
           )}
         </div>
 
-        {/* 3. 한국형 정보 게시판 리스트 */}
+        {/* 3. 게시판 목록 */}
         <div className="overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs">
           <div
             aria-hidden="true"
-            className="hidden md:grid md:grid-cols-[68px_150px_1fr_104px] items-center border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-3 text-hb-xs font-bold text-[#475569]"
+            className="hidden md:grid md:grid-cols-[64px_150px_1fr_44px] items-center border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-3 text-hb-xs font-bold text-[#475569]"
           >
             <span>번호</span>
             <span>분류</span>
-            <span>제목 · 핵심 내용</span>
-            <span className="text-right">읽기</span>
+            <span>제목 · 내용 요약</span>
+            <span />
           </div>
 
           {filteredArticles.length === 0 ? (
@@ -266,7 +245,7 @@ export function GuideBoardClient({
                 일치하는 정보 글이 없습니다.
               </p>
               <p className="text-hb-sm text-[#475569]">
-                다른 검색어나 분류를 선택해 보시거나, 궁금한 현장 내용은 직접 문의해 주세요.
+                다른 검색어나 분류를 선택해 보시거나, 궁금한 내용은 문의 게시판에 남겨주세요.
               </p>
               <div className="pt-2 flex flex-wrap justify-center gap-2">
                 <button
@@ -290,21 +269,15 @@ export function GuideBoardClient({
                 <li key={article.slug}>
                   <Link
                     href={`/guide/${article.slug}`}
-                    className="group grid grid-cols-1 md:grid-cols-[68px_150px_1fr_104px] items-start md:items-center gap-2 md:gap-3 px-4 py-4 sm:px-5 sm:py-4 hover:bg-[#F7F8FA] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23]"
+                    className="group grid grid-cols-1 md:grid-cols-[64px_150px_1fr_44px] items-start md:items-center gap-2 md:gap-3 px-4 py-4 sm:px-5 sm:py-4 hover:bg-[#F7F8FA] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23]"
                   >
                     {/* 번호 + 모바일 분류 */}
                     <div className="flex items-center justify-between md:justify-start gap-2">
                       <span className="font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
-                        {article.isPinned ? (
-                          <span className="inline-flex items-center rounded bg-[#141A23] px-2 py-0.5 text-hb-xs font-bold text-white">
-                            필독
-                          </span>
-                        ) : (
-                          `No.${String(article.number).padStart(2, "0")}`
-                        )}
+                        {String(article.number).padStart(2, "0")}
                       </span>
                       <span
-                        className={`md:hidden hb-trim inline-flex items-center rounded-md border px-2 py-1 text-hb-xs font-bold ${getCategoryBadgeClass(
+                        className={`md:hidden hb-trim inline-flex items-center rounded-md border px-2 py-0.5 text-hb-xs font-bold ${getCategoryBadgeClass(
                           article.category
                         )}`}
                       >
@@ -333,9 +306,8 @@ export function GuideBoardClient({
                       </p>
                     </div>
 
-                    {/* 분량 + 화살표 */}
-                    <div className="flex items-center justify-between md:justify-end gap-2 pt-1 md:pt-0 text-hb-xs font-semibold text-[#64748B] group-hover:text-[#141A23]">
-                      <span className="tabular-nums">{article.readMinutes}분 읽기</span>
+                    {/* 화살표 */}
+                    <div className="hidden md:flex items-center justify-end">
                       <Icon
                         d={ICON.right}
                         className="w-4 h-4 text-[#94A3B8] group-hover:text-[#E8521A] group-hover:translate-x-0.5 transition-transform"
@@ -349,37 +321,28 @@ export function GuideBoardClient({
         </div>
       </section>
 
-      {/* 4. 현장 상담 연결 배너 */}
+      {/* 4. 현장 상담 연결 */}
       <section
         aria-label="현장 조건 직접 문의 안내"
-        className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-5 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-4"
+        className="rounded-2xl border border-[#E2E6EC] bg-white px-5 py-4 sm:px-6 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
       >
-        <div className="space-y-1.5">
-          <p className="text-hb-xs font-bold text-[#E8521A]">
-            우리 집·매장 조건이 애매하다면
-          </p>
-          <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] [text-wrap:balance]">
-            분전함이나 출입구 사진을 찍어 보내주시면 바로 봐드립니다
-          </h2>
-          <p className="max-w-[68ch] text-hb-sm text-[#475569] leading-[1.6] [text-wrap:pretty]">
-            {STORE.name}는 220V/380V 전압 판별부터 사다리차 필요 여부, 업소용 주방 기기 전기 용량까지 구매 전에 미리 확인해 드립니다.
-          </p>
-        </div>
+        <p className="text-hb-sm text-[#334155]">
+          분전함이나 출입구 폭이 애매하다면 사진을 찍어 문의글이나 전화로 미리 확인하실 수 있습니다.
+        </p>
 
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
           <Link
             href="/inquiry?write=1"
-            className="hb-btn-primary min-h-[44px] px-4 py-2.5 text-hb-sm"
+            className="hb-btn-primary min-h-[40px] px-3.5 py-2 text-hb-xs sm:text-hb-sm"
           >
-            <Icon d={ICON.pen} className="w-4 h-4 text-[#FF8A50]" />
-            <span>사진 첨부해 물어보기</span>
+            <span>사진 첨부해 문의하기</span>
           </Link>
           <a
             href={telHref(STORE.tel)}
             onClick={() =>
               trackEvent("click_tel_consult", { location: "guide_board" })
             }
-            className="hb-btn-outline min-h-[44px] px-4 py-2.5 text-hb-sm tabular-nums"
+            className="hb-btn-outline min-h-[40px] px-3.5 py-2 text-hb-xs sm:text-hb-sm tabular-nums"
           >
             <Icon d={ICON.phone} className="w-4 h-4 text-[#E8521A]" />
             <span>{STORE.tel}</span>
