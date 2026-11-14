@@ -125,15 +125,15 @@ function ToolCard({
 /*  1. 에어컨 냉방 평형 & 전압·차단기 산출기                             */
 /* ------------------------------------------------------------------ */
 const SPACE_LOAD_TYPES = [
-  { id: "home", label: "주거 · 사무실", factor: 1.0, hint: "일반 채광·인원 적은 공간" },
-  { id: "cafe", label: "카페 · 베이커리", factor: 1.45, hint: "에스프레소·제빙기·오븐 발열" },
-  { id: "food", label: "일반 식당 · 미용실", factor: 1.35, hint: "드라이·조리 열기 및 출입 빈번" },
-  { id: "grill", label: "고깃집 · 대형 주방", factor: 1.75, hint: "직화·화구·덕트 배기 열손실" },
+  { id: "home", label: "주거 · 일반 사무실", factor: 1.0, hint: "천고 2.4m · 기본 부하 90~110W/㎡" },
+  { id: "cafe", label: "통유리 카페 · 베이커리", factor: 1.5, hint: "일사·머신·제빙기 발열 (×1.5)" },
+  { id: "food", label: "일반 식당 · 미용실", factor: 2.0, hint: "주방·조리 열기·높은 재실밀도 (×2.0)" },
+  { id: "grill", label: "숯불·직화 고깃집 (닥트)", factor: 3.0, hint: "로스터 복사열 + 배기 냉기유실 (×3.0~)" },
 ] as const;
 
 const ENVELOPE_FACTORS = [
   { id: "normal", label: "보통 창호 · 층고 2.7m 이하", factor: 1.0 },
-  { id: "glass", label: "통창·서향 · 층고 3.5m 이상", factor: 1.2 },
+  { id: "glass", label: "통창·서향 · 층고 3.5m+ (또는 하향 닥트)", factor: 1.3 },
 ] as const;
 
 const LAYOUT_SHAPES = [
@@ -151,7 +151,7 @@ function AirconSizingTool() {
     const space = SPACE_LOAD_TYPES.find((s) => s.id === spaceId) ?? SPACE_LOAD_TYPES[0];
     const env = ENVELOPE_FACTORS.find((e) => e.id === envId) ?? ENVELOPE_FACTORS[0];
     const requiredPyeong = Math.round(pyeong * space.factor * env.factor);
-    const estCoolingKw = Number((requiredPyeong * 0.36).toFixed(1));
+    const estCoolingKw = Number((requiredPyeong * 0.4).toFixed(1));
 
     let modelSpec = "18~23평형 인버터 스탠드 1대";
     let breaker = "단상 220V · 20A 전용 차단기";
@@ -198,14 +198,17 @@ function AirconSizingTool() {
           ? "40평 1대는 안쪽 코너까지 바람이 못 꺾입니다. 23평+18평 2대 분산으로 단상 한계와 사각지대를 동시에 피하세요."
           : "단상 40평 1대보다 23평형 2대 분산 시 삼상 승압 회피와 성수기 1대 고장 대비에 유리합니다.";
     } else {
-      const units = Math.max(2, Math.ceil(requiredPyeong / 36));
-      modelSpec = `40평형급 ${units}대 또는 25~30평형 다대수 분산`;
+      const units = Math.max(2, Math.ceil(requiredPyeong / 40));
+      const perUnitPyeong = Math.round(requiredPyeong / units);
+      modelSpec = `${perUnitPyeong <= 32 ? "30~36평형" : "40평형급"} ${units}대 분산 (또는 시스템 멀티)`;
       breaker = "삼상 380V 4P 30A~40A 또는 단상 30A 다회선";
       wireSpec = "4SQ ~ 6SQ 4선식";
       phaseBadge = "삼상 380V · 다대수 권장";
       isThreePhase = true;
       splitAdvice =
-        "부하가 커서 1대로는 기류 편차가 심합니다. 2대 이상 대각선 분산 배치와 삼상/계약전력 여유를 함께 확인해야 합니다.";
+        spaceId === "grill"
+          ? "고깃집은 로스터 복사열(20~35%)과 배기 닥트 냉기 유실이 커서 실평수의 3~4배가 필요합니다. 에어컨 바람이 닥트 후드로 직접 빨려 들어가지 않게 사선 분산 배치하고, 기름때 슬러지 막힘 방지를 위해 배수 기울기와 380V 승압 여부를 먼저 점검하세요."
+          : "부하가 커서 1대로는 기류 편차가 심합니다. 2대 이상 대각선 분산 배치와 삼상/계약전력 여유를 함께 확인해야 합니다.";
     }
 
     return {
@@ -220,7 +223,7 @@ function AirconSizingTool() {
     };
   }, [pyeong, spaceId, envId, layoutId]);
 
-  const meterPercent = Math.min(100, Math.round((result.requiredPyeong / 75) * 100));
+  const meterPercent = Math.min(100, Math.round((result.requiredPyeong / 120) * 100));
 
   return (
     <ToolCard
@@ -391,7 +394,7 @@ function AirconSizingTool() {
               <div className="mt-1 flex justify-between text-hb-xs text-[#64748B]">
                 <span>소형(15평)</span>
                 <span>단상한계(40평)</span>
-                <span>삼상권장(50평+)</span>
+                <span>고깃집·대형(80평+)</span>
               </div>
             </div>
 

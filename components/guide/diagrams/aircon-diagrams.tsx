@@ -669,60 +669,96 @@ export function AirconPyeongSizingDiagram() {
   return (
     <DiagramFigure
       title="똑같은 '실평수 20평(66㎡)'인데 환경별로 필요한 에어컨 평형 차이"
-      caption="바닥 면적만 보고 평형에 딱 맞춰 사면 남향 통유리 카페나 화구 열기가 있는 식당은 한여름 내내 실내가 미지근해집니다."
+      caption="바닥 면적만 보고 평형에 딱 맞춰 사면 통유리 카페는 물론, 직화 열기·배기 닥트가 도는 고깃집(실평수의 3~4배 필요)은 한여름 내내 실내가 식지 않습니다."
     >
       <svg
-        viewBox="0 0 760 256"
+        viewBox="0 0 760 326"
         role="img"
         aria-labelledby={titleId}
-        className="w-full min-w-[600px] h-auto select-none"
+        className="w-full min-w-[620px] h-auto select-none"
       >
         <title id={titleId}>
-          전용 20평 공간에서 일반 가정 사무실, 남향 통유리 카페, 불 쓰는 식당·높은 천장별 권장 에어컨 평형 막대 도해
+          실평수 20평 공간에서 일반 가정 사무실(1배), 통유리 카페(1.5배), 일반 음식점(2배), 숯불·닥트 고깃집(3~4배)별 권장 에어컨 평형 비례 비교 도해
         </title>
 
-        <text x="20" y="34" fontSize="12.5" fontWeight="700" fill="#141A23">
-          기준 공간: 바닥 실평수 20평 (66㎡) 기준 실제 권장 냉방 평형 비교
+        <text x="20" y="32" fontSize="12.5" fontWeight="700" fill="#141A23">
+          기준 공간: 바닥 실평수 20평 (66㎡) 기준 업종별 권장 냉방 평형 비교 (KS 1평 ≒ 400W 기준)
         </text>
 
-        {/* Row 1 */}
-        <rect x="20" y="54" width="210" height="46" rx="8" fill="#F8FAFC" stroke="#CBD5E1" />
-        <text x="34" y="74" fontSize="11" fontWeight="700" fill="#141A23">
+        {/* 기준 눈금선 (1.0x = 70px 비례) */}
+        <line x1="258" y1="48" x2="258" y2="292" stroke="#CBD5E1" strokeWidth="1" />
+        <line x1="398" y1="48" x2="398" y2="292" stroke="#E2E8F0" strokeDasharray="3 3" strokeWidth="1" />
+        <line x1="468" y1="48" x2="468" y2="292" stroke="#FDBA74" strokeDasharray="3 3" strokeWidth="1" />
+        <line x1="538" y1="48" x2="538" y2="292" stroke="#FECACA" strokeDasharray="3 3" strokeWidth="1" />
+
+        {/* Row 1: 1.0x */}
+        <rect x="20" y="54" width="226" height="48" rx="8" fill="#F8FAFC" stroke="#CBD5E1" />
+        <text x="32" y="74" fontSize="11" fontWeight="700" fill="#141A23">
           1. 일반 가정 · 사무실 (×1.0)
         </text>
-        <text x="34" y="91" fontSize="9.5" fill="#475569">
-          천고 2.4m 이하 · 직사광선 적은 공간
+        <text x="32" y="91" fontSize="9.5" fill="#475569">
+          천고 2.4m 이하 · 기본 부하 90~110 W/㎡
         </text>
-        <rect x="246" y="64" width="210" height="26" rx="6" fill="#0F766E" />
-        <text x="468" y="82" fontSize="11.5" fontWeight="700" fill="#0F766E">
+        <rect x="258" y="65" width="70" height="26" rx="5" fill="#0F766E" />
+        <text x="338" y="83" fontSize="11" fontWeight="700" fill="#0F766E">
           18 ~ 23평형 (단상 220V 가능)
         </text>
 
-        {/* Row 2 */}
-        <rect x="20" y="114" width="210" height="46" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
-        <text x="34" y="134" fontSize="11" fontWeight="700" fill="#1D4ED8">
-          2. 통유리 카페 · 오픈 문 상가 (×1.4)
+        {/* Row 2: 1.5x */}
+        <rect x="20" y="114" width="226" height="48" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="32" y="134" fontSize="11" fontWeight="700" fill="#1D4ED8">
+          2. 통유리 카페 · 오픈 문 (×1.5)
         </text>
-        <text x="34" y="151" fontSize="9.5" fill="#475569">
-          서향·남향 햇빛 · 커피머신 열기 유입
+        <text x="32" y="151" fontSize="9.5" fill="#475569">
+          남·서향 일사 + 머신·제빙기 발열
         </text>
-        <rect x="246" y="124" width="300" height="26" rx="6" fill="#1D4ED8" />
-        <text x="558" y="142" fontSize="11.5" fontWeight="700" fill="#1D4ED8">
-          28 ~ 32평형 권장
+        <rect x="258" y="125" width="105" height="26" rx="5" fill="#1D4ED8" />
+        <text x="373" y="143" fontSize="11" fontWeight="700" fill="#1D4ED8">
+          28 ~ 32평형 권장 (단상 30A)
         </text>
 
-        {/* Row 3 */}
-        <rect x="20" y="174" width="210" height="54" rx="8" fill="#FFF4EE" stroke="#FDBA74" />
-        <text x="34" y="194" fontSize="11" fontWeight="700" fill="#C2410C">
-          3. 고깃집·화구 식당 · 높은 천장 (×1.7)
+        {/* Row 3: 2.0x */}
+        <rect x="20" y="174" width="226" height="48" rx="8" fill="#FEFCE8" stroke="#FDE047" />
+        <text x="32" y="194" fontSize="11" fontWeight="700" fill="#A16207">
+          3. 일반 음식점 · 비직화 (×2.0)
         </text>
-        <text x="34" y="212" fontSize="9.5" fill="#475569">
-          천고 3.5m+ 또는 가스불·튀김기 상시 가동
+        <text x="32" y="211" fontSize="9.5" fill="#475569">
+          홀 조리·체열 + 주방 열기 유입
         </text>
-        <rect x="246" y="186" width="380" height="26" rx="6" fill="#E8521A" />
-        <text x="636" y="204" fontSize="11.5" fontWeight="700" fill="#C2410C">
-          36 ~ 40평형 (380V 확인)
+        <rect x="258" y="185" width="140" height="26" rx="5" fill="#CA8A04" />
+        <text x="408" y="203" fontSize="11" fontWeight="700" fill="#A16207">
+          36 ~ 45평형 (40평 경계 · 2대 검토)
         </text>
+
+        {/* Row 4: 3.0x ~ 4.0x */}
+        <rect x="20" y="234" width="226" height="54" rx="8" fill="#FFF4EE" stroke="#FB923C" strokeWidth="1.5" />
+        <text x="32" y="254" fontSize="11" fontWeight="700" fill="#C2410C">
+          4. 숯불·직화 고깃집+닥트 (×3~4)
+        </text>
+        <text x="32" y="272" fontSize="9.5" fill="#475569">
+          로스터 복사열(20~35%) + 후드 냉기 유실
+        </text>
+        {/* 3.0x 기본(210px) + 4.0x 여유구간(70px) */}
+        <rect x="258" y="247" width="280" height="28" rx="5" fill="#FDBA74" />
+        <rect x="258" y="247" width="210" height="28" rx="5" fill="#C2410C" />
+        <text x="363" y="265" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
+          ×3배(60평형)
+        </text>
+        <text x="503" y="265" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#9A3412">
+          ~×4배
+        </text>
+        <text x="548" y="258" fontSize="11" fontWeight="800" fill="#C2410C">
+          60 ~ 80평형급
+        </text>
+        <text x="548" y="274" fontSize="9.5" fontWeight="600" fill="#475569">
+          (30~40평×2대 · 380V 확인)
+        </text>
+
+        {/* 눈금 범례 */}
+        <text x="258" y="310" fontSize="9.5" fill="#64748B">0</text>
+        <text x="398" y="310" textAnchor="middle" fontSize="9.5" fill="#64748B">40평 (×2)</text>
+        <text x="468" y="310" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#C2410C">60평 (×3)</text>
+        <text x="538" y="310" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#B91C1C">80평 (×4)</text>
       </svg>
     </DiagramFigure>
   );
