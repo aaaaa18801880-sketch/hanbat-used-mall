@@ -507,12 +507,13 @@ export function Modal({
 }
 
 /* ════════════════════════════════════════════════════════════
-   5. 상단 공통 헤더 (SiteHeader — 4대 핵심 메뉴 · 전화 · 카톡)
+   5. 상단 공통 헤더 (SiteHeader — 5대 핵심 메뉴 · 전화 · 카톡)
    ════════════════════════════════════════════════════════════ */
 const HEADER_NAV = [
   { label: "판매 제품", href: "/gallery", matchPrefix: "/gallery" },
   { label: "가전 매입", href: "/purchase", matchPrefix: "/purchase" },
   { label: "업소·창업", href: "/#business-section", matchPrefix: "" },
+  { label: "정보 게시판", href: "/guide", matchPrefix: "/guide" },
   { label: "매장 안내", href: "/#location-section", matchPrefix: "" },
 ] as const;
 
@@ -613,7 +614,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.96] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
+                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.96] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
                     isActive
                       ? "text-[#E8521A] bg-[#FFF4EE] font-bold"
                       : "text-[#141A23] hover:text-[#E8521A] hover:bg-[#F7F8FA]"
@@ -1314,6 +1315,14 @@ export function SiteFooter({
                       className="inline-flex min-h-6 items-center hover:text-white transition-colors"
                     >
                       견적 문의 · 매입 게시판
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      href="/guide"
+                      className="inline-flex min-h-6 items-center hover:text-white transition-colors"
+                    >
+                      가전 · 전기 정보 게시판
                     </Link>
                   </li>
                   <li>

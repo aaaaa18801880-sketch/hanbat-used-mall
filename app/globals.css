@@ -248,7 +248,11 @@ body {
     pointer-events: none;
   }
 
-  .hb-tab-indicator[aria-selected="true"]::after {
+  .hb-tab-indicator:is(
+      [aria-selected="true"],
+      [aria-pressed="true"],
+      [aria-current="page"]
+    )::after {
     border-bottom-color: #e8521a;
   }
 
@@ -447,7 +451,11 @@ dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
     outline-offset: -2px;
   }
 
-  .hb-tab-indicator[aria-selected="true"]::after {
+  .hb-tab-indicator:is(
+      [aria-selected="true"],
+      [aria-pressed="true"],
+      [aria-current="page"]
+    )::after {
     border-bottom-color: Highlight;
   }
 

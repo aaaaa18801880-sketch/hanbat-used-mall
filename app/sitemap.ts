@@ -2,6 +2,7 @@
 import { MetadataRoute } from "next";
 import { supabase } from "../lib/supabase";
 import { STORE, isProductSold } from "../lib/site";
+import { INFO_GUIDE_ARTICLES } from "../lib/info-guides";
 
 export const revalidate = 3600; // 1시간마다 sitemap.xml 자동 갱신
 
@@ -45,6 +46,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/guide`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    ...INFO_GUIDE_ARTICLES.map((article) => ({
+      url: `${baseUrl}/guide/${article.slug}`,
+      lastModified: new Date(article.updatedAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.75,
+    })),
     {
       url: `${baseUrl}/privacy`,
       lastModified: new Date(),
