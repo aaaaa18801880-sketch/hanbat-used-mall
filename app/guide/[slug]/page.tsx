@@ -15,9 +15,11 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
+  SafeImg,
   Icon,
   ICON,
 } from "../../../lib/ui";
+import { GuideSectionDiagram } from "../../../components/guide/guide-diagrams";
 
 export function generateStaticParams() {
   return INFO_GUIDE_ARTICLES.map((article) => ({ slug: article.slug }));
@@ -57,12 +59,19 @@ export async function generateMetadata({
       publishedTime: article.updatedAt,
       modifiedTime: article.updatedAt,
       images: [
-        {
-          url: `${STORE.url}/og-image.jpg`,
-          width: 1200,
-          height: 630,
-          alt: article.title,
-        },
+        article.heroImage
+          ? {
+              url: `${STORE.url}${article.heroImage.src}`,
+              width: 1376,
+              height: 768,
+              alt: article.heroImage.alt,
+            }
+          : {
+              url: `${STORE.url}/og-image.jpg`,
+              width: 1200,
+              height: 630,
+              alt: article.title,
+            },
       ],
     },
   };
@@ -205,6 +214,26 @@ export default async function GuideDetailPage({
         <div className="hb-container pt-6 sm:pt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 lg:gap-8 items-start">
           {/* 왼쪽 본문 컬럼 */}
           <article className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-8 shadow-2xs space-y-8">
+            {article.heroImage && (
+              <figure className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] overflow-hidden">
+                <SafeImg
+                  src={article.heroImage.src}
+                  alt={article.heroImage.alt}
+                  width={1376}
+                  height={768}
+                  eager
+                  priority="high"
+                  className="w-full aspect-video object-cover block"
+                />
+                <figcaption className="px-4 py-2.5 text-hb-xs text-[#475569] border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-2 leading-relaxed">
+                  <span>{article.heroImage.caption}</span>
+                  <span className="text-[#64748B] font-semibold shrink-0">
+                    ※ 이해를 돕기 위한 예시 이미지입니다.
+                  </span>
+                </figcaption>
+              </figure>
+            )}
+
             {/* 현장 핵심 3줄 요약 박스 */}
             <section
               aria-label="현장 핵심 정리"
@@ -236,7 +265,9 @@ export default async function GuideDetailPage({
 
             {/* 본문 섹션들 */}
             <div className="space-y-8">
-              {article.sections.map((section) => (
+              {article.sections.map((section, sectionIdx) => {
+                const tableCaptionId = `guide-table-${article.slug}-${sectionIdx}`;
+                return (
                 <section
                   key={section.heading}
                   className="space-y-4 pt-2 border-t border-[#F1F3F6] first:border-t-0 first:pt-0"
@@ -253,10 +284,22 @@ export default async function GuideDetailPage({
                     ))}
                   </div>
 
+                  {section.diagram && (
+                    <GuideSectionDiagram id={section.diagram} />
+                  )}
+
                   {section.table && (
-                    <div className="overflow-x-auto rounded-xl border border-[#E2E6EC]">
+                    <div
+                      tabIndex={0}
+                      role="region"
+                      aria-labelledby={tableCaptionId}
+                      className="overflow-x-auto rounded-xl border border-[#E2E6EC] focus-visible:outline-2 focus-visible:outline-[#E8521A]"
+                    >
                       <table className="w-full min-w-[540px] border-collapse text-left text-hb-xs sm:text-hb-sm">
-                        <caption className="bg-[#F7F8FA] px-4 py-2.5 text-left text-hb-xs font-bold text-[#475569] border-b border-[#E2E6EC]">
+                        <caption
+                          id={tableCaptionId}
+                          className="bg-[#F7F8FA] px-4 py-2.5 text-left text-hb-xs font-bold text-[#475569] border-b border-[#E2E6EC]"
+                        >
                           {section.table.caption}
                         </caption>
                         <thead>
@@ -339,7 +382,8 @@ export default async function GuideDetailPage({
                     </div>
                   )}
                 </section>
-              ))}
+                );
+              })}
             </div>
 
             {/* 하단 맞춤 행동 유도 */}

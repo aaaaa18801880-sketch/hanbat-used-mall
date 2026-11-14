@@ -24,6 +24,8 @@ function getCategoryBadgeClass(category: InfoGuideArticle["category"]): string {
   switch (category) {
     case "에어컨 · A/S":
       return "border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]";
+    case "에어컨 · 원리/설치":
+      return "border-[#C7D2FE] bg-[#EEF2FF] text-[#4338CA]";
     case "전기 · 220V/380V":
       return "border-[#FED7AA] bg-[#FFF7ED] text-[#C2410C]";
     case "창업 · 폐업":
