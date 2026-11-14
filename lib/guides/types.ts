@@ -56,6 +56,34 @@ export interface InfoGuideCta {
   variant: "primary" | "outline" | "accent";
 }
 
+export type InfoGuideSourceType =
+  | "공식자료 기반"
+  | "학술연구 기반"
+  | "전문가 검토"
+  | "현장사례 기반"
+  | "소비자 경험";
+
+export type InfoGuideRiskLevel =
+  | "일반 정보 (권장 재검토 12개월)"
+  | "기술·성능 정보 (권장 재검토 6개월)"
+  | "안전·법률 정보 (권장 재검토 3개월)";
+
+export interface InfoGuideSourceItem {
+  org: string;
+  title: string;
+  url?: string;
+  date?: string;
+  usedFor: string;
+}
+
+export interface InfoGuideVerification {
+  verifiedAt: string;
+  contentTypes: InfoGuideSourceType[];
+  riskLevel: InfoGuideRiskLevel;
+  primarySources: InfoGuideSourceItem[];
+  fieldNote: string;
+}
+
 export interface InfoGuideArticle {
   number: number;
   slug: string;
@@ -70,4 +98,5 @@ export interface InfoGuideArticle {
   keyPoints: [string, string, string];
   sections: InfoGuideSection[];
   ctas: InfoGuideCta[];
+  verification?: InfoGuideVerification;
 }

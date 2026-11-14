@@ -12,6 +12,7 @@ import {
 } from "../../../lib/site";
 import { serializeJsonLd } from "../../../lib/json-ld";
 import {
+  GUIDE_GOVERNANCE_DISCLAIMER,
   INFO_GUIDE_ARTICLES,
   getAdjacentInfoGuides,
   getGuideCommerceBridge,
@@ -476,6 +477,88 @@ export default async function GuideDetailPage({
                 );
               })}
             </div>
+
+            {/* 하단 참고 출처 및 정보 검증 안내 (운영·출처 검증 규정 부록 B) */}
+            {article.verification && (
+              <section
+                aria-label="참고 출처 및 정보 검증 안내"
+                className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5 space-y-4"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h2 className="flex items-center gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
+                    <Icon
+                      d={ICON.shieldCheck}
+                      className="w-4 h-4 text-[#0F766E] shrink-0"
+                    />
+                    <span>참고 출처 및 정보 검증 안내</span>
+                  </h2>
+                  <div className="flex flex-wrap items-center gap-1.5 text-hb-xs text-[#64748B]">
+                    <span>자료 확인일</span>
+                    <time
+                      dateTime={article.verification.verifiedAt}
+                      className="font-bold text-[#141A23] tabular-nums"
+                    >
+                      {article.verification.verifiedAt}
+                    </time>
+                    <span aria-hidden="true">·</span>
+                    <span>{article.verification.riskLevel}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {article.verification.contentTypes.map((typeLabel) => (
+                    <span
+                      key={typeLabel}
+                      className="inline-flex items-center rounded-md border border-[#CBD5E1] bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#334155]"
+                    >
+                      {typeLabel}
+                    </span>
+                  ))}
+                </div>
+
+                <ul className="divide-y divide-[#E2E6EC] rounded-lg border border-[#E2E6EC] bg-white">
+                  {article.verification.primarySources.map((src, sIdx) => (
+                    <li key={sIdx} className="p-3 sm:p-3.5 space-y-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-1.5 text-hb-xs">
+                          <span className="font-bold text-[#141A23]">
+                            {src.org}
+                          </span>
+                          {src.date && (
+                            <span className="text-[#64748B]">({src.date})</span>
+                          )}
+                        </div>
+                        {src.url && (
+                          <a
+                            href={src.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-hb-xs font-semibold text-[#1D4ED8] hover:underline shrink-0"
+                          >
+                            <span>공식 사이트 확인</span>
+                            <Icon d={ICON.external} className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                      <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#334155] leading-snug break-keep">
+                        {src.title}
+                      </p>
+                      <p className="text-hb-xs text-[#64748B] leading-relaxed break-keep">
+                        활용 내용: {src.usedFor}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="border-t border-[#E2E6EC] pt-3 space-y-1.5 text-hb-xs text-[#475569] leading-[1.65] [text-wrap:pretty]">
+                  <p>
+                    <strong className="text-[#141A23]">기준 · 현장 구분:</strong>{" "}
+                    {article.verification.fieldNote}
+                  </p>
+                  <p className="text-[#64748B]">{GUIDE_GOVERNANCE_DISCLAIMER}</p>
+                </div>
+              </section>
+            )}
 
             {/* 하단 맞춤 행동 유도 */}
             <div className="pt-6 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-3">

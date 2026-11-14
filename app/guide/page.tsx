@@ -146,7 +146,7 @@ export default function GuideBoardPage() {
                   가전 · 전기 · 설치 정보 게시판
                 </h1>
                 <p className="max-w-[64ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
-                  매장에서 직접 설치하고 수리하며 손님들이 가장 자주 물어보는 내용들을 모았습니다. 구매나 설치 전에 전기·공간 조건을 가늠할 때 참고해 보세요.
+                  비전공자도 바로 이해할 수 있도록 쉬운 말로 정리한 생활·매장 가전 가이드입니다. 모든 글은 공공·표준·제조사 공식 자료와 현장 점검 경험을 교차 확인해 작성하며, 각 글 하단에 참고 출처와 검토일을 공개합니다.
                 </p>
               </div>
 

@@ -120,6 +120,11 @@ ${INFO_GUIDE_ARTICLES.map((article) => {
     `  1) ${article.keyPoints[0]}`,
     `  2) ${article.keyPoints[1]}`,
     `  3) ${article.keyPoints[2]}`,
+    article.verification
+      ? `- 주요 검증 출처 (${article.verification.verifiedAt} 검토): ${article.verification.primarySources
+          .map((s) => `${s.org} 「${s.title}」`)
+          .join(" / ")}`
+      : `- 검토일: ${article.updatedAt}`,
     `- 관련 구매 연결: ${STORE.url}${bridge.galleryHref} (${bridge.galleryLabel})`,
   ].join("\n");
 }).join("\n\n")}

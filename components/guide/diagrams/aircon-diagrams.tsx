@@ -669,7 +669,7 @@ export function AirconPyeongSizingDiagram() {
   return (
     <DiagramFigure
       title="똑같은 '실평수 20평(66㎡)'인데 환경별로 필요한 에어컨 평형 차이"
-      caption="바닥 면적만 보고 평형에 딱 맞춰 사면 통유리 카페는 물론, 직화 열기·배기 닥트가 도는 고깃집(실평수의 3~4배 필요)은 한여름 내내 실내가 식지 않습니다."
+      caption="바닥 면적만 보고 평형에 딱 맞춰 사면 통유리 카페는 물론, 불판 열기·환기통 냉기 유실이 겹치는 고깃집(실평수의 3~4배 필요)은 한여름 내내 실내가 식지 않습니다."
     >
       <svg
         viewBox="0 0 760 326"
@@ -682,7 +682,7 @@ export function AirconPyeongSizingDiagram() {
         </title>
 
         <text x="20" y="32" fontSize="12.5" fontWeight="700" fill="#141A23">
-          기준 공간: 바닥 실평수 20평 (66㎡) 기준 업종별 권장 냉방 평형 비교 (KS 1평 ≒ 400W 기준)
+          기준 공간: 바닥 실평수 20평 (66㎡) 기준 업종별 권장 에어컨 평형 비교
         </text>
 
         {/* 기준 눈금선 (1.0x = 70px 비례) */}
@@ -697,7 +697,7 @@ export function AirconPyeongSizingDiagram() {
           1. 일반 가정 · 사무실 (×1.0)
         </text>
         <text x="32" y="91" fontSize="9.5" fill="#475569">
-          천고 2.4m 이하 · 기본 부하 90~110 W/㎡
+          천고 2.4m 이하 · 햇빛·불 안 쓰는 실내
         </text>
         <rect x="258" y="65" width="70" height="26" rx="5" fill="#0F766E" />
         <text x="338" y="83" fontSize="11" fontWeight="700" fill="#0F766E">
@@ -710,7 +710,7 @@ export function AirconPyeongSizingDiagram() {
           2. 통유리 카페 · 오픈 문 (×1.5)
         </text>
         <text x="32" y="151" fontSize="9.5" fill="#475569">
-          남·서향 일사 + 머신·제빙기 발열
+          통유리 햇빛 + 커피머신·제빙기 열기
         </text>
         <rect x="258" y="125" width="105" height="26" rx="5" fill="#1D4ED8" />
         <text x="373" y="143" fontSize="11" fontWeight="700" fill="#1D4ED8">
@@ -723,7 +723,7 @@ export function AirconPyeongSizingDiagram() {
           3. 일반 음식점 · 비직화 (×2.0)
         </text>
         <text x="32" y="211" fontSize="9.5" fill="#475569">
-          홀 조리·체열 + 주방 열기 유입
+          조리 열기 + 손님 출입 많은 홀
         </text>
         <rect x="258" y="185" width="140" height="26" rx="5" fill="#CA8A04" />
         <text x="408" y="203" fontSize="11" fontWeight="700" fill="#A16207">
@@ -736,7 +736,7 @@ export function AirconPyeongSizingDiagram() {
           4. 숯불·직화 고깃집+닥트 (×3~4)
         </text>
         <text x="32" y="272" fontSize="9.5" fill="#475569">
-          로스터 복사열(20~35%) + 후드 냉기 유실
+          불판 열기 + 환기통으로 찬 공기 배출
         </text>
         {/* 3.0x 기본(210px) + 4.0x 여유구간(70px) */}
         <rect x="258" y="247" width="280" height="28" rx="5" fill="#FDBA74" />

@@ -135,6 +135,25 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
 
       const bridge = getGuideCommerceBridge(article);
       assert.ok(bridge.galleryHref.startsWith("/gallery"));
+
+      assert.ok(
+        article.verification,
+        `누락된 검증·출처 메타데이터: #${article.number} ${article.slug}`
+      );
+      assert.ok(article.verification.verifiedAt.length >= 10);
+      assert.ok(article.verification.contentTypes.length >= 1);
+      assert.ok(
+        article.verification.primarySources.length >= 2,
+        `출처 2건 미만: #${article.number} ${article.slug}`
+      );
+      assert.ok(article.verification.fieldNote.length > 10);
+
+      const headlineText = [article.title, article.summary, ...article.keyPoints].join(" ");
+      assert.equal(
+        /동계학술|복사열 분율|보충공기\(MUA\)|현열·잠열|100% 떨어/.test(headlineText),
+        false,
+        `소비자 가독성 위배 문구 발견: #${article.number} ${article.slug}`
+      );
     }
 
     for (const slug of Object.keys(SLUG_TO_GUIDE_TOOL)) {

@@ -8,6 +8,10 @@ import type { InfoGuideArticle } from "./guides/types";
 import { AIRCON_GUIDE_ARTICLES } from "./guides/articles-aircon";
 import { ELECTRICAL_OPS_GUIDE_ARTICLES } from "./guides/articles-electrical-ops";
 import { HOME_KITCHEN_GUIDE_ARTICLES } from "./guides/articles-home-kitchen";
+import {
+  getGuideVerification,
+  GUIDE_GOVERNANCE_DISCLAIMER,
+} from "./guides/verification-sources";
 
 export {
   INFO_GUIDE_CATEGORY_LIST,
@@ -17,14 +21,25 @@ export {
   type InfoGuideSection,
   type InfoGuideHeroImage,
   type InfoGuideCta,
+  type InfoGuideSourceType,
+  type InfoGuideRiskLevel,
+  type InfoGuideSourceItem,
+  type InfoGuideVerification,
   type InfoGuideArticle,
 } from "./guides/types";
+export { GUIDE_GOVERNANCE_DISCLAIMER };
 
 export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   ...AIRCON_GUIDE_ARTICLES,
   ...ELECTRICAL_OPS_GUIDE_ARTICLES,
   ...HOME_KITCHEN_GUIDE_ARTICLES,
-].sort((a, b) => a.number - b.number);
+]
+  .map((article) => ({
+    ...article,
+    updatedAt: "2026-11-15",
+    verification: article.verification ?? getGuideVerification(article.slug),
+  }))
+  .sort((a, b) => a.number - b.number);
 
 export function getInfoGuideBySlug(slug: string): InfoGuideArticle | undefined {
   return INFO_GUIDE_ARTICLES.find((article) => article.slug === slug);
