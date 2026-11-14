@@ -201,7 +201,17 @@ export default function InquiryBoardPage() {
     ) {
       queueMicrotask(() => {
         const isBundle = params.get("bundle") === "1";
-        const qType = params.get("type");
+        const rawType = params.get("type");
+        const qType =
+          rawType === "buy"
+            ? "구매 문의"
+            : rawType === "bulk"
+              ? "대량·업소용 상담"
+              : rawType === "sell"
+                ? "내 물건 팔기"
+                : rawType === "other"
+                  ? "기타 문의"
+                  : rawType;
         const qTitle = params.get("title") || "";
         const qModel = params.get("model") || "";
         const qCategory = params.get("category") || "";

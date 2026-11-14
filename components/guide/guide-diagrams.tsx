@@ -3,7 +3,10 @@ import React, { useId } from "react";
 import { STORE, STORE_MERCHANT_POLICY } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
 import {
+  AirconDrainLeakPhotoDiagram,
   AirconPipeComparisonPhotoDiagram,
+  ClearanceMeasurePhotoDiagram,
+  IcemakerCleaningPhotoDiagram,
   OutdoorUnitWeatherproofPhotoDiagram,
   PcbPhotoFailureDiagram,
   WasherInspectionPhotoDiagram,
@@ -38,7 +41,12 @@ export type GuideDiagramId =
   | "aircon-pipe-copper-vs-alu"
   | "showcase-condensation-drain"
   | "appliance-resale-value-factors"
-  | "energy-grade-revision-curve";
+  | "energy-grade-revision-curve"
+  | "aircon-single-vs-multi"
+  | "induction-wiring-breaker"
+  | "cafe-plumbing-drain-check"
+  | "commercial-fridge-repair-roi"
+  | "aircon-relocation-cost-factors";
 
 function DiagramFigure({
   title,
@@ -493,88 +501,13 @@ function KwVsKwhDiagram() {
 }
 
 function ClearanceBlueprintDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="위에서 내려다본 현관 통과 폭 & 냉장고 문짝 분리 · 45박스 반입 평면도"
-      caption="제품 놓을 자리(가로 95cm)만 보고 주문하면 현관 중문·복도 90도 코너에서 걸립니다. 문틀 안쪽 실제 폭과 회전 공간을 꼭 재야 합니다."
+      badgeLabel="실사 점검 · 반입 동선"
+      title="출입문 내경 실측 · 복도 90도 코너 · 베란다 사다리차 반입 3대 체크포인트"
+      caption="설치 자리만 재면 문손잡이·복도 회전 구간에서 걸리기 쉽습니다. 번호 핀을 눌러 문틀 실측법, 90도 꺾임 기준, 사다리차 양중 조건을 확인해 보세요."
     >
-      <svg
-        viewBox="0 0 760 270"
-        className="w-full min-w-[540px] h-auto block font-sans"
-        role="img"
-        aria-labelledby={titleId}
-      >
-        <title id={titleId}>
-          가정용 양문형 냉장고 도어 분리 통과 폭과 업소용 45박스 일체형 냉장고 평면 치수 도해
-        </title>
-
-        {/* 왼쪽: 가정용 양문형 / 중문 & 90도 복도 */}
-        <rect x="16" y="14" width="352" height="242" rx="12" fill="#F8FAFC" stroke="#CBD2DC" />
-        <text x="32" y="38" fontSize="13" fontWeight="700" fill="#141A23">
-          1. 가정용 양문형·4도어 (문짝 분리 효과)
-        </text>
-
-        {/* 벽면 & 좁은 문틀 78cm */}
-        <rect x="34" y="64" width="120" height="12" fill="#334155" />
-        <rect x="234" y="64" width="116" height="12" fill="#334155" />
-        <line x1="154" y1="54" x2="234" y2="54" stroke="#E8521A" strokeWidth="2" />
-        <text x="194" y="49" textAnchor="middle" fontSize="11" fontWeight="700" fill="#E8521A">
-          문 유효폭 약 78cm
-        </text>
-
-        {/* 냉장고 본체 vs 문짝 분리 */}
-        <rect x="140" y="92" width="108" height="62" rx="6" fill="#DBEAFE" stroke="#2563EB" strokeWidth="2" />
-        <text x="194" y="120" textAnchor="middle" fontSize="11" fontWeight="700" fill="#1E40AF">
-          본체 깊이 72~76cm
-        </text>
-        <text x="194" y="138" textAnchor="middle" fontSize="10" fill="#1E40AF">
-          (도어 분리 시 통과)
-        </text>
-
-        {/* 점선: 문짝 부착 시 88~92cm */}
-        <rect x="140" y="154" width="108" height="16" rx="3" fill="#FEE2E2" stroke="#DC2626" strokeDasharray="3 3" />
-        <text x="194" y="185" textAnchor="middle" fontSize="11" fontWeight="700" fill="#B91C1C">
-          문짝 포함 시 깊이 88~92cm (걸림)
-        </text>
-
-        <rect x="32" y="198" width="320" height="46" rx="8" fill="#FFFFFF" stroke="#E2E6EC" />
-        <text x="44" y="217" fontSize="11" fill="#334155">
-          • 문손잡이·경첩 제외한 문틀 안쪽 알짜 폭 확인 필수
-        </text>
-        <text x="44" y="235" fontSize="11" fontWeight="600" fill="#141A23">
-          • 90도 꺾이는 복도는 대각선 회전을 위해 85cm 이상 권장
-        </text>
-
-        {/* 오른쪽: 업소용 45박스 일체형 */}
-        <rect x="392" y="14" width="352" height="242" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
-        <text x="408" y="38" fontSize="13" fontWeight="700" fill="#C2410C">
-          2. 업소용 45박스 (일체형 바디 · 분해 불가)
-        </text>
-
-        {/* 45박스 스텐 몸체 1260 x 800 */}
-        <rect x="448" y="70" width="210" height="92" rx="6" fill="#E2E8F0" stroke="#475569" strokeWidth="2" />
-        <text x="553" y="106" textAnchor="middle" fontSize="12" fontWeight="700" fill="#141A23">
-          가로 약 1,260mm × 깊이 800mm+
-        </text>
-        <text x="553" y="126" textAnchor="middle" fontSize="11" fontWeight="700" fill="#B91C1C">
-          통짜 철제 프레임 (깊이 축소 불가!)
-        </text>
-        <text x="553" y="146" textAnchor="middle" fontSize="11" fill="#334155">
-          주방 출입구 순수 통과 폭 최소 85cm+ 필수
-        </text>
-
-        <rect x="408" y="178" width="320" height="66" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
-        <text x="420" y="197" fontSize="11" fontWeight="700" fill="#141A23">
-          사다리차 호출 판정 기준
-        </text>
-        <text x="420" y="216" fontSize="11" fill="#475569">
-          1) 엘리베이터 깊이·문폭 미달 / 2층 이상 좁은 계단 참
-        </text>
-        <text x="420" y="234" fontSize="11" fill="#475569">
-          2) 홀 바닥·유리문 손상 막으려 2층 창문 직접 반입 시
-        </text>
-      </svg>
+      <ClearanceMeasurePhotoDiagram />
     </DiagramFigure>
   );
 }
@@ -1613,166 +1546,13 @@ function Commercial45BoxCoolingDiagram() {
 /*  17. 제빙기 얼음 안 얼 때 4대 원인 도해 (18번 글)                      */
 /* ------------------------------------------------------------------ */
 function IcemakerHeatRejectionDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="업소용 언더카운터 제빙기 내부 단면 계통도와 제빙 불량 4대 점검 포인트"
-      caption="얼음이 얇거나 안 얼 때는 정수필터 수압 저하(①), 상부 제빙판·만빙 커튼센서 오염(②), 수조 워터펌프 스케일(③), 하단 전면 흡·배기 먼지 막힘(④) 순서로 확인해야 합니다."
+      badgeLabel="실사 점검 · 업소용 제빙기"
+      title="업소용 언더카운터 제빙기 내부 단면과 제빙 불량 4대 점검 포인트"
+      caption="얼음이 얇거나 안 얼 때는 상부 제빙판·노즐 스케일(①), 하단 응축기 먼지 망 막힘(②), 콤프레샤 매립 열기 과열(③), 우측 직수 필터·배수 역류(④) 순서로 점검해야 합니다."
     >
-      <svg
-        viewBox="0 0 760 288"
-        role="img"
-        aria-labelledby={titleId}
-        className="w-full min-w-[560px] h-auto select-none"
-      >
-        <title id={titleId}>
-          업소용 제빙기 내부 단면 급수·제빙판·커튼센서·기계실 방열 계통도 및 4대 점검 위치 도해
-        </title>
-
-        {/* 좌측: 제빙기 내부 단면 계통도 */}
-        <rect x="16" y="14" width="330" height="260" rx="12" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
-        <text x="32" y="38" fontSize="12" fontWeight="700" fill="#141A23">
-          언더카운터 공랭식 제빙기 내부 단면 계통
-        </text>
-
-        {/* 외부 정수필터 -> 급수관 */}
-        <rect x="28" y="64" width="44" height="58" rx="4" fill="#EFF6FF" stroke="#1D4ED8" strokeWidth="1.5" />
-        <text x="50" y="90" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#1D4ED8">
-          정수
-        </text>
-        <text x="50" y="104" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#1D4ED8">
-          필터
-        </text>
-        <circle cx="50" cy="60" r="9" fill="#1D4ED8" />
-        <text x="50" y="63" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          1
-        </text>
-        <line x1="72" y1="88" x2="108" y2="88" stroke="#1D4ED8" strokeWidth="3" />
-
-        {/* 제빙기 외함 */}
-        <rect x="108" y="52" width="184" height="196" rx="8" fill="#FFFFFF" stroke="#141A23" strokeWidth="2" />
-        {/* 상부 제빙판 (에바) */}
-        <rect x="122" y="66" width="104" height="32" rx="4" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.5" />
-        <text x="174" y="86" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          격자 제빙판 (에바)
-        </text>
-        {/* 커튼 스위치 */}
-        <line x1="234" y1="68" x2="246" y2="104" stroke="#E8521A" strokeWidth="3" />
-        <circle cx="250" cy="84" r="9" fill="#E8521A" />
-        <text x="250" y="87" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          2
-        </text>
-        <text x="266" y="102" fontSize="8.5" fontWeight="700" fill="#C2410C">
-          커튼
-        </text>
-
-        {/* 물순환 수조 + 워터펌프 */}
-        <rect x="122" y="112" width="156" height="44" rx="4" fill="#ECFDF5" stroke="#10B981" strokeWidth="1.5" />
-        <rect x="132" y="124" width="52" height="22" rx="3" fill="#0F766E" />
-        <text x="158" y="139" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#FFFFFF">
-          순환펌프
-        </text>
-        <circle cx="196" cy="134" r="9" fill="#0F766E" />
-        <text x="196" y="137" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          3
-        </text>
-        <text x="242" y="138" textAnchor="middle" fontSize="9" fontWeight="700" fill="#065F46">
-          수조·빙저장고
-        </text>
-
-        {/* 하단 기계실 + 전면 흡배기 + 뒷벽 여유선 */}
-        <rect x="122" y="170" width="156" height="66" rx="4" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
-        <rect x="132" y="182" width="64" height="42" rx="3" fill="#FEE2E2" stroke="#DC2626" />
-        <text x="164" y="201" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#DC2626">
-          전면 루버
-        </text>
-        <text x="164" y="214" textAnchor="middle" fontSize="8.5" fill="#DC2626">
-          응축기 핀
-        </text>
-        <circle cx="210" cy="202" r="9" fill="#DC2626" />
-        <text x="210" y="205" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          4
-        </text>
-        <text x="248" y="205" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#141A23">
-          압축기
-        </text>
-
-        {/* 뒷벽 15~20cm 통풍선 */}
-        <line x1="294" y1="196" x2="326" y2="196" stroke="#DC2626" strokeWidth="2" />
-        <rect x="326" y="56" width="8" height="190" fill="#64748B" />
-        <text x="310" y="182" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#DC2626">
-          15cm+
-        </text>
-
-        {/* 우측: 4대 점검 카드 */}
-        <rect x="360" y="14" width="186" height="124" rx="10" fill="#EFF6FF" stroke="#93C5FD" />
-        <text x="374" y="36" fontSize="11" fontWeight="700" fill="#1D4ED8">
-          ① 급수 필터 · 수압 저하
-        </text>
-        <text x="374" y="56" fontSize="9.5" fill="#334155">
-          필터 6개월 초과로 수압 약화 시
-        </text>
-        <text x="374" y="72" fontSize="9.5" fill="#334155">
-          구멍 뚫린 얇은 얼음·탈빙 지연
-        </text>
-        <text x="374" y="96" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          조치: 커피머신과 급수 라인 분리
-        </text>
-        <text x="374" y="112" fontSize="9.5" fill="#475569">
-          여름철 유입수 25도 이상 상승 유의
-        </text>
-
-        <rect x="558" y="14" width="186" height="124" rx="10" fill="#FFF7ED" stroke="#FDBA74" />
-        <text x="572" y="36" fontSize="11" fontWeight="700" fill="#C2410C">
-          ② 만빙 커튼 · 센서 오작동
-        </text>
-        <text x="572" y="56" fontSize="9.5" fill="#334155">
-          얼음통 비었는데 생산 멈출 때
-        </text>
-        <text x="572" y="72" fontSize="9.5" fill="#334155">
-          커튼 스위치 틈 얼음 걸림·물때
-        </text>
-        <text x="572" y="96" fontSize="9.5" fontWeight="700" fill="#C2410C">
-          조치: 커튼판 착탈 및 스위치 청소
-        </text>
-        <text x="572" y="112" fontSize="9.5" fill="#475569">
-          자석 센서 접촉 상태 함께 점검
-        </text>
-
-        <rect x="360" y="150" width="186" height="124" rx="10" fill="#ECFDF5" stroke="#6EE7B7" />
-        <text x="374" y="172" fontSize="11" fontWeight="700" fill="#0F766E">
-          ③ 순환펌프 · 에바 스케일
-        </text>
-        <text x="374" y="192" fontSize="9.5" fill="#334155">
-          수조 석회·물때로 펌프 힘 저하
-        </text>
-        <text x="374" y="208" fontSize="9.5" fill="#334155">
-          코팅 벗겨지면 얼음 안 떨어짐
-        </text>
-        <text x="374" y="232" fontSize="9.5" fontWeight="700" fill="#0F766E">
-          조치: 전용 스케일 제거제 세척
-        </text>
-        <text x="374" y="248" fontSize="9.5" fill="#475569">
-          (락스 원액은 니켈 도금 부식 유발)
-        </text>
-
-        <rect x="558" y="150" width="186" height="124" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
-        <text x="572" y="172" fontSize="11" fontWeight="700" fill="#DC2626">
-          ④ 전면 루버 · 바 매립 열기
-        </text>
-        <text x="572" y="192" fontSize="9.5" fill="#334155">
-          원두가루·바닥먼지 핀코일 막힘
-        </text>
-        <text x="572" y="208" fontSize="9.5" fill="#334155">
-          밀폐 카운터 가둠 → 고압 정지
-        </text>
-        <text x="572" y="232" fontSize="9.5" fontWeight="700" fill="#DC2626">
-          조치: 주 1회 하단 루버 필터 세척
-        </text>
-        <text x="572" y="248" fontSize="9.5" fill="#475569">
-          밀폐장 설치 시 전면 흡배기형 선택
-        </text>
-      </svg>
+      <IcemakerCleaningPhotoDiagram />
     </DiagramFigure>
   );
 }
@@ -2373,152 +2153,13 @@ function InverterDutyCycleDiagram() {
 /*  24. 에어컨 실내기 물 뚝뚝 누수 4대 원인 단면도 (25번 글)             */
 /* ------------------------------------------------------------------ */
 function AirconDrainLeakDiagram() {
-  const titleId = useId();
   return (
     <DiagramFigure
-      title="에어컨 실내기 배수 단면도와 물 떨어짐 4대 원인 위치 구분"
-      caption="찬 바람이 정상인데 물만 떨어지면 물받이(②)·배수호스 역구배(③)·드레인 펌프(④) 문제이고, 바람까지 미지근하다가 껐을 때 쏟아지면 에바 결빙 해동(①)입니다."
+      badgeLabel="실사 점검 · 실내기 배수"
+      title="에어컨 실내기 배수 단면 실사와 물 떨어짐 4대 원인 위치 구분"
+      caption="찬 바람이 정상인데 물만 떨어지면 물받이(②)·배수호스 U자 처짐(③)·드레인 펌프(④) 문제이고, 바람까지 미지근하다가 껐을 때 쏟아지면 에바 결빙 해동(①)입니다."
     >
-      <svg
-        viewBox="0 0 760 288"
-        role="img"
-        aria-labelledby={titleId}
-        className="w-full min-w-[560px] h-auto select-none"
-      >
-        <title id={titleId}>
-          실내기 증발기, 물받이 드레인 팬, 벽 타공, U자 처짐·물통 역류, 배수펌프 위치가 담긴 전체 배수 단면도
-        </title>
-
-        {/* 상단: 실내기 -> 외부 호스 전체 배수 단면도 */}
-        <rect x="16" y="12" width="728" height="122" rx="10" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" />
-        {/* 실내기 외곽 */}
-        <rect x="34" y="24" width="154" height="76" rx="6" fill="#FFFFFF" stroke="#141A23" strokeWidth="2" />
-        {/* 열교환기 핀 (①) */}
-        <rect x="46" y="34" width="84" height="30" rx="3" fill="#FEF2F2" stroke="#DC2626" />
-        <text x="88" y="53" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#DC2626">
-          냉각핀 (에바) 결빙
-        </text>
-        <circle cx="48" cy="36" r="9" fill="#DC2626" />
-        <text x="48" y="39" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          1
-        </text>
-        {/* 드레인 팬 물받이 (②) */}
-        <rect x="46" y="72" width="128" height="18" rx="3" fill="#EFF6FF" stroke="#1D4ED8" />
-        <text x="110" y="85" textAnchor="middle" fontSize="9" fontWeight="700" fill="#1D4ED8">
-          드레인 팬 (물때/슬라임)
-        </text>
-        <circle cx="170" cy="80" r="9" fill="#1D4ED8" />
-        <text x="170" y="83" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          2
-        </text>
-
-        {/* 벽면 */}
-        <rect x="234" y="22" width="14" height="104" fill="#64748B" />
-        <text x="241" y="18" textAnchor="middle" fontSize="8.5" fill="#475569">
-          외벽
-        </text>
-
-        {/* 천장형 펌프 분기 (④) */}
-        <rect x="198" y="26" width="112" height="28" rx="4" fill="#FFF7ED" stroke="#E8521A" />
-        <text x="254" y="44" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#C2410C">
-          천장형 펌프·플로트센서
-        </text>
-        <circle cx="298" cy="28" r="9" fill="#E8521A" />
-        <text x="298" y="31" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          4
-        </text>
-
-        {/* 배수 호스 U자 처짐 + 물통 잠김 (③) */}
-        <path d="M174 84 L286 84 Q340 120 398 86 L494 98" fill="none" stroke="#0F766E" strokeWidth="5" />
-        <circle cx="340" cy="102" r="9" fill="#0F766E" />
-        <text x="340" y="105" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#FFFFFF">
-          3
-        </text>
-        <text x="346" y="76" textAnchor="middle" fontSize="9" fontWeight="700" fill="#0F766E">
-          U자 처짐 (공기 갇힘)
-        </text>
-
-        {/* 물통 */}
-        <rect x="470" y="76" width="52" height="46" rx="4" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.5" />
-        <text x="496" y="114" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#1D4ED8">
-          수위 잠김
-        </text>
-
-        {/* 우측 단면 판단 요약 */}
-        <rect x="542" y="24" width="188" height="98" rx="8" fill="#FFFFFF" stroke="#E2E6EC" />
-        <text x="554" y="44" fontSize="10.5" fontWeight="700" fill="#141A23">
-          현장 1분 자가 판독 기준
-        </text>
-        <text x="554" y="64" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          • 바람은 차가운데 물만 뚝뚝
-        </text>
-        <text x="562" y="79" fontSize="9.5" fill="#475569">
-          → ②③④ 배수 막힘·역구배·펌프
-        </text>
-        <text x="554" y="99" fontSize="9.5" fontWeight="700" fill="#DC2626">
-          • 바람 약하고 껐을 때 쏟아짐
-        </text>
-        <text x="562" y="114" fontSize="9.5" fill="#475569">
-          → ① 필터 막힘 또는 냉매 부족
-        </text>
-
-        {/* 하단 4대 원인 요약 카드 */}
-        <rect x="16" y="148" width="172" height="128" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
-        <text x="28" y="172" fontSize="11" fontWeight="700" fill="#DC2626">
-          ① 냉각핀 결빙 후 해동
-        </text>
-        <text x="28" y="194" fontSize="9.5" fill="#334155">
-          필터 먼지 막힘 · 냉매 누설로
-        </text>
-        <text x="28" y="210" fontSize="9.5" fill="#334155">
-          얼음이 낀 뒤 전원 끄면 쏟아짐
-        </text>
-        <text x="28" y="246" fontSize="9.5" fontWeight="700" fill="#DC2626">
-          해결: 필터 세척·누설 점검
-        </text>
-
-        <rect x="200" y="148" width="172" height="128" rx="10" fill="#EFF6FF" stroke="#93C5FD" />
-        <text x="212" y="172" fontSize="11" fontWeight="700" fill="#1D4ED8">
-          ② 드레인 물때·슬라임
-        </text>
-        <text x="212" y="194" fontSize="9.5" fill="#334155">
-          물받이 출구에 젤리 형태 물때가
-        </text>
-        <text x="212" y="210" fontSize="9.5" fill="#334155">
-          차올라 실내기 앞·벽으로 넘침
-        </text>
-        <text x="212" y="246" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
-          해결: 분해세척·호스 석션
-        </text>
-
-        <rect x="384" y="148" width="172" height="128" rx="10" fill="#ECFDF5" stroke="#6EE7B7" />
-        <text x="396" y="172" fontSize="11" fontWeight="700" fill="#0F766E">
-          ③ 호스 역구배·잠김
-        </text>
-        <text x="396" y="194" fontSize="9.5" fill="#334155">
-          호스가 U자로 처져 공기 막힘,
-        </text>
-        <text x="396" y="210" fontSize="9.5" fill="#334155">
-          또는 물통 물에 호스 끝이 잠김
-        </text>
-        <text x="396" y="246" fontSize="9.5" fontWeight="700" fill="#0F766E">
-          해결: 내리막 경사·물 위로 띄움
-        </text>
-
-        <rect x="568" y="148" width="176" height="128" rx="10" fill="#FFF7ED" stroke="#FDBA74" />
-        <text x="580" y="172" fontSize="11" fontWeight="700" fill="#C2410C">
-          ④ 배수 펌프·센서 고장
-        </text>
-        <text x="580" y="194" fontSize="9.5" fill="#334155">
-          천장형 펌프 모터·플로트 센서
-        </text>
-        <text x="580" y="210" fontSize="9.5" fill="#334155">
-          고착 시 천장 텍스 젖어듦
-        </text>
-        <text x="580" y="246" fontSize="9.5" fontWeight="700" fill="#C2410C">
-          해결: 수위센서 세척·펌프 교체
-        </text>
-      </svg>
+      <AirconDrainLeakPhotoDiagram />
     </DiagramFigure>
   );
 }
@@ -2940,6 +2581,586 @@ function EnergyGradeRevisionDiagram() {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/*  29. 대형 1대 단독 설치 vs 중·소형 여러 대 분산 설치 비교 도해 (30번 글) */
+/* ------------------------------------------------------------------ */
+function AirconSingleVsMultiDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="동일 총용량(예: 40평 기준) 대형 1대 단독 vs 중형 2대 분산 배치 평면 기류 비교"
+      caption="트인 직사각 홀은 대형 1대가 설치비·실외기 자리 면에서 유리하지만, ㄱ자 꺾임·칸막이 구조이거나 단상 220V 한계·성수기 무중단 영업이 중요할 때는 20평급 2대 대각선 분산 배치가 효율적입니다."
+    >
+      <svg
+        viewBox="0 0 760 296"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[600px] h-auto select-none"
+      >
+        <title id={titleId}>
+          대형 에어컨 1대 집중 배치 시 기류 사각지대와 중소형 2대 대각선 분산 배치 시 온도 균일화 비교 평면도
+        </title>
+
+        {/* 좌측: 대형 1대 단독 배치 */}
+        <rect x="16" y="14" width="356" height="268" rx="12" fill="#FFFFFF" stroke="#E2E6EC" strokeWidth="1.5" />
+        <rect x="30" y="26" width="186" height="24" rx="12" fill="#FEF2F2" stroke="#FECACA" />
+        <text x="123" y="42" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          CASE A. 대형 40평형 1대 단독
+        </text>
+
+        {/* ㄱ자 매장 평면도 (좌측) */}
+        <path
+          d="M38 64 L348 64 L348 134 L212 134 L212 198 L38 198 Z"
+          fill="#F8FAFC"
+          stroke="#475569"
+          strokeWidth="1.8"
+        />
+        {/* 실내기 1대 위치 */}
+        <rect x="44" y="72" width="24" height="54" rx="4" fill="#141A23" />
+        <text x="56" y="102" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FFFFFF">
+          40평
+        </text>
+
+        {/* 직풍 영역 (과냉) */}
+        <path d="M70 80 L195 72 L195 128 L70 116 Z" fill="#DBEAFE" opacity="0.75" />
+        <text x="132" y="96" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
+          앞자리 직풍 과냉 (19도)
+        </text>
+        <text x="132" y="112" textAnchor="middle" fontSize="8.5" fill="#1E40AF">
+          바람 도달 한계 약 8~10m
+        </text>
+
+        {/* 우측 & 하단 꺾인 구역 (사각지대) */}
+        <rect x="218" y="70" width="122" height="58" rx="4" fill="#FEE2E2" opacity="0.85" />
+        <text x="279" y="96" textAnchor="middle" fontSize="9" fontWeight="700" fill="#B91C1C">
+          안쪽 홀 · 주방 열기
+        </text>
+        <text x="279" y="112" textAnchor="middle" fontSize="8.5" fill="#DC2626">
+          냉기 미도달 (27~28도)
+        </text>
+
+        <rect x="76" y="142" width="128" height="48" rx="4" fill="#FFEDD5" opacity="0.85" />
+        <text x="140" y="164" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C2410C">
+          ㄱ자 모퉁이 · 룸 사각지대
+        </text>
+        <text x="140" y="180" textAnchor="middle" fontSize="8.5" fill="#9A3412">
+          서큘레이터 보조 없으면 더움
+        </text>
+
+        {/* 장단점 요약 */}
+        <text x="34" y="222" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          장점: 배관 타공 1회 · 실외기 1대 · 초기 설치비 절감
+        </text>
+        <text x="34" y="242" fontSize="9.5" fontWeight="700" fill="#DC2626">
+          약점: 40평급+ 단상40A/삼상380V 제약 및 1대 고장 시 전체 마비
+        </text>
+        <text x="34" y="264" fontSize="9" fill="#475569">
+          적합 공간: 30평 이하 장애물 없는 정사각·오픈 직사각 홀
+        </text>
+
+        {/* 우측: 중소형 2대 분산 배치 */}
+        <rect x="388" y="14" width="356" height="268" rx="12" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <rect x="402" y="26" width="210" height="24" rx="12" fill="#ECFDF5" stroke="#A7F3D0" />
+        <text x="507" y="42" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          CASE B. 중·소형 2대 (예: 23평+18평) 분산
+        </text>
+
+        {/* ㄱ자 매장 평면도 (우측) */}
+        <path
+          d="M410 64 L720 64 L720 134 L584 134 L584 198 L410 198 Z"
+          fill="#ECFDF5"
+          opacity="0.45"
+        />
+        <path
+          d="M410 64 L720 64 L720 134 L584 134 L584 198 L410 198 Z"
+          fill="none"
+          stroke="#0F766E"
+          strokeWidth="1.8"
+        />
+
+        {/* 실내기 1번 (주 홀 좌측) */}
+        <rect x="416" y="72" width="22" height="48" rx="4" fill="#0F766E" />
+        <text x="427" y="99" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FFFFFF">
+          1호
+        </text>
+        <path d="M442 82 L560 76 L560 120 L442 110 Z" fill="#A7F3D0" opacity="0.65" />
+
+        {/* 실내기 2번 (안쪽/코너 대각선) */}
+        <rect x="692" y="72" width="22" height="48" rx="4" fill="#1D4ED8" />
+        <text x="703" y="99" textAnchor="middle" fontSize="8" fontWeight="700" fill="#FFFFFF">
+          2호
+        </text>
+        <path d="M688 86 L552 130 L562 188 L452 188 L452 146 Z" fill="#BFDBFE" opacity="0.6" />
+
+        <text x="536" y="102" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#065F46">
+          홀 전체 균일 온도 (23~24도)
+        </text>
+        <text x="506" y="168" textAnchor="middle" fontSize="9" fontWeight="700" fill="#1D4ED8">
+          2호기 독립 운전·오전 1대 절전 가능
+        </text>
+
+        {/* 장단점 요약 */}
+        <text x="406" y="222" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          장점: 단상 220V 분배 가능 · 사각지대 해소 · 1대 고장 시 영업 유지
+        </text>
+        <text x="406" y="242" fontSize="9.5" fontWeight="700" fill="#C2410C">
+          부담: 배관·타공 설치비 2회 발생 + 실외기 2대 거치 자리 필요
+        </text>
+        <text x="406" y="264" fontSize="9" fill="#475569">
+          적합 공간: 35평+ 매장, ㄱ자·칸막이·홀+안쪽룸, 휴무 없는 음식점·카페
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  31. 업소용 인덕션·튀김기 일반 콘센트 vs 전용 직결 배선 (31번 글)       */
+/* ------------------------------------------------------------------ */
+function InductionWiringBreakerDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="일반 16A 벽 콘센트 허용 한계와 3kW+ 가열기기 전용 직결 차단기 비교"
+      caption="국내 일반 220V 콘센트는 정격 16A(약 3.5kW)가 한계입니다. 업소용 인덕션·전기튀김기(3.5~6kW)는 4.0~6.0SQ 전선으로 20~40A 단독 차단기에 직결해야 전선 과열을 막습니다."
+    >
+      <svg
+        viewBox="0 0 760 278"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[560px] h-auto select-none"
+      >
+        <title id={titleId}>
+          일반 16A 벽 콘센트 및 멀티탭 과부하 발열 위험과 4.0SQ 단독 누전차단기 직결 구조 비교도
+        </title>
+
+        {/* 좌측: 위험 케이스 */}
+        <rect x="16" y="14" width="356" height="250" rx="12" fill="#FEF2F2" stroke="#FCA5A5" strokeWidth="1.5" />
+        <text x="32" y="38" fontSize="12" fontWeight="700" fill="#B91C1C">
+          위험 사례: 일반 16A 콘센트 · 멀티탭 겸용 연결
+        </text>
+
+        <rect x="34" y="64" width="90" height="58" rx="6" fill="#FFFFFF" stroke="#DC2626" strokeWidth="1.8" />
+        <text x="79" y="88" textAnchor="middle" fontSize="10" fontWeight="700" fill="#141A23">
+          벽 콘센트 16A
+        </text>
+        <text x="79" y="106" textAnchor="middle" fontSize="9.5" fill="#DC2626">
+          정격 최대 3.5kW
+        </text>
+
+        <line x1="124" y1="93" x2="178" y2="93" stroke="#DC2626" strokeWidth="3.5" strokeDasharray="4 3" />
+        <text x="151" y="83" textAnchor="middle" fontSize="9" fontWeight="700" fill="#B91C1C">
+          25A+ 과열
+        </text>
+
+        <rect x="178" y="54" width="174" height="78" rx="8" fill="#FFFFFF" stroke="#EF4444" strokeWidth="1.5" />
+        <text x="265" y="76" textAnchor="middle" fontSize="10" fontWeight="700" fill="#141A23">
+          3.5kW 인덕션 + 2.5kW 온수기
+        </text>
+        <text x="265" y="95" textAnchor="middle" fontSize="9.5" fill="#DC2626">
+          합계 6.0kW (약 27.3A 연속 통전)
+        </text>
+        <text x="265" y="114" textAnchor="middle" fontSize="9" fill="#475569">
+          플러그 접촉부 탄화 · 피복 열변형
+        </text>
+
+        <rect x="34" y="150" width="318" height="96" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="48" y="172" fontSize="10.5" fontWeight="700" fill="#B91C1C">
+          현장에서 가장 자주 터지는 3가지 사고
+        </text>
+        <text x="48" y="193" fontSize="9.5" fill="#334155">
+          1) 벽 콘센트 내부 구리 단자가 녹아 플러그가 안 빠짐
+        </text>
+        <text x="48" y="211" fontSize="9.5" fill="#334155">
+          2) 장사 피크 시간마다 주방 전체 차단기 셔터 다운
+        </text>
+        <text x="48" y="229" fontSize="9.5" fill="#334155">
+          3) 멀티탭 내부 배선(1.5SQ) 과열로 주방 화재 위험
+        </text>
+
+        {/* 우측: 안전 직결 케이스 */}
+        <rect x="388" y="14" width="356" height="250" rx="12" fill="#ECFDF5" stroke="#6EE7B7" strokeWidth="1.5" />
+        <text x="404" y="38" fontSize="12" fontWeight="700" fill="#047857">
+          정석 시공: 분전반 단독 누전차단기 직결
+        </text>
+
+        <rect x="406" y="62" width="96" height="62" rx="6" fill="#0F766E" />
+        <text x="454" y="87" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
+          전용 차단기
+        </text>
+        <text x="454" y="106" textAnchor="middle" fontSize="9.5" fill="#D1FAE5">
+          20~40A 단독 ELCB
+        </text>
+
+        <line x1="502" y1="93" x2="572" y2="93" stroke="#0F766E" strokeWidth="4.5" />
+        <text x="537" y="83" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#047857">
+          4.0~6.0SQ
+        </text>
+
+        <rect x="572" y="54" width="154" height="78" rx="8" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.8" />
+        <text x="649" y="76" textAnchor="middle" fontSize="10" fontWeight="700" fill="#141A23">
+          단자대 직결 결선
+        </text>
+        <text x="649" y="95" textAnchor="middle" fontSize="9.5" fill="#047857">
+          인덕션 5kW · 튀김기 6kW
+        </text>
+        <text x="649" y="114" textAnchor="middle" fontSize="9" fill="#475569">
+          온수기 별도 회선 분리
+        </text>
+
+        <rect x="406" y="150" width="320" height="96" rx="8" fill="#FFFFFF" stroke="#A7F3D0" />
+        <text x="420" y="172" fontSize="10.5" fontWeight="700" fill="#065F46">
+          안전 시공 3대 기준 요약 (단상 220V 기준)
+        </text>
+        <text x="420" y="193" fontSize="9.5" fill="#334155">
+          • 3.5kW 인덕션 · 온수기: 4.0SQ + 20A 단독 차단기
+        </text>
+        <text x="420" y="211" fontSize="9.5" fill="#334155">
+          • 5~6kW 튀김기 · 머신: 4.0~6.0SQ + 30~40A 직결
+        </text>
+        <text x="420" y="229" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          • 구매 전 220V 단상 vs 380V 삼상 명판 대조 필수
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  32. 카페·주방 인테리어 전 급수·정수·드레인 구배 단면도 (32번 글)        */
+/* ------------------------------------------------------------------ */
+function CafePlumbingDrainCheckDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="카페 카운터 하부 직수 급수 · 정수필터 · 바닥 배수(구배) 정석 배치 단면"
+      caption="타일·상판 마감 전에 15mm 직수 밸브 위치와 바닥 50mm PVC 배수관 구배(1/50 내리막)를 잡아야 제빙기 역류와 커피머신 수압 부족을 막습니다."
+    >
+      <svg
+        viewBox="0 0 760 282"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[560px] h-auto select-none"
+      >
+        <title id={titleId}>
+          카페 바 카운터 하부 에스프레소 머신, 정수필터, 언더카운터 제빙기, 테이블냉장고 배수 구배 및 통풍 단면도
+        </title>
+
+        {/* 카운터 상판 & 벽 */}
+        <rect x="20" y="64" width="720" height="10" rx="2" fill="#334155" />
+        <text x="380" y="54" textAnchor="middle" fontSize="11" fontWeight="700" fill="#141A23">
+          카페 바 카운터 상판 (높이 850~900mm) · 하부 설비 배치 단면
+        </text>
+
+        {/* 1. 정수필터 & 15mm 직수 */}
+        <rect x="30" y="92" width="124" height="114" rx="8" fill="#EFF6FF" stroke="#3B82F6" strokeWidth="1.5" />
+        <text x="92" y="114" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#1D4ED8">
+          ① 직수·정수필터
+        </text>
+        <rect x="48" y="128" width="28" height="58" rx="4" fill="#DBEAFE" stroke="#1D4ED8" />
+        <rect x="86" y="128" width="28" height="58" rx="4" fill="#DBEAFE" stroke="#1D4ED8" />
+        <text x="92" y="199" textAnchor="middle" fontSize="8.5" fill="#1E40AF">
+          밸브 2분배 · 전면 접근 위치
+        </text>
+
+        {/* 2. 에스프레소 머신 드레인 */}
+        <rect x="172" y="24" width="146" height="40" rx="6" fill="#141A23" />
+        <text x="245" y="49" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
+          에스프레소 머신 (상판 위)
+        </text>
+        <path d="M245 74 L245 216" stroke="#E8521A" strokeWidth="4" />
+        <rect x="176" y="92" width="142" height="114" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="247" y="114" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          ② 고온 보일러 배수
+        </text>
+        <text x="247" y="138" textAnchor="middle" fontSize="9" fill="#334155">
+          내열 호스로 바닥 직결
+        </text>
+        <text x="247" y="156" textAnchor="middle" fontSize="9" fontWeight="700" fill="#DC2626">
+          제빙기 드레인과 직결 금지!
+        </text>
+        <text x="247" y="176" textAnchor="middle" fontSize="8.5" fill="#475569">
+          (열기·증기 역류 시 얼음 녹음)
+        </text>
+
+        {/* 3. 언더카운터 제빙기 */}
+        <rect x="336" y="88" width="196" height="122" rx="8" fill="#ECFDF5" stroke="#10B981" strokeWidth="1.8" />
+        <text x="434" y="110" textAnchor="middle" fontSize="11" fontWeight="700" fill="#047857">
+          ③ 언더카운터 제빙기
+        </text>
+        <text x="434" y="132" textAnchor="middle" fontSize="9.5" fill="#334155">
+          전면 타공 루버 (열기 배출 필수)
+        </text>
+        <text x="434" y="150" textAnchor="middle" fontSize="9.5" fill="#334155">
+          자연배수 호스 꺾임·U자 처짐 금지
+        </text>
+        <rect x="352" y="166" width="164" height="32" rx="4" fill="#FFFFFF" stroke="#6EE7B7" />
+        <text x="434" y="186" textAnchor="middle" fontSize="9" fontWeight="700" fill="#0F766E">
+          다릿발 수평 + 뒷벽 15cm 여유
+        </text>
+
+        {/* 4. 테이블 냉장고 */}
+        <rect x="550" y="88" width="186" height="122" rx="8" fill="#F1F5F9" stroke="#94A3B8" strokeWidth="1.5" />
+        <text x="643" y="110" textAnchor="middle" fontSize="11" fontWeight="700" fill="#141A23">
+          ④ 테이블·토핑 냉장고
+        </text>
+        <text x="643" y="134" textAnchor="middle" fontSize="9.5" fill="#334155">
+          별도 배수 없음 (제상수 증발)
+        </text>
+        <text x="643" y="154" textAnchor="middle" fontSize="9.5" fill="#334155">
+          벽 뒷면 20A 단독 콘센트 확보
+        </text>
+        <text x="643" y="182" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C2410C">
+          카운터 깊이 750~800mm 여유 확인
+        </text>
+
+        {/* 바닥 50mm PVC 배수 구배 */}
+        <line x1="20" y1="222" x2="740" y2="222" stroke="#475569" strokeWidth="2" />
+        <path d="M160 226 L680 250 L680 264 L160 240 Z" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.8" />
+        <text x="420" y="246" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1E40AF">
+          바닥 매립 50mm PVC 메인 배수관: 내리막 구배 1/50 ~ 1/100 유지 → 메인 유트랩 배출
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  33. 업소용 냉장고 수리비 vs 검수 중고 교체 손익분기 (33번 글)            */
+/* ------------------------------------------------------------------ */
+function CommercialFridgeRepairRoiDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 45박스 냉장고 고장 비용 구간별 수리 vs 중고 교체 판단 지표"
+      caption="팬 모터·센서·가스켓 등 18만원 이하 소모품 수리는 고쳐 쓰는 편이 이득이지만, 7~8년 이상 노후 기기의 40만원대 콤프레샤·누설 중수리는 보증 포함 중고 교체가 유리한 경우가 많습니다."
+    >
+      <svg
+        viewBox="0 0 760 268"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[560px] h-auto select-none"
+      >
+        <title id={titleId}>
+          업소용 냉장고 수리 비용 구간별 계속 수리 권장과 검수 중고 교체 손익분기 비교 차트
+        </title>
+
+        {/* 1. 소모품 수리 구간 */}
+        <rect x="16" y="18" width="232" height="232" rx="12" fill="#ECFDF5" stroke="#6EE7B7" strokeWidth="1.5" />
+        <text x="32" y="44" fontSize="12" fontWeight="700" fill="#047857">
+          1. 소모품 · 단순 수리 (수리 이득)
+        </text>
+        <rect x="32" y="60" width="200" height="28" rx="6" fill="#0F766E" />
+        <text x="132" y="79" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#FFFFFF">
+          예상 비용: 5 ~ 18만원 선
+        </text>
+        <text x="32" y="114" fontSize="10" fontWeight="700" fill="#141A23">
+          해당 증상 예시:
+        </text>
+        <text x="32" y="134" fontSize="9.5" fill="#334155">
+          • 기계실 응축기 먼지 세척 · 팬 교체
+        </text>
+        <text x="32" y="152" fontSize="9.5" fill="#334155">
+          • 디지털 온도조절기 · 제상 센서 고장
+        </text>
+        <text x="32" y="170" fontSize="9.5" fill="#334155">
+          • 문짝 고무 가스켓 찢어짐 · 힌지 교정
+        </text>
+        <rect x="32" y="192" width="200" height="42" rx="6" fill="#FFFFFF" stroke="#A7F3D0" />
+        <text x="132" y="217" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#047857">
+          결론: 즉시 수리 후 계속 사용 권장
+        </text>
+
+        {/* 2. 중수리 경계선 */}
+        <rect x="264" y="18" width="232" height="232" rx="12" fill="#FFF7ED" stroke="#FDBA74" strokeWidth="1.5" />
+        <text x="280" y="44" fontSize="12" fontWeight="700" fill="#C2410C">
+          2. 콤프레샤 · 매립 누설 (손익분기)
+        </text>
+        <rect x="280" y="60" width="200" height="28" rx="6" fill="#E8521A" />
+        <text x="380" y="79" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#FFFFFF">
+          예상 비용: 35 ~ 55만원+
+        </text>
+        <text x="280" y="114" fontSize="10" fontWeight="700" fill="#141A23">
+          반드시 따져볼 3가지 조건:
+        </text>
+        <text x="280" y="134" fontSize="9.5" fill="#334155">
+          • 제조 연식이 7~10년을 넘었는가?
+        </text>
+        <text x="280" y="152" fontSize="9.5" fill="#334155">
+          • 도어 틀 녹·외관 프레임 결로가 있는가?
+        </text>
+        <text x="280" y="170" fontSize="9.5" fill="#334155">
+          • 발포층 내부 냉매 미세 누설인가?
+        </text>
+        <rect x="280" y="192" width="200" height="42" rx="6" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="380" y="217" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#C2410C">
+          2개 이상 해당 시 연쇄 고장 위험 큼
+        </text>
+
+        {/* 3. 검수 중고 맞교체 */}
+        <rect x="512" y="18" width="232" height="232" rx="12" fill="#EFF6FF" stroke="#93C5FD" strokeWidth="1.5" />
+        <text x="528" y="44" fontSize="12" fontWeight="700" fill="#1D4ED8">
+          3. 검수 중고 맞교체 (안전 대안)
+        </text>
+        <rect x="528" y="60" width="200" height="28" rx="6" fill="#1D4ED8" />
+        <text x="628" y="79" textAnchor="middle" fontSize="10.5" fontWeight="700" fill="#FFFFFF">
+          기존 기기 철거 상계 + 보증 출고
+        </text>
+        <text x="528" y="114" fontSize="10" fontWeight="700" fill="#141A23">
+          맞교체 전환 시 장점:
+        </text>
+        <text x="528" y="134" fontSize="9.5" fill="#334155">
+          • 부품 대기 없이 당일~익일 영업 재개
+        </text>
+        <text x="528" y="152" fontSize="9.5" fill="#334155">
+          • 고온기 냉각·제상 히터 전수 검증 완료
+        </text>
+        <text x="528" y="170" fontSize="9.5" fill="#334155">
+          • 폐기 비용 대신 철거·매입으로 비용 절감
+        </text>
+        <rect x="528" y="192" width="200" height="42" rx="6" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="628" y="217" textAnchor="middle" fontSize="9.5" fontWeight="700" fill="#1D4ED8">
+          {`${STORE.name}: ${STORE_MERCHANT_POLICY.warrantyMajor}`}
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  34. 에어컨 이전설치 비용 급증 4대 현장 변수 (34번 글)                    */
+/* ------------------------------------------------------------------ */
+function AirconRelocationCostFactorsDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="에어컨 이전설치 시 기본설치비 외 견적을 키우는 4가지 현장 변수"
+      caption="중고나 보유 에어컨을 옮길 때는 기본설치(5m 배관) 외에 배관 추가 길이, 외벽 앵글·위험수당, 콘크리트 타공, 아파트 매립배관 질소세척 여부가 총비용을 좌우합니다."
+    >
+      <svg
+        viewBox="0 0 760 270"
+        role="img"
+        aria-labelledby={titleId}
+        className="w-full min-w-[560px] h-auto select-none"
+      >
+        <title id={titleId}>
+          에어컨 이전설치 시 추가 비용이 커지는 4가지 현장 변수 (배관 연장, 앵글 및 위험수당, 코어 타공, 매립배관 질소세척) 도해
+        </title>
+
+        {/* 상단 기준선 */}
+        <rect x="16" y="14" width="728" height="44" rx="10" fill="#141A23" />
+        <text x="380" y="41" textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#FFFFFF">
+          총 이전설치비 = 기본설치비(철거·운반·기본 5m) + 아래 4대 현장 변수 추가분
+        </text>
+
+        {/* 변수 1 */}
+        <rect x="16" y="72" width="174" height="182" rx="10" fill="#FFF7ED" stroke="#FDBA74" />
+        <circle cx="42" cy="98" r="11" fill="#E8521A" />
+        <text x="42" y="102" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
+          1
+        </text>
+        <text x="60" y="102" fontSize="11" fontWeight="700" fill="#C2410C">
+          배관 5m 초과 연장
+        </text>
+        <text x="28" y="130" fontSize="9.5" fill="#334155">
+          • 벽 모서리 따라 길면 m당 추가
+        </text>
+        <text x="28" y="148" fontSize="9.5" fill="#334155">
+          • 2in1·천장형은 2회선 발생
+        </text>
+        <text x="28" y="166" fontSize="9.5" fill="#334155">
+          • 기존 알루미늄관 폐기 후 동관
+        </text>
+        <rect x="26" y="196" width="154" height="44" rx="6" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="103" y="216" textAnchor="middle" fontSize="9" fontWeight="700" fill="#C2410C">
+          줄자로 벽 따라 실측 길이 체크
+        </text>
+        <text x="103" y="231" textAnchor="middle" fontSize="8.5" fill="#475569">
+          (장배관 시 냉매 정량 보충)
+        </text>
+
+        {/* 변수 2 */}
+        <rect x="200" y="72" width="174" height="182" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
+        <circle cx="226" cy="98" r="11" fill="#DC2626" />
+        <text x="226" y="102" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
+          2
+        </text>
+        <text x="244" y="102" fontSize="11" fontWeight="700" fill="#B91C1C">
+          외벽 앵글 · 고소작업
+        </text>
+        <text x="212" y="130" fontSize="9.5" fill="#334155">
+          • 바닥 공간 없어 난간 앵글 설치
+        </text>
+        <text x="212" y="148" fontSize="9.5" fill="#334155">
+          • 2층+ 외벽 작업 시 위험수당
+        </text>
+        <text x="212" y="166" fontSize="9.5" fill="#334155">
+          • 옥상·외벽 높을 때 스카이차 호출
+        </text>
+        <rect x="210" y="196" width="154" height="44" rx="6" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="287" y="216" textAnchor="middle" fontSize="9" fontWeight="700" fill="#B91C1C">
+          기존 앵글 활용 가능 여부 확인
+        </text>
+        <text x="287" y="231" textAnchor="middle" fontSize="8.5" fill="#475569">
+          (실외기실 내부 거치 시 절감)
+        </text>
+
+        {/* 변수 3 */}
+        <rect x="384" y="72" width="174" height="182" rx="10" fill="#ECFDF5" stroke="#6EE7B7" />
+        <circle cx="410" cy="98" r="11" fill="#0F766E" />
+        <text x="410" y="102" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
+          3
+        </text>
+        <text x="428" y="102" fontSize="11" fontWeight="700" fill="#047857">
+          벽 타공 · 전용 전기
+        </text>
+        <text x="396" y="130" fontSize="9.5" fill="#334155">
+          • 일반 조적 vs 두꺼운 콘크리트
+        </text>
+        <text x="396" y="148" fontSize="9.5" fill="#334155">
+          • 유리샷시 가공·코어 타공 비용
+        </text>
+        <text x="396" y="166" fontSize="9.5" fill="#334155">
+          • 25평+ 단독 차단기 배선 연장
+        </text>
+        <rect x="394" y="196" width="154" height="44" rx="6" fill="#FFFFFF" stroke="#A7F3D0" />
+        <text x="471" y="216" textAnchor="middle" fontSize="9" fontWeight="700" fill="#047857">
+          기존 타공 구멍 재활용 여부 체크
+        </text>
+        <text x="471" y="231" textAnchor="middle" fontSize="8.5" fill="#475569">
+          (관리실 타공 허가 미리 확인)
+        </text>
+
+        {/* 변수 4 */}
+        <rect x="568" y="72" width="176" height="182" rx="10" fill="#EFF6FF" stroke="#93C5FD" />
+        <circle cx="594" cy="98" r="11" fill="#1D4ED8" />
+        <text x="594" y="102" textAnchor="middle" fontSize="10" fontWeight="700" fill="#FFFFFF">
+          4
+        </text>
+        <text x="612" y="102" fontSize="11" fontWeight="700" fill="#1D4ED8">
+          매립배관 질소 세척
+        </text>
+        <text x="580" y="130" fontSize="9.5" fill="#334155">
+          • 아파트 매립관 오일·이물 세척
+        </text>
+        <text x="580" y="148" fontSize="9.5" fill="#334155">
+          • 질소 기밀 40kgf/cm² 검사
+        </text>
+        <text x="580" y="166" fontSize="9.5" fill="#334155">
+          • 동배관 확장 용접·커넥터 작업
+        </text>
+        <rect x="578" y="196" width="156" height="44" rx="6" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="656" y="216" textAnchor="middle" fontSize="9" fontWeight="700" fill="#1D4ED8">
+          구형 R-22 매립관 호환 여부 필수
+        </text>
+        <text x="656" y="231" textAnchor="middle" fontSize="8.5" fill="#475569">
+          (미세 누설 시 노출배관 우회)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
     case "aircon-repair-timeline":
@@ -3000,5 +3221,15 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <ApplianceResaleValueDiagram />;
     case "energy-grade-revision-curve":
       return <EnergyGradeRevisionDiagram />;
+    case "aircon-single-vs-multi":
+      return <AirconSingleVsMultiDiagram />;
+    case "induction-wiring-breaker":
+      return <InductionWiringBreakerDiagram />;
+    case "cafe-plumbing-drain-check":
+      return <CafePlumbingDrainCheckDiagram />;
+    case "commercial-fridge-repair-roi":
+      return <CommercialFridgeRepairRoiDiagram />;
+    case "aircon-relocation-cost-factors":
+      return <AirconRelocationCostFactorsDiagram />;
   }
 }

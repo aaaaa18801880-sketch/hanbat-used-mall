@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { STORE } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
@@ -13,6 +14,8 @@ type GuideToolKind =
 const SLUG_TO_TOOL: Record<string, GuideToolKind> = {
   // 1. 에어컨 냉방 평형 & 전압/전선 판정기
   "aircon-pyeong-sizing-cafe-restaurant": "aircon-sizing",
+  "aircon-single-large-vs-multi-split": "aircon-sizing",
+  "aircon-relocation-cost-variables": "aircon-sizing",
   "aircon-how-it-works-and-parts": "aircon-sizing",
   "why-ceiling-aircon-install-costs-more": "aircon-sizing",
   "why-no-outdoor-unit-on-walkway-defrost": "aircon-sizing",
@@ -21,6 +24,7 @@ const SLUG_TO_TOOL: Record<string, GuideToolKind> = {
   "voltage-220v-vs-380v": "power-contract",
   "startup-closure-docs-and-power": "power-contract",
   "electricity-bill-capacity-and-kepco": "power-contract",
+  "commercial-induction-plug-vs-breaker": "power-contract",
   // 3. 출입문 통로·사다리차 진입 판정기
   "ladder-truck-and-clearance": "clearance-entry",
   "why-never-lay-fridge-flat-moving": "clearance-entry",
@@ -28,6 +32,49 @@ const SLUG_TO_TOOL: Record<string, GuideToolKind> = {
   "energy-efficiency-rating-myth-and-kwh": "energy-payback",
   "inverter-aircon-24h-on-vs-off-electricity": "energy-payback",
 };
+
+function ToolActionCtas({
+  galleryHref,
+  galleryLabel,
+  inquiryType = "buy",
+  inquiryCategory,
+  inquiryTitle,
+  envNote,
+}: {
+  galleryHref: string;
+  galleryLabel: string;
+  inquiryType?: "buy" | "bulk";
+  inquiryCategory: string;
+  inquiryTitle: string;
+  envNote: string;
+}) {
+  const inquiryHref = `/inquiry?${new URLSearchParams({
+    write: "1",
+    type: inquiryType,
+    category: inquiryCategory,
+    title: inquiryTitle,
+    envNote,
+  }).toString()}`;
+
+  return (
+    <div className="pt-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <Link
+        href={galleryHref}
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-[#141A23] px-3 py-2 text-hb-xs font-bold text-white hover:bg-[#1E293B] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8521A]"
+      >
+        <Icon d={ICON.bag} className="w-3.5 h-3.5 shrink-0" />
+        <span>{galleryLabel}</span>
+      </Link>
+      <Link
+        href={inquiryHref}
+        className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-[#E8521A] bg-[#FFF4EE] px-3 py-2 text-hb-xs font-bold text-[#C84312] hover:bg-[#FFE8DC] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8521A]"
+      >
+        <Icon d={ICON.chat} className="w-3.5 h-3.5 shrink-0" />
+        <span>이 조건으로 상담 예약</span>
+      </Link>
+    </div>
+  );
+}
 
 export function hasGuideInteractiveTool(slug: string): boolean {
   return slug in SLUG_TO_TOOL;
@@ -102,10 +149,16 @@ const ENVELOPE_FACTORS = [
   { id: "glass", label: "통창·서향 · 층고 3.5m 이상", factor: 1.2 },
 ] as const;
 
+const LAYOUT_SHAPES = [
+  { id: "open", label: "장애물 없는 트인 직사각 홀" },
+  { id: "split", label: "ㄱ자 · 칸막이 · 10m+ 긴 매장" },
+] as const;
+
 function AirconSizingTool() {
   const [pyeong, setPyeong] = useState<number>(20);
   const [spaceId, setSpaceId] = useState<(typeof SPACE_LOAD_TYPES)[number]["id"]>("cafe");
   const [envId, setEnvId] = useState<(typeof ENVELOPE_FACTORS)[number]["id"]>("normal");
+  const [layoutId, setLayoutId] = useState<(typeof LAYOUT_SHAPES)[number]["id"]>("open");
 
   const result = useMemo(() => {
     const space = SPACE_LOAD_TYPES.find((s) => s.id === spaceId) ?? SPACE_LOAD_TYPES[0];
@@ -124,30 +177,48 @@ function AirconSizingTool() {
       modelSpec = "15~18평형 인버터 벽걸이·스탠드";
       breaker = "단상 220V · 20A 단독 차단기";
       wireSpec = "2.5SQ 난연 전선";
+      splitAdvice =
+        layoutId === "split"
+          ? "전용 면적이 작더라도 벽으로 완전히 막힌 방이면 6평+10평 벽걸이 분리가 더 쾌적합니다."
+          : "단독 1대로 커버 가능하며 설치비 부담이 가장 적습니다.";
     } else if (requiredPyeong <= 25) {
       modelSpec = "23~25평형 인버터 스탠드 또는 3평급 4Way";
       breaker = "단상 220V · 20~30A 단독 차단기";
       wireSpec = "2.5SQ ~ 4SQ 권장";
+      splitAdvice =
+        layoutId === "split"
+          ? "홀과 안쪽 구역이 막혀 있다면 15~18평 스탠드 + 6~8평 벽걸이 보조 조합을 권장합니다."
+          : "장애물 없는 구조라면 23~25평형 1대 단독 설치가 가장 경제적입니다.";
     } else if (requiredPyeong <= 36) {
-      modelSpec = "30~36평형 대용량 스탠드 또는 4Way 1대";
-      breaker = "단상 220V · 30A 단독 배선";
-      wireSpec = "4SQ (직결 차단기 권장)";
-      splitAdvice = "L자 구조·칸막이 매장은 18평+15평 2대 분산이 냉기 도달에 유리합니다.";
+      modelSpec =
+        layoutId === "split"
+          ? "18평형 + 15~18평형 2대 분산 (또는 36평 1대)"
+          : "30~36평형 대용량 스탠드 또는 4Way 1대";
+      breaker = "단상 220V · 30A 단독 배선 (2대 분산 시 20A x 2회선)";
+      wireSpec = "4SQ 단독 (2대 분산 시 2.5SQ x 2회선)";
+      splitAdvice =
+        layoutId === "split"
+          ? "ㄱ자·칸막이 매장은 36평 1대보다 18평+15평 2대 분산이 사각지대 해소와 고장 대비에 유리합니다."
+          : "트인 직사각 홀이라면 30~36평형 1대 설치가 배관·설치비와 실외기 자리 면에서 유리합니다.";
     } else if (requiredPyeong <= 45) {
-      modelSpec = "40평형 스탠드 또는 23평형 2대 분산";
-      breaker = "단상 220V 40A 또는 삼상 380V 4P 20A";
-      wireSpec = "단상 6SQ / 삼상 2.5SQ 이상";
-      phaseBadge = "40평 경계(전압 확인 필수)";
+      modelSpec = "23평형 + 18~20평형 2대 분산 또는 40평형 1대";
+      breaker = "2대 분산 시 단상 20A x 2 / 40평 1대 시 단상 40A·삼상 380V";
+      wireSpec = "분산 시 2.5SQ x 2 / 대형 1대 시 6SQ 또는 삼상";
+      phaseBadge = "40평 경계(전압·분산 비교)";
       isThreePhase = true;
-      splitAdvice = "단상 40평 1대보다 23평형 2대 분산 시 전기 부하와 A/S 리스크가 줄어듭니다.";
+      splitAdvice =
+        layoutId === "split"
+          ? "40평 1대는 안쪽 코너까지 바람이 못 꺾입니다. 23평+18평 2대 분산으로 단상 한계와 사각지대를 동시에 피하세요."
+          : "단상 40평 1대보다 23평형 2대 분산 시 삼상 승압 회피와 성수기 1대 고장 대비에 유리합니다.";
     } else {
       const units = Math.max(2, Math.ceil(requiredPyeong / 36));
-      modelSpec = `40평형급 ${units}대 또는 삼상 중대형 냉난방기`;
-      breaker = "삼상 380V 4P 30A~40A 분전반";
+      modelSpec = `40평형급 ${units}대 또는 25~30평형 다대수 분산`;
+      breaker = "삼상 380V 4P 30A~40A 또는 단상 30A 다회선";
       wireSpec = "4SQ ~ 6SQ 4선식";
-      phaseBadge = "삼상 380V 적극 권장";
+      phaseBadge = "삼상 380V · 다대수 권장";
       isThreePhase = true;
-      splitAdvice = "부하가 커서 삼상 380V 인입 여부와 계약전력 증설을 먼저 확인해야 합니다.";
+      splitAdvice =
+        "부하가 커서 1대로는 기류 편차가 심합니다. 2대 이상 대각선 분산 배치와 삼상/계약전력 여유를 함께 확인해야 합니다.";
     }
 
     return {
@@ -160,20 +231,21 @@ function AirconSizingTool() {
       isThreePhase,
       splitAdvice,
     };
-  }, [pyeong, spaceId, envId]);
+  }, [pyeong, spaceId, envId, layoutId]);
 
   const meterPercent = Math.min(100, Math.round((result.requiredPyeong / 75) * 100));
 
   return (
     <ToolCard
       badge="실무 판정 도구"
-      title="매장 발열량 기준 에어컨 권장 평형 · 전선/전압 계산기"
-      subtitle="실측 면적과 업종 열원·창호 조건을 선택하면 필요한 냉방 평형과 차단기/전선 굵기를 계산합니다."
+      title="매장 발열량 기준 에어컨 권장 평형 · 1대 vs 여러 대 판정기"
+      subtitle="실측 면적과 열원·구조를 선택하면 적정 평형, 단상/삼상 전압, 1대 단독 vs 2대 분산 권장안을 계산합니다."
       iconPath={ICON.snowflake}
       onReset={() => {
         setPyeong(20);
         setSpaceId("cafe");
         setEnvId("normal");
+        setLayoutId("open");
       }}
     >
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
@@ -269,6 +341,30 @@ function AirconSizingTool() {
               );
             })}
           </div>
+
+          {/* 공간 동선 · 배치 형태 */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {LAYOUT_SHAPES.map((item) => {
+              const active = layoutId === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setLayoutId(item.id)}
+                  className={`rounded-xl border px-3 py-2.5 text-left transition-colors ${
+                    active
+                      ? "border-[#0F766E] bg-[#ECFDF5] text-[#065F46]"
+                      : "border-[#E2E6EC] bg-white text-[#475569] hover:border-[#94A3B8]"
+                  }`}
+                >
+                  <p className="text-hb-xs font-bold">{item.label}</p>
+                  <p className={`text-hb-xs ${active ? "text-[#0F766E]" : "text-[#64748B]"}`}>
+                    {item.id === "open" ? "1대 단독 배치 기준" : "다대수 분산 검토 기준"}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* 산출 결과 패널 */}
@@ -332,6 +428,14 @@ function AirconSizingTool() {
             <p className="font-bold text-[#141A23]">현장 배치 가이드</p>
             <p className="mt-1">{result.splitAdvice}</p>
           </div>
+          <ToolActionCtas
+            galleryHref="/gallery?category=에어컨/냉난방기"
+            galleryLabel="에어컨·냉난방기 매물 보기"
+            inquiryType="buy"
+            inquiryCategory="에어컨/냉난방기"
+            inquiryTitle={`[계산기] ${pyeong}평 매장 -> 권장 ${result.requiredPyeong}평급 냉난방기 문의`}
+            envNote={`실측 ${pyeong}평 / 권장 냉방용량 ${result.requiredPyeong}평형(약 ${result.estCoolingKw}kW) / 추천: ${result.modelSpec} / 전기: ${result.breaker}`}
+          />
         </div>
       </div>
     </ToolCard>
@@ -518,6 +622,14 @@ function PowerContractTool() {
             <p className="font-bold">현장 전기 점검 포인트</p>
             <p className="mt-1">{summary.phaseNotice}</p>
           </div>
+          <ToolActionCtas
+            galleryHref="/gallery?category=업소용기기"
+            galleryLabel="업소용 설비 실매물 보기"
+            inquiryType="bulk"
+            inquiryCategory="업소용기기"
+            inquiryTitle={`[전력 계산기] 예상 피크 ${summary.peakKw}kW (${summary.activeCount}개 설비) 상담`}
+            envNote={`선택 설비 ${summary.activeCount}개 합계 ${summary.totalInstalledKw}kW / 동시사용률 ${simultaneousPct}% 피크 ${summary.peakKw}kW / 권장 ${summary.tier}`}
+          />
         </div>
       </div>
     </ToolCard>
@@ -725,6 +837,32 @@ function ClearanceEntryTool() {
               </p>
             )}
           </div>
+          {(() => {
+            const galleryCat =
+              presetId === "box45"
+                ? "업소용기기"
+                : presetId === "washer24"
+                  ? "세탁기/건조기"
+                  : presetId === "aircon-stand"
+                    ? "에어컨/냉난방기"
+                    : "냉장고";
+            const floorText =
+              floorType === "ground"
+                ? "1층 지상"
+                : floorType === "elevator"
+                  ? "엘리베이터 이동"
+                  : "2층 이상 계단";
+            return (
+              <ToolActionCtas
+                galleryHref={`/gallery?category=${encodeURIComponent(galleryCat)}`}
+                galleryLabel={`${galleryCat} 매물 보기`}
+                inquiryType="buy"
+                inquiryCategory={galleryCat}
+                inquiryTitle={`[반입 계산기] ${selected.label} · 문폭 ${doorWidthMm}mm (${judgment.statusLabel})`}
+                envNote={`품목: ${selected.label} / 최소 문폭 ${doorWidthMm}mm / ${floorText} / 판정: ${judgment.statusLabel}`}
+              />
+            );
+          })()}
         </div>
       </div>
     </ToolCard>
@@ -927,6 +1065,14 @@ function EnergyPaybackTool() {
               {STORE.name}에서는 연식·소비전력 kWh 대비 가격 효율이 높은 모델 위주로 맞춤 추천해 드립니다.
             </p>
           </div>
+          <ToolActionCtas
+            galleryHref="/gallery"
+            galleryLabel="전 품목 연식·효율 매물 보기"
+            inquiryType="buy"
+            inquiryCategory="기타"
+            inquiryTitle={`[ROI 계산기] 구매차액 ${(calc.priceDiffWon / 10000).toLocaleString()}만원 · ${calc.headline}`}
+            envNote={`모델 A(${priceHighMan}만원, 월 ${kwhHigh}kWh) vs 모델 B(${priceAltMan}만원, 월 ${kwhAlt}kWh) / 단가 ${wonPerKwh}원 / 결과: ${calc.headline}`}
+          />
         </div>
       </div>
     </ToolCard>
