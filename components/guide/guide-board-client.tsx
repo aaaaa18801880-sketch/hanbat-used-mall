@@ -12,12 +12,20 @@ import {
   type InfoGuidePriorityRole,
   type PrioritizedInfoGuideArticle,
 } from "../../lib/info-guides";
+import {
+  computeGuidePopularityScore,
+  computeTopGuideRanks,
+  type GuideStat,
+  type GuideStatsMap,
+  type GuideTopRank,
+} from "../../lib/guide-stats";
 import { STORE, telHref, trackEvent } from "../../lib/site";
 import { ICON, Icon } from "../../lib/ui";
 import { hasGuideInteractiveTool } from "../../lib/guides/tool-slugs";
 
 type PriorityViewTab = "prioritized" | "tier1" | "tier2";
 type PriorityRoleFilter = "전체" | InfoGuidePriorityRole;
+type GuideSortMode = "priority" | "popular";
 
 const TIER1_INITIAL_VISIBLE = 8;
 const TIER1_LOAD_STEP = 14;
@@ -129,24 +137,32 @@ function GuideAssetBadges({
 
 function GuideCompactCard({
   article,
+  stat,
+  topRank,
   deferRender = false,
   isTopPriority = false,
 }: {
   article: PrioritizedInfoGuideArticle;
+  stat?: GuideStat;
+  topRank?: GuideTopRank;
   deferRender?: boolean;
   isTopPriority?: boolean;
 }) {
   const roleBadgeClass = ROLE_BADGE_CLASS_MAP[article.priorityRole];
   const categoryBadgeClass = CATEGORY_BADGE_CLASS_MAP[article.category];
+  const views = stat?.views ?? 0;
+  const helpfulCount = stat?.helpfulCount ?? 0;
 
   return (
     <li className={deferRender ? "hb-guide-deferred-card" : undefined}>
       <Link
         href={`/guide/${article.slug}`}
         className={`group flex h-full flex-col justify-between rounded-xl border bg-white p-4 transition-all hover:-translate-y-0.5 hover:border-[#E8521A]/60 hover:shadow-sm ${
-          isTopPriority
-            ? "border-[#FED7AA] bg-linear-to-b from-[#FFFDF9] to-white"
-            : "border-[#E2E6EC]"
+          topRank === 1
+            ? "border-[#E8521A]/50 bg-linear-to-b from-[#FFF9F4] to-white"
+            : isTopPriority || topRank
+              ? "border-[#FED7AA] bg-linear-to-b from-[#FFFDF9] to-white"
+              : "border-[#E2E6EC]"
         }`}
       >
         <div>
@@ -155,6 +171,18 @@ function GuideCompactCard({
               <span className="font-mono text-hb-xs font-semibold tabular-nums text-[#64748B]">
                 #{String(article.number).padStart(2, "0")}
               </span>
+              {topRank && (
+                <span
+                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-extrabold ${
+                    topRank === 1
+                      ? "bg-[#E8521A] text-white"
+                      : "border border-[#FDBA74] bg-[#FFF3EC] text-[#C2410C]"
+                  }`}
+                >
+                  <Icon d={ICON.trendingUp} className="h-3 w-3" />
+                  인기 TOP {topRank}
+                </span>
+              )}
               <span
                 className={`inline-flex items-center rounded-md border px-2 py-0.5 text-hb-xs font-bold ${roleBadgeClass}`}
               >
@@ -179,8 +207,30 @@ function GuideCompactCard({
           </p>
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-[#F1F5F9] pt-2.5">
-          <GuideAssetBadges article={article} />
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#F1F5F9] pt-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <GuideAssetBadges article={article} />
+            <div className="flex items-center gap-2 text-hb-xs tabular-nums text-[#64748B]">
+              <span className="inline-flex items-center gap-1" title="조회수">
+                <Icon d={ICON.eye} className="h-3.5 w-3.5 text-[#94A3B8]" />
+                {views.toLocaleString("ko-KR")}
+              </span>
+              <span
+                className={`inline-flex items-center gap-1 ${
+                  helpfulCount > 0 ? "font-semibold text-[#C2410C]" : ""
+                }`}
+                title="도움됐어요"
+              >
+                <Icon
+                  d={ICON.thumbUp}
+                  className={`h-3.5 w-3.5 ${
+                    helpfulCount > 0 ? "text-[#E8521A]" : "text-[#94A3B8]"
+                  }`}
+                />
+                {helpfulCount.toLocaleString("ko-KR")}
+              </span>
+            </div>
+          </div>
           <span className="ml-auto inline-flex items-center gap-1 text-hb-xs font-semibold text-[#64748B] group-hover:text-[#E8521A] transition-colors">
             읽기
             <Icon
@@ -196,10 +246,14 @@ function GuideCompactCard({
 
 export function GuideBoardClient({
   articles,
+  initialStats = {},
 }: {
   articles: readonly PrioritizedInfoGuideArticle[];
+  initialStats?: GuideStatsMap;
 }) {
   const searchParams = useSearchParams();
+  const [liveStats, setLiveStats] = useState<GuideStatsMap>(initialStats);
+  const [sortMode, setSortMode] = useState<GuideSortMode>("priority");
   const [activeView, setActiveView] = useState<PriorityViewTab>(() =>
     parseInitialView(searchParams.get("view")),
   );
@@ -230,6 +284,36 @@ export function GuideBoardClient({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const refreshStats = async () => {
+      try {
+        const res = await fetch("/api/guides/engagement", {
+          cache: "no-store",
+        });
+        if (!res.ok || !mounted) return;
+        const data = (await res.json()) as { stats?: GuideStatsMap };
+        if (data.stats && mounted) {
+          setLiveStats(data.stats);
+        }
+      } catch {
+        // 통계 새로고침 실패 시 서버 초기값 유지
+      }
+    };
+
+    void refreshStats();
+    window.addEventListener("focus", refreshStats);
+    return () => {
+      mounted = false;
+      window.removeEventListener("focus", refreshStats);
+    };
+  }, []);
+
+  const topRankMap = useMemo(
+    () => computeTopGuideRanks(liveStats, 3),
+    [liveStats],
+  );
 
   const prioritizedArticles = useMemo(
     () => sortGuidesByPriority(articles),
@@ -294,8 +378,32 @@ export function GuideBoardClient({
     selectedCategory !== "전체" ||
     selectedRole !== "전체";
 
+  const topGuideEntries = useMemo(() => {
+    const bySlug = new Map(prioritizedArticles.map((a) => [a.slug, a]));
+    return (Object.entries(topRankMap) as [string, GuideTopRank][])
+      .sort((a, b) => a[1] - b[1])
+      .map(([slug, rank]) => {
+        const article = bySlug.get(slug);
+        if (!article) return null;
+        return {
+          rank,
+          article,
+          stat: liveStats[slug] ?? { slug, views: 0, helpfulCount: 0 },
+        };
+      })
+      .filter(
+        (
+          entry,
+        ): entry is {
+          rank: GuideTopRank;
+          article: PrioritizedInfoGuideArticle;
+          stat: GuideStat;
+        } => entry !== null,
+      );
+  }, [prioritizedArticles, topRankMap, liveStats]);
+
   const filteredMatches = useMemo(() => {
-    return prioritizedArticles.filter((article) => {
+    const matches = prioritizedArticles.filter((article) => {
       if (
         selectedCategory !== "전체" &&
         article.category !== selectedCategory
@@ -309,7 +417,38 @@ export function GuideBoardClient({
       const haystack = `${article.title} ${article.summary} ${article.category} ${article.priorityRole} ${article.keywords.join(" ")}`.toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [prioritizedArticles, selectedCategory, selectedRole, normalizedQuery]);
+
+    if (sortMode === "priority") {
+      return matches;
+    }
+
+    return [...matches].sort((a, b) => {
+      const statA = liveStats[a.slug];
+      const statB = liveStats[b.slug];
+      const scoreA = statA
+        ? computeGuidePopularityScore(statA.views, statA.helpfulCount)
+        : 0;
+      const scoreB = statB
+        ? computeGuidePopularityScore(statB.views, statB.helpfulCount)
+        : 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      const helpfulDiff = (statB?.helpfulCount ?? 0) - (statA?.helpfulCount ?? 0);
+      if (helpfulDiff !== 0) return helpfulDiff;
+      const viewsDiff = (statB?.views ?? 0) - (statA?.views ?? 0);
+      if (viewsDiff !== 0) return viewsDiff;
+      if (a.priorityTier !== b.priorityTier) {
+        return a.priorityTier - b.priorityTier;
+      }
+      return a.priorityRank - b.priorityRank;
+    });
+  }, [
+    prioritizedArticles,
+    selectedCategory,
+    selectedRole,
+    normalizedQuery,
+    sortMode,
+    liveStats,
+  ]);
 
   const filteredTier1 = useMemo(
     () => filteredMatches.filter((a) => a.priorityTier === 1),
@@ -430,6 +569,7 @@ export function GuideBoardClient({
 
   const resetAllFilters = () => {
     setActiveView("prioritized");
+    setSortMode("priority");
     setSelectedRole("전체");
     setSelectedCategory("전체");
     setSearchQuery("");
@@ -535,7 +675,7 @@ export function GuideBoardClient({
                   </button>
                 );
               })}
-              {activeView === "prioritized" && (
+              {activeView === "prioritized" && sortMode === "priority" && (
                 <button
                   type="button"
                   onClick={() => setIsTier2ManualOpen((prev) => !prev)}
@@ -550,34 +690,68 @@ export function GuideBoardClient({
               )}
             </div>
 
-            {/* 실시간 검색창 */}
-            <div className="flex items-center gap-2 lg:w-80">
-              <label htmlFor="guide-search" className="sr-only">
-                가전 정보 검색
-              </label>
-              <div className="relative flex-1">
-                <Icon
-                  d={ICON.search}
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]"
-                />
-                <input
-                  id="guide-search"
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  placeholder="제목·증상 검색 (예: 매입, 평수, 220V)"
-                  className="hb-input pl-9 pr-9 py-2 text-hb-sm"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => handleSearchChange("")}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#141A23]"
-                    aria-label="검색어 지우기"
-                  >
-                    <Icon d={ICON.close} className="h-3.5 w-3.5" />
-                  </button>
-                )}
+            {/* 정렬 전환 + 실시간 검색창 */}
+            <div className="flex flex-wrap items-center gap-2 lg:flex-nowrap">
+              <div
+                role="group"
+                aria-label="가이드 정렬 방식"
+                className="inline-flex rounded-lg border border-[#E2E6EC] bg-[#F8FAFC] p-0.5 shrink-0"
+              >
+                <button
+                  type="button"
+                  aria-pressed={sortMode === "priority"}
+                  onClick={() => setSortMode("priority")}
+                  className={`rounded-md px-2.5 py-1 text-hb-xs font-bold transition-colors ${
+                    sortMode === "priority"
+                      ? "bg-white text-[#141A23] shadow-2xs"
+                      : "text-[#64748B] hover:text-[#141A23]"
+                  }`}
+                >
+                  추천 우선순
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={sortMode === "popular"}
+                  onClick={() => setSortMode("popular")}
+                  className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-hb-xs font-bold transition-colors ${
+                    sortMode === "popular"
+                      ? "bg-[#FFF3EC] text-[#C2410C] shadow-2xs"
+                      : "text-[#64748B] hover:text-[#141A23]"
+                  }`}
+                >
+                  <Icon d={ICON.trendingUp} className="h-3.5 w-3.5" />
+                  인기순
+                </button>
+              </div>
+
+              <div className="flex flex-1 items-center gap-2 lg:w-72">
+                <label htmlFor="guide-search" className="sr-only">
+                  가전 정보 검색
+                </label>
+                <div className="relative flex-1">
+                  <Icon
+                    d={ICON.search}
+                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]"
+                  />
+                  <input
+                    id="guide-search"
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => handleSearchChange(e.target.value)}
+                    placeholder="제목·증상 검색 (예: 매입, 평수, 220V)"
+                    className="hb-input pl-9 pr-9 py-2 text-hb-sm"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => handleSearchChange("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded p-1 text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#141A23]"
+                      aria-label="검색어 지우기"
+                    >
+                      <Icon d={ICON.close} className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -613,7 +787,9 @@ export function GuideBoardClient({
           </div>
 
           {/* 활성 필터 요약 바 */}
-          {(hasNarrowingFilter || activeView !== "prioritized") && (
+          {(hasNarrowingFilter ||
+            activeView !== "prioritized" ||
+            sortMode !== "priority") && (
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F8FAFC] px-3.5 py-2 text-hb-xs text-[#475569]">
               <span>
                 현재 조건{" "}
@@ -621,6 +797,7 @@ export function GuideBoardClient({
                   {activeTotalDisplayed}편
                 </strong>{" "}
                 표시 중
+                {sortMode === "popular" && " · 조회수·도움됐어요 합산 인기순"}
                 {normalizedQuery && (
                   <>
                     {" "}
@@ -666,8 +843,129 @@ export function GuideBoardClient({
               전체 우선순위 보기
             </button>
           </div>
+        ) : sortMode === "popular" ? (
+          <section
+            aria-labelledby="popular-board-heading"
+            className="rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 shadow-2xs"
+          >
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-2 border-b border-[#F1F5F9] pb-3.5">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[#E8521A] px-2.5 py-0.5 text-hb-xs font-bold text-white">
+                    <Icon d={ICON.trendingUp} className="h-3.5 w-3.5" />
+                    실시간 인기순
+                  </span>
+                  <h2
+                    id="popular-board-heading"
+                    className="text-hb-base sm:text-hb-lg font-extrabold text-[#141A23]"
+                  >
+                    방문자가 많이 보고 도움된 글 순서
+                  </h2>
+                </div>
+                <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#475569]">
+                  조회수와 도움됐어요 클릭이 반영된 인기순으로 전체 글을 보여드립니다.
+                </p>
+              </div>
+              <span className="rounded-full bg-[#F1F5F9] px-3 py-1 text-hb-xs font-bold tabular-nums text-[#334155]">
+                총{" "}
+                {activeView === "tier1"
+                  ? filteredTier1.length
+                  : activeView === "tier2"
+                    ? filteredTier2.length
+                    : filteredMatches.length}
+                편
+              </span>
+            </div>
+
+            <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              {(activeView === "tier1"
+                ? filteredTier1
+                : activeView === "tier2"
+                  ? filteredTier2
+                  : filteredMatches
+              ).map((article, idx) => (
+                <GuideCompactCard
+                  key={article.slug}
+                  article={article}
+                  stat={liveStats[article.slug]}
+                  topRank={topRankMap[article.slug]}
+                  deferRender={idx >= TIER1_INITIAL_VISIBLE}
+                  isTopPriority={Boolean(topRankMap[article.slug])}
+                />
+              ))}
+            </ul>
+          </section>
         ) : (
           <>
+            {/* 실시간 인기 TOP 3 컴팩트 스트립 */}
+            {topGuideEntries.length > 0 &&
+              activeView === "prioritized" &&
+              !hasNarrowingFilter && (
+                <section
+                  aria-labelledby="guide-top3-heading"
+                  className="rounded-2xl border border-[#FDBA74]/70 bg-linear-to-r from-[#FFF8F3] via-white to-[#FFF8F3] p-4 shadow-2xs"
+                >
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                    <h2
+                      id="guide-top3-heading"
+                      className="flex items-center gap-1.5 text-hb-sm sm:text-hb-base font-extrabold text-[#141A23]"
+                    >
+                      <Icon
+                        d={ICON.trendingUp}
+                        className="h-4 w-4 text-[#E8521A]"
+                      />
+                      <span>지금 가장 많이 보는 인기 TOP {topGuideEntries.length}</span>
+                    </h2>
+                    <button
+                      type="button"
+                      onClick={() => setSortMode("popular")}
+                      className="text-hb-xs font-bold text-[#C2410C] hover:underline"
+                    >
+                      인기순 전체 보기
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
+                    {topGuideEntries.map(({ rank, article, stat }) => (
+                      <Link
+                        key={article.slug}
+                        href={`/guide/${article.slug}`}
+                        className="group flex flex-col justify-between rounded-xl border border-[#FED7AA] bg-white p-3 transition-all hover:border-[#E8521A] hover:shadow-2xs"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between gap-2">
+                            <span
+                              className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-extrabold ${
+                                rank === 1
+                                  ? "bg-[#E8521A] text-white"
+                                  : "bg-[#FFF3EC] text-[#C2410C]"
+                              }`}
+                            >
+                              인기 TOP {rank}
+                            </span>
+                            <span className="font-mono text-hb-xs text-[#64748B] tabular-nums">
+                              #{String(article.number).padStart(2, "0")}
+                            </span>
+                          </div>
+                          <p className="mt-2 line-clamp-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors">
+                            {article.title}
+                          </p>
+                        </div>
+                        <div className="mt-2 flex items-center gap-3 text-hb-xs tabular-nums text-[#64748B]">
+                          <span className="inline-flex items-center gap-1">
+                            <Icon d={ICON.eye} className="h-3.5 w-3.5 text-[#94A3B8]" />
+                            {stat.views.toLocaleString("ko-KR")}
+                          </span>
+                          <span className="inline-flex items-center gap-1 font-semibold text-[#C2410C]">
+                            <Icon d={ICON.thumbUp} className="h-3.5 w-3.5 text-[#E8521A]" />
+                            {stat.helpfulCount.toLocaleString("ko-KR")}
+                          </span>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+
             {/* 제1순위 섹션: 매입·판매·설치계약 핵심 */}
             {activeView !== "tier2" && filteredTier1.length > 0 && (
               <section
@@ -704,6 +1002,8 @@ export function GuideBoardClient({
                     <GuideCompactCard
                       key={article.slug}
                       article={article}
+                      stat={liveStats[article.slug]}
+                      topRank={topRankMap[article.slug]}
                       deferRender={idx >= TIER1_INITIAL_VISIBLE}
                       isTopPriority={idx < 4 && !hasNarrowingFilter}
                     />
@@ -785,6 +1085,8 @@ export function GuideBoardClient({
                       <GuideCompactCard
                         key={article.slug}
                         article={article}
+                        stat={liveStats[article.slug]}
+                        topRank={topRankMap[article.slug]}
                         deferRender={idx >= TIER1_INITIAL_VISIBLE}
                       />
                     ))}
@@ -828,6 +1130,8 @@ export function GuideBoardClient({
                         <GuideCompactCard
                           key={article.slug}
                           article={article}
+                          stat={liveStats[article.slug]}
+                          topRank={topRankMap[article.slug]}
                           deferRender
                         />
                       ))}

@@ -34,6 +34,14 @@ import {
 } from "../../../components/products/product-card";
 import { GuideSectionDiagram } from "../../../components/guide/guide-diagrams";
 import { GuideInteractiveTool } from "../../../components/guide/guide-interactive-tools";
+import {
+  GuideEngagementHeaderMeta,
+  GuideEngagementPanel,
+} from "../../../components/guide/guide-engagement-panel";
+import {
+  computeTopGuideRanks,
+  fetchGuideStatsMap,
+} from "../../../lib/guide-stats";
 
 export const revalidate = 1800; // 30분 ISR로 실시간 추천 매물 최신 유지
 
@@ -161,10 +169,17 @@ export default async function GuideDetailPage({
   const relatedArticles = getRelatedInfoGuides(article, 3);
   const recommendedCategories = getRecommendedProductCategories(article);
   const bridge = getGuideCommerceBridge(article);
-  const recommendedProducts = await fetchGuideRecommendedProducts(
-    recommendedCategories,
-    4
-  );
+  const [recommendedProducts, statsMap] = await Promise.all([
+    fetchGuideRecommendedProducts(recommendedCategories, 4),
+    fetchGuideStatsMap(),
+  ]);
+  const guideStat = statsMap[article.slug] ?? {
+    slug: article.slug,
+    views: 0,
+    helpfulCount: 0,
+  };
+  const topRanks = computeTopGuideRanks(statsMap, 3);
+  const articleTopRank = topRanks[article.slug];
   const canonicalUrl = `${STORE.url}/guide/${article.slug}`;
   const articleImageUrl = article.heroImage
     ? `${STORE.url}${article.heroImage.src}`
@@ -272,6 +287,12 @@ export default async function GuideDetailPage({
                 <time dateTime={article.updatedAt} className="tabular-nums">
                   {article.updatedAt}
                 </time>
+                <span aria-hidden="true">·</span>
+                <GuideEngagementHeaderMeta
+                  slug={article.slug}
+                  initialStat={guideStat}
+                  topRank={articleTopRank}
+                />
               </div>
 
               <h1 className="hb-fluid-h1 text-[#141A23]">{article.title}</h1>
@@ -559,6 +580,9 @@ export default async function GuideDetailPage({
                 </div>
               </section>
             )}
+
+            {/* 조회수 및 도움됐어요 피드백 */}
+            <GuideEngagementPanel slug={article.slug} initialStat={guideStat} />
 
             {/* 하단 맞춤 행동 유도 */}
             <div className="pt-6 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-3">

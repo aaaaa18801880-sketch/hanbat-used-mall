@@ -16,6 +16,9 @@ import {
   ICON,
 } from "../../lib/ui";
 import { GuideBoardClient } from "../../components/guide/guide-board-client";
+import { fetchGuideStatsMap } from "../../lib/guide-stats";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "가전 · 전기 · 설치 정보 게시판",
@@ -80,7 +83,8 @@ function GuideBoardStaticFallback() {
   );
 }
 
-export default function GuideBoardPage() {
+export default async function GuideBoardPage() {
+  const initialStats = await fetchGuideStatsMap();
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -179,7 +183,10 @@ export default function GuideBoardPage() {
         {/* 게시판 본문 */}
         <div className="hb-container pt-6 sm:pt-8">
           <Suspense fallback={<GuideBoardStaticFallback />}>
-            <GuideBoardClient articles={INFO_GUIDE_ARTICLES} />
+            <GuideBoardClient
+              articles={INFO_GUIDE_ARTICLES}
+              initialStats={initialStats}
+            />
           </Suspense>
         </div>
       </main>

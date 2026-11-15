@@ -29,6 +29,10 @@ import {
   SLUG_TO_GUIDE_TOOL,
   hasGuideInteractiveTool,
 } from "../lib/guides/tool-slugs";
+import {
+  computeGuidePopularityScore,
+  computeTopGuideRanks,
+} from "../lib/guide-stats";
 
 describe("lib/site 도메인 파서·검증·SSOT 테스트", () => {
   it("STORE 상수 및 보증 정책 SSOT 정합성을 유지한다", () => {
@@ -219,5 +223,30 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
 
     assert.equal(sorted[0]?.slug, "appliance-buyback-no-deduction-guide");
     assert.equal(sorted[1]?.slug, "why-used-over-new-and-store-over-p2p");
+  });
+
+  it("가이드 조회수 및 도움됐어요 가중치와 인기 TOP 3 산출이 정확하다", () => {
+    assert.equal(computeGuidePopularityScore(10, 2), 20);
+    assert.equal(computeGuidePopularityScore(-3, -1), 0);
+
+    const zeroRanks = computeTopGuideRanks({
+      a: { slug: "a", views: 0, helpfulCount: 0 },
+      b: { slug: "b", views: 0, helpfulCount: 0 },
+    });
+    assert.deepEqual(zeroRanks, {});
+
+    const ranks = computeTopGuideRanks({
+      "alpha-guide": { slug: "alpha-guide", views: 5, helpfulCount: 1 }, // score 10
+      "beta-guide": { slug: "beta-guide", views: 20, helpfulCount: 0 }, // score 20
+      "gamma-guide": { slug: "gamma-guide", views: 3, helpfulCount: 4 }, // score 23 -> #1
+      "delta-guide": { slug: "delta-guide", views: 10, helpfulCount: 2 }, // score 20, helpful 2 > beta helpful 0 -> #2
+      "zero-guide": { slug: "zero-guide", views: 0, helpfulCount: 0 },
+    });
+
+    assert.equal(ranks["gamma-guide"], 1);
+    assert.equal(ranks["delta-guide"], 2);
+    assert.equal(ranks["beta-guide"], 3);
+    assert.equal(ranks["alpha-guide"], undefined);
+    assert.equal(ranks["zero-guide"], undefined);
   });
 });
