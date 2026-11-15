@@ -612,57 +612,102 @@ export default function Home({
 
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         {/* ════════════════════════════════════════════════════════════
-            [S1] 쇼룸 아키텍처 히어로 (좌: 핵심 메시지 & 듀얼 액션 독 + 3대 지표 / 우: 직영 쇼룸 & 실시간 입고 매물 프리뷰)
+            [S1] 쇼룸 아키텍처 히어로 (좌: 핵심 메시지 & 듀얼 액션 독 + 스펙 캡슐 / 우: 직영 쇼룸 외관 & 현장 정보)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="hero-section"
           aria-labelledby="hero-title"
           className="relative w-full border-b border-[#E2E6EC] hb-ambient-hero"
         >
-          <div className="hb-container py-8 sm:py-11 lg:py-12">
+          <div className="hb-container py-8 sm:py-10 lg:py-12">
             <div className="grid items-center gap-8 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 정돈된 3버튼 액션 독 */}
+              {/* 좌측 (7열): 브리핑 아이브로우 배지 + H1 + 3대 출고 스펙 + 액션 독 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
-                  <p className="hb-eyebrow tracking-tight">
-                    SINCE {STORE.since} ({OPERATING_YEARS}년 운영) · {STORE.jibunAddress} 직영 매장
-                  </p>
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FED7AA] bg-[#FFF4EE] px-3 py-1 text-hb-xs font-bold text-[#C84312]">
+                      <span
+                        className="h-1.5 w-1.5 rounded-full bg-[#E8521A]"
+                        aria-hidden="true"
+                      />
+                      <span>
+                        SINCE {STORE.since} · {OPERATING_YEARS}년 운영 직영점
+                      </span>
+                    </span>
+                    <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#475569]">
+                      {STORE.jibunAddress} 1·2층 대형 매장
+                    </span>
+                  </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-3 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
+                    className="mt-3.5 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
                   >
                     분해 고압세척과 시운전을 마친
                     <br />
                     <span className="text-[#E8521A]">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
-                  <p className="mt-4 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep [text-wrap:pretty]">
+                  <p className="mt-3.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.7] text-[#475569] break-keep [text-wrap:pretty]">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후{" "}
                     <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
-                  {/* 핵심 행동 버튼 (시각적 소음 없는 2대 CTA + 직통 전화 바) */}
-                  <div className="mt-6 space-y-3 max-w-2xl">
+                  {/* 핵심 3대 출고·보증 스펙 캡슐 바 */}
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white/90 px-2.5 py-1.5 text-hb-xs font-semibold text-[#141A23] shadow-2xs">
+                      <Icon
+                        d={ICON.shieldCheck}
+                        className="w-3.5 h-3.5 shrink-0 text-[#E8521A]"
+                      />
+                      <span>에어컨 최대 8개월 · 주요가전 4개월 무상 A/S</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white/90 px-2.5 py-1.5 text-hb-xs font-semibold text-[#141A23] shadow-2xs">
+                      <Icon
+                        d={ICON.pin}
+                        className="w-3.5 h-3.5 shrink-0 text-[#0D9488]"
+                      />
+                      <span>대전·세종·충청 직영 기사 직접 배송·설치</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white/90 px-2.5 py-1.5 text-hb-xs font-semibold text-[#141A23] shadow-2xs">
+                      <Icon
+                        d={ICON.check}
+                        className="w-3.5 h-3.5 shrink-0 text-[#0284C7]"
+                      />
+                      <span>세금계산서 · 카드 · 현금영수증 100% 발행</span>
+                    </span>
+                  </div>
+
+                  {/* 핵심 행동 버튼 (입체 2대 CTA + 직통 전화/카카오톡 빠른 상담 분할 도크) */}
+                  <div className="mt-6 space-y-2.5 max-w-2xl">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Link
                         href="/gallery"
-                        className="hb-btn-primary rounded-xl px-5 py-4 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover"
+                        className="group hb-btn-primary rounded-xl px-5 py-4 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover"
                       >
                         <div className="min-w-0">
-                          <span className="block text-hb-xs font-semibold text-white/75">
-                            세척·검수 완료 · 무상 A/S
+                          <span className="inline-flex items-center gap-1.5 text-hb-xs font-semibold text-white/80">
+                            <span
+                              className="h-2 w-2 rounded-full bg-[#34D399]"
+                              aria-hidden="true"
+                            />
+                            <span>세척·검수 완료 · 무상 A/S</span>
                           </span>
-                          <strong className="mt-1 flex items-baseline gap-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+                          <strong className="mt-1.5 flex flex-wrap items-center gap-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
                             <span>실매물 확인</span>
                             {sellingCount > 0 && (
-                              <span className="text-hb-sm font-bold text-[#FF8A50] tabular-nums">
-                                {sellingCount}대
+                              <span className="rounded-full bg-white/15 px-2.5 py-0.5 text-hb-xs sm:text-hb-sm font-bold text-[#FF8A50] tabular-nums">
+                                {sellingCount}대 전시중
                               </span>
                             )}
                           </strong>
                         </div>
-                        <Icon d={ICON.arrow} className="w-5 h-5 shrink-0 text-[#FF8A50]" />
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FF8A50] group-hover:bg-[#E8521A] group-hover:text-white transition-colors">
+                          <Icon
+                            d={ICON.arrow}
+                            className="w-5 h-5 transition-transform duration-150 group-hover:translate-x-0.5"
+                          />
+                        </span>
                       </Link>
 
                       <button
@@ -673,52 +718,85 @@ export default function Home({
                           });
                           openInquiry("내 물건 팔기");
                         }}
-                        className="hb-btn-accent rounded-xl px-5 py-4 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
+                        className="group hb-btn-accent rounded-xl px-5 py-4 justify-between text-left hover:-translate-y-0.5 hover:shadow-card-hover cursor-pointer"
                       >
                         <div className="min-w-0">
                           <span className="block text-hb-xs font-semibold text-white/85">
                             방문 수거 · 당일 현금 정산
                           </span>
-                          <strong className="mt-1 block text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
-                            쓰던 가전 팔기
+                          <strong className="mt-1.5 flex flex-wrap items-center gap-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+                            <span>쓰던 가전 팔기</span>
+                            <span className="rounded-full bg-black/15 px-2.5 py-0.5 text-hb-xs font-bold text-white/95">
+                              사진 견적
+                            </span>
                           </strong>
                         </div>
-                        <Icon d={ICON.arrow} className="w-5 h-5 shrink-0 text-white" />
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white group-hover:bg-white group-hover:text-[#C84312] transition-colors">
+                          <Icon
+                            d={ICON.arrow}
+                            className="w-5 h-5 transition-transform duration-150 group-hover:translate-x-0.5"
+                          />
+                        </span>
                       </button>
                     </div>
 
-                    <a
-                      href={telHref(STORE.tel)}
-                      onClick={() =>
-                        trackEvent("click_tel_consult", {
-                          location: "hero_direct_phone_button",
-                        })
-                      }
-                      className="group flex w-full items-center justify-between gap-3 rounded-xl border border-[#CBD2DC] bg-white px-5 py-3.5 text-[#141A23] shadow-2xs hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] text-[#E8521A]">
-                          <Icon d={ICON.phone} className="w-5 h-5" />
-                        </span>
-                        <div className="min-w-0">
-                          <span className="block text-hb-xs font-semibold text-[#64748B]">
-                            전화 연결 · 재고 및 매입 상담
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                      <a
+                        href={telHref(STORE.tel)}
+                        onClick={() =>
+                          trackEvent("click_tel_consult", {
+                            location: "hero_direct_phone_button",
+                          })
+                        }
+                        className="group sm:col-span-8 flex items-center justify-between gap-3 rounded-xl border border-[#CBD2DC] bg-white px-4 py-3 text-[#141A23] shadow-2xs hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] text-[#E8521A]">
+                            <Icon d={ICON.phone} className="w-4 h-4" />
                           </span>
-                          <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23] tabular-nums tracking-tight">
-                            {STORE.tel}
-                          </strong>
+                          <div className="min-w-0">
+                            <span className="block text-hb-xs font-semibold text-[#64748B] truncate">
+                              전화 연결 · 재고 및 매입 상담
+                            </span>
+                            <strong className="block text-hb-base sm:text-hb-lg font-bold text-[#141A23] tabular-nums tracking-tight">
+                              {STORE.tel}
+                            </strong>
+                          </div>
                         </div>
-                      </div>
-                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-[#F1F3F6] px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] group-hover:bg-[#141A23] group-hover:text-white transition-colors">
-                        <span>전화걸기</span>
-                        <Icon d={ICON.right} className="w-3.5 h-3.5" />
-                      </span>
-                    </a>
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-[#F1F3F6] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] group-hover:bg-[#141A23] group-hover:text-white transition-colors">
+                          <span>전화걸기</span>
+                          <Icon d={ICON.right} className="w-3.5 h-3.5" />
+                        </span>
+                      </a>
+
+                      <a
+                        href={STORE.kakaoChat}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group sm:col-span-4 flex items-center justify-between gap-2 rounded-xl border border-[#E5CD00] bg-[#FEE500] hover:bg-[#F2D900] px-4 py-3 text-[#191600] font-bold shadow-2xs active:scale-[0.98] transition-[background-color,transform] duration-150"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Icon d={ICON.chat} className="w-4 h-4 shrink-0" />
+                          <div className="min-w-0">
+                            <span className="block text-hb-xs font-semibold text-[#191600]/75 leading-tight truncate">
+                              사진 첨부 문의
+                            </span>
+                            <strong className="block text-hb-sm font-extrabold leading-tight truncate">
+                              카톡 상담
+                            </strong>
+                          </div>
+                        </div>
+                        <Icon
+                          d={ICON.right}
+                          className="w-3.5 h-3.5 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
+                        />
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* 우측 (5열): 대형 쇼룸 사진 + 단일 주소/영업시간/길찾기 도크 */}
+              {/* 우측 (5열): 대형 쇼룸 사진 + 플로팅 상태/현장 스펙 칩 + 단일 주소/영업시간/길찾기 도크 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white hb-surface-card hover:translate-y-0">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
                   <SafeImg
@@ -728,17 +806,37 @@ export default function Home({
                     priority="high"
                     className="h-full w-full object-cover object-center"
                   />
+
+                  <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#141A23]/85 backdrop-blur-md border border-white/15 px-3 py-1.5 text-hb-xs font-bold text-white shadow-sm">
+                    <span
+                      className="h-2 w-2 rounded-full bg-[#10B981]"
+                      aria-hidden="true"
+                    />
+                    <span>1·2층 직영 쇼룸 · 실물 상시 전시</span>
+                  </div>
+
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#141A23]/90 via-[#141A23]/40 to-transparent p-3.5 pt-10 flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-md bg-white/15 backdrop-blur-sm border border-white/15 px-2.5 py-1 text-hb-xs font-semibold text-white">
+                      전용 주차 8대 (1톤 상차)
+                    </span>
+                    <span className="rounded-md bg-white/15 backdrop-blur-sm border border-white/15 px-2.5 py-1 text-hb-xs font-semibold text-white">
+                      현장 전원 시운전
+                    </span>
+                    <span className="rounded-md bg-white/15 backdrop-blur-sm border border-white/15 px-2.5 py-1 text-hb-xs font-semibold text-white">
+                      당일/지정일 배차
+                    </span>
+                  </div>
                 </div>
 
                 {/* 하단 단일 주소 + 영업시간 + 길찾기 도크 */}
-                <div className="border-t border-[#E2E6EC] px-4 py-4 sm:px-5 bg-[#F7F8FA] flex items-center justify-between gap-3">
+                <div className="border-t border-[#E2E6EC] px-4 py-3.5 sm:px-5 bg-white flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] truncate max-w-full">
                       <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-[#E8521A]" />
                       <span className="truncate">{STORE.roadAddress}</span>
                     </p>
                     <p className="mt-0.5 text-hb-xs text-[#64748B] truncate tabular-nums">
-                      1·2층 직영 매장 · {STORE.hours} · {STORE.parking}
+                      {STORE.hours} · {STORE.closed}
                     </p>
                   </div>
 
@@ -750,9 +848,9 @@ export default function Home({
                       });
                       setVisitModalOpen(true);
                     }}
-                    className="group shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] shadow-2xs hover:border-[#E8521A] hover:bg-[#E8521A] hover:text-white active:scale-[0.97] transition-[background-color,border-color,color,transform] duration-150 cursor-pointer"
+                    className="group shrink-0 inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-[#F7F8FA] px-3.5 py-2.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] shadow-2xs hover:border-[#E8521A] hover:bg-[#E8521A] hover:text-white active:scale-[0.97] transition-[background-color,border-color,color,transform] duration-150 cursor-pointer"
                   >
-                    <span>길찾기</span>
+                    <span>길찾기 · 매장안내</span>
                     <Icon
                       d={ICON.right}
                       className="w-3.5 h-3.5 text-[#E8521A] group-hover:text-white transition-[color,transform] duration-150 group-hover:translate-x-0.5"

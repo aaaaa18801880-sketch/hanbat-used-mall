@@ -49,7 +49,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   {
     key: "fridge",
     label: "냉장고·김치냉장",
-    subLabel: "양문형·4도어·일반",
+    subLabel: "양문·4도어·김치",
     icon: "fridge",
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
     filterCategory: "냉장고",
@@ -96,7 +96,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
   {
     key: "kitchen",
     label: "제빙기·주방설비",
-    subLabel: "제빙기·세척기·작업대",
+    subLabel: "제빙기·세척기·스텐",
     icon: "kitchen",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
     filterCategory: "업소용기기",
@@ -186,45 +186,75 @@ export function CategoryPictogramBar({
             )}
           </div>
 
-          <Link
-            href="/gallery"
-            className="group inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
-          >
-            <span>갤러리 전체보기</span>
-            <Icon
-              d={ICON.right}
-              className="w-3.5 h-3.5 text-[#E8521A] transition-transform duration-150 group-hover:translate-x-0.5"
-            />
-          </Link>
+          {embedded ? (
+            <div className="flex flex-wrap items-center gap-2 text-hb-xs font-semibold">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E6EC] bg-[#F7F8FA] px-2.5 py-1 text-[#334155]">
+                <span className="h-2 w-2 rounded-full bg-[#0284C7]" aria-hidden="true" />
+                <span>가정용 가전 4분류</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FED7AA] bg-[#FFF4EE] px-2.5 py-1 text-[#C84312]">
+                <span className="h-2 w-2 rounded-full bg-[#E8521A]" aria-hidden="true" />
+                <span>업소·창업 설비 3분류</span>
+              </span>
+            </div>
+          ) : (
+            <Link
+              href="/gallery"
+              className="group inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
+            >
+              <span>갤러리 전체보기</span>
+              <Icon
+                d={ICON.right}
+                className="w-3.5 h-3.5 text-[#E8521A] transition-transform duration-150 group-hover:translate-x-0.5"
+              />
+            </Link>
+          )}
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 (2색 중립 표면 위계) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2.5 sm:gap-3">
-          {SHOWROOM_CATEGORIES.map((item) => {
-            const isSelected = selectedKey === item.key;
-            const count = categoryCounts?.[item.key];
-            const isBiz = item.group === "biz";
+        {/* 전 품목 쇼룸 카탈로그 트레이 */}
+        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 sm:p-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2 sm:gap-2.5">
+            {SHOWROOM_CATEGORIES.map((item) => {
+              const isSelected = selectedKey === item.key;
+              const count = categoryCounts?.[item.key];
+              const isBiz = item.group === "biz";
+              const isCoolIcon =
+                item.key === "aircon" ||
+                item.key === "fridge" ||
+                item.key === "showcase";
+              const isCleanIcon =
+                item.key === "washer" || item.key === "kitchen";
 
-            return (
-              <button
-                key={item.key}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => handleCategoryClick(item)}
-                className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
-                  isSelected
-                    ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
-                    : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
-                }`}
-              >
-                  {/* 상단 행: 아이콘 + 간결한 대수 표기 */}
+              const iconBoxTone = isSelected
+                ? "bg-white/10 border-white/15"
+                : isCoolIcon
+                ? "bg-[#F0F9FF] border-[#BAE6FD] group-hover:bg-[#E0F2FE]"
+                : isCleanIcon
+                ? "bg-[#F0FDFA] border-[#99F6E4] group-hover:bg-[#CCFBF1]"
+                : "bg-[#FFF7ED] border-[#FED7AA] group-hover:bg-[#FFEDD5]";
+
+              const countBadgeTone = isSelected
+                ? "bg-white/15 text-[#FF8A50]"
+                : isBiz
+                ? "bg-[#FFF4EE] text-[#C84312] border border-[#FED7AA]"
+                : "bg-[#F1F3F6] text-[#334155]";
+
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  aria-pressed={isSelected}
+                  onClick={() => handleCategoryClick(item)}
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                    isSelected
+                      ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
+                      : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
+                  }`}
+                >
+                  {/* 상단 행: 틴트 아이콘 웰 + 캡슐형 대수 표기 */}
                   <div className="flex items-start justify-between gap-1.5 w-full">
                     <div
-                      className={`grid h-10 w-10 place-items-center rounded-xl border transition-colors duration-150 shrink-0 ${
-                        isSelected
-                          ? "bg-white/10 border-white/15"
-                          : "bg-[#F7F8FA] border-[#E2E6EC] group-hover:bg-[#F1F3F6]"
-                      }`}
+                      className={`grid h-10 w-10 place-items-center rounded-xl border transition-colors duration-150 shrink-0 ${iconBoxTone}`}
                     >
                       <ModernApplianceIcon
                         name={item.icon}
@@ -234,13 +264,7 @@ export function CategoryPictogramBar({
                     </div>
 
                     <span
-                      className={`hb-trim font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 pt-1 ${
-                        isSelected
-                          ? "text-[#FF8A50]"
-                          : isBiz
-                          ? "text-[#E8521A]"
-                          : "text-[#64748B]"
-                      }`}
+                      className={`hb-trim rounded-full px-2 py-0.5 font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 ${countBadgeTone}`}
                     >
                       {typeof count === "number"
                         ? `${count}건`
@@ -266,7 +290,7 @@ export function CategoryPictogramBar({
                         isSelected ? "text-white/75" : "text-[#64748B]"
                       }`}
                     >
-                      {isBiz ? `업소 · ${item.subLabel}` : item.subLabel}
+                      {item.subLabel}
                     </span>
                   </div>
 
@@ -280,6 +304,7 @@ export function CategoryPictogramBar({
                 </button>
               );
             })}
+          </div>
         </div>
       </div>
     </Wrapper>

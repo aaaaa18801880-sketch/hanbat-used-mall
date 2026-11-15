@@ -187,9 +187,12 @@ body {
   .hb-ambient-hero {
     background-color: #ffffff;
     background-image:
-      radial-gradient(at 12% 18% var(--in-oklch), rgba(232, 82, 26, 0.06) 0px, transparent 48%),
-      radial-gradient(at 88% 12% var(--in-oklab), rgba(13, 148, 136, 0.065) 0px, transparent 50%),
-      linear-gradient(180deg var(--in-oklab), #ffffff 0%, #f8fafc 100%);
+      radial-gradient(at 10% 15% var(--in-oklch), rgba(232, 82, 26, 0.09) 0px, transparent 46%),
+      radial-gradient(at 90% 10% var(--in-oklab), rgba(13, 148, 136, 0.08) 0px, transparent 48%),
+      linear-gradient(to right, rgba(226, 230, 236, 0.38) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(226, 230, 236, 0.38) 1px, transparent 1px),
+      linear-gradient(180deg var(--in-oklab), #ffffff 0%, #f7f9fc 100%);
+    background-size: 100% 100%, 100% 100%, 36px 36px, 36px 36px, 100% 100%;
   }
 
   .hb-dark-mesh {
