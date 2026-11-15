@@ -68,8 +68,7 @@ function GuideBoardStaticFallback() {
               className="block hover:text-[#E8521A]"
             >
               <span className="text-hb-xs font-bold text-[#64748B]">
-                [{article.priorityTier}순위 · {article.priorityRole} ·{" "}
-                {article.category}]
+                {article.category}
               </span>
               <h3 className="mt-1 text-hb-base font-bold text-[#141A23]">
                 {article.title}
@@ -157,8 +156,8 @@ export default async function GuideBoardPage() {
                 <h1 className="hb-fluid-h1 text-[#141A23]">
                   가전 · 전기 · 설치 정보 게시판
                 </h1>
-                <p className="max-w-[64ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
-                  매입·판매·계약에 바로 도움이 되는 핵심 글(1순위)을 맨 위에 먼저 배치하고, 사용 관리·고장 진단·안전 상식(2순위)은 필요할 때 펼쳐 볼 수 있도록 정리했습니다. 모든 글은 공공·표준·제조사 공식 자료와 현장 점검 경험을 교차 확인해 작성합니다.
+                <p className="max-w-[62ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
+                  중고가전 매입·구매 전 꼭 확인할 기준부터 에어컨 설치, 매장 전기 용량, 일상 관리와 고장 점검까지 현장에서 자주 묻는 내용을 정리했습니다.
                 </p>
               </div>
 
