@@ -84,11 +84,23 @@ export interface InfoGuideVerification {
   fieldNote: string;
 }
 
+export type InfoGuidePriorityTier = 1 | 2;
+
+export type InfoGuidePriorityRole =
+  | "매입·처분"
+  | "구매·선택"
+  | "설치·계약"
+  | "고장·점검"
+  | "안전·관리";
+
 export interface InfoGuideArticle {
   number: number;
   slug: string;
   category: InfoGuideCategory;
   isPinned?: boolean;
+  priorityTier?: InfoGuidePriorityTier;
+  priorityRole?: InfoGuidePriorityRole;
+  priorityRank?: number;
   title: string;
   summary: string;
   readMinutes: number;
@@ -99,4 +111,10 @@ export interface InfoGuideArticle {
   sections: InfoGuideSection[];
   ctas: InfoGuideCta[];
   verification?: InfoGuideVerification;
+}
+
+export interface PrioritizedInfoGuideArticle extends InfoGuideArticle {
+  priorityTier: InfoGuidePriorityTier;
+  priorityRole: InfoGuidePriorityRole;
+  priorityRank: number;
 }

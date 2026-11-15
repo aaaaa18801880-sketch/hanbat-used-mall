@@ -216,6 +216,11 @@ body {
     contain-intrinsic-size: auto 540px;
   }
 
+  .hb-guide-deferred-card {
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 132px;
+  }
+
   .hb-product-card {
     container-type: inline-size;
     box-shadow: var(--hb-shadow-card);

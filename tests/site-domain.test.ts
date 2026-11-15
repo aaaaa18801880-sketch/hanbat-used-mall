@@ -23,6 +23,7 @@ import {
   INFO_GUIDE_ARTICLES,
   getInfoGuideBySlug,
   getGuideCommerceBridge,
+  sortGuidesByPriority,
 } from "../lib/info-guides";
 import {
   SLUG_TO_GUIDE_TOOL,
@@ -163,5 +164,60 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
       assert.equal(hasGuideInteractiveTool(slug), true);
     }
     assert.equal(hasGuideInteractiveTool("non-existent-slug"), false);
+  });
+
+  it("전체 가이드가 1순위(매입·판매·계약)와 2순위(관리·고장·안전)로 누락 없이 분류·정렬된다", () => {
+    const tier1Roles = new Set(["매입·처분", "구매·선택", "설치·계약"]);
+    const tier2Roles = new Set(["고장·점검", "안전·관리"]);
+    const tier1Ranks = new Set<number>();
+
+    let tier1Count = 0;
+    let tier2Count = 0;
+
+    for (const article of INFO_GUIDE_ARTICLES) {
+      assert.ok(article.priorityTier === 1 || article.priorityTier === 2);
+      assert.ok(article.priorityRank > 0);
+      if (article.priorityTier === 1) {
+        tier1Count += 1;
+        assert.ok(
+          tier1Roles.has(article.priorityRole),
+          `1순위 역할 오류: ${article.slug} (${article.priorityRole})`,
+        );
+        assert.equal(
+          tier1Ranks.has(article.priorityRank),
+          false,
+          `1순위 rank 중복: ${article.priorityRank}`,
+        );
+        tier1Ranks.add(article.priorityRank);
+      } else {
+        tier2Count += 1;
+        assert.ok(
+          tier2Roles.has(article.priorityRole),
+          `2순위 역할 오류: ${article.slug} (${article.priorityRole})`,
+        );
+      }
+    }
+
+    assert.equal(tier1Count, 34);
+    assert.equal(tier2Count, 28);
+    assert.equal(tier1Count + tier2Count, INFO_GUIDE_ARTICLES.length);
+
+    const sorted = sortGuidesByPriority(INFO_GUIDE_ARTICLES);
+    assert.equal(sorted.length, INFO_GUIDE_ARTICLES.length);
+
+    let seenTier2 = false;
+    for (const article of sorted) {
+      if (article.priorityTier === 2) seenTier2 = true;
+      if (article.priorityTier === 1) {
+        assert.equal(
+          seenTier2,
+          false,
+          `2순위 뒤에 1순위 노출: ${article.slug}`,
+        );
+      }
+    }
+
+    assert.equal(sorted[0]?.slug, "appliance-buyback-no-deduction-guide");
+    assert.equal(sorted[1]?.slug, "why-used-over-new-and-store-over-p2p");
   });
 });

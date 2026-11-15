@@ -3,7 +3,10 @@ import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { STORE } from "../../lib/site";
-import { INFO_GUIDE_ARTICLES } from "../../lib/info-guides";
+import {
+  INFO_GUIDE_ARTICLES,
+  sortGuidesByPriority,
+} from "../../lib/info-guides";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
   SiteHeader,
@@ -48,17 +51,22 @@ export const metadata: Metadata = {
 };
 
 function GuideBoardStaticFallback() {
+  const prioritized = sortGuidesByPriority(INFO_GUIDE_ARTICLES);
   return (
-    <div className="overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs">
-      <ul className="divide-y divide-[#E2E6EC]">
-        {INFO_GUIDE_ARTICLES.map((article) => (
-          <li key={article.slug} className="px-4 py-4 sm:px-5">
+    <div className="rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 shadow-2xs">
+      <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        {prioritized.slice(0, 12).map((article) => (
+          <li
+            key={article.slug}
+            className="rounded-xl border border-[#E2E6EC] p-4"
+          >
             <Link
               href={`/guide/${article.slug}`}
               className="block hover:text-[#E8521A]"
             >
               <span className="text-hb-xs font-bold text-[#64748B]">
-                [{article.category}]
+                [{article.priorityTier}순위 · {article.priorityRole} ·{" "}
+                {article.category}]
               </span>
               <h3 className="mt-1 text-hb-base font-bold text-[#141A23]">
                 {article.title}
@@ -146,7 +154,7 @@ export default function GuideBoardPage() {
                   가전 · 전기 · 설치 정보 게시판
                 </h1>
                 <p className="max-w-[64ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
-                  비전공자도 바로 이해할 수 있도록 쉬운 말로 정리한 생활·매장 가전 가이드입니다. 모든 글은 공공·표준·제조사 공식 자료와 현장 점검 경험을 교차 확인해 작성하며, 각 글 하단에 참고 출처와 검토일을 공개합니다.
+                  매입·판매·계약에 바로 도움이 되는 핵심 글(1순위)을 맨 위에 먼저 배치하고, 사용 관리·고장 진단·안전 상식(2순위)은 필요할 때 펼쳐 볼 수 있도록 정리했습니다. 모든 글은 공공·표준·제조사 공식 자료와 현장 점검 경험을 교차 확인해 작성합니다.
                 </p>
               </div>
 

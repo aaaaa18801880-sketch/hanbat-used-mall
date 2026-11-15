@@ -4,7 +4,12 @@ import {
   STORE_MERCHANT_POLICY,
   type ProductCategoryValue,
 } from "./site";
-import type { InfoGuideArticle } from "./guides/types";
+import type {
+  InfoGuideArticle,
+  InfoGuidePriorityRole,
+  InfoGuidePriorityTier,
+  PrioritizedInfoGuideArticle,
+} from "./guides/types";
 import { AIRCON_GUIDE_ARTICLES } from "./guides/articles-aircon";
 import { ELECTRICAL_OPS_GUIDE_ARTICLES } from "./guides/articles-electrical-ops";
 import { HOME_KITCHEN_GUIDE_ARTICLES } from "./guides/articles-home-kitchen";
@@ -25,17 +30,231 @@ export {
   type InfoGuideRiskLevel,
   type InfoGuideSourceItem,
   type InfoGuideVerification,
+  type InfoGuidePriorityTier,
+  type InfoGuidePriorityRole,
   type InfoGuideArticle,
+  type PrioritizedInfoGuideArticle,
 } from "./guides/types";
 export { GUIDE_GOVERNANCE_DISCLAIMER };
 
-export const INFO_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
+interface GuidePriorityMeta {
+  priorityTier: InfoGuidePriorityTier;
+  priorityRole: InfoGuidePriorityRole;
+  priorityRank: number;
+}
+
+const TIER1_GUIDE_PRIORITY_CONFIG: Record<
+  string,
+  Omit<GuidePriorityMeta, "priorityTier">
+> = {
+  "appliance-buyback-no-deduction-guide": {
+    priorityRole: "매입·처분",
+    priorityRank: 1,
+  },
+  "why-used-over-new-and-store-over-p2p": {
+    priorityRole: "구매·선택",
+    priorityRank: 2,
+  },
+  "free-waste-pickup-15990903-vs-used-buyback": {
+    priorityRole: "매입·처분",
+    priorityRank: 3,
+  },
+  "store-takeover-appliances-power-checklist": {
+    priorityRole: "매입·처분",
+    priorityRank: 4,
+  },
+  "aircon-pyeong-sizing-cafe-restaurant": {
+    priorityRole: "구매·선택",
+    priorityRank: 5,
+  },
+  "voltage-220v-vs-380v": {
+    priorityRole: "설치·계약",
+    priorityRank: 6,
+  },
+  "resale-value-commercial-appliances": {
+    priorityRole: "매입·처분",
+    priorityRank: 7,
+  },
+  "used-appliance-nameplate-lifespan-guide": {
+    priorityRole: "매입·처분",
+    priorityRank: 8,
+  },
+  "ladder-truck-and-clearance": {
+    priorityRole: "설치·계약",
+    priorityRank: 9,
+  },
+  "aircon-removal-pump-down-piping": {
+    priorityRole: "매입·처분",
+    priorityRank: 10,
+  },
+  "store-lease-restoration-removal-dispute": {
+    priorityRole: "매입·처분",
+    priorityRank: 11,
+  },
+  "commercial-fridge-repair-vs-replace": {
+    priorityRole: "매입·처분",
+    priorityRank: 12,
+  },
+  "cooling-only-vs-heat-pump-nameplate": {
+    priorityRole: "구매·선택",
+    priorityRank: 13,
+  },
+  "fixed-speed-vs-inverter-aircon": {
+    priorityRole: "구매·선택",
+    priorityRank: 14,
+  },
+  "aircon-refrigerant-r22-r410a-r32-guide": {
+    priorityRole: "구매·선택",
+    priorityRank: 15,
+  },
+  "aircon-2in1-vs-two-singles-home": {
+    priorityRole: "구매·선택",
+    priorityRank: 16,
+  },
+  "aircon-single-large-vs-multi-split": {
+    priorityRole: "구매·선택",
+    priorityRank: 17,
+  },
+  "fridge-kitchen-fit-vs-freestanding-clearance": {
+    priorityRole: "설치·계약",
+    priorityRank: 18,
+  },
+  "commercial-45box-direct-vs-fan-cooling": {
+    priorityRole: "구매·선택",
+    priorityRank: 19,
+  },
+  "commercial-showcase-and-topping-fridge": {
+    priorityRole: "구매·선택",
+    priorityRank: 20,
+  },
+  "top-load-vs-front-load-washer-used-tips": {
+    priorityRole: "구매·선택",
+    priorityRank: 21,
+  },
+  "heat-pump-vs-heater-dryer-used-tips": {
+    priorityRole: "구매·선택",
+    priorityRank: 22,
+  },
+  "wash-tower-all-in-one-vs-separate-cleaning": {
+    priorityRole: "구매·선택",
+    priorityRank: 23,
+  },
+  "kimchi-fridge-lid-vs-stand-used-tips": {
+    priorityRole: "구매·선택",
+    priorityRank: 24,
+  },
+  "oled-vs-qled-led-used-tv-guide": {
+    priorityRole: "구매·선택",
+    priorityRank: 25,
+  },
+  "commercial-gas-vs-induction-kitchen-setup": {
+    priorityRole: "구매·선택",
+    priorityRank: 26,
+  },
+  "commercial-gas-grill-lpg-vs-lng-nozzle": {
+    priorityRole: "설치·계약",
+    priorityRank: 27,
+  },
+  "commercial-icemaker-air-vs-water-cooled": {
+    priorityRole: "구매·선택",
+    priorityRank: 28,
+  },
+  "commercial-fryer-gas-vs-electric-k-class": {
+    priorityRole: "구매·선택",
+    priorityRank: 29,
+  },
+  "commercial-water-heater-instant-vs-storage": {
+    priorityRole: "구매·선택",
+    priorityRank: 30,
+  },
+  "winter-heating-heatpump-vs-electric-heater": {
+    priorityRole: "구매·선택",
+    priorityRank: 31,
+  },
+  "startup-closure-docs-and-power": {
+    priorityRole: "설치·계약",
+    priorityRank: 32,
+  },
+  "energy-efficiency-rating-myth-and-kwh": {
+    priorityRole: "구매·선택",
+    priorityRank: 33,
+  },
+  "new-aircon-repair-delay": {
+    priorityRole: "구매·선택",
+    priorityRank: 34,
+  },
+};
+
+const TIER2_GUIDE_ROLE_MAP: Record<string, InfoGuidePriorityRole> = {
+  "fridge-warm-not-cooling-defrost": "고장·점검",
+  "commercial-icemaker-not-freezing-causes": "고장·점검",
+  "aircon-indoor-water-leak-causes": "고장·점검",
+  "aircon-refrigerant-annual-recharge-myth": "고장·점검",
+  "what-is-pcb-and-why-it-fails": "고장·점검",
+  "commercial-fridge-condenser-cleaning": "고장·점검",
+  "fridge-washer-gasket-mold-cleaning-safety": "고장·점검",
+  "elb-vs-mccb-breaker-trip-check": "고장·점검",
+  "commercial-dishwasher-3-essentials": "고장·점검",
+  "aircon-pipe-reuse-aluminum-vs-copper": "고장·점검",
+  "aircon-relocation-cost-variables": "고장·점검",
+  "why-ceiling-aircon-install-costs-more": "고장·점검",
+  "cafe-plumbing-drain-checklist": "고장·점검",
+  "aircon-how-it-works-and-parts": "고장·점검",
+  "electricity-bill-capacity-and-kepco": "고장·점검",
+  "compressor-appliance-clearance-heat-dissipation": "안전·관리",
+  "outdoor-unit-louver-ventilation-fire": "안전·관리",
+  "neutral-wire-risk-and-licensed-electrician": "안전·관리",
+  "commercial-induction-plug-vs-breaker": "안전·관리",
+  "cable-reel-power-strip-tracking-fire": "안전·관리",
+  "winter-freeze-icemaker-dishwasher-heater": "안전·관리",
+  "freezer-defrost-knife-puncture-risk": "안전·관리",
+  "why-never-lay-fridge-flat-moving": "안전·관리",
+  "why-outdoor-unit-survives-rain-and-shock": "안전·관리",
+  "why-no-outdoor-unit-on-walkway-defrost": "안전·관리",
+  "inverter-aircon-24h-on-vs-off-electricity": "안전·관리",
+  "kitchen-hood-duct-sirocco-vs-inline-fan": "안전·관리",
+  "villa-old-house-drilling-angle-3kw": "안전·관리",
+};
+
+function resolveGuidePriorityMeta(article: InfoGuideArticle): GuidePriorityMeta {
+  const tier1Config = TIER1_GUIDE_PRIORITY_CONFIG[article.slug];
+  if (tier1Config) {
+    return {
+      priorityTier: 1,
+      priorityRole: tier1Config.priorityRole,
+      priorityRank: tier1Config.priorityRank,
+    };
+  }
+
+  return {
+    priorityTier: 2,
+    priorityRole: TIER2_GUIDE_ROLE_MAP[article.slug] ?? "안전·관리",
+    priorityRank: 100 + article.number,
+  };
+}
+
+export function sortGuidesByPriority(
+  articles: readonly PrioritizedInfoGuideArticle[],
+): PrioritizedInfoGuideArticle[] {
+  return [...articles].sort((a, b) => {
+    if (a.priorityTier !== b.priorityTier) {
+      return a.priorityTier - b.priorityTier;
+    }
+    if (a.priorityRank !== b.priorityRank) {
+      return a.priorityRank - b.priorityRank;
+    }
+    return a.number - b.number;
+  });
+}
+
+export const INFO_GUIDE_ARTICLES: readonly PrioritizedInfoGuideArticle[] = [
   ...AIRCON_GUIDE_ARTICLES,
   ...ELECTRICAL_OPS_GUIDE_ARTICLES,
   ...HOME_KITCHEN_GUIDE_ARTICLES,
 ]
   .map((article) => ({
     ...article,
+    ...resolveGuidePriorityMeta(article),
     updatedAt: "2026-11-15",
     verification: article.verification ?? getGuideVerification(article.slug),
   }))
