@@ -1680,3 +1680,104 @@ export function KitchenfitVsFreestandingDiagram() {
     </DiagramFigure>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  29. 컴프레서 기기 벽면 이격거리 및 방열 원리 도해 (52번 글)          */
+/* ------------------------------------------------------------------ */
+export function CompressorVentilationClearanceDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="벽 · 가구장에 딱 맞춘 컴프레서 기기 vs 권장 이격 거리를 확보한 설치 비교"
+      caption="냉장고·제빙기·실외기처럼 컴프레서를 쓰는 기기는 안의 열을 밖으로 버려야 차가워지므로, 숨 쉴 틈이 막히면 자기 열기를 다시 마시며 빠르게 과열됩니다."
+    >
+      <svg
+        viewBox="0 0 760 286"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          컴프레서 기기 밀착 설치 시 열풍 재흡입 악순환과 기기별 최소 이격 거리 비교
+        </title>
+
+        {/* 왼쪽: 벽·장에 딱 맞춘 설치 */}
+        <rect x="16" y="16" width="356" height="254" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          벽 · 가구장에 딱 맞췄을 때 (밀착 위험)
+        </text>
+
+        <rect x="30" y="64" width="328" height="72" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="44" y="84" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          1. 뜨거운 바람이 못 빠져 다시 빨려 들어감 (열풍 재흡입)
+        </text>
+        <text x="44" y="103" fontSize="9.5" fill="#334155">
+          · 응축기(방열판)가 식지 않아 냉동 배관 압력이 비정상 급상승
+        </text>
+        <text x="44" y="121" fontSize="9.5" fill="#334155">
+          · 주위 온도 상승으로 월간 소비전력이 최대 2배 안팎까지 증가
+        </text>
+
+        <rect x="30" y="146" width="328" height="110" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="44" y="166" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          2. 콤프레서 과부하 차단(OLP) &amp; 생활 불편 4종
+        </text>
+        <text x="44" y="185" fontSize="9.5" fill="#334155">
+          · 모터가 식지 못해 딸깍 멈춤(OLP 차단) 반복 → 압축기 수명 단축
+        </text>
+        <text x="44" y="203" fontSize="9.5" fill="#334155">
+          · 냉동실은 덜 얼고 냉장실이 미지근해지며 기기 외벽이 뜨거워짐
+        </text>
+        <text x="44" y="221" fontSize="9.5" fill="#334155">
+          · 진동이 벽·가구에 직접 닿아 웅- 저주파 공명 소음이 커짐
+        </text>
+        <text x="44" y="239" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 통풍 막힌 뒷벽 결로·곰팡이 &amp; 하단 기계실 먼지 청소 불가
+        </text>
+
+        {/* 오른쪽: 권장 이격 거리 확보 */}
+        <rect x="388" y="16" width="356" height="254" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="388" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          기기별 최소 숨 쉴 공간 (에너지공단 · 제조사)
+        </text>
+
+        <rect x="402" y="64" width="328" height="58" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="416" y="83" fontSize="10" fontWeight="700" fill="#0F766E">
+          가정용 냉장고 · 김치냉장고 (프리스탠딩 기준)
+        </text>
+        <text x="416" y="100" fontSize="9.5" fill="#334155">
+          · 뒷면 5~10cm 이상 / 좌우 5cm 이상 / 위쪽 2cm 이상
+        </text>
+        <text x="416" y="114" fontSize="8.5" fill="#64748B">
+          (키친핏·빌트인도 좌우 12~29mm+ 및 하단·상단 공기 통로 필수)
+        </text>
+
+        <rect x="402" y="130" width="328" height="58" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="416" y="149" fontSize="10" fontWeight="700" fill="#0F766E">
+          업소용 냉장고 · 공랭식 제빙기 · 음료 쇼케이스
+        </text>
+        <text x="416" y="166" fontSize="9.5" fill="#334155">
+          · 뒷면·그릴 통풍구 10~20cm 이상 + 가스불·튀김기와 이격
+        </text>
+        <text x="416" y="180" fontSize="8.5" fill="#64748B">
+          (밀폐 수납 시 제빙량 급감 · 콤프레서 과열 고장 1순위)
+        </text>
+
+        <rect x="402" y="196" width="328" height="60" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="416" y="215" fontSize="10" fontWeight="700" fill="#C2410C">
+          에어컨 실외기 · 운반 후 공통 원칙
+        </text>
+        <text x="416" y="232" fontSize="9.5" fill="#334155">
+          · 흡입·배기면 최소 10~20cm+ / 베란다 루버창 가동 시 완전 개방
+        </text>
+        <text x="416" y="247" fontSize="9" fill="#9A3412">
+          · 이동·기울임 뒤엔 12~24시간 세워 오일 안정화 후 단독 콘센트 연결
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

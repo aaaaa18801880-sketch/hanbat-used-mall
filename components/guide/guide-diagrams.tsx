@@ -43,6 +43,7 @@ import {
   CommercialCondenserCleaningDiagram,
   CommercialDishwasherSetupDiagram,
   CommercialFridgeRepairRoiDiagram,
+  CompressorVentilationClearanceDiagram,
   DryerHeatpumpCondenserDiagram,
   FreezerDefrostPipeRiskDiagram,
   FridgeFreezerAirflowDiagram,
@@ -109,7 +110,8 @@ export type GuideDiagramId =
   | "winter-kitchen-freeze-care"
   | "freezer-defrost-pipe-risk"
   | "kitchenfit-vs-freestanding"
-  | "cable-reel-tracking-fire";
+  | "cable-reel-tracking-fire"
+  | "compressor-ventilation-clearance";
 
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
@@ -215,5 +217,7 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <KitchenfitVsFreestandingDiagram />;
     case "cable-reel-tracking-fire":
       return <CableReelTrackingFireDiagram />;
+    case "compressor-ventilation-clearance":
+      return <CompressorVentilationClearanceDiagram />;
   }
 }

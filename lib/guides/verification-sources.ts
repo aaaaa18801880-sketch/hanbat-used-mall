@@ -1220,6 +1220,29 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     fieldNote:
       "권선 발열 실험과 16A 기준, 트래킹 예방 수칙은 소방청 및 전기안전공사 공식 자료에 기반하며, 주방·냉장고 뒤 콘센트 사고 사례는 매장 현장 점검 경험입니다.",
   },
+  "compressor-appliance-clearance-heat-dissipation": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "한국에너지공단 · 한국소비자원",
+        title: "냉장고 벽면 이격거리(뒷면 10cm 이상) 에너지 절약 가이드 및 주위 온도별 소비전력 비교 시험",
+        url: URLS.KEA,
+        date: "공식 에너지·시험 자료",
+        usedFor: "냉장고 뒷면 10cm·옆면 5cm 이격 권장 기준과 주위 온도·방열 불량에 따른 소비전력 최대 2배 안팎 상승 원리 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 · 업소용 제빙기 공식 설치 가이드",
+        title: "가정용 냉장고(상·하·좌·우 여백), 업소용 제빙기·냉장고(10~20cm 통풍) 및 운반 후 오일 안정화 설치 기준",
+        url: URLS.SAMSUNG,
+        date: "제조사 공식 매뉴얼",
+        usedFor: "방열 불량 시 응축압력 상승·OLP 과부하 차단·열풍 재흡입(단락 순환)·결로·공명 소음 및 제품별 최소 이격 수치 확인",
+      },
+    ],
+    fieldNote:
+      "이격거리 수치와 소비전력 변화는 한국에너지공단·한국소비자원·제조사 매뉴얼에 기반하며, 장 딱 맞춤 설치 후 여름 과열 반품 및 진동 소음 AS 사례는 현장 경험입니다.",
+  },
 };
 
 export function getGuideVerification(slug: string): InfoGuideVerification | undefined {

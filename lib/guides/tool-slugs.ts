@@ -35,6 +35,7 @@ export const SLUG_TO_GUIDE_TOOL: Record<string, GuideToolKind> = {
   "wash-tower-all-in-one-vs-separate-cleaning": "clearance-entry",
   "free-waste-pickup-15990903-vs-used-buyback": "clearance-entry",
   "fridge-kitchen-fit-vs-freestanding-clearance": "clearance-entry",
+  "compressor-appliance-clearance-heat-dissipation": "clearance-entry",
   // 4. 에너지 라벨 kWh & 차액 회수기간 계산기
   "energy-efficiency-rating-myth-and-kwh": "energy-payback",
   "inverter-aircon-24h-on-vs-off-electricity": "energy-payback",
