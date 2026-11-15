@@ -20,6 +20,7 @@ export const SLUG_TO_GUIDE_TOOL: Record<string, GuideToolKind> = {
   "startup-closure-docs-and-power": "power-contract",
   "electricity-bill-capacity-and-kepco": "power-contract",
   "commercial-induction-plug-vs-breaker": "power-contract",
+  "neutral-wire-risk-and-licensed-electrician": "power-contract",
   // 3. 출입문 통로·사다리차 진입 판정기
   "ladder-truck-and-clearance": "clearance-entry",
   "why-never-lay-fridge-flat-moving": "clearance-entry",

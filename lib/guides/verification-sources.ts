@@ -819,6 +819,36 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     fieldNote:
       "표준 공정·분쟁 예방 기준은 소비자원·제조사 안내 기준이며, 재설치 vs 교체 판단 사례와 사전 사진 3장 공식은 매장 상담 경험입니다.",
   },
+  "neutral-wire-risk-and-licensed-electrician": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "국가법령정보센터",
+        title: "「전기공사업법」 제3조(전기공사의 제한 등) · 시행령 제5조(경미한 전기공사) · 제41조의2(벌칙)",
+        url: URLS.LAW,
+        date: "현행 법령 기준",
+        usedFor: "단순 1:1 수선 외 분전반·차단기·회로 증설의 등록 전기공사업자 시공 의무 및 3년 이하 징역·3천만원 이하 벌금 처벌 기준 확인",
+      },
+      {
+        org: "산업통상자원부 · 대한전기협회 (KEC)",
+        title: "한국전기설비규정(KEC) 도체 식별 색상(갈·흑·회·청·녹황) 및 다선식 전로·개폐 순서 안전 기준",
+        url: URLS.KATS,
+        date: "국가 기술기준",
+        usedFor: "구형 건물(청색=L3/T상)과 현행 KEC(청색=중성선 N) 색상 반전에 따른 오결선 위험 및 선입후절·실측 필수 근거 확인",
+      },
+      {
+        org: "한국전기안전공사 (KESCO · 1889)",
+        title: "중성선(N선) 단선·접촉불량에 따른 이상 과전압 피해 및 전기화재 예방 안내",
+        url: URLS.KESCO,
+        date: "공공 안전 안내",
+        usedFor: "N선 단선 시 220V 가전 직렬 연결에 따른 과전압 소손 원리, 일반 차단기 미동작 가능성, 이상 징후 시 전원 차단 및 1889 신고 절차 확인",
+      },
+    ],
+    fieldNote:
+      "법령 처벌·경미공사 범위·색상 기준·과전압 원리는 국가법령정보센터·KEC·한국전기안전공사 공식 기준이며, 상가 분전함 오결선 및 냉장고·포스기 연쇄 고장 사례는 매장 현장 경험입니다. 안전 수칙상 자가 분전함 배선 조작 안내는 제공하지 않습니다.",
+  },
 };
 
 export function getGuideVerification(slug: string): InfoGuideVerification | undefined {

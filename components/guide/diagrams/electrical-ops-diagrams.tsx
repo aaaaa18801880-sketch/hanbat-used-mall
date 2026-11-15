@@ -76,28 +76,28 @@ export function VoltageBreakerDiagram() {
           삼상 380V (4선식 · 4P 차단기)
         </text>
 
-        {/* 전선 4가닥 (R, S, T, N) + 접지 */}
-        <line x1="472" y1="62" x2="472" y2="108" stroke="#141A23" strokeWidth="6" />
-        <line x1="512" y1="62" x2="512" y2="108" stroke="#DC2626" strokeWidth="6" />
-        <line x1="552" y1="62" x2="552" y2="108" stroke="#2563EB" strokeWidth="6" />
-        <line x1="592" y1="62" x2="592" y2="108" stroke="#94A3B8" strokeWidth="6" />
-        <line x1="650" y1="62" x2="650" y2="192" stroke="#16A34A" strokeWidth="3" strokeDasharray="4 3" />
-
-        <text x="466" y="78" fontSize="11" fontWeight="700" fill="#141A23">
+        {/* 전선 4가닥 (R/L1, S/L2, T/L3, N) + 접지: 라벨이 상단 주황 바·전선과 겹치지 않게 위쪽 여백 확보 */}
+        <text x="472" y="69" fontSize="11" fontWeight="700" fill="#141A23" textAnchor="middle">
           R
         </text>
-        <text x="506" y="78" fontSize="11" fontWeight="700" fill="#DC2626">
+        <text x="512" y="69" fontSize="11" fontWeight="700" fill="#DC2626" textAnchor="middle">
           S
         </text>
-        <text x="546" y="78" fontSize="11" fontWeight="700" fill="#2563EB">
+        <text x="552" y="69" fontSize="11" fontWeight="700" fill="#2563EB" textAnchor="middle">
           T
         </text>
-        <text x="586" y="78" fontSize="11" fontWeight="700" fill="#475569">
+        <text x="592" y="69" fontSize="11" fontWeight="700" fill="#475569" textAnchor="middle">
           N
         </text>
-        <text x="658" y="92" fontSize="10" fontWeight="600" fill="#15803D">
+        <text x="658" y="69" fontSize="10" fontWeight="600" fill="#15803D">
           접지
         </text>
+
+        <line x1="472" y1="76" x2="472" y2="108" stroke="#141A23" strokeWidth="6" strokeLinecap="round" />
+        <line x1="512" y1="76" x2="512" y2="108" stroke="#DC2626" strokeWidth="6" strokeLinecap="round" />
+        <line x1="552" y1="76" x2="552" y2="108" stroke="#2563EB" strokeWidth="6" strokeLinecap="round" />
+        <line x1="592" y1="76" x2="592" y2="108" stroke="#94A3B8" strokeWidth="6" strokeLinecap="round" />
+        <line x1="650" y1="62" x2="650" y2="192" stroke="#16A34A" strokeWidth="3" strokeDasharray="4 3" />
 
         {/* 4P 차단기 바디 */}
         <rect x="448" y="108" width="168" height="72" rx="8" fill="#FFFFFF" stroke="#64748B" strokeWidth="2" />
@@ -1050,6 +1050,164 @@ export function CafePlumbingDrainCheckDiagram() {
         <path d="M160 226 L680 250 L680 264 L160 240 Z" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.8" />
         <text x="420" y="246" textAnchor="middle" fontSize="10" fontWeight="700" fill="#1E40AF">
           바닥 매립 50mm PVC 메인 배수관: 내리막 구배 1/50 ~ 1/100 유지 → 메인 유트랩 배출
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 35번 글: N선(중성선) 오결선·단선 시 과전압 사고 구조 */
+export function NeutralWireDangerDiagram() {
+  return (
+    <DiagramFigure
+      title="N선(중성선)이 잘못 물리거나 끊어지면 생기는 220V → 380V 과전압 사고"
+      caption="상가에서 가장 흔한 사고는 ① 색깔만 보고 N선 자리에 다른 상선을 물린 오결선과 ② 나사 풀림·단선으로 220V 가전끼리 직렬로 엮여 한쪽에 380V 가까운 전기가 몰리는 현상입니다."
+    >
+      <svg
+        viewBox="0 0 760 315"
+        role="img"
+        aria-label="정상 220V N선 연결, N선과 상선 오결선 시 380V 직격, N선 단선 시 가전 연쇄 과전압 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="315" rx="14" fill="#F8FAFC" />
+
+        {/* 1. 정상 결선 */}
+        <rect x="14" y="14" width="234" height="286" rx="12" fill="#FFFFFF" stroke="#99F6E4" />
+        <rect x="14" y="14" width="234" height="38" rx="12" fill="#0F766E" />
+        <rect x="14" y="40" width="234" height="12" fill="#0F766E" />
+        <text x="131" y="38" fontSize="12.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 정상 연결 (0V 기준 안정)
+        </text>
+
+        <line x1="76" y1="68" x2="76" y2="112" stroke="#1E293B" strokeWidth="5" strokeLinecap="round" />
+        <line x1="186" y1="68" x2="186" y2="112" stroke="#2563EB" strokeWidth="5" strokeLinecap="round" />
+        <text x="76" y="128" fontSize="10.5" fontWeight="700" fill="#1E293B" textAnchor="middle">
+          상선 1가닥
+        </text>
+        <text x="186" y="128" fontSize="10.5" fontWeight="700" fill="#2563EB" textAnchor="middle">
+          N선 (0V 귀환길)
+        </text>
+
+        <rect x="44" y="144" width="174" height="44" rx="9" fill="#F0FDFA" stroke="#5EEAD4" />
+        <text x="131" y="164" fontSize="13" fontWeight="800" fill="#0F766E" textAnchor="middle">
+          220V 정상 공급
+        </text>
+        <text x="131" y="180" fontSize="10" fontWeight="600" fill="#334155" textAnchor="middle">
+          전기가 일하고 N선으로 안전 복귀
+        </text>
+
+        <rect x="28" y="204" width="206" height="80" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
+        <text x="40" y="225" fontSize="10.5" fontWeight="700" fill="#0F172A">
+          핵심 상태
+        </text>
+        <text x="40" y="244" fontSize="10" fill="#475569">
+          · N선이 전압 기준(0V)을 꽉 잡아줌
+        </text>
+        <text x="40" y="261" fontSize="10" fill="#475569">
+          · 콘센트마다 220V 내외 안정 유지
+        </text>
+        <text x="40" y="278" fontSize="10" fill="#0F766E" fontWeight="700">
+          · 냉장고·포스기·TV 안전 가동
+        </text>
+
+        {/* 2. 오결선: N선 자리에 다른 상선 */}
+        <rect x="263" y="14" width="234" height="286" rx="12" fill="#FFFBF5" stroke="#FCD34D" />
+        <rect x="263" y="14" width="234" height="38" rx="12" fill="#D97706" />
+        <rect x="263" y="40" width="234" height="12" fill="#D97706" />
+        <text x="380" y="38" fontSize="12.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. N선·상선 바꿔 연결 (오결선)
+        </text>
+
+        <line x1="325" y1="68" x2="325" y2="112" stroke="#1E293B" strokeWidth="5" strokeLinecap="round" />
+        <line x1="435" y1="68" x2="435" y2="112" stroke="#DC2626" strokeWidth="5" strokeLinecap="round" />
+        <text x="325" y="128" fontSize="10.5" fontWeight="700" fill="#1E293B" textAnchor="middle">
+          L1 상선 (전기)
+        </text>
+        <text x="435" y="128" fontSize="10.5" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          N선 대신 L3 상선
+        </text>
+
+        <rect x="293" y="144" width="174" height="44" rx="9" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="380" y="164" fontSize="13" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          380V 그대로 직격!
+        </text>
+        <text x="380" y="180" fontSize="10" fontWeight="600" fill="#991B1B" textAnchor="middle">
+          220V 콘센트에 1.7배 높은 전압
+        </text>
+
+        <rect x="277" y="204" width="206" height="80" rx="8" fill="#FFFFFF" stroke="#FDE68A" />
+        <text x="289" y="225" fontSize="10.5" fontWeight="700" fill="#92400E">
+          왜 자주 생길까?
+        </text>
+        <text x="289" y="244" fontSize="10" fill="#475569">
+          · 구형 건물은 파란선이 380V 상선
+        </text>
+        <text x="289" y="261" fontSize="10" fill="#475569">
+          · 새 규격(KEC)은 파란선이 N선
+        </text>
+        <text x="289" y="278" fontSize="10" fill="#DC2626" fontWeight="700">
+          · 측정 없이 색만 보고 연결 시 즉시 파손
+        </text>
+
+        {/* 3. N선 단선 / 접촉불량 */}
+        <rect x="512" y="14" width="234" height="286" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="512" y="14" width="234" height="38" rx="12" fill="#DC2626" />
+        <rect x="512" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="629" y="38" fontSize="12.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. N선 끊어짐·접촉불량 (단선)
+        </text>
+
+        <line x1="564" y1="74" x2="594" y2="74" stroke="#2563EB" strokeWidth="4" />
+        <circle cx="629" cy="74" r="12" fill="#FEE2E2" stroke="#DC2626" strokeWidth="1.5" />
+        <text x="629" y="78" fontSize="10.5" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          끊김
+        </text>
+        <line x1="664" y1="74" x2="694" y2="74" stroke="#2563EB" strokeWidth="4" />
+        <text x="629" y="102" fontSize="10" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          0V 돌아가는 길이 막힘 (나사 풀림 등)
+        </text>
+
+        <rect x="530" y="114" width="92" height="58" rx="8" fill="#EFF6FF" stroke="#93C5FD" />
+        <text x="576" y="133" fontSize="10.5" fontWeight="700" fill="#1E3A8A" textAnchor="middle">
+          큰 기계(냉동고)
+        </text>
+        <text x="576" y="150" fontSize="11.5" fontWeight="800" fill="#1D4ED8" textAnchor="middle">
+          약 90~130V
+        </text>
+        <text x="576" y="164" fontSize="9.5" fill="#475569" textAnchor="middle">
+          전압이 약해짐
+        </text>
+
+        <text x="629" y="147" fontSize="12" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          ↔
+        </text>
+
+        <rect x="636" y="114" width="92" height="58" rx="8" fill="#FEF2F2" stroke="#EF4444" strokeWidth="1.5" />
+        <text x="682" y="133" fontSize="10.5" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          작은 기기(기판)
+        </text>
+        <text x="682" y="150" fontSize="11.5" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          ~380V 쏠림!
+        </text>
+        <text x="682" y="164" fontSize="9.5" fill="#991B1B" textAnchor="middle">
+          과전압으로 타버림
+        </text>
+
+        <rect x="526" y="186" width="206" height="98" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="538" y="206" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          가장 무서운 이유
+        </text>
+        <text x="538" y="224" fontSize="10" fill="#475569">
+          · 서로 다른 220V 가전이 직렬로 묶임
+        </text>
+        <text x="538" y="241" fontSize="10" fill="#475569">
+          · 조명·포스기·냉장고 기판 연쇄 소손
+        </text>
+        <text x="538" y="258" fontSize="10" fill="#475569">
+          · 일반 차단기가 바로 안 떨어질 수 있음
+        </text>
+        <text x="538" y="275" fontSize="10" fill="#DC2626" fontWeight="700">
+          · 조명 번쩍·탄 냄새 시 즉시 차단 필요
         </text>
       </svg>
     </DiagramFigure>

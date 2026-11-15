@@ -122,8 +122,8 @@ describe("lib/site 도메인 파서·검증·SSOT 테스트", () => {
 });
 
 describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트", () => {
-  it("34개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
-    assert.equal(INFO_GUIDE_ARTICLES.length, 34);
+  it("35개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
+    assert.equal(INFO_GUIDE_ARTICLES.length, 35);
 
     const numbers = new Set<number>();
     const slugs = new Set<string>();
@@ -150,7 +150,9 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
 
       const headlineText = [article.title, article.summary, ...article.keyPoints].join(" ");
       assert.equal(
-        /동계학술|복사열 분율|보충공기\(MUA\)|현열·잠열|100% 떨어/.test(headlineText),
+        /동계학술|복사열 분율|보충공기\(MUA\)|현열·잠열|임피던스 분압|중성점 전위 이동|100% 떨어/.test(
+          headlineText
+        ),
         false,
         `소비자 가독성 위배 문구 발견: #${article.number} ${article.slug}`
       );

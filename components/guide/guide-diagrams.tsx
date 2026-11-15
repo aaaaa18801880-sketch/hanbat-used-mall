@@ -24,6 +24,7 @@ import {
   EnergyGradeRevisionDiagram,
   InductionWiringBreakerDiagram,
   KwVsKwhDiagram,
+  NeutralWireDangerDiagram,
   StartupPowerBudgetDiagram,
   UsedVsStoreFlowDiagram,
   VoltageBreakerDiagram,
@@ -75,7 +76,8 @@ export type GuideDiagramId =
   | "induction-wiring-breaker"
   | "cafe-plumbing-drain-check"
   | "commercial-fridge-repair-roi"
-  | "aircon-relocation-cost-factors";
+  | "aircon-relocation-cost-factors"
+  | "neutral-wire-danger";
 
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
@@ -147,5 +149,7 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <CommercialFridgeRepairRoiDiagram />;
     case "aircon-relocation-cost-factors":
       return <AirconRelocationCostFactorsDiagram />;
+    case "neutral-wire-danger":
+      return <NeutralWireDangerDiagram />;
   }
 }
