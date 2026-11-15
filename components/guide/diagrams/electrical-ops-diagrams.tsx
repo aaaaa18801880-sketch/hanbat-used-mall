@@ -1795,3 +1795,191 @@ export function CableReelTrackingFireDiagram() {
     </DiagramFigure>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  15. 중고 가전 명판 · 공정위 부품 보유기간(내용연수) 도해 (53번 글)    */
+/* ------------------------------------------------------------------ */
+export function ApplianceNameplateLifespanDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="가전 명판(라벨) 위치와 공정거래위원회 품목별 부품 보유기간 기준"
+      caption="공정거래위원회 소비자분쟁해결기준상 부품 보유기간은 구입일이 아닌 제조일자를 기준으로 계산하므로 명판 확인이 가장 먼저입니다."
+    >
+      <svg
+        viewBox="0 0 760 270"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          냉장고·에어컨·세탁기 부품 보유기간과 명판 확인 위치 요약
+        </title>
+
+        {/* 왼쪽: 품목별 기준 */}
+        <rect x="16" y="16" width="356" height="238" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          공정위 소비자분쟁해결기준 (기산점: 제조일)
+        </text>
+
+        <rect x="30" y="64" width="328" height="46" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="44" y="84" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          냉장고: 부품 보유기간 9년 (완제품 보증 1년)
+        </text>
+        <text x="44" y="101" fontSize="9" fill="#475569">
+          제조사별 인버터 컴프레서 핵심부품 보증 별도 운영(최장 10년 등)
+        </text>
+
+        <rect x="30" y="118" width="328" height="46" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="44" y="138" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          에어컨: 부품 보유기간 8년 (완제품 보증 2년)
+        </text>
+        <text x="44" y="155" fontSize="9" fill="#475569">
+          실내기·실외기 제조일 일치 여부 &amp; PCB·콤프 단종 여부 핵심
+        </text>
+
+        <rect x="30" y="172" width="328" height="46" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="44" y="192" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          세탁기: 부품 보유기간 7년 (완제품 보증 1년)
+        </text>
+        <text x="44" y="209" fontSize="9" fill="#475569">
+          베어링·쇼바·배수모터 등 소모 부품 교환 이력이 연식만큼 중요
+        </text>
+
+        <text x="32" y="238" fontSize="9" fontWeight="700" fill="#0F766E">
+          ※ 제조연월만 적혔다면 해당 월 말일이 제조일자로 산정됨
+        </text>
+
+        {/* 오른쪽: 명판 위치 & 읽는 법 */}
+        <rect x="388" y="16" width="356" height="238" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="388" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          직거래·인수 시 명판(스티커) 3곳 찾기
+        </text>
+
+        <rect x="402" y="64" width="328" height="106" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="416" y="85" fontSize="10" fontWeight="700" fill="#C2410C">
+          제품별 명판(에너지라벨 아님!) 부착 위치
+        </text>
+        <text x="416" y="105" fontSize="9.5" fill="#334155">
+          · 냉장고: 냉장실 문 안쪽 좌·우 측면 벽이나 야채서랍 옆
+        </text>
+        <text x="416" y="124" fontSize="9.5" fill="#334155">
+          · 에어컨: 실내기 옆·하단 및 실외기 측면(실내·외 둘 다 확인!)
+        </text>
+        <text x="416" y="143" fontSize="9.5" fill="#334155">
+          · 드럼세탁기: 도어 열면 안쪽 테두리 / 통돌이: 조작부 뒷면
+        </text>
+        <text x="416" y="160" fontSize="8.8" fill="#DC2626">
+          (에너지등급표 숫자 2021년 등은 등급 고시일이지 제조일이 아님!)
+        </text>
+
+        <rect x="402" y="180" width="328" height="60" rx="8" fill="#FFF7ED" stroke="#FDBA74" />
+        <text x="416" y="200" fontSize="10" fontWeight="700" fill="#9A3412">
+          명판 사진 1장만 찍어도 알 수 있는 것
+        </text>
+        <text x="416" y="218" fontSize="9.2" fill="#334155">
+          1. 정확한 모델명 · 제조년월(예: 2023.05) · 소비전력(W) · 냉매 종류
+        </text>
+        <text x="416" y="233" fontSize="9.2" fill="#334155">
+          2. 중고 매입 견적과 설치 가능 여부(220V/380V)를 즉시 판정
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  16. 상가 · 오피스텔 원상복구 범위 & 대법원 판례 기준 도해 (62번 글)   */
+/* ------------------------------------------------------------------ */
+export function StoreRestorationScopeDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="상가 퇴거 시 에어컨 · 타공 · 덕트 · 전 설비 원상복구 분쟁 기준"
+      caption="계약서에 전 임차인 시설까지 공실 복구한다는 특약이 없으면 본인 시공분만 복구하는 것이 판례 원칙이지만, 포괄 양수도는 다를 수 있습니다."
+    >
+      <svg
+        viewBox="0 0 760 264"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          민법 제615조와 전 임차인 시설 인수 대법원 판례 및 원상복구 예방 절차
+        </title>
+
+        {/* 왼쪽: 본인 시공분만 원칙 */}
+        <rect x="16" y="16" width="356" height="232" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="16" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          원칙: 입주 당시 상태로 반환 (민법 615·654조)
+        </text>
+        <text x="32" y="76" fontSize="10" fontWeight="700" fill="#1E40AF">
+          별도 특약 없으면 전 임차인 시설까지 철거 안 함
+        </text>
+        <text x="32" y="96" fontSize="9.2" fill="#334155">
+          · 대법원 90다카12035 판결 취지: 내가 새로 달고 개조한 부분만 복구
+        </text>
+        <text x="32" y="114" fontSize="9.2" fill="#334155">
+          · 통상적 사용에 따른 가벼운 마모·자연 변색은 배상 대상 제외
+        </text>
+
+        <rect x="30" y="132" width="328" height="102" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="44" y="153" fontSize="10" fontWeight="700" fill="#1E40AF">
+          실제로 자주 분쟁 나는 4가지 시설물
+        </text>
+        <text x="44" y="172" fontSize="9.2" fill="#334155">
+          1. 천장형 시스템 에어컨(철거 시 천장 텍스 마감 여부)
+        </text>
+        <text x="44" y="189" fontSize="9.2" fill="#334155">
+          2. 외벽·유리창 배관 타공 구멍 실리콘·판넬 원복 여부
+        </text>
+        <text x="44" y="206" fontSize="9.2" fill="#334155">
+          3. 주방 후드·외벽 옥상 덕트 배관 및 간판 전기선
+        </text>
+        <text x="44" y="223" fontSize="9.2" fill="#334155">
+          4. 한전 승압 전력 · 보조 분전반(남길지 철거할지 사전 합의)
+        </text>
+
+        {/* 오른쪽: 예외 & 예방 특약 */}
+        <rect x="388" y="16" width="356" height="232" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="388" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          주의: 포괄 승계 &amp; 공실 특약 있으면 전 시설 철거!
+        </text>
+        <text x="404" y="76" fontSize="10" fontWeight="700" fill="#C2410C">
+          권리금 주고 인수할 때 가장 큰 함정 (대법원 2017다268142)
+        </text>
+        <text x="404" y="96" fontSize="9.2" fill="#334155">
+          · 전 세입자 영업·임대 조건 포괄 승계 + 공실 반환 특약이 있으면
+        </text>
+        <text x="404" y="114" fontSize="9.2" fill="#DC2626" fontWeight="700">
+          전 임차인이 달아놓은 덕트·에어컨·인테리어까지 철거 책임 발생!
+        </text>
+
+        <rect x="402" y="132" width="328" height="102" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="416" y="153" fontSize="10" fontWeight="700" fill="#9A3412">
+          입주·퇴거 시 분쟁 막는 3단계 안전장치
+        </text>
+        <text x="416" y="172" fontSize="9.2" fill="#334155">
+          1. 입주 첫날 전임자 시설 · 분전함 · 에어컨 전체 사진/영상 저장
+        </text>
+        <text x="416" y="189" fontSize="9.2" fill="#334155">
+          2. 특약에 현 임차인이 추가 설치한 부분만 철거한다 명확히 기재
+        </text>
+        <text x="416" y="206" fontSize="9.2" fill="#334155">
+          3. 철거 전 에어컨·냉장고 매각 가능 품목은 유료 매입으로 비용 상계
+        </text>
+        <text x="416" y="223" fontSize="9.2" fill="#0F766E" fontWeight="700">
+          (임대인이 인수 희망 시 에어컨·승압 잔존 서면 합의로 철거비 0원!)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

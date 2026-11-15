@@ -1781,3 +1781,497 @@ export function CompressorVentilationClearanceDiagram() {
     </DiagramFigure>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  30. 가스식 vs 전기식 튀김기 & K급 소화기 의무 기준 도해 (55번 글)     */
+/* ------------------------------------------------------------------ */
+export function CommercialFryerKClassDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 가스 튀김기 vs 전기 튀김기 비교 및 K급 소화기 의무 기준"
+      caption="식용유는 약 288~385℃에서 발화하고 일반 소화기로 꺼도 바로 재발화해, 주방에 유막을 덮는 K급 소화기 비치가 법적 의무입니다."
+    >
+      <svg
+        viewBox="0 0 760 264"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          업소용 가스 튀김기와 전기 튀김기 비교 및 소방청 K급 소화기 설치 기준
+        </title>
+
+        <rect x="16" y="16" width="234" height="232" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="16" y="16" width="234" height="36" rx="12" fill="#EA580C" />
+        <rect x="16" y="40" width="234" height="12" fill="#EA580C" />
+        <text x="133" y="39" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          가스 튀김기 (LPG · LNG)
+        </text>
+        <text x="30" y="74" fontSize="9.2" fill="#334155">
+          · 장점: 초기 예열·유온 복원 빠름
+        </text>
+        <text x="30" y="92" fontSize="9.2" fill="#334155">
+          · 피크타임 대량 튀김(치킨집) 선호
+        </text>
+        <text x="30" y="114" fontSize="9.2" fill="#DC2626">
+          · 주의: 주방 복사열·후드 배기 필수
+        </text>
+        <text x="30" y="132" fontSize="9.2" fill="#DC2626">
+          · 매장에 맞는 LPG/LNG 사양 일치!
+        </text>
+        <rect x="28" y="152" width="210" height="82" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="40" y="172" fontSize="9.5" fontWeight="700" fill="#C2410C">
+          중고 구매 시 필수 확인
+        </text>
+        <text x="40" y="190" fontSize="8.8" fill="#475569">
+          · 기름통(유조) 용접부 미세 누유 여부
+        </text>
+        <text x="40" y="206" fontSize="8.8" fill="#475569">
+          · 온도 과열차단 센서(바이메탈) 정상
+        </text>
+        <text x="40" y="222" fontSize="8.8" fill="#475569">
+          · 열전대 파일럿 불꽃 유지 상태
+        </text>
+
+        <rect x="263" y="16" width="234" height="232" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="263" y="16" width="234" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="263" y="40" width="234" height="12" fill="#1D4ED8" />
+        <text x="380" y="39" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          전기 튀김기 (220V · 380V)
+        </text>
+        <text x="277" y="74" fontSize="9.2" fill="#334155">
+          · 장점: 온도 편차 적고 주방 열기 감소
+        </text>
+        <text x="277" y="92" fontSize="9.2" fill="#334155">
+          · 가스 배관 없는 상가·백화점 입점 유리
+        </text>
+        <text x="277" y="114" fontSize="9.2" fill="#DC2626">
+          · 주의: 대용량은 5~10kW 이상 소비전력
+        </text>
+        <text x="277" y="132" fontSize="9.2" fill="#DC2626">
+          · 단상220V vs 삼상380V 결선 필수 확인
+        </text>
+        <rect x="275" y="152" width="210" height="82" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="287" y="172" fontSize="9.5" fontWeight="700" fill="#1E40AF">
+          전기 · 안전 필수 확인
+        </text>
+        <text x="287" y="190" fontSize="8.8" fill="#475569">
+          · 일반 멀티탭 금지(전용 차단기 직결)
+        </text>
+        <text x="287" y="206" fontSize="8.8" fill="#475569">
+          · 시즈 히터봉 탄화·누전 여부 점검
+        </text>
+        <text x="287" y="222" fontSize="8.8" fill="#475569">
+          · 유조 최저 수위 이하 가동 금지(화재)
+        </text>
+
+        <rect x="510" y="16" width="234" height="232" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="510" y="16" width="234" height="36" rx="12" fill="#DC2626" />
+        <rect x="510" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="627" y="39" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          주방 K급 소화기 법적 의무 (소방청)
+        </text>
+        <text x="524" y="74" fontSize="9.2" fill="#991B1B" fontWeight="700">
+          식용유 화재 시 물 붓기 절대 금지!
+        </text>
+        <text x="524" y="92" fontSize="9" fill="#334155">
+          · 물이 기화하며 불붙은 기름 사방 폭발
+        </text>
+        <text x="524" y="110" fontSize="9" fill="#334155">
+          · 식용유 발화점(288~385℃)이 높아
+        </text>
+        <text x="524" y="126" fontSize="9" fill="#334155">
+          일반 분말소화기 진화 후 바로 재발화
+        </text>
+        <rect x="522" y="152" width="210" height="82" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="534" y="172" fontSize="9.5" fontWeight="700" fill="#991B1B">
+          음식점 주방 K급 소화기 기준
+        </text>
+        <text x="534" y="190" fontSize="8.8" fill="#475569">
+          · 주방 25㎡ 미만: K급 소화기 1대 이상
+        </text>
+        <text x="534" y="206" fontSize="8.8" fill="#475569">
+          · 25㎡ 이상: K급 1대+ 25㎡마다 추가
+        </text>
+        <text x="534" y="222" fontSize="8.8" fill="#DC2626" fontWeight="700">
+          · 유막 형성(비누화)으로 재발화 원천 차단
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  31. 주방 후드·덕트 시로코팬 vs 인라인팬 & 화재 예방 도해 (56번 글)    */
+/* ------------------------------------------------------------------ */
+export function KitchenHoodDuctFanDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="식당 주방 배기팬(시로코팬 vs 인라인팬) 및 덕트 기름때 화재 예방"
+      caption="덕트 배관이 길거나 꺾이면 정압이 높은 시로코팬이 유리하며, 그리스필터·덕트 안 기름때(190~230℃ 착화 가능) 청소가 대형 화재 예방의 핵심입니다."
+    >
+      <svg
+        viewBox="0 0 760 264"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          시로코팬 vs 인라인팬 비교 및 그리스필터·불연 덕트 화재 예방 구조
+        </title>
+
+        <rect x="16" y="16" width="356" height="232" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="16" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          배기팬 선택: 시로코팬 vs 인라인팬
+        </text>
+        <rect x="30" y="64" width="328" height="78" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="44" y="84" fontSize="10" fontWeight="700" fill="#1E40AF">
+          시로코팬 (원통형 다익 팬 · 상업 주방 표준)
+        </text>
+        <text x="44" y="102" fontSize="9.2" fill="#334155">
+          · 바람 밀어내는 힘(정압)이 커서 길고 꺾인 덕트에 강함
+        </text>
+        <text x="44" y="119" fontSize="9.2" fill="#334155">
+          · 고깃집 · 중식당 · 튀김집 긴 옥상 배기 동선에 표준 적용
+        </text>
+        <text x="44" y="135" fontSize="8.8" fill="#64748B">
+          (단, 덩치가 크고 모터 진동·방음 케이스 설치 공간 필요)
+        </text>
+
+        <rect x="30" y="152" width="328" height="84" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="44" y="172" fontSize="10" fontWeight="700" fill="#0F766E">
+          인라인팬 (배관 중간 직선 삽입형)
+        </text>
+        <text x="44" y="190" fontSize="9.2" fill="#334155">
+          · 천장 공간이 좁은 카페·소형 매장에 숨겨 설치하기 좋고 저소음
+        </text>
+        <text x="44" y="207" fontSize="9.2" fill="#DC2626">
+          · 배관이 길거나 꺾임(엘보) 많으면 풍량 급감해 연기 역류 주의
+        </text>
+        <text x="44" y="224" fontSize="8.8" fill="#475569">
+          · 팬만 크면 안 되고 바깥 공기가 들어올 급기 창·루버 균형 필수!
+        </text>
+
+        <rect x="388" y="16" width="356" height="232" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="388" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          후드 · 덕트 기름때 화재 예방 4가지 기준
+        </text>
+
+        <rect x="402" y="64" width="328" height="172" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="416" y="86" fontSize="10" fontWeight="700" fill="#991B1B">
+          1. 그리스필터(유지분리 필터) 상시 장착 · 주 1회 세척
+        </text>
+        <text x="416" y="103" fontSize="9" fill="#334155">
+          필터 없이 쓰거나 기름이 꽉 막히면 불꽃이 곧바로 덕트 안으로 유입
+        </text>
+        <text x="416" y="125" fontSize="10" fontWeight="700" fill="#991B1B">
+          2. 덕트 내 기름 찌꺼기(그리스) 발화점 약 190~230℃
+        </text>
+        <text x="416" y="142" fontSize="9" fill="#334155">
+          작은 불티만 튀어도 기름막을 타고 건물 천장·옥상까지 수초 내 확산
+        </text>
+        <text x="416" y="164" fontSize="10" fontWeight="700" fill="#991B1B">
+          3. 불연 재료(0.5mm 이상 강판 등) &amp; 정기 덕트 청소
+        </text>
+        <text x="416" y="181" fontSize="9" fill="#334155">
+          일반 식당 3~6개월, 중식·구이점은 1~3개월 주기 덕트 내부 청소 권장
+        </text>
+        <text x="416" y="203" fontSize="10" fontWeight="700" fill="#0F766E">
+          4. 배기가 약해 열기가 홀로 넘치면 에어컨도 함께 먹통!
+        </text>
+        <text x="416" y="220" fontSize="9" fill="#334155">
+          후드 청소·모터 벨트 점검만으로 매장 체감온도와 냉방비 동시 절감
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  32. 제빙기·쇼케이스 공랭식 vs 수랭식 비교 도해 (57번 글)            */
+/* ------------------------------------------------------------------ */
+export function AirVsWaterCooledDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="업소용 제빙기 · 쇼케이스 냉각 방식 비교: 공랭식 vs 수랭식"
+      caption="공랭식은 수도세가 안 들지만 좁고 더운 주방에서 제빙량이 급감하고, 수랭식은 한여름에도 얼음이 일정하지만 수도세·배수 부담이 큽니다."
+    >
+      <svg
+        viewBox="0 0 760 260"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          공랭식 제빙기와 수랭식 제빙기의 냉각 원리·수도요금·여름 제빙 성능 비교
+        </title>
+
+        <rect x="16" y="16" width="356" height="228" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          공랭식 (바람으로 열 식힘 · 매장 약 90% 표준)
+        </text>
+        <text x="32" y="74" fontSize="10" fontWeight="700" fill="#0F766E">
+          장점 (설치 · 유지비)
+        </text>
+        <text x="32" y="92" fontSize="9.2" fill="#334155">
+          · 열 식히는 냉각수가 필요 없어 수도요금 부담 없음(얼음 물만 사용)
+        </text>
+        <text x="32" y="110" fontSize="9.2" fill="#334155">
+          · 본체 가격·중고 매물이 가장 많고 배수 부담 적음
+        </text>
+        <text x="32" y="136" fontSize="10" fontWeight="700" fill="#DC2626">
+          단점 &amp; 꼭 맞출 현장 조건
+        </text>
+        <text x="32" y="154" fontSize="9.2" fill="#334155">
+          · 주방이 너무 덥거나(35~40℃+) 화구 옆이면 제빙 시간 길어지고 얼음 얇아짐
+        </text>
+        <text x="32" y="172" fontSize="9.2" fill="#334155">
+          · 팬 소음·더운 바람이 바깥으로 나와 통풍구 10~20cm 이격 필수
+        </text>
+        <rect x="30" y="188" width="328" height="44" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="44" y="214" fontSize="9.2" fontWeight="700" fill="#0F766E">
+          추천 매장: 통풍 · 냉방 되는 일반 카페 · 식당 · 호프집
+        </text>
+
+        <rect x="388" y="16" width="356" height="228" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="388" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          수랭식 (흐르는 물로 열 식힘 · 특수 현장용)
+        </text>
+        <text x="404" y="74" fontSize="10" fontWeight="700" fill="#1E40AF">
+          장점 (여름 · 밀폐 주방 안정성)
+        </text>
+        <text x="404" y="92" fontSize="9.2" fill="#334155">
+          · 주변 공기 온도와 무관하게 한여름에도 얼음 생산량·속도 일정
+        </text>
+        <text x="404" y="110" fontSize="9.2" fill="#334155">
+          · 더운 열풍을 홀·바 안으로 뿜지 않고 냉각팬 소음이 적음
+        </text>
+        <text x="404" y="136" fontSize="10" fontWeight="700" fill="#DC2626">
+          단점 &amp; 중고 구매 전 확인점
+        </text>
+        <text x="404" y="154" fontSize="9.2" fill="#DC2626" fontWeight="700">
+          · 열 식힌 물이 계속 하수구로 빠져나가 수도·하수도 요금 크게 증가!
+        </text>
+        <text x="404" y="172" fontSize="9.2" fill="#334155">
+          · 급수관·바닥 배수관 필수, 장기간 미관리 시 수랭 응축기 석회 막힘 주의
+        </text>
+        <rect x="402" y="188" width="328" height="44" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="416" y="214" fontSize="9.2" fontWeight="700" fill="#1E40AF">
+          추천 매장: 지하·무창 밀폐 주방 · 대형 업소 · 바(Bar) 카운터 매립
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  33. 전기 순간온수기 vs 저장식 온수기 & 밸브·양극봉 도해 (59번 글)    */
+/* ------------------------------------------------------------------ */
+export function WaterHeaterInstantVsStorageDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="카페 · 식당 전기 순간온수기 vs 저장식(저탕식 30~100L) 비교 & 필수 안전부품"
+      caption="저장식은 감압밸브·안전밸브가 누락되면 탱크 파손 위험이 있고, 마그네슘 양극봉(1~2년 주기 점검)을 갈아야 내통 부식을 막을 수 있습니다."
+    >
+      <svg
+        viewBox="0 0 760 270"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          전기 순간온수기 vs 저장식 온수기 소비전력과 감압·안전밸브·마그네슘 양극봉 구조
+        </title>
+
+        <rect x="16" y="16" width="234" height="238" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="234" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="133" y="39" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          전기 순간온수기 (무탱크)
+        </text>
+        <text x="30" y="74" fontSize="9.5" fontWeight="700" fill="#991B1B">
+          소비전력: 보통 3.5~5kW 이상 (고전력)
+        </text>
+        <text x="30" y="94" fontSize="9" fill="#334155">
+          · 장점: 물통 없어 작고 연속 온수 가능
+        </text>
+        <text x="30" y="112" fontSize="9" fill="#334155">
+          · 대기 중 보온 전기세 거의 안 듦
+        </text>
+        <text x="30" y="134" fontSize="9" fill="#DC2626" fontWeight="700">
+          현장 단점 · 실패 사례
+        </text>
+        <text x="30" y="152" fontSize="9" fill="#334155">
+          · 겨울 수온 차가우면 물줄기 약하거나 미지근
+        </text>
+        <text x="30" y="170" fontSize="9" fill="#334155">
+          · 순시 전력 높아 차단기 트립 빈발
+        </text>
+        <rect x="28" y="188" width="210" height="52" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="40" y="208" fontSize="9" fontWeight="700" fill="#991B1B">
+          용도: 손 씻기 · 간단한 보조 세척
+        </text>
+        <text x="40" y="225" fontSize="8.8" fill="#475569">
+          식기세척기·대량 설거지용으로 부적합
+        </text>
+
+        <rect x="263" y="16" width="234" height="238" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="263" y="16" width="234" height="36" rx="12" fill="#0F766E" />
+        <rect x="263" y="40" width="234" height="12" fill="#0F766E" />
+        <text x="380" y="39" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          저장식 온수기 (30 · 50 · 100L)
+        </text>
+        <text x="277" y="74" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          소비전력: 보통 1.5~3kW 내외 (안정적)
+        </text>
+        <text x="277" y="94" fontSize="9" fill="#334155">
+          · 장점: 뜨거운 물이 힘 있게 콸콸 나옴
+        </text>
+        <text x="277" y="112" fontSize="9" fill="#334155">
+          · 3kW 이하라 일반 매장 분전반 수용 용이
+        </text>
+        <text x="277" y="134" fontSize="9" fill="#C2410C" fontWeight="700">
+          주의: 다 쓰면 재가열 대기(30분~)
+        </text>
+        <text x="277" y="152" fontSize="9" fill="#334155">
+          · 카페 바(30L)·일반 식당(50~100L) 선택
+        </text>
+        <text x="277" y="170" fontSize="9" fill="#334155">
+          · 벽걸이 하중·바닥 수평 공간 미리 확인
+        </text>
+        <rect x="275" y="188" width="210" height="52" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="287" y="208" fontSize="9" fontWeight="700" fill="#0F766E">
+          용도: 식기세척기 · 설거지 · 미용실
+        </text>
+        <text x="287" y="225" fontSize="8.8" fill="#475569">
+          전용 누전차단기 + 접지 배선 연결 필수
+        </text>
+
+        <rect x="510" y="16" width="234" height="238" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="510" y="16" width="234" height="36" rx="12" fill="#E8521A" />
+        <rect x="510" y="40" width="234" height="12" fill="#E8521A" />
+        <text x="627" y="39" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          저장식 3대 필수 안전 부속
+        </text>
+        <rect x="522" y="64" width="210" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="534" y="83" fontSize="9.5" fontWeight="700" fill="#C2410C">
+          1. 감압밸브 (상수도 수압 낮춤)
+        </text>
+        <text x="534" y="100" fontSize="8.8" fill="#475569">
+          수압 높으면 내통 누수·파손 유발해 필수
+        </text>
+        <rect x="522" y="126" width="210" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="534" y="145" fontSize="9.5" fontWeight="700" fill="#C2410C">
+          2. 과압안전밸브 (압력 폭발 방출)
+        </text>
+        <text x="534" y="162" fontSize="8.8" fill="#475569">
+          열팽창 압력 자동 배출 (역류·잠금 금지)
+        </text>
+        <rect x="522" y="188" width="210" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="534" y="207" fontSize="9.5" fontWeight="700" fill="#0F766E">
+          3. 마그네슘 양극봉 (녹 방지 막대)
+        </text>
+        <text x="534" y="224" fontSize="8.8" fill="#475569">
+          1~2년마다 확인·교체 시 탱크 수명 연장
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  34. 도어 패킹 테스트 & 세제 혼합 금지 안전 세척 도해 (60번 글)        */
+/* ------------------------------------------------------------------ */
+export function GasketMoldSafeCleaningDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="냉장고·세탁기 도어 패킹(고무가스켓) 밀착 점검 2가지와 세제 혼합 금지 수칙"
+      caption="문 틈 고무패킹이 굳거나 뜨면 냉기가 새어 전기세·성에가 폭증하며, 곰팡이 청소 시 락스(염소계)와 구연산·식초(산성)를 섞으면 위험한 염소가스가 나옵니다."
+    >
+      <svg
+        viewBox="0 0 760 260"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          지폐 테스트·손전등 테스트로 패킹 밀착 확인과 락스+구연산 혼용 금지 수칙
+        </title>
+
+        <rect x="16" y="16" width="356" height="228" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="16" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          고무패킹 밀착 10초 자가 점검법 2가지
+        </text>
+
+        <rect x="30" y="64" width="328" height="78" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="44" y="84" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          1. 지폐 (또는 명함 · 종이) 끼우기 테스트
+        </text>
+        <text x="44" y="103" fontSize="9.2" fill="#334155">
+          · 문 틈에 지폐를 끼우고 닫은 뒤 당겼을 때 저항 없이 스르륵
+        </text>
+        <text x="44" y="121" fontSize="9.2" fill="#DC2626" fontWeight="700">
+          빠져나온다면 패킹 자석·고무 변형 상태 → 세척 또는 패킹 교체!
+        </text>
+
+        <rect x="30" y="152" width="328" height="78" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="44" y="172" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          2. 휴대폰 손전등(플래시) 암실 테스트
+        </text>
+        <text x="44" y="191" fontSize="9.2" fill="#334155">
+          · 불 켠 스마트폰을 냉장고 안에 넣고 주방 불을 끈 뒤 확인
+        </text>
+        <text x="44" y="209" fontSize="9.2" fill="#334155">
+          · 문 틈새로 빛이 새어 나오면 그 지점으로 더운 공기가 계속 유입
+        </text>
+
+        <rect x="388" y="16" width="356" height="228" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="388" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          곰팡이 · 냄새 청소 시 절대 안전 수칙
+        </text>
+
+        <rect x="402" y="64" width="328" height="74" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="416" y="84" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          락스(염소계) + 구연산·식초(산성) 혼합 절대 금지!
+        </text>
+        <text x="416" y="103" fontSize="9.2" fill="#334155">
+          · 두 성분이 섞이면 치명적인 유독성 염소가스 즉시 발생
+        </text>
+        <text x="416" y="121" fontSize="9.2" fill="#334155">
+          · 세제 교체 시 충분히 물로 헹군 뒤 환기하고 따로 사용해야 안전
+        </text>
+
+        <rect x="402" y="148" width="328" height="82" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="416" y="168" fontSize="10" fontWeight="700" fill="#0F766E">
+          고무패킹 망가뜨리지 않는 올바른 관리법
+        </text>
+        <text x="416" y="187" fontSize="9" fill="#334155">
+          · 냉장고 기름때는 미지근한 물+중성세제 (고무 경화 방지)
+        </text>
+        <text x="416" y="204" fontSize="9" fill="#334155">
+          · 드럼세탁기 패킹 틈은 세탁 후 마른 수건으로 물기 닦고 문 살짝 열기
+        </text>
+        <text x="416" y="220" fontSize="9" fill="#334155">
+          · 곰팡이 심한 패킹은 서비스센터·부품몰에서 패킹만 단독 교체 가능
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

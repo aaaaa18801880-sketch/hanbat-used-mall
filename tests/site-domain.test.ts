@@ -122,8 +122,8 @@ describe("lib/site 도메인 파서·검증·SSOT 테스트", () => {
 });
 
 describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트", () => {
-  it("52개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
-    assert.equal(INFO_GUIDE_ARTICLES.length, 52);
+  it("62개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
+    assert.equal(INFO_GUIDE_ARTICLES.length, 62);
 
     const numbers = new Set<number>();
     const slugs = new Set<string>();

@@ -19,6 +19,8 @@ export const SLUG_TO_GUIDE_TOOL: Record<string, GuideToolKind> = {
   "aircon-removal-pump-down-piping": "aircon-sizing",
   "winter-heating-heatpump-vs-electric-heater": "aircon-sizing",
   "aircon-2in1-vs-two-singles-home": "aircon-sizing",
+  "aircon-refrigerant-r22-r410a-r32-guide": "aircon-sizing",
+  "cooling-only-vs-heat-pump-nameplate": "aircon-sizing",
   // 2. 매장 계약전력(kW) 부하 시뮬레이터
   "voltage-220v-vs-380v": "power-contract",
   "startup-closure-docs-and-power": "power-contract",
@@ -29,6 +31,8 @@ export const SLUG_TO_GUIDE_TOOL: Record<string, GuideToolKind> = {
   "store-takeover-appliances-power-checklist": "power-contract",
   "commercial-gas-vs-induction-kitchen-setup": "power-contract",
   "cable-reel-power-strip-tracking-fire": "power-contract",
+  "commercial-fryer-gas-vs-electric-k-class": "power-contract",
+  "commercial-water-heater-instant-vs-storage": "power-contract",
   // 3. 출입문 통로·사다리차 진입 판정기
   "ladder-truck-and-clearance": "clearance-entry",
   "why-never-lay-fridge-flat-moving": "clearance-entry",
@@ -36,6 +40,7 @@ export const SLUG_TO_GUIDE_TOOL: Record<string, GuideToolKind> = {
   "free-waste-pickup-15990903-vs-used-buyback": "clearance-entry",
   "fridge-kitchen-fit-vs-freestanding-clearance": "clearance-entry",
   "compressor-appliance-clearance-heat-dissipation": "clearance-entry",
+  "villa-old-house-drilling-angle-3kw": "clearance-entry",
   // 4. 에너지 라벨 kWh & 차액 회수기간 계산기
   "energy-efficiency-rating-myth-and-kwh": "energy-payback",
   "inverter-aircon-24h-on-vs-off-electricity": "energy-payback",

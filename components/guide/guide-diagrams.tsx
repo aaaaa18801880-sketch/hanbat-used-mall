@@ -11,6 +11,7 @@ import {
   AirconRepairTimelineDiagram,
   AirconSingleVsMultiDiagram,
   CeilingVsStandInstallDiagram,
+  CoolingVsHeatpumpNameplateDiagram,
   DefrostCycleWalkwayDiagram,
   FixedSpeedVsInverterDiagram,
   HeatingHeatpumpVsHeaterDiagram,
@@ -19,8 +20,11 @@ import {
   OutdoorUnitWeatherproofDiagram,
   PcbFailureCausesDiagram,
   RefrigerantLeakMythDiagram,
+  RefrigerantTypesComparisonDiagram,
+  VillaInstallConstraintsDiagram,
 } from "./diagrams/aircon-diagrams";
 import {
+  ApplianceNameplateLifespanDiagram,
   ApplianceResaleValueDiagram,
   BuybackInspectionPointsDiagram,
   CableReelTrackingFireDiagram,
@@ -32,6 +36,7 @@ import {
   KwVsKwhDiagram,
   NeutralWireDangerDiagram,
   StartupPowerBudgetDiagram,
+  StoreRestorationScopeDiagram,
   StoreTakeoverChecklistDiagram,
   TvPanelBurninBacklightDiagram,
   UsedVsStoreFlowDiagram,
@@ -39,23 +44,28 @@ import {
   WastePickupVsBuybackDiagram,
 } from "./diagrams/electrical-ops-diagrams";
 import {
+  AirVsWaterCooledDiagram,
   Commercial45BoxCoolingDiagram,
   CommercialCondenserCleaningDiagram,
   CommercialDishwasherSetupDiagram,
   CommercialFridgeRepairRoiDiagram,
+  CommercialFryerKClassDiagram,
   CompressorVentilationClearanceDiagram,
   DryerHeatpumpCondenserDiagram,
   FreezerDefrostPipeRiskDiagram,
   FridgeFreezerAirflowDiagram,
   FridgeTiltOilReturnDiagram,
   GasVsInductionKitchenDiagram,
+  GasketMoldSafeCleaningDiagram,
   IcemakerHeatRejectionDiagram,
   KimchiFridgeCoolingDiagram,
+  KitchenHoodDuctFanDiagram,
   KitchenfitVsFreestandingDiagram,
   LpgVsLngNozzleDetectorDiagram,
   ShowcaseCondensationDiagram,
   WasherComboVsStackDiagram,
   WasherTubInspectionDiagram,
+  WaterHeaterInstantVsStorageDiagram,
   WinterKitchenFreezeCareDiagram,
 } from "./diagrams/home-kitchen-diagrams";
 
@@ -111,7 +121,17 @@ export type GuideDiagramId =
   | "freezer-defrost-pipe-risk"
   | "kitchenfit-vs-freestanding"
   | "cable-reel-tracking-fire"
-  | "compressor-ventilation-clearance";
+  | "compressor-ventilation-clearance"
+  | "appliance-nameplate-lifespan"
+  | "aircon-refrigerant-types"
+  | "commercial-fryer-k-class"
+  | "kitchen-hood-duct-fan"
+  | "air-vs-water-cooled"
+  | "cooling-vs-heatpump-nameplate"
+  | "water-heater-instant-vs-storage"
+  | "gasket-mold-safe-cleaning"
+  | "villa-install-constraints"
+  | "store-restoration-scope";
 
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
@@ -219,5 +239,25 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <CableReelTrackingFireDiagram />;
     case "compressor-ventilation-clearance":
       return <CompressorVentilationClearanceDiagram />;
+    case "appliance-nameplate-lifespan":
+      return <ApplianceNameplateLifespanDiagram />;
+    case "aircon-refrigerant-types":
+      return <RefrigerantTypesComparisonDiagram />;
+    case "commercial-fryer-k-class":
+      return <CommercialFryerKClassDiagram />;
+    case "kitchen-hood-duct-fan":
+      return <KitchenHoodDuctFanDiagram />;
+    case "air-vs-water-cooled":
+      return <AirVsWaterCooledDiagram />;
+    case "cooling-vs-heatpump-nameplate":
+      return <CoolingVsHeatpumpNameplateDiagram />;
+    case "water-heater-instant-vs-storage":
+      return <WaterHeaterInstantVsStorageDiagram />;
+    case "gasket-mold-safe-cleaning":
+      return <GasketMoldSafeCleaningDiagram />;
+    case "villa-install-constraints":
+      return <VillaInstallConstraintsDiagram />;
+    case "store-restoration-scope":
+      return <StoreRestorationScopeDiagram />;
   }
 }

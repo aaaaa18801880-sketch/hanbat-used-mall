@@ -1610,3 +1610,344 @@ export function Aircon2in1VsSinglesDiagram() {
     </DiagramFigure>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  20. R-22 vs R-410A vs R-32 냉매 세대교체 비교 도해 (54번 글)         */
+/* ------------------------------------------------------------------ */
+export function RefrigerantTypesComparisonDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="에어컨 냉매 3세대 비교: R-22(구형) vs R-410A vs R-32(차세대)"
+      caption="오존층보호법 규제에 따라 구형 R-22는 생산·수입이 전면 금지되어 수급·충전비가 비싸고, 최신 R-32는 효율이 높지만 약가연성(A2L)이라 화기 주의가 필요합니다."
+    >
+      <svg
+        viewBox="0 0 760 278"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          R-22, R-410A, R-32 에어컨 냉매 환경규제·특성·중고 구매 주의사항 비교
+        </title>
+
+        {/* 1열: R-22 */}
+        <rect x="16" y="16" width="234" height="246" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="234" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="133" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1세대: R-22 (프레온)
+        </text>
+        <rect x="28" y="64" width="210" height="58" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="40" y="84" fontSize="10" fontWeight="700" fill="#991B1B">
+          생산·수입 전면 금지
+        </text>
+        <text x="40" y="102" fontSize="9" fill="#334155">
+          · 오존층 파괴(ODP&gt;0) 규제 대상
+        </text>
+        <text x="40" y="116" fontSize="9" fill="#334155">
+          · 지구온난화지수(GWP) 약 1,810
+        </text>
+        <text x="30" y="144" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          중고 구매·이전설치 주의점
+        </text>
+        <text x="30" y="162" fontSize="9" fill="#334155">
+          · 잔여 재고만 유통돼 충전 비용 폭등
+        </text>
+        <text x="30" y="179" fontSize="9" fill="#334155">
+          · 단종 연식 많아 부품 수리 불가 잦음
+        </text>
+        <text x="30" y="196" fontSize="9" fill="#334155">
+          · 비가연성(A1)이나 구형 배관·압력 다름
+        </text>
+        <rect x="28" y="214" width="210" height="36" rx="6" fill="#FEE2E2" />
+        <text x="133" y="236" fontSize="9.5" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          중고는 초단기 저가용 외 비추천
+        </text>
+
+        {/* 2열: R-410A */}
+        <rect x="263" y="16" width="234" height="246" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="263" y="16" width="234" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="263" y="40" width="234" height="12" fill="#1D4ED8" />
+        <text x="380" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2세대: R-410A (혼합 냉매)
+        </text>
+        <rect x="275" y="64" width="210" height="58" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="287" y="84" fontSize="10" fontWeight="700" fill="#1E40AF">
+          현재 중고 시장 주류 냉매
+        </text>
+        <text x="287" y="102" fontSize="9" fill="#334155">
+          · 오존층 미파괴(ODP 0) / 비가연성(A1)
+        </text>
+        <text x="287" y="116" fontSize="9" fill="#334155">
+          · GWP 2,088로 키갈리 의정서 감축 중
+        </text>
+        <text x="277" y="144" fontSize="9.5" fill="#1E40AF" fontWeight="700">
+          현장 취급 · 수리 특징
+        </text>
+        <text x="277" y="162" fontSize="9" fill="#334155">
+          · 50:50 혼합이라 부분 누설 시 전부 회수
+        </text>
+        <text x="277" y="179" fontSize="9" fill="#334155">
+          · 진공 후 액상 정량 충전해야 효율 정상
+        </text>
+        <text x="277" y="196" fontSize="9" fill="#334155">
+          · 부품·충전 인프라 가장 풍부해 가성비 우수
+        </text>
+        <rect x="275" y="214" width="210" height="36" rx="6" fill="#DBEAFE" />
+        <text x="380" y="236" fontSize="9.5" fontWeight="700" fill="#1E40AF" textAnchor="middle">
+          중고 매물 기준 5~8년 내외 주력군
+        </text>
+
+        {/* 3열: R-32 */}
+        <rect x="510" y="16" width="234" height="246" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="510" y="16" width="234" height="36" rx="12" fill="#0F766E" />
+        <rect x="510" y="40" width="234" height="12" fill="#0F766E" />
+        <text x="627" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3세대: R-32 (신형 단일 냉매)
+        </text>
+        <rect x="522" y="64" width="210" height="58" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="534" y="84" fontSize="10" fontWeight="700" fill="#0F766E">
+          고효율 · 저온난화(GWP 675)
+        </text>
+        <text x="534" y="102" fontSize="9" fill="#334155">
+          · GWP가 R-410A의 약 3분의 1 수준
+        </text>
+        <text x="534" y="116" fontSize="9" fill="#334155">
+          · 냉매량 약 20% 줄어도 냉난방 효율↑
+        </text>
+        <text x="524" y="144" fontSize="9.5" fill="#C2410C" fontWeight="700">
+          약가연성(A2L) 필수 수칙
+        </text>
+        <text x="524" y="162" fontSize="9" fill="#334155">
+          · 배관 용접·회수 중 화기·스파크 엄금
+        </text>
+        <text x="524" y="179" fontSize="9" fill="#334155">
+          · 다른 냉매(R-410A 등)와 절대 혼합 금지
+        </text>
+        <text x="524" y="196" fontSize="9" fill="#334155">
+          · 좁은 밀폐실 설치 시 환기·충전량 엄수
+        </text>
+        <rect x="522" y="214" width="210" height="36" rx="6" fill="#CCFBF1" />
+        <text x="627" y="236" fontSize="9.5" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          최근 1~4년식 고효율 신형 매물 중심
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  21. 냉방전용 vs 냉난방기 명판 · 사방밸브 구분 도해 (58번 글)         */
+/* ------------------------------------------------------------------ */
+export function CoolingVsHeatpumpNameplateDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="외관만 보고 속기 쉬운 냉방전용 에어컨 vs 냉난방기(히트펌프) 판별법"
+      caption="리모컨에 난방 버튼이 보이더라도 실내기·실외기 명판에 정격 난방능력(W/kW)과 실외기 사방밸브가 있어야 실제로 따뜻한 바람이 나옵니다."
+    >
+      <svg
+        viewBox="0 0 760 264"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          명판 스펙과 사방밸브 유무로 구분하는 냉방전용 vs 냉난방기 구조 비교
+        </title>
+
+        {/* 왼쪽: 냉방전용 */}
+        <rect x="16" y="16" width="356" height="232" rx="12" fill="#F8FAFC" stroke="#CBD5E1" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#334155" />
+        <rect x="16" y="40" width="356" height="12" fill="#334155" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          냉방전용 에어컨 (여름 전용)
+        </text>
+        <rect x="32" y="64" width="324" height="74" rx="8" fill="#FFFFFF" stroke="#E2E8F0" />
+        <text x="46" y="83" fontSize="10" fontWeight="700" fill="#0F172A">
+          실내기·실외기 제품 명판(스티커) 표기
+        </text>
+        <text x="46" y="102" fontSize="9.5" fill="#1D4ED8" fontWeight="700">
+          · 정격 냉방능력: 8,300 W (만 기재됨)
+        </text>
+        <text x="46" y="120" fontSize="9.5" fill="#94A3B8">
+          · 난방능력 · 난방 소비전력 항목 없음
+        </text>
+
+        <text x="34" y="160" fontSize="10" fontWeight="700" fill="#DC2626">
+          현장 착각 주의사항
+        </text>
+        <text x="34" y="179" fontSize="9.5" fill="#334155">
+          · 냉매 방향 바꾸는 사방밸브가 아예 없는 단방향 구조
+        </text>
+        <text x="34" y="197" fontSize="9.5" fill="#334155">
+          · 공용 리모컨에 난방 아이콘이 떠도 온풍 절대 불가
+        </text>
+        <text x="34" y="215" fontSize="9.5" fill="#DC2626">
+          · 영하 한겨울엔 압축기 보호를 위해 가동 자체가 막히거나
+        </text>
+        <text x="34" y="231" fontSize="9.5" fill="#DC2626">
+          고장 원인이 될 수 있어 겨울 사용 권장되지 않음
+        </text>
+
+        {/* 오른쪽: 냉난방기 */}
+        <rect x="388" y="16" width="356" height="232" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="388" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          냉난방기 히트펌프 (사계절 겸용)
+        </text>
+        <rect x="404" y="64" width="324" height="74" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="418" y="83" fontSize="10" fontWeight="700" fill="#C2410C">
+          실내기·실외기 제품 명판(스티커) 표기
+        </text>
+        <text x="418" y="102" fontSize="9.5" fill="#1D4ED8" fontWeight="700">
+          · 정격 냉방능력: 8,300 W
+        </text>
+        <text x="418" y="120" fontSize="9.5" fill="#E8521A" fontWeight="700">
+          · 정격 난방능력: 9,000 W (나란히 명시!)
+        </text>
+
+        <text x="406" y="160" fontSize="10" fontWeight="700" fill="#0F766E">
+          구조 차이 &amp; 중고 살 때 체크
+        </text>
+        <text x="406" y="179" fontSize="9.5" fill="#334155">
+          · 실외기 내부 사방밸브(4-Way)가 냉매 흐름을 반전시킴
+        </text>
+        <text x="406" y="197" fontSize="9.5" fill="#334155">
+          · 겨울 실외기 성에 녹이는 제상 기능과 드레인 배수 고려
+        </text>
+        <text x="406" y="215" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          · 냉난방기는 소비전력이 더 높아 매장 계약전력 사전 확인 필수
+        </text>
+        <text x="406" y="231" fontSize="9.5" fill="#475569">
+          (구매 전 측면 스티커 사진 1장만 찍으면 즉시 판별 가능)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  22. 빌라·구옥·원룸 설치 전 3대 제약 체크 도해 (61번 글)             */
+/* ------------------------------------------------------------------ */
+export function VillaInstallConstraintsDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="아파트와 다른 빌라 · 구옥 · 원룸 에어컨·가전 설치 전 3대 현장 제약"
+      caption="빌라·구축 주택은 매립 배관 대신 외벽 타공·앵글·주택용 3kW 계약전력 한계 때문에 배송 당일 설치를 못 하고 돌아가는 경우가 많습니다."
+    >
+      <svg
+        viewBox="0 0 760 264"
+        className="w-full h-auto"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          타공 불가·외벽 앵글 금지 조례·주택용 3kW 차단기 한계 3대 체크포인트
+        </title>
+
+        {/* 카드 1: 타공 */}
+        <rect x="16" y="18" width="232" height="228" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="16" y="18" width="232" height="36" rx="12" fill="#E8521A" />
+        <rect x="16" y="42" width="232" height="12" fill="#E8521A" />
+        <text x="132" y="41" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 벽 타공(구멍) 가능 여부
+        </text>
+        <text x="30" y="76" fontSize="10" fontWeight="700" fill="#9A3412">
+          집주인 동의 &amp; 내력벽 주의
+        </text>
+        <text x="30" y="96" fontSize="9" fill="#334155">
+          · 전세·월세는 임대인 동의 없이
+        </text>
+        <text x="30" y="112" fontSize="9" fill="#334155">
+          신규 타공 시 원상복구 분쟁 발생
+        </text>
+        <text x="30" y="134" fontSize="9" fill="#334155">
+          · 방화문·내력벽·난방배관 지나는
+        </text>
+        <text x="30" y="150" fontSize="9" fill="#334155">
+          구간은 코어 타공 자체가 불가능
+        </text>
+        <rect x="28" y="174" width="208" height="58" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="40" y="194" fontSize="9" fontWeight="700" fill="#C2410C">
+          현장 해결 팁
+        </text>
+        <text x="40" y="211" fontSize="8.8" fill="#475569">
+          기존 구멍·창문형 키트 활용 여부 확인
+        </text>
+        <text x="40" y="225" fontSize="8.8" fill="#475569">
+          특수 코어 천공 시 별도 추가비 발생
+        </text>
+
+        {/* 카드 2: 실외기 앵글 */}
+        <rect x="264" y="18" width="232" height="228" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="264" y="18" width="232" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="264" y="42" width="232" height="12" fill="#1D4ED8" />
+        <text x="380" y="41" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 실외기 외부 앵글·난간 제한
+        </text>
+        <text x="278" y="76" fontSize="10" fontWeight="700" fill="#1E40AF">
+          지자체 · 관리규약 돌출 금지
+        </text>
+        <text x="278" y="96" fontSize="9" fill="#334155">
+          · 공동주택관리법상 실외기실이
+        </text>
+        <text x="278" y="112" fontSize="9" fill="#334155">
+          있으면 외벽·난간 거치 원칙 금지
+        </text>
+        <text x="278" y="134" fontSize="9" fill="#334155">
+          · 빌라 외벽 드라이비트 단열재는
+        </text>
+        <text x="278" y="150" fontSize="9" fill="#334155">
+          앵커 볼트 고정이 약해 추락 위험
+        </text>
+        <rect x="276" y="174" width="208" height="58" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="288" y="194" fontSize="9" fontWeight="700" fill="#1E40AF">
+          설치 전 확인할 점
+        </text>
+        <text x="288" y="211" fontSize="8.8" fill="#475569">
+          베란다 바닥 거치 · 옥상/지상 자리 확인
+        </text>
+        <text x="288" y="225" fontSize="8.8" fill="#475569">
+          사다리차·위험수당 여부 사전 고지 필수
+        </text>
+
+        {/* 카드 3: 3kW 계약전력 */}
+        <rect x="512" y="18" width="232" height="228" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="512" y="18" width="232" height="36" rx="12" fill="#DC2626" />
+        <rect x="512" y="42" width="232" height="12" fill="#DC2626" />
+        <text x="628" y="41" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. 구옥 주택용 3kW 전기 한계
+        </text>
+        <text x="526" y="76" fontSize="10" fontWeight="700" fill="#991B1B">
+          에어컨 + 인덕션 동시 차단
+        </text>
+        <text x="526" y="96" fontSize="9" fill="#334155">
+          · 일반 주택·원룸 기본 계약전력은
+        </text>
+        <text x="526" y="112" fontSize="9" fill="#334155">
+          대부분 3kW 기준(오래된 배선)
+        </text>
+        <text x="526" y="134" fontSize="9" fill="#334155">
+          · 스탠드 에어컨 + 3구 인덕션 +
+        </text>
+        <text x="526" y="150" fontSize="9" fill="#334155">
+          건조기 동시 켜면 차단기 바로 트립
+        </text>
+        <rect x="524" y="174" width="208" height="58" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="536" y="194" fontSize="9" fontWeight="700" fill="#991B1B">
+          예방 체크
+        </text>
+        <text x="536" y="211" fontSize="8.8" fill="#475569">
+          분전함 메인 차단기 A(암페어) 용량 확인
+        </text>
+        <text x="536" y="225" fontSize="8.8" fill="#475569">
+          에어컨·건조기 순차 사용 또는 전용 회선 분리
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

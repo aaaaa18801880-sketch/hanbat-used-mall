@@ -1243,6 +1243,236 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     fieldNote:
       "이격거리 수치와 소비전력 변화는 한국에너지공단·한국소비자원·제조사 매뉴얼에 기반하며, 장 딱 맞춤 설치 후 여름 과열 반품 및 진동 소음 AS 사례는 현장 경험입니다.",
   },
+  "used-appliance-nameplate-lifespan-guide": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "일반 정보 (권장 재검토 12개월)",
+    primarySources: [
+      {
+        org: "공정거래위원회 · 국가법령정보센터",
+        title: "소비자분쟁해결기준 (가전제품 품질보증기간 및 품목별 부품 보유기간 — 냉장고 9년·에어컨 8년·세탁기 7년)",
+        url: URLS.FTC,
+        date: "현행 고시 기준",
+        usedFor: "완제품 보증기간, 제조일자(제조연월만 표기 시 말일) 기준 부품 보유기간 기산점, 부품 미보유 시 감가상각 환급 기준 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 고객지원",
+        title: "가전제품(냉장고·세탁기·에어컨) 제품 정보 명판 부착 위치 및 모델명·제조년월 확인 안내",
+        url: URLS.SAMSUNG,
+        date: "공식 고객안내",
+        usedFor: "에너지라벨 고시일과 실제 명판 제조년월 구분, 품목별 명판 스티커 위치, 핵심부품 보증 범위 조건 확인",
+      },
+    ],
+    fieldNote:
+      "품목별 부품 보유기간·기산점 기준은 공정위 소비자분쟁해결기준 공식 고시에 따르며, 실내·외기 혼합 연식 대조와 명판 기반 매입 상담은 매장 실무 경험입니다.",
+  },
+  "aircon-refrigerant-r22-r410a-r32-guide": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "국가법령정보센터 · 환경부",
+        title: "오존층 보호를 위한 특정물질의 제조규제 등에 관한 법률 및 키갈리 개정서 HFC 단계적 감축 안내",
+        url: URLS.LAW,
+        date: "현행 법령 기준",
+        usedFor: "R-22(HCFC) 생산·수입 전면 금지 및 R-410A(GWP 2,088) 단계 감축, 저GWP(R-32 GWP 675) 전환 배경 확인",
+      },
+      {
+        org: "국가기술표준원 · 냉동공조 안전기준",
+        title: "R-32 약가연성(A2L) 냉매 에어컨 안전기준 및 혼합 충전·용접 화기 주의사항",
+        url: URLS.KATS,
+        date: "공식 안전 기준",
+        usedFor: "R-32의 A2L 약가연성 등급 특성, 타 냉매(R-410A 등) 혼합 금지, R-410A 50:50 혼합 냉매의 진공 후 액상 정량 충전 원리 확인",
+      },
+    ],
+    fieldNote:
+      "냉매별 ODP·GWP와 규제 및 A2L 안전 등급은 관계 법령·표준에 기반하며, R-22 단종 모델의 중고 수리 한계 사례는 매장 현장 점검 경험입니다.",
+  },
+  "commercial-fryer-gas-vs-electric-k-class": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "소방청 · 국가법령정보센터",
+        title: "소화기구 및 자동소화장치의 화재안전성능기준(NFTC 101) — 음식점 주방 K급 소화기 의무 설치 기준",
+        url: URLS.NFA,
+        date: "현행 화재안전성능기준",
+        usedFor: "식용유 발화점(약 288~385℃) 및 물 분사 시 폭발 위험, 일반 분말소화기 재발화 특성, 주방 25㎡ 미만/이상 K급 소화기 의무 비치 기준 확인",
+      },
+      {
+        org: "한국가스안전공사 · 한국전기안전공사",
+        title: "업소용 가스 및 전기 조리기구 안전 사용·전용 차단기 배선 안내",
+        url: URLS.KESCO,
+        date: "공공 안전 안내",
+        usedFor: "대형 전기 튀김기 고전력(5~10kW+) 전용선 원칙 및 가스 튀김기 LPG/LNG 사양·유조 누유 점검 수칙 확인",
+      },
+    ],
+    fieldNote:
+      "K급 소화기 의무 수량과 식용유 화재 원리는 소방청 NFTC 101 및 공식 안전자료 기준이며, 유조 용접부·과열센서 중고 검수 체크는 매장 현장 경험입니다.",
+  },
+  "kitchen-hood-duct-sirocco-vs-inline-fan": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "소방청 · 다중이용업소 안전관리 기준",
+        title: "음식점 주방 후드·덕트(0.5mm 이상 불연 강판) 기름때(그리스) 화재 예방 및 청소 안내",
+        url: URLS.NFA,
+        date: "공공 화재예방 자료",
+        usedFor: "덕트 내 기름 찌꺼기 착화 온도(약 190~230℃), 그리스필터(유지분리 필터) 상시 장착 및 불연 강판 덕트·정기 청소 기준 확인",
+      },
+      {
+        org: "대한설비공학회 · 주방 공조·환기 실무 기준",
+        title: "상업용 주방 배기팬(시로코팬 vs 인라인팬) 정압·덕트 길이 선정 및 급기(Make-up Air) 균형 원칙",
+        url: URLS.SAREK,
+        date: "설비 기술 기준",
+        usedFor: "긴 꺾인 배관의 정압 확보(시로코팬)와 좁은 직관(인라인팬) 차이, 급기 부족에 따른 배기 역류 및 냉방 효율 저하 상관관계 확인",
+      },
+    ],
+    fieldNote:
+      "덕트 불연재료·기름때 화재 예방 수칙은 소방청 자료 기준이며, 후드 막힘으로 인한 홀 열기 누적·에어컨 효율 저하 현상은 업소 현장 진단 사례입니다.",
+  },
+  "commercial-icemaker-air-vs-water-cooled": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "제빙기 · 상업용 냉동기 제조사 매뉴얼",
+        title: "공랭식 vs 수랭식 업소용 제빙기 냉각 원리 · 주변 온도(35~40℃+) 영향 및 급배수 설치 기준",
+        url: URLS.KCA,
+        date: "제조사 표준 매뉴얼",
+        usedFor: "공랭식 주변 온도 영향·무냉각수 장점 및 통풍 10~20cm 요구, 수랭식 여름 일정 생산량·저소음·냉각수 지속 배수에 따른 수도요금 증가 특성 확인",
+      },
+      {
+        org: "한국에너지공단 · 업소용 냉동기 관리 수칙",
+        title: "응축기 방열 조건이 냉동기 제빙 효율·전력 소모에 미치는 영향",
+        url: URLS.KEA,
+        date: "공식 에너지 안내",
+        usedFor: "밀폐 카운터·화기 인접 배치 시 공랭식 효율 급락 및 응축기 청소 주기 관리 기준 확인",
+      },
+    ],
+    fieldNote:
+      "냉각 방식별 구조와 장단점은 제빙기 제조사 공식 매뉴얼에 기반하며, 카페·바 매장별 수도세·배수 환경에 따른 추천 기준은 매장 납품 실무 경험입니다.",
+  },
+  "cooling-only-vs-heat-pump-nameplate": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "일반 정보 (권장 재검토 12개월)",
+    primarySources: [
+      {
+        org: "삼성전자서비스 · LG전자 고객지원",
+        title: "냉방전용 에어컨 vs 히트펌프 냉난방기 명판(냉방·난방능력) 확인 및 겨울철 작동 기준",
+        url: URLS.LG,
+        date: "공식 고객안내",
+        usedFor: "실내·외기 명판상 정격 냉방능력/난방능력 표기 구분, 공용 리모컨 난방 아이콘 혼동 사례, 냉방전용 영하 가동 비권장 안내 확인",
+      },
+      {
+        org: "한국냉동공조산업 관련 기술 안내",
+        title: "히트펌프 사방밸브(4-Way Valve) 냉매 전환 및 겨울철 제상 운전 메커니즘",
+        url: URLS.SAREK,
+        date: "공조 기술자료",
+        usedFor: "사방밸브 유무에 따른 냉난방 가능 여부 및 제상 운전·드레인 배수 차이 확인",
+      },
+    ],
+    fieldNote:
+      "명판 판별법과 사방밸브 작동 기준은 삼성·LG 공식 안내 기반이며, 출고 시운전 시 난방 전환까지 검증하는 절차는 매장 검수 기준입니다.",
+  },
+  "commercial-water-heater-instant-vs-storage": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "전기온수기 제조사 설치 매뉴얼 · 한국전기안전공사",
+        title: "저장식(저탕식) vs 순간 전기온수기 정격 소비전력(1.5~3kW vs 3.5~5kW+) 및 전용 누전차단기 설치 기준",
+        url: URLS.KESCO,
+        date: "공식 설치·안전 기준",
+        usedFor: "순간온수기 고순시전력 차단기 트립·동절기 수온 저하 특성과 저장식 온수기 용량별 전류·전용 접지 회선 필요성 확인",
+      },
+      {
+        org: "한국소비자원 · 온수기 안전관리 안내",
+        title: "저장식 전기온수기 감압밸브·과압안전밸브 의무 장착 및 마그네슘 양극봉(1~2년) 정기 교체 안내",
+        url: URLS.KCA,
+        date: "소비자 안전 안내",
+        usedFor: "감압밸브·안전밸브 누락 시 탱크 파열·누수 위험 및 마그네슘 양극봉 부식 방지 역할, 빈 탱크 공회전 금지 수칙 확인",
+      },
+    ],
+    fieldNote:
+      "안전 부속(감압·안전밸브·양극봉)과 전력 기준은 제조사 설치 설명서 및 안전공사 기준이며, 카페 30L·식당 50~100L 현장 선택 조언은 납품 경험입니다.",
+  },
+  "fridge-washer-gasket-mold-cleaning-safety": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "한국소비자원 · 생활화학제품 안전주의보",
+        title: "염소계 표백제(락스)와 산성 세제(구연산·식초) 혼합 사용 시 유독 염소가스 발생 주의 안내",
+        url: URLS.KCA,
+        date: "소비자 안전주의보",
+        usedFor: "락스+산성 세제 혼용 시 염소가스 중독 위험 및 단일 세제 환기 후 물 헹굼 원칙 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 고객지원",
+        title: "냉장고 도어 고무패킹(가스켓) 밀착 자가 점검(지폐·불빛 테스트) 및 드럼세탁기 패킹 건조 관리",
+        url: URLS.LG,
+        date: "공식 관리 안내",
+        usedFor: "문 틈 냉기 누설에 따른 성에·전력 증가 원리, 지폐/손전등 밀착 점검법, 미지근한 중성세제 세척 및 패킹 단품 교체 안내 확인",
+      },
+    ],
+    fieldNote:
+      "세제 혼합 금지 안전 수칙과 지폐/불빛 테스트는 소비자원·제조사 공식 가이드 기반이며, 수평 재조정으로 문 들뜸을 잡는 방법은 매장 출고·AS 경험입니다.",
+  },
+  "villa-old-house-drilling-angle-3kw": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "국가법령정보센터 · 국토교통부",
+        title: "공동주택관리법 시행령 및 주택건설기준(실외기 설치 공간 마련 공동주택의 외벽 돌출 설치 제한)",
+        url: URLS.LAW,
+        date: "현행 법령 기준",
+        usedFor: "실외기실 구비 공동주택의 외벽·난간 돌출 거치 제한 규약 및 드라이비트 외벽 앵커 고정 주의 필요성 확인",
+      },
+      {
+        org: "한국전력공사 (KEPCO)",
+        title: "주택용 저압 기본 계약전력(3kW) 사용 한계 및 고전력 가전 동시 사용 차단 주의 안내",
+        url: URLS.KEPCO,
+        date: "공공 전기 공급 약관",
+        usedFor: "일반 주택·원룸 기본 3kW 계약전력 한계와 에어컨·인덕션·건조기·온수기 동시 가동 시 차단기 트립 원인 확인",
+      },
+    ],
+    fieldNote:
+      "외벽 앵글 규약과 주택 3kW 전력 조건은 관련 법령·한전 안내에 기반하며, 전세 벽 타공 임대인 사전 동의 및 사다리차 동선 확인은 현장 배송 경험입니다.",
+  },
+  "store-lease-restoration-removal-dispute": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "국가법령정보센터 · 법제처",
+        title: "민법 제615조 및 제654조 (차용물·임대차 목적물 원상회복 의무 기준)",
+        url: URLS.LAW,
+        date: "현행 민법 기준",
+        usedFor: "임대차 종료 시 임대 당시 상태 반환 원칙 및 통상적 사용에 따른 자연 노후 제외 법리 확인",
+      },
+      {
+        org: "대법원 판례 요지 (90다카12035 · 2017다268142)",
+        title: "전 임차인 시설 인수 시 특약 유무 및 포괄 양수도에 따른 원상회복 범위 판단 기준",
+        url: URLS.LAW,
+        date: "대법원 공개 판결",
+        usedFor: "별도 특약 부재 시 본인 개조·설치분만 복구 원칙(90다카12035) vs 포괄 양수·공실 반환 특약 시 전 임차인 시설 철거 의무 인정 사례(2017다268142) 확인",
+      },
+    ],
+    fieldNote:
+      "법령·판례 요지는 일반적인 정보 제공 목적이며 개별 분쟁은 법률 전문가 확인이 필요합니다. 천장형·승압 설비의 철거 전 매입 분리 및 임대인 서면 합의 요령은 창·폐업 매장 경험입니다.",
+  },
 };
 
 export function getGuideVerification(slug: string): InfoGuideVerification | undefined {
