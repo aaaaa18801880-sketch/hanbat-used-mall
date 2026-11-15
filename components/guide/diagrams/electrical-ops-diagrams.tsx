@@ -1213,3 +1213,368 @@ export function NeutralWireDangerDiagram() {
     </DiagramFigure>
   );
 }
+
+/** 36번 글: 누전차단기(ELB) vs 배선용차단기(MCCB) 비교 및 트립 원인 찾기 */
+export function ElbVsMccbTripDiagram() {
+  return (
+    <DiagramFigure
+      title="배선용차단기(MCCB) vs 누전차단기(ELB) 구분과 차단 시 원인 찾는 3단계"
+      caption="시험(TEST) 버튼 유무로 차단기 역할을 구분할 수 있으며, 장마철 차단기가 반복해서 내려갈 때는 '모든 플러그 뽑기 → 1개씩 꽂기'로 고장 가전과 벽 속 배선 누전을 바로 가려낼 수 있습니다."
+    >
+      <svg
+        viewBox="0 0 760 305"
+        role="img"
+        aria-label="배선용차단기 MCCB와 누전차단기 ELB 외형 및 기능 비교, 차단 시 3단계 점검 순서 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="305" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: MCCB */}
+        <rect x="16" y="16" width="228" height="273" rx="12" fill="#FFFFFF" stroke="#CBD5E1" />
+        <rect x="16" y="16" width="228" height="36" rx="12" fill="#1E293B" />
+        <rect x="16" y="40" width="228" height="12" fill="#1E293B" />
+        <text x="130" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          배선용차단기 (MCCB)
+        </text>
+
+        <rect x="86" y="68" width="88" height="70" rx="8" fill="#F1F5F9" stroke="#64748B" strokeWidth="1.5" />
+        <rect x="108" y="88" width="44" height="20" rx="4" fill="#0F172A" />
+        <text x="130" y="102" fontSize="10" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          ON / OFF
+        </text>
+        <text x="130" y="128" fontSize="9.5" fontWeight="600" fill="#475569" textAnchor="middle">
+          시험 버튼 없음
+        </text>
+
+        <text x="30" y="164" fontSize="11" fontWeight="700" fill="#0F172A">
+          주요 역할: 전선·기계 과부하 보호
+        </text>
+        <text x="30" y="186" fontSize="10" fill="#475569">
+          · 전기 너무 많이 쓸 때(과전류) 차단
+        </text>
+        <text x="30" y="205" fontSize="10" fill="#475569">
+          · 합선(쇼트) 시 전선 화재 예방
+        </text>
+        <text x="30" y="224" fontSize="10" fill="#DC2626" fontWeight="700">
+          · 단, 미세 누전·감전은 못 막음
+        </text>
+        <rect x="28" y="242" width="204" height="34" rx="7" fill="#F8FAFC" stroke="#E2E8F0" />
+        <text x="130" y="263" fontSize="10" fontWeight="700" fill="#334155" textAnchor="middle">
+          주로 메인 차단기 · 3상 동력에 사용
+        </text>
+
+        {/* 가운데: ELB */}
+        <rect x="258" y="16" width="228" height="273" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="258" y="16" width="228" height="36" rx="12" fill="#E8521A" />
+        <rect x="258" y="40" width="228" height="12" fill="#E8521A" />
+        <text x="372" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          누전차단기 (ELB)
+        </text>
+
+        <rect x="324" y="68" width="96" height="70" rx="8" fill="#FFF7ED" stroke="#FB923C" strokeWidth="1.5" />
+        <rect x="342" y="80" width="44" height="18" rx="4" fill="#0F172A" />
+        <text x="364" y="93" fontSize="9.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          ON/OFF
+        </text>
+        <rect x="394" y="80" width="20" height="18" rx="4" fill="#DC2626" />
+        <text x="404" y="93" fontSize="8.5" fontWeight="800" fill="#FFFFFF" textAnchor="middle">
+          T
+        </text>
+        <text x="372" y="128" fontSize="9.5" fontWeight="700" fill="#C2410C" textAnchor="middle">
+          빨간/주황 TEST(시험) 버튼 있음!
+        </text>
+
+        <text x="272" y="164" fontSize="11" fontWeight="700" fill="#9A3412">
+          주요 역할: 사람 감전·누전 차단
+        </text>
+        <text x="272" y="186" fontSize="10" fill="#475569">
+          · 30mA 이상 새면 0.03초 내 차단
+        </text>
+        <text x="272" y="205" fontSize="10" fill="#475569">
+          · 물기 많은 주방·콘센트 회로 필수
+        </text>
+        <text x="272" y="224" fontSize="10" fill="#0F766E" fontWeight="700">
+          · 한 달 1번 TEST 눌러 꺼지는지 점검
+        </text>
+        <rect x="270" y="242" width="204" height="34" rx="7" fill="#FFF7ED" stroke="#FED7AA" />
+        <text x="372" y="263" fontSize="10" fontWeight="700" fill="#C2410C" textAnchor="middle">
+          안 내려가면 고장 → 즉시 교체 대상
+        </text>
+
+        {/* 오른쪽: 3단계 찾기 */}
+        <rect x="500" y="16" width="244" height="273" rx="12" fill="#F0F9FF" stroke="#BAE6FD" />
+        <rect x="500" y="16" width="244" height="36" rx="12" fill="#0369A1" />
+        <rect x="500" y="40" width="244" height="12" fill="#0369A1" />
+        <text x="622" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          비 온 날 자꾸 꺼질 때 원인 찾기
+        </text>
+
+        <rect x="514" y="66" width="216" height="58" rx="8" fill="#FFFFFF" stroke="#BAE6FD" />
+        <text x="526" y="85" fontSize="10.5" fontWeight="700" fill="#0369A1">
+          1단계. 해당 구역 플러그 모두 뽑기
+        </text>
+        <text x="526" y="102" fontSize="9.5" fill="#475569">
+          모두 뺀 상태에서 차단기만 다시 올림
+        </text>
+        <text x="526" y="116" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          → 이때 또 떨어지면 벽·간판 배선 누전!
+        </text>
+
+        <rect x="514" y="136" width="216" height="58" rx="8" fill="#FFFFFF" stroke="#BAE6FD" />
+        <text x="526" y="155" fontSize="10.5" fontWeight="700" fill="#0369A1">
+          2단계. 가전 1개씩 시간 두고 꽂기
+        </text>
+        <text x="526" y="172" fontSize="9.5" fill="#475569">
+          냉장고·에어컨·온수기 순으로 1대씩 연결
+        </text>
+        <text x="526" y="186" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          → 꽂자마자 떨어지는 기기가 고장 범인
+        </text>
+
+        <rect x="514" y="206" width="216" height="70" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="526" y="226" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          3단계. 절대 억지로 테이프 고정 금지!
+        </text>
+        <text x="526" y="244" fontSize="9.5" fill="#7F1D1D">
+          · 차단기는 불·감전 막으려고 떨어짐
+        </text>
+        <text x="526" y="261" fontSize="9.5" fill="#7F1D1D" fontWeight="700">
+          · 1889(전기안전공사)·전기기사 점검 필수
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 37번 글: TV 패널별(OLED vs QLED/LED) 수명·고장 패턴과 중고 직검수 */
+export function TvPanelBurninBacklightDiagram() {
+  return (
+    <DiagramFigure
+      title="OLED vs QLED·LED TV 패널 구조 차이와 중고 매장 직검수 포인트"
+      caption="스스로 빛을 내는 OLED는 '고정 로고·자막 잔상(번인)'을 흰/단색 화면으로 꼭 봐야 하고, 뒤에 등이 들어가는 QLED·LED는 '파란·보라색 화면 멍(백라이트 열화)' 여부를 먼저 확인해야 합니다."
+    >
+      <svg
+        viewBox="0 0 760 295"
+        role="img"
+        aria-label="OLED 자발광 번인 점검과 QLED LED 백라이트 수명·화면 멍 점검 포인트 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="295" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: OLED */}
+        <rect x="16" y="16" width="356" height="263" rx="12" fill="#FFFFFF" stroke="#CBD5E1" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#0F172A" />
+        <rect x="16" y="40" width="356" height="12" fill="#0F172A" />
+        <text x="194" y="39" fontSize="12.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          OLED TV (화소 스스로 빛냄 · 압도적 명암비)
+        </text>
+
+        <rect x="36" y="66" width="150" height="90" rx="8" fill="#FEE2E2" stroke="#F87171" strokeWidth="1.5" />
+        <rect x="44" y="74" width="44" height="16" rx="3" fill="#EF4444" opacity="0.45" />
+        <text x="66" y="85" fontSize="8.5" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          방송사 로고
+        </text>
+        <rect x="44" y="128" width="134" height="18" rx="3" fill="#EF4444" opacity="0.35" />
+        <text x="111" y="140" fontSize="8.5" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          뉴스 하단 자막 얼룩(번인)
+        </text>
+        <text x="111" y="110" fontSize="10" fontWeight="700" fill="#7F1D1D" textAnchor="middle">
+          단색 빨강/노랑/회색 화면 띄우기
+        </text>
+
+        <text x="200" y="84" fontSize="10.5" fontWeight="700" fill="#0F172A">
+          주요 수명 · 고장 원인
+        </text>
+        <text x="200" y="103" fontSize="9.5" fill="#475569">
+          · 소자 수명 약 3만~6만 시간
+        </text>
+        <text x="200" y="120" fontSize="9.5" fill="#475569">
+          · 뉴스/게임 고정 화면 오래 켜면
+        </text>
+        <text x="200" y="137" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 영구 잔상(번인) 흔적 남을 수 있음
+        </text>
+        <text x="200" y="154" fontSize="9.5" fill="#475569">
+          · 전원 켠 뒤 멀티탭 바로 끄면 손상
+        </text>
+
+        <rect x="32" y="174" width="324" height="90" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
+        <text x="46" y="196" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          중고 구매 시 꼭 확인할 3가지
+        </text>
+        <text x="46" y="216" fontSize="10" fill="#334155">
+          1. 유튜브 [OLED 번인 테스트(단색 화면)]로 자막·로고 잔상 확인
+        </text>
+        <text x="46" y="234" fontSize="10" fill="#334155">
+          2. 매장 전시품·업소 뉴스 종일 틀던 매물은 가급적 피하기
+        </text>
+        <text x="46" y="252" fontSize="10" fill="#334155">
+          3. 리모컨 OFF 후 픽셀 리프레시 끝나기 전 코드 뽑지 않기
+        </text>
+
+        {/* 오른쪽: QLED / LED */}
+        <rect x="388" y="16" width="356" height="263" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="388" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="566" y="39" fontSize="12.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          QLED · LED TV (뒷면 LED 등 + LCD · 번인 걱정 적음)
+        </text>
+
+        <rect x="408" y="66" width="150" height="90" rx="8" fill="#F8FAFC" stroke="#94A3B8" strokeWidth="1.5" />
+        <circle cx="445" cy="96" r="14" fill="#6366F1" opacity="0.35" />
+        <circle cx="515" cy="126" r="16" fill="#1E293B" opacity="0.28" />
+        <text x="483" y="109" fontSize="10" fontWeight="700" fill="#1E3A8A" textAnchor="middle">
+          흰 화면 띄워 확인!
+        </text>
+        <text x="483" y="148" fontSize="8.5" fontWeight="700" fill="#4338CA" textAnchor="middle">
+          푸른 멍·어두운 줄 = 백라이트 노후
+        </text>
+
+        <text x="572" y="84" fontSize="10.5" fontWeight="700" fill="#9A3412">
+          주요 수명 · 고장 원인
+        </text>
+        <text x="572" y="103" fontSize="9.5" fill="#475569">
+          · 소자 수명 약 3만~6만+ 시간
+        </text>
+        <text x="572" y="120" fontSize="9.5" fill="#475569">
+          · 번인은 거의 없으나 오래 쓰면
+        </text>
+        <text x="572" y="137" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 뒤쪽 LED 등 꺼짐(한쪽 어두워짐)
+        </text>
+        <text x="572" y="154" fontSize="9.5" fill="#475569">
+          · 벽 밀착 설치 시 열기로 수명 단축
+        </text>
+
+        <rect x="404" y="174" width="324" height="90" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="418" y="196" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          중고 구매 시 꼭 확인할 3가지
+        </text>
+        <text x="418" y="216" fontSize="10" fill="#334155">
+          1. 흰색 바탕에서 화면 한쪽이 어둡거나 파랗·보랏빛(백라이트 멍) 없는지 확인
+        </text>
+        <text x="418" y="234" fontSize="10" fill="#334155">
+          2. HDMI 포트 1~3번·와이파이·리모컨 수신이 모두 정상인지 점검
+        </text>
+        <text x="418" y="252" fontSize="10" fill="#334155">
+          3. 설치 후 백라이트 밝기를 70~80 수준으로 낮추고 뒤 통풍구 여유 두기
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 42번 글: 돈 받고 파는 매입 가전 vs 무료 폐가전 방문수거(1599-0903) 구분 */
+export function WastePickupVsBuybackDiagram() {
+  return (
+    <DiagramFigure
+      title="폐업·이사 가전 처분 기준: 돈 받고 매입 vs 무상방문수거(1599-0903) vs 유료 폐기"
+      caption="작동이 정상이고 최근 연식이면 매입으로 돈을 받을 수 있고, 고장·노후 가전도 형태만 온전하면 정부·E순환거버넌스(1599-0903)가 무료로 가져갑니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="유상 매입 가전 기준, 1599-0903 폐가전 무상방문수거 기준, 원형 훼손 유료 폐기 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 1. 전문 매장 매입 */}
+        <rect x="16" y="16" width="234" height="253" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="16" y="16" width="234" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="40" width="234" height="12" fill="#0F766E" />
+        <text x="133" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 돈 받고 팔기 (전문 매장 매입)
+        </text>
+
+        <text x="32" y="76" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          이 조건이면 먼저 매입 견적!
+        </text>
+        <text x="32" y="98" fontSize="10" fill="#334155">
+          · 정상 작동하고 외관 큰 파손 없음
+        </text>
+        <text x="32" y="118" fontSize="10" fill="#334155">
+          · 가정용: 보통 제조 7~8년 이내
+        </text>
+        <text x="32" y="138" fontSize="10" fill="#334155">
+          · 업소용(냉장고·제빙기·에어컨):
+        </text>
+        <text x="42" y="155" fontSize="10" fill="#0F766E" fontWeight="700">
+          철거비 제외하고도 현금 정산 가능!
+        </text>
+        <rect x="28" y="176" width="210" height="78" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="40" y="196" fontSize="10" fontWeight="700" fill="#0F172A">
+          꿀팁: 철거 전 사진 3장 먼저 찍기
+        </text>
+        <text x="40" y="214" fontSize="9.5" fill="#475569">
+          에어컨·업소 기기는 떼기 전에 작동 상태로
+        </text>
+        <text x="40" y="230" fontSize="9.5" fill="#475569">
+          명판·전체 사진 찍어야 제값 받습니다.
+        </text>
+
+        {/* 2. 무상방문수거 1599-0903 */}
+        <rect x="263" y="16" width="234" height="253" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="263" y="16" width="234" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="263" y="40" width="234" height="12" fill="#1D4ED8" />
+        <text x="380" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 무료 버리기 (1599-0903)
+        </text>
+
+        <text x="279" y="76" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          고장 나도 형태 온전하면 0원 수거
+        </text>
+        <text x="279" y="98" fontSize="10" fill="#334155">
+          · 대형가전(냉장·세탁·TV·에어컨) 1대부터
+        </text>
+        <text x="279" y="118" fontSize="10" fill="#334155">
+          · 소형가전(밥솥·선풍기 등) 5개 이상부터
+        </text>
+        <text x="279" y="138" fontSize="10" fill="#334155">
+          · 대형가전 1대 낼 때 소형 5개 미만 합배출
+        </text>
+        <rect x="275" y="176" width="210" height="78" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="287" y="196" fontSize="10" fontWeight="700" fill="#DC2626">
+          주의: 벽걸이 TV·에어컨 미철거 시 불가!
+        </text>
+        <text x="287" y="214" fontSize="9.5" fill="#475569">
+          벽에서 분리된 상태여야 수거 기사님이
+        </text>
+        <text x="287" y="230" fontSize="9.5" fill="#475569">
+          가져갑니다. (모두비움 앱/1599-0903)
+        </text>
+
+        {/* 3. 제외 및 유료 폐기 */}
+        <rect x="510" y="16" width="234" height="253" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="510" y="16" width="234" height="36" rx="12" fill="#DC2626" />
+        <rect x="510" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="627" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. 무상수거 제외 (스티커/업체)
+        </text>
+
+        <text x="526" y="76" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          아래 품목은 무상수거가 거절됩니다
+        </text>
+        <text x="526" y="98" fontSize="10" fill="#334155">
+          · 원형 훼손(콤프·모터 빼고 부서진 것)
+        </text>
+        <text x="526" y="118" fontSize="10" fill="#334155">
+          · 안마의자 · 전기장판 · 옥매트 · 가구
+        </text>
+        <text x="526" y="138" fontSize="10" fill="#334155">
+          · 맞춤 빌트인 · 대형 냉동창고 설비
+        </text>
+        <rect x="522" y="176" width="210" height="78" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="534" y="196" fontSize="10" fontWeight="700" fill="#991B1B">
+          폐업 시 처리 순서 (돈 아끼는 법)
+        </text>
+        <text x="534" y="214" fontSize="9.5" fill="#475569">
+          ① 매입(먼저 돈 받고 비우기) → ② 무상수거
+        </text>
+        <text x="534" y="230" fontSize="9.5" fill="#475569">
+          (0원) → ③ 인테리어 원상복구 철거 업체
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

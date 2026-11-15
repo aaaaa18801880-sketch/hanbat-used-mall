@@ -923,3 +923,252 @@ export function CommercialFridgeRepairRoiDiagram() {
     </DiagramFigure>
   );
 }
+
+/** 38번 글: 업소용 냉장고 기계실 응축기(콘덴서) 먼지·기름때 청소 및 관리 */
+export function CommercialCondenserCleaningDiagram() {
+  return (
+    <DiagramFigure
+      title="업소용 냉장고 수명 2배 늘리는 기계실 방열판(응축기) 올바른 청소법"
+      caption="주방 기름때와 먼지가 알루미늄 핀을 막으면 콤프레샤가 24시간 과열로 타버립니다. 꽂혀 있던 플러그를 먼저 뽑고, 핀이 꺾이지 않게 '세로 결 방향'으로만 털어내야 합니다."
+    >
+      <svg
+        viewBox="0 0 760 295"
+        role="img"
+        aria-label="업소용 냉장고 응축기 막힘 시 콤프레샤 과열 과정과 세로 결 방향 청소 방법 및 주기 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="295" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 방치 시 고장 흐름 */}
+        <rect x="16" y="16" width="234" height="263" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="234" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="133" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 먼지·기름때 방치 시 고장 순서
+        </text>
+
+        <rect x="30" y="68" width="206" height="38" rx="7" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="133" y="91" fontSize="10.5" fontWeight="700" fill="#7F1D1D" textAnchor="middle">
+          주방 유증기 + 먼지가 방열판에 떡짐
+        </text>
+        <text x="133" y="120" fontSize="11" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          ↓ 바람길 막혀 열 방출 불가
+        </text>
+        <rect x="30" y="130" width="206" height="38" rx="7" fill="#FEF2F2" stroke="#F87171" />
+        <text x="133" y="153" fontSize="10.5" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          콤프레샤 24시간 풀가동 · 전기세 급등
+        </text>
+        <text x="133" y="182" fontSize="11" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          ↓ 과열로 보호기 작동 반복 후 사망
+        </text>
+        <rect x="30" y="192" width="206" height="72" rx="7" fill="#FFFFFF" stroke="#EF4444" strokeWidth="1.5" />
+        <text x="133" y="216" fontSize="11" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          수리비 35~55만 원 또는 식자재 폐기!
+        </text>
+        <text x="133" y="236" fontSize="9.5" fill="#475569" textAnchor="middle">
+          + 찌든 기름먼지 과열 시 스파크·화재 위험
+        </text>
+        <text x="133" y="253" fontSize="9.5" fill="#475569" textAnchor="middle">
+          (수명 10년 갈 냉장고가 3~4년 만에 멈춤)
+        </text>
+
+        {/* 가운데: 올바른 청소 vs 금지 행동 */}
+        <rect x="263" y="16" width="244" height="263" rx="12" fill="#FFFFFF" stroke="#99F6E4" />
+        <rect x="263" y="16" width="244" height="36" rx="12" fill="#0F766E" />
+        <rect x="263" y="40" width="244" height="12" fill="#0F766E" />
+        <text x="385" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 올바른 청소 요령 (핀 방향 주의)
+        </text>
+
+        {/* 세로 결 그림 */}
+        <rect x="285" y="68" width="90" height="76" rx="8" fill="#F0FDFA" stroke="#5EEAD4" />
+        <line x1="302" y1="78" x2="302" y2="132" stroke="#0F766E" strokeWidth="2" />
+        <line x1="316" y1="78" x2="316" y2="132" stroke="#0F766E" strokeWidth="2" />
+        <line x1="330" y1="78" x2="330" y2="132" stroke="#0F766E" strokeWidth="2" />
+        <line x1="344" y1="78" x2="344" y2="132" stroke="#0F766E" strokeWidth="2" />
+        <line x1="358" y1="78" x2="358" y2="132" stroke="#0F766E" strokeWidth="2" />
+        <text x="330" y="140" fontSize="9" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          ↕ 세로 결로만 쓸기
+        </text>
+
+        <text x="386" y="84" fontSize="10" fontWeight="700" fill="#0F172A">
+          안전 4단계 순서
+        </text>
+        <text x="386" y="102" fontSize="9.5" fill="#475569">
+          1. 전원 플러그 먼저 뽑기
+        </text>
+        <text x="386" y="119" fontSize="9.5" fill="#475569">
+          2. 기계실 커버 나사 열기
+        </text>
+        <text x="386" y="136" fontSize="9.5" fill="#475569">
+          3. 청소기 + 긴 솔로 세로 털기
+        </text>
+
+        <rect x="277" y="158" width="216" height="106" rx="8" fill="#FEF2F2" stroke="#FECACA" />
+        <text x="290" y="178" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          절대 하면 안 되는 행동 3가지
+        </text>
+        <text x="290" y="198" fontSize="9.5" fill="#7F1D1D">
+          · 물 뿌리기 / 물걸레질 (감전 · 누전 고장)
+        </text>
+        <text x="290" y="216" fontSize="9.5" fill="#7F1D1D">
+          · 가로로 긁기 (얇은 알루미늄 날개 구겨짐)
+        </text>
+        <text x="290" y="234" fontSize="9.5" fill="#7F1D1D">
+          · 뒷벽·옆벽 바짝 붙이기 (최소 10cm 이상 띄우기)
+        </text>
+        <text x="290" y="252" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          · 청소 후 찬바람 회복 안 되면 기사 점검 의뢰
+        </text>
+
+        {/* 오른쪽: 업종별 청소 주기 */}
+        <rect x="520" y="16" width="224" height="263" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="520" y="16" width="224" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="520" y="40" width="224" height="12" fill="#1D4ED8" />
+        <text x="632" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. 업종별 권장 청소 주기
+        </text>
+
+        <rect x="534" y="68" width="196" height="84" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="546" y="88" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          고깃집 · 치킨집 · 중식당
+        </text>
+        <text x="546" y="109" fontSize="13" fontWeight="800" fill="#DC2626">
+          월 1회 (심하면 2주 1회)
+        </text>
+        <text x="546" y="130" fontSize="9.5" fill="#475569">
+          기름 입자와 먼지가 금방 떡져
+        </text>
+        <text x="546" y="144" fontSize="9.5" fill="#475569">
+          여름 성수기 전에 콤프가 먼저 사망함
+        </text>
+
+        <rect x="534" y="166" width="196" height="98" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="546" y="186" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          카페 · 사무실 · 일반 매장
+        </text>
+        <text x="546" y="207" fontSize="13" fontWeight="800" fill="#0F766E">
+          최소 3개월 ~ 6개월 1회
+        </text>
+        <text x="546" y="228" fontSize="9.5" fill="#475569">
+          제빙기 · 쇼케이스 · 테이블냉장고도
+        </text>
+        <text x="546" y="244" fontSize="9.5" fill="#475569">
+          동일한 방열판이 있어 함께 털어줘야 함
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 41번 글: 일체형 세탁건조기(콤보) vs 직렬 단독(워시타워/상하배치) 비교 */
+export function WasherComboVsStackDiagram() {
+  return (
+    <DiagramFigure
+      title="일체형 세탁건조기(AI콤보·워시콤보) vs 직렬 세탁기+건조기(워시타워) 구조와 세척 차이"
+      caption="한 통에 세탁·건조가 다 들어간 일체형은 '옮기지 않아도 되는 편리함'이 최고 장점이고, 위아래 두 통이 나뉜 직렬형(워시타워 등)은 '세탁과 건조 동시 가동 · 대용량 회전'에 압도적으로 유리합니다."
+    >
+      <svg
+        viewBox="0 0 760 295"
+        role="img"
+        aria-label="일체형 세탁건조기 1통 구조와 직렬 세탁기 건조기 2통 구조 및 분해세척 비용 차이 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="295" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 일체형 콤보 */}
+        <rect x="16" y="16" width="356" height="263" rx="12" fill="#FFFFFF" stroke="#CBD5E1" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 일체형 세탁건조기 (1개의 통에서 연속 처리)
+        </text>
+
+        <rect x="38" y="68" width="94" height="106" rx="10" fill="#F0FDFA" stroke="#0F766E" strokeWidth="1.8" />
+        <circle cx="85" cy="126" r="28" fill="#FFFFFF" stroke="#0F766E" strokeWidth="3" />
+        <text x="85" y="124" fontSize="9.5" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          세탁 + 건조
+        </text>
+        <text x="85" y="138" fontSize="9" fill="#334155" textAnchor="middle">
+          1통 공용
+        </text>
+        <text x="85" y="88" fontSize="9" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          높이 낮음
+        </text>
+
+        <text x="148" y="84" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          장점과 꼭 알 단점
+        </text>
+        <text x="148" y="103" fontSize="9.5" fill="#334155">
+          · 세탁 끝나고 꺼내 옮길 필요 전혀 없음
+        </text>
+        <text x="148" y="121" fontSize="9.5" fill="#334155">
+          · 천장 낮은 세탁실 · 1~2인 가구에 최적
+        </text>
+        <text x="148" y="139" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 건조 끝날 때까지 다음 빨래 못 돌림
+        </text>
+        <text x="148" y="157" fontSize="9.5" fill="#DC2626">
+          · 세탁(25kg)보다 건조 용량(15kg 내외) 작음
+        </text>
+
+        <rect x="30" y="188" width="328" height="76" rx="8" fill="#F8FAFC" stroke="#E2E8F0" />
+        <text x="44" y="208" fontSize="10.5" fontWeight="700" fill="#0F172A">
+          중고 · AS · 수리 시 참고사항
+        </text>
+        <text x="44" y="227" fontSize="9.5" fill="#475569">
+          · 세탁+히트펌프 건조 부품이 한 몸에 있어 고장 시 둘 다 멈춤
+        </text>
+        <text x="44" y="245" fontSize="9.5" fill="#475569">
+          · 무게가 매우 무겁고 사다리차·현관 폭(가로폭+여유 10cm) 필수 점검
+        </text>
+
+        {/* 오른쪽: 직렬 단독 (워시타워 등) */}
+        <rect x="388" y="16" width="356" height="263" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="388" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 직렬 세탁기+건조기 (워시타워 · 2개 통 분리)
+        </text>
+
+        <rect x="410" y="64" width="94" height="54" rx="8" fill="#FFF7ED" stroke="#EA580C" strokeWidth="1.5" />
+        <circle cx="457" cy="91" r="17" fill="#FFFFFF" stroke="#EA580C" strokeWidth="2.5" />
+        <text x="457" y="94" fontSize="8.5" fontWeight="700" fill="#C2410C" textAnchor="middle">
+          상단 건조
+        </text>
+        <rect x="410" y="122" width="94" height="54" rx="8" fill="#FFF7ED" stroke="#EA580C" strokeWidth="1.5" />
+        <circle cx="457" cy="149" r="17" fill="#FFFFFF" stroke="#EA580C" strokeWidth="2.5" />
+        <text x="457" y="152" fontSize="8.5" fontWeight="700" fill="#C2410C" textAnchor="middle">
+          하단 세탁
+        </text>
+
+        <text x="520" y="84" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          장점과 꼭 알 단점
+        </text>
+        <text x="520" y="103" fontSize="9.5" fill="#334155">
+          · 위에서 말리는 동안 아래서 새 빨래 가동
+        </text>
+        <text x="520" y="121" fontSize="9.5" fill="#334155">
+          · 3인 이상 가족 · 이불 빨래에 압도적 유리
+        </text>
+        <text x="520" y="139" fontSize="9.5" fill="#334155">
+          · 1개 고장 나도 나머지 1개는 계속 사용 가능
+        </text>
+        <text x="520" y="157" fontSize="9.5" fill="#DC2626">
+          · 세탁 끝난 젖은 빨래 직접 올려 옮겨야 함
+        </text>
+
+        <rect x="402" y="188" width="328" height="76" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="416" y="208" fontSize="10.5" fontWeight="700" fill="#C2410C">
+          분해세척 시 놓치기 쉬운 추가비
+        </text>
+        <text x="416" y="227" fontSize="9.5" fill="#475569">
+          · 드럼 분해세척(약 10~20만 원) 외 위쪽 건조기 내림·올림비 별도
+        </text>
+        <text x="416" y="245" fontSize="9.5" fill="#475569">
+          · 워시타워/직렬 여부는 예약 전 고지해야 현장 작업 거부 예방
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

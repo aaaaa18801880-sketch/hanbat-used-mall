@@ -15,6 +15,8 @@ const URLS = {
   NTS: "https://www.nts.go.kr",
   SAREK: "https://www.sarek.or.kr",
   ASHRAE: "https://www.ashrae.org",
+  NFA: "https://www.nfa.go.kr",
+  ECYCLE: "https://www.15990903.or.kr",
   SAMSUNG: "https://www.samsung.com/sec/support/",
   LG: "https://www.lge.co.kr/support",
 } as const;
@@ -848,6 +850,167 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     ],
     fieldNote:
       "법령 처벌·경미공사 범위·색상 기준·과전압 원리는 국가법령정보센터·KEC·한국전기안전공사 공식 기준이며, 상가 분전함 오결선 및 냉장고·포스기 연쇄 고장 사례는 매장 현장 경험입니다. 안전 수칙상 자가 분전함 배선 조작 안내는 제공하지 않습니다.",
+  },
+  "elb-vs-mccb-breaker-trip-check": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "한국전기안전공사 (KESCO · 1889)",
+        title: "누전차단기 동작 원리(정격감도전류 30mA 이하 · 0.03초 이내) 및 장마철 전기안전 점검 요령",
+        url: URLS.KESCO,
+        date: "공공 안전 기준",
+        usedFor: "인체감전보호용 누전차단기(ELB)와 배선용차단기(MCCB) 역할 차이, 월 1회 TEST 버튼 점검, 장마철 차단기 반복 트립 시 플러그 분리 점검 절차 확인",
+      },
+      {
+        org: "국가기술표준원 · 산업통상자원부",
+        title: "한국산업표준(KS) 저압 차단기 규격 및 KEC 옥내 배선·물기 구역 누전차단기 설치 기준",
+        url: URLS.KATS,
+        date: "국가 표준 기준",
+        usedFor: "습기 구역 누전차단기 필수 적용 및 고장 차단기 즉시 교체 필요성 확인",
+      },
+    ],
+    fieldNote:
+      "차단기 동작 스펙·점검 방법은 전기안전공사 및 KS 기준이며, 식당·카페 주방 기기별 누전 가려내기 순서와 테이프 고정 금지 사례는 매장 현장 경험입니다.",
+  },
+  "oled-vs-qled-led-used-tv-guide": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "공정거래위원회 · 한국소비자원",
+        title: "소비자분쟁해결기준 (TV 패널 2년 · 일반 부품 1년 보증) 및 TV 디스플레이 품질·수리 분쟁 예방 안내",
+        url: URLS.FTC,
+        date: "현행 고시 · 소비자 안내",
+        usedFor: "TV 패널 보증기간 및 중고 구매 전 대기업 부품 수급·수리비 리스크 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 고객지원",
+        title: "OLED 패널 픽셀 리프레시(잔상 방지 보정) 및 QLED·LED TV 통풍·백라이트 수명 관리 안내",
+        url: URLS.LG,
+        date: "공식 사용설명서",
+        usedFor: "OLED 자발광 번인 특성, 리모컨 OFF 후 전원 차단 금지 이유, LCD 백라이트 열관리 방법 확인",
+      },
+    ],
+    fieldNote:
+      "보증기간과 패널 관리 방식은 공정위·제조사 공식 안내에 근거하며, 단색 화면 테스트를 통한 번인·백라이트 멍 현장 판별법은 매장 직검수 기준입니다.",
+  },
+  "commercial-fridge-condenser-cleaning": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "주요 업소용 냉장고 제조사 · 삼성전자서비스",
+        title: "업소용 냉장고·쇼케이스 기계실 응축기(콘덴서) 정기 청소 주기 및 세로 결 방향 브러시 청소 지침",
+        url: URLS.SAMSUNG,
+        date: "공식 유지관리 안내",
+        usedFor: "일반 매장 3~6개월 · 기름 업종 월 1회(2주~1개월) 청소 주기, 방열 공간 10cm 이상 확보, 물청소 금지 및 핀 꺾임 주의사항 확인",
+      },
+      {
+        org: "한국전기안전공사 (KESCO · 1889)",
+        title: "주방 냉장·냉동설비 기계실 먼지 누적에 따른 과열 및 트래킹 전기화재 예방",
+        url: URLS.KESCO,
+        date: "공공 안전 안내",
+        usedFor: "기계실 먼지·유증기 축적 시 압축기 과열과 전기 스파크 화재 위험성 확인",
+      },
+    ],
+    fieldNote:
+      "청소 주기와 안전 수칙은 제조사·전기안전공사 자료 기준이며, 고깃집·치킨집 여름 전 콤프레샤 사망 사례는 매장 수리·교체 현장 경험입니다.",
+  },
+  "outdoor-unit-louver-ventilation-fire": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "소방청 · 행정안전부",
+        title: "여름철 에어컨 실외기 화재 예방 안전수칙 (루버창 개방 · 10cm 이격 · 가연물 제거 · 단독 콘센트)",
+        url: URLS.NFA,
+        date: "공식 안전 수칙",
+        usedFor: "6~8월 에어컨 화재 집중 통계, 실내 실외기실 환기창 개방 의무화 수준의 중요성, 멀티탭 금지 및 주변 정리 기준 확인",
+      },
+      {
+        org: "한국소비자원 · 삼성·LG 고객지원",
+        title: "실외기실 열기 정체에 따른 고압 차단 에러(냉방 중지) 및 소비전력 증가 예방 안내",
+        url: URLS.KCA,
+        date: "소비자 안전주의보",
+        usedFor: "루버창 닫힘 시 열풍 재흡입에 따른 냉방 불량·전기료 상승·고압 보호 정지 원리 확인",
+      },
+    ],
+    fieldNote:
+      "화재 예방 수칙과 고압 차단 원리는 소방청·소비자원 공식 자료 기준이며, 전동 자동 루버창 고착 점검 팁은 현장 설치 경험입니다.",
+  },
+  "aircon-removal-pump-down-piping": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자서비스 · LG전자서비스",
+        title: "에어컨 철거·이전설치 시 냉매 회수(펌프다운) 및 배관 끝단 밀폐 안내",
+        url: URLS.SAMSUNG,
+        date: "공식 서비스 기준",
+        usedFor: "펌프다운 미실시 및 배관 습기·이물질 유입 시 냉동오일 변질·압축기 소손 → 시공 과실 유상 판정 기준 확인",
+      },
+      {
+        org: "한국소비자원",
+        title: "에어컨 이전설치 · 철거 과실 피해구제 절차 및 서비스센터 원인 소견서 활용 안내",
+        url: URLS.KCA,
+        date: "소비자 피해구제 안내",
+        usedFor: "철거·설치 업체 간 책임 회피 분쟁 시 공식 서비스 점검 소견서 확보 및 피해구제 신청 절차 확인",
+      },
+    ],
+    fieldNote:
+      "시공 과실 판정과 분쟁 구제 절차는 제조사·한국소비자원 기준이며, 철거 전 정상 작동 영상 촬영 및 매입 연계 방식은 매장 실무 기준입니다.",
+  },
+  "wash-tower-all-in-one-vs-separate-cleaning": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자 · LG전자 고객지원",
+        title: "일체형 세탁건조기(콤보) vs 직렬 설치(워시타워) 용량·배치 및 케어 서비스 안내",
+        url: URLS.LG,
+        date: "공식 제품·서비스 안내",
+        usedFor: "일체형 동시 운전 불가·건조 용량 차이, 직렬 설치 세탁기 정비 시 상단 건조기 내림·올림 작업 조건 확인",
+      },
+      {
+        org: "한국소비자원",
+        title: "드럼세탁기 · 의류건조기 세탁조 위생 관리 및 분해세척 주의사항 안내",
+        url: URLS.KCA,
+        date: "소비자 비교정보",
+        usedFor: "세탁기 분해세척(통돌이/드럼 구조 차이)과 건조기 내부 분해 한계, 노후 제품 파손 유의점 확인",
+      },
+    ],
+    fieldNote:
+      "제품 구조·용량 조건은 제조사·소비자원 자료에 기반하며, 분해세척 시세(통돌이 7~14만원/드럼 10~20만원)와 건조기 상단 내림비 주의사항은 현장 세척·설치 사례입니다.",
+  },
+  "free-waste-pickup-15990903-vs-used-buyback": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "일반 정보 (권장 재검토 12개월)",
+    primarySources: [
+      {
+        org: "환경부 · E순환거버넌스",
+        title: "폐가전제품 무상방문수거(1599-0903) 대상 품목 · 소형 5개 기준 · 원형 훼손 제외 안내",
+        url: URLS.ECYCLE,
+        date: "공식 운영 기준",
+        usedFor: "대형 1대/소형 5개 수거 조건, 에어컨·벽걸이 TV 사전 철거 필수, 원형 훼손(부품 탈착)·안마의자·전기장판·대형 냉동창고 수거 제외 기준 확인",
+      },
+      {
+        org: "국가법령정보센터",
+        title: "「전기·전자제품 및 자동차의 자원순환에 관한 법률」 및 지자체 대형폐기물 배출 기준",
+        url: URLS.LAW,
+        date: "현행 법령 기준",
+        usedFor: "무상회수 대상 외 품목의 지자체 폐기물 수수료 부과 및 적법 배출 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "무상수거 품목 및 제외 기준은 E순환거버넌스(1599-0903) 공식 운영 기준이며, 폐업 시 매입 → 무상수거 → 원상복구 3단계 비용 절감 순서는 매장 철거·매입 현장 경험입니다.",
   },
 };
 

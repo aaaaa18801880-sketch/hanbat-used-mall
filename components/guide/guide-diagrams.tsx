@@ -4,6 +4,7 @@ import {
   AirconCyclePartsDiagram,
   AirconDrainLeakDiagram,
   AirconPipeComparisonDiagram,
+  AirconPumpdownTapingDiagram,
   AirconPyeongSizingDiagram,
   AirconRelocationCostFactorsDiagram,
   AirconRepairTimelineDiagram,
@@ -12,6 +13,7 @@ import {
   DefrostCycleWalkwayDiagram,
   FixedSpeedVsInverterDiagram,
   InverterDutyCycleDiagram,
+  OutdoorLouverAirflowDiagram,
   OutdoorUnitWeatherproofDiagram,
   PcbFailureCausesDiagram,
   RefrigerantLeakMythDiagram,
@@ -21,16 +23,20 @@ import {
   BuybackInspectionPointsDiagram,
   CafePlumbingDrainCheckDiagram,
   ClearanceBlueprintDiagram,
+  ElbVsMccbTripDiagram,
   EnergyGradeRevisionDiagram,
   InductionWiringBreakerDiagram,
   KwVsKwhDiagram,
   NeutralWireDangerDiagram,
   StartupPowerBudgetDiagram,
+  TvPanelBurninBacklightDiagram,
   UsedVsStoreFlowDiagram,
   VoltageBreakerDiagram,
+  WastePickupVsBuybackDiagram,
 } from "./diagrams/electrical-ops-diagrams";
 import {
   Commercial45BoxCoolingDiagram,
+  CommercialCondenserCleaningDiagram,
   CommercialDishwasherSetupDiagram,
   CommercialFridgeRepairRoiDiagram,
   DryerHeatpumpCondenserDiagram,
@@ -39,6 +45,7 @@ import {
   IcemakerHeatRejectionDiagram,
   KimchiFridgeCoolingDiagram,
   ShowcaseCondensationDiagram,
+  WasherComboVsStackDiagram,
   WasherTubInspectionDiagram,
 } from "./diagrams/home-kitchen-diagrams";
 
@@ -77,7 +84,14 @@ export type GuideDiagramId =
   | "cafe-plumbing-drain-check"
   | "commercial-fridge-repair-roi"
   | "aircon-relocation-cost-factors"
-  | "neutral-wire-danger";
+  | "neutral-wire-danger"
+  | "elb-vs-mccb-trip"
+  | "tv-panel-burnin-backlight"
+  | "commercial-condenser-cleaning"
+  | "outdoor-louver-airflow"
+  | "aircon-pumpdown-taping"
+  | "washer-combo-vs-stack"
+  | "waste-pickup-vs-buyback";
 
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
@@ -151,5 +165,19 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <AirconRelocationCostFactorsDiagram />;
     case "neutral-wire-danger":
       return <NeutralWireDangerDiagram />;
+    case "elb-vs-mccb-trip":
+      return <ElbVsMccbTripDiagram />;
+    case "tv-panel-burnin-backlight":
+      return <TvPanelBurninBacklightDiagram />;
+    case "commercial-condenser-cleaning":
+      return <CommercialCondenserCleaningDiagram />;
+    case "outdoor-louver-airflow":
+      return <OutdoorLouverAirflowDiagram />;
+    case "aircon-pumpdown-taping":
+      return <AirconPumpdownTapingDiagram />;
+    case "washer-combo-vs-stack":
+      return <WasherComboVsStackDiagram />;
+    case "waste-pickup-vs-buyback":
+      return <WastePickupVsBuybackDiagram />;
   }
 }

@@ -1157,3 +1157,230 @@ export function AirconRelocationCostFactorsDiagram() {
     </DiagramFigure>
   );
 }
+
+/** 39번 글: 실외기실 루버창 닫힘 시 열기 정체(고압 차단 · 화재) 비교 도해 */
+export function OutdoorLouverAirflowDiagram() {
+  return (
+    <DiagramFigure
+      title="에어컨 실외기실 루버창(갤러리창) 닫고 켜면 생기는 '열기 갇힘 · 고압 차단 · 화재'"
+      caption="루버창이 닫혀 있으면 실외기가 뿜은 뜨거운 바람이 밖으로 못 나가고 다시 실외기로 빨려 들어갑니다. 냉방은 안 되고 전기세만 급등하며 심하면 과열 화재로 이어집니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="실외기실 루버창 닫힘 시 열기 갇힘과 루버창 개방 시 정상 열 방출 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 위험 (루버창 닫힘) */}
+        <rect x="16" y="16" width="356" height="253" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          위험: 루버창 닫힘 / 박스·짐 적재 (열기 정체)
+        </text>
+
+        {/* 닫힌 루버 + 실외기 */}
+        <rect x="38" y="68" width="134" height="106" rx="8" fill="#FEE2E2" stroke="#EF4444" strokeWidth="1.5" />
+        <rect x="46" y="76" width="16" height="90" rx="2" fill="#991B1B" />
+        <text x="54" y="124" fontSize="8.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          닫힘
+        </text>
+        <rect x="88" y="96" width="72" height="58" rx="6" fill="#FFFFFF" stroke="#64748B" strokeWidth="1.5" />
+        <circle cx="116" cy="125" r="16" fill="#F1F5F9" stroke="#DC2626" strokeWidth="2" />
+        <text x="108" y="88" fontSize="9.5" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          열풍 반사!
+        </text>
+        <path d="M 90 112 Q 70 118 86 138" fill="none" stroke="#DC2626" strokeWidth="2.5" />
+
+        <text x="186" y="84" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          실외기실에서 벌어지는 현상
+        </text>
+        <text x="186" y="103" fontSize="9.5" fill="#475569">
+          · 뜨거운 바람이 닫힌 창에 부딪혀 되돌아옴
+        </text>
+        <text x="186" y="121" fontSize="9.5" fill="#475569">
+          · 실외기실 온도 50℃ 이상 급상승
+        </text>
+        <text x="186" y="139" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 압력 과상승 → 고압 에러(냉방 멈춤)
+        </text>
+        <text x="186" y="157" fontSize="9.5" fill="#DC2626">
+          · 전선 피복 노후 + 먼지 만나면 화재 위험
+        </text>
+
+        <rect x="30" y="186" width="328" height="70" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="44" y="206" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          여름마다 반복되는 대표 실수
+        </text>
+        <text x="44" y="224" fontSize="9.5" fill="#475569">
+          · 비 온 뒤 닫아둔 루버창을 까먹고 그대로 에어컨 ON
+        </text>
+        <text x="44" y="241" fontSize="9.5" fill="#475569">
+          · 실외기 앞에 종이상자 · 세제통 · 빨래 건조대 가로막음
+        </text>
+
+        {/* 오른쪽: 정상 (루버창 활짝 개방) */}
+        <rect x="388" y="16" width="356" height="253" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="388" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          안전: 루버창 수평 개방 + 뒤쪽 10cm+ 여유 (정상)
+        </text>
+
+        <rect x="410" y="68" width="134" height="106" rx="8" fill="#CCFBF1" stroke="#0F766E" strokeWidth="1.5" />
+        <line x1="418" y1="84" x2="432" y2="84" stroke="#0F766E" strokeWidth="3" />
+        <line x1="418" y1="104" x2="432" y2="104" stroke="#0F766E" strokeWidth="3" />
+        <line x1="418" y1="124" x2="432" y2="124" stroke="#0F766E" strokeWidth="3" />
+        <line x1="418" y1="144" x2="432" y2="144" stroke="#0F766E" strokeWidth="3" />
+        <rect x="460" y="96" width="72" height="58" rx="6" fill="#FFFFFF" stroke="#0F766E" strokeWidth="1.5" />
+        <circle cx="488" cy="125" r="16" fill="#F0FDFA" stroke="#0F766E" strokeWidth="2" />
+        <line x1="464" y1="125" x2="404" y2="125" stroke="#0F766E" strokeWidth="3" />
+        <text x="448" y="84" fontSize="9.5" fontWeight="800" fill="#0F766E" textAnchor="middle">
+          열기 외부 배출 →
+        </text>
+
+        <text x="558" y="84" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          실외기 안전 · 절전 효과
+        </text>
+        <text x="558" y="103" fontSize="9.5" fill="#334155">
+          · 날개를 90도 수평으로 활짝 열기
+        </text>
+        <text x="558" y="121" fontSize="9.5" fill="#334155">
+          · 열기가 바로 빠져 전기 소비 크게 절감
+        </text>
+        <text x="558" y="139" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          · 찬바람 빨라지고 콤프레샤 과열 방지
+        </text>
+        <text x="558" y="157" fontSize="9.5" fill="#334155">
+          · 벽과 뒷면 최소 10cm 이상 간격 유지
+        </text>
+
+        <rect x="402" y="186" width="328" height="70" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="416" y="206" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          소방청 · 소비자원 권장 필수 체크 3가지
+        </text>
+        <text x="416" y="224" fontSize="9.5" fill="#334155">
+          1. 가동 전 루버창 개방 확인(자동 전동 루버창도 모터 동작 확인)
+        </text>
+        <text x="416" y="241" fontSize="9.5" fill="#334155">
+          2. 멀티탭 대신 에어컨 전용 단독 콘센트 사용 · 주변 박스 치우기
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 40번 글: 에어컨 철거 시 냉매 회수(펌프다운)와 배관 밀폐 테이핑 */
+export function AirconPumpdownTapingDiagram() {
+  return (
+    <DiagramFigure
+      title="이사 · 중고 판매 에어컨 철거의 생명줄: '펌프다운(냉매 회수)'과 '배관 테이핑'"
+      caption="배관을 막 잘라 가스를 날리거나 구멍을 열어두면 빗물·습기가 들어가 재설치 후 가장 비싼 핵심 부품(콤프레샤)이 망가집니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="에어컨 올바른 철거(펌프다운 냉매 회수 및 배관 밀폐 테이핑)와 잘못된 철거(가스 유실 및 습기 유입 고장) 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 정석 철거 */}
+        <rect x="16" y="16" width="356" height="253" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          정석 철거: 펌프다운 + 끝단 3중 밀폐 테이핑
+        </text>
+
+        <rect x="32" y="68" width="152" height="58" rx="8" fill="#FFFFFF" stroke="#5EEAD4" />
+        <text x="108" y="88" fontSize="10.5" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          1. 냉방 운전 중 냉매 회수
+        </text>
+        <text x="108" y="106" fontSize="9.5" fill="#475569" textAnchor="middle">
+          가스를 실외기 안에 전부 모아
+        </text>
+        <text x="108" y="119" fontSize="9.5" fill="#475569" textAnchor="middle">
+          서비스 밸브를 꽉 잠금
+        </text>
+
+        <rect x="200" y="68" width="156" height="58" rx="8" fill="#FFFFFF" stroke="#5EEAD4" />
+        <text x="278" y="88" fontSize="10.5" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          2. 배관 끝·실외기 밸브 밀폐
+        </text>
+        <text x="278" y="106" fontSize="9.5" fill="#475569" textAnchor="middle">
+          배관 절단면·너트 구멍에
+        </text>
+        <text x="278" y="119" fontSize="9.5" fill="#475569" textAnchor="middle">
+          비닐+절연테이프로 공기도 차단
+        </text>
+
+        <rect x="32" y="140" width="324" height="114" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="46" y="162" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          정석 철거를 지켜야 하는 이유
+        </text>
+        <text x="46" y="182" fontSize="9.5" fill="#334155">
+          · 재설치 때 가스 완충비(8~15만 원)를 크게 아낄 수 있음
+        </text>
+        <text x="46" y="200" fontSize="9.5" fill="#334155">
+          · 동배관이 꺾이지 않으면(재사용 가능 시) 배관비도 절약
+        </text>
+        <text x="46" y="218" fontSize="9.5" fill="#334155">
+          · 중고 매입 업체도 정상 작동 + 냉매 보존 제품은 감가 없음
+        </text>
+        <text x="46" y="236" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          · 실내기·실외기 연결 전선과 리모컨 함께 챙겨 보관
+        </text>
+
+        {/* 오른쪽: 잘못된 철거 */}
+        <rect x="388" y="16" width="356" height="253" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="388" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          잘못된 철거: 배관 막 자르기 + 열린 채 방치
+        </text>
+
+        <rect x="404" y="68" width="152" height="58" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="480" y="88" fontSize="10.5" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          1. 밸브 안 잠그고 배관 절단
+        </text>
+        <text x="480" y="106" fontSize="9.5" fill="#475569" textAnchor="middle">
+          가스가 대기 중으로 다 빠지고
+        </text>
+        <text x="480" y="119" fontSize="9.5" fill="#475569" textAnchor="middle">
+          실외기 오일까지 뿜어져 손실
+        </text>
+
+        <rect x="572" y="68" width="156" height="58" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="650" y="88" fontSize="10.5" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          2. 배관 입구 열려 습기 유입
+        </text>
+        <text x="650" y="106" fontSize="9.5" fill="#475569" textAnchor="middle">
+          이사 차·베란다 보관 중에
+        </text>
+        <text x="650" y="119" fontSize="9.5" fill="#475569" textAnchor="middle">
+          빗물·공기 수분·먼지가 침투
+        </text>
+
+        <rect x="404" y="140" width="324" height="114" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="418" y="162" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          재설치 후 발생하는 최악의 결과
+        </text>
+        <text x="418" y="182" fontSize="9.5" fill="#7F1D1D">
+          · 들어간 수분이 냉동오일을 변질시켜 콤프레샤 사망 유발
+        </text>
+        <text x="418" y="200" fontSize="9.5" fill="#7F1D1D">
+          · 제조사 AS 점검 시 시공·철거 과실로 유상 수리 판정!
+        </text>
+        <text x="418" y="218" fontSize="9.5" fill="#7F1D1D">
+          · 이사업체 ↔ 설치업체 책임 떠넘기기 분쟁 빈발
+        </text>
+        <text x="418" y="236" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 철거 전 반드시 작동 여부 사진·영상 남기고 전문 철거 의뢰
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
