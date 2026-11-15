@@ -144,11 +144,11 @@ function HanbatBrandLogo({
   dark?: boolean;
   size?: "default" | "compact";
 }) {
-  const frameBg = dark ? "#1E2736" : "#141A23";
+  const primaryInk = dark ? "#FFFFFF" : "#141A23";
   const accentFill = dark ? "#FF8A50" : "#E8521A";
 
   return (
-    <span className="inline-flex items-center gap-2.5 sm:gap-3 select-none">
+    <span className="inline-flex items-center gap-2 sm:gap-2.5 select-none">
       <svg
         viewBox="0 0 40 40"
         fill="none"
@@ -160,24 +160,15 @@ function HanbatBrandLogo({
             : "h-9 w-9 sm:h-[38px] sm:w-[38px] shrink-0"
         }
       >
-        <rect width="40" height="40" rx="11" fill={frameBg} />
-        {/* 좌·우 H 수직 기둥 (가전 프레임 & 쇼룸 기둥) */}
-        <rect x="8" y="9" width="5.5" height="22" rx="1.2" fill="#FFFFFF" />
-        <rect x="26.5" y="9" width="5.5" height="22" rx="1.2" fill="#FFFFFF" />
-        {/* 중앙 쇼룸 지붕 셰브론 (오렌지 포인트) */}
-        <path
-          d="M20 9.5L8 17.5V21.8L20 13.8L32 21.8V17.5L20 9.5Z"
-          fill={accentFill}
-        />
-        {/* 중앙 4분할 쇼룸·가전 그리드 */}
-        <rect x="15.5" y="19.5" width="3.8" height="3.8" rx="0.8" fill={accentFill} />
-        <rect x="20.7" y="19.5" width="3.8" height="3.8" rx="0.8" fill={accentFill} />
-        <rect x="15.5" y="24.7" width="3.8" height="3.8" rx="0.8" fill="#FFFFFF" />
-        <rect x="20.7" y="24.7" width="3.8" height="3.8" rx="0.8" fill="#FFFFFF" />
+        {/* 모듈러 가전 코어 H 심볼 */}
+        <rect x="5" y="5" width="9.5" height="30" rx="4.75" fill={primaryInk} />
+        <rect x="10" y="17.5" width="20.25" height="8.5" fill={primaryInk} />
+        <rect x="25.5" y="17.5" width="9.5" height="17.5" rx="4.75" fill={primaryInk} />
+        <rect x="25.5" y="5" width="9.5" height="9.5" rx="4.75" fill={accentFill} />
       </svg>
       <span className="flex flex-col justify-center">
         <span
-          className={`font-bold tracking-[-0.03em] leading-none ${
+          className={`font-extrabold tracking-[-0.04em] leading-none ${
             size === "compact"
               ? "text-hb-lg"
               : "text-hb-lg sm:text-hb-xl"

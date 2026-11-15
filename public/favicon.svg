@@ -1,10 +1,7 @@
 <svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="115" fill="#0E1A2B" />
-  <rect x="102.4" y="115.2" width="70.4" height="281.6" rx="15.4" fill="#FFFFFF" />
-  <rect x="339.2" y="115.2" width="70.4" height="281.6" rx="15.4" fill="#FFFFFF" />
-  <path d="M256 121.6L102.4 224V279.04L256 176.64L409.6 279.04V224L256 121.6Z" fill="#D9531E" />
-  <rect x="198.4" y="249.6" width="48.6" height="48.6" rx="10.2" fill="#D9531E" />
-  <rect x="265" y="249.6" width="48.6" height="48.6" rx="10.2" fill="#D9531E" />
-  <rect x="198.4" y="316.2" width="48.6" height="48.6" rx="10.2" fill="#FFFFFF" />
-  <rect x="265" y="316.2" width="48.6" height="48.6" rx="10.2" fill="#FFFFFF" />
+  <rect width="512" height="512" rx="128" fill="#141A23" />
+  <rect x="104" y="96" width="96" height="320" rx="48" fill="#FFFFFF" />
+  <rect x="152" y="222" width="208" height="86" fill="#FFFFFF" />
+  <rect x="312" y="222" width="96" height="194" rx="48" fill="#FFFFFF" />
+  <rect x="312" y="96" width="96" height="96" rx="48" fill="#E8521A" />
 </svg>
