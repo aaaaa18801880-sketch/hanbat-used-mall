@@ -1578,3 +1578,220 @@ export function WastePickupVsBuybackDiagram() {
     </DiagramFigure>
   );
 }
+
+/** 43번 글: 점포 인수(시설권리금) 전 설비 5대 함정 점검표 */
+export function StoreTakeoverChecklistDiagram() {
+  return (
+    <DiagramFigure
+      title="점포 인수(권리금) 계약 전 반드시 확인할 5대 설비 함정"
+      caption="가게 시설을 통째로 넘겨받을 때 낡은 R-22 에어컨·부족한 계약전력·고장 난 냉장고를 못 보고 계약하면, 권리금 외에 수백만 원의 철거·교체·승압 비용을 떠안게 됩니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="점포 인수 전 분전함 계약전력, 에어컨 연식 냉매, 냉장고 방열판 온도, 배수 경사, 원상복구 특약 5가지 확인 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+        <rect x="16" y="14" width="728" height="36" rx="10" fill="#1E293B" />
+        <text x="380" y="37" fontSize="12.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          도장 찍기 전 매장 5곳 확인 (10분만 투자하면 수백만 원 절약)
+        </text>
+
+        {/* 1 */}
+        <rect x="16" y="64" width="234" height="98" rx="10" fill="#FFFFFF" stroke="#FDBA74" />
+        <text x="28" y="85" fontSize="11" fontWeight="800" fill="#C2410C">
+          1. 분전함 · 한전 계약전력
+        </text>
+        <text x="28" y="105" fontSize="9.5" fill="#334155">
+          · 220V 단상인지 380V 삼상인지 확인
+        </text>
+        <text x="28" y="122" fontSize="9.5" fill="#334155">
+          · 한전 계약전력이 5kW인지 15kW+인지
+        </text>
+        <text x="28" y="139" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 승압 필요 시 건물주 동의·비용 큼
+        </text>
+
+        {/* 2 */}
+        <rect x="263" y="64" width="234" height="98" rx="10" fill="#FFFFFF" stroke="#93C5FD" />
+        <text x="275" y="85" fontSize="11" fontWeight="800" fill="#1D4ED8">
+          2. 에어컨 연식 · 냉매(R-22)
+        </text>
+        <text x="275" y="105" fontSize="9.5" fill="#334155">
+          · 실내·실외기 10분 이상 냉방 틀어보기
+        </text>
+        <text x="275" y="122" fontSize="9.5" fill="#334155">
+          · 명판에 R-22/정속형이면 곧 교체 시기
+        </text>
+        <text x="275" y="139" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 천장형 불량 시 철거·교체비 크게 듦
+        </text>
+
+        {/* 3 */}
+        <rect x="510" y="64" width="234" height="98" rx="10" fill="#FFFFFF" stroke="#5EEAD4" />
+        <text x="522" y="85" fontSize="11" fontWeight="800" fill="#0F766E">
+          3. 업소용 냉장고 · 제빙기
+        </text>
+        <text x="522" y="105" fontSize="9.5" fill="#334155">
+          · 전원 켜고 온도 실제로 내려가는지 보기
+        </text>
+        <text x="522" y="122" fontSize="9.5" fill="#334155">
+          · 고무 패킹 찢어짐·기계실 소음 확인
+        </text>
+        <text x="522" y="139" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 콤프 고장 시 철거 폐기비만 수십만 원
+        </text>
+
+        {/* 4 */}
+        <rect x="16" y="174" width="356" height="96" rx="10" fill="#EFF6FF" stroke="#BFDBFE" />
+        <text x="30" y="196" fontSize="11" fontWeight="800" fill="#1E40AF">
+          4. 주방 배수구 · 후드 · 도시가스 계량기 등급
+        </text>
+        <text x="30" y="216" fontSize="9.5" fill="#334155">
+          · 싱크대 물 한꺼번에 부어 바닥 역류·악취 여부 확인
+        </text>
+        <text x="30" y="234" fontSize="9.5" fill="#334155">
+          · 가스 계량기(G4/G6)가 내 화구 개수 감당되는지 체크
+        </text>
+        <text x="30" y="252" fontSize="9.5" fill="#1E40AF" fontWeight="700">
+          · 후드 모터 소음·기름 누수 있으면 오픈 직전 공사 터짐
+        </text>
+
+        {/* 5 */}
+        <rect x="388" y="174" width="356" height="96" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="402" y="196" fontSize="11" fontWeight="800" fill="#991B1B">
+          5. 임대차 계약서 원상복구 범위 특약 확인
+        </text>
+        <text x="402" y="216" fontSize="9.5" fill="#7F1D1D">
+          · 전 임차인이 설치한 천장형 에어컨·가벽·덕트 철거 의무를
+        </text>
+        <text x="402" y="234" fontSize="9.5" fill="#7F1D1D">
+          · 내가 그대로 승계하는지 계약서에 명확히 적어야 함
+        </text>
+        <text x="402" y="252" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 나중에 나갈 때 남의 시설까지 철거비 내는 사례 빈발!
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 51번 글: 전선릴 권선 발열 + 멀티탭 16A(2,800W 권장) + 먼지 트래킹 화재 */
+export function CableReelTrackingFireDiagram() {
+  return (
+    <DiagramFigure
+      title="전선릴 감긴 채 사용 · 문어발 과부하 · 먼지 트래킹 3대 전기화재 구조"
+      caption="전선릴을 감은 채 고전력을 쓰면 열이 못 빠져 수 분 만에 100~180℃ 이상으로 녹아 불이 붙고, 콘센트에 쌓인 먼지·습기는 불꽃길(트래킹)을 만들어 화재로 번집니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="감긴 전선릴 발열 화재, 16A 멀티탭 과부하(2800W 이하 권장), 콘센트 먼지 트래킹 화재 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 1. 전선릴 권선 화재 */}
+        <rect x="16" y="16" width="234" height="253" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="234" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="234" height="12" fill="#DC2626" />
+        <text x="133" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 전선릴 감아 사용 (열 갇힘 화재)
+        </text>
+
+        <circle cx="133" cy="108" r="36" fill="#FEE2E2" stroke="#DC2626" strokeWidth="3" />
+        <circle cx="133" cy="108" r="24" fill="none" stroke="#991B1B" strokeWidth="3" />
+        <circle cx="133" cy="108" r="12" fill="#EF4444" />
+        <text x="133" y="160" fontSize="10" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          중심부 열 축적 → 수 분 내 피복 용융
+        </text>
+
+        <rect x="28" y="174" width="210" height="82" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="40" y="195" fontSize="10" fontWeight="700" fill="#0F172A">
+          예방 수칙 (소방청 실험 확인)
+        </text>
+        <text x="40" y="213" fontSize="9.5" fill="#475569">
+          · 전선릴은 반드시 끝까지 다 풀고 쓰기
+        </text>
+        <text x="40" y="230" fontSize="9.5" fill="#475569">
+          · 감긴 상태 허용 전력은 푼 때의 절반 이하
+        </text>
+        <text x="40" y="247" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 온풍기·튀김기·인덕션 릴선 연결 금지
+        </text>
+
+        {/* 2. 멀티탭 허용전류 16A */}
+        <rect x="263" y="16" width="234" height="253" rx="12" fill="#FFFBF5" stroke="#FCD34D" />
+        <rect x="263" y="16" width="234" height="36" rx="12" fill="#D97706" />
+        <rect x="263" y="40" width="234" height="12" fill="#D97706" />
+        <text x="380" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 멀티탭 허용전류 16A 초과 (과부하)
+        </text>
+
+        <rect x="284" y="68" width="192" height="58" rx="8" fill="#FFF7ED" stroke="#FB923C" />
+        <text x="380" y="91" fontSize="12" fontWeight="800" fill="#9A3412" textAnchor="middle">
+          16A = 최대 약 3,520W
+        </text>
+        <text x="380" y="112" fontSize="10" fontWeight="700" fill="#C2410C" textAnchor="middle">
+          연속 안전 마지노선: 80%(약 2,800W 이하)
+        </text>
+
+        <text x="279" y="146" fontSize="9.5" fill="#334155">
+          예: 커피포트(1,800W) + 전자레인지(1,100W)
+        </text>
+        <text x="279" y="162" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          + 미니오븐(1,200W) = 4,100W → 구멍 녹음!
+        </text>
+
+        <rect x="275" y="174" width="210" height="82" rx="8" fill="#FFFFFF" stroke="#FDE68A" />
+        <text x="287" y="195" fontSize="10" fontWeight="700" fill="#92400E">
+          고전력 기기는 벽 콘센트 직결 필수
+        </text>
+        <text x="287" y="213" fontSize="9.5" fill="#475569">
+          · 에어컨 · 온수기 · 히터 · 제빙기 단독 사용
+        </text>
+        <text x="287" y="230" fontSize="9.5" fill="#475569">
+          · 저용량(10A) 멀티탭에 전열기 절대 금지
+        </text>
+        <text x="287" y="247" fontSize="9.5" fill="#475569">
+          · 과부하 차단(안전차단) KC 인증 확인
+        </text>
+
+        {/* 3. 트래킹 현상 */}
+        <rect x="510" y="16" width="234" height="253" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="510" y="16" width="234" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="510" y="40" width="234" height="12" fill="#1D4ED8" />
+        <text x="627" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. 콘센트 먼지 + 습기 (트래킹 화재)
+        </text>
+
+        <rect x="546" y="70" width="162" height="64" rx="8" fill="#FFFFFF" stroke="#94A3B8" />
+        <circle cx="598" cy="102" r="7" fill="#1E293B" />
+        <circle cx="656" cy="102" r="7" fill="#1E293B" />
+        <line x1="605" y1="102" x2="649" y2="102" stroke="#EF4444" strokeWidth="3" strokeDasharray="3 2" />
+        <text x="627" y="126" fontSize="9" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          먼지·습기 타고 미세 불꽃 연결
+        </text>
+
+        <text x="526" y="156" fontSize="10" fontWeight="700" fill="#1E3A8A" textAnchor="start">
+          냉장고·세탁기·주방 뒤 사각지대 주의
+        </text>
+
+        <rect x="522" y="174" width="210" height="82" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="534" y="195" fontSize="10" fontWeight="700" fill="#1E40AF">
+          한국전기안전공사 권장 예방 3가지
+        </text>
+        <text x="534" y="213" fontSize="9.5" fill="#475569">
+          · 연 1~2회 플러그 빼고 마른 천 먼지 닦기
+        </text>
+        <text x="534" y="230" fontSize="9.5" fill="#475569">
+          · 주방·실외 콘센트 방진·방적 커버 쓰기
+        </text>
+        <text x="534" y="247" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 검게 그을렸거나 헐거운 멀티탭 즉시 폐기
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

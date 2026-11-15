@@ -17,6 +17,7 @@ const URLS = {
   ASHRAE: "https://www.ashrae.org",
   NFA: "https://www.nfa.go.kr",
   ECYCLE: "https://www.15990903.or.kr",
+  KGS: "https://www.kgs.or.kr",
   SAMSUNG: "https://www.samsung.com/sec/support/",
   LG: "https://www.lge.co.kr/support",
 } as const;
@@ -1011,6 +1012,213 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     ],
     fieldNote:
       "무상수거 품목 및 제외 기준은 E순환거버넌스(1599-0903) 공식 운영 기준이며, 폐업 시 매입 → 무상수거 → 원상복구 3단계 비용 절감 순서는 매장 철거·매입 현장 경험입니다.",
+  },
+  "store-takeover-appliances-power-checklist": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "한국전력공사 (KEPCO) · 국가법령정보센터",
+        title: "상가 계약전력 증설(승압) 및 상가건물 임대차 원상회복 의무 기준",
+        url: URLS.KEPCO,
+        date: "공식 약관 · 법령 기준",
+        usedFor: "기존 점포 계약전력 부족 시 한전 시설부담금·건물주 동의 필요성 및 원상복구 범위 특약 중요성 확인",
+      },
+      {
+        org: "한국가스안전공사 (KGS) · 한국전기안전공사 (KESCO)",
+        title: "음식점 가스 계량기 등급(G4·G6) 용량 및 상가 분전반·냉매(R-22) 노후설비 안전 점검",
+        url: URLS.KGS,
+        date: "공식 안전 기준",
+        usedFor: "점포 인수 전 가스·전기·에어컨 연식 확인 항목 및 고장 설비 사전 선별 필요성 확인",
+      },
+    ],
+    fieldNote:
+      "전기·가스·임대차 기준은 한전·가스안전공사 공식 기준에 근거하며, 인수 후 R-22 에어컨·고장 냉장고 철거비 부담 사례는 매장 현업 상담 경험입니다.",
+  },
+  "winter-heating-heatpump-vs-electric-heater": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "한국에너지공단 (KEA)",
+        title: "공기열 히트펌프 냉난방기 효율등급 · 난방정격·난방저온·난방제상 COP 인증 기준",
+        url: URLS.KEA,
+        date: "공식 효율제도 기준",
+        usedFor: "전기히터(COP 1.0) 대비 히트펌프 냉난방기(COP 2.5~4.0+) 열효율 차이 및 영하 기온에서의 COP 저하·제상 손실 원리 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 B2B 고객지원",
+        title: "인버터 냉난방기 동절기 제상 운전(성에 제거) 안내 및 한랭지 난방 운전 가이드",
+        url: URLS.SAMSUNG,
+        date: "공식 기술 안내",
+        usedFor: "제상 중 실내 온풍 일시 정지 현상의 정상 작동 여부 및 상가 보조 난방 조합 기준 확인",
+      },
+    ],
+    fieldNote:
+      "COP 효율 수치와 저온·제상 특성은 에너지공단 및 제조사 공식 기준이며, 출입문 한기 보조 히터 조합은 매장 설치 경험입니다.",
+  },
+  "aircon-2in1-vs-two-singles-home": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자 · LG전자 고객지원",
+        title: "멀티형(2in1) 에어컨 vs 단품 에어컨 설치 배관 규격 및 실내외기 호환 안내",
+        url: URLS.LG,
+        date: "공식 제품·설치 기준",
+        usedFor: "실외기 1대 공동 연결 구조, 실내외기 세트 호환 제약, 거실-안방 배관 연장 변수 확인",
+      },
+      {
+        org: "한국소비자원",
+        title: "에어컨 이전설치 · 배관 연장 추가비용 소비자 피해 예방 가이드",
+        url: URLS.KCA,
+        date: "소비자 안내",
+        usedFor: "이사 재설치 시 2in1 배관 연장비와 단품 2대 실외기 작업비 발생 구조 비교 확인",
+      },
+    ],
+    fieldNote:
+      "호환·배관 규격은 제조사·소비자원 자료 기준이며, 실외기 고장 시 동시 정지 불편 및 중고 세트 매입 기준은 매장 현장 사례입니다.",
+  },
+  "commercial-gas-vs-induction-kitchen-setup": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "한국가스안전공사 (KGS) · 지역 도시가스 공급규정",
+        title: "음식점 가스 계량기 등급별 허용 소비량(G4 약 6만 kcal/h, G6 약 10만 kcal/h) 및 승압 기준",
+        url: URLS.KGS,
+        date: "공식 기술기준",
+        usedFor: "주방 가스 기기 총소비열량 초과 시 계량기 교체·배관 승압 공사 필요성 확인",
+      },
+      {
+        org: "한국전력공사 (KEPCO) · 한밭중고전자 설비 기준",
+        title: "업소용 전기 인덕션·튀김기 상가 계약전력 증설 및 380V 전용 차단기 조건",
+        url: URLS.KEPCO,
+        date: "공급약관 · 현장 기준",
+        usedFor: "인덕션 주방의 여름 복사열·냉방비 저감 효과 대비 초기 전기 승압 조건 확인",
+      },
+    ],
+    fieldNote:
+      "계량기 등급별 열량은 KGS 기준이며, 주방 열기·자성 용기·혼합 설계(가스 화덕+전기 보조)는 외식 창업 현장 사례입니다.",
+  },
+  "commercial-gas-grill-lpg-vs-lng-nozzle": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "한국가스안전공사 (KGS) · 국가법령정보센터",
+        title: "「액화석유가스의 안전관리 및 사업법」 · 「도시가스사업법」 · KGS 코드(연소기 압력·노즐·가스누설경보기 위치)",
+        url: URLS.KGS,
+        date: "현행 법령 · KGS 코드",
+        usedFor: "LPG(2.8kPa · 공기 대비 무거움 · 바닥 30cm 경보기 · 작은 노즐) vs LNG(2.0kPa · 가벼움 · 천장 30cm 경보기 · 큰 노즐) 기준 및 무자격 노즐 개조 금지 확인",
+      },
+      {
+        org: "소방청 · 가스기기 제조사 안전 안내",
+        title: "가스 종류 오연결 및 불완전연소에 따른 황색 불꽃·일산화탄소 중독·화재 예방 안내",
+        url: URLS.NFA,
+        date: "공식 안전 기준",
+        usedFor: "LNG용 기기에 LPG 연결 시 과대 불꽃·그을음·일산화탄소 중독 위험 및 등록 가스시공업체 전환 의무 확인",
+      },
+    ],
+    fieldNote:
+      "압력·비중·경보기 높이·법적 제한은 KGS 및 법령 기준이며, 중고 고깃집 로스터·간텍기 가스 오연결 사고 사례는 매장 검수·출고 현장 경험입니다. 임의 노즐 개조 안내는 금지됩니다.",
+  },
+  "winter-freeze-icemaker-dishwasher-heater": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "소방청 · 지방자치단체 겨울철 동파 예방 안전수칙",
+        title: "한파 대비 수도 배관 보온 · 야간 물 틀기 및 토치·열기구 직접 해동 화재 예방 안내",
+        url: URLS.NFA,
+        date: "공식 안전 안내",
+        usedFor: "배관 보온재 사용 원칙과 토치·화기 해동 시 배관 파열·화재 위험 경고 확인",
+      },
+      {
+        org: "주요 업소용 제빙기·온수기·식기세척기 제조사 매뉴얼",
+        title: "동절기 휴무·영업 마감 시 급수 잠금 및 내부 물탱크 퇴수(드레인) · 미온수 해동 지침",
+        url: URLS.SAMSUNG,
+        date: "공식 사용설명서",
+        usedFor: "제빙기·온수기(식힌 후 퇴수)·세척기 잔수 제거 절차 및 끓는 물 사용 금지 기준 확인",
+      },
+    ],
+    fieldNote:
+      "화기 해동 금지 및 퇴수 절차는 소방청·제조사 매뉴얼 기준이며, 솔레노이드 밸브·물탱크 파손 사례는 매장 겨울철 수리·교체 경험입니다.",
+  },
+  "freezer-defrost-knife-puncture-risk": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자서비스 · LG전자서비스",
+        title: "김치냉장고(뚜껑형) · 직냉식 냉동고 안전한 성에 제거(자연 해동 · 플라스틱 주걱) 및 날카로운 도구 금지 안내",
+        url: URLS.LG,
+        date: "공식 고객지원 가이드",
+        usedFor: "내벽 뒤 매립 냉매관 손상 위험, 전원 차단 후 자연 해동·따뜻한 물 그릇 활용 및 완전 건조 절차 확인",
+      },
+      {
+        org: "한국소비자원 · 가전 수리 실무",
+        title: "냉매 배관 파손(사용자 과실) 및 단열재 매립형 수리 한계 사례",
+        url: URLS.KCA,
+        date: "소비자 안내",
+        usedFor: "내벽 알루미늄 관 관통 시 가스 누출 및 수리 불가·고비용 교체 판정 구조 확인",
+      },
+    ],
+    fieldNote:
+      "안전 제상 순서는 삼성·LG 공식 고객지원 기준이며, 칼·송곳 자국으로 폐기 입고되는 사례는 매장 매입 검수 현장 경험입니다.",
+  },
+  "fridge-kitchen-fit-vs-freestanding-clearance": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자 · LG전자 공식 설치 가이드",
+        title: "키친핏(빌트인 700mm) vs 프리스탠딩 깊이 · 측면/상후면 방열 여유 · 도어 90도+ 개방 폭 안내",
+        url: URLS.SAMSUNG,
+        date: "공식 설치 규격서",
+        usedFor: "700~720mm 가구장 깊이, 좌우 최소 12~29mm+ 이격, 높이 1,900mm+, 콘센트 돌출 및 문 열림 간섭 폭 확인",
+      },
+      {
+        org: "한국소비자원",
+        title: "대형 가전 설치 공간 미확보(출입구 · 문 열림 간섭) 구매 전 점검 안내",
+        url: URLS.KCA,
+        date: "소비자 가이드",
+        usedFor: "제품 외관 가로폭 외 실제 문짝 열림 반경과 가구장 간섭 사전 실측 필요성 확인",
+      },
+    ],
+    fieldNote:
+      "깊이·측면 여유 공간 수치는 삼성·LG 공식 설치 가이드 기준이며, 콘센트 중앙 돌출 및 페어 설치 실수 사례는 매장 배송 경험입니다.",
+  },
+  "cable-reel-power-strip-tracking-fire": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "소방청 · 시도 소방본부",
+        title: "감긴 전선릴 과부하 발열 재연 실험(수 분 내 100~180℃ 상승) 및 멀티탭 허용전류 안전수칙",
+        url: URLS.NFA,
+        date: "공식 실험 · 안전자료",
+        usedFor: "릴선 감은 채 고전력 사용 시 열 축적 용융 화재, 16A(권장 연속 80% ≒ 2,800W 이하) 및 고전력 벽 콘센트 직결 원칙 확인",
+      },
+      {
+        org: "한국전기안전공사 (KESCO · 1889)",
+        title: "콘센트 · 플러그 먼지 및 습기에 의한 트래킹(Tracking) 전기화재 예방 안내",
+        url: URLS.KESCO,
+        date: "공공 안전 안내",
+        usedFor: "가전 뒷면 먼지·습기로 인한 미세 방전·탄화 화재 원리 및 주기적 플러그 먼지 제거 요령 확인",
+      },
+    ],
+    fieldNote:
+      "권선 발열 실험과 16A 기준, 트래킹 예방 수칙은 소방청 및 전기안전공사 공식 자료에 기반하며, 주방·냉장고 뒤 콘센트 사고 사례는 매장 현장 점검 경험입니다.",
   },
 };
 

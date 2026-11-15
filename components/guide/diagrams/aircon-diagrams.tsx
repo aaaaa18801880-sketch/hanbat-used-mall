@@ -1384,3 +1384,229 @@ export function AirconPumpdownTapingDiagram() {
     </DiagramFigure>
   );
 }
+
+/** 44번 글: 겨울 난방 히트펌프 냉난방기 vs 전기히터(온풍기) COP·한파 성능 비교 */
+export function HeatingHeatpumpVsHeaterDiagram() {
+  return (
+    <DiagramFigure
+      title="겨울 매장 난방 효율 비교: 인버터 냉난방기(COP 2.5~4) vs 전기온풍기(COP 1.0)"
+      caption="전기히터는 전기 1만큼 열 1만 만들지만, 냉난방기는 바깥 공기 열을 끌어와 전기 1로 열 2.5~4배를 내어 난방비가 크게 절감됩니다. 다만 영하 10℃ 이하에서는 효율이 낮아지고 성에 제거(제상) 구간이 생깁니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="전기온풍기 COP 1.0과 인버터 냉난방기 히트펌프 COP 2.5~4.0 효율 및 영하 한파 제상 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 전기히터 / 온풍기 */}
+        <rect x="16" y="16" width="356" height="253" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          전기온풍기 · 히터 (저항열 방식 · COP 1.0)
+        </text>
+
+        <rect x="34" y="68" width="144" height="66" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="106" y="92" fontSize="11" fontWeight="800" fill="#1E293B" textAnchor="middle">
+          전기 1 kWh 투입
+        </text>
+        <text x="106" y="116" fontSize="12" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          → 열 1.0 kWh
+        </text>
+
+        <text x="192" y="84" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          현실적인 장단점
+        </text>
+        <text x="192" y="103" fontSize="9.5" fill="#475569">
+          · 켜자마자 바로 뜨거움 (영하 영향 없음)
+        </text>
+        <text x="192" y="121" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 전기 먹는 하마: 상시 난방비 2.5~3배+
+        </text>
+        <text x="192" y="139" fontSize="9.5" fill="#DC2626">
+          · 3~5kW씩 먹어 차단기·계약전력 초과 빈발
+        </text>
+
+        <rect x="30" y="156" width="328" height="98" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="44" y="178" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          추천 사용처 (보조용으로만 적합)
+        </text>
+        <text x="44" y="198" fontSize="9.5" fill="#334155">
+          · 카운터 발밑, 화장실, 출입문 옆 등 좁은 구역 단시간 보조
+        </text>
+        <text x="44" y="216" fontSize="9.5" fill="#334155">
+          · 20~50평 홀 전체를 온풍기 2~3대로 데우면 요금·전력 폭탄
+        </text>
+        <text x="44" y="234" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 전선 얇은 콘센트·멀티탭에 꽂으면 과열 화재 위험 큼
+        </text>
+
+        {/* 오른쪽: 인버터 냉난방기 */}
+        <rect x="388" y="16" width="356" height="253" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="388" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          인버터 냉난방기 (히트펌프 · COP 평균 2.5~4.0)
+        </text>
+
+        <rect x="406" y="68" width="144" height="66" rx="8" fill="#FFFFFF" stroke="#5EEAD4" />
+        <text x="478" y="92" fontSize="11" fontWeight="800" fill="#1E293B" textAnchor="middle">
+          전기 1 kWh 투입
+        </text>
+        <text x="478" y="116" fontSize="12" fontWeight="800" fill="#0F766E" textAnchor="middle">
+          → 열 2.5~4.0 kWh
+        </text>
+
+        <text x="564" y="84" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          현실적인 장단점
+        </text>
+        <text x="564" y="103" fontSize="9.5" fill="#334155">
+          · 같은 난방 시 전기요금 약 1/3 수준 절감
+        </text>
+        <text x="564" y="121" fontSize="9.5" fill="#334155">
+          · 여름 냉방 + 겨울 난방 1대로 겸용
+        </text>
+        <text x="564" y="139" fontSize="9.5" fill="#C2410C" fontWeight="700">
+          · 영하 10℃ 이하 시 효율 하락·제상 멈춤
+        </text>
+
+        <rect x="402" y="156" width="328" height="98" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="416" y="178" fontSize="10.5" fontWeight="700" fill="#0F766E">
+          실전 매장 운용 팁 (한파·제상 대비)
+        </text>
+        <text x="416" y="198" fontSize="9.5" fill="#334155">
+          · 겨울 주력 난방은 냉난방기, 출입문 앞 한기만 보조 히터 조합
+        </text>
+        <text x="416" y="216" fontSize="9.5" fill="#334155">
+          · 제상 중 10분 안팎 온풍 멈춤은 고장이 아니라 정상 성에 제거 과정
+        </text>
+        <text x="416" y="234" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          · 추운 지역·외풍 매장은 한랭지 인버터 모델 + 충분한 평형 권장
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 45번 글: 가정용 2in1(멀티형) 에어컨 vs 단품 2대 비교 */
+export function Aircon2in1VsSinglesDiagram() {
+  return (
+    <DiagramFigure
+      title="가정용 2in1(멀티형) 에어컨 vs 단품 2대(스탠드 + 벽걸이 각각) 비교"
+      caption="아파트 실외기실이 1칸뿐이면 2in1이 정답이지만, 실외기 1대가 고장 나면 거실·안방이 동시에 멈추고 이사 갈 때 한 대만 떼어 팔기 어렵다는 점도 미리 알아두어야 합니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="실외기 1대 2in1 멀티형 에어컨과 실외기 2대 단품 2대 에어컨 장단점 및 고장 이사 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 2in1 멀티형 */}
+        <rect x="16" y="16" width="356" height="253" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="16" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 2in1 멀티형 (스탠드 + 벽걸이 + 실외기 1대)
+        </text>
+
+        <rect x="44" y="68" width="54" height="66" rx="6" fill="#FFFFFF" stroke="#EA580C" strokeWidth="1.5" />
+        <text x="71" y="105" fontSize="9.5" fontWeight="700" fill="#9A3412" textAnchor="middle">
+          스탠드
+        </text>
+        <rect x="114" y="68" width="66" height="34" rx="6" fill="#FFFFFF" stroke="#EA580C" strokeWidth="1.5" />
+        <text x="147" y="89" fontSize="9.5" fontWeight="700" fill="#9A3412" textAnchor="middle">
+          벽걸이
+        </text>
+        <rect x="78" y="144" width="84" height="34" rx="6" fill="#FFF7ED" stroke="#E8521A" strokeWidth="2" />
+        <text x="120" y="165" fontSize="10" fontWeight="800" fill="#C2410C" textAnchor="middle">
+          실외기 1대
+        </text>
+        <line x1="71" y1="134" x2="104" y2="144" stroke="#64748B" strokeWidth="2" />
+        <line x1="147" y1="102" x2="136" y2="144" stroke="#64748B" strokeWidth="2" />
+
+        <text x="196" y="84" fontSize="10.5" fontWeight="700" fill="#9A3412">
+          장점 (신축 아파트 표준)
+        </text>
+        <text x="196" y="103" fontSize="9.5" fill="#334155">
+          · 좁은 실외기실 1칸에 깔끔하게 들어감
+        </text>
+        <text x="196" y="121" fontSize="9.5" fill="#334155">
+          · 초기 구매가·중고 판매 수요 매우 높음
+        </text>
+        <text x="196" y="143" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          단점 (구매·이사 전 주의)
+        </text>
+        <text x="196" y="162" fontSize="9.5" fill="#DC2626">
+          · 실외기 1대 고장 시 두 대 다 멈춤!
+        </text>
+
+        <rect x="30" y="190" width="328" height="66" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="44" y="210" fontSize="9.5" fontWeight="700" fill="#9A3412">
+          · 거실↔안방 배관 길면 추가 배관비 상승 · 1대만 따로 떼기 불가
+        </text>
+        <text x="44" y="230" fontSize="9.5" fill="#475569">
+          · 이사 갈 집 안방에 이미 벽걸이만 있어도 스탠드만 따로 연결 어렵거나
+        </text>
+        <text x="44" y="246" fontSize="9.5" fill="#475569">
+          실외기 용량 확인 필요 (중고 매입도 세트 온전해야 제값 인정)
+        </text>
+
+        {/* 오른쪽: 단품 2대 */}
+        <rect x="388" y="16" width="356" height="253" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="388" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 단품 에어컨 2대 (각각 독립 실외기 2대)
+        </text>
+
+        <rect x="412" y="68" width="54" height="66" rx="6" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="439" y="105" fontSize="9.5" fontWeight="700" fill="#1E40AF" textAnchor="middle">
+          스탠드
+        </text>
+        <rect x="488" y="68" width="60" height="34" rx="6" fill="#FFFFFF" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="518" y="89" fontSize="9.5" fontWeight="700" fill="#1E40AF" textAnchor="middle">
+          벽걸이
+        </text>
+        <rect x="410" y="144" width="58" height="34" rx="6" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="439" y="165" fontSize="9" fontWeight="800" fill="#1E3A8A" textAnchor="middle">
+          실외기 A
+        </text>
+        <rect x="488" y="144" width="60" height="34" rx="6" fill="#DBEAFE" stroke="#1D4ED8" strokeWidth="1.5" />
+        <text x="518" y="165" fontSize="9" fontWeight="800" fill="#1E3A8A" textAnchor="middle">
+          실외기 B
+        </text>
+
+        <text x="566" y="84" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          장점 (독립성 · 고장 분산)
+        </text>
+        <text x="566" y="103" fontSize="9.5" fill="#334155">
+          · 1대 고장 나도 다른 방 에어컨은 작동!
+        </text>
+        <text x="566" y="121" fontSize="9.5" fill="#334155">
+          · 방 거리 멀어도 각각 외벽에 가깝게 설치
+        </text>
+        <text x="566" y="143" fontSize="10.5" fontWeight="700" fill="#DC2626">
+          단점 (설치비 · 공간)
+        </text>
+        <text x="566" y="162" fontSize="9.5" fill="#DC2626">
+          · 실외기 2대 둘 공간 없으면 설치 불가
+        </text>
+
+        <rect x="402" y="190" width="328" height="66" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="416" y="210" fontSize="9.5" fontWeight="700" fill="#1E40AF">
+          · 이사 갈 때 실외기 작업비 · 앵글비가 2대분으로 청구됨
+        </text>
+        <text x="416" y="230" fontSize="9.5" fill="#475569">
+          · 대신 안방 벽걸이만 자녀 방으로 주거나 단품 1대만 따로 팔기
+        </text>
+        <text x="416" y="246" fontSize="9.5" fill="#475569">
+          매우 자유로워 구축 주택 · 투룸 · 거실/방 먼 구조에 유리
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

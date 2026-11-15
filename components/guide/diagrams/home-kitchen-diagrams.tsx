@@ -1172,3 +1172,511 @@ export function WasherComboVsStackDiagram() {
     </DiagramFigure>
   );
 }
+
+/** 46번 글: 업소용 가스 주방 vs 전기 인덕션 주방 비교 */
+export function GasVsInductionKitchenDiagram() {
+  return (
+    <DiagramFigure
+      title="식당 주방 선택: 도시가스 화구·튀김기 vs 업소용 전기 인덕션·튀김기 비교"
+      caption="가스 주방은 불맛과 용기 제한이 없는 대신 여름 주방 열기와 계량기 등급(G4·G6) 확인이 중요하고, 인덕션 주방은 쾌적하고 청소가 쉬운 대신 상가 전기 계약전력(380V 삼상) 여유가 핵심입니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="도시가스 주방 계량기 G4 G6 기준과 업소용 전기 인덕션 주방 삼상 전기 공사비 열기 유지비 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 가스 주방 */}
+        <rect x="16" y="16" width="356" height="253" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="16" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          도시가스 화구 · 튀김기 (불맛 · 냄비 무제한)
+        </text>
+
+        <text x="32" y="76" fontSize="10.5" fontWeight="700" fill="#9A3412">
+          사전 확인: 가스 계량기 등급과 총 화력(kcal/h)
+        </text>
+        <rect x="32" y="88" width="324" height="62" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="44" y="108" fontSize="9.5" fill="#334155">
+          · G4 (6등급): 최대 약 6만 kcal/h (소규모 분식 · 일반 2~3구)
+        </text>
+        <text x="44" y="126" fontSize="9.5" fill="#334155">
+          · G6 (10등급): 최대 약 10만 kcal/h (중형 식당 · 화구 다수)
+        </text>
+        <text x="44" y="143" fontSize="9" fill="#C2410C" fontWeight="700">
+          → 용량 넘기면 계량기·배관 증설(승압) 공사 필요!
+        </text>
+
+        <rect x="32" y="164" width="324" height="90" rx="8" fill="#FFF7ED" stroke="#FED7AA" />
+        <text x="44" y="185" fontSize="10" fontWeight="700" fill="#9A3412">
+          장점 vs 단점 요약
+        </text>
+        <text x="44" y="204" fontSize="9.5" fill="#334155">
+          · (+) 직화 불맛 가능, 알루미늄/뚝배기/웍 모든 냄비 사용
+        </text>
+        <text x="44" y="222" fontSize="9.5" fill="#334155">
+          · (+) 이미 큰 가스 배관·계량기 있으면 전기 승압보다 비용 절약
+        </text>
+        <text x="44" y="240" fontSize="9.5" fill="#DC2626">
+          · (-) 여름 주방 매우 덥고 그을음 청소 · 가스경보기/안전검사 필수
+        </text>
+
+        {/* 오른쪽: 전기 인덕션 주방 */}
+        <rect x="388" y="16" width="356" height="253" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="388" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          전기 인덕션 · 전기튀김기 (쾌적 · 고효율)
+        </text>
+
+        <text x="404" y="76" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          사전 확인: 한전 계약전력과 삼상 380V 차단기
+        </text>
+        <rect x="404" y="88" width="324" height="62" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="416" y="108" fontSize="9.5" fill="#334155">
+          · 업소용 1구 3.5~5kW, 2~3구·대형 튀김기 10~15kW 이상 소비
+        </text>
+        <text x="416" y="126" fontSize="9.5" fill="#334155">
+          · 에어컨·냉장고와 합산해 상가 계약전력 여유 확인 필수
+        </text>
+        <text x="416" y="143" fontSize="9" fill="#1D4ED8" fontWeight="700">
+          → 가스 미인입 신축 상가·지하·백화점 입점에 사실상 표준
+        </text>
+
+        <rect x="404" y="164" width="324" height="90" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="416" y="185" fontSize="10" fontWeight="700" fill="#1E40AF">
+          장점 vs 단점 요약
+        </text>
+        <text x="416" y="204" fontSize="9.5" fill="#334155">
+          · (+) 주변 공기 안 데워 주방 쾌적 + 냉방비 절감 + 청소 쉬움
+        </text>
+        <text x="416" y="222" fontSize="9.5" fill="#334155">
+          · (-) 380V 전용 차단기·배선·한전 kW 증설 비용 들 수 있음
+        </text>
+        <text x="416" y="240" fontSize="9.5" fill="#DC2626">
+          · (-) 자석 붙는 전용 스텐/철 냄비만 가능 · 직화 불맛은 제한적
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 47번 글(사용자 추가 요청): 가스 구이기·렌지 LPG vs LNG 비교 (압력·노즐·경보기 위치) */
+export function LpgVsLngNozzleDetectorDiagram() {
+  return (
+    <DiagramFigure
+      title="업소용 가스 구이기·로스터·렌지 LPG vs LNG(도시가스) 핵심 차이"
+      caption="LPG(가스통)는 무거워서 바닥에 깔리고 압력이 세서 노즐 구멍이 작습니다. 반대로 LNG(도시가스)는 가벼워서 천장에 뜨고 압력이 약해 노즐 구멍이 큽니다. 기기를 바꿔 꽂으면 대형 사고가 납니다."
+    >
+      <svg
+        viewBox="0 0 760 305"
+        role="img"
+        aria-label="LPG 액화석유가스와 LNG 도시가스 압력 2.8kPa 대 2.0kPa, 노즐 구멍 크기, 경보기 바닥 30cm 대 천장 30cm 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="305" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: LPG (가스통) */}
+        <rect x="16" y="16" width="356" height="273" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="16" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          LPG (프로판 통 · 벌크 저장조)
+        </text>
+
+        {/* 노즐 & 경보기 그림 */}
+        <rect x="34" y="66" width="136" height="114" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="102" y="84" fontSize="10" fontWeight="700" fill="#9A3412" textAnchor="middle">
+          누출 시 바닥에 깔림!
+        </text>
+        <text x="102" y="102" fontSize="9.5" fill="#475569" textAnchor="middle">
+          공기보다 1.5~2배 무거움
+        </text>
+        <rect x="46" y="142" width="112" height="24" rx="4" fill="#FEF2F2" stroke="#DC2626" />
+        <text x="102" y="158" fontSize="9.5" fontWeight="800" fill="#DC2626" textAnchor="middle">
+          경보기: 바닥 30cm 이내
+        </text>
+
+        <text x="184" y="84" fontSize="10.5" fontWeight="700" fill="#9A3412">
+          기계 세팅 기준
+        </text>
+        <text x="184" y="104" fontSize="9.5" fill="#334155">
+          · 공급 압력: 약 2.8 kPa (높음)
+        </text>
+        <text x="184" y="122" fontSize="9.5" fill="#334155">
+          · 발열량 높아 조금만 나와도 화력 셈
+        </text>
+        <text x="184" y="140" fontSize="10" fill="#C2410C" fontWeight="800">
+          · 노즐(분출구) 구멍: 매우 작음!
+        </text>
+        <text x="184" y="158" fontSize="9" fill="#64748B">
+          (업소 일반 버너 약 1.1~2.3mm)
+        </text>
+
+        <rect x="30" y="192" width="328" height="82" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="44" y="213" fontSize="10" fontWeight="700" fill="#991B1B">
+          LPG용 기기에 LNG(도시가스)를 그대로 꽂으면?
+        </text>
+        <text x="44" y="232" fontSize="9.5" fill="#7F1D1D">
+          · 구멍이 너무 작아 가스가 적게 나오고 화력이 아주 약해짐
+        </text>
+        <text x="44" y="250" fontSize="9.5" fill="#7F1D1D">
+          · 불꽃이 자주 꺼지거나 미연소 가스가 샐 위험 증가
+        </text>
+
+        {/* 오른쪽: LNG (도시가스) */}
+        <rect x="388" y="16" width="356" height="273" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#1D4ED8" />
+        <rect x="388" y="40" width="356" height="12" fill="#1D4ED8" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          LNG (배관으로 들어오는 도시가스)
+        </text>
+
+        <rect x="406" y="66" width="136" height="114" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <rect x="418" y="76" width="112" height="24" rx="4" fill="#DBEAFE" stroke="#1D4ED8" />
+        <text x="474" y="92" fontSize="9.5" fontWeight="800" fill="#1E40AF" textAnchor="middle">
+          경보기: 천장 30cm 이내
+        </text>
+        <text x="474" y="138" fontSize="10" fontWeight="700" fill="#1E40AF" textAnchor="middle">
+          누출 시 천장으로 뜸!
+        </text>
+        <text x="474" y="156" fontSize="9.5" fill="#475569" textAnchor="middle">
+          공기보다 가벼움(비중 0.55)
+        </text>
+
+        <text x="556" y="84" fontSize="10.5" fontWeight="700" fill="#1E40AF">
+          기계 세팅 기준
+        </text>
+        <text x="556" y="104" fontSize="9.5" fill="#334155">
+          · 공급 압력: 약 2.0 kPa (상대적 약함)
+        </text>
+        <text x="556" y="122" fontSize="9.5" fill="#334155">
+          · 체적 열량 낮아 많이 통과시켜야 함
+        </text>
+        <text x="556" y="140" fontSize="10" fill="#1D4ED8" fontWeight="800">
+          · 노즐(분출구) 구멍: 상대적으로 큼!
+        </text>
+        <text x="556" y="158" fontSize="9" fill="#64748B">
+          (업소 일반 버너 약 2.3~3.4mm+)
+        </text>
+
+        <rect x="402" y="192" width="328" height="82" rx="8" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="416" y="213" fontSize="10" fontWeight="700" fill="#991B1B">
+          LNG용 기기에 LPG(가스통)를 그대로 꽂으면? (매우 위험!)
+        </text>
+        <text x="416" y="232" fontSize="9.5" fill="#7F1D1D">
+          · 큰 구멍에 높은 압력+고열량 LPG가 폭주 → 긴 붉은 불꽃·그을음
+        </text>
+        <text x="416" y="250" fontSize="9.5" fill="#7F1D1D" fontWeight="700">
+          · 불완전 연소 일산화탄소 중독 · 과열 화재로 이어짐 (임의 개조 불법)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 48번 글: 한파 시 제빙기·온수기·식기세척기 동파 예방(퇴수·보온·해동) */
+export function WinterKitchenFreezeCareDiagram() {
+  return (
+    <DiagramFigure
+      title="영하 한파 매장 마감 전 3가지 기기 동파 예방(퇴수 · 보온) 및 안전 해동"
+      caption="추운 날 밤 난방을 끄는 매장은 제빙기·온수기·식기세척기 내부 고인 물을 빼두지 않으면 물통이나 밸브가 얼어 터집니다. 얼었을 때 끓는 물이나 토치를 대면 부품이 녹아 영구 손상됩니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="제빙기, 온수기, 식기세척기 겨울철 퇴수 위치와 보온 및 미온수 해동 수칙 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 1. 제빙기 */}
+        <rect x="16" y="16" width="234" height="178" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="16" y="16" width="234" height="34" rx="12" fill="#0369A1" />
+        <rect x="16" y="38" width="234" height="12" fill="#0369A1" />
+        <text x="133" y="37" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 업소용 제빙기
+        </text>
+        <text x="28" y="72" fontSize="9.5" fill="#0F172A" fontWeight="700">
+          · 전원 뽑고 수도(직수) 밸브 잠그기
+        </text>
+        <text x="28" y="92" fontSize="9.5" fill="#334155">
+          · 내부 물통·드레인 마개 열어 잔수 빼기
+        </text>
+        <text x="28" y="112" fontSize="9.5" fill="#334155">
+          · 뒤쪽 입수 호스 찬바람 보온재 감싸기
+        </text>
+        <text x="28" y="142" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 급수 밸브 얼어 터지면 다음 날 누수!
+        </text>
+        <text x="28" y="162" fontSize="9" fill="#475569">
+          (휴무 전 얼음저장고 물기도 미리 제거)
+        </text>
+
+        {/* 2. 온수기 */}
+        <rect x="263" y="16" width="234" height="178" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="263" y="16" width="234" height="34" rx="12" fill="#D97706" />
+        <rect x="263" y="38" width="234" height="12" fill="#D97706" />
+        <text x="380" y="37" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 업소용 온수기
+        </text>
+        <text x="275" y="72" fontSize="9.5" fill="#0F172A" fontWeight="700">
+          · 전원 끄고 물 식힌 뒤(화상 주의!)
+        </text>
+        <text x="275" y="92" fontSize="9.5" fill="#334155">
+          · 입수 밸브 잠그고 하단 퇴수밸브 열기
+        </text>
+        <text x="275" y="112" fontSize="9.5" fill="#334155">
+          · 추출 레버도 열어 물탱크 완전히 비우기
+        </text>
+        <text x="275" y="142" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 물 탱크 얼면 용접부 터져 수리 불가!
+        </text>
+        <text x="275" y="162" fontSize="9" fill="#475569">
+          (직수 파이프 벽면 보온 튜브 시공 필수)
+        </text>
+
+        {/* 3. 식기세척기 */}
+        <rect x="510" y="16" width="234" height="178" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="510" y="16" width="234" height="34" rx="12" fill="#0F766E" />
+        <rect x="510" y="38" width="234" height="12" fill="#0F766E" />
+        <text x="627" y="37" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. 업소용 식기세척기
+        </text>
+        <text x="522" y="72" fontSize="9.5" fill="#0F172A" fontWeight="700">
+          · 차단기·전원 내리고 배수 마개 뽑기
+        </text>
+        <text x="522" y="92" fontSize="9.5" fill="#334155">
+          · 급수 앵글밸브 잠그고 호스 물 빼기
+        </text>
+        <text x="522" y="112" fontSize="9.5" fill="#334155">
+          · 도어 살짝 열어 내부 습기·고착 예방
+        </text>
+        <text x="522" y="142" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 물 없이 억지로 켜면 세척 펌프 소손!
+        </text>
+        <text x="522" y="162" fontSize="9" fill="#475569">
+          (급수·세제 호스 찬바람 틈 단열재 보강)
+        </text>
+
+        {/* 하단 공통 안전 해동 배너 */}
+        <rect x="16" y="206" width="728" height="64" rx="10" fill="#FEF2F2" stroke="#FCA5A5" />
+        <text x="380" y="229" fontSize="11" fontWeight="800" fill="#991B1B" textAnchor="middle">
+          이미 얼었을 때 해동 공식: 전원 끄기 → 미지근한 물수건 · 헤어드라이어 약풍(거리 띄움)만 사용
+        </text>
+        <text x="380" y="250" fontSize="10" fontWeight="700" fill="#DC2626" textAnchor="middle">
+          절대 금지: 팔팔 끓는 물 붓기 · 휴대용 토치(화기) 갖다 대기 → 배관 터짐 및 대형 화재 유발!
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 49번 글: 김치냉장고·냉동고 칼·송곳 성에 제거 위험 vs 안전 해동 */
+export function FreezerDefrostPipeRiskDiagram() {
+  return (
+    <DiagramFigure
+      title="냉동고·김치냉장고 칼로 성에 긁다 폐기되는 구조와 안전한 제상 순서"
+      caption="뚜껑형 김치냉장고와 직냉식 업소용 냉동고는 내벽 바로 뒤에 얇은 냉매 배관이 지나갑니다. 날카로운 칼·송곳으로 성에를 찍는 순간 가스 구멍이 뚫려 수리가 불가능할 수 있습니다."
+    >
+      <svg
+        viewBox="0 0 760 275"
+        role="img"
+        aria-label="내벽 바로 뒤 알루미늄 냉매 배관 찔림 파손 구조와 전원 차단 후 자연 해동 순서 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="275" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 위험 단면 */}
+        <rect x="16" y="16" width="356" height="243" rx="12" fill="#FFF8F8" stroke="#FCA5A5" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#DC2626" />
+        <rect x="16" y="40" width="356" height="12" fill="#DC2626" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          절대 금지: 칼 · 송곳 · 쇠주걱으로 얼음 찍기
+        </text>
+
+        <rect x="40" y="68" width="134" height="114" rx="8" fill="#FFFFFF" stroke="#E2E8F0" />
+        {/* 내벽 단면 */}
+        <rect x="48" y="76" width="22" height="98" fill="#BAE6FD" />
+        <text x="59" y="128" fontSize="8.5" fontWeight="700" fill="#0369A1" textAnchor="middle">
+          성에
+        </text>
+        <rect x="70" y="76" width="8" height="98" fill="#94A3B8" />
+        <circle cx="84" cy="124" r="6" fill="#0F766E" />
+        <rect x="78" y="76" width="14" height="98" fill="none" stroke="#64748B" />
+        <line x1="116" y1="124" x2="78" y2="124" stroke="#DC2626" strokeWidth="3" />
+        <text x="130" y="114" fontSize="9.5" fontWeight="800" fill="#DC2626">
+          칼날 관통!
+        </text>
+        <text x="130" y="142" fontSize="8.5" fill="#991B1B">
+          냉매 가스 누설
+        </text>
+
+        <text x="188" y="84" fontSize="10.5" fontWeight="700" fill="#991B1B">
+          왜 못 고치는 경우가 많을까?
+        </text>
+        <text x="188" y="103" fontSize="9.5" fill="#475569">
+          · 내벽 판 바로 뒤에 알루미늄 관 밀착
+        </text>
+        <text x="188" y="121" fontSize="9.5" fill="#475569">
+          · 미세 구멍으로 냉매 가스 100% 유실
+        </text>
+        <text x="188" y="139" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 단열재(우레탄폼) 속에 매립돼
+        </text>
+        <text x="188" y="157" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 구멍 찾기도 어렵고 용접 불가능 다수
+        </text>
+
+        <rect x="30" y="196" width="328" height="50" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="194" y="218" fontSize="10" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          구멍 난 채 계속 켜 두면 수분·기름 섞여 콤프레샤까지 타버림
+        </text>
+        <text x="194" y="235" fontSize="9.5" fill="#475569" textAnchor="middle">
+          → 멀쩡하던 수십만~백만 원대 제품이 순식간에 폐기 판정!
+        </text>
+
+        {/* 오른쪽: 안전한 정석 제상 */}
+        <rect x="388" y="16" width="356" height="243" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="388" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          제조사 공식 안전 제상(성에 제거) 4단계
+        </text>
+
+        <rect x="406" y="68" width="320" height="36" rx="7" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="418" y="90" fontSize="10" fontWeight="700" fill="#0F766E">
+          1단계. 음식 비우고 전원 코드(또는 해당 칸 전원) 끄기
+        </text>
+
+        <rect x="406" y="112" width="320" height="36" rx="7" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="418" y="134" fontSize="10" fontWeight="700" fill="#0F766E">
+          2단계. 문 활짝 열어 자연 해동 (+ 따뜻한 물 그릇 안에 두기)
+        </text>
+
+        <rect x="406" y="156" width="320" height="36" rx="7" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="418" y="178" fontSize="10" fontWeight="700" fill="#0F766E">
+          3단계. 얼음이 저절로 들뜨면 부드러운 플라스틱 주걱으로 걷기
+        </text>
+
+        <rect x="406" y="200" width="320" height="44" rx="7" fill="#CCFBF1" stroke="#0F766E" />
+        <text x="418" y="220" fontSize="10" fontWeight="700" fill="#134E4A">
+          4단계. 마른 수건으로 물기 완전 건조 후 전원 재투입
+        </text>
+        <text x="418" y="236" fontSize="9" fill="#0F766E">
+          (물기 남아 있으면 전원 켠 지 며칠 만에 성에가 다시 두껍게 생김)
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/** 50번 글: 냉장고 키친핏 vs 프리스탠딩 깊이·방열 여유·문열림 각도 */
+export function KitchenfitVsFreestandingDiagram() {
+  return (
+    <DiagramFigure
+      title="2·4도어 냉장고 [키친핏 vs 프리스탠딩] 깊이 · 방열 여유 · 문 열림 간섭 비교"
+      caption="키친핏은 싱크대 라인(깊이 700mm)에 딱 들어가는 대신 용량이 조금 작고 좌우·상단 방열 여유가 필수이며, 프리스탠딩은 대용량이지만 장 앞으로 10~20cm 튀어나오고 문이 벽에 닿을 수 있습니다."
+    >
+      <svg
+        viewBox="0 0 760 285"
+        role="img"
+        aria-label="키친핏 깊이 700mm와 프리스탠딩 깊이 800~900mm, 측면 방열 12~29mm, 문 90도 열림 각도 간섭 비교 도해"
+        className="w-full h-auto"
+      >
+        <rect x="0" y="0" width="760" height="285" rx="14" fill="#F8FAFC" />
+
+        {/* 왼쪽: 키친핏 */}
+        <rect x="16" y="16" width="356" height="253" rx="12" fill="#FFFFFF" stroke="#5EEAD4" />
+        <rect x="16" y="16" width="356" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="40" width="356" height="12" fill="#0F766E" />
+        <text x="194" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          키친핏 (빌트인형 · 깊이 약 700mm 기준)
+        </text>
+
+        <rect x="44" y="70" width="130" height="66" rx="6" fill="#E2E8F0" stroke="#64748B" />
+        <rect x="56" y="76" width="106" height="58" rx="4" fill="#F0FDFA" stroke="#0F766E" strokeWidth="1.5" />
+        <text x="109" y="103" fontSize="10" fontWeight="800" fill="#0F766E" textAnchor="middle">
+          가구장 앞면 딱 일치
+        </text>
+        <text x="109" y="120" fontSize="8.5" fill="#475569" textAnchor="middle">
+          튀어나옴 없음 (약 600L대)
+        </text>
+
+        <text x="188" y="84" fontSize="10" fontWeight="700" fill="#0F766E">
+          제조사 공식 여유 공간 기준
+        </text>
+        <text x="188" y="103" fontSize="9.5" fill="#334155">
+          · 가구장 깊이: 최소 700~720mm 이상
+        </text>
+        <text x="188" y="120" fontSize="9.5" fill="#334155">
+          · 좌우 여백: 삼성 12mm+ / LG 23~29mm+
+        </text>
+        <text x="188" y="137" fontSize="9.5" fill="#334155">
+          · 높이 여백: 장 내경 1,900mm+ 권장
+        </text>
+
+        <rect x="30" y="156" width="328" height="98" rx="8" fill="#F0FDFA" stroke="#99F6E4" />
+        <text x="44" y="177" fontSize="10" fontWeight="700" fill="#0F766E">
+          방열 부족·콘센트 돌출 시 생기는 문제
+        </text>
+        <text x="44" y="196" fontSize="9.5" fill="#334155">
+          · 사방 여유 공간 없이 끼워 넣으면 열이 갇혀 소음·전기세·고장 급증
+        </text>
+        <text x="44" y="214" fontSize="9.5" fill="#334155">
+          · 정중앙 뒷면 콘센트 플러그가 꽂히면 냉장고가 앞으로 3~5cm 밀려남
+        </text>
+        <text x="44" y="232" fontSize="9.5" fill="#0F766E" fontWeight="700">
+          · 김치냉장고 나란히 페어 설치 시 연결 키트 규격·좌우 합산 폭 확인!
+        </text>
+
+        {/* 오른쪽: 프리스탠딩 */}
+        <rect x="388" y="16" width="356" height="253" rx="12" fill="#FFFBF7" stroke="#FDBA74" />
+        <rect x="388" y="16" width="356" height="36" rx="12" fill="#E8521A" />
+        <rect x="388" y="40" width="356" height="12" fill="#E8521A" />
+        <text x="566" y="39" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          프리스탠딩 (대용량 · 깊이 약 800~900mm+)
+        </text>
+
+        <rect x="416" y="70" width="130" height="54" rx="6" fill="#E2E8F0" stroke="#64748B" />
+        <rect x="428" y="76" width="106" height="68" rx="4" fill="#FFF7ED" stroke="#EA580C" strokeWidth="1.5" />
+        <text x="481" y="106" fontSize="10" fontWeight="800" fill="#C2410C" textAnchor="middle">
+          앞으로 10~20cm 돌출
+        </text>
+        <text x="481" y="128" fontSize="8.5" fill="#475569" textAnchor="middle">
+          대신 용량 큼 (800~900L+)
+        </text>
+
+        <text x="560" y="84" fontSize="10" fontWeight="700" fill="#C2410C">
+          가장 흔한 문 열림 실수
+        </text>
+        <text x="560" y="103" fontSize="9.5" fill="#334155">
+          · 제품 본체 가로(910mm)만 보고 삼
+        </text>
+        <text x="560" y="120" fontSize="9.5" fill="#DC2626" fontWeight="700">
+          · 문짝 두께 때문에 90도 열면 가로 더 필요!
+        </text>
+        <text x="560" y="137" fontSize="9.5" fill="#334155">
+          · 옆 벽에 막혀 야채서랍 안 빠지는 사고 빈발
+        </text>
+
+        <rect x="402" y="156" width="328" height="98" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="416" y="177" fontSize="10" fontWeight="700" fill="#C2410C">
+          중고 냉장고 구매 · 이사 전 줄자 3종 체크
+        </text>
+        <text x="416" y="196" fontSize="9.5" fill="#334155">
+          1. 장 깊이 확인: 키친핏은 700mm 장, 프리스탠딩은 통로 좁아 보임 감안
+        </text>
+        <text x="416" y="214" fontSize="9.5" fill="#334155">
+          2. 서랍 빠지는 각도(최소 90도+) 위해 양옆 벽·싱크대 측판 간섭 확인
+        </text>
+        <text x="416" y="232" fontSize="9.5" fill="#334155">
+          3. 문 열림까지 여유 가로 약 1,100mm 안팎인지 + 뒷면 방열 5cm 확인
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}

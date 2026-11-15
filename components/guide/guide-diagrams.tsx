@@ -1,6 +1,7 @@
 // 파일 경로: components/guide/guide-diagrams.tsx
 import React from "react";
 import {
+  Aircon2in1VsSinglesDiagram,
   AirconCyclePartsDiagram,
   AirconDrainLeakDiagram,
   AirconPipeComparisonDiagram,
@@ -12,6 +13,7 @@ import {
   CeilingVsStandInstallDiagram,
   DefrostCycleWalkwayDiagram,
   FixedSpeedVsInverterDiagram,
+  HeatingHeatpumpVsHeaterDiagram,
   InverterDutyCycleDiagram,
   OutdoorLouverAirflowDiagram,
   OutdoorUnitWeatherproofDiagram,
@@ -21,6 +23,7 @@ import {
 import {
   ApplianceResaleValueDiagram,
   BuybackInspectionPointsDiagram,
+  CableReelTrackingFireDiagram,
   CafePlumbingDrainCheckDiagram,
   ClearanceBlueprintDiagram,
   ElbVsMccbTripDiagram,
@@ -29,6 +32,7 @@ import {
   KwVsKwhDiagram,
   NeutralWireDangerDiagram,
   StartupPowerBudgetDiagram,
+  StoreTakeoverChecklistDiagram,
   TvPanelBurninBacklightDiagram,
   UsedVsStoreFlowDiagram,
   VoltageBreakerDiagram,
@@ -40,13 +44,18 @@ import {
   CommercialDishwasherSetupDiagram,
   CommercialFridgeRepairRoiDiagram,
   DryerHeatpumpCondenserDiagram,
+  FreezerDefrostPipeRiskDiagram,
   FridgeFreezerAirflowDiagram,
   FridgeTiltOilReturnDiagram,
+  GasVsInductionKitchenDiagram,
   IcemakerHeatRejectionDiagram,
   KimchiFridgeCoolingDiagram,
+  KitchenfitVsFreestandingDiagram,
+  LpgVsLngNozzleDetectorDiagram,
   ShowcaseCondensationDiagram,
   WasherComboVsStackDiagram,
   WasherTubInspectionDiagram,
+  WinterKitchenFreezeCareDiagram,
 } from "./diagrams/home-kitchen-diagrams";
 
 export type GuideDiagramId =
@@ -91,7 +100,16 @@ export type GuideDiagramId =
   | "outdoor-louver-airflow"
   | "aircon-pumpdown-taping"
   | "washer-combo-vs-stack"
-  | "waste-pickup-vs-buyback";
+  | "waste-pickup-vs-buyback"
+  | "store-takeover-checklist"
+  | "heating-heatpump-vs-heater"
+  | "aircon-2in1-vs-singles"
+  | "gas-vs-induction-kitchen"
+  | "lpg-vs-lng-nozzle-detector"
+  | "winter-kitchen-freeze-care"
+  | "freezer-defrost-pipe-risk"
+  | "kitchenfit-vs-freestanding"
+  | "cable-reel-tracking-fire";
 
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
@@ -179,5 +197,23 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <WasherComboVsStackDiagram />;
     case "waste-pickup-vs-buyback":
       return <WastePickupVsBuybackDiagram />;
+    case "store-takeover-checklist":
+      return <StoreTakeoverChecklistDiagram />;
+    case "heating-heatpump-vs-heater":
+      return <HeatingHeatpumpVsHeaterDiagram />;
+    case "aircon-2in1-vs-singles":
+      return <Aircon2in1VsSinglesDiagram />;
+    case "gas-vs-induction-kitchen":
+      return <GasVsInductionKitchenDiagram />;
+    case "lpg-vs-lng-nozzle-detector":
+      return <LpgVsLngNozzleDetectorDiagram />;
+    case "winter-kitchen-freeze-care":
+      return <WinterKitchenFreezeCareDiagram />;
+    case "freezer-defrost-pipe-risk":
+      return <FreezerDefrostPipeRiskDiagram />;
+    case "kitchenfit-vs-freestanding":
+      return <KitchenfitVsFreestandingDiagram />;
+    case "cable-reel-tracking-fire":
+      return <CableReelTrackingFireDiagram />;
   }
 }
