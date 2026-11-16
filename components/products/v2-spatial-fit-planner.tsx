@@ -81,6 +81,72 @@ function extractDimensionsFromText(
   return { widthMm: 850, depthMm: 750, heightMm: null, isExact: false };
 }
 
+interface ContextualGuideLink {
+  slug: string;
+  badge: string;
+  title: string;
+}
+
+function ContextualGuideBox({
+  guides,
+  source,
+}: {
+  guides: readonly ContextualGuideLink[];
+  source: string;
+}) {
+  if (guides.length === 0) return null;
+
+  return (
+    <div className="pt-3 border-t border-[#E2E6EC] space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#0F766E]">
+          <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#0F766E] shrink-0" />
+          <span>선택 조건 맞춤 정보 가이드</span>
+        </span>
+        <Link
+          href="/guide"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-hb-xs font-semibold text-[#64748B] hover:text-[#141A23] underline underline-offset-2"
+        >
+          전체 보기
+        </Link>
+      </div>
+
+      <div className="space-y-1.5">
+        {guides.map((g) => (
+          <Link
+            key={g.slug}
+            href={`/guide/${g.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent("click_guide_tool_action", {
+                slug: g.slug,
+                source,
+              })
+            }
+            className="group flex items-center justify-between gap-2 rounded-xl border border-[#E2E6EC] bg-white px-3 py-2 shadow-2xs hover:border-[#0F766E] hover:bg-[#F0FDFA]/50 transition-[border-color,background-color] duration-150"
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="shrink-0 rounded-md border border-[#CCFBF1] bg-[#F0FDFA] px-2 py-0.5 text-hb-xs font-bold text-[#0F766E]">
+                {g.badge}
+              </span>
+              <span className="text-hb-xs font-bold text-[#141A23] group-hover:text-[#0F766E] truncate">
+                {g.title}
+              </span>
+            </div>
+            <Icon
+              d={ICON.external}
+              className="w-3.5 h-3.5 shrink-0 text-[#64748B] group-hover:text-[#0F766E] transition-transform duration-150 group-hover:translate-x-0.5"
+            />
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 const SPACE_PRESETS = [
   { label: "좁은틈 (90cm)", cm: 90 },
   { label: "소형주방 (120cm)", cm: 120 },
@@ -199,6 +265,43 @@ export function V2SpatialFitPlanner({
       extraCheckItems.push(
         "삼상 380V 동력 전원: 매장 분전반(4선식 차단기) 위치 및 전원선 거리 확인"
       );
+    }
+
+    const hvacGuides: ContextualGuideLink[] = [];
+    if (hasPowerMismatch || powerType === "380v" || powerType === "unknown") {
+      hvacGuides.push({
+        slug: "voltage-220v-vs-380v",
+        badge: powerType === "unknown" ? "전기 확인" : "전원 규격",
+        title: "차단기 모양으로 단상 220V vs 삼상 380V 3초 구별하기",
+      });
+    }
+    if (outdoorSpot === "angle") {
+      hvacGuides.push({
+        slug: "villa-old-house-drilling-angle-3kw",
+        badge: "앵글·타공",
+        title: "구옥·빌라 외벽 앵글 설치 및 타공 체크 기준",
+      });
+    }
+    if (outdoorSpot === "rooftop" || pipeDistance === "long") {
+      hvacGuides.push({
+        slug: "aircon-pipe-reuse-aluminum-vs-copper",
+        badge: "배관·연장",
+        title: "동배관 vs 알루미늄 배관 재사용 및 연장비 기준",
+      });
+    }
+    if (outdoorSpot === "rooftop" || hvacGuides.length < 2) {
+      hvacGuides.push({
+        slug: "aircon-relocation-cost-variables",
+        badge: "설치비 변수",
+        title: "에어컨 설치비가 현장에서 달라지는 핵심 변수 총정리",
+      });
+    }
+    if (hvacGuides.length < 2) {
+      hvacGuides.unshift({
+        slug: "aircon-pyeong-sizing-cafe-restaurant",
+        badge: "평수 계산",
+        title: "우리 집·매장 평수별 적정 에어컨 냉방 용량 고르기",
+      });
     }
 
     const smsBody = `[${STORE.name} 에어컨 설치견적 문의]\n• 상품: ${
@@ -320,14 +423,31 @@ export function V2SpatialFitPlanner({
             </div>
 
             {hasPowerMismatch && (
-              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-hb-xs text-red-900">
-                <strong className="flex items-center gap-1 font-bold text-red-700 mb-0.5">
+              <div className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-hb-xs text-red-900 space-y-1.5">
+                <strong className="flex items-center gap-1 font-bold text-red-700">
                   <Icon d={ICON.bolt} className="w-4 h-4 text-red-600 shrink-0" />
                   <span>전원 규격 호환 확인이 필요합니다</span>
                 </strong>
-                {isProductThreePhase
-                  ? "본 상품은 삼상(380V) 동력 전용 모델입니다. 일반 단상(220V) 매장·가정에는 바로 설치할 수 없으니 단상 모델 재고를 문의해 주세요."
-                  : "본 상품은 단상(220V) 모델입니다. 매장 내 일반 220V 콘센트 사용이 가능한지 확인해 주세요."}
+                <p>
+                  {isProductThreePhase
+                    ? "본 상품은 삼상(380V) 동력 전용 모델입니다. 일반 단상(220V) 매장·가정에는 바로 설치할 수 없으니 단상 모델 재고를 문의해 주세요."
+                    : "본 상품은 단상(220V) 모델입니다. 매장 내 일반 220V 콘센트 사용이 가능한지 확인해 주세요."}
+                </p>
+                <Link
+                  href="/guide/voltage-220v-vs-380v"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("click_guide_tool_action", {
+                      slug: "voltage-220v-vs-380v",
+                      source: "v2_fit_planner_power_alert",
+                    })
+                  }
+                  className="inline-flex items-center gap-1 font-bold text-red-800 underline underline-offset-2 hover:text-red-950"
+                >
+                  <span>220V vs 380V 차단기 구별법 바로 보기</span>
+                  <Icon d={ICON.external} className="w-3 h-3 shrink-0" />
+                </Link>
               </div>
             )}
           </div>
@@ -359,6 +479,11 @@ export function V2SpatialFitPlanner({
                 ))}
               </ul>
             </div>
+
+            <ContextualGuideBox
+              guides={hvacGuides.slice(0, 2)}
+              source="v2_fit_planner_hvac"
+            />
           </div>
         </div>
 
@@ -418,6 +543,43 @@ export function V2SpatialFitPlanner({
     : `문폭(${myDoorCm}cm) 사다리차확인`;
 
   const spaceEnvSummary = `설치벽면:${mySpaceCm}cm / ${doorStatusLabel} / 운반:${floorLabel}`;
+
+  const applianceGuides: ContextualGuideLink[] = [];
+  if (!fitsDoorEasily || carryFloor === "stairs") {
+    applianceGuides.push({
+      slug: "ladder-truck-and-clearance",
+      badge: "반입·사다리차",
+      title: "현관문 폭·계단·사다리차 반입 가능 기준 확인",
+    });
+  }
+  if (catLabel === "냉장고") {
+    applianceGuides.push({
+      slug: "fridge-kitchen-fit-vs-freestanding-clearance",
+      badge: !fitsSpace ? "공간 확인" : "여유폭 기준",
+      title: "키친핏 vs 일반 냉장고 좌우 여유폭·설치 기준",
+    });
+  } else {
+    applianceGuides.push({
+      slug: "compressor-appliance-clearance-heat-dissipation",
+      badge: !fitsSpace ? "공간·방열" : "방열 간격",
+      title: "콤프레셔 가전 양옆·뒷면 5cm 방열 간격이 중요한 이유",
+    });
+  }
+  if (applianceGuides.length < 2) {
+    if (catLabel === "업소용기기") {
+      applianceGuides.push({
+        slug: "startup-closure-docs-and-power",
+        badge: "창업 체크",
+        title: "식당·카페 창업 가전 전기 용량·세금계산서 안내",
+      });
+    } else {
+      applianceGuides.push({
+        slug: "why-never-lay-fridge-flat-moving",
+        badge: "배송 관리",
+        title: "가전 운반 시 수직 이동 및 전원 안정화 기준",
+      });
+    }
+  }
 
   const applianceSmsBody = `[${STORE.name} 배송·설치 문의]\n• 상품: ${
     title || catLabel
@@ -620,6 +782,11 @@ export function V2SpatialFitPlanner({
               </dd>
             </div>
           </dl>
+
+          <ContextualGuideBox
+            guides={applianceGuides.slice(0, 2)}
+            source="v2_fit_planner_appliance"
+          />
         </div>
       </div>
 
