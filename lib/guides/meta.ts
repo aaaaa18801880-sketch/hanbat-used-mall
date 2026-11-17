@@ -1,6 +1,7 @@
 // 파일 경로: lib/guides/meta.ts
 import {
   INFO_GUIDE_CATEGORY_LIST,
+  LEGACY_GUIDE_CATEGORY_ALIASES,
   type InfoGuideCategory,
   type InfoGuideFilterCategory,
   type InfoGuidePriorityRole,
@@ -10,6 +11,7 @@ import {
 
 export {
   INFO_GUIDE_CATEGORY_LIST,
+  LEGACY_GUIDE_CATEGORY_ALIASES,
   type InfoGuideCategory,
   type InfoGuideFilterCategory,
   type InfoGuidePriorityRole,

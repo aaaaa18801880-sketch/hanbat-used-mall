@@ -24,11 +24,13 @@ import {
 } from "../lib/site";
 import {
   INFO_GUIDE_ARTICLES,
+  INFO_GUIDE_CATEGORY_LIST,
   getInfoGuideBySlug,
   getGuideCommerceBridge,
   sortGuidesByPriority,
   toGuideBoardSummary,
 } from "../lib/info-guides";
+import { LEGACY_GUIDE_CATEGORY_ALIASES } from "../lib/guides/meta";
 import {
   SLUG_TO_GUIDE_TOOL,
   hasGuideInteractiveTool,
@@ -133,10 +135,21 @@ describe("lib/site 도메인 파서·검증·SSOT 테스트", () => {
 describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트", () => {
   it("65개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
     assert.equal(INFO_GUIDE_ARTICLES.length, 65);
+    assert.equal(INFO_GUIDE_CATEGORY_LIST.length, 6);
+    const activeCategories = new Set<string>(
+      INFO_GUIDE_CATEGORY_LIST.filter((c) => c !== "전체")
+    );
+    for (const mapped of Object.values(LEGACY_GUIDE_CATEGORY_ALIASES)) {
+      assert.ok(activeCategories.has(mapped));
+    }
 
     const numbers = new Set<number>();
     const slugs = new Set<string>();
     for (const article of INFO_GUIDE_ARTICLES) {
+      assert.ok(
+        activeCategories.has(article.category),
+        `미정의 소분류 사용: ${article.slug} (${article.category})`
+      );
       assert.equal(numbers.has(article.number), false);
       assert.equal(slugs.has(article.slug), false);
       numbers.add(article.number);

@@ -14,13 +14,13 @@ export function DiagramFigure({
   children: React.ReactNode;
 }) {
   return (
-    <figure className="my-5 rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-3.5 sm:p-5">
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <figure className="my-6 space-y-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] flex items-center gap-1.5">
-          <Icon d={ICON.layers} className="w-4 h-4 text-[#E8521A] shrink-0" />
+          <Icon d={ICON.layers} className="w-4 h-4 text-[#C84312] shrink-0" />
           <span>{title}</span>
         </p>
-        <span className="inline-flex items-center rounded-md border border-[#E2E6EC] bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#475569] shrink-0">
+        <span className="text-hb-xs font-medium text-[#64748B] shrink-0">
           {badgeLabel}
         </span>
       </div>
@@ -28,11 +28,11 @@ export function DiagramFigure({
         tabIndex={0}
         role="region"
         aria-label={`${title} 가로 스크롤 도해`}
-        className="overflow-x-auto rounded-xl border border-[#CBD5E1] bg-white p-2 sm:p-3 shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+        className="overflow-x-auto rounded-xl border border-[#CBD5E1] bg-white p-2 sm:p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
         {children}
       </div>
-      <figcaption className="mt-2.5 text-hb-xs text-[#475569] leading-[1.6] [text-wrap:pretty]">
+      <figcaption className="text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.65] [text-wrap:pretty]">
         {caption}
       </figcaption>
     </figure>

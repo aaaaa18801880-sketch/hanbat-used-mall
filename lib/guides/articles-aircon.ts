@@ -6,7 +6,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 1,
     slug: "new-aircon-repair-delay",
-    category: "에어컨 · A/S",
+    category: "에어컨 · 냉난방",
     isPinned: true,
     title: "신형 에어컨 수리 맡기면 3~4주 걸리는 이유",
     summary:
@@ -101,7 +101,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 8,
     slug: "aircon-how-it-works-and-parts",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "에어컨의 작동 방식과 사용하는 부품, 왜 고장까지 연결될까?",
     summary:
       "에어컨은 냉매 순환으로 실내 열을 실외로 옮기는 장치입니다. 핵심 부품의 역할과 작은 관리 소홀이 큰 고장으로 이어지는 원인을 정리했습니다.",
@@ -198,7 +198,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 9,
     slug: "why-outdoor-unit-survives-rain-and-shock",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "에어컨 실외기를 비·눈 오는 밖에 두는데도 왜 고장이 안 날까?",
     summary:
       "에어컨 실외기는 옥외 노출을 전제로 방수·방진 구조를 갖췄지만 특정 조건에서는 쉽게 손상됩니다. 비·바람을 견디는 설계 방식과 실제 현장에서 고장이 나는 예외 조건을 정리했습니다.",
@@ -277,7 +277,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 10,
     slug: "what-is-pcb-and-why-it-fails",
-    category: "에어컨 · A/S",
+    category: "에어컨 · 냉난방",
     title: "에어컨 PCB란 무엇이며, 왜 고장 나면 전체가 멈출까?",
     summary:
       "서비스 점검에서 자주 나오는 'PCB(메인보드) 교체'의 뜻과, 기판이 손상되는 주된 현장 원인 및 부품 전체를 바꿔야 하는 이유를 정리했습니다.",
@@ -351,7 +351,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 11,
     slug: "why-ceiling-aircon-install-costs-more",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "천장형 에어컨·냉난방기는 왜 스탠드형보다 설치비가 비쌀까?",
     summary:
       "천장형(1Way·4Way) 시스템 에어컨 설치 견적이 스탠드형보다 2~3배가량 높게 나오는 이유를 천장 고정, 드레인 펌프, 분할 방문 공정 기준으로 정리했습니다.",
@@ -442,7 +442,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 12,
     slug: "why-no-outdoor-unit-on-walkway-defrost",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "냉난방기 실외기를 사람 다니는 길가에 두면 안 되는 이유 (제상 기능)",
     summary:
       "겨울철 난방을 가동하면 실외기에서 제상수와 흰 수증기가 쏟아집니다. 보행자 길가 바로 옆에 설치할 때 생기는 결빙·민원 원인과 방지 방법을 정리했습니다.",
@@ -528,7 +528,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 13,
     slug: "fixed-speed-vs-inverter-aircon",
-    category: "에어컨 · A/S",
+    category: "에어컨 · 냉난방",
     title: "정속형 vs 인버터 에어컨 차이점과 각각의 현실적인 장단점",
     summary:
       "정속형과 인버터 에어컨의 압축기 운전 방식 차이에 따른 전기요금, 고장 빈도, 수리비 비교와 본체 명판으로 방식을 구별하는 기준을 정리했습니다.",
@@ -623,7 +623,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 20,
     slug: "aircon-refrigerant-annual-recharge-myth",
-    category: "에어컨 · A/S",
+    category: "에어컨 · 냉난방",
     title: "에어컨 가스는 매년 충전해야 한다? 냉매 부족의 진짜 원인과 누설 체크포인트",
     summary:
       "에어컨 냉매(가스)는 연료처럼 써서 닳는 소모품이 아닙니다. 폐쇄 회로를 순환하는 냉매가 부족해지는 실제 이유와 배관 누설 확인 방법을 정리했습니다.",
@@ -694,7 +694,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 21,
     slug: "aircon-pyeong-sizing-cafe-restaurant",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "같은 20평인데 왜 카페는 1.5배, 고깃집은 3~4배 큰 에어컨을 써야 할까?",
     summary:
       "실평수 20평이라도 가정·사무실과 달리 통유리 카페는 약 1.5배, 일반 식당은 2배, 불판과 환기통(닥트)이 도는 고깃집은 3~4배(60~80평형)가 필요합니다. 왜 바닥 면적만 보면 한여름에 실패하는지 알기 쉽게 정리했습니다.",
@@ -796,7 +796,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 24,
     slug: "inverter-aircon-24h-on-vs-off-electricity",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "인버터 에어컨 24시간 켜두기 vs 껐다 켜기, 전기세 아끼는 진짜 기준 (+ 제습 vs 냉방)",
     summary:
       "인버터 에어컨을 24시간 계속 켜둔다고 무조건 전기세가 적게 나오는 것은 아닙니다. 정속형·인버터 구분에 따른 외출 시간 기준과 제습 모드 전기요금 차이를 정리했습니다.",
@@ -876,7 +876,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 25,
     slug: "aircon-indoor-water-leak-causes",
-    category: "에어컨 · A/S",
+    category: "에어컨 · 냉난방",
     title: "에어컨 실내기에서 물이 떨어질 때 원인 4가지 (드레인·펌프·결빙 구분법)",
     summary:
       "에어컨 바람은 시원한데 실내기 아래로 물이 샌다면 냉매 부족보다 드레인(물받이) 막힘이나 배수호스 기울기 문제인 경우가 대부분입니다. 증상별 원인과 확인 방법입니다.",
@@ -948,7 +948,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 26,
     slug: "aircon-pipe-reuse-aluminum-vs-copper",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "에어컨 이전설치 시 '알루미늄 배관 vs 동배관' 재사용 위험성과 아파트 매립배관 체크법",
     summary:
       "중고 에어컨이나 이사 이전설치에서 배관 자재에 따라 견적 차이가 크게 납니다. 기존 알루미늄·매립 배관을 재사용할 때 냉매가 새기 쉬운 이유와 확인 기준을 정리했습니다.",
@@ -1022,7 +1022,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 30,
     slug: "aircon-single-large-vs-multi-split",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "큰 평수 에어컨 1대 vs 작은 평수 여러 대, 어디에 맞춰 설치해야 할까?",
     summary:
       "총 냉방 용량이 같더라도 대형 1대 단독 설치와 중·소형 2대 분산 배치는 전기 조건, 설치비, 기류 사각지대, 여름 성수기 고장 리스크에서 큰 차이를 만듭니다.",
@@ -1107,7 +1107,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 34,
     slug: "aircon-relocation-cost-variables",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "에어컨 이전설치 비용이 제품값보다 커지는 4가지 현장 변수",
     summary:
       "중고 에어컨이나 쓰던 에어컨을 옮겨 달 때 '기본설치비'만 보고 계산했다가 배관 연장, 외벽 앵글, 타공, 매립배관 세척 비용이 붙어 예산이 두 배로 불어나는 이유를 정리했습니다.",
@@ -1184,7 +1184,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 39,
     slug: "outdoor-unit-louver-ventilation-fire",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title:
       "에어컨 실외기실 루버창(갤러리창) 닫아두면 생기는 고압 차단·전기세 폭탄·화재 위험",
     summary:
@@ -1262,7 +1262,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 40,
     slug: "aircon-removal-pump-down-piping",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title:
       "에어컨 철거 전 '냉매 회수(펌프다운)'와 배관 테이핑 — 이사·중고 판매 시 제값 받기 위해 꼭 볼 것",
     summary:
@@ -1340,7 +1340,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 44,
     slug: "winter-heating-heatpump-vs-electric-heater",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title:
       "겨울 매장 난방: 인버터 냉난방기 vs 전기온풍기·가스히터 — 전기세와 영하 한파 성능 비교",
     summary:
@@ -1418,7 +1418,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 45,
     slug: "aircon-2in1-vs-two-singles-home",
-    category: "중고 구매 팁",
+    category: "구매 · 매입 · 창업",
     title:
       "가정용 2in1(멀티형) 에어컨 vs 스탠드·벽걸이 단품 2대, 실외기 고장·이사 재설치 기준 비교",
     summary:
@@ -1497,7 +1497,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 54,
     slug: "aircon-refrigerant-r22-r410a-r32-guide",
-    category: "에어컨 · A/S",
+    category: "에어컨 · 냉난방",
     title: "에어컨 냉매 R-22 · R-410A · R-32 차이 — 구형 R-22 중고 피해야 하는 이유",
     summary:
       "중고 에어컨을 저렴하게 샀다가 가스 보충 한 번 하려는데 '이 모델은 구형 냉매라 가스값이 제품값만큼 나온다'는 이야기를 듣는 경우가 있습니다. 오존층보호법 규제와 냉매 3세대별 차이, 신형 R-32 취급 주의점까지 정리했습니다.",
@@ -1574,7 +1574,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 58,
     slug: "cooling-only-vs-heat-pump-nameplate",
-    category: "중고 구매 팁",
+    category: "구매 · 매입 · 창업",
     title: "매장·사무실 '냉방전용 에어컨 vs 냉난방기' 구분법 — 명판에서 난방능력 먼저 보세요",
     summary:
       "중고 에어컨 직거래에서 '사계절 다 되는 냉난방기'인 줄 알고 샀다가 겨울에 리모컨 난방 버튼을 눌러도 찬바람·송풍만 나와 난감해지는 사례가 잦습니다. 겉모양 대신 제품 스티커(명판)로 5초 만에 구별하는 법을 정리했습니다.",
@@ -1651,7 +1651,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 61,
     slug: "villa-old-house-drilling-angle-3kw",
-    category: "배송 · 사다리차",
+    category: "전기 · 시공 · 반입",
     title: "빌라·구옥·원룸 에어컨·가전 설치 전 3대 함정 — 타공 · 외벽 앵글 · 주택 3kW 전기 한계",
     summary:
       "아파트와 달리 빌라·단독주택·원룸은 매립 배관 대신 외벽 타공(구멍), 난간 앵글 제한, 낡은 주택용 3kW 계약전력 때문에 배송 당일 설치를 못 하고 되돌아가는 사례가 많습니다. 이사 전 꼭 볼 3가지를 정리했습니다.",
@@ -1727,7 +1727,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 63,
     slug: "aircon-thin-copper-pipe-risks",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "같은 동배관인데 견적이 왜 쌀까? '얇은 동배관(박육관)' 시공 시 생기는 4가지 하자",
     summary:
       "설치 견적 비교 시 '동배관 시공'이라고 해놓고 실제로는 단가를 낮추기 위해 두께가 얇은 저가 박육 동관(0.5~0.6mm대)을 쓰는 경우가 있습니다. 인버터 고압 냉매 환경에서 얇은 동배관이 꺾임·누설·재사용 불가로 이어지는 이유와 구별법을 정리했습니다.",
@@ -1806,7 +1806,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 64,
     slug: "aircon-pipe-length-and-refrigerant",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "에어컨 배관 길이, 무조건 짧다고 좋을까? 최소 길이·5m 초과 연장·냉매 보충 기준",
     summary:
       "실내기와 실외기가 바로 벽 하나 사이에 있다고 배관을 바짝 잘라 달거나, 반대로 10~20m 이상 길게 빼면서 추가 냉매 보충 없이 설치하면 소음·냉방 저하·압축기 고장이 생깁니다. 배관 길이와 구경(인치)의 정확한 기준을 정리했습니다.",
@@ -1885,7 +1885,7 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 65,
     slug: "aircon-insulation-thickness-condensation",
-    category: "에어컨 · 원리/설치",
+    category: "에어컨 · 냉난방",
     title: "에어컨 배관만큼 중요한 '보온재 두께와 마감' — 벽지 곰팡이·물떨어짐 막는 기준",
     summary:
       "구리 동배관만 정품이면 끝일까요? 두 관을 하나로 뭉쳐 감싸는 '합보온'이나 너무 얇은 저가 보온재, 허술한 외부 테이핑은 장마철 벽지 결로·천장 곰팡이·실외 배관 부식으로 이어집니다. 보온재 기준을 정리했습니다.",

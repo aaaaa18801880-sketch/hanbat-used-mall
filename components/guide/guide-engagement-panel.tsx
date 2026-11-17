@@ -91,22 +91,36 @@ export function GuideEngagementHeaderMeta({
     return () => window.removeEventListener(GUIDE_STAT_EVENT, onSync);
   }, [slug]);
 
+  const showViews = stat.views > 0;
+  const showHelpful = stat.helpfulCount > 0;
+  if (!topRank && !showViews && !showHelpful) return null;
+
   return (
-    <div className="flex flex-wrap items-center gap-2 text-hb-xs text-[#64748B]">
+    <div className="inline-flex flex-wrap items-center gap-2 text-hb-xs text-[#64748B]">
       {topRank && (
-        <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF3EC] border border-[#FDBA74] px-2.5 py-0.5 font-bold text-[#C2410C]">
-          <Icon d={ICON.trendingUp} className="w-3.5 h-3.5" />
-          <span>인기 TOP {topRank}</span>
-        </span>
+        <>
+          <span aria-hidden="true">·</span>
+          <span className="font-bold text-[#C84312]">
+            인기 {topRank}위
+          </span>
+        </>
       )}
-      <span className="inline-flex items-center gap-1 tabular-nums font-medium">
-        <Icon d={ICON.eye} className="w-3.5 h-3.5 text-[#94A3B8]" />
-        <span>조회 {stat.views.toLocaleString("ko-KR")}</span>
-      </span>
-      <span className="inline-flex items-center gap-1 tabular-nums font-medium">
-        <Icon d={ICON.thumbUp} className="w-3.5 h-3.5 text-[#94A3B8]" />
-        <span>도움됐어요 {stat.helpfulCount.toLocaleString("ko-KR")}</span>
-      </span>
+      {showViews && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span className="tabular-nums font-medium">
+            조회 {stat.views.toLocaleString("ko-KR")}
+          </span>
+        </>
+      )}
+      {showHelpful && (
+        <>
+          <span aria-hidden="true">·</span>
+          <span className="tabular-nums font-semibold text-[#C84312]">
+            도움됨 {stat.helpfulCount.toLocaleString("ko-KR")}
+          </span>
+        </>
+      )}
     </div>
   );
 }
@@ -297,23 +311,18 @@ export function GuideEngagementPanel({
 
   return (
     <section
-      aria-label="가이드 유용성 평가 및 조회수"
-      className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5"
+      aria-label="가이드 유용성 평가"
+      className="border-t border-b border-[#E2E6EC] py-5"
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
-          <h2 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
+          <h2 className="text-hb-base font-bold text-[#141A23]">
             이 안내 글이 도움이 되셨나요?
           </h2>
-          <p className="text-hb-xs text-[#64748B] flex flex-wrap items-center gap-2.5">
-            <span className="inline-flex items-center gap-1 tabular-nums">
-              <Icon d={ICON.eye} className="w-3.5 h-3.5 text-[#94A3B8]" />
-              <span>누적 조회 {stat.views.toLocaleString("ko-KR")}회</span>
-            </span>
-            <span aria-hidden="true">·</span>
-            <span className="tabular-nums">
-              도움됐어요 {stat.helpfulCount.toLocaleString("ko-KR")}명
-            </span>
+          <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
+            {stat.helpfulCount > 0 || stat.views > 0
+              ? `누적 조회 ${stat.views.toLocaleString("ko-KR")}회 · ${stat.helpfulCount.toLocaleString("ko-KR")}명에게 도움이 되었습니다.`
+              : "실제 현장 점검이나 설치 준비에 유용했다면 아래 버튼을 눌러 주세요."}
           </p>
         </div>
 
@@ -322,23 +331,19 @@ export function GuideEngagementPanel({
           onClick={handleToggleHelpful}
           disabled={submitting}
           aria-pressed={hasVoted}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-hb-sm font-bold transition-all min-h-[44px] shrink-0 disabled:opacity-60 ${
+          className={`inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-hb-sm font-bold transition-colors min-h-[44px] shrink-0 disabled:opacity-60 ${
             hasVoted
-              ? "border-[#E8521A] bg-[#FFF3EC] text-[#C2410C] shadow-2xs"
-              : "border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#E8521A] hover:text-[#E8521A]"
+              ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
+              : "border-[#CBD5E1] bg-white text-[#141A23] hover:border-[#141A23]"
           }`}
         >
           <Icon d={ICON.thumbUp} className="w-4 h-4" />
           <span>{hasVoted ? "도움됐어요 완료" : "이 글이 도움됐어요"}</span>
-          <span
-            className={`rounded-full px-2 py-0.5 text-hb-xs font-extrabold tabular-nums ${
-              hasVoted
-                ? "bg-[#E8521A] text-white"
-                : "bg-[#F1F5F9] text-[#475569]"
-            }`}
-          >
-            {stat.helpfulCount.toLocaleString("ko-KR")}
-          </span>
+          {stat.helpfulCount > 0 && (
+            <span className="tabular-nums opacity-80">
+              {stat.helpfulCount.toLocaleString("ko-KR")}
+            </span>
+          )}
         </button>
       </div>
 

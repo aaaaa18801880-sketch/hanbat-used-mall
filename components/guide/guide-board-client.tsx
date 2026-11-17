@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
   INFO_GUIDE_CATEGORY_LIST,
+  LEGACY_GUIDE_CATEGORY_ALIASES,
   sortGuidesByPriority,
   type InfoGuideCategory,
   type InfoGuideFilterCategory,
@@ -24,18 +25,14 @@ import { hasGuideInteractiveTool } from "../../lib/guides/tool-slugs";
 
 type GuideSortMode = "recommended" | "popular";
 
-const PAGE_SIZE = 16;
-const ABOVE_FOLD_CARD_COUNT = 8;
+const PAGE_SIZE = 12;
 
-const CATEGORY_BADGE_CLASS_MAP: Record<InfoGuideCategory, string> = {
-  "에어컨 · A/S": "bg-[#F8FAFC] text-[#B45309] border-[#E2E8F0]",
-  "에어컨 · 원리/설치": "bg-[#F8FAFC] text-[#1D4ED8] border-[#E2E8F0]",
-  "냉장고 · 세탁기": "bg-[#F8FAFC] text-[#0369A1] border-[#E2E8F0]",
-  "업소용 주방설비": "bg-[#F8FAFC] text-[#C2410C] border-[#E2E8F0]",
-  "전기 · 220V/380V": "bg-[#F8FAFC] text-[#4F46E5] border-[#E2E8F0]",
-  "창업 · 폐업": "bg-[#F8FAFC] text-[#334155] border-[#E2E8F0]",
-  "배송 · 사다리차": "bg-[#F8FAFC] text-[#475569] border-[#E2E8F0]",
-  "중고 구매 팁": "bg-[#F8FAFC] text-[#047857] border-[#E2E8F0]",
+const CATEGORY_TEXT_CLASS_MAP: Record<InfoGuideCategory, string> = {
+  "에어컨 · 냉난방": "text-[#1D4ED8]",
+  "냉장고 · 세탁기": "text-[#0369A1]",
+  "업소용 주방설비": "text-[#C84312]",
+  "전기 · 시공 · 반입": "text-[#4338CA]",
+  "구매 · 매입 · 창업": "text-[#0F766E]",
 };
 
 function parseInitialCategory(raw: string | null): InfoGuideFilterCategory {
@@ -47,7 +44,7 @@ function parseInitialCategory(raw: string | null): InfoGuideFilterCategory {
   ) {
     return raw as InfoGuideFilterCategory;
   }
-  return "전체";
+  return LEGACY_GUIDE_CATEGORY_ALIASES[raw] ?? "전체";
 }
 
 function parseInitialSort(raw: string | null): GuideSortMode {
@@ -60,114 +57,84 @@ function parseInitialPage(raw: string | null): number {
   return Number.isFinite(parsed) && parsed >= 1 ? parsed : 1;
 }
 
-function GuideAssetChips({
-  article,
-}: {
-  article: GuideBoardSummaryItem;
-}) {
-  const hasTool = hasGuideInteractiveTool(article.slug);
-  const { hasTable, hasDiagram } = article;
-
-  if (!hasTool && !hasTable && !hasDiagram) return null;
-
-  return (
-    <div className="flex flex-wrap items-center gap-1">
-      {hasTool && (
-        <span className="inline-flex items-center rounded bg-[#EFF6FF] px-1.5 py-0.5 text-hb-xs font-semibold text-[#1D4ED8]">
-          계산기
-        </span>
-      )}
-      {hasTable && (
-        <span className="inline-flex items-center rounded bg-[#F1F5F9] px-1.5 py-0.5 text-hb-xs font-medium text-[#475569]">
-          비교표
-        </span>
-      )}
-      {hasDiagram && (
-        <span className="inline-flex items-center rounded bg-[#F1F5F9] px-1.5 py-0.5 text-hb-xs font-medium text-[#475569]">
-          도해
-        </span>
-      )}
-    </div>
-  );
-}
-
-function GuideCard({
+function GuideRow({
   article,
   stat,
   topRank,
-  deferRender,
 }: {
   article: GuideBoardSummaryItem;
   stat?: GuideStat;
   topRank?: GuideTopRank;
-  deferRender: boolean;
 }) {
-  const categoryBadgeClass = CATEGORY_BADGE_CLASS_MAP[article.category];
+  const categoryTextClass = CATEGORY_TEXT_CLASS_MAP[article.category];
+  const hasTool = hasGuideInteractiveTool(article.slug);
   const views = stat?.views ?? 0;
   const helpfulCount = stat?.helpfulCount ?? 0;
 
   return (
-    <li className={deferRender ? "hb-guide-deferred-card" : undefined}>
+    <li>
       <Link
         href={`/guide/${article.slug}`}
-        className="group flex h-full flex-col justify-between rounded-xl border border-[#E2E6EC] bg-white p-4 transition-colors hover:border-[#E8521A]/70 hover:bg-[#FFFCFA]"
+        className="group flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 py-5 sm:py-6 px-1 -mx-1 rounded-xl transition-colors hover:bg-[#FAFBFD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
-        <div>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span
-                className={`inline-flex items-center rounded-md border px-2 py-0.5 text-hb-xs font-semibold ${categoryBadgeClass}`}
-              >
-                {article.category}
-              </span>
-              {topRank && (
-                <span
-                  className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-hb-xs font-bold ${
-                    topRank === 1
-                      ? "bg-[#E8521A] text-white"
-                      : "border border-[#FDBA74] bg-[#FFF3EC] text-[#C2410C]"
-                  }`}
-                >
-                  인기 TOP {topRank}
-                </span>
-              )}
-            </div>
-            <span className="shrink-0 text-hb-xs tabular-nums text-[#64748B]">
-              {article.readMinutes}분
+        <div className="min-w-0 flex-1 space-y-1.5">
+          {/* 1줄 메타 라인: 알약 배지·빈 카운터(0) 없이 텍스트 구분으로 정돈 */}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs font-semibold text-[#64748B]">
+            <span className={`font-bold ${categoryTextClass}`}>
+              {article.category}
             </span>
+            <span aria-hidden="true">·</span>
+            <span className="tabular-nums">약 {article.readMinutes}분</span>
+            {hasTool && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="text-[#334155]">현장 계산기</span>
+              </>
+            )}
+            {topRank && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="font-bold text-[#C84312]">
+                  인기 {topRank}위
+                </span>
+              </>
+            )}
+            {helpfulCount > 0 && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="tabular-nums text-[#C84312]">
+                  도움됨 {helpfulCount.toLocaleString("ko-KR")}
+                </span>
+              </>
+            )}
+            {views > 0 && helpfulCount === 0 && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="tabular-nums">
+                  조회 {views.toLocaleString("ko-KR")}
+                </span>
+              </>
+            )}
           </div>
 
-          <h3 className="mt-2.5 line-clamp-2 text-hb-sm sm:text-hb-base font-bold leading-snug text-[#141A23] transition-colors group-hover:text-[#E8521A]">
+          {/* 2줄 제목: 크고 명료한 에디토리얼 헤드라인 */}
+          <h3 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] leading-[1.38] tracking-[-0.02em] break-keep [text-wrap:balance] transition-colors group-hover:text-[#C84312]">
             {article.title}
           </h3>
-          <p className="mt-1.5 line-clamp-2 text-hb-xs sm:text-hb-sm leading-relaxed text-[#475569]">
+
+          {/* 3줄 요약: 65ch 최적 줄길이 + 넉넉한 행간 */}
+          <p className="max-w-[65ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.68] [text-wrap:pretty]">
             {article.summary}
           </p>
         </div>
 
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#F1F5F9] pt-2.5">
-          <GuideAssetChips article={article} />
-          <div className="ml-auto flex items-center gap-2.5 text-hb-xs tabular-nums text-[#64748B]">
-            <span className="inline-flex items-center gap-1" title="조회수">
-              <Icon d={ICON.eye} className="h-3.5 w-3.5 text-[#94A3B8]" />
-              {views.toLocaleString("ko-KR")}
-            </span>
-            <span
-              className={`inline-flex items-center gap-1 ${
-                helpfulCount > 0 ? "font-semibold text-[#C2410C]" : ""
-              }`}
-              title="도움됐어요"
-            >
-              <Icon
-                d={ICON.thumbUp}
-                className={`h-3.5 w-3.5 ${
-                  helpfulCount > 0 ? "text-[#E8521A]" : "text-[#94A3B8]"
-                }`}
-              />
-              {helpfulCount.toLocaleString("ko-KR")}
-            </span>
-          </div>
-        </div>
+        <span className="hidden sm:inline-flex items-center gap-1 pt-7 text-hb-xs font-bold text-[#64748B] shrink-0 transition-colors group-hover:text-[#C84312]">
+          <span>읽어보기</span>
+          <Icon
+            d={ICON.right}
+            className="w-4 h-4 transition-transform group-hover:translate-x-0.5"
+          />
+        </span>
       </Link>
     </li>
   );
@@ -189,14 +156,14 @@ function PaginationBar({
   return (
     <nav
       aria-label="정보 게시판 페이지 이동"
-      className="mt-5 flex flex-wrap items-center justify-center gap-1.5 border-t border-[#F1F5F9] pt-5"
+      className="pt-8 flex flex-wrap items-center justify-center gap-1.5"
     >
       <button
         type="button"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
         aria-label="이전 페이지"
-        className="inline-flex min-h-[38px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#CBD5E1] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#141A23] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
       >
         <Icon d={ICON.left} className="h-3.5 w-3.5" />
         <span>이전</span>
@@ -211,10 +178,10 @@ function PaginationBar({
             onClick={() => onPageChange(page)}
             aria-current={isCurrent ? "page" : undefined}
             aria-label={`${page}페이지`}
-            className={`inline-flex min-h-[38px] min-w-[38px] items-center justify-center rounded-lg border px-2.5 py-1.5 text-hb-xs sm:text-hb-sm font-bold tabular-nums transition-colors ${
+            className={`inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg border px-2.5 py-2 text-hb-xs sm:text-hb-sm font-bold tabular-nums transition-colors ${
               isCurrent
                 ? "border-[#141A23] bg-[#141A23] text-white"
-                : "border-[#E2E6EC] bg-white text-[#475569] hover:border-[#CBD5E1] hover:text-[#141A23]"
+                : "border-[#E2E6EC] bg-white text-[#475569] hover:border-[#141A23] hover:text-[#141A23]"
             }`}
           >
             {page}
@@ -227,7 +194,7 @@ function PaginationBar({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
         aria-label="다음 페이지"
-        className="inline-flex min-h-[38px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#CBD5E1] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#141A23] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
       >
         <span>다음</span>
         <Icon d={ICON.right} className="h-3.5 w-3.5" />
@@ -300,7 +267,6 @@ export function GuideBoardClient({
     [liveStats],
   );
 
-  // 내부 우선순위 기준으로 정렬된 전체 글 (매입·구매·설치 글이 자연스럽게 앞쪽에 배치됨)
   const orderedArticles = useMemo(
     () => sortGuidesByPriority(articles),
     [articles],
@@ -487,14 +453,11 @@ export function GuideBoardClient({
       : `${sortMode === "popular" ? "인기순" : "추천순"}, 총 ${filteredArticles.length}편 중 ${rangeStart}부터 ${rangeEnd}번째 글 표시 중`;
 
   return (
-    <div className="space-y-5">
-      {/* 1. 검색 · 정렬 · 품목 분류 바 */}
-      <section
-        aria-label="정보 게시판 검색 및 분류"
-        className="rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 shadow-2xs"
-      >
+    <div className="space-y-8">
+      {/* 1. 간소화된 분류 밑줄 탭 + 검색·정렬 컨트롤 (중첩 카드·알약 배지 제거) */}
+      <section aria-label="정보 게시판 검색 및 분류" className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center gap-4">
             <span className="text-hb-sm font-bold text-[#141A23] tabular-nums">
               {hasNarrowingFilter
                 ? `검색 결과 ${filteredArticles.length}편`
@@ -504,7 +467,7 @@ export function GuideBoardClient({
             <div
               role="group"
               aria-label="정렬 방식"
-              className="inline-flex rounded-lg border border-[#E2E6EC] bg-[#F8FAFC] p-0.5"
+              className="inline-flex items-center gap-1 rounded-lg bg-[#F1F5F9] p-1"
             >
               <button
                 type="button"
@@ -513,7 +476,7 @@ export function GuideBoardClient({
                 className={`rounded-md px-2.5 py-1 text-hb-xs font-bold transition-colors ${
                   sortMode === "recommended"
                     ? "bg-white text-[#141A23] shadow-2xs"
-                    : "text-[#64748B] hover:text-[#141A23]"
+                    : "text-[#475569] hover:text-[#141A23]"
                 }`}
               >
                 추천순
@@ -522,34 +485,33 @@ export function GuideBoardClient({
                 type="button"
                 aria-pressed={sortMode === "popular"}
                 onClick={() => handleSortChange("popular")}
-                className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-hb-xs font-bold transition-colors ${
+                className={`rounded-md px-2.5 py-1 text-hb-xs font-bold transition-colors ${
                   sortMode === "popular"
-                    ? "bg-[#FFF3EC] text-[#C2410C] shadow-2xs"
-                    : "text-[#64748B] hover:text-[#141A23]"
+                    ? "bg-white text-[#C84312] shadow-2xs"
+                    : "text-[#475569] hover:text-[#141A23]"
                 }`}
               >
-                <Icon d={ICON.trendingUp} className="h-3.5 w-3.5" />
                 인기순
               </button>
             </div>
           </div>
 
-          <div className="w-full sm:w-72 md:w-80">
+          <div className="w-full sm:w-80">
             <label htmlFor="guide-search" className="sr-only">
               가전 정보 검색
             </label>
             <div className="relative">
               <Icon
                 d={ICON.search}
-                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]"
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B]"
               />
               <input
                 id="guide-search"
                 type="search"
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                placeholder="제목·증상 검색 (예: 매입, 평수, 220V)"
-                className="hb-input py-2 pl-9 pr-9 text-hb-sm"
+                placeholder="제목·증상 검색 (예: 동배관, 매입, 220V)"
+                className="hb-input h-10 pl-10 pr-9 text-hb-sm"
               />
               {searchQuery && (
                 <button
@@ -565,38 +527,42 @@ export function GuideBoardClient({
           </div>
         </div>
 
-        {/* 품목·주제별 분류 칩 */}
-        <div className="mt-3.5 border-t border-[#F1F5F9] pt-3">
-          <div
-            role="group"
-            aria-label="가전 품목 및 주제별 분류"
-            className="hb-hscroll-fade flex flex-nowrap items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 pr-6"
-          >
-            {INFO_GUIDE_CATEGORY_LIST.map((category) => {
-              const isActive = selectedCategory === category;
-              const count = categoryCounts[category] ?? 0;
-              return (
-                <button
-                  key={category}
-                  type="button"
-                  aria-pressed={isActive}
-                  onClick={(e) => handleCategoryChange(category, e)}
-                  className={`shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-hb-xs font-semibold transition-colors ${
-                    isActive
-                      ? "border-[#E8521A] bg-[#FFF5F0] text-[#C2410C]"
-                      : "border-[#E2E6EC] bg-[#F8FAFC] text-[#475569] hover:bg-white hover:text-[#141A23]"
+        {/* 5개 핵심 소분류 + 전체: 밑줄 인디케이터 탭 바 */}
+        <div
+          role="group"
+          aria-label="주제별 분류"
+          className="hb-hscroll-fade flex flex-nowrap items-center gap-5 sm:gap-7 overflow-x-auto scrollbar-none border-b border-[#E2E6EC] pr-6"
+        >
+          {INFO_GUIDE_CATEGORY_LIST.map((category) => {
+            const isActive = selectedCategory === category;
+            const count = categoryCounts[category] ?? 0;
+            return (
+              <button
+                key={category}
+                type="button"
+                aria-pressed={isActive}
+                onClick={(e) => handleCategoryChange(category, e)}
+                className={`relative shrink-0 whitespace-nowrap pb-3 pt-1 text-hb-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] after:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:border-b-2 ${
+                  isActive
+                    ? "text-[#141A23] after:border-[#C84312]"
+                    : "text-[#475569] hover:text-[#141A23] after:border-transparent"
+                }`}
+              >
+                <span>{category}</span>
+                <span
+                  className={`ml-1.5 text-hb-xs tabular-nums ${
+                    isActive ? "text-[#C84312]" : "text-[#94A3B8]"
                   }`}
                 >
-                  <span>{category}</span>
-                  <span className="ml-1 opacity-75 tabular-nums">{count}</span>
-                </button>
-              );
-            })}
-          </div>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {(hasNarrowingFilter || sortMode !== "recommended") && (
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-[#F8FAFC] px-3.5 py-2 text-hb-xs text-[#475569]">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs text-[#475569]">
             <span>
               <strong className="font-bold text-[#141A23] tabular-nums">
                 {filteredArticles.length}편
@@ -617,9 +583,9 @@ export function GuideBoardClient({
             <button
               type="button"
               onClick={resetAllFilters}
-              className="font-semibold text-[#C2410C] hover:underline"
+              className="font-semibold text-[#C84312] hover:underline"
             >
-              전체 보기
+              필터 초기화
             </button>
           </div>
         )}
@@ -629,95 +595,68 @@ export function GuideBoardClient({
         {statusAnnouncement}
       </p>
 
-      {/* 2. 실시간 인기 TOP 3 (조회수·도움됐어요 집계가 있을 때만 노출) */}
+      {/* 2. 많이 본 글 TOP 3 (카드 속 카드 없이 번호 에디토리얼 스트립으로 노출) */}
       {topGuideEntries.length > 0 &&
         !hasNarrowingFilter &&
         sortMode === "recommended" &&
         safePage === 1 && (
           <section
             aria-labelledby="guide-top3-heading"
-            className="rounded-2xl border border-[#E2E6EC] bg-white p-4 shadow-2xs"
+            className="border-l-4 border-[#E8521A] bg-[#FAFBFD] px-4 sm:px-6 py-4 space-y-3"
           >
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2">
               <h2
                 id="guide-top3-heading"
-                className="flex items-center gap-1.5 text-hb-sm sm:text-hb-base font-extrabold text-[#141A23]"
+                className="text-hb-xs sm:text-hb-sm font-bold text-[#C84312]"
               >
-                <Icon d={ICON.trendingUp} className="h-4 w-4 text-[#E8521A]" />
-                <span>많이 본 글 TOP {topGuideEntries.length}</span>
+                지금 많이 찾는 현장 가이드 TOP {topGuideEntries.length}
               </h2>
               <button
                 type="button"
                 onClick={() => handleSortChange("popular")}
-                className="text-hb-xs font-semibold text-[#C2410C] hover:underline"
+                className="text-hb-xs font-semibold text-[#475569] hover:text-[#141A23] underline underline-offset-2"
               >
-                인기순으로 보기
+                인기순 전체 보기
               </button>
             </div>
-            <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-              {topGuideEntries.map(({ rank, article, stat }) => (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:divide-x md:divide-[#E2E6EC]">
+              {topGuideEntries.map(({ rank, article }) => (
                 <Link
                   key={article.slug}
                   href={`/guide/${article.slug}`}
-                  className="group flex flex-col justify-between rounded-xl border border-[#E2E6EC] bg-[#F8FAFC]/60 p-3 transition-colors hover:border-[#E8521A]/70 hover:bg-white"
+                  className="group block md:first:pl-0 md:pl-4 space-y-1"
                 >
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`inline-flex items-center rounded-md px-2 py-0.5 text-hb-xs font-bold ${
-                          rank === 1
-                            ? "bg-[#E8521A] text-white"
-                            : "border border-[#FDBA74] bg-[#FFF3EC] text-[#C2410C]"
-                        }`}
-                      >
-                        인기 TOP {rank}
-                      </span>
-                      <span className="text-hb-xs text-[#64748B]">
-                        {article.category}
-                      </span>
-                    </div>
-                    <p className="mt-2 line-clamp-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] transition-colors group-hover:text-[#E8521A]">
-                      {article.title}
-                    </p>
-                  </div>
-                  <div className="mt-2 flex items-center gap-3 text-hb-xs tabular-nums text-[#64748B]">
-                    <span className="inline-flex items-center gap-1">
-                      <Icon d={ICON.eye} className="h-3.5 w-3.5 text-[#94A3B8]" />
-                      {stat.views.toLocaleString("ko-KR")}
-                    </span>
-                    <span className="inline-flex items-center gap-1 font-semibold text-[#C2410C]">
-                      <Icon
-                        d={ICON.thumbUp}
-                        className="h-3.5 w-3.5 text-[#E8521A]"
-                      />
-                      {stat.helpfulCount.toLocaleString("ko-KR")}
-                    </span>
-                  </div>
+                  <p className="text-hb-xs font-bold text-[#64748B] tabular-nums">
+                    0{rank} · {article.category}
+                  </p>
+                  <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug break-keep group-hover:text-[#C84312] transition-colors">
+                    {article.title}
+                  </p>
                 </Link>
               ))}
             </div>
           </section>
         )}
 
-      {/* 3. 통합 정보 글 목록 + 페이지네이션 */}
+      {/* 3. 에디토리얼 글 목록 (1컬럼 헤어라인 피드 · 페이지당 12편) */}
       <section
         id="guide-board-list"
         ref={listTopRef}
         aria-label="정보 글 목록"
-        className="scroll-mt-24 rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 shadow-2xs"
+        className="scroll-mt-24"
       >
         {filteredArticles.length === 0 ? (
-          <div className="py-10 text-center">
-            <p className="text-hb-base font-bold text-[#141A23]">
+          <div className="border-y border-[#E2E6EC] py-14 text-center space-y-3">
+            <p className="text-hb-lg font-bold text-[#141A23]">
               조건에 맞는 정보 글이 없습니다.
             </p>
-            <p className="mt-1.5 text-hb-sm text-[#475569]">
+            <p className="text-hb-sm text-[#475569]">
               검색어나 선택하신 분류를 초기화하면 전체 글을 다시 볼 수 있습니다.
             </p>
             <button
               type="button"
               onClick={resetAllFilters}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] px-4 py-2 text-hb-sm font-bold text-white hover:bg-[#1E293B]"
+              className="mt-2 hb-btn-primary px-5 py-2.5 text-hb-sm"
             >
               전체 글 보기
             </button>
@@ -725,7 +664,7 @@ export function GuideBoardClient({
         ) : (
           <>
             {totalPages > 1 && (
-              <div className="mb-3.5 flex items-center justify-between text-hb-xs text-[#64748B] tabular-nums">
+              <div className="mb-2 flex items-center justify-between text-hb-xs text-[#64748B] tabular-nums">
                 <span>
                   {filteredArticles.length}편 중 {rangeStart}–{rangeEnd}번째 글
                 </span>
@@ -735,14 +674,13 @@ export function GuideBoardClient({
               </div>
             )}
 
-            <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              {pagedArticles.map((article, idx) => (
-                <GuideCard
+            <ul className="divide-y divide-[#E2E6EC] border-t border-b border-[#E2E6EC]">
+              {pagedArticles.map((article) => (
+                <GuideRow
                   key={article.slug}
                   article={article}
                   stat={liveStats[article.slug]}
                   topRank={topRankMap[article.slug]}
-                  deferRender={idx >= ABOVE_FOLD_CARD_COUNT}
                 />
               ))}
             </ul>
@@ -756,18 +694,17 @@ export function GuideBoardClient({
         )}
       </section>
 
-      {/* 4. 하단 상담 안내 */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-2xl border border-[#E2E6EC] bg-[#F8FAFC] p-5 sm:p-6">
-        <div>
-          <p className="text-hb-xs font-bold tracking-wider text-[#E8521A]">
-            찾는 내용이 없거나 현장 확인이 필요할 때
+      {/* 4. 하단 상담 연결 밴드 */}
+      <div className="border-t border-[#E2E6EC] pt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-hb-xs font-bold text-[#C84312]">
+            글로 판단하기 어려운 현장 조건이라면
           </p>
-          <h2 className="mt-1 text-hb-base sm:text-hb-lg font-extrabold text-[#141A23]">
-            설치 환경·매입 견적은 사진 한 장으로도 바로 상담 가능합니다
+          <h2 className="text-hb-lg font-bold text-[#141A23] [text-wrap:balance]">
+            설치 현장·분전함 사진 한 장으로 바로 확인해 드립니다
           </h2>
-          <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#475569]">
-            제품 모델명·배전반(차단기) 또는 매장 사진을 보내주시면{" "}
-            {STORE.name} 담당자가 직접 안내해 드립니다.
+          <p className="text-hb-sm text-[#475569]">
+            제품 모델명이나 매장 사진을 보내주시면 {STORE.name} 담당자가 직접 안내합니다.
           </p>
         </div>
         <div className="flex flex-wrap gap-2 shrink-0">
@@ -776,12 +713,12 @@ export function GuideBoardClient({
             onClick={() =>
               trackEvent("click_tel_consult", { location: "guide_board" })
             }
-            className="hb-btn-primary text-hb-sm"
+            className="hb-btn-primary px-4 py-2.5 text-hb-sm"
           >
             <Icon d={ICON.phone} className="w-4 h-4" />
             <span>전화 {STORE.tel}</span>
           </a>
-          <Link href="/purchase" className="hb-btn-outline text-hb-sm">
+          <Link href="/purchase" className="hb-btn-outline px-4 py-2.5 text-hb-sm">
             매입 견적 신청
           </Link>
         </div>

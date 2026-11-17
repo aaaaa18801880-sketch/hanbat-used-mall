@@ -298,9 +298,10 @@ export function getRecommendedProductCategories(
   article: InfoGuideArticle
 ): readonly ProductCategoryValue[] {
   if (
-    article.category === "에어컨 · A/S" ||
-    article.category === "에어컨 · 원리/설치" ||
-    article.slug === "voltage-220v-vs-380v"
+    article.category === "에어컨 · 냉난방" ||
+    article.slug === "voltage-220v-vs-380v" ||
+    article.slug === "aircon-2in1-vs-two-singles-home" ||
+    article.slug === "cooling-only-vs-heat-pump-nameplate"
   ) {
     return ["에어컨/냉난방기", "업소용기기"];
   }
@@ -323,7 +324,10 @@ export function getRecommendedProductCategories(
   if (article.category === "냉장고 · 세탁기") {
     return ["냉장고", "세탁기/건조기", "업소용기기"];
   }
-  if (article.slug === "ladder-truck-and-clearance") {
+  if (
+    article.slug === "ladder-truck-and-clearance" ||
+    article.slug === "villa-old-house-drilling-angle-3kw"
+  ) {
     return ["냉장고", "업소용기기", "세탁기/건조기"];
   }
   return ["에어컨/냉난방기", "냉장고", "세탁기/건조기", "업소용기기"];

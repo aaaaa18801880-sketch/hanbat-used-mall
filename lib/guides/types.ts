@@ -2,26 +2,29 @@
 import type { GuideDiagramId } from "../../components/guide/guide-diagrams";
 
 export type InfoGuideCategory =
-  | "에어컨 · A/S"
-  | "에어컨 · 원리/설치"
+  | "에어컨 · 냉난방"
   | "냉장고 · 세탁기"
   | "업소용 주방설비"
-  | "전기 · 220V/380V"
-  | "창업 · 폐업"
-  | "배송 · 사다리차"
-  | "중고 구매 팁";
+  | "전기 · 시공 · 반입"
+  | "구매 · 매입 · 창업";
 
 export const INFO_GUIDE_CATEGORY_LIST = [
   "전체",
-  "에어컨 · A/S",
-  "에어컨 · 원리/설치",
+  "에어컨 · 냉난방",
   "냉장고 · 세탁기",
   "업소용 주방설비",
-  "전기 · 220V/380V",
-  "창업 · 폐업",
-  "배송 · 사다리차",
-  "중고 구매 팁",
+  "전기 · 시공 · 반입",
+  "구매 · 매입 · 창업",
 ] as const;
+
+export const LEGACY_GUIDE_CATEGORY_ALIASES: Record<string, InfoGuideCategory> = {
+  "에어컨 · A/S": "에어컨 · 냉난방",
+  "에어컨 · 원리/설치": "에어컨 · 냉난방",
+  "전기 · 220V/380V": "전기 · 시공 · 반입",
+  "배송 · 사다리차": "전기 · 시공 · 반입",
+  "창업 · 폐업": "구매 · 매입 · 창업",
+  "중고 구매 팁": "구매 · 매입 · 창업",
+};
 
 export type InfoGuideFilterCategory =
   (typeof INFO_GUIDE_CATEGORY_LIST)[number];

@@ -6,7 +6,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 2,
     slug: "voltage-220v-vs-380v",
-    category: "전기 · 220V/380V",
+    category: "전기 · 시공 · 반입",
     isPinned: true,
     title: "220V와 380V의 차이점, 왜 대형 에어컨에는 380V가 들어갈까?",
     summary:
@@ -99,7 +99,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 3,
     slug: "startup-closure-docs-and-power",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     isPinned: true,
     title: "창·폐업 시 챙겨야 할 서류 & 업소용 제품 총 전기 계산법",
     summary:
@@ -216,7 +216,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 4,
     slug: "electricity-bill-capacity-and-kepco",
-    category: "전기 · 220V/380V",
+    category: "전기 · 시공 · 반입",
     title: "전기의 양(kW)과 전기세 구조, 한전 승압·증설 전 꼭 볼 점",
     summary:
       "가정집 누진제와 상가 일반용 전기요금은 계산 구조가 다릅니다. 계약전력(kW)과 사용량(kWh) 구분, 한전 증설·삼상 승압 전 점검 사항을 정리했습니다.",
@@ -305,7 +305,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 5,
     slug: "ladder-truck-and-clearance",
-    category: "배송 · 사다리차",
+    category: "전기 · 시공 · 반입",
     title: "사다리차를 부르는 기준과 제품 크기·출입구 실측이 필수인 이유",
     summary:
       "배송 현장에서 가전이 현관문이나 복도 코너에 걸려 돌아가는 일을 막기 위한 사전 실측 위치와 사다리차 호출 기준입니다.",
@@ -394,7 +394,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 6,
     slug: "why-used-over-new-and-store-over-p2p",
-    category: "중고 구매 팁",
+    category: "구매 · 매입 · 창업",
     title: "새 제품 대신 중고를 사는 이유 vs 직거래 대신 매장을 쓰는 이유",
     summary:
       "창업이나 단기 거주에서 검증된 중고가전을 선택하는 이유와, 개인 간 직거래 대비 오프라인 직영 매장의 차이를 비교했습니다.",
@@ -486,7 +486,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 7,
     slug: "appliance-buyback-no-deduction-guide",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     title: "이사·폐업 가전 팔 때 현장에서 감가 안 당하고 제값 받는 요령",
     summary:
       "가전을 처분할 때 방문 현장에서 견적이 깎이는 일을 막기 위해 기사가 실제로 확인하는 감가 기준과 사전 사진 촬영 요령을 정리했습니다.",
@@ -558,7 +558,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 28,
     slug: "resale-value-commercial-appliances",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     title: "창·폐업 시 중고 매입가가 잘 유지되는 업소용·가정용 가전 기준",
     summary:
       "창업 때 들였다가 1~2년 뒤 매장을 정리할 때 매입이 어렵거나 감가가 큰 장비가 있습니다. 처음 선택할 때부터 중고 환금성이 유지되는 규격과 관리 기준입니다.",
@@ -637,7 +637,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 29,
     slug: "energy-efficiency-rating-myth-and-kwh",
-    category: "중고 구매 팁",
+    category: "구매 · 매입 · 창업",
     title: "에너지 효율 1등급 법적 기준 변경, 왜 3~5등급이 더 나을 때도 있을까?",
     summary:
       "가전이 항상 1등급이어야 전기세나 성능이 좋은 것은 아닙니다. 정부의 효율 등급 기준 상향 개편으로 구형 1등급보다 최신 3~4등급이 전기를 덜 쓰는 역전 사례와, 고기능 모델에서 4~5등급이 실사용에 나은 이유를 정리했습니다.",
@@ -732,7 +732,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 31,
     slug: "commercial-induction-plug-vs-breaker",
-    category: "전기 · 220V/380V",
+    category: "전기 · 시공 · 반입",
     title: "업소용 인덕션·전기튀김기·온수기, 일반 콘센트 꽂았다 차단기·전선 녹는 이유",
     summary:
       "3kW가 넘는 상업용 가열기기는 일반 16A 가정용 콘센트·멀티탭에 꽂으면 전선이 과열되거나 차단기가 내려갑니다. 직결 단자와 전용 전선(SQ) 구분 기준을 정리했습니다.",
@@ -810,7 +810,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
 {
     number: 32,
     slug: "cafe-plumbing-drain-checklist",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     title: "카페·음식점 인테리어 전 급수(직수)·정수필터·드레인 구배 5가지 체크리스트",
     summary:
       "커피머신·제빙기·언더카운터 냉장고·식기세척기를 다 사놓고 타일과 싱크대를 짠 뒤에 배수 역류나 수압 부족으로 다시 뜯는 현장이 많습니다. 마감 전 확인 사항을 모았습니다.",
@@ -888,7 +888,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 35,
     slug: "neutral-wire-risk-and-licensed-electrician",
-    category: "전기 · 220V/380V",
+    category: "전기 · 시공 · 반입",
     title:
       "N선(중성선) 잘못 연결·단선 위험성과, 전기 작업을 꼭 전문 기사가 해야 하는 이유",
     summary:
@@ -996,7 +996,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 36,
     slug: "elb-vs-mccb-breaker-trip-check",
-    category: "전기 · 220V/380V",
+    category: "전기 · 시공 · 반입",
     title:
       "누전차단기(ELB) vs 배선용차단기(MCCB) 구분과, 비 오는 날 차단기 떨어질 때 원인 찾는 순서",
     summary:
@@ -1075,7 +1075,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 37,
     slug: "oled-vs-qled-led-used-tv-guide",
-    category: "중고 구매 팁",
+    category: "구매 · 매입 · 창업",
     title:
       "중고 TV·모니터 고르기: OLED vs QLED·LED 패널 수명(번인·백라이트)과 매장 직검수 체크포인트",
     summary:
@@ -1155,7 +1155,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 42,
     slug: "free-waste-pickup-15990903-vs-used-buyback",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     title:
       "안 팔리는 폐가전 무상방문수거(1599-0903) 기준 vs 돈 받고 파는 매입 기준, 폐업 철거 순서",
     summary:
@@ -1233,7 +1233,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 43,
     slug: "store-takeover-appliances-power-checklist",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     title:
       "점포 인수(시설권리금) 계약 전, 전 사장이 남긴 에어컨·냉장고·분전함 꼭 볼 5가지",
     summary:
@@ -1313,7 +1313,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 51,
     slug: "cable-reel-power-strip-tracking-fire",
-    category: "전기 · 220V/380V",
+    category: "전기 · 시공 · 반입",
     title:
       "전선 릴 감아 쓰다 녹고 멀티탭 타는 이유 — 허용전류(16A·2,800W)와 트래킹 화재 예방",
     summary:
@@ -1393,7 +1393,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 53,
     slug: "used-appliance-nameplate-lifespan-guide",
-    category: "중고 구매 팁",
+    category: "구매 · 매입 · 창업",
     title: "중고 가전 제조년월 · 명판 읽는 법 & 공정위 부품 보유기간(내용연수) 기준",
     summary:
       "중고 냉장고·세탁기·에어컨을 살 때 판매자가 말한 구매연도만 믿었다가 실제 제조년월이 3~4년 더 오래된 경우나 부품 단종으로 수리가 안 되는 일이 잦습니다. 제품 명판 위치와 공정위 부품 보유기간 기준을 정리했습니다.",
@@ -1469,7 +1469,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
   {
     number: 62,
     slug: "store-lease-restoration-removal-dispute",
-    category: "창업 · 폐업",
+    category: "구매 · 매입 · 창업",
     title: "상가·오피스텔 원상복구 분쟁 예방 — 에어컨 타공 · 덕트 · 승압 설비 철거 범위 체크리스트",
     summary:
       "매장을 접고 나갈 때 건물주가 '천장형 에어컨·주방 덕트·전 세입자가 해놓은 시설까지 다 뜯고 공실로 돌려달라'고 요구해 보증금이 묶이는 경우가 많습니다. 민법과 대법원 판례상 원상복구 범위와 예방 특약을 정리했습니다.",

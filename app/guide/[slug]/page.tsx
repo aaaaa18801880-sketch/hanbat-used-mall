@@ -253,21 +253,21 @@ export default async function GuideDetailPage({
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F8FA]">
+    <div className="min-h-screen flex flex-col bg-white">
       <SiteHeader />
 
-      <main id="main-content" className="flex-1 pb-24 lg:pb-14">
+      <main id="main-content" className="flex-1 pb-24 lg:pb-16">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
 
-        {/* 상단 아티클 헤더 */}
-        <header className="border-b border-[#E2E6EC] bg-white">
-          <div className="hb-container py-6 sm:py-9">
+        {/* 상단 아티클 헤더 (에디토리얼 리딩 폭 맞춤) */}
+        <header className="border-b border-[#E2E6EC] bg-[#FAFBFD]">
+          <div className="mx-auto w-full max-w-[1080px] px-4 sm:px-6 lg:px-8 py-7 sm:py-10">
             <nav
               aria-label="페이지 경로"
-              className="flex flex-wrap items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-4"
+              className="flex flex-wrap items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-5"
             >
               <Link href="/" className="hover:text-[#141A23] transition-colors">
                 홈
@@ -282,21 +282,23 @@ export default async function GuideDetailPage({
               <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#94A3B8]" />
               <Link
                 href={`/guide?category=${encodeURIComponent(article.category)}`}
-                className="font-bold text-[#E8521A] hover:underline underline-offset-2"
+                className="font-bold text-[#C84312] hover:underline underline-offset-2"
               >
                 {article.category}
               </Link>
             </nav>
 
-            <div className="max-w-[72ch]">
+            <div className="max-w-[68ch]">
               <div className="flex flex-wrap items-center gap-2 mb-3 text-hb-xs font-semibold text-[#64748B]">
-                <span className="hb-trim inline-flex items-center rounded-md border border-[#E2E6EC] bg-[#F7F8FA] px-2.5 py-1 font-bold text-[#141A23]">
+                <span className="font-bold text-[#141A23]">
                   {article.category}
                 </span>
+                <span aria-hidden="true">·</span>
                 <time dateTime={article.updatedAt} className="tabular-nums">
                   {article.updatedAt}
                 </time>
                 <span aria-hidden="true">·</span>
+                <span className="tabular-nums">약 {article.readMinutes}분</span>
                 <GuideEngagementHeaderMeta
                   slug={article.slug}
                   initialStat={guideStat}
@@ -306,25 +308,25 @@ export default async function GuideDetailPage({
 
               <h1 className="hb-fluid-h1 text-[#141A23]">{article.title}</h1>
 
-              <p className="mt-3.5 max-w-[68ch] text-hb-base sm:text-hb-lg text-[#334155] leading-[1.65] [text-wrap:pretty]">
+              <p className="mt-4 max-w-[64ch] text-hb-base sm:text-hb-lg text-[#334155] leading-[1.72] [text-wrap:pretty]">
                 {article.summary}
               </p>
             </div>
           </div>
         </header>
 
-        {/* 본문 + 사이드바 그리드 */}
-        <div className="hb-container pt-6 sm:pt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 lg:gap-8 items-start">
-          {/* 왼쪽 본문 컬럼 */}
-          <article className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-8 shadow-2xs space-y-7">
+        {/* 본문(66ch 리딩 컬럼) + 우측 보조 레일 */}
+        <div className="mx-auto w-full max-w-[1080px] px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_280px] gap-10 lg:gap-12 items-start">
+          {/* 왼쪽 본문 컬럼 (중첩 카드 액자 없이 흰 배경 위 정갈한 타이포그래피) */}
+          <article className="min-w-0 max-w-[68ch] space-y-9">
             {article.heroImage && (
-              <figure className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] overflow-hidden">
+              <figure className="rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] overflow-hidden">
                 <Image
                   src={article.heroImage.src}
                   alt={article.heroImage.alt}
                   width={1376}
                   height={768}
-                  sizes="(max-width: 1024px) 100vw, 900px"
+                  sizes="(max-width: 1024px) 100vw, 760px"
                   priority
                   className="w-full aspect-video object-cover block"
                 />
@@ -337,17 +339,17 @@ export default async function GuideDetailPage({
               </figure>
             )}
 
-            {/* 핵심 기준 3가지 */}
+            {/* 핵심 기준 3가지 (좌측 포인트 선 인용 스타일) */}
             {article.keyPoints.length > 0 && (
-              <div className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5 space-y-2.5">
-                <p className="text-hb-xs font-bold tracking-tight text-[#475569]">
-                  현장 핵심 기준 3가지
+              <div className="border-l-4 border-[#E8521A] bg-[#FAFBFD] pl-4 sm:pl-6 pr-4 py-4 space-y-2.5">
+                <p className="text-hb-xs font-bold text-[#C84312]">
+                  핵심 요약 3가지
                 </p>
-                <ol className="space-y-2 text-hb-sm text-[#141A23] leading-[1.6]">
+                <ol className="space-y-2.5 text-hb-sm sm:text-hb-base text-[#141A23] leading-[1.68]">
                   {article.keyPoints.map((point, kpIdx) => (
                     <li key={kpIdx} className="flex items-start gap-2.5">
-                      <span className="font-mono text-hb-xs font-bold text-[#E8521A] tabular-nums pt-0.5 shrink-0">
-                        {String(kpIdx + 1).padStart(2, "0")}
+                      <span className="font-bold text-[#C84312] tabular-nums shrink-0">
+                        {kpIdx + 1}.
                       </span>
                       <span className="font-medium break-keep [text-wrap:pretty]">
                         {point}
@@ -358,45 +360,48 @@ export default async function GuideDetailPage({
               </div>
             )}
 
-            {/* 본문 목차 */}
+            {/* 본문 목차 (알약 칩 대신 간결한 앵커 목록) */}
             {article.sections.length > 2 && (
               <nav
                 aria-label="본문 목차"
-                className="flex flex-wrap items-center gap-1.5 border-b border-[#F1F3F6] pb-4"
+                className="border-y border-[#E2E6EC] py-4 space-y-2"
               >
-                {article.sections.map((section, idx) => (
-                  <a
-                    key={section.heading}
-                    href={`#section-${idx + 1}`}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#F7F8FA] px-2.5 py-1 text-hb-xs font-semibold text-[#334155] hover:bg-[#FFF4EE] hover:text-[#E8521A] transition-colors"
-                  >
-                    <span className="font-mono text-[#E8521A] tabular-nums">
-                      {idx + 1}.
-                    </span>
-                    <span className="line-clamp-1">{section.heading}</span>
-                  </a>
-                ))}
+                <p className="text-hb-xs font-bold text-[#64748B]">
+                  이 글의 순서
+                </p>
+                <ol className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5">
+                  {article.sections.map((section, idx) => (
+                    <li key={section.heading}>
+                      <a
+                        href={`#section-${idx + 1}`}
+                        className="group inline-flex items-baseline gap-2 text-hb-sm font-semibold text-[#334155] hover:text-[#C84312] transition-colors py-0.5"
+                      >
+                        <span className="text-hb-xs font-bold text-[#94A3B8] group-hover:text-[#C84312] tabular-nums shrink-0">
+                          {idx + 1}.
+                        </span>
+                        <span className="line-clamp-1">{section.heading}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
               </nav>
             )}
 
             {/* 본문 섹션들 */}
-            <div className="space-y-8">
+            <div className="space-y-10 sm:space-y-12">
               {article.sections.map((section, sectionIdx) => {
                 const tableCaptionId = `guide-table-${article.slug}-${sectionIdx}`;
                 return (
                 <React.Fragment key={section.heading}>
                 <section
                   id={`section-${sectionIdx + 1}`}
-                  className="scroll-mt-24 space-y-4 pt-2 border-t border-[#F1F3F6] first:border-t-0 first:pt-0"
+                  className="scroll-mt-24 space-y-4 pt-8 border-t border-[#E2E6EC] first:border-t-0 first:pt-0"
                 >
-                  <h2 className="flex items-baseline gap-2.5 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] leading-snug break-keep [text-wrap:balance]">
-                    <span className="font-mono text-hb-sm font-bold text-[#E8521A] tabular-nums shrink-0">
-                      {String(sectionIdx + 1).padStart(2, "0")}
-                    </span>
-                    <span>{section.heading}</span>
+                  <h2 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] leading-[1.35] tracking-[-0.02em] break-keep [text-wrap:balance]">
+                    {section.heading}
                   </h2>
 
-                  <div className="space-y-3.5 max-w-[68ch] text-hb-base text-[#334155] leading-[1.72]">
+                  <div className="space-y-4 max-w-[64ch] text-hb-base sm:text-hb-lg text-[#1E293B] leading-[1.82]">
                     {section.paragraphs.map((p, idx) => (
                       <p key={idx} className="[text-wrap:pretty]">
                         {p}
@@ -413,22 +418,22 @@ export default async function GuideDetailPage({
                       tabIndex={0}
                       role="region"
                       aria-labelledby={tableCaptionId}
-                      className="overflow-x-auto rounded-xl border border-[#E2E6EC] focus-visible:outline-2 focus-visible:outline-[#E8521A]"
+                      className="my-5 overflow-x-auto border-y border-[#CBD5E1] focus-visible:outline-2 focus-visible:outline-[#141A23]"
                     >
-                      <table className="w-full min-w-[540px] border-collapse text-left text-hb-xs sm:text-hb-sm">
+                      <table className="w-full min-w-[440px] border-collapse text-left text-hb-xs sm:text-hb-sm">
                         <caption
                           id={tableCaptionId}
-                          className="bg-[#F7F8FA] px-4 py-2.5 text-left text-hb-xs font-bold text-[#475569] border-b border-[#E2E6EC]"
+                          className="bg-[#FAFBFD] px-3.5 py-2.5 text-left text-hb-xs font-bold text-[#475569] border-b border-[#E2E6EC]"
                         >
                           {section.table.caption}
                         </caption>
                         <thead>
-                          <tr className="bg-[#F7F8FA] border-b border-[#E2E6EC]">
+                          <tr className="bg-[#FAFBFD] border-b border-[#CBD5E1]">
                             {section.table.headers.map((header) => (
                               <th
                                 key={header}
                                 scope="col"
-                                className="px-4 py-3 font-bold text-[#141A23] [text-wrap:balance]"
+                                className="px-3.5 py-3 font-bold text-[#141A23] [text-wrap:balance]"
                               >
                                 {header}
                               </th>
@@ -439,14 +444,14 @@ export default async function GuideDetailPage({
                           {section.table.rows.map((row, rIdx) => (
                             <tr
                               key={rIdx}
-                              className="hover:bg-[#F7F8FA]/60 transition-colors"
+                              className="hover:bg-[#FAFBFD] transition-colors"
                             >
                               {row.map((cell, cIdx) => (
                                 <td
                                   key={cIdx}
-                                  className={`px-4 py-3 align-top leading-[1.6] break-keep ${
+                                  className={`px-3.5 py-3.5 align-top leading-[1.62] break-keep ${
                                     cIdx === 0
-                                      ? "font-bold text-[#141A23] whitespace-nowrap"
+                                      ? "font-bold text-[#141A23] min-w-[110px]"
                                       : "text-[#334155]"
                                   }`}
                                 >
@@ -461,7 +466,7 @@ export default async function GuideDetailPage({
                   )}
 
                   {section.bullets && section.bullets.length > 0 && (
-                    <ul className="space-y-2.5 max-w-[68ch] text-hb-sm sm:text-hb-base text-[#334155] leading-[1.68]">
+                    <ul className="space-y-3 max-w-[64ch] text-hb-base text-[#334155] leading-[1.75]">
                       {section.bullets.map((bullet, bIdx) => (
                         <li
                           key={bIdx}
@@ -469,7 +474,7 @@ export default async function GuideDetailPage({
                         >
                           <Icon
                             d={ICON.check}
-                            className="w-4 h-4 text-[#E8521A] shrink-0 mt-1"
+                            className="w-4 h-4 text-[#C84312] shrink-0 mt-1.5"
                           />
                           <span>{bullet}</span>
                         </li>
@@ -478,22 +483,18 @@ export default async function GuideDetailPage({
                   )}
 
                   {section.tip && (
-                    <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5 space-y-2.5">
-                      <p className="flex items-center gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
-                        <Icon
-                          d={ICON.bolt}
-                          className="w-4 h-4 text-[#E8521A] shrink-0"
-                        />
-                        <span>{section.tip.title}</span>
+                    <div className="border-l-4 border-[#141A23] bg-[#FAFBFD] pl-4 sm:pl-5 pr-4 py-4 space-y-2.5">
+                      <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
+                        {section.tip.title}
                       </p>
-                      <ul className="space-y-2 text-hb-sm text-[#334155] leading-[1.65]">
+                      <ul className="space-y-2 text-hb-sm sm:text-hb-base text-[#334155] leading-[1.7]">
                         {section.tip.items.map((item, tIdx) => (
                           <li
                             key={tIdx}
                             className="flex items-start gap-2 [text-wrap:pretty]"
                           >
-                            <span className="font-mono text-hb-xs font-bold text-[#64748B] pt-0.5 shrink-0">
-                              •
+                            <span className="font-bold text-[#64748B] shrink-0">
+                              ·
                             </span>
                             <span>{item}</span>
                           </li>
@@ -510,93 +511,11 @@ export default async function GuideDetailPage({
               })}
             </div>
 
-            {/* 하단 참고 출처 및 정보 검증 안내 (운영·출처 검증 규정 부록 B) */}
-            {article.verification && (
-              <section
-                aria-label="참고 출처 및 정보 검증 안내"
-                className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] p-4 sm:p-5 space-y-4"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <h2 className="flex items-center gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
-                    <Icon
-                      d={ICON.shieldCheck}
-                      className="w-4 h-4 text-[#0F766E] shrink-0"
-                    />
-                    <span>참고 출처 및 정보 검증 안내</span>
-                  </h2>
-                  <div className="flex flex-wrap items-center gap-1.5 text-hb-xs text-[#64748B]">
-                    <span>자료 확인일</span>
-                    <time
-                      dateTime={article.verification.verifiedAt}
-                      className="font-bold text-[#141A23] tabular-nums"
-                    >
-                      {article.verification.verifiedAt}
-                    </time>
-                    <span aria-hidden="true">·</span>
-                    <span>{article.verification.riskLevel}</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {article.verification.contentTypes.map((typeLabel) => (
-                    <span
-                      key={typeLabel}
-                      className="inline-flex items-center rounded-md border border-[#CBD5E1] bg-white px-2 py-0.5 text-hb-xs font-semibold text-[#334155]"
-                    >
-                      {typeLabel}
-                    </span>
-                  ))}
-                </div>
-
-                <ul className="divide-y divide-[#E2E6EC] rounded-lg border border-[#E2E6EC] bg-white">
-                  {article.verification.primarySources.map((src, sIdx) => (
-                    <li key={sIdx} className="p-3 sm:p-3.5 space-y-1">
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <div className="flex flex-wrap items-center gap-1.5 text-hb-xs">
-                          <span className="font-bold text-[#141A23]">
-                            {src.org}
-                          </span>
-                          {src.date && (
-                            <span className="text-[#64748B]">({src.date})</span>
-                          )}
-                        </div>
-                        {src.url && (
-                          <a
-                            href={src.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-hb-xs font-semibold text-[#1D4ED8] hover:underline shrink-0"
-                          >
-                            <span>공식 사이트 확인</span>
-                            <Icon d={ICON.external} className="w-3 h-3" />
-                          </a>
-                        )}
-                      </div>
-                      <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#334155] leading-snug break-keep">
-                        {src.title}
-                      </p>
-                      <p className="text-hb-xs text-[#64748B] leading-relaxed break-keep">
-                        활용 내용: {src.usedFor}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="border-t border-[#E2E6EC] pt-3 space-y-1.5 text-hb-xs text-[#475569] leading-[1.65] [text-wrap:pretty]">
-                  <p>
-                    <strong className="text-[#141A23]">기준 · 현장 구분:</strong>{" "}
-                    {article.verification.fieldNote}
-                  </p>
-                  <p className="text-[#64748B]">{GUIDE_GOVERNANCE_DISCLAIMER}</p>
-                </div>
-              </section>
-            )}
-
             {/* 조회수 및 도움됐어요 피드백 */}
             <GuideEngagementPanel slug={article.slug} initialStat={guideStat} />
 
             {/* 하단 맞춤 행동 유도 */}
-            <div className="pt-6 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-2.5">
                 {article.ctas.map((cta) => (
                   <Link
@@ -625,22 +544,76 @@ export default async function GuideDetailPage({
               </Link>
             </div>
 
+            {/* 하단 참고 출처 및 정보 검증 안내 (접힘형 세부 안내로 본문 끝 시선 피로 완화) */}
+            {article.verification && (
+              <details className="rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] px-4 py-3.5 text-hb-xs text-[#475569]">
+                <summary className="cursor-pointer font-semibold text-[#334155] select-none flex flex-wrap items-center justify-between gap-2">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Icon
+                      d={ICON.shieldCheck}
+                      className="w-4 h-4 text-[#0F766E] shrink-0"
+                    />
+                    <span>참고 기준 및 출처 확인 ({article.verification.verifiedAt})</span>
+                  </span>
+                  <span className="text-[#64748B] font-normal">
+                    {article.verification.riskLevel} · 자세히 보기
+                  </span>
+                </summary>
+                <div className="mt-3 pt-3 border-t border-[#E2E6EC] space-y-3">
+                  <ul className="space-y-2.5">
+                    {article.verification.primarySources.map((src, sIdx) => (
+                      <li key={sIdx} className="space-y-0.5">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="font-bold text-[#141A23]">
+                            {src.org}
+                            {src.date ? ` (${src.date})` : ""}
+                          </span>
+                          {src.url && (
+                            <a
+                              href={src.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 font-semibold text-[#1D4ED8] hover:underline shrink-0"
+                            >
+                              <span>공식 사이트</span>
+                              <Icon d={ICON.external} className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                        <p className="font-medium text-[#334155]">
+                          {src.title}
+                        </p>
+                        <p className="text-[#64748B]">활용: {src.usedFor}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="border-t border-[#E2E6EC] pt-2.5 space-y-1 leading-[1.6]">
+                    <p>
+                      <strong className="text-[#141A23]">기준 · 현장 구분:</strong>{" "}
+                      {article.verification.fieldNote}
+                    </p>
+                    <p className="text-[#64748B]">{GUIDE_GOVERNANCE_DISCLAIMER}</p>
+                  </div>
+                </div>
+              </details>
+            )}
+
             {/* 이전 글 / 다음 글 */}
             {(prev || next) && (
               <nav
                 aria-label="이전 글 및 다음 글"
-                className="pt-5 border-t border-[#E2E6EC] grid grid-cols-1 sm:grid-cols-2 gap-3"
+                className="pt-6 border-t border-[#E2E6EC] grid grid-cols-1 sm:grid-cols-2 gap-4"
               >
                 {prev ? (
                   <Link
                     href={`/guide/${prev.slug}`}
-                    className="group rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 hover:border-[#141A23] transition-colors"
+                    className="group rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] p-4 hover:border-[#141A23] transition-colors"
                   >
                     <p className="text-hb-xs font-bold text-[#64748B] flex items-center gap-1">
                       <Icon d={ICON.left} className="w-3.5 h-3.5" />
                       <span>이전 글</span>
                     </p>
-                    <p className="mt-1 text-hb-sm font-bold text-[#141A23] group-hover:text-[#E8521A] line-clamp-1">
+                    <p className="mt-1 text-hb-sm font-bold text-[#141A23] group-hover:text-[#C84312] line-clamp-1">
                       {prev.title}
                     </p>
                   </Link>
@@ -651,13 +624,13 @@ export default async function GuideDetailPage({
                 {next && (
                   <Link
                     href={`/guide/${next.slug}`}
-                    className="group rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 hover:border-[#141A23] transition-colors sm:text-right"
+                    className="group rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] p-4 hover:border-[#141A23] transition-colors sm:text-right"
                   >
                     <p className="text-hb-xs font-bold text-[#64748B] flex items-center sm:justify-end gap-1">
                       <span>다음 글</span>
                       <Icon d={ICON.right} className="w-3.5 h-3.5" />
                     </p>
-                    <p className="mt-1 text-hb-sm font-bold text-[#141A23] group-hover:text-[#E8521A] line-clamp-1">
+                    <p className="mt-1 text-hb-sm font-bold text-[#141A23] group-hover:text-[#C84312] line-clamp-1">
                       {next.title}
                     </p>
                   </Link>
@@ -667,8 +640,8 @@ export default async function GuideDetailPage({
           </article>
 
           {/* 오른쪽 사이드바: 매장 문의 + 연관 글 */}
-          <aside className="space-y-4 lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-[#263040] bg-[#141A23] p-5 text-white space-y-3">
+          <aside className="space-y-6 lg:sticky lg:top-24">
+            <div className="rounded-xl border border-[#263040] bg-[#141A23] p-5 text-white space-y-3">
               <p className="text-hb-xs font-bold text-[#FF8A50]">
                 {STORE.name} 설치·구매 문의
               </p>
@@ -705,21 +678,21 @@ export default async function GuideDetailPage({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs space-y-3">
+            <div className="border-t border-[#E2E6EC] pt-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-hb-sm font-bold text-[#141A23]">
-                  다른 정보 글
+                  함께 보면 좋은 글
                 </h2>
                 <Link
                   href="/guide"
-                  className="text-hb-xs font-bold text-[#E8521A] hover:underline underline-offset-2"
+                  className="text-hb-xs font-bold text-[#C84312] hover:underline underline-offset-2"
                 >
                   전체 보기
                 </Link>
               </div>
               <ul className="divide-y divide-[#E2E6EC]">
                 {relatedArticles.map((item) => (
-                  <li key={item.slug} className="py-2.5 first:pt-0 last:pb-0">
+                  <li key={item.slug} className="py-3 first:pt-1 last:pb-0">
                     <Link
                       href={`/guide/${item.slug}`}
                       className="group block space-y-1"
@@ -727,7 +700,7 @@ export default async function GuideDetailPage({
                       <span className="text-hb-xs font-semibold text-[#64748B]">
                         {item.category}
                       </span>
-                      <p className="text-hb-sm font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep">
+                      <p className="text-hb-sm font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors leading-snug break-keep">
                         {item.title}
                       </p>
                     </Link>
@@ -742,15 +715,15 @@ export default async function GuideDetailPage({
         <section
           id="guide-recommended-products"
           aria-label="관련 매물"
-          className="hb-container mt-8 sm:mt-10 scroll-mt-24"
+          className="mx-auto w-full max-w-[1080px] px-4 sm:px-6 lg:px-8 mt-12 scroll-mt-24"
         >
-          <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs space-y-5">
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 pb-4 border-b border-[#E2E6EC]">
+          <div className="border-t border-[#E2E6EC] pt-8 space-y-6">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
               <div className="space-y-1.5">
                 <h2 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] leading-snug [text-wrap:balance]">
                   {bridge.heading}
                 </h2>
-                <p className="max-w-[64ch] text-hb-sm text-[#475569] leading-[1.6] [text-wrap:pretty]">
+                <p className="max-w-[64ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.65] [text-wrap:pretty]">
                   {bridge.description}
                 </p>
               </div>
@@ -779,7 +752,7 @@ export default async function GuideDetailPage({
                 ))}
               </div>
             ) : (
-              <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <p className="text-hb-sm text-[#334155]">
                   전시장 실시간 재고는 전체 매물 갤러리에서 확인하실 수 있습니다.
                 </p>
