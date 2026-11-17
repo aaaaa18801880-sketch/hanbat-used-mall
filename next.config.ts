@@ -22,6 +22,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    agentUpgrade: "security",
+  },
   outputFileTracingRoot: projectRoot,
   turbopack: {
     root: projectRoot,
