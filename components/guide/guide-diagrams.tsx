@@ -22,6 +22,9 @@ import {
   RefrigerantLeakMythDiagram,
   RefrigerantTypesComparisonDiagram,
   VillaInstallConstraintsDiagram,
+  ThinVsStandardCopperPipeDiagram,
+  AirconPipeLengthProfileDiagram,
+  PipeInsulationThicknessDiagram,
 } from "./diagrams/aircon-diagrams";
 import {
   ApplianceNameplateLifespanDiagram,
@@ -131,7 +134,10 @@ export type GuideDiagramId =
   | "water-heater-instant-vs-storage"
   | "gasket-mold-safe-cleaning"
   | "villa-install-constraints"
-  | "store-restoration-scope";
+  | "store-restoration-scope"
+  | "aircon-thin-copper-pipe"
+  | "aircon-pipe-length-profile"
+  | "aircon-insulation-condensation";
 
 export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
   switch (id) {
@@ -259,5 +265,11 @@ export function GuideSectionDiagram({ id }: { id: GuideDiagramId }) {
       return <VillaInstallConstraintsDiagram />;
     case "store-restoration-scope":
       return <StoreRestorationScopeDiagram />;
+    case "aircon-thin-copper-pipe":
+      return <ThinVsStandardCopperPipeDiagram />;
+    case "aircon-pipe-length-profile":
+      return <AirconPipeLengthProfileDiagram />;
+    case "aircon-insulation-condensation":
+      return <PipeInsulationThicknessDiagram />;
   }
 }

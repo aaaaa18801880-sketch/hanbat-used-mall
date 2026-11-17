@@ -1473,6 +1473,75 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     fieldNote:
       "법령·판례 요지는 일반적인 정보 제공 목적이며 개별 분쟁은 법률 전문가 확인이 필요합니다. 천장형·승압 설비의 철거 전 매입 분리 및 임대인 서면 합의 요령은 창·폐업 매장 경험입니다.",
   },
+  "aircon-thin-copper-pipe-risks": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "국가기술표준원(KATS) · 한국산업표준",
+        title: "KS D 5301 이음매 없는 구리 및 구리합금 관 외경·살두께 규격",
+        url: URLS.KATS,
+        date: "현행 KS 표준",
+        usedFor: "냉매 배관용 동관의 호칭 경별 표준 두께(0.8mm~1.0mm급) 및 재질 기준 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 서비스 설치 지침",
+        title: "인버터 냉매(R-410A · R-32) 배관 두께 및 플레어 가공 규정",
+        url: URLS.SAMSUNG,
+        date: "공식 설치 설명서 기준",
+        usedFor: "고압 인버터 운전 시 구경별 최소 살두께 준수와 꺾임·균열 누설 예방 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "동배관 호칭별 두께 표준은 KS D 5301 및 제조사 설치 지침에 따르며, 얇은 비규격 관 시공 시 벤딩 꺾임·플레어 재시공 불가 사례는 매장 현장 A/S·철거 경험입니다.",
+  },
+  "aircon-pipe-length-and-refrigerant": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자 · LG전자 설치 기술자료",
+        title: "가정용·상업용 인버터 에어컨 최소 배관 길이, 기본 충전 길이 및 m당 추가 냉매량 기준",
+        url: URLS.LG,
+        date: "공식 설치 매뉴얼 기준",
+        usedFor: "초단거리 최소 길이 유지, 기본 충전 길이 초과 시 전자저울 계량 충전 및 최대 허용 고저차·오일트랩 기준 확인",
+      },
+      {
+        org: "대한설비공학회(SAREK) · 공정거래위원회",
+        title: "공조냉동 배관 설계 압력손실 기준 및 소비자분쟁해결기준",
+        url: URLS.SAREK,
+        date: "학술·고시 기준",
+        usedFor: "장배관 압력손실에 따른 냉방능력 저하 및 설치 불량 관련 분쟁 방지 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "최소 길이·기본 냉매 길이·추가지표(g/m)는 모델별 명판 및 설치 설명서를 기준으로 하며, 벽 모서리 줄자 동선 측정 및 고저차 현장 견적 사례는 매장 설치 경험입니다.",
+  },
+  "aircon-insulation-thickness-condensation": {
+    verifiedAt: VERIFIED_DATE,
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "삼성전자 · LG전자 설치 매뉴얼",
+        title: "냉매 배관(액관·가스관) 개별 보온 의무, 발포 보온재 두께 및 드레인 마감 지침",
+        url: URLS.SAMSUNG,
+        date: "공식 설치 기준",
+        usedFor: "합보온 금지·개별 분리 보온 원칙, 타공 부위 및 천장 매립 결로·난연 마감 기준 확인",
+      },
+      {
+        org: "대한설비공학회(SAREK)",
+        title: "냉동·공조 배관 결로 방지 보온 두께 산정 및 외기 노출 마감 원칙",
+        url: URLS.SAREK,
+        date: "설비 기술 기준",
+        usedFor: "고습도 여름철 관 표면 이슬점 이하 냉각에 따른 결로 원리 및 실외 UV·자외선 차폐 필요성 확인",
+      },
+    ],
+    fieldNote:
+      "개별 보온 및 결로 방지 원리는 설비공학회·제조사 지침 기반이며, 일반 PVC 테이프 경화 후 벽지·천장 젖음 민원 사례는 매장 점검·재시공 경험입니다.",
+  },
 };
 
 export function getGuideVerification(slug: string): InfoGuideVerification | undefined {

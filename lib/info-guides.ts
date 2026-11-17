@@ -219,6 +219,9 @@ const TIER2_GUIDE_ROLE_MAP: Record<string, InfoGuidePriorityRole> = {
   "inverter-aircon-24h-on-vs-off-electricity": "안전·관리",
   "kitchen-hood-duct-sirocco-vs-inline-fan": "안전·관리",
   "villa-old-house-drilling-angle-3kw": "안전·관리",
+  "aircon-thin-copper-pipe-risks": "고장·점검",
+  "aircon-pipe-length-and-refrigerant": "고장·점검",
+  "aircon-insulation-thickness-condensation": "안전·관리",
 };
 
 function resolveGuidePriorityMeta(article: InfoGuideArticle): GuidePriorityMeta {

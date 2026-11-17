@@ -21,6 +21,8 @@ export const SLUG_TO_GUIDE_TOOL: Record<string, GuideToolKind> = {
   "aircon-2in1-vs-two-singles-home": "aircon-sizing",
   "aircon-refrigerant-r22-r410a-r32-guide": "aircon-sizing",
   "cooling-only-vs-heat-pump-nameplate": "aircon-sizing",
+  "aircon-thin-copper-pipe-risks": "aircon-sizing",
+  "aircon-pipe-length-and-refrigerant": "aircon-sizing",
   // 2. 매장 계약전력(kW) 부하 시뮬레이터
   "voltage-220v-vs-380v": "power-contract",
   "startup-closure-docs-and-power": "power-contract",

@@ -1951,3 +1951,342 @@ export function VillaInstallConstraintsDiagram() {
     </DiagramFigure>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/*  63. 동배관 살두께(0.8T KS 정품 vs 얇은 박육관) 하자 비교 도해          */
+/* ------------------------------------------------------------------ */
+export function ThinVsStandardCopperPipeDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="KS 정품 후육 동관(0.8T~) vs 저가 얇은 동관(박육관) 단면 · 하자 비교"
+      caption="겉 지름(외경)은 같아 보여도 관 벽 두께('T')가 얇은 관은 구부릴 때 납작하게 꺾이거나 고압 냉매(R-410A·R-32) 플레어 이음부에서 미세 균열·누설이 생기기 쉽습니다."
+    >
+      <svg
+        viewBox="0 0 760 270"
+        className="w-full min-w-[560px] h-auto block font-sans"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          KS 표준 두께 동배관과 저가 얇은 동배관 단면 두께·꺾임·플레어 누설 비교 도해
+        </title>
+
+        {/* 좌측: KS 표준 정품 동배관 */}
+        <rect x="16" y="14" width="354" height="242" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="16" y="14" width="354" height="36" rx="12" fill="#0F766E" />
+        <rect x="16" y="38" width="354" height="12" fill="#0F766E" />
+        <text x="193" y="37" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          KS 정품 후육 동관 (0.8mm ~ 1.0mm급)
+        </text>
+
+        {/* 단면 링 (두꺼운 벽) */}
+        <circle cx="96" cy="116" r="38" fill="#D97706" stroke="#92400E" strokeWidth="1.5" />
+        <circle cx="96" cy="116" r="24" fill="#FFFFFF" stroke="#92400E" strokeWidth="1" />
+        <text x="96" y="114" fontSize="9.5" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          두꺼운
+        </text>
+        <text x="96" y="126" fontSize="9.5" fontWeight="700" fill="#0F766E" textAnchor="middle">
+          살두께
+        </text>
+
+        {/* 우측 설명 텍스트 */}
+        <text x="152" y="84" fontSize="11" fontWeight="700" fill="#134E4A">
+          고압 인버터(R-410A·R-32) 버팀
+        </text>
+        <text x="152" y="104" fontSize="9.5" fill="#334155">
+          · 벤딩 시 안쪽 지름이 둥글게 유지
+        </text>
+        <text x="152" y="122" fontSize="9.5" fill="#334155">
+          · 플레어 나팔 끝단 두께 충분 → 밀착
+        </text>
+        <text x="152" y="140" fontSize="9.5" fill="#334155">
+          · 진동·수축에도 장기 기밀 유지 유리
+        </text>
+
+        {/* 하단 요약 카드 */}
+        <rect x="30" y="172" width="326" height="70" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="44" y="192" fontSize="10" fontWeight="700" fill="#0F766E">
+          정품 시공 기준 예시 (구경별 살두께)
+        </text>
+        <text x="44" y="210" fontSize="9.2" fill="#334155">
+          {`· 1/4"(6.35mm) ~ 1/2"(12.7mm) : 0.8mm(0.8T) 이상 권장`}
+        </text>
+        <text x="44" y="227" fontSize="9.2" fill="#334155">
+          {`· 5/8"(15.88mm) 대구경 관 : 1.0mm(1.0T) 이상 권장`}
+        </text>
+
+        {/* 우측: 얇은 박육 동배관 */}
+        <rect x="390" y="14" width="354" height="242" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="390" y="14" width="354" height="36" rx="12" fill="#B91C1C" />
+        <rect x="390" y="38" width="354" height="12" fill="#B91C1C" />
+        <text x="567" y="37" fontSize="12" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          저가 얇은 동관 (0.5~0.6mm대 · 비규격)
+        </text>
+
+        {/* 단면 링 (얇은 벽 + 찌그러짐) */}
+        <ellipse cx="470" cy="116" rx="40" ry="26" fill="#F59E0B" stroke="#991B1B" strokeWidth="1.5" />
+        <ellipse cx="470" cy="116" rx="35" ry="21" fill="#FFFFFF" stroke="#991B1B" strokeWidth="1" />
+        <text x="470" y="114" fontSize="9.5" fontWeight="700" fill="#B91C1C" textAnchor="middle">
+          납작 꺾임
+        </text>
+        <text x="470" y="126" fontSize="8.8" fontWeight="700" fill="#B91C1C" textAnchor="middle">
+          (단면 축소)
+        </text>
+
+        {/* 우측 하자 설명 */}
+        <text x="526" y="84" fontSize="11" fontWeight="700" fill="#991B1B">
+          겉보기 구리색 · 실제 4대 하자 빈발
+        </text>
+        <text x="526" y="104" fontSize="9.5" fill="#334155">
+          · 코너 구부릴 때 호스처럼 납작 꺾임
+        </text>
+        <text x="526" y="122" fontSize="9.5" fill="#334155">
+          · 나팔(플레어) 가공 시 끝단 찢어짐
+        </text>
+        <text x="526" y="140" fontSize="9.5" fill="#334155">
+          · 1~2년 내 미세 누설 → 재충전 반복
+        </text>
+
+        {/* 하단 경고 카드 */}
+        <rect x="404" y="172" width="326" height="70" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="418" y="192" fontSize="10" fontWeight="700" fill="#B91C1C">
+          소비자가 가장 많이 속는 포인트
+        </text>
+        <text x="418" y="210" fontSize="9.2" fill="#475569">
+          · 보온재가 씌워져 있으면 겉에서 동관 두께를 볼 수 없음
+        </text>
+        <text x="418" y="227" fontSize="9.2" fill="#475569">
+          · 철거·이전 시 끝단이 바스러져 배관 전량 교체비 이중 부담
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  64. 에어컨 배관 길이(최소 2~3m · 기본 5~7m · 장배관) 구간별 도해     */
+/* ------------------------------------------------------------------ */
+export function AirconPipeLengthProfileDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="실내기~실외기 배관 길이 구간별 냉매·진동·성능 영향"
+      caption="배관은 너무 짧아도(2m 미만 직결) 진동·맥동 소음과 순환 불안정이 생기고, 기본 충전 길이(통상 5~7.5m)를 넘기면 연장 미터만큼 정밀 냉매 보충이 필요합니다."
+    >
+      <svg
+        viewBox="0 0 760 255"
+        className="w-full min-w-[560px] h-auto block font-sans"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          에어컨 배관 길이 구간별 최소 길이, 표준 길이, 연장 추가 충전 비교 도해
+        </title>
+
+        {/* 구간 1: 너무 짧은 구간 */}
+        <rect x="16" y="16" width="228" height="222" rx="12" fill="#FFF7ED" stroke="#FDBA74" />
+        <rect x="16" y="16" width="228" height="34" rx="12" fill="#EA580C" />
+        <rect x="16" y="38" width="228" height="12" fill="#EA580C" />
+        <text x="130" y="38" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          1. 너무 짧은 직결 (약 2m 미만)
+        </text>
+        <text x="30" y="74" fontSize="10" fontWeight="700" fill="#9A3412">
+          짧다고 무조건 좋은 게 아님
+        </text>
+        <text x="30" y="94" fontSize="9.2" fill="#334155">
+          · 실외기 압축기 진동·웅~ 소음이
+        </text>
+        <text x="30" y="110" fontSize="9.2" fill="#334155">
+          배관 타고 실내기 벽으로 직전달
+        </text>
+        <text x="30" y="132" fontSize="9.2" fill="#334155">
+          · 배관 길이가 지나치게 짧으면
+        </text>
+        <text x="30" y="148" fontSize="9.2" fill="#334155">
+          냉매 맥동·압축기 액백(액압축) 위험
+        </text>
+        <rect x="28" y="172" width="204" height="54" rx="8" fill="#FFFFFF" stroke="#FED7AA" />
+        <text x="40" y="192" fontSize="9" fontWeight="700" fill="#C2410C">
+          현장 해결 기준
+        </text>
+        <text x="40" y="210" fontSize="8.8" fill="#475569">
+          실외기 뒤편 1바퀴 루프(감기)로
+        </text>
+        <text x="40" y="222" fontSize="8.8" fill="#475569">
+          제조사 권장 최소 길이(보통 2~3m+) 확보
+        </text>
+
+        {/* 구간 2: 표준 기본 구간 */}
+        <rect x="266" y="16" width="228" height="222" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="266" y="16" width="228" height="34" rx="12" fill="#0F766E" />
+        <rect x="266" y="38" width="228" height="12" fill="#0F766E" />
+        <text x="380" y="38" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          2. 표준 기본 구간 (통상 3~7.5m)
+        </text>
+        <text x="280" y="74" fontSize="10" fontWeight="700" fill="#134E4A">
+          공장 기본 냉매로 최적 운전
+        </text>
+        <text x="280" y="94" fontSize="9.2" fill="#334155">
+          · 신형·검수 실외기에 미리 들어있는
+        </text>
+        <text x="280" y="110" fontSize="9.2" fill="#334155">
+          기본 냉매량으로 추가 보충 불필요
+        </text>
+        <text x="280" y="132" fontSize="9.2" fill="#334155">
+          {`· 설치 견적서 '기본 배관(보통 5m)'`}
+        </text>
+        <text x="280" y="148" fontSize="9.2" fill="#334155">
+          범위에 들어가 비용이 가장 경제적
+        </text>
+        <rect x="278" y="172" width="204" height="54" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="290" y="192" fontSize="9" fontWeight="700" fill="#0F766E">
+          실측 팁 (줄자 측정)
+        </text>
+        <text x="290" y="210" fontSize="8.8" fill="#475569">
+          직선 대각선 대신 벽 모서리·타공 따라
+        </text>
+        <text x="290" y="222" fontSize="8.8" fill="#475569">
+          실제 배관 경로를 재고 0.5~1m 여유 가산
+        </text>
+
+        {/* 구간 3: 장배관 연장·고저차 구간 */}
+        <rect x="516" y="16" width="228" height="222" rx="12" fill="#EFF6FF" stroke="#93C5FD" />
+        <rect x="516" y="16" width="228" height="34" rx="12" fill="#1D4ED8" />
+        <rect x="516" y="38" width="228" height="12" fill="#1D4ED8" />
+        <text x="630" y="38" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          3. 장배관·고저차 구간 (8~20m+)
+        </text>
+        <text x="530" y="74" fontSize="10" fontWeight="700" fill="#1E40AF">
+          냉매 추가 + 오일 회수 관리 필수
+        </text>
+        <text x="530" y="94" fontSize="9.2" fill="#334155">
+          · 기본 길이 초과 m당 규정량(g)을
+        </text>
+        <text x="530" y="110" fontSize="9.2" fill="#334155">
+          전자저울로 정확히 계량 추가해야 함
+        </text>
+        <text x="530" y="132" fontSize="9.2" fill="#334155">
+          · 미충전 시 냉방 저하·압축기 과열,
+        </text>
+        <text x="530" y="148" fontSize="9.2" fill="#334155">
+          과충전 시 고압 차단·소비전력 상승
+        </text>
+        <rect x="528" y="172" width="204" height="54" rx="8" fill="#FFFFFF" stroke="#BFDBFE" />
+        <text x="540" y="192" fontSize="9" fontWeight="700" fill="#1D4ED8">
+          옥상·층간 고저차 주의
+        </text>
+        <text x="540" y="210" fontSize="8.8" fill="#475569">
+          실내기·실외기 높이차가 크면 오일트랩
+        </text>
+        <text x="540" y="222" fontSize="8.8" fill="#475569">
+          설치 및 모델 최대 허용 길이 사전 확인 필수
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/*  65. 보온재 개별 보온 vs 합보온·두께·결로 예방 비교 도해               */
+/* ------------------------------------------------------------------ */
+export function PipeInsulationThicknessDiagram() {
+  const titleId = useId();
+  return (
+    <DiagramFigure
+      title="에어컨 배관 '개별 보온 + 적정 두께 마감' vs '부실 합보온·결로' 단면 비교"
+      caption="가는 액관과 굵은 가스관을 따로 감싸지 않고 얇은 보온재 하나로 묶거나 연결부 테이핑이 벌어지면 여름철 결로 물방울이 벽지와 천장으로 스며듭니다."
+    >
+      <svg
+        viewBox="0 0 760 250"
+        className="w-full min-w-[560px] h-auto block font-sans"
+        role="img"
+        aria-labelledby={titleId}
+      >
+        <title id={titleId}>
+          개별 보온과 합보온 비교 및 보온재 두께 부족·자외선 노출 결로 발생 도해
+        </title>
+
+        {/* 좌측: 정석 개별 보온 */}
+        <rect x="16" y="14" width="354" height="222" rx="12" fill="#F0FDFA" stroke="#5EEAD4" />
+        <rect x="16" y="14" width="354" height="34" rx="12" fill="#0F766E" />
+        <rect x="16" y="36" width="354" height="12" fill="#0F766E" />
+        <text x="193" y="36" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          정석 시공: 액관·가스관 개별 보온 + 밀착 테이핑
+        </text>
+
+        {/* 2개 분리 보온 단면 */}
+        <circle cx="88" cy="108" r="24" fill="#E2E8F0" stroke="#475569" strokeWidth="1.5" />
+        <circle cx="88" cy="108" r="9" fill="#D97706" stroke="#92400E" />
+        <circle cx="152" cy="108" r="30" fill="#E2E8F0" stroke="#475569" strokeWidth="1.5" />
+        <circle cx="152" cy="108" r="13" fill="#D97706" stroke="#92400E" />
+        <text x="88" y="150" fontSize="8.8" fontWeight="700" fill="#134E4A" textAnchor="middle">
+          가는 액관
+        </text>
+        <text x="152" y="150" fontSize="8.8" fontWeight="700" fill="#134E4A" textAnchor="middle">
+          굵은 가스관
+        </text>
+
+        <text x="200" y="84" fontSize="10" fontWeight="700" fill="#134E4A">
+          열교환 손실 · 결로 원천 차단
+        </text>
+        <text x="200" y="103" fontSize="9" fill="#334155">
+          · 관마다 6~9mm+ 발포 보온재 분리
+        </text>
+        <text x="200" y="120" fontSize="9" fill="#334155">
+          · 타공 벽체·조인트 이음새 빈틈없이 마감
+        </text>
+        <text x="200" y="137" fontSize="9" fill="#334155">
+          · 실외 노출부는 UV·아연테이프/덕트 보호
+        </text>
+
+        <rect x="28" y="168" width="330" height="54" rx="8" fill="#FFFFFF" stroke="#99F6E4" />
+        <text x="42" y="188" fontSize="9.2" fontWeight="700" fill="#0F766E">
+          특히 꼭 지켜야 하는 현장
+        </text>
+        <text x="42" y="206" fontSize="8.8" fill="#475569">
+          천장 매립배관(난연 보온재 권장), 습한 지하/상가, 냉난방 겸용기
+        </text>
+
+        {/* 우측: 부실 합보온 · 결로 하자 */}
+        <rect x="390" y="14" width="354" height="222" rx="12" fill="#FEF2F2" stroke="#FCA5A5" />
+        <rect x="390" y="14" width="354" height="34" rx="12" fill="#DC2626" />
+        <rect x="390" y="36" width="354" height="12" fill="#DC2626" />
+        <text x="567" y="36" fontSize="11.5" fontWeight="700" fill="#FFFFFF" textAnchor="middle">
+          불량 시공: 얇은 합보온 · 틈새 노출 → 결로 누수
+        </text>
+
+        {/* 1개 합보온 단면 + 물방울 */}
+        <ellipse cx="478" cy="108" rx="46" ry="26" fill="#CBD5E1" stroke="#991B1B" strokeWidth="1.5" strokeDasharray="3 2" />
+        <circle cx="460" cy="108" r="8" fill="#D97706" />
+        <circle cx="494" cy="108" r="12" fill="#D97706" />
+        <path d="M478 136 C473 144 483 144 478 136 Z" fill="#2563EB" />
+        <circle cx="478" cy="147" r="4" fill="#2563EB" />
+        <text x="478" y="162" fontSize="8.8" fontWeight="700" fill="#991B1B" textAnchor="middle">
+          두 관 맞닿아 결로 물방울
+        </text>
+
+        <text x="542" y="84" fontSize="10" fontWeight="700" fill="#991B1B">
+          벽지 젖음 · 천장 곰팡이 주범
+        </text>
+        <text x="542" y="103" fontSize="9" fill="#334155">
+          · 고온·저온 관이 한 구멍서 서로 간섭
+        </text>
+        <text x="542" y="120" fontSize="9" fill="#334155">
+          · 얇은 저가 보온재 표면 온도 하강 → 결로
+        </text>
+        <text x="542" y="137" fontSize="9" fill="#334155">
+          · 일반 비닐테이프 1~2년 뒤 햇빛에 바스라짐
+        </text>
+
+        <rect x="402" y="168" width="330" height="54" rx="8" fill="#FFFFFF" stroke="#FECACA" />
+        <text x="416" y="188" fontSize="9.2" fontWeight="700" fill="#B91C1C">
+          실내기 물떨어짐과 헷갈리기 쉬움
+        </text>
+        <text x="416" y="206" fontSize="8.8" fill="#475569">
+          장마철 벽 타공 주위 벽지·몰딩이 젖는다면 보온재 끊김부터 확인
+        </text>
+      </svg>
+    </DiagramFigure>
+  );
+}
