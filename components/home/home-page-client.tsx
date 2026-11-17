@@ -653,33 +653,8 @@ export default function Home({
                     <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
-                  {/* 정보게시판 바로가기 바 */}
-                  <div className="mt-4">
-                    <Link
-                      href="/guide"
-                      className="group inline-flex items-center gap-2 sm:gap-2.5 rounded-xl border border-[#E2E6EC] bg-white/95 px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] shadow-2xs hover:border-[#CBD2DC] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
-                    >
-                      <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF4EE] border border-[#FED7AA] px-2 py-0.5 text-hb-xs font-bold text-[#C84312]">
-                        <Icon d={ICON.pen} className="w-3 h-3 text-[#E8521A]" />
-                        <span>정보게시판</span>
-                      </span>
-                      <span className="text-[#334155] font-medium">
-                        구매·매입 직전 꼭 보는 가전·설치 가이드
-                      </span>
-                      {guideTotalCount > 0 && (
-                        <span className="rounded-full bg-[#F1F3F6] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
-                          {guideTotalCount}편
-                        </span>
-                      )}
-                      <Icon
-                        d={ICON.right}
-                        className="w-3.5 h-3.5 text-[#64748B] transition-transform duration-150 group-hover:text-[#141A23] group-hover:translate-x-0.5"
-                      />
-                    </Link>
-                  </div>
-
-                  {/* 핵심 행동 버튼 (입체 2대 CTA + 직통 전화/카카오톡 빠른 상담 분할 도크) */}
-                  <div className="mt-6 space-y-2.5 max-w-2xl">
+                  {/* 핵심 행동 버튼 (입체 2대 CTA + 직통 전화/카카오톡 빠른 상담 분할 도크 + 정보게시판 바로가기) */}
+                  <div className="mt-5 space-y-2.5 max-w-2xl">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <Link
                         href="/gallery"
@@ -792,6 +767,33 @@ export default function Home({
                         />
                       </a>
                     </div>
+
+                    {/* 정보게시판 바로가기 바 (하단 폭 맞춤) */}
+                    <Link
+                      href="/guide"
+                      className="group flex w-full items-center justify-between gap-2.5 rounded-xl border border-[#E2E6EC] bg-white/95 px-4 py-2.5 text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] shadow-2xs hover:border-[#CBD2DC] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
+                    >
+                      <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-[#FFF4EE] border border-[#FED7AA] px-2 py-0.5 text-hb-xs font-bold text-[#C84312]">
+                          <Icon d={ICON.pen} className="w-3 h-3 text-[#E8521A]" />
+                          <span>정보게시판</span>
+                        </span>
+                        <span className="text-[#334155] font-medium truncate">
+                          구매·매입 직전 꼭 보는 가전·설치 가이드
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {guideTotalCount > 0 && (
+                          <span className="rounded-full bg-[#F1F3F6] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
+                            {guideTotalCount}편
+                          </span>
+                        )}
+                        <Icon
+                          d={ICON.right}
+                          className="w-3.5 h-3.5 text-[#64748B] transition-transform duration-150 group-hover:text-[#141A23] group-hover:translate-x-0.5"
+                        />
+                      </div>
+                    </Link>
                   </div>
                 </div>
               </div>
