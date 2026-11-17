@@ -114,6 +114,7 @@ export function matchesShowroomCategory(
     category?: string | null;
     title?: string | null;
     description?: string | null;
+    commercial_hint?: "showcase" | "bizFridge" | "kitchen" | null;
   },
   catItem: ShowroomCategoryItem
 ): boolean {
@@ -123,9 +124,12 @@ export function matchesShowroomCategory(
   }
 
   if (catItem.filterCategory === "업소용기기") {
+    if (product.commercial_hint) {
+      return catItem.key === product.commercial_hint;
+    }
     const hay = `${product.title || ""} ${product.description || ""}`.toLowerCase();
     const isShowcase = hay.includes("쇼케이스");
-    const isBizFridge = hay.includes("냉장") && !isShowcase;
+    const isBizFridge = (hay.includes("냉장") || hay.includes("냉동")) && !isShowcase;
 
     if (catItem.key === "showcase") return isShowcase;
     if (catItem.key === "bizFridge") return isBizFridge;

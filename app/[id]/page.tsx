@@ -21,6 +21,8 @@ import {
   extractModelName,
   extractSpecCapsules,
   getCategoryFaqs,
+  mightHaveRefrigeratorDiagram,
+  toProductCardSummary,
 } from "../../lib/site";
 import {
   SiteHeader,
@@ -41,7 +43,7 @@ import {
 } from "../../components/products/product-card";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
-import { RecentViewedStrip } from "../../components/products/product-compare-modal";
+import { RecentViewedStrip } from "../../components/products/recent-viewed-strip";
 import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
 import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
 import { getInfoGuidesForProductCategory } from "../../lib/info-guides";
@@ -199,7 +201,9 @@ export default async function ProductDetailPage({
     .order("created_at", { ascending: false })
     .limit(4);
 
-  const relatedProducts = (relatedRows ?? []) as ProductItem[];
+  const relatedProducts = ((relatedRows ?? []) as ProductItem[]).map(
+    toProductCardSummary
+  );
 
   const warrantySummary = getCategoryWarrantyInfo(categoryLabel).detailLabel;
 
@@ -551,12 +555,18 @@ export default async function ProductDetailPage({
 
           {/* 블록 3: 도어 구조도 + 상세 제원서 + 에어컨 안내 (모바일 3번째 노출, 데스크톱 좌측 갤러리 바로 아래) */}
           <div className="lg:col-start-1 lg:col-span-7 min-w-0 space-y-6 sm:space-y-7">
-            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (상하단 2도어, 4도어, 김치냉장고 등) */}
-            <RefrigeratorCompartmentDiagram
-              title={product.title}
-              description={product.description}
-              category={categoryLabel}
-            />
+            {/* 냉장고/냉동고 도어 구조 및 칸별 역할 원장 모형 (냉장/냉동/쇼케이스/김치 품목에만 조건부 로드) */}
+            {mightHaveRefrigeratorDiagram(
+              product.title,
+              product.description,
+              categoryLabel
+            ) && (
+              <RefrigeratorCompartmentDiagram
+                title={product.title}
+                description={product.description}
+                category={categoryLabel}
+              />
+            )}
 
             {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
             <ProductStructuredDescription description={product.description} />

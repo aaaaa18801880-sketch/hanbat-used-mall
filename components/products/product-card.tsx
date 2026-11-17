@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import {
+  canUseNextImageUrl,
   extractModelName,
   extractSpecCapsules,
   formatProductPrice,
@@ -26,6 +27,9 @@ export interface ProductItem {
   title: string;
   category: string | null;
   description?: string | null;
+  model_name?: string | null;
+  spec_capsules?: string[] | null;
+  commercial_hint?: "showcase" | "bizFridge" | "kitchen" | null;
   image_url: string | null;
   price: number | null;
   status: string | null;
@@ -129,21 +133,24 @@ export function ProductCard({
   const primaryImage = images[0];
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const canUseNextImage =
-    Boolean(primaryImage) &&
-    failedSrc !== primaryImage &&
-    (primaryImage.startsWith("/") ||
-      /^https:\/\/[a-z0-9-]+\.supabase\.co\//i.test(primaryImage));
+    canUseNextImageUrl(primaryImage) && failedSrc !== primaryImage;
   const sold = isProductSold(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
   const priced = hasProductPrice(product.price);
   const priceText = formatProductPrice(product.price, categoryLabel);
-  const modelName = extractModelName(product.description, product.title);
-  const specCapsules = extractSpecCapsules(
-    product.title,
-    product.description,
-    2,
-    product.category
-  );
+  const modelName =
+    product.model_name !== undefined
+      ? product.model_name
+      : extractModelName(product.description, product.title);
+  const specCapsules =
+    product.spec_capsules && product.spec_capsules.length > 0
+      ? product.spec_capsules.slice(0, 2)
+      : extractSpecCapsules(
+          product.title,
+          product.description,
+          2,
+          product.category
+        );
 
   const inBasket = useQuoteBasket().some((x) => x.id === product.id);
 

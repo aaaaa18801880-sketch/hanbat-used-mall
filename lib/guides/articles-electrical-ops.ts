@@ -1142,7 +1142,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     ctas: [
       {
         label: "검수 완료 중고 TV·가전 매물 보기",
-        href: "/gallery?category=가전제품",
+        href: "/gallery?category=기타",
         variant: "primary",
       },
       {
@@ -1225,7 +1225,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
       },
       {
         label: "감가 안 당하고 제값 받는 요령 보기",
-        href: "/guide/sell-used-appliance-without-deduction",
+        href: "/guide/appliance-buyback-no-deduction-guide",
         variant: "outline",
       },
     ],

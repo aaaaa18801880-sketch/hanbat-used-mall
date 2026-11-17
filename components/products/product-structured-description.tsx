@@ -1,9 +1,7 @@
 // 파일 경로: components/products/product-structured-description.tsx
-"use client";
-
 import React from "react";
 import { parseProductDescription } from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 
 interface ProductStructuredDescriptionProps {
   description: string | null | undefined;

@@ -959,7 +959,7 @@ export const HOME_KITCHEN_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     ctas: [
       {
         label: "검수 완료 중고 세탁기 · 건조기 보기",
-        href: "/gallery?category=가전제품",
+        href: "/gallery?category=세탁기/건조기",
         variant: "primary",
       },
       {
@@ -1350,7 +1350,7 @@ export const HOME_KITCHEN_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     ctas: [
       {
         label: "검수 완료 중고 냉장고 매물 보기",
-        href: "/gallery?category=가전제품",
+        href: "/gallery?category=냉장고",
         variant: "primary",
       },
       {
@@ -1430,7 +1430,7 @@ export const HOME_KITCHEN_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     ctas: [
       {
         label: "공간에 맞는 검수 완료 중고 냉장고 보기",
-        href: "/gallery?category=가전제품",
+        href: "/gallery?category=냉장고",
         variant: "primary",
       },
       {
@@ -1816,7 +1816,7 @@ export const HOME_KITCHEN_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     ctas: [
       {
         label: "패킹·세척 검수 완료 냉장고·세탁기 보기",
-        href: "/gallery?category=가전제품",
+        href: "/gallery?category=냉장고",
         variant: "primary",
       },
       {

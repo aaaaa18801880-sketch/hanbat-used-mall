@@ -191,7 +191,7 @@ export async function POST(
     const views = Math.max(0, Number(row?.view_count) || 0);
     const helpfulCount = Math.max(0, Number(row?.helpful_total) || 0);
 
-    if (action === "helpful" || views <= 1 || views % 5 === 0) {
+    if (action === "helpful") {
       try {
         revalidatePath("/guide");
         revalidatePath(`/guide/${slug}`);

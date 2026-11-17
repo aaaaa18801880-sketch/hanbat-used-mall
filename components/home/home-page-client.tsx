@@ -3,9 +3,10 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
-import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
+import { notifyAdminAuthChanged } from "../../lib/admin-auth";
 import { useIsAdminSession } from "../../lib/use-admin-session";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
@@ -37,10 +38,6 @@ import {
   type InquiryTypeValue,
   triggerQuickInquiry,
 } from "../../lib/site";
-import {
-  compressAndUploadProductImages,
-  removeProductImagesFromStorage,
-} from "../../lib/product-ops";
 import { type ProductItem } from "../products/product-card";
 import { FeaturedProductsSection } from "./featured-products-section";
 import {
@@ -83,13 +80,13 @@ export type Review = {
 
 type InquiryRow = {
   id: string | number;
-  inquiry_type: string | null;
+  inquiry_type?: string | null;
   category: string | null;
   name: string | null;
   masked_name?: string | null;
   status: string | null;
   is_notice: boolean | null;
-  created_at: string;
+  created_at?: string | null;
 };
 
 const COMMERCIAL_EQUIP_MATRIX = [
@@ -205,11 +202,13 @@ export type GuidePreviewSummary = {
 export default function Home({
   initialProducts,
   initialReviews,
+  initialRecent = null,
   guideTotalCount = 0,
   latestGuides = [],
 }: {
   initialProducts: ProductItem[] | null;
   initialReviews: Review[] | null;
+  initialRecent?: InquiryRow[] | null;
   guideTotalCount?: number;
   latestGuides?: readonly GuidePreviewSummary[];
 }) {
@@ -231,7 +230,8 @@ export default function Home({
   const [reviewsLoading, setReviewsLoading] = useState(
     initialReviews === null
   );
-  const [recent, setRecent] = useState<InquiryRow[]>([]);
+  const [recent, setRecent] = useState<InquiryRow[]>(initialRecent ?? []);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const isAdmin = useIsAdminSession();
 
   /* UI 인터랙션 상태 (FAQ 기본 닫힘) */
@@ -272,6 +272,7 @@ export default function Home({
 
   /* ── 1) 판매 매물 로드 ── */
   const fetchFeaturedList = useCallback(async (): Promise<ProductItem[]> => {
+    const { supabase } = await import("../../lib/supabase");
     const { data, error } = await supabase
       .from("products")
       .select("*")
@@ -302,6 +303,7 @@ export default function Home({
 
   /* ── 2) 배송·설치 인증 사진 로드 (상한선 24건) ── */
   const fetchReviewsList = useCallback(async (): Promise<Review[]> => {
+    const { supabase } = await import("../../lib/supabase");
     const { data, error } = await supabase
       .from("products")
       .select("id, title, image_url, created_at")
@@ -358,20 +360,23 @@ export default function Home({
         }
       })();
     }
-    void (async () => {
-      try {
-        const rows = await fetchRecentList();
-        if (active) setRecent(rows);
-      } catch {
-        if (active) setRecent([]);
-      }
-    })();
+    if (initialRecent === null) {
+      void (async () => {
+        try {
+          const rows = await fetchRecentList();
+          if (active) setRecent(rows);
+        } catch {
+          if (active) setRecent([]);
+        }
+      })();
+    }
     return () => {
       active = false;
     };
   }, [
     initialProducts,
     initialReviews,
+    initialRecent,
     fetchFeaturedList,
     fetchReviewsList,
     fetchRecentList,
@@ -441,7 +446,9 @@ export default function Home({
   };
 
   const handleLogout = async () => {
+    const { supabase } = await import("../../lib/supabase");
     await supabase.auth.signOut();
+    notifyAdminAuthChanged();
     toast.success("로그아웃했습니다.");
   };
 
@@ -463,6 +470,7 @@ export default function Home({
         formData.append("files", optimizedFile);
       }
 
+      const { getAdminAuthHeaders } = await import("../../lib/supabase");
       const authHeaders = await getAdminAuthHeaders();
       const res = await fetch("/api/analyze-delivery", {
         method: "POST",
@@ -517,6 +525,11 @@ export default function Home({
       return toast.error("사진을 1장 이상 선택해 주세요.");
     setUploadingReview(true);
     try {
+      const [{ supabase }, { compressAndUploadProductImages }] =
+        await Promise.all([
+          import("../../lib/supabase"),
+          import("../../lib/product-ops"),
+        ]);
       const urls = await compressAndUploadProductImages(reviewFiles, {
         maxWidth: 1600,
         quality: 0.82,
@@ -545,6 +558,11 @@ export default function Home({
   const handleDeleteReview = async (id: Review["id"]) => {
     if (!confirm("이 인증사진을 정말 삭제하시겠습니까?")) return;
     try {
+      const [{ supabase }, { removeProductImagesFromStorage }] =
+        await Promise.all([
+          import("../../lib/supabase"),
+          import("../../lib/product-ops"),
+        ]);
       const target = reviews.find((r) => r.id === id);
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
@@ -801,12 +819,14 @@ export default function Home({
               {/* 우측 (5열): 대형 쇼룸 사진 + 플로팅 상태/현장 스펙 칩 + 단일 주소/영업시간/길찾기 도크 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white hb-surface-card hover:translate-y-0">
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
-                  <SafeImg
+                  <Image
                     src="/store-exterior.jpg"
                     alt={`${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
-                    eager
-                    priority="high"
-                    className="h-full w-full object-cover object-center"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 42vw"
+                    priority
+                    quality={80}
+                    className="object-cover object-center"
                   />
 
                   <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#141A23]/85 backdrop-blur-md border border-white/15 px-3 py-1.5 text-hb-xs font-bold text-white shadow-sm">
@@ -1044,15 +1064,44 @@ export default function Home({
                 aria-labelledby="location-title"
                 className="lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs"
               >
-                <div className="relative h-[200px] sm:h-[225px] w-full bg-[#F1F3F6]">
-                  <iframe
-                    title={`${STORE.name} 매장 위치 지도`}
-                    src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    className="absolute inset-0 h-full w-full border-0"
-                    allowFullScreen
-                  />
+                <div className="relative h-[200px] sm:h-[225px] w-full bg-[#F1F3F6] overflow-hidden">
+                  {mapLoaded ? (
+                    <iframe
+                      title={`${STORE.name} 매장 위치 지도`}
+                      src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      className="absolute inset-0 h-full w-full border-0"
+                      allowFullScreen
+                    />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setMapLoaded(true)}
+                      aria-label={`${STORE.name} 인터랙티브 위치 지도 불러오기`}
+                      className="group relative flex h-full w-full flex-col items-center justify-center gap-2.5 bg-[radial-gradient(circle_at_top,_rgba(232,82,26,0.08),_transparent_55%),linear-gradient(135deg,#F8FAFC_0%,#EEF2F6_100%)] px-4 text-center transition-colors hover:bg-[#E8EDF3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23]"
+                    >
+                      <span
+                        className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,#CBD5E1_1px,transparent_1px),linear-gradient(to_bottom,#CBD5E1_1px,transparent_1px)] [background-size:28px_28px]"
+                        aria-hidden="true"
+                      />
+                      <span className="relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E2E6EC] bg-white text-[#E8521A] shadow-sm transition-transform group-hover:scale-105">
+                        <Icon d={ICON.pin} className="h-5 w-5" />
+                      </span>
+                      <div className="relative z-10 space-y-0.5">
+                        <p className="text-hb-sm font-bold text-[#141A23]">
+                          {STORE.name} 오프라인 매장 약도
+                        </p>
+                        <p className="text-hb-xs text-[#475569]">
+                          {STORE.roadAddress} ({STORE.jibunAddress})
+                        </p>
+                      </div>
+                      <span className="relative z-10 inline-flex items-center gap-1.5 rounded-full bg-[#141A23] px-3.5 py-1.5 text-hb-xs font-semibold text-white shadow-xs transition-colors group-hover:bg-[#E8521A]">
+                        지도 열기
+                        <Icon d={ICON.right} className="h-3.5 w-3.5" />
+                      </span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E2E6EC] bg-white space-y-3.5">

@@ -126,7 +126,14 @@ export function FeaturedProductsSection({
   onResetCategory?: () => void;
   embedded?: boolean;
 }) {
+  const currentCategoryKey = selectedCategory?.key || "all";
+  const [prevCategoryKey, setPrevCategoryKey] = useState(currentCategoryKey);
   const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
+
+  if (prevCategoryKey !== currentCategoryKey) {
+    setPrevCategoryKey(currentCategoryKey);
+    setVisibleCount(INITIAL_DISPLAY_LIMIT);
+  }
 
   const filteredProducts = useMemo(() => {
     const active = products.filter((p) => !isProductSold(p.status));
@@ -156,7 +163,6 @@ export function FeaturedProductsSection({
 
   const galleryHref = selectedCategory?.href || "/gallery";
 
-  const currentCategoryKey = selectedCategory?.key || "all";
   const categoryFact =
     currentCategoryKey !== "all" ? CATEGORY_QUALITY_FACTS[currentCategoryKey] : undefined;
 
@@ -314,11 +320,10 @@ export function FeaturedProductsSection({
         ) : (
           <>
             <div className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch">
-              {displayedProducts.map((product, idx) => (
+              {displayedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
-                  eager={idx < 2}
                 />
               ))}
             </div>

@@ -6,6 +6,7 @@ import { STORE } from "../../lib/site";
 import {
   INFO_GUIDE_ARTICLES,
   sortGuidesByPriority,
+  toGuideBoardSummary,
 } from "../../lib/info-guides";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
@@ -84,6 +85,7 @@ function GuideBoardStaticFallback() {
 
 export default async function GuideBoardPage() {
   const initialStats = await fetchGuideStatsMap();
+  const articleSummaries = INFO_GUIDE_ARTICLES.map(toGuideBoardSummary);
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -183,7 +185,7 @@ export default async function GuideBoardPage() {
         <div className="hb-container pt-6 sm:pt-8">
           <Suspense fallback={<GuideBoardStaticFallback />}>
             <GuideBoardClient
-              articles={INFO_GUIDE_ARTICLES}
+              articles={articleSummaries}
               initialStats={initialStats}
             />
           </Suspense>

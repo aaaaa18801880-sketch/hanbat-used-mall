@@ -10,6 +10,11 @@ import type {
   InfoGuidePriorityTier,
   PrioritizedInfoGuideArticle,
 } from "./guides/types";
+import {
+  sortGuidesByPriority,
+  toGuideBoardSummary,
+  type GuideBoardSummaryItem,
+} from "./guides/meta";
 import { AIRCON_GUIDE_ARTICLES } from "./guides/articles-aircon";
 import { ELECTRICAL_OPS_GUIDE_ARTICLES } from "./guides/articles-electrical-ops";
 import { HOME_KITCHEN_GUIDE_ARTICLES } from "./guides/articles-home-kitchen";
@@ -233,19 +238,11 @@ function resolveGuidePriorityMeta(article: InfoGuideArticle): GuidePriorityMeta 
   };
 }
 
-export function sortGuidesByPriority(
-  articles: readonly PrioritizedInfoGuideArticle[],
-): PrioritizedInfoGuideArticle[] {
-  return [...articles].sort((a, b) => {
-    if (a.priorityTier !== b.priorityTier) {
-      return a.priorityTier - b.priorityTier;
-    }
-    if (a.priorityRank !== b.priorityRank) {
-      return a.priorityRank - b.priorityRank;
-    }
-    return a.number - b.number;
-  });
-}
+export {
+  sortGuidesByPriority,
+  toGuideBoardSummary,
+  type GuideBoardSummaryItem,
+};
 
 export const INFO_GUIDE_ARTICLES: readonly PrioritizedInfoGuideArticle[] = [
   ...AIRCON_GUIDE_ARTICLES,

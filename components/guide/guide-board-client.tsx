@@ -9,8 +9,8 @@ import {
   sortGuidesByPriority,
   type InfoGuideCategory,
   type InfoGuideFilterCategory,
-  type PrioritizedInfoGuideArticle,
-} from "../../lib/info-guides";
+  type GuideBoardSummaryItem,
+} from "../../lib/guides/meta";
 import {
   computeGuidePopularityScore,
   computeTopGuideRanks,
@@ -63,11 +63,10 @@ function parseInitialPage(raw: string | null): number {
 function GuideAssetChips({
   article,
 }: {
-  article: PrioritizedInfoGuideArticle;
+  article: GuideBoardSummaryItem;
 }) {
   const hasTool = hasGuideInteractiveTool(article.slug);
-  const hasTable = article.sections.some((section) => Boolean(section.table));
-  const hasDiagram = Boolean(article.heroImage);
+  const { hasTable, hasDiagram } = article;
 
   if (!hasTool && !hasTable && !hasDiagram) return null;
 
@@ -98,7 +97,7 @@ function GuideCard({
   topRank,
   deferRender,
 }: {
-  article: PrioritizedInfoGuideArticle;
+  article: GuideBoardSummaryItem;
   stat?: GuideStat;
   topRank?: GuideTopRank;
   deferRender: boolean;
@@ -241,7 +240,7 @@ export function GuideBoardClient({
   articles,
   initialStats = {},
 }: {
-  articles: readonly PrioritizedInfoGuideArticle[];
+  articles: readonly GuideBoardSummaryItem[];
   initialStats?: GuideStatsMap;
 }) {
   const searchParams = useSearchParams();
@@ -261,14 +260,21 @@ export function GuideBoardClient({
   );
 
   const listTopRef = useRef<HTMLElement | null>(null);
+  const lastRefreshAtRef = useRef<number>(0);
 
   useEffect(() => {
     let mounted = true;
+    const hasInitialStats = Object.keys(initialStats).length > 0;
+    if (hasInitialStats && lastRefreshAtRef.current === 0) {
+      lastRefreshAtRef.current = Date.now();
+    }
+
     const refreshStats = async () => {
+      const now = Date.now();
+      if (now - lastRefreshAtRef.current < 15000) return;
+      lastRefreshAtRef.current = now;
       try {
-        const res = await fetch("/api/guides/engagement", {
-          cache: "no-store",
-        });
+        const res = await fetch("/api/guides/engagement");
         if (!res.ok || !mounted) return;
         const data = (await res.json()) as { stats?: GuideStatsMap };
         if (data.stats && mounted) {
@@ -279,13 +285,15 @@ export function GuideBoardClient({
       }
     };
 
-    void refreshStats();
+    if (!hasInitialStats) {
+      void refreshStats();
+    }
     window.addEventListener("focus", refreshStats);
     return () => {
       mounted = false;
       window.removeEventListener("focus", refreshStats);
     };
-  }, []);
+  }, [initialStats]);
 
   const topRankMap = useMemo(
     () => computeTopGuideRanks(liveStats, 3),
@@ -331,7 +339,7 @@ export function GuideBoardClient({
           entry,
         ): entry is {
           rank: GuideTopRank;
-          article: PrioritizedInfoGuideArticle;
+          article: GuideBoardSummaryItem;
           stat: GuideStat;
         } => entry !== null,
       );
@@ -773,7 +781,7 @@ export function GuideBoardClient({
             <Icon d={ICON.phone} className="w-4 h-4" />
             <span>전화 {STORE.tel}</span>
           </a>
-          <Link href="/buyback" className="hb-btn-outline text-hb-sm">
+          <Link href="/purchase" className="hb-btn-outline text-hb-sm">
             매입 견적 신청
           </Link>
         </div>

@@ -1,15 +1,12 @@
 // 파일 경로: components/products/v2-visual-inspection-viewer.tsx
-"use client";
-
 import React from "react";
-import Link from "next/link";
 import {
   getCategoryWarrantyInfo,
   normalizeProductCategory,
   STORE,
-  trackEvent,
 } from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
+import { TrackedLink } from "../ui/tracked-link";
 
 interface BuyerConcernItem {
   no: string;
@@ -255,16 +252,15 @@ export function V2VisualInspectionViewer({
                   {item.desc}
                 </p>
                 <div className="pt-2 border-t border-dashed border-[#E2E6EC]">
-                  <Link
+                  <TrackedLink
                     href={`/guide/${item.guide.slug}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() =>
-                      trackEvent("click_guide_tool_action", {
-                        slug: item.guide.slug,
-                        source: "v2_visual_inspection",
-                      })
-                    }
+                    eventName="click_guide_tool_action"
+                    eventParams={{
+                      slug: item.guide.slug,
+                      source: "v2_visual_inspection",
+                    }}
                     className="group inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#0F766E] hover:text-[#E8521A] transition-colors"
                   >
                     <span>{item.guide.label}</span>
@@ -272,7 +268,7 @@ export function V2VisualInspectionViewer({
                       d={ICON.external}
                       className="w-3 h-3 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
                     />
-                  </Link>
+                  </TrackedLink>
                 </div>
               </div>
             ))}

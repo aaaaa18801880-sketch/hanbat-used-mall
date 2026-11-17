@@ -1,39 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { isAuthorizedAdminUser, supabase } from "./supabase";
+import {
+  hasSupabaseSessionToken,
+  subscribeAdminAuthSignal,
+} from "./admin-auth";
 
 /**
- * Subscribe to the Supabase auth session and return whether the current user is an authorized admin.
+ * Subscribe to the Supabase auth session only when an auth session token exists or sign-in triggers.
  */
 export function useIsAdminSession(): boolean {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let active = true;
+    let unsubscribeAuth: (() => void) | null = null;
+    let attachPromise: Promise<void> | null = null;
 
-    const syncSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (active) {
-        setIsAdmin(isAuthorizedAdminUser(session?.user));
-      }
+    const attachSupabaseAuth = () => {
+      if (attachPromise || !active) return;
+      attachPromise = import("./supabase")
+        .then(async ({ isAuthorizedAdminUser, supabase }) => {
+          if (!active) return;
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (active) {
+            setIsAdmin(isAuthorizedAdminUser(session?.user));
+          }
+
+          const { data: authListener } = supabase.auth.onAuthStateChange(
+            (_event, nextSession) => {
+              if (active) {
+                setIsAdmin(isAuthorizedAdminUser(nextSession?.user));
+              }
+            }
+          );
+          if (!active) {
+            authListener.subscription.unsubscribe();
+          } else {
+            unsubscribeAuth = () => authListener.subscription.unsubscribe();
+          }
+        })
+        .catch(() => {
+          attachPromise = null;
+        });
     };
 
-    void syncSession();
+    if (hasSupabaseSessionToken()) {
+      attachSupabaseAuth();
+    }
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (active) {
-          setIsAdmin(isAuthorizedAdminUser(session?.user));
-        }
+    const unsubscribeSignal = subscribeAdminAuthSignal(() => {
+      if (hasSupabaseSessionToken()) {
+        attachSupabaseAuth();
+      } else if (active) {
+        setIsAdmin(false);
       }
-    );
+    });
 
     return () => {
       active = false;
-      authListener.subscription.unsubscribe();
+      unsubscribeSignal();
+      unsubscribeAuth?.();
     };
   }, []);
 

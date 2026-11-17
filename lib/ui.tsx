@@ -5,8 +5,11 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
-import { supabase, isAuthorizedAdminUser } from "./supabase";
+import { ICON, Icon } from "./icons";
+import { notifyAdminAuthChanged } from "./admin-auth";
 import { QuickInquiryModal } from "../components/inquiry/quick-inquiry-modal";
+
+export { ICON, Icon };
 
 const ProductCompareModal = dynamic(
   () =>
@@ -62,80 +65,6 @@ export async function copyQuoteAndOpenKakao(
 /* ════════════════════════════════════════════════════════════
    1. 공통 아이콘 및 브랜드 로고 시스템
    ════════════════════════════════════════════════════════════ */
-export const ICON = {
-  phone:
-    "M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z",
-  chat: "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z",
-  check: "M20 6 9 17l-5-5",
-  close: "M18 6 6 18M6 6l12 12",
-  plus: "M12 5v14M5 12h14",
-  search: "m21 21-4.35-4.35M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z",
-  left: "m15 18-6-6 6-6",
-  right: "m9 18 6-6-6-6",
-  up: "m18 15-6-6-6 6",
-  down: "m6 9 6 6 6-6",
-  arrow: "M5 12h14M13 6l6 6-6 6",
-  lock: "M19 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2zm-12 0V7a5 5 0 0 1 10 0v4",
-  bell: "M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9zm-4.27 13a2 2 0 0 1-3.46 0",
-  image:
-    "M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 10a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm12.5 5-5-5-6 6-3-3-4 4",
-  camera:
-    "M4 8h3l2-3h6l2 3h3v11H4zM12 16.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
-  pen: "M4 20h4L19 9l-4-4L4 16v4z",
-  pin: "M12 21s-7-5.686-7-11a7 7 0 1 1 14 0c0 5.314-7 11-7 11zM12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z",
-  menu: "M4 7h16M4 12h16M4 17h16",
-  bag: "M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0",
-  copy: "M9 9h11v11H9zM5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1",
-  rotate: "M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8m0 0V3m0 5h-5",
-  shieldCheck:
-    "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z M9 12l2 2 4-4",
-  sparkles:
-    "M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z",
-  bolt: "M13 2L3 14h9l-1 8 10-12h-9l1-8z",
-  wrench:
-    "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z",
-  ruler:
-    "M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.4 2.4 0 0 1 0-3.4l2.6-2.6a2.4 2.4 0 0 1 3.4 0l12.6 12.6z M14.5 12.5l2-2 M11.5 9.5l2-2 M8.5 6.5l2-2 M17.5 15.5l2-2",
-  building:
-    "M3 21h18 M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16 M9 7h2 M13 7h2 M9 11h2 M13 11h2 M9 15h2 M13 15h2",
-  snowflake:
-    "M12 2v20 M17 5l-5 5-5-5 M17 19l-5-5-5 5 M2 12h20 M5 7l5 5-5 5 M19 7l-5 5 5 5",
-  layers: "M12 2L2 7l10 5 10-5-10-5z M2 17l10 5 10-5 M2 12l10 5 10-5",
-  external:
-    "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6 M15 3h6v6 M10 14L21 3",
-  grid: "M3 3h7v7H3z M14 3h7v7h-7z M14 14h7v7h-7z M3 14h7v7H3z",
-  eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z",
-  thumbUp:
-    "M7 10v12 M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88z",
-  trendingUp: "M22 7 13.5 15.5 8.5 10.5 2 17 M16 7h6v6",
-} as const;
-
-export function Icon({
-  d,
-  className = "w-4 h-4",
-  strokeWidth = 1.9,
-  ...props
-}: React.SVGProps<SVGSVGElement> & {
-  d: string;
-  className?: string;
-  strokeWidth?: number;
-}) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={strokeWidth}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-      {...props}
-    >
-      <path d={d} />
-    </svg>
-  );
-}
 
 function HanbatBrandLogo({
   dark = false,
@@ -384,10 +313,17 @@ export function Modal({
   const isDismissingRef = useRef(false);
   const [prevOpen, setPrevOpen] = useState(open);
   const [closing, setClosing] = useState(false);
+  const [dismissedFromDialog, setDismissedFromDialog] = useState(false);
 
   if (open !== prevOpen) {
     setPrevOpen(open);
-    setClosing(!open);
+    if (!open && dismissedFromDialog) {
+      setClosing(false);
+      setDismissedFromDialog(false);
+    } else {
+      setClosing(!open);
+      if (open) setDismissedFromDialog(false);
+    }
   }
 
   useEffect(() => {
@@ -405,6 +341,7 @@ export function Modal({
       isDismissingRef.current = false;
       setClosing(false);
     }
+    setDismissedFromDialog(true);
     onCloseRef.current();
   });
 
@@ -1617,6 +1554,7 @@ export function AdminLoginModal({
     e.preventDefault();
     setLoggingIn(true);
     try {
+      const { supabase, isAuthorizedAdminUser } = await import("./supabase");
       const { data, error } = await supabase.auth.signInWithPassword({
         email: adminEmail.trim(),
         password: adminPassword,
@@ -1630,6 +1568,7 @@ export function AdminLoginModal({
         toast.error("관리자 권한이 없습니다.");
         return;
       }
+      notifyAdminAuthChanged();
       toast.success("관리자 권한이 확인되었습니다.");
       setAdminPassword("");
       onClose();

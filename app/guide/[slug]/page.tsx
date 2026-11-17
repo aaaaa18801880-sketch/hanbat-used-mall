@@ -2,6 +2,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import {
@@ -9,6 +10,7 @@ import {
   isProductSold,
   normalizeProductCategory,
   telHref,
+  toProductCardSummary,
 } from "../../../lib/site";
 import { serializeJsonLd } from "../../../lib/json-ld";
 import {
@@ -24,7 +26,6 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
-  SafeImg,
   Icon,
   ICON,
 } from "../../../lib/ui";
@@ -33,7 +34,14 @@ import {
   type ProductItem,
 } from "../../../components/products/product-card";
 import { GuideSectionDiagram } from "../../../components/guide/guide-diagrams";
-import { GuideInteractiveTool } from "../../../components/guide/guide-interactive-tools";
+import dynamic from "next/dynamic";
+import { hasGuideInteractiveTool } from "../../../lib/guides/tool-slugs";
+
+const GuideInteractiveTool = dynamic(() =>
+  import("../../../components/guide/guide-interactive-tools").then(
+    (m) => m.GuideInteractiveTool
+  )
+);
 import {
   GuideEngagementHeaderMeta,
   GuideEngagementPanel,
@@ -56,8 +64,9 @@ async function fetchGuideRecommendedProducts(
         "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
       )
       .neq("category", "배송인증")
+      .neq("status", "판매완료")
       .order("created_at", { ascending: false })
-      .limit(120);
+      .limit(24);
 
     if (error || !data) {
       return [];
@@ -91,7 +100,7 @@ async function fetchGuideRecommendedProducts(
       }
     }
 
-    return picked;
+    return picked.map(toProductCardSummary);
   } catch {
     return [];
   }
@@ -310,13 +319,13 @@ export default async function GuideDetailPage({
           <article className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-8 shadow-2xs space-y-7">
             {article.heroImage && (
               <figure className="rounded-xl border border-[#E2E6EC] bg-[#F8FAFC] overflow-hidden">
-                <SafeImg
+                <Image
                   src={article.heroImage.src}
                   alt={article.heroImage.alt}
                   width={1376}
                   height={768}
-                  eager
-                  priority="high"
+                  sizes="(max-width: 1024px) 100vw, 900px"
+                  priority
                   className="w-full aspect-video object-cover block"
                 />
                 <figcaption className="px-4 py-2.5 text-hb-xs text-[#475569] border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-2 leading-relaxed">
@@ -493,7 +502,9 @@ export default async function GuideDetailPage({
                     </div>
                   )}
                 </section>
-                {sectionIdx === 0 && <GuideInteractiveTool slug={article.slug} />}
+                {sectionIdx === 0 && hasGuideInteractiveTool(article.slug) && (
+                  <GuideInteractiveTool slug={article.slug} />
+                )}
                 </React.Fragment>
                 );
               })}

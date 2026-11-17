@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import {
-  supabase,
-  getAdminAuthHeaders,
-  revalidateAdminCache,
-} from "../../lib/supabase";
+  getOptionalAdminAuthHeaders,
+  notifyAdminAuthChanged,
+} from "../../lib/admin-auth";
 import { useIsAdminSession } from "../../lib/use-admin-session";
 import {
   STORE,
@@ -57,14 +57,17 @@ import {
   CopyPromoPostButton,
   QuoteBasketButton,
 } from "../../components/products/product-detail-gallery";
-import { RecentViewedStrip } from "../../components/products/product-compare-modal";
+import { RecentViewedStrip } from "../../components/products/recent-viewed-strip";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
-import { GalleryAdminUploadModal } from "../../components/gallery/gallery-admin-upload-modal";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
-import {
-  removeProductImagesFromStorage,
-  compressAndUploadProductImages,
-} from "../../lib/product-ops";
+
+const GalleryAdminUploadModal = dynamic(
+  () =>
+    import("../../components/gallery/gallery-admin-upload-modal").then(
+      (m) => m.GalleryAdminUploadModal
+    ),
+  { ssr: false }
+);
 import { useGalleryInitialProducts } from "../../components/gallery/gallery-initial-data";
 
 type PriceRangeOption = "all" | "under30" | "30to70" | "70to150" | "over150";
@@ -303,6 +306,13 @@ function ProductDetailModal({
 
     setIsSaving(true);
     try {
+      const [
+        { supabase, revalidateAdminCache },
+        { compressAndUploadProductImages, removeProductImagesFromStorage },
+      ] = await Promise.all([
+        import("../../lib/supabase"),
+        import("../../lib/product-ops"),
+      ]);
       const newlyUploadedUrls = await compressAndUploadProductImages(editNewFiles);
 
       const finalImages = [...editExistingImages, ...newlyUploadedUrls];
@@ -1028,6 +1038,7 @@ function ProductDetailModal({
    메인 갤러리 페이지 컴포넌트
    ════════════════════════════════════════════════════════════ */
 async function queryGalleryProducts(): Promise<ProductItem[]> {
+  const { supabase } = await import("../../lib/supabase");
   const { data, error } = await supabase
     .from("products")
     .select(
@@ -1067,6 +1078,7 @@ export default function GalleryPage() {
   const [sort, setSort] = useState<SortOption>("latest");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");
+  const [urlParamsHydrated, setUrlParamsHydrated] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
@@ -1099,9 +1111,6 @@ export default function GalleryPage() {
   );
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const productFilesRef = useRef<File[]>([]);
-  useEffect(() => {
-    productFilesRef.current = productFiles;
-  }, [productFiles]);
   const [productPreviews, setProductPreviews] = useState<string[]>([]);
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -1168,6 +1177,7 @@ export default function GalleryPage() {
       ) {
         setPriceRange(priceParam);
       }
+      setUrlParamsHydrated(true);
     });
 
     if (initialProducts !== null) return;
@@ -1199,6 +1209,7 @@ export default function GalleryPage() {
 
   /* 필터 상태 변경 시 URL 쿼리 파라미터 동기화 (새로고침 시 유지) */
   useEffect(() => {
+    if (!urlParamsHydrated) return;
     const url = new URL(window.location.href);
 
     if (activeCategory && activeCategory !== "전체") {
@@ -1232,7 +1243,15 @@ export default function GalleryPage() {
     }
 
     window.history.replaceState(null, "", url.toString());
-  }, [activeCategory, search, sort, statusFilter, priceRange, hasPricedProducts]);
+  }, [
+    urlParamsHydrated,
+    activeCategory,
+    search,
+    sort,
+    statusFilter,
+    priceRange,
+    hasPricedProducts,
+  ]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
   const categoryCounts = useMemo(() => {
@@ -1370,7 +1389,7 @@ export default function GalleryPage() {
         prev && prev.id === product.id ? { ...prev, views: newViews } : prev
       );
 
-      const authHeaders = await getAdminAuthHeaders();
+      const authHeaders = await getOptionalAdminAuthHeaders();
       const res = await fetch(`/api/products/${product.id}/view`, {
         headers: authHeaders,
         method: "POST",
@@ -1454,6 +1473,9 @@ export default function GalleryPage() {
     );
 
     try {
+      const { supabase, revalidateAdminCache } = await import(
+        "../../lib/supabase"
+      );
       const { data: updatedRows, error } = await supabase
         .from("products")
         .update({ status: targetStatus })
@@ -1501,6 +1523,13 @@ export default function GalleryPage() {
     const toastId = toast.loading(`${ids.length}개 상품 삭제 중...`);
 
     try {
+      const [
+        { supabase, revalidateAdminCache },
+        { removeProductImagesFromStorage },
+      ] = await Promise.all([
+        import("../../lib/supabase"),
+        import("../../lib/product-ops"),
+      ]);
       const targetProducts = products.filter((p) => selectedIds.has(p.id));
       const allImageUrls = targetProducts.flatMap((p) =>
         splitImages(p.image_url)
@@ -1538,6 +1567,13 @@ export default function GalleryPage() {
       return;
 
     try {
+      const [
+        { supabase, revalidateAdminCache },
+        { removeProductImagesFromStorage },
+      ] = await Promise.all([
+        import("../../lib/supabase"),
+        import("../../lib/product-ops"),
+      ]);
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
 
@@ -1561,7 +1597,9 @@ export default function GalleryPage() {
 
   const handleAdminLogout = async () => {
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
+      const { supabase } = await import("../../lib/supabase");
       await supabase.auth.signOut();
+      notifyAdminAuthChanged();
       setIsSelectMode(false);
       setSelectedIds(new Set());
       toast.success("관리자 모드가 종료되었습니다.");
@@ -1648,7 +1686,7 @@ export default function GalleryPage() {
       }
 
 
-      const authHeaders = await getAdminAuthHeaders();
+      const authHeaders = await getOptionalAdminAuthHeaders();
       const res = await fetch("/api/analyze-product", {
         method: "POST",
         headers: authHeaders,
@@ -1834,13 +1872,12 @@ export default function GalleryPage() {
   };
 
   const moveUploadFile = (fromIdx: number, toIdx: number) => {
-    if (toIdx < 0 || toIdx >= productFiles.length) return;
-    setProductFiles((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, moved);
-      return next;
-    });
+    if (toIdx < 0 || toIdx >= productFilesRef.current.length) return;
+    const nextFiles = [...productFilesRef.current];
+    const [movedFile] = nextFiles.splice(fromIdx, 1);
+    nextFiles.splice(toIdx, 0, movedFile);
+    productFilesRef.current = nextFiles;
+    setProductFiles(nextFiles);
     setProductPreviews((prev) => {
       const next = [...prev];
       const [moved] = next.splice(fromIdx, 1);
@@ -1850,12 +1887,12 @@ export default function GalleryPage() {
   };
 
   const makePrimaryUploadFile = (targetIdx: number) => {
-    if (targetIdx <= 0 || targetIdx >= productFiles.length) return;
-    setProductFiles((prev) => {
-      const next = [...prev];
-      const [picked] = next.splice(targetIdx, 1);
-      return [picked, ...next];
-    });
+    if (targetIdx <= 0 || targetIdx >= productFilesRef.current.length) return;
+    const nextFiles = [...productFilesRef.current];
+    const [pickedFile] = nextFiles.splice(targetIdx, 1);
+    const reorderedFiles = [pickedFile, ...nextFiles];
+    productFilesRef.current = reorderedFiles;
+    setProductFiles(reorderedFiles);
     setProductPreviews((prev) => {
       const next = [...prev];
       const [picked] = next.splice(targetIdx, 1);
@@ -1893,6 +1930,13 @@ export default function GalleryPage() {
 
     setUploadingProduct(true);
     try {
+      const [
+        { supabase, revalidateAdminCache },
+        { compressAndUploadProductImages },
+      ] = await Promise.all([
+        import("../../lib/supabase"),
+        import("../../lib/product-ops"),
+      ]);
       const uploadedUrls = await compressAndUploadProductImages(productFiles);
 
       let finalDesc = productDescription.trim();
@@ -2551,42 +2595,44 @@ export default function GalleryPage() {
       )}
 
       {/* 관리자 신규 상품 등록 모달 (사진 순서 변경 + AI 판독/검색 구분 검토) */}
-      <GalleryAdminUploadModal
-        open={isUploadModalOpen}
-        onClose={handleCloseUploadModal}
-        onSubmit={handleProductSubmit}
-        isAnalyzing={isAnalyzing}
-        uploadingProduct={uploadingProduct}
-        searchSpecs={searchSpecs}
-        setSearchSpecs={setSearchSpecs}
-        productFiles={productFiles}
-        productPreviews={productPreviews}
-        analyzeImageWithAI={analyzeImageWithAI}
-        onFileChange={handleFileChange}
-        makePrimaryUploadFile={makePrimaryUploadFile}
-        onRemoveUploadFile={handleRemoveUploadFile}
-        enhanceUploadFile={enhanceUploadFile}
-        moveUploadFile={moveUploadFile}
-        photoObserved={photoObserved}
-        searchDerivedSpecs={searchDerivedSpecs}
-        reviewWarnings={reviewWarnings}
-        foundSources={foundSources}
-        appendSearchSpecsToDescription={appendSearchSpecsToDescription}
-        productCategory={productCategory}
-        setProductCategory={setProductCategory}
-        productStatus={productStatus}
-        setProductStatus={setProductStatus}
-        productGrade={productGrade}
-        setProductGrade={setProductGrade}
-        productTitle={productTitle}
-        setProductTitle={setProductTitle}
-        productModel={productModel}
-        setProductModel={setProductModel}
-        productPrice={productPrice}
-        setProductPrice={setProductPrice}
-        productDescription={productDescription}
-        setProductDescription={setProductDescription}
-      />
+      {isAdmin && isUploadModalOpen && (
+        <GalleryAdminUploadModal
+          open={isUploadModalOpen}
+          onClose={handleCloseUploadModal}
+          onSubmit={handleProductSubmit}
+          isAnalyzing={isAnalyzing}
+          uploadingProduct={uploadingProduct}
+          searchSpecs={searchSpecs}
+          setSearchSpecs={setSearchSpecs}
+          productFiles={productFiles}
+          productPreviews={productPreviews}
+          analyzeImageWithAI={analyzeImageWithAI}
+          onFileChange={handleFileChange}
+          makePrimaryUploadFile={makePrimaryUploadFile}
+          onRemoveUploadFile={handleRemoveUploadFile}
+          enhanceUploadFile={enhanceUploadFile}
+          moveUploadFile={moveUploadFile}
+          photoObserved={photoObserved}
+          searchDerivedSpecs={searchDerivedSpecs}
+          reviewWarnings={reviewWarnings}
+          foundSources={foundSources}
+          appendSearchSpecsToDescription={appendSearchSpecsToDescription}
+          productCategory={productCategory}
+          setProductCategory={setProductCategory}
+          productStatus={productStatus}
+          setProductStatus={setProductStatus}
+          productGrade={productGrade}
+          setProductGrade={setProductGrade}
+          productTitle={productTitle}
+          setProductTitle={setProductTitle}
+          productModel={productModel}
+          setProductModel={setProductModel}
+          productPrice={productPrice}
+          setProductPrice={setProductPrice}
+          productDescription={productDescription}
+          setProductDescription={setProductDescription}
+        />
+      )}
 
       {/* 관리자 로그인 모달 */}
       <AdminLoginModal

@@ -1344,7 +1344,7 @@ export interface NotificationDispatchResult {
 /* ════════════════════════════════════════════════════════════
    6. 개인정보(PII) 원천 차단 GA4 이벤트 추적 유틸리티
    ════════════════════════════════════════════════════════════ */
-type AnalyticsEventName =
+export type AnalyticsEventName =
   | "view_item"
   | "search_products"
   | "add_to_quote_basket"
@@ -2234,4 +2234,106 @@ export function parseStructuredInquiryDescription(
     aiSummaryLines,
     missingAndQuestions,
   };
+}
+
+export interface ProductCardSummarySource {
+  id: string;
+  title: string;
+  category: string | null;
+  description?: string | null;
+  image_url: string | null;
+  price: number | null;
+  status: string | null;
+  condition_grade?: string | null;
+  created_at: string;
+  views?: number | null;
+}
+
+export interface ProductCardSummaryItem extends Omit<ProductCardSummarySource, "description"> {
+  model_name: string | null;
+  spec_capsules: string[];
+  commercial_hint: "showcase" | "bizFridge" | "kitchen" | null;
+}
+
+/**
+ * 목록/추천 카드 렌더링용 경량 상품 DTO 변환기
+ * - 긴 description 원문 대신 카드에 필요한 모델명·스펙 캡슐(2개)·업소용 분류 힌트만 추출해
+ *   RSC 페이로드와 초기 HTML 크기를 크게 줄입니다.
+ */
+export function toProductCardSummary(
+  item: ProductCardSummarySource
+): ProductCardSummaryItem {
+  const normalizedCat = normalizeProductCategory(item.category);
+  let commercialHint: ProductCardSummaryItem["commercial_hint"] = null;
+  if (normalizedCat === "업소용기기") {
+    const hay = `${item.title || ""} ${item.description || ""}`.toLowerCase();
+    if (hay.includes("쇼케이스")) {
+      commercialHint = "showcase";
+    } else if (hay.includes("냉장") || hay.includes("냉동")) {
+      commercialHint = "bizFridge";
+    } else {
+      commercialHint = "kitchen";
+    }
+  }
+
+  return {
+    id: item.id,
+    title: item.title,
+    category: item.category,
+    image_url: item.image_url,
+    price: item.price,
+    status: item.status,
+    condition_grade: item.condition_grade ?? null,
+    created_at: item.created_at,
+    views: item.views ?? null,
+    model_name: extractModelName(item.description, item.title),
+    spec_capsules: extractSpecCapsules(
+      item.title,
+      item.description,
+      2,
+      item.category
+    ),
+    commercial_hint: commercialHint,
+  };
+}
+
+/**
+ * 냉장/냉동/김치냉장고 도어 구조도 동적 청크 로드 대상 여부 판단 (비냉장 품목 청크 낭비 방지)
+ */
+export function mightHaveRefrigeratorDiagram(
+  title: string,
+  description?: string | null,
+  category?: string | null
+): boolean {
+  const titleLower = (title ?? "").toLowerCase();
+  const isNonFridgeAppliance =
+    /구이기|그릴|튀김기|간택기|가스렌지|가스레인지|인덕션|하이라이트|버너|화구|온수기|보일러|식기세척기|세척기|소독기|밥솥|취사기|제면기|반죽기|육절기|슬라이서|믹서기|분쇄기|씽크대|싱크대|세정대|잔반통|다단선반|벽선반|상부선반|식판대|후드|닥트|환풍기|실링기|진공포장기|온장고|보온고/i.test(
+      titleLower
+    );
+  if (isNonFridgeAppliance) return false;
+
+  const cat = normalizeProductCategory(category);
+  if (
+    (cat === "세탁기/건조기" || cat === "에어컨/냉난방기") &&
+    !titleLower.includes("냉장") &&
+    !titleLower.includes("냉동")
+  ) {
+    return false;
+  }
+
+  const combined = `${titleLower} ${(description ?? "").toLowerCase()}`;
+  return /(냉장|냉동|쇼케이스|김치|찬밧드|cwsm|cwt|wst|rtar|rtf|rtr|rt-)|\b(25|30|45|65)\s*박스/i.test(
+    combined
+  );
+}
+
+/**
+ * next/image 최적화 대상 이미지 URL 판별 (자체 정적 자산 및 Supabase Storage HTTPS)
+ */
+export function canUseNextImageUrl(url: string | null | undefined): url is string {
+  return Boolean(
+    url &&
+      (url.startsWith("/") ||
+        /^https:\/\/[a-z0-9-]+\.supabase\.co\//i.test(url))
+  );
 }

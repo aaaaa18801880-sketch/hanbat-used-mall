@@ -18,12 +18,16 @@ import {
   getCategoryWarrantyInfo,
   formatStructuredInquiryDescription,
   parseStructuredInquiryDescription,
+  toProductCardSummary,
+  mightHaveRefrigeratorDiagram,
+  canUseNextImageUrl,
 } from "../lib/site";
 import {
   INFO_GUIDE_ARTICLES,
   getInfoGuideBySlug,
   getGuideCommerceBridge,
   sortGuidesByPriority,
+  toGuideBoardSummary,
 } from "../lib/info-guides";
 import {
   SLUG_TO_GUIDE_TOOL,
@@ -248,5 +252,56 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
     assert.equal(ranks["beta-guide"], 3);
     assert.equal(ranks["alpha-guide"], undefined);
     assert.equal(ranks["zero-guide"], undefined);
+  });
+
+  it("목록 요약 DTO 및 이미지·도어구조도 조건 분기 헬퍼가 정확히 동작한다", () => {
+    const rawProduct = {
+      id: "prod-1",
+      title: "라셀르 45박스 간냉식 업소용 냉장고 1140L",
+      category: "업소용기기",
+      description:
+        "• 모델명: LS-1140R\n• 용량: 1140L\n• 가로폭: 1260mm\n매우 긴 상세 검수 소견 원문",
+      image_url: "https://example.supabase.co/storage/v1/object/public/products/a.jpg",
+      price: 950000,
+      status: "판매중",
+      condition_grade: "S급",
+      created_at: "2026-10-01T00:00:00Z",
+      views: 12,
+    };
+
+    const summary = toProductCardSummary(rawProduct);
+    assert.equal("description" in summary, false);
+    assert.equal(summary.model_name, "LS-1140R");
+    assert.equal(summary.commercial_hint, "bizFridge");
+    assert.ok(Array.isArray(summary.spec_capsules) && summary.spec_capsules.length > 0);
+
+    assert.equal(
+      mightHaveRefrigeratorDiagram(rawProduct.title, rawProduct.description, rawProduct.category),
+      true
+    );
+    assert.equal(
+      mightHaveRefrigeratorDiagram("린나이 4구 가스레인지", "도시가스 LNG", "업소용기기"),
+      false
+    );
+    assert.equal(
+      mightHaveRefrigeratorDiagram("LG 트롬 드럼세탁기 21kg", "", "세탁기/건조기"),
+      false
+    );
+
+    assert.equal(canUseNextImageUrl("/store-exterior.jpg"), true);
+    assert.equal(
+      canUseNextImageUrl("https://abc123.supabase.co/storage/v1/object/public/products/1.webp"),
+      true
+    );
+    assert.equal(canUseNextImageUrl("http://insecure.example.com/1.jpg"), false);
+    assert.equal(canUseNextImageUrl(""), false);
+
+    const firstGuide = INFO_GUIDE_ARTICLES[0];
+    const boardSummary = toGuideBoardSummary(firstGuide);
+    assert.equal(boardSummary.slug, firstGuide.slug);
+    assert.equal("sections" in boardSummary, false);
+    assert.equal("checklist" in boardSummary, false);
+    assert.equal(typeof boardSummary.hasTable, "boolean");
+    assert.equal(typeof boardSummary.hasDiagram, "boolean");
   });
 });

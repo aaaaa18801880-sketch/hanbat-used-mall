@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState, useSyncExternalStore } from "react";
 import type { GuideStat, GuideTopRank } from "../../lib/guide-stats";
-import { getAdminAuthHeaders } from "../../lib/supabase";
+import { getOptionalAdminAuthHeaders as getAdminAuthHeaders } from "../../lib/admin-auth";
 import { ICON, Icon } from "../../lib/ui";
 
 const HELPFUL_STORAGE_KEY = "hb_guide_helpful_slugs_v1";

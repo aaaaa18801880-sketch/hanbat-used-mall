@@ -221,7 +221,7 @@ body {
 
   .hb-guide-deferred-card {
     content-visibility: auto;
-    contain-intrinsic-size: auto none auto 132px;
+    contain-intrinsic-size: auto 132px;
   }
 
   .hb-product-card {

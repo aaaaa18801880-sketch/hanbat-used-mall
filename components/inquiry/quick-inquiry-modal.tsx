@@ -1,7 +1,7 @@
 // 파일 경로: components/inquiry/quick-inquiry-modal.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import { Modal, Icon, ICON } from "../../lib/ui";
 import {
@@ -34,8 +34,22 @@ export function QuickInquiryModal() {
   const [openSession, setOpenSession] = useState(0);
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>("구매 문의");
   const [linkedProduct, setLinkedProduct] = useState<LinkedProductContext | null>(null);
+  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearAutoCloseTimer = useCallback(() => {
+    if (autoCloseTimerRef.current !== null) {
+      clearTimeout(autoCloseTimerRef.current);
+      autoCloseTimerRef.current = null;
+    }
+  }, []);
+
+  const closeModal = useCallback(() => {
+    clearAutoCloseTimer();
+    setIsOpen(false);
+  }, [clearAutoCloseTimer]);
 
   const handleOpen = useCallback((e: Event) => {
+    clearAutoCloseTimer();
     const customEvent = e as CustomEvent<QuickInquiryDetail | undefined>;
     const detail = customEvent.detail;
     if (detail?.type) {
@@ -56,19 +70,20 @@ export function QuickInquiryModal() {
     }
     setOpenSession((prev) => prev + 1);
     setIsOpen(true);
-  }, []);
+  }, [clearAutoCloseTimer]);
 
   useEffect(() => {
     window.addEventListener(QUICK_INQUIRY_EVENT, handleOpen);
     return () => {
+      clearAutoCloseTimer();
       window.removeEventListener(QUICK_INQUIRY_EVENT, handleOpen);
     };
-  }, [handleOpen]);
+  }, [handleOpen, clearAutoCloseTimer]);
 
   return (
     <Modal
       open={isOpen}
-      onClose={() => setIsOpen(false)}
+      onClose={closeModal}
       label="견적 문의"
       panelClassName="max-w-2xl w-full"
       closeOnOverlayClick={false}
@@ -94,7 +109,7 @@ export function QuickInquiryModal() {
           </div>
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
+            onClick={closeModal}
             aria-label="닫기"
             className="rounded-lg p-1.5 text-white/70 hover:bg-white/10 hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 shrink-0 cursor-pointer"
           >
@@ -109,7 +124,9 @@ export function QuickInquiryModal() {
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {
-              setTimeout(() => {
+              clearAutoCloseTimer();
+              autoCloseTimerRef.current = setTimeout(() => {
+                autoCloseTimerRef.current = null;
                 setIsOpen(false);
               }, 2000);
             }}

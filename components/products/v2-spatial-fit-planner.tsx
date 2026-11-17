@@ -199,7 +199,8 @@ export function V2SpatialFitPlanner({
     (overrideWidthMm || detected.widthMm) / 10
   );
   const productDepthCm = Math.round(detected.depthMm / 10);
-  const clearanceCm = 10;
+  const isCompactAppliance = catLabel === "기타";
+  const clearanceCm = isCompactAppliance ? 0 : 10;
   const requiredSpaceCm = productWidthCm + clearanceCm;
 
   const [mySpaceCm, setMySpaceCm] = useState<number>(
@@ -545,39 +546,54 @@ export function V2SpatialFitPlanner({
   const spaceEnvSummary = `설치벽면:${mySpaceCm}cm / ${doorStatusLabel} / 운반:${floorLabel}`;
 
   const applianceGuides: ContextualGuideLink[] = [];
-  if (!fitsDoorEasily || carryFloor === "stairs") {
-    applianceGuides.push({
-      slug: "ladder-truck-and-clearance",
-      badge: "반입·사다리차",
-      title: "현관문 폭·계단·사다리차 반입 가능 기준 확인",
-    });
-  }
-  if (catLabel === "냉장고") {
-    applianceGuides.push({
-      slug: "fridge-kitchen-fit-vs-freestanding-clearance",
-      badge: !fitsSpace ? "공간 확인" : "여유폭 기준",
-      title: "키친핏 vs 일반 냉장고 좌우 여유폭·설치 기준",
-    });
+  if (isCompactAppliance) {
+    applianceGuides.push(
+      {
+        slug: "oled-vs-qled-led-used-tv-guide",
+        badge: "TV·소형점검",
+        title: "OLED·QLED·LED 중고 TV 구매 및 화면 점검 기준",
+      },
+      {
+        slug: "why-used-over-new-and-store-over-p2p",
+        badge: "직영 보증",
+        title: "개인 직거래 vs 직영 매장 보증·배송 차이 비교",
+      }
+    );
   } else {
-    applianceGuides.push({
-      slug: "compressor-appliance-clearance-heat-dissipation",
-      badge: !fitsSpace ? "공간·방열" : "방열 간격",
-      title: "콤프레셔 가전 양옆·뒷면 5cm 방열 간격이 중요한 이유",
-    });
-  }
-  if (applianceGuides.length < 2) {
-    if (catLabel === "업소용기기") {
+    if (!fitsDoorEasily || carryFloor === "stairs") {
       applianceGuides.push({
-        slug: "startup-closure-docs-and-power",
-        badge: "창업 체크",
-        title: "식당·카페 창업 가전 전기 용량·세금계산서 안내",
+        slug: "ladder-truck-and-clearance",
+        badge: "반입·사다리차",
+        title: "현관문 폭·계단·사다리차 반입 가능 기준 확인",
+      });
+    }
+    if (catLabel === "냉장고") {
+      applianceGuides.push({
+        slug: "fridge-kitchen-fit-vs-freestanding-clearance",
+        badge: !fitsSpace ? "공간 확인" : "여유폭 기준",
+        title: "키친핏 vs 일반 냉장고 좌우 여유폭·설치 기준",
       });
     } else {
       applianceGuides.push({
-        slug: "why-never-lay-fridge-flat-moving",
-        badge: "배송 관리",
-        title: "가전 운반 시 수직 이동 및 전원 안정화 기준",
+        slug: "compressor-appliance-clearance-heat-dissipation",
+        badge: !fitsSpace ? "공간·방열" : "방열 간격",
+        title: "콤프레셔 가전 양옆·뒷면 5cm 방열 간격이 중요한 이유",
       });
+    }
+    if (applianceGuides.length < 2) {
+      if (catLabel === "업소용기기") {
+        applianceGuides.push({
+          slug: "startup-closure-docs-and-power",
+          badge: "창업 체크",
+          title: "식당·카페 창업 가전 전기 용량·세금계산서 안내",
+        });
+      } else {
+        applianceGuides.push({
+          slug: "why-never-lay-fridge-flat-moving",
+          badge: "배송 관리",
+          title: "가전 운반 시 수직 이동 및 전원 안정화 기준",
+        });
+      }
     }
   }
 
@@ -731,7 +747,9 @@ export function V2SpatialFitPlanner({
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-hb-xs tabular-nums">
               <span className="font-bold text-[#141A23]">
-                설치 공간({mySpaceCm}cm) 대비 제품+양옆 방열폭({requiredSpaceCm}cm)
+                {isCompactAppliance
+                  ? `설치 공간(${mySpaceCm}cm) 대비 제품 가로폭(${productWidthCm}cm)`
+                  : `설치 공간(${mySpaceCm}cm) 대비 제품+양옆 방열폭(${requiredSpaceCm}cm)`}
               </span>
               <strong
                 className={
@@ -745,20 +763,24 @@ export function V2SpatialFitPlanner({
             </div>
 
             <div className="flex h-10 w-full items-center justify-center overflow-hidden rounded-lg border border-[#CBD2DC] bg-white px-2">
-              <span className="flex h-7 items-center rounded-l bg-[#F0FDFA] border border-r-0 border-[#CCFBF1] px-2 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
-                방열 5cm
-              </span>
+              {!isCompactAppliance && (
+                <span className="flex h-7 shrink-0 items-center rounded-l bg-[#F0FDFA] border border-r-0 border-[#CCFBF1] px-1.5 sm:px-2 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
+                  방열 5cm
+                </span>
+              )}
               <div
                 style={{ width: `${applianceBarPercent}%` }}
-                className={`flex h-7 items-center justify-center text-hb-xs font-bold text-white whitespace-nowrap tabular-nums ${
-                  fitsSpace ? "bg-[#141A23]" : "bg-red-600"
-                }`}
+                className={`flex h-7 min-w-0 items-center justify-center text-hb-xs font-bold text-white whitespace-nowrap tabular-nums ${
+                  isCompactAppliance ? "rounded" : ""
+                } ${fitsSpace ? "bg-[#141A23]" : "bg-red-600"}`}
               >
                 본체 {productWidthCm}cm
               </div>
-              <span className="flex h-7 items-center rounded-r bg-[#F0FDFA] border border-l-0 border-[#CCFBF1] px-2 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
-                방열 5cm
-              </span>
+              {!isCompactAppliance && (
+                <span className="flex h-7 shrink-0 items-center rounded-r bg-[#F0FDFA] border border-l-0 border-[#CCFBF1] px-1.5 sm:px-2 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
+                  방열 5cm
+                </span>
+              )}
             </div>
           </div>
 
@@ -768,6 +790,8 @@ export function V2SpatialFitPlanner({
               <dd className="font-bold text-[#141A23] text-right break-keep">
                 {fitsDoorEasily
                   ? `그대로 통과 가능 (최소 통과면 ${narrowestSideCm}cm)`
+                  : isCompactAppliance
+                  ? "박스·포장 기준 현장 출입구 폭 확인 권장"
                   : fitsDoorTight
                   ? "기사님이 도어(문짝) 임시 분리 후 반입 가능"
                   : "문폭이 좁아 창문(사다리차) 반입 여부 상담 필요"}

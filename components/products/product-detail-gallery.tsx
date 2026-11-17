@@ -3,15 +3,21 @@
 
 import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
-import { getAdminAuthHeaders, isAuthorizedAdminUser, supabase } from "../../lib/supabase";
+import {
+  getOptionalAdminAuthHeaders,
+  hasSupabaseSessionToken,
+  subscribeAdminAuthSignal,
+} from "../../lib/admin-auth";
 import {
   addRecentViewedProduct,
   buildProductInquiryHref,
   buildProductInquirySmsBody,
+  canUseNextImageUrl,
   generatePromoPostText,
   isProductSold,
   smsHref,
@@ -46,7 +52,11 @@ export function ProductDetailGallery({
   const displayImages = images.length > 0 ? images : [""];
   const [idx, setIdx] = useState(0);
   const [isZoomOpen, setIsZoomOpen] = useState(false);
+  const [failedUrls, setFailedUrls] = useState<Record<string, true>>({});
   const sold = isProductSold(status);
+  const markFailedUrl = useCallback((url: string) => {
+    setFailedUrls((prev) => (prev[url] ? prev : { ...prev, [url]: true }));
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -72,7 +82,7 @@ export function ProductDetailGallery({
         const raw = sessionStorage.getItem("viewed_products");
         const list: string[] = raw ? JSON.parse(raw) : [];
         if (!list.includes(String(id))) {
-          getAdminAuthHeaders().then((authHeaders) => {
+          getOptionalAdminAuthHeaders().then((authHeaders) => {
             fetch(`/api/products/${id}/view`, {
               method: "POST",
               headers: authHeaders,
@@ -133,32 +143,41 @@ export function ProductDetailGallery({
   return (
     <>
       <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
-        {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (상단 영문 바 제거) */}
+        {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (중복 블러 <img> 다운로드 제거) */}
         <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none ring-1 ring-inset ring-black/5">
-          {/* 앰비언트 스튜디오 블러 배경 레이어 (세로형 가전 여백을 스튜디오 조명으로 채움) */}
-          {displayImages[idx] && (
-            <div
-              className="absolute inset-0 overflow-hidden pointer-events-none select-none"
-              aria-hidden="true"
-            >
-              <SafeImg
-                src={displayImages[idx]}
-                alt=""
-                className="w-full h-full object-cover blur-2xl scale-110 opacity-20"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-black/10" />
-            </div>
-          )}
-
-          <SafeImg
-            key={displayImages[idx]}
-            src={displayImages[idx]}
-            alt={`${title} - 사진 ${idx + 1}`}
-            eager
-            className={`relative z-0 w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
-              sold ? "grayscale opacity-75" : ""
-            }`}
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-white/45 via-transparent to-black/[0.06] pointer-events-none select-none"
+            aria-hidden="true"
           />
+
+          <div className="relative z-0 w-full h-full">
+            {canUseNextImageUrl(displayImages[idx]) &&
+            !failedUrls[displayImages[idx]] ? (
+              <Image
+                key={displayImages[idx]}
+                src={displayImages[idx]}
+                alt={`${title} - 사진 ${idx + 1}`}
+                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                priority={idx === 0}
+                quality={85}
+                onError={() => markFailedUrl(displayImages[idx])}
+                className={`object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
+                  sold ? "grayscale opacity-75" : ""
+                }`}
+              />
+            ) : (
+              <SafeImg
+                key={displayImages[idx]}
+                src={displayImages[idx]}
+                alt={`${title} - 사진 ${idx + 1}`}
+                eager
+                className={`w-full h-full object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
+                  sold ? "grayscale opacity-75" : ""
+                }`}
+              />
+            )}
+          </div>
 
           {displayImages[idx] && (
             <button
@@ -245,11 +264,24 @@ export function ProductDetailGallery({
                 <span className="absolute top-1 left-1 z-10 rounded bg-[#141A23]/75 px-1.5 py-0.5 text-hb-xs font-mono font-bold text-white tabular-nums leading-none pointer-events-none">
                   {i + 1}
                 </span>
-                <SafeImg
-                  src={img}
-                  alt=""
-                  className="w-full h-full object-cover"
-                />
+                {canUseNextImageUrl(img) && !failedUrls[img] ? (
+                  <Image
+                    src={img}
+                    alt=""
+                    width={64}
+                    height={64}
+                    sizes="64px"
+                    quality={70}
+                    onError={() => markFailedUrl(img)}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <SafeImg
+                    src={img}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </button>
             ))}
           </div>
@@ -442,15 +474,54 @@ export function CopyPromoPostButton({
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    supabase.auth
-      .getSession()
-      .then(({ data }) =>
-        setIsAdmin(isAuthorizedAdminUser(data.session?.user))
-      );
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) =>
-      setIsAdmin(isAuthorizedAdminUser(session?.user))
-    );
-    return () => sub.subscription.unsubscribe();
+    let active = true;
+    let unsubscribeAuth: (() => void) | null = null;
+    let attachPromise: Promise<void> | null = null;
+
+    const attachSupabaseAuth = () => {
+      if (attachPromise || !active) return;
+      attachPromise = import("../../lib/supabase")
+        .then(async ({ isAuthorizedAdminUser, supabase }) => {
+          if (!active) return;
+          const { data } = await supabase.auth.getSession();
+          if (active) {
+            setIsAdmin(isAuthorizedAdminUser(data.session?.user));
+          }
+          const { data: sub } = supabase.auth.onAuthStateChange(
+            (_e, session) => {
+              if (active) {
+                setIsAdmin(isAuthorizedAdminUser(session?.user));
+              }
+            }
+          );
+          if (!active) {
+            sub.subscription.unsubscribe();
+          } else {
+            unsubscribeAuth = () => sub.subscription.unsubscribe();
+          }
+        })
+        .catch(() => {
+          attachPromise = null;
+        });
+    };
+
+    if (hasSupabaseSessionToken()) {
+      attachSupabaseAuth();
+    }
+
+    const unsubscribeSignal = subscribeAdminAuthSignal(() => {
+      if (hasSupabaseSessionToken()) {
+        attachSupabaseAuth();
+      } else if (active) {
+        setIsAdmin(false);
+      }
+    });
+
+    return () => {
+      active = false;
+      unsubscribeSignal();
+      unsubscribeAuth?.();
+    };
   }, []);
 
   if (!isAdmin) return null;

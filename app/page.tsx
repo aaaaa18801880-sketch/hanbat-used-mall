@@ -1,7 +1,8 @@
 // 파일 경로: app/page.tsx
 import { supabase } from "../lib/supabase";
-import { isProductSold } from "../lib/site";
+import { isProductSold, toProductCardSummary } from "../lib/site";
 import { INFO_GUIDE_ARTICLES } from "../lib/info-guides";
+import { fetchInitialPublicInquiries } from "../lib/server-inquiries";
 import Home, { type Review } from "../components/home/home-page-client";
 import type { ProductItem } from "../components/products/product-card";
 
@@ -13,7 +14,7 @@ export default async function Page() {
   );
   const guideTotalCount = INFO_GUIDE_ARTICLES.length;
 
-  const [productsResult, reviewsResult] = await Promise.all([
+  const [productsResult, reviewsResult, recentResult] = await Promise.all([
     supabase
       .from("products")
       .select(
@@ -28,6 +29,7 @@ export default async function Page() {
       .eq("category", "배송인증")
       .order("created_at", { ascending: false })
       .limit(24),
+    fetchInitialPublicInquiries(8),
   ]);
 
   let initialProducts: ProductItem[] | null = null;
@@ -38,17 +40,22 @@ export default async function Page() {
       const soldB = isProductSold(b.status) ? 1 : 0;
       return soldA - soldB;
     });
-    initialProducts = rows;
+    initialProducts = rows.map(toProductCardSummary);
   }
 
   const initialReviews: Review[] | null = reviewsResult.error
     ? null
     : ((reviewsResult.data ?? []) as Review[]);
 
+  const initialRecent = recentResult.loaded
+    ? recentResult.inquiries.filter((r) => !r.is_notice).slice(0, 5)
+    : null;
+
   return (
     <Home
       initialProducts={initialProducts}
       initialReviews={initialReviews}
+      initialRecent={initialRecent}
       guideTotalCount={guideTotalCount}
       latestGuides={latestGuides}
     />
