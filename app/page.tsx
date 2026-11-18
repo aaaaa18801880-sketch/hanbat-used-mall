@@ -49,7 +49,9 @@ export default async function Page() {
 
   const initialRecent = recentResult.loaded
     ? recentResult.inquiries.filter((r) => !r.is_notice).slice(0, 5)
-    : null;
+    : process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? null
+    : [];
 
   return (
     <Home

@@ -246,7 +246,7 @@ function AirconSizingTool() {
               <label htmlFor="aircon-pyeong-range" className="text-hb-xs font-bold text-[#141A23]">
                 실내 전용 면적 (평수)
               </label>
-              <span className="text-hb-base font-extrabold text-[#E8521A]">
+              <span className="text-hb-base font-extrabold text-[#C84312]">
                 {pyeong}평 <span className="text-hb-xs font-medium text-[#64748B]">({Math.round(pyeong * 3.3058)}㎡)</span>
               </span>
             </div>
@@ -299,9 +299,9 @@ function AirconSizingTool() {
                       <span className={`text-hb-xs font-bold ${active ? "text-[#C84312]" : "text-[#141A23]"}`}>
                         {item.label}
                       </span>
-                      <span className="text-hb-xs font-semibold text-[#64748B]">x{item.factor}</span>
+                      <span className="text-hb-xs font-semibold text-[#475569]">x{item.factor}</span>
                     </div>
-                    <p className="mt-0.5 text-hb-xs text-[#64748B]">{item.hint}</p>
+                    <p className="mt-0.5 text-hb-xs text-[#475569]">{item.hint}</p>
                   </button>
                 );
               })}

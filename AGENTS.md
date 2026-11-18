@@ -22,3 +22,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 임의 픽셀 폰트 크기(`text-[..px]`) 사용 금지 (`text-hb-xs` ~ `text-hb-3xl` 사용).
 - JSX 화면 노출 텍스트 이모지 사용 금지 (`lib/ui.tsx`의 `Icon` SVG 사용).
 - 기존 검증 스크립트(`scripts/check-*.mjs`, `scripts/verify-*.mjs`) 임의 수정 금지.
+
+## 4. Modern Web Guidance 및 Chrome DevTools MCP 적용 수칙
+- **웹 UI·HTML·CSS·클라이언트 JS 작업 전**: 반드시 `modern-web-guidance` 스킬을 우선 적용하여 `search` → `retrieve`로 최신 웹 표준(타이포그래피, 반응형 표, 탭, 다이얼로그, 폼, 접근성)을 확인한 뒤 구현하고, 응답 끝에 `### Modern Web Guidance` 출처를 남깁니다.
+- **브라우저 실측·성능·접근성 점검 시**: 설치된 `chrome-devtools-plugin` 및 `chrome-devtools` MCP 서버(`chrome-devtools`, `debug-optimize-lcp`, `a11y-debugging`, `cookie-debugging`, `memory-leak-debugging`)를 활용해 실제 렌더링(LCP/CLS/콘솔·네트워크 오류/접근성)을 점검합니다.

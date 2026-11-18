@@ -376,7 +376,7 @@ export default async function GuideDetailPage({
                         href={`#section-${idx + 1}`}
                         className="group inline-flex items-baseline gap-2 text-hb-sm font-semibold text-[#334155] hover:text-[#C84312] transition-colors py-0.5"
                       >
-                        <span className="text-hb-xs font-bold text-[#94A3B8] group-hover:text-[#C84312] tabular-nums shrink-0">
+                        <span className="text-hb-xs font-bold text-[#526071] group-hover:text-[#C84312] tabular-nums shrink-0">
                           {idx + 1}.
                         </span>
                         <span className="line-clamp-1">{section.heading}</span>
@@ -654,7 +654,7 @@ export default async function GuideDetailPage({
               <div className="flex flex-col gap-2 pt-1">
                 <Link
                   href={bridge.galleryHref}
-                  className="hb-btn bg-[#E8521A] text-white hover:bg-[#D14410] min-h-[42px] px-4 py-2 text-hb-sm"
+                  className="hb-btn-accent min-h-[42px] px-4 py-2 text-hb-sm"
                 >
                   <Icon d={ICON.bag} className="w-4 h-4" />
                   <span>{bridge.primaryCategory} 매물 보기</span>
@@ -687,7 +687,7 @@ export default async function GuideDetailPage({
                   href="/guide"
                   className="text-hb-xs font-bold text-[#C84312] hover:underline underline-offset-2"
                 >
-                  전체 보기
+                  정보 글 전체 보기
                 </Link>
               </div>
               <ul className="divide-y divide-[#E2E6EC]">

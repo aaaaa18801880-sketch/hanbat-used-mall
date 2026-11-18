@@ -361,8 +361,8 @@ export function ProductCard({
                 {priceText}
               </strong>
             ) : (
-              <div className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] truncate">
-                <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
+              <div className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#C84312] truncate">
+                <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
                 <span className="sm:hidden truncate">견적 상담</span>
                 <span className="hidden sm:inline truncate">{priceText || "견적 상담 문의"}</span>
               </div>
@@ -387,7 +387,7 @@ export function ProductCard({
               } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
               className={`hb-trim relative z-20 shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
                 inBasket
-                  ? "bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]/40"
+                  ? "bg-[#FFF4EE] text-[#C84312] ring-1 ring-[#C84312]/40"
                   : "bg-[#F1F3F6] text-[#141A23] hover:bg-[#141A23] hover:text-white"
               }`}
             >

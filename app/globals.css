@@ -49,7 +49,14 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 76px;
+  scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   -webkit-text-size-adjust: 100%;
+}
+
+@media (min-width: 1024px) {
+  html {
+    scroll-padding-bottom: 0px;
+  }
 }
 
 body {
@@ -66,6 +73,7 @@ body {
     "Segoe UI",
     "Apple SD Gothic Neo",
     sans-serif;
+  font-size-adjust: from-font;
   letter-spacing: -0.016em;
   word-break: keep-all;
   overflow-wrap: break-word;

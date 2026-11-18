@@ -802,7 +802,7 @@ export default function Home({
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         {guideTotalCount > 0 && (
-                          <span className="rounded-full bg-[#F1F3F6] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#64748B] tabular-nums">
+                          <span className="rounded-full bg-[#F1F3F6] px-2 py-0.5 font-mono text-hb-xs font-bold text-[#475569] tabular-nums">
                             {guideTotalCount}편
                           </span>
                         )}
@@ -1078,7 +1078,6 @@ export default function Home({
                     <button
                       type="button"
                       onClick={() => setMapLoaded(true)}
-                      aria-label={`${STORE.name} 인터랙티브 위치 지도 불러오기`}
                       className="group relative flex h-full w-full flex-col items-center justify-center gap-2.5 bg-[radial-gradient(circle_at_top,_rgba(232,82,26,0.08),_transparent_55%),linear-gradient(135deg,#F8FAFC_0%,#EEF2F6_100%)] px-4 text-center transition-colors hover:bg-[#E8EDF3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23]"
                     >
                       <span
@@ -1308,7 +1307,7 @@ export default function Home({
               />
               <div className="flex items-center gap-3 shrink-0">
                 {reviews.length > 0 && (
-                  <span className="text-hb-xs sm:text-hb-sm font-bold text-[#64748B] tabular-nums">
+                  <span className="text-hb-xs sm:text-hb-sm font-bold text-[#475569] tabular-nums">
                     현장 기록{" "}
                     <strong className="text-[#141A23]">{reviews.length}</strong>건
                   </span>
@@ -1465,10 +1464,10 @@ export default function Home({
                     );
                   })}
                 </ul>
-                <div className="mt-1.5 flex sm:hidden items-center justify-center gap-1.5 text-hb-xs text-[#64748B]">
-                  <Icon d={ICON.left} className="w-3.5 h-3.5 text-[#E8521A]" />
+                <div className="mt-1.5 flex sm:hidden items-center justify-center gap-1.5 text-hb-xs text-[#475569]">
+                  <Icon d={ICON.left} className="w-3.5 h-3.5 text-[#C84312]" />
                   <span>좌우로 밀어서 현장 사진을 확인하세요 ({shownReviews.length}건)</span>
-                  <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#E8521A]" />
+                  <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#C84312]" />
                 </div>
                 {filteredReviews.length > 4 && (
                   <div className="mt-5 text-center">
@@ -1582,7 +1581,7 @@ export default function Home({
                             className="flex w-full items-center justify-between gap-3 py-3 sm:py-3.5 text-left cursor-pointer"
                           >
                             <div className="flex items-start gap-2.5 min-w-0">
-                              <span className="font-mono text-hb-xs sm:text-hb-sm font-bold text-[#E8521A] shrink-0 pt-0.5">
+                              <span className="font-mono text-hb-xs sm:text-hb-sm font-bold text-[#C84312] shrink-0 pt-0.5">
                                 Q{String(i + 1).padStart(2, "0")}.
                               </span>
                               <span className="block text-hb-sm sm:text-hb-base font-bold leading-snug text-[#141A23] break-keep">

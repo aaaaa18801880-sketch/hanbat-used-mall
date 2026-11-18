@@ -177,7 +177,6 @@ function PaginationBar({
             type="button"
             onClick={() => onPageChange(page)}
             aria-current={isCurrent ? "page" : undefined}
-            aria-label={`${page}페이지`}
             className={`inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg border px-2.5 py-2 text-hb-xs sm:text-hb-sm font-bold tabular-nums transition-colors ${
               isCurrent
                 ? "border-[#141A23] bg-[#141A23] text-white"
@@ -185,6 +184,7 @@ function PaginationBar({
             }`}
           >
             {page}
+            <span className="sr-only"> 페이지</span>
           </button>
         );
       })}
@@ -551,7 +551,7 @@ export function GuideBoardClient({
                 <span>{category}</span>
                 <span
                   className={`ml-1.5 text-hb-xs tabular-nums ${
-                    isActive ? "text-[#C84312]" : "text-[#94A3B8]"
+                    isActive ? "text-[#C84312]" : "text-[#526071]"
                   }`}
                 >
                   {count}

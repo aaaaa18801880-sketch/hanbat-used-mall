@@ -2000,12 +2000,12 @@ export default function GalleryPage() {
         <div className="hb-container py-3.5 sm:py-5">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#E8521A]">
+              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#C84312]">
                 <span>대전 중촌동 직영 매장</span>
                 {!isLoading && (
                   <>
                     <span className="text-[#CBD2DC]" aria-hidden="true">·</span>
-                    <span className="text-[#0D9488] tabular-nums">
+                    <span className="text-[#0F766E] tabular-nums">
                       구매 가능 {sellingCount}건
                     </span>
                   </>
@@ -2028,6 +2028,8 @@ export default function GalleryPage() {
                   <Icon d={ICON.search} className="w-4 h-4" />
                 </span>
                 <input
+                  id="gallery-search"
+                  name="gallery-search"
                   type="search"
                   value={search}
                   onChange={(e) => {
@@ -2111,7 +2113,7 @@ export default function GalleryPage() {
                     {cat}
                     <span
                       className={`ml-1.5 text-hb-xs tabular-nums ${
-                        active ? "text-[#FF8A50]" : "text-[#64748B]"
+                        active ? "text-[#FF8A50]" : "text-[#475569]"
                       }`}
                     >
                       {categoryCounts[cat] || 0}
@@ -2130,6 +2132,8 @@ export default function GalleryPage() {
             {/* 데스크톱 우측 인라인 필터 */}
             <div className="hidden lg:flex items-center gap-1.5 shrink-0">
               <select
+                id="gallery-status-desktop"
+                name="gallery-status-desktop"
                 value={statusFilter}
                 onChange={(e) => {
                   setStatusFilter(e.target.value as StatusFilter);
@@ -2146,6 +2150,8 @@ export default function GalleryPage() {
 
               {hasPricedProducts && (
                 <select
+                  id="gallery-price-desktop"
+                  name="gallery-price-desktop"
                   value={priceRange}
                   onChange={(e) => {
                     const nextPrice = e.target.value as PriceRangeOption;
@@ -2159,7 +2165,7 @@ export default function GalleryPage() {
                   aria-label="가격대 범위 필터"
                   className={`h-9 px-3 rounded-xl border text-hb-xs font-bold focus:border-[#141A23] focus:outline-none ${
                     priceRange !== "all"
-                      ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
+                      ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
                       : "border-[#E2E6EC] bg-white text-[#141A23]"
                   }`}
                 >
@@ -2172,6 +2178,8 @@ export default function GalleryPage() {
               )}
 
               <select
+                id="gallery-sort-desktop"
+                name="gallery-sort-desktop"
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
@@ -2244,6 +2252,8 @@ export default function GalleryPage() {
 
               <div className="grid grid-cols-3 lg:hidden gap-1.5">
                 <select
+                  id="gallery-status-mobile"
+                  name="gallery-status-mobile"
                   value={statusFilter}
                   onChange={(e) => {
                     setStatusFilter(e.target.value as StatusFilter);
@@ -2260,6 +2270,8 @@ export default function GalleryPage() {
 
                 {hasPricedProducts && (
                   <select
+                    id="gallery-price-mobile"
+                    name="gallery-price-mobile"
                     value={priceRange}
                     onChange={(e) => {
                       const nextPrice = e.target.value as PriceRangeOption;
@@ -2278,6 +2290,8 @@ export default function GalleryPage() {
                 )}
 
                 <select
+                  id="gallery-sort-mobile"
+                  name="gallery-sort-mobile"
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
                   aria-label="모바일 정렬 기준"
