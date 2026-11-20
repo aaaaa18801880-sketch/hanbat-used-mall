@@ -27,7 +27,7 @@ export interface GuideBoardSummaryItem {
   priorityRank: number;
   title: string;
   summary: string;
-  readMinutes: number;
+  updatedAt: string;
   keywords: string[];
   hasTable: boolean;
   hasDiagram: boolean;
@@ -63,7 +63,7 @@ export function toGuideBoardSummary(
     priorityRank: article.priorityRank,
     title: article.title,
     summary: article.summary,
-    readMinutes: article.readMinutes,
+    updatedAt: article.updatedAt,
     keywords: article.keywords,
     hasTable: article.sections.some((section) => Boolean(section.table)),
     hasDiagram: Boolean(article.heroImage),

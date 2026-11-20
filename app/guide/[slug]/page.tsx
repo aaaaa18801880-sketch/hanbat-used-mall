@@ -288,16 +288,13 @@ export default async function GuideDetailPage({
             </nav>
 
             <div className="max-w-[68ch]">
-              <div className="flex flex-wrap items-center gap-2 mb-3 text-hb-xs font-semibold text-[#64748B]">
+              <div className="flex flex-wrap items-center gap-3 mb-3 text-hb-xs font-semibold text-[#64748B]">
                 <span className="font-bold text-[#141A23]">
                   {article.category}
                 </span>
-                <span aria-hidden="true">·</span>
                 <time dateTime={article.updatedAt} className="tabular-nums">
                   {article.updatedAt}
                 </time>
-                <span aria-hidden="true">·</span>
-                <span className="tabular-nums">약 {article.readMinutes}분</span>
                 <GuideEngagementHeaderMeta
                   slug={article.slug}
                   initialStat={guideStat}

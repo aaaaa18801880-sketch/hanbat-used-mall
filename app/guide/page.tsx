@@ -5,9 +5,11 @@ import Link from "next/link";
 import { STORE } from "../../lib/site";
 import {
   INFO_GUIDE_ARTICLES,
+  INFO_GUIDE_CATEGORY_LIST,
   sortGuidesByPriority,
   toGuideBoardSummary,
 } from "../../lib/info-guides";
+import { SLUG_TO_GUIDE_TOOL } from "../../lib/guides/tool-slugs";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
   SiteHeader,
@@ -56,28 +58,32 @@ export const metadata: Metadata = {
 function GuideBoardStaticFallback() {
   const prioritized = sortGuidesByPriority(INFO_GUIDE_ARTICLES);
   return (
-    <ul className="divide-y divide-[#E2E6EC] border-t border-b border-[#E2E6EC]">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {prioritized.slice(0, 12).map((article) => (
-        <li key={article.slug} className="py-5">
-          <Link
-            href={`/guide/${article.slug}`}
-            className="group block space-y-1.5"
-          >
-            <p className="text-hb-xs font-semibold text-[#64748B]">
-              {article.category} · 약 {article.readMinutes}분
-            </p>
-            <h3 className="text-hb-lg font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
-              {article.title}
-            </h3>
-            <p className="max-w-[65ch] text-hb-sm text-[#475569] leading-[1.65]">
-              {article.summary}
-            </p>
-          </Link>
-        </li>
+        <Link
+          key={article.slug}
+          href={`/guide/${article.slug}`}
+          className="group flex flex-col rounded-2xl border border-[#E2E6EC] bg-white p-5 transition-colors hover:border-[#94A3B8]"
+        >
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs font-semibold text-[#475569]">
+            <span className="font-bold text-[#141A23]">{article.category}</span>
+            <time dateTime={article.updatedAt} className="tabular-nums">
+              {article.updatedAt}
+            </time>
+          </div>
+          <h3 className="mt-2 text-hb-lg font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors break-keep">
+            {article.title}
+          </h3>
+          <p className="mt-2 line-clamp-3 text-hb-sm text-[#475569] leading-[1.65]">
+            {article.summary}
+          </p>
+        </Link>
       ))}
-    </ul>
+    </div>
   );
 }
+
+const GUIDE_TOOL_KIND_COUNT = new Set(Object.values(SLUG_TO_GUIDE_TOOL)).size;
 
 export default async function GuideBoardPage() {
   const initialStats = await fetchGuideStatsMap();
@@ -134,7 +140,7 @@ export default async function GuideBoardPage() {
 
         {/* 상단 헤더 밴드 (중앙 리딩 폭과 일치) */}
         <section className="border-b border-[#E2E6EC] bg-[#FAFBFD]">
-          <div className="mx-auto w-full max-w-[980px] px-4 sm:px-6 lg:px-8 py-8 sm:py-11">
+          <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 sm:py-11">
             <nav
               aria-label="페이지 경로"
               className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-3.5"
@@ -148,9 +154,8 @@ export default async function GuideBoardPage() {
               </span>
             </nav>
 
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div className="space-y-2.5">
-                <p className="hb-eyebrow">{STORE.name} 현장 메모</p>
                 <h1 className="hb-fluid-h1 text-[#141A23]">
                   가전 · 전기 · 설치 정보 게시판
                 </h1>
@@ -159,26 +164,55 @@ export default async function GuideBoardPage() {
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 shrink-0">
-                <Link
-                  href="/gallery"
-                  className="hb-btn-outline min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
-                >
-                  <span>판매 제품 보기</span>
-                </Link>
-                <Link
-                  href="/inquiry?write=1"
-                  className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
-                >
-                  <span>직접 문의하기</span>
-                </Link>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:flex-col lg:items-end">
+                <div className="grid w-full grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[#E2E6EC] bg-[#E2E6EC] shadow-2xs sm:w-auto">
+                  <div className="bg-white px-4 py-3 text-center sm:text-left">
+                    <strong className="block text-hb-lg font-bold text-[#141A23] tabular-nums">
+                      {INFO_GUIDE_ARTICLES.length}
+                    </strong>
+                    <span className="block text-hb-xs font-semibold text-[#475569]">
+                      전체 글
+                    </span>
+                  </div>
+                  <div className="bg-white px-4 py-3 text-center sm:text-left">
+                    <strong className="block text-hb-lg font-bold text-[#141A23] tabular-nums">
+                      {INFO_GUIDE_CATEGORY_LIST.length}
+                    </strong>
+                    <span className="block text-hb-xs font-semibold text-[#475569]">
+                      주제 분류
+                    </span>
+                  </div>
+                  <div className="bg-white px-4 py-3 text-center sm:text-left">
+                    <strong className="block text-hb-lg font-bold text-[#0F766E] tabular-nums">
+                      {GUIDE_TOOL_KIND_COUNT}
+                    </strong>
+                    <span className="block text-hb-xs font-semibold text-[#475569]">
+                      현장 계산기
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 shrink-0">
+                  <Link
+                    href="/gallery"
+                    className="hb-btn-outline min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
+                  >
+                    <span>판매 제품 보기</span>
+                  </Link>
+                  <Link
+                    href="/inquiry?write=1"
+                    className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-xs sm:text-hb-sm"
+                  >
+                    <span>직접 문의하기</span>
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* 게시판 본문 */}
-        <div className="mx-auto w-full max-w-[980px] px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9">
+        <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9">
           <Suspense fallback={<GuideBoardStaticFallback />}>
             <GuideBoardClient
               articles={articleSummaries}

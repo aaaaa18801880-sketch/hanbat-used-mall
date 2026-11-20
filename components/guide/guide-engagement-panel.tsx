@@ -96,30 +96,19 @@ export function GuideEngagementHeaderMeta({
   if (!topRank && !showViews && !showHelpful) return null;
 
   return (
-    <div className="inline-flex flex-wrap items-center gap-2 text-hb-xs text-[#64748B]">
+    <div className="inline-flex flex-wrap items-center gap-3 text-hb-xs text-[#64748B]">
       {topRank && (
-        <>
-          <span aria-hidden="true">·</span>
-          <span className="font-bold text-[#C84312]">
-            인기 {topRank}위
-          </span>
-        </>
+        <span className="font-bold text-[#C84312]">인기 {topRank}위</span>
       )}
       {showViews && (
-        <>
-          <span aria-hidden="true">·</span>
-          <span className="tabular-nums font-medium">
-            조회 {stat.views.toLocaleString("ko-KR")}
-          </span>
-        </>
+        <span className="tabular-nums font-medium">
+          조회 {stat.views.toLocaleString("ko-KR")}
+        </span>
       )}
       {showHelpful && (
-        <>
-          <span aria-hidden="true">·</span>
-          <span className="tabular-nums font-semibold text-[#C84312]">
-            도움됨 {stat.helpfulCount.toLocaleString("ko-KR")}
-          </span>
-        </>
+        <span className="tabular-nums font-semibold text-[#C84312]">
+          도움됨 {stat.helpfulCount.toLocaleString("ko-KR")}
+        </span>
       )}
     </div>
   );
