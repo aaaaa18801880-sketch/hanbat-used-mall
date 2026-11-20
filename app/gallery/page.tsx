@@ -120,7 +120,7 @@ type StatusFilter = "all" | "selling" | "reserved" | "sold";
 type GalleryViewMode = "card" | "table";
 
 const CATEGORIES_WITH_ALL = ["전체", ...PRODUCT_CATEGORIES] as const;
-const PAGE_STEP = 24;
+const PAGE_STEP = 25;
 
 // removeProductImagesFromStorage imported from lib/product-ops
 
@@ -1988,7 +1988,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#141A23] font-sans flex flex-col">
+    <div className="min-h-screen bg-white text-[#141A23] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
           <div className="flex items-center gap-2">
@@ -2010,30 +2010,24 @@ export default function GalleryPage() {
         )}
       </SiteHeader>
 
-      {/* 상단 쇼룸 컴팩트 헤더 (타이틀 + 실시간 재고 지표 + 통합 검색바) */}
-      <section className="bg-white border-b border-[#E2DDD3]">
-        <div className="hb-container py-4 sm:py-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
+      {/* 상단 에디토리얼 쇼룸 헤더 (타이틀 + 전시 수량 + 검색창) */}
+      <section className="bg-white">
+        <div className="hb-container pt-6 pb-4 sm:pt-9 sm:pb-5">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#C84312]">
-                <span>{STORE.name} · 직영 전시장 실매물</span>
-                {!isLoading && (
-                  <>
-                    <span className="text-[#CBD2DC]" aria-hidden="true">·</span>
-                    <span className="font-mono text-[#0F766E] tabular-nums">
-                      구매 가능 {sellingCount}건
-                    </span>
-                  </>
-                )}
-              </div>
-              <div className="mt-1 flex flex-wrap items-baseline gap-2.5">
-                <h1 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] tracking-[-0.028em]">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2]">
                   판매 제품 갤러리
                 </h1>
-                <p className="hidden sm:inline text-hb-xs text-[#64748B] truncate">
-                  고압세척·배송 전 작동 점검 완료 실매물 · 가격 및 미등록 재고 문의 환영
-                </p>
+                {!isLoading && (
+                  <span className="font-mono text-hb-sm sm:text-hb-base font-bold text-[#475569] tabular-nums">
+                    {sellingCount}건 전시중
+                  </span>
+                )}
               </div>
+              <p className="mt-1.5 text-hb-sm text-[#64748B] break-keep">
+                {STORE.name} 중촌동 직영 전시장 실매물 · 고압세척 및 배송 전 작동 점검 완료
+              </p>
             </div>
 
             {/* 통합 검색창 + 모바일 상세필터 토글 */}
@@ -2051,9 +2045,9 @@ export default function GalleryPage() {
                     setSearch(e.target.value);
                     setVisibleLimit(PAGE_STEP);
                   }}
-                  placeholder="제품명·모델명·규격 검색 (예: 45박스, 스탠드)"
-                  aria-label="제품명 또는 모델명 검색"
-                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-[#CBD2DC] bg-white text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:ring-1 focus:ring-[#141A23] focus:outline-none transition-[border-color,box-shadow] duration-150"
+                  placeholder="브랜드·제품명·모델명 검색"
+                  aria-label="브랜드, 제품명 또는 모델명 검색"
+                  className="w-full h-10 pl-10 pr-8 rounded-full border border-[#D8D1C5] bg-[#FAF9F6] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
                 />
                 {search.trim() !== "" && (
                   <button
@@ -2063,7 +2057,7 @@ export default function GalleryPage() {
                       setVisibleLimit(PAGE_STEP);
                     }}
                     aria-label="검색어 지우기"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#141A23] p-0.5"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#64748B] hover:text-[#141A23] p-0.5 cursor-pointer"
                   >
                     <Icon d={ICON.close} className="w-3.5 h-3.5" />
                   </button>
@@ -2074,16 +2068,16 @@ export default function GalleryPage() {
                 type="button"
                 onClick={() => setMobileFilterOpen((v) => !v)}
                 aria-expanded={mobileFilterOpen}
-                className={`lg:hidden h-10 px-3 inline-flex items-center gap-1.5 rounded-xl border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                className={`lg:hidden h-10 px-3.5 inline-flex items-center gap-1.5 rounded-full border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
                   (hasPricedProducts && priceRange !== "all") ||
                   sort !== "latest"
-                    ? "border-[#E8521A] bg-[#E8521A] text-white"
-                    : "border-[#E2E6EC] bg-[#F1F3F6] text-[#141A23] hover:bg-[#E2E6EC]"
+                    ? "border-[#141A23] bg-[#141A23] text-white"
+                    : "border-[#D8D1C5] bg-white text-[#141A23] hover:border-[#141A23]"
                 }`}
               >
-                <span>필터·프리셋</span>
+                <span>필터</span>
                 <Icon
                   d={ICON.down}
                   className={`w-3.5 h-3.5 transition-transform ${
@@ -2096,46 +2090,48 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 스티키 카테고리 및 필터 컨트롤 바 */}
-      <div className="sticky top-16 sm:top-[72px] z-30 border-b border-[#E2DDD3] bg-[#FAF9F6]/95 backdrop-blur-md">
-        <div className="hb-container py-2 sm:py-2.5 flex flex-col gap-2">
-          {/* 1행: 좌측 품목 탭 + 우측 데스크톱 인라인 필터 */}
-          <div className="flex items-center justify-between gap-3">
+      {/* 스티키 언더라인 카테고리 탭 및 미니멀 필터 바 */}
+      <div className="sticky top-16 sm:top-[72px] z-30 border-b border-[#E2DDD3] bg-white/95 backdrop-blur-md">
+        <div className="hb-container pt-1 pb-2.5 flex flex-col gap-2.5">
+          {/* 1행: 좌측 언더라인 품목 탭 + 우측 데스크톱 인라인 셀렉트 */}
+          <div className="flex items-center justify-between gap-4 border-b border-[#F1EFEA]">
             <div className="relative min-w-0 flex-1">
               <div
-                className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-6 sm:pr-2"
+                className="flex items-center gap-5 sm:gap-7 overflow-x-auto scrollbar-none pr-8 sm:pr-2"
                 role="tablist"
                 aria-label="상품 카테고리 필터"
               >
                 {CATEGORIES_WITH_ALL.map((cat) => {
                   const active = activeCategory === cat;
-                return (
-                  <button
-                    key={cat}
-                    type="button"
-                    role="tab"
-                    aria-selected={active}
-                    onClick={() => {
-                      setActiveCategory(cat);
-                      setVisibleLimit(PAGE_STEP);
-                    }}
-                    className={`h-9 px-3.5 inline-flex items-center rounded-lg border text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-[background-color,color,border-color,transform] active:scale-[0.96] shrink-0 cursor-pointer ${
-                      active
-                        ? "border-[#141A23] bg-[#141A23] text-white shadow-2xs"
-                        : "border-[#E2DDD3] bg-white text-[#334155] hover:border-[#141A23]/40 hover:text-[#141A23]"
-                    }`}
-                  >
-                    {cat}
-                    <span
-                      className={`ml-1.5 font-mono text-hb-xs tabular-nums ${
-                        active ? "text-[#FF8A50]" : "text-[#64748B]"
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => {
+                        setActiveCategory(cat);
+                        setVisibleLimit(PAGE_STEP);
+                      }}
+                      className={`relative pb-3 pt-1.5 inline-flex items-center text-hb-sm font-bold whitespace-nowrap transition-colors duration-150 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] rounded-t ${
+                        active
+                          ? "text-[#141A23]"
+                          : "text-[#64748B] hover:text-[#141A23]"
                       }`}
                     >
-                      {categoryCounts[cat] || 0}
-                    </span>
-                  </button>
-                );
-              })}
+                      <span>{cat}</span>
+                      <span className="ml-1.5 font-mono text-hb-xs font-semibold text-[#64748B] tabular-nums">
+                        {categoryCounts[cat] || 0}
+                      </span>
+                      <span
+                        className={`absolute inset-x-0 bottom-0 h-[2px] bg-[#141A23] transition-opacity duration-150 ${
+                          active ? "opacity-100" : "opacity-0"
+                        }`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  );
+                })}
               </div>
               {/* 모바일 가로 스크롤 우측 페이드 힌트 마스크 */}
               <div
@@ -2145,7 +2141,7 @@ export default function GalleryPage() {
             </div>
 
             {/* 데스크톱 우측 인라인 필터 */}
-            <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+            <div className="hidden lg:flex items-center gap-2 pb-2 shrink-0">
               <select
                 id="gallery-status-desktop"
                 name="gallery-status-desktop"
@@ -2155,7 +2151,7 @@ export default function GalleryPage() {
                   setVisibleLimit(PAGE_STEP);
                 }}
                 aria-label="판매 상태 필터"
-                className="h-9 px-3 rounded-xl border border-[#E2E6EC] bg-white text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
+                className="h-8 px-3 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
               >
                 <option value="all">전체 상태</option>
                 <option value="selling">판매중만</option>
@@ -2178,10 +2174,10 @@ export default function GalleryPage() {
                     });
                   }}
                   aria-label="가격대 범위 필터"
-                  className={`h-9 px-3 rounded-xl border text-hb-xs font-bold focus:border-[#141A23] focus:outline-none ${
+                  className={`h-8 px-3 rounded-lg border text-hb-xs font-semibold focus:border-[#141A23] focus:outline-none cursor-pointer ${
                     priceRange !== "all"
                       ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
-                      : "border-[#E2E6EC] bg-white text-[#141A23]"
+                      : "border-[#E2DDD3] bg-white text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   {PRICE_RANGE_OPTIONS.map((opt) => (
@@ -2198,7 +2194,7 @@ export default function GalleryPage() {
                 value={sort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
-                className="h-9 px-3 rounded-xl border border-[#E2E6EC] bg-white text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
+                className="h-8 px-3 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
@@ -2208,29 +2204,21 @@ export default function GalleryPage() {
             </div>
           </div>
 
-          {/* 확장 행: 상황별 프리셋 4종 (데스크톱 상시 노출 · 모바일 토글 연동) */}
+          {/* 2행: 맞춤 탐색 상황별 큐레이션 레일 */}
           <div
             className={`${
               mobileFilterOpen ? "flex" : "hidden lg:flex"
-            } flex-col lg:flex-row lg:items-center justify-between gap-2 pt-2 border-t border-[#F1F3F6]`}
+            } flex-col lg:flex-row lg:items-center justify-between gap-2`}
           >
-              <div className="relative min-w-0 flex-1">
+              <div className="relative min-w-0 flex-1 flex items-center gap-2.5">
+                <span className="hidden lg:inline-flex items-center shrink-0 text-hb-xs font-semibold text-[#64748B]">
+                  맞춤 탐색
+                </span>
                 <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-6 sm:pr-0 text-hb-xs">
-                  <span className="shrink-0 font-bold text-[#64748B] mr-1">
-                    상황별 프리셋:
-                  </span>
                   {SITUATION_PRESETS.map((preset) => {
                     const active =
                       activeCategory === preset.category &&
                       (!preset.keyword || search === preset.keyword);
-                    const presetIcon =
-                      preset.label === "원룸·자취필수"
-                        ? ICON.building
-                        : preset.label === "카페·디저트창업"
-                        ? ICON.sparkles
-                        : preset.label === "식당·주방설비"
-                        ? ICON.layers
-                        : ICON.snowflake;
                     return (
                       <button
                         key={preset.label}
@@ -2245,14 +2233,13 @@ export default function GalleryPage() {
                             keyword: preset.keyword,
                           });
                         }}
-                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3 font-semibold transition-[background-color,color,border-color,transform] active:scale-[0.96] border shrink-0 cursor-pointer ${
+                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3.5 font-semibold transition-[background-color,color] shrink-0 cursor-pointer ${
                           active
-                            ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] font-bold"
-                            : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
+                            ? "bg-[#141A23] text-white"
+                            : "bg-[#F4F1EA] text-[#334155] hover:bg-[#EAE5DC] hover:text-[#141A23]"
                         }`}
                         title={preset.desc}
                       >
-                        <Icon d={presetIcon} className="w-3.5 h-3.5" />
                         <span>{preset.label}</span>
                       </button>
                     );
@@ -2323,15 +2310,15 @@ export default function GalleryPage() {
       </div>
 
       {/* 메인 상품 그리드 */}
-      <main id="main-content" tabIndex={-1} className="hb-container py-5 sm:py-8 flex-1 focus:outline-none">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#E2DDD3]">
+      <main id="main-content" tabIndex={-1} className="hb-container py-6 sm:py-8 flex-1 focus:outline-none">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-[#E5E0D7]">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-hb-xs sm:text-hb-sm text-[#334155]">
+            <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
               {isLoading ? (
                 "상품 목록을 불러오는 중..."
               ) : (
                 <>
-                  전시 매물{" "}
+                  전체{" "}
                   <strong className="font-mono text-[#141A23] font-bold tabular-nums">
                     {filteredProducts.length}
                   </strong>
@@ -2347,7 +2334,7 @@ export default function GalleryPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-hb-xs font-bold text-[#C84312] underline underline-offset-4 hover:text-[#141A23] ml-1"
+                className="text-hb-xs font-bold text-[#C84312] underline underline-offset-4 hover:text-[#141A23] ml-1 cursor-pointer"
               >
                 초기화
               </button>
@@ -2358,7 +2345,7 @@ export default function GalleryPage() {
             <div
               role="group"
               aria-label="매물 표시 방식"
-              className="inline-flex items-center rounded-lg border border-[#E2DDD3] bg-white p-0.5"
+              className="hb-segmented-control"
             >
               <button
                 type="button"
@@ -2367,7 +2354,7 @@ export default function GalleryPage() {
                   setViewMode("card");
                   trackEvent("gallery_view_mode", { mode: "card" });
                 }}
-                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 h-8 text-hb-xs font-bold transition-colors cursor-pointer ${
+                className={`hb-segmented-item cursor-pointer ${
                   viewMode === "card"
                     ? "bg-[#141A23] text-white shadow-2xs"
                     : "text-[#475569] hover:text-[#141A23]"
@@ -2383,7 +2370,7 @@ export default function GalleryPage() {
                   setViewMode("table");
                   trackEvent("gallery_view_mode", { mode: "table" });
                 }}
-                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 h-8 text-hb-xs font-bold transition-colors cursor-pointer ${
+                className={`hb-segmented-item cursor-pointer ${
                   viewMode === "table"
                     ? "bg-[#141A23] text-white shadow-2xs"
                     : "text-[#475569] hover:text-[#141A23]"
@@ -2401,10 +2388,10 @@ export default function GalleryPage() {
                   setIsSelectMode(!isSelectMode);
                   setSelectedIds(new Set());
                 }}
-                className={`px-3 h-9 rounded-lg text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
+                className={`px-3 h-9 rounded-lg text-hb-xs font-bold border transition-colors flex items-center gap-1.5 cursor-pointer ${
                   effectiveSelectMode
                     ? "bg-[#C84312] text-white border-[#C84312]"
-                    : "bg-white text-[#141A23] border-[#E2E6EC] hover:bg-[#F7F8FA]"
+                    : "bg-white text-[#141A23] border-[#E2DDD3] hover:bg-[#FAF9F6]"
                 }`}
               >
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
@@ -2419,17 +2406,14 @@ export default function GalleryPage() {
         )}
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5">
-            {Array.from({ length: 8 }).map((_, idx) => (
-              <div
-                key={`sk-${idx}`}
-                className="bg-white rounded-xl overflow-hidden border border-[#E2E6EC] animate-pulse"
-              >
-                <div className="aspect-[4/3] bg-[#F1F3F6]" />
-                <div className="p-4 space-y-3">
-                  <div className="h-3 bg-[#F1F3F6] rounded w-1/3" />
-                  <div className="h-5 bg-[#F1F3F6] rounded w-4/5" />
-                  <div className="h-6 bg-[#F1F3F6] rounded w-1/2 mt-4" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
+            {Array.from({ length: 10 }).map((_, idx) => (
+              <div key={`sk-${idx}`} className="animate-pulse">
+                <div className="aspect-square rounded-lg bg-[#F4F3F0]" />
+                <div className="pt-2.5 sm:pt-3 space-y-1.5">
+                  <div className="h-3.5 bg-[#F4F3F0] rounded w-1/3" />
+                  <div className="h-3.5 bg-[#F4F3F0] rounded w-11/12" />
+                  <div className="h-3 bg-[#F4F3F0] rounded w-2/3" />
                 </div>
               </div>
             ))}
@@ -2518,12 +2502,12 @@ export default function GalleryPage() {
                 onQuickView={handleProductClick}
               />
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5 items-stretch">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
                 {displayedProducts.map((product, idx) => (
                   <ProductCard
                     key={product.id}
                     product={product}
-                    eager={idx < 4}
+                    eager={idx < 5}
                     onSelect={effectiveSelectMode ? handleProductClick : undefined}
                     onQuickView={handleProductClick}
                     isSelectMode={effectiveSelectMode}

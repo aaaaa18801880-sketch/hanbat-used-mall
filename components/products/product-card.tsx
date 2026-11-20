@@ -8,19 +8,20 @@ import {
   canUseNextImageUrl,
   extractModelName,
   extractSpecCapsules,
-  formatProductPrice,
   getCategoryWarrantyInfo,
-  hasProductPrice,
   isProductSold,
   normalizeProductCategory,
   splitImages,
   STORE,
   toggleQuoteBasketItem,
   trackEvent,
-  triggerQuickInquiry,
 } from "../../lib/site";
+import {
+  buildProductCardDisplay,
+  resolveCardWarrantyCategory,
+  splitWarrantyHighlight,
+} from "../../lib/product-card-meta";
 import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
-import { ProductStatusBadge } from "./product-status-badge";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 
 export interface ProductItem {
@@ -50,7 +51,8 @@ export function ProductTrustMicroStrip({
   const isHvac = normalizedCategory === "에어컨/냉난방기";
   const isMajorAppliance =
     normalizedCategory === "냉장고" || normalizedCategory === "세탁기/건조기";
-  const warrantyHighlight = getCategoryWarrantyInfo(normalizedCategory).detailLabel;
+  const warrantyHighlight =
+    getCategoryWarrantyInfo(normalizedCategory).detailLabel;
 
   const items = [
     {
@@ -82,9 +84,9 @@ export function ProductTrustMicroStrip({
   return (
     <section
       aria-label={`${STORE.name} 핵심 거래 보증 안내`}
-      className={`rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden shadow-2xs ${className}`}
+      className={`rounded-2xl border border-[#E2DDD3] bg-white overflow-hidden shadow-2xs ${className}`}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2DDD3]">
         {items.map((item) => (
           <div key={item.title} className="flex items-start gap-3 p-4">
             <ModernApplianceIcon
@@ -137,22 +139,37 @@ export function ProductCard({
     canUseNextImageUrl(primaryImage) && failedSrc !== primaryImage;
   const sold = isProductSold(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
-  const warrantyInfo = getCategoryWarrantyInfo(categoryLabel);
-  const priced = hasProductPrice(product.price);
-  const priceText = formatProductPrice(product.price, categoryLabel);
   const modelName =
     product.model_name !== undefined
       ? product.model_name
       : extractModelName(product.description, product.title);
   const specCapsules =
     product.spec_capsules && product.spec_capsules.length > 0
-      ? product.spec_capsules.slice(0, 2)
+      ? product.spec_capsules.slice(0, 3)
       : extractSpecCapsules(
           product.title,
           product.description,
-          2,
+          3,
           product.category
         );
+
+  const { brandLabel, hasBrand, descriptiveTitle, modelCode } =
+    buildProductCardDisplay({
+      title: product.title,
+      categoryLabel,
+      modelName,
+      specCapsules,
+    });
+  const warrantyCategory = resolveCardWarrantyCategory(
+    categoryLabel,
+    product.title
+  );
+  const warrantyHighlight = splitWarrantyHighlight(
+    getCategoryWarrantyInfo(warrantyCategory).compactLabel
+  );
+  const deliveryMetaLine = modelCode
+    ? `대전·충청 직배송 · ${modelCode}`
+    : "대전·충청 직배송";
 
   const inBasket = useQuoteBasket().some((x) => x.id === product.id);
 
@@ -184,48 +201,28 @@ export function ProductCard({
     }
   };
 
-  const handleQuickQuote = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    trackEvent("begin_buy_inquiry", {
-      category: categoryLabel,
-      location: "card_quick_quote",
-    });
-    triggerQuickInquiry({
-      type: "구매 문의",
-      productTitle: modelName
-        ? `${product.title} (${modelName})`
-        : product.title,
-    });
-  };
-
-  const specSummaryText =
-    specCapsules.length > 0 ? specCapsules.join(" · ") : "고압세척·작동점검 완료";
-
   return (
     <article
-      className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white hb-product-card transition-[border-color,box-shadow,transform] duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] ${
-        isSelected
-          ? "border-[#C84312] ring-2 ring-[#C84312] bg-[#FFFDFB]"
-          : "border-[#E2E6EC] hover:-translate-y-0.5 hover:border-[#94A3B8]"
+      className={`group relative flex flex-col min-w-0 hb-product-card rounded-lg has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_a:focus-visible]:ring-offset-4 has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-offset-4 ${
+        isSelected ? "ring-2 ring-[#C84312] ring-offset-4" : ""
       }`}
     >
-      {/* 1. 1:1 정방형 스튜디오 사진 영역 */}
-      <div className="relative aspect-square w-full overflow-hidden hb-studio-backdrop">
+      {/* 1. 정방형 1:1 보더리스 썸네일 (미니멀 라운드 + 우측 하단 찜/비교 아이콘) */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-lg bg-[#F5F5F3] ring-1 ring-inset ring-black/[0.05]">
         {canUseNextImage && primaryImage ? (
           <Image
             key={primaryImage}
             src={primaryImage}
             alt={product.title}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
             priority={eager}
             loading={eager ? "eager" : undefined}
             quality={80}
             referrerPolicy="no-referrer"
             onError={() => setFailedSrc(primaryImage)}
-            className={`object-cover transition-transform duration-300 group-hover:scale-[1.03] ${
-              sold ? "grayscale opacity-65" : ""
+            className={`object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] ${
+              sold ? "grayscale opacity-60" : ""
             }`}
           />
         ) : (
@@ -233,29 +230,47 @@ export function ProductCard({
             src={primaryImage}
             alt={product.title}
             eager={eager}
-            className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03] ${
-              sold ? "grayscale opacity-65" : ""
+            className={`h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] ${
+              sold ? "grayscale opacity-60" : ""
             }`}
           />
         )}
 
-        <div
-          className="pointer-events-none absolute inset-0 z-10 ring-1 ring-inset ring-black/[0.04]"
-          aria-hidden="true"
-        />
-
+        {/* 판매완료 매물만 최소한의 상태로 안내 */}
         {sold && (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#141A23]/45 backdrop-blur-[1px]">
-            <span className="hb-trim rounded-full bg-[#141A23]/95 px-4 py-1.5 text-hb-xs font-bold tracking-wider text-white shadow-xs">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#141A23]/45 backdrop-blur-[1px]">
+            <span className="hb-trim rounded-full bg-[#141A23]/95 px-3 py-1 text-hb-xs font-bold tracking-wide text-white">
               판매완료
             </span>
           </div>
         )}
 
-        {/* 좌상단 판매 상태 배지 & 외관 등급 */}
-        {isSelectMode ? (
+        {/* 우측 하단 미니멀 찜/비교 담기 하트 아이콘 (배경 원 없이 선명한 아이콘만 배치) */}
+        {!isSelectMode && !sold && (
+          <button
+            type="button"
+            onClick={handleToggleBasket}
+            aria-pressed={inBasket}
+            title={inBasket ? "비교·견적함에서 제외" : "관심 매물 비교·견적함에 담기"}
+            aria-label={`${inBasket ? "담김" : "비교 담기"} - ${
+              product.title
+            } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
+            className="absolute bottom-1.5 right-1.5 z-20 flex h-9 w-9 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-[#141A23]"
+          >
+            <Icon
+              d={ICON.heart}
+              strokeWidth={1.7}
+              fill={inBasket ? "#E8521A" : "rgba(255, 255, 255, 0.88)"}
+              stroke={inBasket ? "#E8521A" : "rgba(30, 35, 42, 0.42)"}
+              className="h-[22px] w-[22px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.22)] transition-colors duration-150"
+            />
+          </button>
+        )}
+
+        {/* 관리자 일괄 선택 체크박스 */}
+        {isSelectMode && (
           <div
-            className={`absolute left-2 top-2 sm:left-3 sm:top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
+            className={`absolute left-2.5 top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
               isSelected
                 ? "border-[#C84312] bg-[#C84312] text-white"
                 : "border-[#CBD2DC] bg-white/95 text-transparent"
@@ -263,23 +278,10 @@ export function ProductCard({
           >
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
           </div>
-        ) : (
-          <div className="absolute left-2 top-2 sm:left-3 sm:top-3 z-10 flex items-center gap-1.5 flex-wrap">
-            <ProductStatusBadge
-              status={product.status}
-              createdAt={product.created_at}
-              showNew={false}
-            />
-            {product.condition_grade && (
-              <span className="hb-trim inline-flex items-center rounded-full bg-white/95 backdrop-blur-md px-2.5 py-1 text-hb-xs font-bold text-[#141A23] shadow-2xs">
-                {product.condition_grade.split(" ")[0]}
-              </span>
-            )}
-          </div>
         )}
 
-        {/* 좌하단 빠른 미리보기 / 관리자 수정 버튼 */}
-        {!isSelectMode && onQuickView && (
+        {/* 관리자 전용 수정/삭제 컨트롤 (일반 고객 화면 비노출) */}
+        {isAdmin && !isSelectMode && onQuickView && (
           <button
             type="button"
             onClick={(e) => {
@@ -287,28 +289,13 @@ export function ProductCard({
               e.stopPropagation();
               onQuickView(product);
             }}
-            title={isAdmin ? "관리자 수정" : "상품 미리보기"}
-            aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-            className={`absolute bottom-3 left-3 z-20 items-center gap-1 rounded-full bg-white/95 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-[#141A23] shadow-xs hover:bg-[#141A23] hover:text-white transition-[background-color,color,transform,opacity] cursor-pointer active:scale-[0.96] ${
-              isAdmin
-                ? "inline-flex"
-                : "hidden sm:inline-flex opacity-0 group-hover:opacity-100 focus:opacity-100 duration-200"
-            }`}
+            title="관리자 수정"
+            aria-label={`${product.title} 수정`}
+            className="absolute left-2 top-2 z-20 inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-md px-2 py-1 text-hb-xs font-bold text-[#141A23] shadow-2xs hover:bg-[#141A23] hover:text-white transition-colors cursor-pointer"
           >
-            <Icon
-              d={isAdmin ? ICON.pen : ICON.search}
-              className="w-3 h-3 text-[#C84312]"
-            />
-            <span>{isAdmin ? "수정" : "미리보기"}</span>
+            <Icon d={ICON.pen} className="w-3 h-3 text-[#C84312]" />
+            <span>수정</span>
           </button>
-        )}
-
-        {/* 우하단 다중 사진 수량 */}
-        {!sold && images.length > 1 && (
-          <span className="pointer-events-none absolute bottom-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[#141A23]/80 px-2.5 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-md">
-            <Icon d={ICON.image} className="w-3 h-3 text-white/85" />+
-            {images.length - 1}
-          </span>
         )}
 
         {isAdmin && !isSelectMode && onDelete && (
@@ -321,143 +308,85 @@ export function ProductCard({
             }}
             title="상품 삭제"
             aria-label={`${product.title} 삭제`}
-            className="absolute right-3 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-700 shadow-xs hover:bg-red-50 transition-colors"
+            className="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-700 shadow-2xs hover:bg-red-50 transition-colors cursor-pointer"
           >
-            <Icon d={ICON.close} className="h-4 w-4" />
+            <Icon d={ICON.close} className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
-      {/* 2. 카드 본문 (WCAG AA 타이포그래피 위계 + 검수·보증 신뢰 바 + 비교·견적 동선) */}
-      <div className="flex flex-1 flex-col justify-between p-3 hb-card-body bg-white">
-        <div>
-          {/* 메타 행: 카테고리 + 모델명 */}
-          <div className="flex items-center justify-between gap-2 text-hb-xs text-[#475569]">
-            <span className="font-semibold truncate">{categoryLabel}</span>
-            {modelName && (
-              <span
-                className="shrink-0 max-w-[52%] truncate font-mono text-hb-xs font-semibold text-[#475569] tabular-nums"
-                title={modelName}
-              >
-                {modelName}
-              </span>
-            )}
-          </div>
+      {/* 2. 보더리스 에디토리얼 타이포그래피 블록 (브랜드 12px Bold → 제품명 14px Regular 2줄 → 2단 Bold 보증 앵커 → 직배송 미세 아이콘) */}
+      <div className="pt-2.5 sm:pt-3 min-w-0">
+        {/* 1행: 제조사명(회사명) — 12px Bold(700) · 선명한 다크 잉크 · 타이트 자간 */}
+        <p
+          className={`truncate text-hb-xs leading-[1.35] tracking-[-0.022em] ${
+            hasBrand
+              ? "font-bold text-[#141A23]"
+              : "font-semibold text-[#525E6D]"
+          }`}
+        >
+          {brandLabel}
+        </p>
 
-          {/* 상품명 (2줄 고정 높이로 카드 행 가격선 일직선 정렬) */}
-          <h3
-            className={`mt-1.5 min-h-[2.8em] line-clamp-2 hb-card-title text-hb-sm font-bold leading-[1.4] transition-colors break-keep ${
-              sold
-                ? "text-[#475569]"
-                : "text-[#141A23] group-hover:text-[#C84312]"
-            }`}
-          >
-            {onSelect ? (
-              <button
-                type="button"
-                aria-label={`${product.title} ${isSelectMode ? "선택" : "상세 보기"}`}
-                onClick={() => onSelect(product)}
-                className="text-left focus-visible:outline-none after:absolute after:inset-0 after:z-10 cursor-pointer"
-              >
-                {product.title}
-              </button>
-            ) : (
-              <Link
-                href={`/${product.id}`}
-                className="focus-visible:outline-none after:absolute after:inset-0 after:z-10"
-              >
-                {product.title}
-              </Link>
-            )}
-          </h3>
-
-          {/* 가격 또는 맞춤 견적 행 */}
-          <div className="mt-2 flex items-baseline justify-between gap-2 min-w-0">
-            {sold ? (
-              <span className="text-hb-sm font-semibold text-[#475569] truncate block">
-                판매완료 · 유사매물 문의
-              </span>
-            ) : priced ? (
-              <strong className="block hb-card-price text-hb-lg font-extrabold text-[#141A23] font-mono tabular-nums tracking-tight truncate">
-                {priceText}
-              </strong>
-            ) : (
-              <div className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#C84312] truncate">
-                <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
-                <span className="sm:hidden truncate">견적 상담</span>
-                <span className="hidden sm:inline truncate">
-                  {priceText || "견적 상담 문의"}
-                </span>
-              </div>
-            )}
-          </div>
-
-          {/* 검수 완료 상태 & 무상 보증 요약 라인 (WCAG AA #0F766E / #334155) */}
-          {!sold && (
-            <div className="mt-2 flex items-center gap-1.5 text-hb-xs text-[#0F766E] min-w-0">
-              <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 shrink-0" />
-              <span className="font-bold shrink-0">작동점검</span>
-              <span className="text-[#94A3B8]" aria-hidden="true">
-                ·
-              </span>
-              <span className="font-semibold text-[#334155] truncate tabular-nums">
-                {warrantyInfo.compactLabel}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* 하단 핵심 스펙(tabular-nums) + 비교·담기 / 빠른 견적 진입 동선 */}
-        <div className="mt-3 pt-2.5 border-t border-[#E2E6EC] space-y-2 min-w-0">
-          <p className="min-w-0 truncate font-mono text-hb-xs font-semibold text-[#334155] tabular-nums">
-            {specSummaryText}
-          </p>
-
-          {!isSelectMode && !sold ? (
-            <div className="flex items-center gap-1.5 min-w-0">
-              <button
-                type="button"
-                onClick={handleToggleBasket}
-                aria-pressed={inBasket}
-                title={inBasket ? "비교·견적함에서 제외" : "비교·견적함에 담기"}
-                aria-label={`${inBasket ? "담김" : "비교·담기"} - ${
-                  product.title
-                } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-                className={`hb-trim relative z-20 flex-1 min-h-[34px] inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-[background-color,color,border-color,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer whitespace-nowrap ${
-                  inBasket
-                    ? "bg-[#FFF4EE] text-[#C84312] border border-[#C84312]/40"
-                    : "bg-[#F7F8FA] text-[#141A23] border border-[#CBD2DC] hover:bg-[#141A23] hover:border-[#141A23] hover:text-white"
-                }`}
-              >
-                <Icon
-                  d={inBasket ? ICON.check : ICON.columns}
-                  className={`h-3 w-3 shrink-0 ${
-                    inBasket ? "text-[#C84312]" : "text-current"
-                  }`}
-                />
-                <span>{inBasket ? "담김" : "비교·담기"}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleQuickQuote}
-                title={`${product.title} 빠른 견적 문의`}
-                aria-label={`${product.title} 빠른 견적 문의`}
-                className="hb-trim relative z-20 hidden sm:inline-flex min-h-[34px] shrink-0 items-center justify-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-2.5 py-1.5 text-hb-xs font-bold text-[#334155] hover:border-[#C84312] hover:bg-[#FFF4EE] hover:text-[#C84312] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] transition-[background-color,color,border-color,transform] duration-150 cursor-pointer whitespace-nowrap"
-              >
-                <Icon d={ICON.chat} className="h-3 w-3 shrink-0" />
-                <span>견적</span>
-              </button>
-            </div>
+        {/* 2행: 중복 제조사명·모델코드는 걷어내고 용도·규격은 명확히 살린 2줄 제품명 */}
+        <h3
+          className={`mt-0.5 line-clamp-2 text-hb-xs sm:text-hb-sm font-normal leading-[1.42] sm:leading-[1.42] tracking-[-0.024em] sm:tracking-[-0.026em] transition-colors break-keep ${
+            sold
+              ? "text-[#8B95A1]"
+              : "text-[#353C45] group-hover:text-[#141A23]"
+          }`}
+        >
+          {onSelect ? (
+            <button
+              type="button"
+              aria-label={`${product.title} ${
+                isSelectMode ? "선택" : "상세 보기"
+              }`}
+              onClick={() => onSelect(product)}
+              className="text-left focus-visible:outline-none after:absolute after:inset-0 after:z-10 cursor-pointer"
+            >
+              {descriptiveTitle}
+            </button>
           ) : (
-            <div className="flex items-center justify-end">
-              <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-bold text-[#475569] group-hover:text-[#141A23] transition-colors">
-                <span>상세 보기</span>
-                <Icon d={ICON.right} className="h-3.5 w-3.5" />
-              </span>
-            </div>
+            <Link
+              href={`/${product.id}`}
+              className="focus-visible:outline-none after:absolute after:inset-0 after:z-10"
+            >
+              {descriptiveTitle}
+            </Link>
           )}
-        </div>
+        </h3>
+
+        {/* 3행: 2단 컬러 Bold 시각 앵커 (SSOT 품목별 보증 정책 · 가격/별점/판매중/A급 미노출) */}
+        {sold ? (
+          <p className="mt-1.5 text-hb-sm sm:text-hb-base font-bold leading-[1.25] sm:leading-[1.25] tracking-[-0.026em] sm:tracking-[-0.028em] text-[#8B95A1]">
+            판매완료
+          </p>
+        ) : (
+          <p className="mt-1.5 flex items-baseline gap-1.5 truncate text-hb-sm sm:text-hb-base font-bold leading-[1.25] sm:leading-[1.25] tracking-[-0.026em] sm:tracking-[-0.028em] tabular-nums">
+            <span className="text-[#C84312]">{warrantyHighlight.accent}</span>
+            <span className="text-[#141A23]">{warrantyHighlight.label}</span>
+          </p>
+        )}
+
+        {/* 4행: 미세 트럭 아이콘 + 직배송·모델코드 1줄 메타 */}
+        <p
+          className="mt-1 flex items-center gap-1 min-w-0 text-hb-xs font-normal leading-[1.35] tracking-[-0.016em] text-[#7B8490] tabular-nums"
+          title={sold ? "유사매물 문의 가능" : deliveryMetaLine}
+        >
+          {sold ? (
+            <span className="truncate">유사매물 재고 문의 가능</span>
+          ) : (
+            <>
+              <Icon
+                d={ICON.truck}
+                strokeWidth={1.6}
+                className="h-3.5 w-3.5 shrink-0 text-[#8B95A1]"
+              />
+              <span className="truncate">{deliveryMetaLine}</span>
+            </>
+          )}
+        </p>
       </div>
     </article>
   );

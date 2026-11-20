@@ -1,7 +1,7 @@
 // 파일 경로: components/home/category-pictogram-bar.tsx
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { trackEvent } from "../../lib/site";
@@ -9,6 +9,7 @@ import { Icon, ICON } from "../../lib/icons";
 import {
   SHOWROOM_CATEGORIES,
   SHOWROOM_GROUP_TABS,
+  computeRailDragScroll,
   filterShowroomCategoriesByGroup,
   getShowroomCategoryWarrantyLabel,
   matchesShowroomCategory,
@@ -36,9 +37,32 @@ export function CategoryPictogramBar({
   categoryCounts?: Partial<Record<PictogramKey, number>>;
   embedded?: boolean;
 }) {
-  const railRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLDivElement | null>(null);
   const [groupFilter, setGroupFilter] = useState<ShowroomGroupFilter>("all");
   const [scrollRatio, setScrollRatio] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const suppressClickRef = useRef(false);
+  const momentumRafRef = useRef<number | null>(null);
+  const dragCleanupRef = useRef<(() => void) | null>(null);
+
+  const cancelMomentum = useCallback(() => {
+    if (momentumRafRef.current !== null) {
+      window.cancelAnimationFrame(momentumRafRef.current);
+      momentumRafRef.current = null;
+    }
+  }, []);
+
+  const setRailRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      railRef.current = node;
+      if (!node) {
+        cancelMomentum();
+        dragCleanupRef.current?.();
+      }
+    },
+    [cancelMomentum]
+  );
 
   const visibleItems = filterShowroomCategoriesByGroup(groupFilter);
 
@@ -74,8 +98,116 @@ export function CategoryPictogramBar({
   const scrollRailBy = (direction: -1 | 1) => {
     const el = railRef.current;
     if (!el) return;
+    cancelMomentum();
+    el.style.scrollBehavior = "";
     const step = Math.max(260, Math.round(el.clientWidth * 0.55));
     el.scrollBy({ left: direction * step, behavior: "smooth" });
+  };
+
+  const handleRailMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+    const el = railRef.current;
+    if (!el) return;
+    const maxScrollLeft = el.scrollWidth - el.clientWidth;
+    if (maxScrollLeft <= 4) return;
+
+    cancelMomentum();
+    dragCleanupRef.current?.();
+
+    const startX = e.clientX;
+    const startScrollLeft = el.scrollLeft;
+    let moved = false;
+    let lastX = e.clientX;
+    let lastTime = e.timeStamp;
+    let velocityPxPerMs = 0;
+
+    const handleMouseMove = (moveEv: MouseEvent) => {
+      const currentMaxScroll = el.scrollWidth - el.clientWidth;
+      const result = computeRailDragScroll({
+        startX,
+        currentX: moveEv.clientX,
+        startScrollLeft,
+        maxScrollLeft: currentMaxScroll,
+      });
+
+      const dt = Math.max(1, moveEv.timeStamp - lastTime);
+      const instantVelocity = (lastX - moveEv.clientX) / dt;
+      velocityPxPerMs = velocityPxPerMs * 0.5 + instantVelocity * 0.5;
+      lastX = moveEv.clientX;
+      lastTime = moveEv.timeStamp;
+
+      if (!result.isDragging) return;
+
+      if (!moved) {
+        moved = true;
+        suppressClickRef.current = true;
+        el.style.scrollBehavior = "auto";
+        setIsDragging(true);
+      }
+
+      moveEv.preventDefault();
+      el.scrollLeft = result.nextScrollLeft;
+      syncScrollProgress();
+    };
+
+    const finishDrag = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", finishDrag);
+      window.removeEventListener("blur", finishDrag);
+      dragCleanupRef.current = null;
+
+      if (!moved) return;
+
+      setIsDragging(false);
+
+      /* 드래그 직후 발생하는 click 1회만 차단하고, 레일 밖에서 놓은 경우 다음 프레임에 자동 해제 */
+      window.requestAnimationFrame(() => {
+        suppressClickRef.current = false;
+      });
+
+      let frameVelocity = velocityPxPerMs * 16;
+      if (Math.abs(frameVelocity) > 1.2) {
+        const glideStep = () => {
+          const maxScroll = el.scrollWidth - el.clientWidth;
+          const next = Math.min(
+            maxScroll,
+            Math.max(0, el.scrollLeft + frameVelocity)
+          );
+          el.scrollLeft = next;
+          syncScrollProgress();
+          frameVelocity *= 0.91;
+
+          const hitEdge = next <= 0 || next >= maxScroll;
+          if (!hitEdge && Math.abs(frameVelocity) > 0.35) {
+            momentumRafRef.current = window.requestAnimationFrame(glideStep);
+          } else {
+            momentumRafRef.current = null;
+            el.style.scrollBehavior = "";
+          }
+        };
+        momentumRafRef.current = window.requestAnimationFrame(glideStep);
+      } else {
+        el.style.scrollBehavior = "";
+      }
+    };
+
+    dragCleanupRef.current = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", finishDrag);
+      window.removeEventListener("blur", finishDrag);
+      el.style.scrollBehavior = "";
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", finishDrag);
+    window.addEventListener("blur", finishDrag);
+  };
+
+  const handleRailClickCapture = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!suppressClickRef.current) return;
+    e.preventDefault();
+    e.stopPropagation();
+    suppressClickRef.current = false;
   };
 
   const handleCategoryClick = (
@@ -241,13 +373,21 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 3. 삼성·LG 쇼룸 스타일 스튜디오 품목 레일 (카드 중첩 없는 에어리 레이아웃) */}
+        {/* 3. 삼성·LG 쇼룸 스타일 스튜디오 품목 레일 (마우스 클릭·드래그 가로 이동 지원) */}
         <div className="mt-5">
           <div className="relative">
             <div
-              ref={railRef}
+              ref={setRailRef}
               onScroll={syncScrollProgress}
-              className="flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scrollbar-none scroll-smooth snap-x snap-mandatory py-1.5 px-0.5 -mx-0.5 pr-8"
+              onMouseDown={handleRailMouseDown}
+              onClickCapture={handleRailClickCapture}
+              onDragStart={(e) => e.preventDefault()}
+              data-dragging={isDragging ? "true" : "false"}
+              className={`flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scrollbar-none py-1.5 px-0.5 -mx-0.5 pr-8 select-none ${
+                isDragging
+                  ? "scroll-auto cursor-grabbing"
+                  : "scroll-smooth cursor-grab"
+              }`}
             >
               {visibleItems.map((item) => {
                 const isSelected = selectedItem.key === item.key;
@@ -262,7 +402,9 @@ export function CategoryPictogramBar({
                       aria-pressed={true}
                       data-active="true"
                       onClick={(e) => handleCategoryClick(item, e.currentTarget)}
-                      className="hb-showroom-card group snap-start shrink-0 w-[308px] sm:w-[364px] lg:w-[392px] min-h-[172px] sm:min-h-[188px] border-2 border-[#141A23] grid grid-cols-[1.06fr_0.94fr] items-stretch text-left cursor-pointer"
+                      className={`hb-showroom-card group snap-start shrink-0 w-[308px] sm:w-[364px] lg:w-[392px] min-h-[172px] sm:min-h-[188px] border-2 border-[#141A23] grid grid-cols-[1.06fr_0.94fr] items-stretch text-left ${
+                        isDragging ? "cursor-grabbing" : "cursor-grab"
+                      }`}
                     >
                       {/* 좌측: 에디토리얼 품목 정보 */}
                       <div className="flex flex-col justify-between p-4 sm:p-5 pr-3 min-w-0">
@@ -301,6 +443,7 @@ export function CategoryPictogramBar({
                           src={item.imageSrc}
                           alt={item.imageAlt}
                           fill
+                          draggable={false}
                           sizes="(max-width: 640px) 160px, 200px"
                           referrerPolicy="no-referrer"
                           className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
@@ -317,7 +460,9 @@ export function CategoryPictogramBar({
                     aria-pressed={false}
                     data-active="false"
                     onClick={(e) => handleCategoryClick(item, e.currentTarget)}
-                    className="hb-showroom-card group snap-start shrink-0 w-[146px] sm:w-[166px] lg:w-[176px] min-h-[172px] sm:min-h-[188px] border border-[#EAE6DD] hover:border-[#CFC8BA] flex flex-col items-center justify-between pt-3.5 pb-2 px-2 text-center cursor-pointer"
+                    className={`hb-showroom-card group snap-start shrink-0 w-[146px] sm:w-[166px] lg:w-[176px] min-h-[172px] sm:min-h-[188px] border border-[#EAE6DD] hover:border-[#CFC8BA] flex flex-col items-center justify-between pt-3.5 pb-2 px-2 text-center ${
+                      isDragging ? "cursor-grabbing" : "cursor-grab"
+                    }`}
                   >
                     {/* 상단: 정갈한 중앙 타이틀 + 무박스 수량 텍스트 */}
                     <div className="w-full px-1">
@@ -339,6 +484,7 @@ export function CategoryPictogramBar({
                         src={item.imageSrc}
                         alt={item.imageAlt}
                         fill
+                        draggable={false}
                         sizes="(max-width: 640px) 146px, 176px"
                         referrerPolicy="no-referrer"
                         className="object-cover transition-transform duration-300 group-hover:scale-[1.06]"
@@ -348,6 +494,14 @@ export function CategoryPictogramBar({
                 );
               })}
             </div>
+
+            {/* 좌측 수평 스크롤 힌트 페이드 */}
+            <div
+              className={`pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white via-white/80 to-transparent transition-opacity duration-200 ${
+                scrollRatio > 0.03 ? "opacity-100" : "opacity-0"
+              }`}
+              aria-hidden="true"
+            />
 
             {/* 우측 수평 스크롤 힌트 페이드 */}
             <div

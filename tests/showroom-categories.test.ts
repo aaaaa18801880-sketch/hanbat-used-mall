@@ -4,6 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import {
   SHOWROOM_CATEGORIES,
+  RAIL_DRAG_THRESHOLD_PX,
+  computeRailDragScroll,
   filterShowroomCategoriesByGroup,
   getShowroomCategoryWarrantyLabel,
   matchesShowroomCategory,
@@ -57,4 +59,52 @@ test("matchesShowroomCategory partitions commercial items mutually exclusively a
   const fridge = SHOWROOM_CATEGORIES.find((c) => c.key === "fridge")!;
   assert.match(getShowroomCategoryWarrantyLabel(aircon), /8개월/);
   assert.match(getShowroomCategoryWarrantyLabel(fridge), /4개월/);
+});
+
+test("computeRailDragScroll ignores micro jitter and scrolls cleanly on left/right drag with clamping", () => {
+  const jitter = computeRailDragScroll({
+    startX: 500,
+    currentX: 500 - (RAIL_DRAG_THRESHOLD_PX - 1),
+    startScrollLeft: 0,
+    maxScrollLeft: 600,
+  });
+  assert.equal(jitter.isDragging, false);
+  assert.equal(jitter.nextScrollLeft, 0);
+
+  const dragLeft = computeRailDragScroll({
+    startX: 600,
+    currentX: 400,
+    startScrollLeft: 0,
+    maxScrollLeft: 600,
+    multiplier: 1,
+  });
+  assert.equal(dragLeft.isDragging, true);
+  assert.equal(dragLeft.nextScrollLeft, 200);
+
+  const dragRight = computeRailDragScroll({
+    startX: 400,
+    currentX: 550,
+    startScrollLeft: 300,
+    maxScrollLeft: 600,
+    multiplier: 1,
+  });
+  assert.equal(dragRight.isDragging, true);
+  assert.equal(dragRight.nextScrollLeft, 150);
+
+  const clampedRight = computeRailDragScroll({
+    startX: 600,
+    currentX: 0,
+    startScrollLeft: 400,
+    maxScrollLeft: 500,
+    multiplier: 1.15,
+  });
+  assert.equal(clampedRight.nextScrollLeft, 500);
+
+  const clampedLeft = computeRailDragScroll({
+    startX: 100,
+    currentX: 500,
+    startScrollLeft: 50,
+    maxScrollLeft: 500,
+  });
+  assert.equal(clampedLeft.nextScrollLeft, 0);
 });

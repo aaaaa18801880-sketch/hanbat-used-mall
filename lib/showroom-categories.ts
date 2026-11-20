@@ -217,3 +217,54 @@ export function matchesShowroomCategory(
 
   return true;
 }
+
+export const RAIL_DRAG_THRESHOLD_PX = 6;
+
+export interface RailDragScrollInput {
+  startX: number;
+  currentX: number;
+  startScrollLeft: number;
+  maxScrollLeft: number;
+  multiplier?: number;
+}
+
+export interface RailDragScrollResult {
+  deltaX: number;
+  isDragging: boolean;
+  nextScrollLeft: number;
+}
+
+/**
+ * 마우스 클릭-드래그 가로 이동량 계산 순수 함수
+ * - 왼쪽으로 끌면(currentX < startX, deltaX < 0) scrollLeft가 증가해 오른쪽 품목이 노출됩니다.
+ * - 미세 흔들림(RAIL_DRAG_THRESHOLD_PX 미만)은 일반 클릭으로 유지합니다.
+ */
+export function computeRailDragScroll({
+  startX,
+  currentX,
+  startScrollLeft,
+  maxScrollLeft,
+  multiplier = 1.15,
+}: RailDragScrollInput): RailDragScrollResult {
+  const deltaX = currentX - startX;
+  const isDragging = Math.abs(deltaX) >= RAIL_DRAG_THRESHOLD_PX;
+  const clampedMax = Math.max(0, maxScrollLeft);
+
+  if (!isDragging || clampedMax === 0) {
+    return {
+      deltaX,
+      isDragging: false,
+      nextScrollLeft: Math.min(clampedMax, Math.max(0, Math.round(startScrollLeft))),
+    };
+  }
+
+  const rawScrollLeft = startScrollLeft - deltaX * multiplier;
+  const nextScrollLeft = Math.min(clampedMax, Math.max(0, Math.round(rawScrollLeft)));
+
+  return {
+    deltaX,
+    isDragging: true,
+    nextScrollLeft,
+  };
+}
+

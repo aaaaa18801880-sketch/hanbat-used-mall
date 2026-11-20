@@ -119,7 +119,7 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
   },
 };
 
-const INITIAL_DISPLAY_LIMIT = 8;
+const INITIAL_DISPLAY_LIMIT = 10;
 
 export function FeaturedProductsSection({
   products,
@@ -194,8 +194,8 @@ export function FeaturedProductsSection({
       aria-labelledby="featured-heading"
       className={
         embedded
-          ? "bg-white pt-4 pb-10 sm:pt-5 sm:pb-12"
-          : "border-b border-[#E2E6EC] bg-white pt-8 pb-12 sm:pt-11 sm:pb-16"
+          ? "bg-white pt-4 pb-10 sm:pt-6 sm:pb-14 border-t border-[#EAE5DC]"
+          : "border-b border-[#E2DDD3] bg-white pt-8 pb-12 sm:pt-11 sm:pb-16"
       }
     >
       <div className="hb-container">
@@ -271,8 +271,8 @@ export function FeaturedProductsSection({
                   </p>
                 ) : (
                   <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#334155] break-keep">
-                    마음에 드는 카드의{" "}
-                    <strong className="font-bold text-[#141A23]">비교·담기</strong>를 누르면 최대{" "}
+                    각 매물 사진 우측 하단의{" "}
+                    <strong className="font-bold text-[#141A23]">하트(비교 담기)</strong>를 누르면 최대{" "}
                     <span className="font-mono font-bold tabular-nums text-[#C84312]">3대</span>{" "}
                     스펙·가로폭을 나란히 비교하고 한 번에 견적을 받을 수 있습니다.
                   </p>
@@ -382,19 +382,16 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch"
+            className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11"
             aria-hidden="true"
           >
-            {Array.from({ length: 8 }).map((_, idx) => (
-              <div
-                key={idx}
-                className="overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white animate-pulse"
-              >
-                <div className="aspect-square bg-[#F1F3F6]" />
-                <div className="p-4 space-y-3">
-                  <div className="h-3 w-1/3 rounded-full bg-[#F1F3F6]" />
-                  <div className="h-5 w-4/5 rounded-lg bg-[#F1F3F6]" />
-                  <div className="h-6 w-1/2 rounded-lg bg-[#F1F3F6] pt-2" />
+            {Array.from({ length: 10 }).map((_, idx) => (
+              <div key={idx} className="animate-pulse">
+                <div className="aspect-square rounded-lg bg-[#F4F3F0]" />
+                <div className="pt-2.5 sm:pt-3 space-y-1.5">
+                  <div className="h-3.5 w-1/3 rounded bg-[#F4F3F0]" />
+                  <div className="h-3.5 w-11/12 rounded bg-[#F4F3F0]" />
+                  <div className="h-3 w-2/3 rounded bg-[#F4F3F0]" />
                 </div>
               </div>
             ))}
@@ -447,14 +444,14 @@ export function FeaturedProductsSection({
           </div>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch">
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
               {displayedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
             {/* 하단 더보기 및 전체 갤러리 이동 바 */}
-            <div className="mt-10 pt-6 border-t border-[#E2E6EC] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-12 pt-6 border-t border-[#E2E6EC] flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
                 표시 중:{" "}
                 <strong className="font-mono font-bold text-[#141A23] tabular-nums">
@@ -471,10 +468,10 @@ export function FeaturedProductsSection({
                 {filteredProducts.length > visibleCount && (
                   <button
                     type="button"
-                    onClick={() => setVisibleCount((prev) => prev + 8)}
+                    onClick={() => setVisibleCount((prev) => prev + 10)}
                     className="hb-btn-outline h-11 px-5 text-hb-sm font-bold cursor-pointer active:scale-[0.96]"
                   >
-                    <span>이 화면에서 매물 더보기 (+8)</span>
+                    <span>이 화면에서 매물 더보기 (+10)</span>
                     <Icon d={ICON.down} className="w-4 h-4" />
                   </button>
                 )}
