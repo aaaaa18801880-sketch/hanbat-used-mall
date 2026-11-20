@@ -229,7 +229,10 @@ export default async function GuideBoardPage() {
       </main>
 
       <SiteFooter />
-      <MobileCtaBar />
+      <MobileCtaBar
+        primaryActionLabel="실매물 보기"
+        primaryActionHref="/gallery"
+      />
     </div>
   );
 }

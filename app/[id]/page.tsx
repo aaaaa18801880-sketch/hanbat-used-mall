@@ -2,10 +2,12 @@
 import type { Metadata } from "next";
 import { cache } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import dynamic from "next/dynamic";
 import { notFound } from "next/navigation";
 import { supabase } from "../../lib/supabase";
 import { serializeJsonLd } from "../../lib/json-ld";
+import { resolveGuideThumbnail } from "../../lib/guides/thumbnails";
 import {
   STORE,
   STORE_MERCHANT_POLICY,
@@ -352,7 +354,7 @@ export default async function ProductDetailPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] font-sans text-[#141A23] flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(productJsonLd) }}
@@ -422,7 +424,7 @@ export default async function ProductDetailPage({
 
           {/* 블록 2: 구매·문의 콘솔 BuyBox (모바일에서 사진 바로 다음 2번째로 즉시 노출, 데스크톱에서는 우측 5컬럼 Sticky) */}
           <div className="lg:col-start-8 lg:col-span-5 lg:row-start-1 lg:row-span-2 min-w-0 self-start lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs">
+            <div className="rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-7 shadow-2xs">
               {/* 상단 카테고리 & 등록일 헤더 */}
               <div className="flex flex-wrap items-center gap-2">
                 <Link
@@ -430,7 +432,7 @@ export default async function ProductDetailPage({
                   className={`rounded-md px-2.5 py-0.5 text-hb-xs font-bold transition-colors ${
                     isB2B
                       ? "bg-[#141A23] text-white hover:bg-[#1E2736]"
-                      : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] hover:border-[#CBD2DC]"
+                      : "border border-[#E2DDD3] bg-[#FAF9F6] text-[#141A23] hover:border-[#141A23]/40"
                   }`}
                 >
                   {categoryLabel}
@@ -448,8 +450,8 @@ export default async function ProductDetailPage({
                 {product.title}
               </h1>
 
-              {/* 쇼룸 프라이스 콜아웃 박스 (가격, 세척·시운전 검수 완료 배지, 결제 증빙 안내 일체화) */}
-              <div className="mt-4 rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-4 space-y-3">
+              {/* 쇼룸 프라이스 콜아웃 박스 (가격, 세척·작동 점검 완료 배지, 결제 증빙 안내 일체화) */}
+              <div className="mt-4 rounded-xl bg-[#FAF9F6] border border-[#E2DDD3] p-4 space-y-3">
                 <div className="flex flex-wrap items-baseline justify-between gap-2.5">
                   <div>
                     {sold ? (
@@ -477,11 +479,11 @@ export default async function ProductDetailPage({
                     )}
                   </div>
                   <span className="text-hb-xs font-semibold text-[#0F766E] shrink-0">
-                    세척·시운전 검수 완료
+                    고압세척·작동 점검 완료
                   </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#E2E6EC] text-hb-xs text-[#64748B]">
+                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#E2DDD3] text-hb-xs text-[#64748B]">
                   <span className="font-medium">
                     세금계산서 · 현금영수증 · 카드결제 지원
                   </span>
@@ -492,7 +494,7 @@ export default async function ProductDetailPage({
               </div>
 
               {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 */}
-              <dl className="mt-4 border-y border-[#E2E6EC] divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm">
+              <dl className="mt-4 border-y border-[#E2DDD3] divide-y divide-[#E2DDD3] text-hb-xs sm:text-hb-sm">
                 <div className="flex items-center justify-between gap-3 py-3">
                   <dt className="font-semibold text-[#64748B] shrink-0">
                     모델명 / 코드
@@ -657,10 +659,10 @@ export default async function ProductDetailPage({
           </dl>
         </section>
 
-        {/* 구매 전 함께 확인하는 현장 실무 가이드 (상품-정보 게시판 내부 연결) */}
+        {/* 구매 전 함께 확인하는 현장 실무 가이드 (상품-정보 게시판 비주얼 연결) */}
         <section
           aria-label="구매 전 확인해야 할 현장 실무 가이드"
-          className="mt-10 pt-8 border-t border-[#E2E6EC]"
+          className="mt-10 pt-8 border-t border-[#E2DDD3]"
         >
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div className="space-y-1">
@@ -678,30 +680,45 @@ export default async function ProductDetailPage({
               정보 게시판 전체 보기 →
             </Link>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-            {getInfoGuidesForProductCategory(categoryLabel, 3).map((guide) => (
-              <Link
-                key={guide.slug}
-                href={`/guide/${guide.slug}`}
-                className="group rounded-2xl border border-[#E2E6EC] bg-white p-4 shadow-2xs hover:border-[#141A23] transition-colors flex flex-col justify-between gap-2.5"
-              >
-                <div>
-                  <span className="text-hb-xs font-bold text-[#E8521A]">
-                    {guide.category}
-                  </span>
-                  <h3 className="mt-1 text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep line-clamp-2">
-                    {guide.title}
-                  </h3>
-                  <p className="mt-1.5 text-hb-xs text-[#475569] leading-[1.55] line-clamp-2">
-                    {guide.summary}
-                  </p>
-                </div>
-                <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A]">
-                  <span>가이드 읽기</span>
-                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-                </span>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {getInfoGuidesForProductCategory(categoryLabel, 3).map((guide) => {
+              const thumb = resolveGuideThumbnail(guide);
+              return (
+                <Link
+                  key={guide.slug}
+                  href={`/guide/${guide.slug}`}
+                  className="group overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs hover:border-[#141A23] transition-colors flex flex-col"
+                >
+                  <div className="relative aspect-video w-full overflow-hidden bg-[#141A23]">
+                    <Image
+                      src={thumb.src}
+                      alt={thumb.alt}
+                      fill
+                      sizes="(max-width: 768px) 100vw, 360px"
+                      referrerPolicy="no-referrer"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                    />
+                    <span className="absolute left-3 top-3 rounded-md bg-white/95 backdrop-blur-xs px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23]">
+                      {guide.category}
+                    </span>
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between gap-2.5 p-4">
+                    <div>
+                      <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep line-clamp-2">
+                        {guide.title}
+                      </h3>
+                      <p className="mt-1.5 text-hb-xs text-[#475569] leading-[1.55] line-clamp-2">
+                        {guide.summary}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A]">
+                      <span>가이드 읽기</span>
+                      <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 

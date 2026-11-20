@@ -567,12 +567,12 @@ export function InquiryBoardClient({
     Boolean(item.has_images || (item.images && item.images.length > 0));
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] text-[#141A23] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#141A23] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden sm:inline-flex items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23]"
+            className="hidden sm:inline-flex items-center rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23]"
           >
             통합 관리자 대시보드
           </Link>
@@ -587,13 +587,24 @@ export function InquiryBoardClient({
       </SiteHeader>
 
       {/* 상단 게시판 헤더 */}
-      <section className="bg-[#F7F8FA] border-b border-[#E2E6EC]">
-        <div className="hb-container py-9 sm:py-12">
+      <section className="bg-white border-b border-[#E2DDD3]">
+        <div className="hb-container py-7 sm:py-10">
+          <nav
+            aria-label="페이지 경로"
+            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-4"
+          >
+            <Link href="/" className="hover:text-[#141A23] transition-colors">
+              홈
+            </Link>
+            <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#94A3B8]" />
+            <span className="font-bold text-[#141A23]">문의 게시판</span>
+          </nav>
+
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
             <div>
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="hb-eyebrow">구매 · 매입 · 업소용 상담 게시판</span>
-                <span className="text-hb-xs text-[#E2E6EC]" aria-hidden="true">|</span>
+                <span className="text-hb-xs text-[#CBD2DC]" aria-hidden="true">·</span>
                 <span className="text-hb-xs font-semibold text-[#64748B]">
                   비밀번호 보호 안전 열람
                 </span>
@@ -601,7 +612,7 @@ export function InquiryBoardClient({
               <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2]">
                 고객 문의 · 매입 신청 게시판
               </h1>
-              <p className="mt-2.5 text-hb-base text-[#334155] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
+              <p className="mt-2.5 text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
                 남겨주신 구매 상담과 매입 신청은 비밀번호로 안전하게 열람하실 수 있습니다.
                 <br className="hidden sm:inline" /> 빠른 상담이 필요하신 경우 직통 대표전화로 연락해 주세요.
               </p>
@@ -618,7 +629,7 @@ export function InquiryBoardClient({
               </button>
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-outline h-11 px-4 text-hb-sm tabular-nums"
+                className="hb-btn-outline h-11 px-4 text-hb-sm font-mono tabular-nums"
               >
                 <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
                 <span>전화 {STORE.tel}</span>
@@ -651,13 +662,13 @@ export function InquiryBoardClient({
                   className={`px-3 sm:px-3.5 py-2 rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap border transition-colors shrink-0 ${
                     active
                       ? "bg-[#141A23] text-white border-[#141A23] shadow-2xs"
-                      : "bg-white text-[#334155] border-[#E2E6EC] hover:border-[#141A23]/40 hover:bg-[#F7F8FA]"
+                      : "bg-white text-[#334155] border-[#E2DDD3] hover:border-[#141A23]/40 hover:bg-[#FAF9F6]"
                   }`}
                 >
                   {tab}
                   <span
-                    className={`ml-1.5 text-hb-xs tabular-nums ${
-                      active ? "text-[#FB923C]" : "text-[#64748B]"
+                    className={`ml-1.5 font-mono text-hb-xs tabular-nums ${
+                      active ? "text-[#FF8A50]" : "text-[#64748B]"
                     }`}
                   >
                     {tabCounts[tab] || 0}
@@ -710,9 +721,9 @@ export function InquiryBoardClient({
         </div>
 
         {/* 데스크톱 테이블 */}
-        <div className="hidden md:block overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-card">
+        <div className="hidden md:block overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs">
           <table className="w-full text-hb-sm text-center text-[#141A23]">
-            <thead className="bg-[#F7F8FA] text-[#64748B] text-hb-xs font-bold border-b border-[#E2E6EC]">
+            <thead className="bg-[#FAF9F6] text-[#64748B] text-hb-xs font-bold border-b border-[#E2DDD3]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
                 <th className="w-32">구분</th>
@@ -722,7 +733,7 @@ export function InquiryBoardClient({
                 <th className="w-28">등록일</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#F1F3F6]">
+            <tbody className="divide-y divide-[#EFECE6]">
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={`sk-${i}`} className="h-14 animate-pulse">
@@ -1025,7 +1036,11 @@ export function InquiryBoardClient({
           isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true)
         }
       />
-      <MobileCtaBar onInquiryClick={handleOpenWrite} />
+      <MobileCtaBar
+        onInquiryClick={handleOpenWrite}
+        primaryActionLabel="문의 글쓰기"
+        accentPrimary
+      />
 
       {/* 글쓰기 모달 */}
       {isWriteOpen && (

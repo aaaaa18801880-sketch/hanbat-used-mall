@@ -894,7 +894,7 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [2/6] 품목별 쇼룸 탐색 바 → 6단계 리퍼비시 검수 쇼케이스 → 실시간 쇼룸 전시 매물
+            [2/6] 품목별 쇼룸 탐색 바 → 실시간 쇼룸 전시 매물 (물건 먼저) → 4단계 현장 확인·세척·출고 신뢰
             ════════════════════════════════════════════════════════════ */}
         <section
           aria-label="품목별 쇼룸 카탈로그"
@@ -910,8 +910,6 @@ export default function Home({
           />
         </section>
 
-        <ShowroomTrustShowcase />
-
         <FeaturedProductsSection
           products={featuredProducts}
           loading={productsLoading}
@@ -924,6 +922,8 @@ export default function Home({
           selectedCategory={selectedCategory}
           onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
         />
+
+        <ShowroomTrustShowcase />
 
         {/* ════════════════════════════════════════════════════════════
             [3/6] 오프라인 직영 쇼룸 오시는 길 (확대 지도) 및 실시간 상담 현황 (#inquiry-section + #location-section)

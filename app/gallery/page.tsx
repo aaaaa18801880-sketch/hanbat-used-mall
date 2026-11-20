@@ -1988,7 +1988,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] text-[#141A23] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#141A23] font-sans flex flex-col">
       <SiteHeader>
         {isAdmin && (
           <div className="flex items-center gap-2">
@@ -2002,7 +2002,7 @@ export default function GalleryPage() {
             <button
               type="button"
               onClick={handleAdminLogout}
-              className="hidden sm:inline-flex items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3 h-10 sm:h-11 text-hb-xs font-semibold text-[#334155] hover:text-[#141A23]"
+              className="hidden sm:inline-flex items-center rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3 h-10 sm:h-11 text-hb-xs font-semibold text-[#334155] hover:text-[#141A23]"
             >
               관리자 OFF
             </button>
@@ -2011,27 +2011,27 @@ export default function GalleryPage() {
       </SiteHeader>
 
       {/* 상단 쇼룸 컴팩트 헤더 (타이틀 + 실시간 재고 지표 + 통합 검색바) */}
-      <section className="bg-white border-b border-[#E2E6EC]">
-        <div className="hb-container py-3.5 sm:py-5">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <section className="bg-white border-b border-[#E2DDD3]">
+        <div className="hb-container py-4 sm:py-6">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#C84312]">
-                <span>대전 중촌동 직영 매장</span>
+                <span>{STORE.name} · 직영 전시장 실매물</span>
                 {!isLoading && (
                   <>
                     <span className="text-[#CBD2DC]" aria-hidden="true">·</span>
-                    <span className="text-[#0F766E] tabular-nums">
+                    <span className="font-mono text-[#0F766E] tabular-nums">
                       구매 가능 {sellingCount}건
                     </span>
                   </>
                 )}
               </div>
               <div className="mt-1 flex flex-wrap items-baseline gap-2.5">
-                <h1 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-[-0.028em]">
+                <h1 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] tracking-[-0.028em]">
                   판매 제품 갤러리
                 </h1>
                 <p className="hidden sm:inline text-hb-xs text-[#64748B] truncate">
-                  분해 세척·작동 검수 완료 실매물 · 가격 및 미등록 재고 문의 환영
+                  고압세척·배송 전 작동 점검 완료 실매물 · 가격 및 미등록 재고 문의 환영
                 </p>
               </div>
             </div>
@@ -2096,8 +2096,8 @@ export default function GalleryPage() {
         </div>
       </section>
 
-      {/* 스티키 카테고리 및 필터 컨트롤 바 (리퀴드 글래스 단일 행 중심) */}
-      <div className="sticky top-16 sm:top-[72px] z-30 hb-glass">
+      {/* 스티키 카테고리 및 필터 컨트롤 바 */}
+      <div className="sticky top-16 sm:top-[72px] z-30 border-b border-[#E2DDD3] bg-[#FAF9F6]/95 backdrop-blur-md">
         <div className="hb-container py-2 sm:py-2.5 flex flex-col gap-2">
           {/* 1행: 좌측 품목 탭 + 우측 데스크톱 인라인 필터 */}
           <div className="flex items-center justify-between gap-3">
@@ -2119,16 +2119,16 @@ export default function GalleryPage() {
                       setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                     }}
-                    className={`h-9 px-4 inline-flex items-center rounded-full text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-[background-color,color,box-shadow,transform] active:scale-[0.96] shrink-0 cursor-pointer ${
+                    className={`h-9 px-3.5 inline-flex items-center rounded-lg border text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-[background-color,color,border-color,transform] active:scale-[0.96] shrink-0 cursor-pointer ${
                       active
-                        ? "bg-[#141A23] text-white shadow-xs"
-                        : "bg-[#F1F3F6] text-[#334155] hover:bg-[#E2E6EC] hover:text-[#141A23]"
+                        ? "border-[#141A23] bg-[#141A23] text-white shadow-2xs"
+                        : "border-[#E2DDD3] bg-white text-[#334155] hover:border-[#141A23]/40 hover:text-[#141A23]"
                     }`}
                   >
                     {cat}
                     <span
-                      className={`ml-1.5 text-hb-xs tabular-nums ${
-                        active ? "text-[#FF8A50]" : "text-[#475569]"
+                      className={`ml-1.5 font-mono text-hb-xs tabular-nums ${
+                        active ? "text-[#FF8A50]" : "text-[#64748B]"
                       }`}
                     >
                       {categoryCounts[cat] || 0}
@@ -2324,7 +2324,7 @@ export default function GalleryPage() {
 
       {/* 메인 상품 그리드 */}
       <main id="main-content" tabIndex={-1} className="hb-container py-5 sm:py-8 flex-1 focus:outline-none">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#E2E6EC]">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#E2DDD3]">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-hb-xs sm:text-hb-sm text-[#334155]">
               {isLoading ? (
@@ -2332,7 +2332,7 @@ export default function GalleryPage() {
               ) : (
                 <>
                   전시 매물{" "}
-                  <strong className="text-[#141A23] font-bold tabular-nums">
+                  <strong className="font-mono text-[#141A23] font-bold tabular-nums">
                     {filteredProducts.length}
                   </strong>
                   건
@@ -2358,7 +2358,7 @@ export default function GalleryPage() {
             <div
               role="group"
               aria-label="매물 표시 방식"
-              className="inline-flex items-center rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] p-0.5"
+              className="inline-flex items-center rounded-lg border border-[#E2DDD3] bg-white p-0.5"
             >
               <button
                 type="button"
@@ -2660,7 +2660,10 @@ export default function GalleryPage() {
           isAdmin ? handleAdminLogout() : setIsAdminAuthModalOpen(true)
         }
       />
-      <MobileCtaBar />
+      <MobileCtaBar
+        primaryActionLabel="재고·견적문의"
+        inquiryFallbackType="구매 문의"
+      />
 
       {/* 상세 보기 및 단건 수정 모달 */}
       {selectedProduct && (

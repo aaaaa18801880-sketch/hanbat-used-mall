@@ -1,4 +1,6 @@
 import React from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { STORE, telHref } from "../../lib/site";
 import { serializeJsonLd } from "../../lib/json-ld";
 import {
@@ -99,31 +101,107 @@ export default function PurchasePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] font-sans text-[#141A23] flex flex-col">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
       <SiteHeader />
 
-      {/* 상단 매입 전용 헤더 */}
-      <section className="bg-white border-b border-[#E2E6EC]">
-        <div className="hb-container py-8 sm:py-11">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div>
+      {/* 상단 매입 전용 에디토리얼 헤더 (좌측 핵심 안내 + 우측 명판 촬영 비주얼 카드) */}
+      <section className="bg-white border-b border-[#E2DDD3]">
+        <div className="hb-container py-7 sm:py-10">
+          <nav
+            aria-label="페이지 경로"
+            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-4"
+          >
+            <Link href="/" className="hover:text-[#141A23] transition-colors">
+              홈
+            </Link>
+            <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#94A3B8]" />
+            <span className="font-bold text-[#141A23]">가전 매입</span>
+          </nav>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+            <div className="lg:col-span-7 space-y-3">
               <span className="hb-eyebrow">가전 · 업소용 주방설비 방문 매입</span>
-              <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] leading-[1.2] text-[#141A23]">
-                중고 가전 · 업소용 주방기기 매입 신청
+              <h1 className="text-hb-2xl sm:text-hb-3xl font-bold tracking-[-0.03em] leading-[1.2] text-[#141A23] break-keep [text-wrap:balance]">
+                중고 가전 · 업소용 주방기기 방문 매입 신청
               </h1>
-              <p className="mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed break-keep [text-wrap:pretty]">
+              <p className="max-w-2xl text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed break-keep [text-wrap:pretty]">
                 가정 이사·가전 교체부터 식당·카페·사무실 폐업 및 이전 대량 정리까지,
-                <br className="hidden sm:inline" /> 사진과 품목 정보를 남겨주시면 확인 후 방문 수거 및 현장 즉시 정산을 도와드립니다.
+                사진과 품목 정보를 남겨주시면 확인 후 직영 차량 방문 수거 및 현장 즉시 정산을 도와드립니다.
               </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                <a
+                  href="#purchase-form"
+                  className="hb-btn-accent h-11 px-5 text-hb-sm"
+                >
+                  <span>사진으로 견적 신청하기</span>
+                  <Icon d={ICON.arrow} className="w-4 h-4" />
+                </a>
+                <a
+                  href={STORE.kakaoChat}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hb-btn-kakao h-11 px-4 text-hb-sm"
+                >
+                  <Icon d={ICON.chat} className="w-4 h-4" />
+                  <span>카톡 사진 전송</span>
+                </a>
+                <a
+                  href={telHref(STORE.mobile)}
+                  className="hb-btn-outline h-11 px-4 text-hb-sm font-mono tabular-nums"
+                >
+                  <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
+                  <span>{STORE.mobile}</span>
+                </a>
+              </div>
             </div>
 
-            <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#64748B] shrink-0">
-              가정용·업소용 전 품목 · 기사 직접 철거·수거 · 현장 즉시 정산
-            </p>
+            <div className="lg:col-span-5">
+              <div className="overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6]">
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#141A23]">
+                  <Image
+                    src="/images/guide/buyback-appraisal.jpg"
+                    alt="가전 정면과 명판 스티커를 촬영해 현장 감가 없이 매입 견적을 확인하는 안내 일러스트"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 480px"
+                    priority
+                    loading="eager"
+                    referrerPolicy="no-referrer"
+                    className="object-cover"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#141A23]/85 via-[#141A23]/40 to-transparent"
+                    aria-hidden="true"
+                  />
+                  <div className="absolute inset-x-3.5 bottom-3 flex items-end justify-between gap-2 text-white">
+                    <div>
+                      <p className="text-hb-xs font-bold text-[#FF8A50]">
+                        빠른 견적 핵심 팁
+                      </p>
+                      <p className="text-hb-xs sm:text-hb-sm font-bold leading-snug">
+                        정면 1장 + 명판 스티커 1장이면 가장 정확합니다
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-2 px-4 py-3 text-hb-xs">
+                  <span className="font-semibold text-[#475569]">
+                    현장 감가 막는 사전 체크 방법
+                  </span>
+                  <Link
+                    href="/guide/appliance-buyback-no-deduction-guide"
+                    className="inline-flex items-center gap-1 font-bold text-[#C84312] hover:text-[#141A23] transition-colors shrink-0"
+                  >
+                    <span>요령 보기</span>
+                    <Icon d={ICON.right} className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -132,7 +210,7 @@ export default function PurchasePage() {
         {/* 3단계 매입 진행 프로세스 일체형 아키텍처 바 */}
         <section
           aria-label="방문 매입 진행 절차"
-          className="rounded-2xl border border-[#E2E6EC] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E2E6EC] shadow-2xs grid grid-cols-1 md:grid-cols-3 overflow-hidden"
+          className="rounded-2xl border border-[#E2DDD3] bg-white divide-y md:divide-y-0 md:divide-x divide-[#E2DDD3] shadow-2xs grid grid-cols-1 md:grid-cols-3 overflow-hidden"
         >
           {BUYBACK_STEPS.map((item) => (
             <div
@@ -145,7 +223,7 @@ export default function PurchasePage() {
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <span className="text-hb-xs font-bold tracking-[0.06em] text-[#E8521A]">
+                  <span className="font-mono tabular-nums text-hb-xs font-bold tracking-[0.06em] text-[#E8521A]">
                     {item.step}
                   </span>
                 </div>
@@ -165,12 +243,12 @@ export default function PurchasePage() {
           aria-label="매입 가능 및 제외 기준"
           className="grid grid-cols-1 md:grid-cols-2 gap-4"
         >
-          <div className="rounded-2xl border border-[#CBD2DC] bg-white p-5 sm:p-6 shadow-2xs">
-            <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
+          <div className="rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-6 shadow-2xs">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2DDD3]">
               <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
                 매입 가능 · 우대 기준
               </h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 text-hb-xs font-bold text-[#047857] shrink-0">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#ECFDF5] border border-[#A7F3D0] px-2.5 py-0.5 text-hb-xs font-bold text-[#047857] shrink-0">
                 <Icon d={ICON.check} className="w-3 h-3" />
                 <span>우선 매입</span>
               </span>
@@ -188,12 +266,12 @@ export default function PurchasePage() {
             </ul>
           </div>
 
-          <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs">
-            <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
+          <div className="rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-6 shadow-2xs">
+            <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2DDD3]">
               <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
                 매입 불가 · 사전 확인 필요
               </h2>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF7ED] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#C2410C] shrink-0">
+              <span className="inline-flex items-center gap-1 rounded-md bg-[#FFF7ED] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#C2410C] shrink-0">
                 <Icon d={ICON.close} className="w-3 h-3" />
                 <span>제외 · 협의</span>
               </span>
@@ -216,9 +294,9 @@ export default function PurchasePage() {
           {/* 좌측 8컬럼: 통합 매입 신청 폼 */}
           <div
             id="purchase-form"
-            className="scroll-mt-24 rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs lg:col-span-8"
+            className="scroll-mt-24 rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-7 shadow-2xs lg:col-span-8"
           >
-            <div className="mb-5 pb-4 border-b border-[#E2E6EC] flex flex-wrap items-center justify-between gap-2">
+            <div className="mb-5 pb-4 border-b border-[#E2DDD3] flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
                   온라인 매입 견적 신청서
@@ -227,7 +305,7 @@ export default function PurchasePage() {
                   사진과 수거 지역을 남겨주시면 담당 기사가 확인 후 매입 견적과 수거 일정을 안내해 드립니다.
                 </p>
               </div>
-              <span className="rounded-lg bg-[#F7F8FA] border border-[#E2E6EC] px-3 py-1 text-hb-xs font-bold text-[#141A23]">
+              <span className="rounded-lg bg-[#FAF9F6] border border-[#E2DDD3] px-3 py-1 text-hb-xs font-bold text-[#141A23]">
                 개인정보 보호 비밀글 자동 적용
               </span>
             </div>
@@ -242,7 +320,7 @@ export default function PurchasePage() {
 
           {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}
           <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
-            <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs">
+            <div className="rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-6 shadow-2xs">
               <h2 className="text-hb-lg font-bold text-[#141A23]">
                 급매 · 폐업 일괄 정리 직통 상담
               </h2>
@@ -250,12 +328,12 @@ export default function PurchasePage() {
                 품목이 많거나 빠른 방문 수거가 필요하신 경우, 전화 또는 카카오톡으로 사진을 보내주시면 가장 빠르게 견적을 안내해 드립니다.
               </p>
 
-              <div className="mt-4 rounded-xl bg-[#F7F8FA] border border-[#E2E6EC] p-3.5 space-y-2 text-hb-xs">
+              <div className="mt-4 rounded-xl bg-[#FAF9F6] border border-[#E2DDD3] p-3.5 space-y-2 text-hb-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-[#64748B]">매장 대표전화</span>
                   <a
                     href={telHref(STORE.tel)}
-                    className="font-bold text-[#141A23] hover:text-[#E8521A] tabular-nums"
+                    className="font-mono font-bold text-[#141A23] hover:text-[#E8521A] tabular-nums"
                   >
                     {STORE.tel}
                   </a>
@@ -264,7 +342,7 @@ export default function PurchasePage() {
                   <span className="font-semibold text-[#64748B]">매입/수거 직통</span>
                   <a
                     href={telHref(STORE.mobile)}
-                    className="font-bold text-[#E8521A] hover:underline tabular-nums"
+                    className="font-mono font-bold text-[#E8521A] hover:underline tabular-nums"
                   >
                     {STORE.mobile}
                   </a>
@@ -299,9 +377,9 @@ export default function PurchasePage() {
         {/* 지역 매입 출장 범위 및 자주 묻는 질문 (지역 검색 SEO 섹션) */}
         <section
           aria-labelledby="purchase-faq-title"
-          className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs"
+          className="rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-7 shadow-2xs"
         >
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#E2E6EC]">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[#E2DDD3]">
             <h2
               id="purchase-faq-title"
               className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]"
@@ -317,7 +395,7 @@ export default function PurchasePage() {
             {BUYBACK_FAQS.map((item) => (
               <div
                 key={item.q}
-                className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4"
+                className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] p-4"
               >
                 <h3 className="text-hb-sm font-bold text-[#141A23] break-keep leading-snug">
                   {item.q}
@@ -335,6 +413,9 @@ export default function PurchasePage() {
       <MobileCtaBar
         inquiryScrollTargetId="purchase-form"
         inquiryFallbackType="내 물건 팔기"
+        primaryActionLabel="매입 신청"
+        kakaoLabel="카톡 사진전송"
+        accentPrimary
       />
     </div>
   );
