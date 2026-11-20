@@ -170,42 +170,53 @@ export function SectionHeading({
   eyebrow,
   title,
   desc,
+  action,
   dark = false,
   className = "",
 }: {
   eyebrow?: string;
   title: React.ReactNode;
   desc?: React.ReactNode;
+  action?: React.ReactNode;
   dark?: boolean;
   className?: string;
 }) {
   return (
-    <div className={className}>
-      {eyebrow && (
-        <p
-          className={`mb-1.5 text-hb-xs sm:text-hb-sm font-bold ${
-            dark ? "text-[#FF8A50]" : "text-[#E8521A]"
+    <div
+      className={`${
+        action
+          ? "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+          : ""
+      } ${className}`}
+    >
+      <div className="min-w-0">
+        {eyebrow && (
+          <p
+            className={`mb-1.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] ${
+              dark ? "text-[#FF8A50]" : "text-[#C84312]"
+            }`}
+          >
+            {eyebrow}
+          </p>
+        )}
+        <h2
+          className={`text-hb-xl sm:text-hb-2xl font-bold leading-[1.26] tracking-[-0.025em] break-keep [text-wrap:balance] ${
+            dark ? "text-white" : "text-[#141A23]"
           }`}
         >
-          {eyebrow}
-        </p>
-      )}
-      <h2
-        className={`text-hb-xl sm:text-hb-2xl font-bold leading-[1.28] break-keep [text-wrap:balance] ${
-          dark ? "text-white" : "text-[#141A23]"
-        }`}
-      >
-        {title}
-      </h2>
-      {desc && (
-        <p
-          className={`mt-2.5 max-w-2xl text-hb-sm sm:text-hb-base leading-[1.65] break-keep [text-wrap:pretty] ${
-            dark ? "text-white/75" : "text-[#334155]"
-          }`}
-        >
-          {desc}
-        </p>
-      )}
+          {title}
+        </h2>
+        {desc && (
+          <p
+            className={`mt-2 max-w-2xl text-hb-sm sm:text-hb-base leading-[1.65] break-keep [text-wrap:pretty] ${
+              dark ? "text-white/75" : "text-[#475569]"
+            }`}
+          >
+            {desc}
+          </p>
+        )}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }
@@ -520,8 +531,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         본문 바로가기
       </a>
 
-      <header className="sticky top-0 z-50 w-full hb-glass">
-        <div className="hb-container flex h-16 sm:h-[72px] items-center justify-between gap-3">
+      <header className="hb-header sticky top-0 z-50 w-full hb-glass">
+        <div className="hb-container flex h-16 sm:h-[72px] items-center justify-between gap-4">
           {/* 1. 브랜드 로고 */}
           <div className="flex items-center shrink-0">
             <Link
@@ -533,7 +544,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             </Link>
           </div>
 
-          {/* 2. 핵심 내비게이션 메뉴 (4대 메뉴) */}
+          {/* 2. 핵심 내비게이션 메뉴 (절제형 타이포그래피 링크) */}
           <nav
             className="hidden lg:flex items-center justify-center gap-1 xl:gap-2"
             aria-label="주요 메뉴"
@@ -546,10 +557,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.96] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
+                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
                     isActive
-                      ? "text-[#E8521A] bg-[#FFF4EE] font-bold"
-                      : "text-[#141A23] hover:text-[#E8521A] hover:bg-[#F7F8FA]"
+                      ? "text-[#C84312] font-bold"
+                      : "text-[#141A23] hover:text-[#C84312] hover:bg-[#FAF9F6]"
                   }`}
                 >
                   {item.label}
@@ -563,12 +574,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#FFF4EE] border border-[#FADCD0] px-3.5 h-10 text-hb-xs font-bold text-[#E8521A] hover:bg-[#E8521A] hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#FFF4EE] border border-[#F5CEBE] px-3.5 h-10 text-hb-xs font-bold text-[#C84312] hover:bg-[#C84312] hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 whitespace-nowrap"
                 title="담아둔 관심 매물 견적함 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#E8521A] px-1 text-hb-xs font-bold text-white tabular-nums">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#C84312] px-1 text-hb-xs font-bold text-white tabular-nums">
                   {basketCount}
                 </span>
               </Link>
@@ -579,10 +590,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-[#F1F3F6] px-3.5 h-10 text-hb-sm font-bold text-[#141A23] hover:bg-[#E2E6EC] active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap tabular-nums"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 h-10 text-hb-sm font-bold text-[#141A23] hover:border-[#CFC8BA] hover:bg-[#F5F3EE] active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 whitespace-nowrap tabular-nums"
               aria-label={`전화 상담 ${STORE.tel}`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#C84312]" />
               <span>전화 상담</span>
               <span className="hidden xl:inline text-[#334155] font-bold">
                 {STORE.tel}
@@ -608,7 +619,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] lg:hidden hover:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-[#141A23] lg:hidden hover:bg-[#F5F3EE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150"
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >
@@ -1032,7 +1043,7 @@ function FloatingQuickWing() {
       aria-label="빠른 상담 바로가기"
       className="fixed left-[calc(50%+672px)] top-1/2 -translate-y-1/2 z-40 hidden min-[1520px]:flex flex-col items-center select-none"
     >
-      <div className="w-[72px] rounded-3xl bg-white/95 backdrop-blur-2xl border border-[#CBD2DC]/90 ring-1 ring-[#141A23]/5 shadow-[0_14px_38px_rgba(20,26,35,0.14)] p-2 flex flex-col items-center gap-1.5">
+      <div className="w-[72px] rounded-3xl bg-white/95 backdrop-blur-2xl border border-[#D8D1C5]/90 ring-1 ring-[#141A23]/5 shadow-[0_14px_38px_rgba(20,26,35,0.12)] p-2 flex flex-col items-center gap-1.5">
         <a
           href={telHref(STORE.tel)}
           onClick={() =>
@@ -1692,7 +1703,7 @@ export function AdminLoginModal({
     >
       <form
         onSubmit={handleAdminLogin}
-        className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
+        className="w-full rounded-2xl bg-[#FAF9F6] p-6 sm:p-8 shadow-2xl border border-[#E2DDD3]"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-hb-lg font-bold text-[#141A23]">
