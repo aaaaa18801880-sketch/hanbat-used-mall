@@ -214,3 +214,21 @@ export async function fetchInitialPublicInquiries(
     return { inquiries: [], loaded: false };
   }
 }
+
+/**
+ * 공지 제외 실제 누적 고객 문의 건수 조회 (실데이터 기반 신뢰 지표용)
+ */
+export async function fetchPublicInquiryTotalCount(): Promise<number | null> {
+  try {
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
+    const supabase = createServiceRoleClient();
+    const { count, error } = await supabase
+      .from("purchase_requests")
+      .select("id", { count: "exact", head: true })
+      .or("is_notice.is.null,is_notice.eq.false");
+    if (error || typeof count !== "number") return null;
+    return count;
+  } catch {
+    return null;
+  }
+}

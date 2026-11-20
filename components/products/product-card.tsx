@@ -17,6 +17,7 @@ import {
   STORE,
   toggleQuoteBasketItem,
   trackEvent,
+  triggerQuickInquiry,
 } from "../../lib/site";
 import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
 import { ProductStatusBadge } from "./product-status-badge";
@@ -54,11 +55,11 @@ export function ProductTrustMicroStrip({
   const items = [
     {
       step: "01",
-      title: "분해 세척·작동 점검",
+      title: "고압세척·작동 점검",
       desc:
         isHvac || isMajorAppliance
-          ? "입고 후 분해 고압세척 및 냉매·누수 시운전 완료"
-          : "전문 엔지니어 작동 점검 및 살균 클리닝 완료",
+          ? "입고 확인, 고압세척 및 배송 전 작동 점검 완료"
+          : "입고 확인, 내·외부 세척 및 배송 전 작동 점검 완료",
       icon: "sparkle" as const,
       badge: "bg-[#F0FDFA] border border-[#CCFBF1] text-[#0F766E]",
     },
@@ -67,7 +68,7 @@ export function ProductTrustMicroStrip({
       title: "사후 무상 A/S 보증",
       desc: warrantyHighlight,
       icon: "shield" as const,
-      badge: "bg-[#FFF4EE] border border-[#FADCD0] text-[#E8521A]",
+      badge: "bg-[#FFF4EE] border border-[#FADCD0] text-[#C84312]",
     },
     {
       step: "03",
@@ -99,7 +100,7 @@ export function ProductTrustMicroStrip({
                 </span>
                 <span className="truncate">{item.title}</span>
               </div>
-              <p className="mt-1 text-hb-xs leading-relaxed text-[#64748B] break-keep">
+              <p className="mt-1 text-hb-xs leading-relaxed text-[#475569] break-keep">
                 {item.desc}
               </p>
             </div>
@@ -136,6 +137,7 @@ export function ProductCard({
     canUseNextImageUrl(primaryImage) && failedSrc !== primaryImage;
   const sold = isProductSold(product.status);
   const categoryLabel = normalizeProductCategory(product.category);
+  const warrantyInfo = getCategoryWarrantyInfo(categoryLabel);
   const priced = hasProductPrice(product.price);
   const priceText = formatProductPrice(product.price, categoryLabel);
   const modelName =
@@ -182,14 +184,29 @@ export function ProductCard({
     }
   };
 
+  const handleQuickQuote = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    trackEvent("begin_buy_inquiry", {
+      category: categoryLabel,
+      location: "card_quick_quote",
+    });
+    triggerQuickInquiry({
+      type: "구매 문의",
+      productTitle: modelName
+        ? `${product.title} (${modelName})`
+        : product.title,
+    });
+  };
+
   const specSummaryText =
-    specCapsules.length > 0 ? specCapsules.join(" · ") : "세척·검수 완료";
+    specCapsules.length > 0 ? specCapsules.join(" · ") : "고압세척·작동점검 완료";
 
   return (
     <article
       className={`group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white hb-product-card transition-[border-color,box-shadow,transform] duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] ${
         isSelected
-          ? "border-[#E8521A] ring-2 ring-[#E8521A] bg-[#FFFDFB]"
+          ? "border-[#C84312] ring-2 ring-[#C84312] bg-[#FFFDFB]"
           : "border-[#E2E6EC] hover:-translate-y-0.5 hover:border-[#94A3B8]"
       }`}
     >
@@ -203,6 +220,8 @@ export function ProductCard({
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority={eager}
+            quality={80}
+            referrerPolicy="no-referrer"
             onError={() => setFailedSrc(primaryImage)}
             className={`object-cover transition-transform duration-300 group-hover:scale-[1.03] ${
               sold ? "grayscale opacity-65" : ""
@@ -237,7 +256,7 @@ export function ProductCard({
           <div
             className={`absolute left-2 top-2 sm:left-3 sm:top-3 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
               isSelected
-                ? "border-[#E8521A] bg-[#E8521A] text-white"
+                ? "border-[#C84312] bg-[#C84312] text-white"
                 : "border-[#CBD2DC] bg-white/95 text-transparent"
             }`}
           >
@@ -277,7 +296,7 @@ export function ProductCard({
           >
             <Icon
               d={isAdmin ? ICON.pen : ICON.search}
-              className="w-3 h-3 text-[#E8521A]"
+              className="w-3 h-3 text-[#C84312]"
             />
             <span>{isAdmin ? "수정" : "미리보기"}</span>
           </button>
@@ -285,8 +304,8 @@ export function ProductCard({
 
         {/* 우하단 다중 사진 수량 */}
         {!sold && images.length > 1 && (
-          <span className="pointer-events-none absolute bottom-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[#141A23]/75 px-2.5 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-md">
-            <Icon d={ICON.image} className="w-3 h-3 text-white/80" />+
+          <span className="pointer-events-none absolute bottom-3 right-3 z-10 inline-flex items-center gap-1 rounded-full bg-[#141A23]/80 px-2.5 py-0.5 text-hb-xs font-semibold text-white tabular-nums backdrop-blur-md">
+            <Icon d={ICON.image} className="w-3 h-3 text-white/85" />+
             {images.length - 1}
           </span>
         )}
@@ -301,23 +320,22 @@ export function ProductCard({
             }}
             title="상품 삭제"
             aria-label={`${product.title} 삭제`}
-            className="absolute right-3 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-600 shadow-xs hover:bg-red-50 transition-colors"
+            className="absolute right-3 top-3 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-700 shadow-xs hover:bg-red-50 transition-colors"
           >
             <Icon d={ICON.close} className="h-4 w-4" />
           </button>
         )}
       </div>
 
-      {/* 2. 카드 본문 (제목 2줄 높이 고정으로 행 전체 가격 위치 일직선 정렬 + @container 적응형 패딩) */}
+      {/* 2. 카드 본문 (WCAG AA 타이포그래피 위계 + 검수·보증 신뢰 바 + 비교·견적 동선) */}
       <div className="flex flex-1 flex-col justify-between p-3 hb-card-body bg-white">
         <div>
-          <div className="flex items-center justify-between gap-2 text-hb-xs text-[#64748B]">
-            <span className="font-semibold truncate">
-              {categoryLabel}
-            </span>
+          {/* 메타 행: 카테고리 + 모델명 */}
+          <div className="flex items-center justify-between gap-2 text-hb-xs text-[#475569]">
+            <span className="font-semibold truncate">{categoryLabel}</span>
             {modelName && (
               <span
-                className="shrink-0 max-w-[52%] truncate font-mono text-hb-xs font-medium text-[#64748B]"
+                className="shrink-0 max-w-[52%] truncate font-mono text-hb-xs font-semibold text-[#475569] tabular-nums"
                 title={modelName}
               >
                 {modelName}
@@ -325,11 +343,12 @@ export function ProductCard({
             )}
           </div>
 
+          {/* 상품명 (2줄 고정 높이로 카드 행 가격선 일직선 정렬) */}
           <h3
-            className={`mt-2 min-h-[2.8em] line-clamp-2 hb-card-title text-hb-sm font-bold leading-[1.4] transition-colors break-keep ${
+            className={`mt-1.5 min-h-[2.8em] line-clamp-2 hb-card-title text-hb-sm font-bold leading-[1.4] transition-colors break-keep ${
               sold
-                ? "text-[#64748B]"
-                : "text-[#141A23] group-hover:text-[#E8521A]"
+                ? "text-[#475569]"
+                : "text-[#141A23] group-hover:text-[#C84312]"
             }`}
           >
             {onSelect ? (
@@ -351,59 +370,91 @@ export function ProductCard({
             )}
           </h3>
 
-          <div className="mt-2.5 flex items-baseline justify-between gap-2 min-w-0">
+          {/* 가격 또는 맞춤 견적 행 */}
+          <div className="mt-2 flex items-baseline justify-between gap-2 min-w-0">
             {sold ? (
-              <span className="text-hb-sm font-semibold text-[#64748B] truncate block">
+              <span className="text-hb-sm font-semibold text-[#475569] truncate block">
                 판매완료 · 유사매물 문의
               </span>
             ) : priced ? (
-              <strong className="block hb-card-price text-hb-lg font-bold text-[#141A23] tabular-nums tracking-tight truncate">
+              <strong className="block hb-card-price text-hb-lg font-extrabold text-[#141A23] font-mono tabular-nums tracking-tight truncate">
                 {priceText}
               </strong>
             ) : (
               <div className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#C84312] truncate">
                 <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
                 <span className="sm:hidden truncate">견적 상담</span>
-                <span className="hidden sm:inline truncate">{priceText || "견적 상담 문의"}</span>
+                <span className="hidden sm:inline truncate">
+                  {priceText || "견적 상담 문의"}
+                </span>
               </div>
             )}
           </div>
+
+          {/* 검수 완료 상태 & 무상 보증 요약 라인 (WCAG AA #0F766E / #334155) */}
+          {!sold && (
+            <div className="mt-2 flex items-center gap-1.5 text-hb-xs text-[#0F766E] min-w-0">
+              <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 shrink-0" />
+              <span className="font-bold shrink-0">작동점검</span>
+              <span className="text-[#94A3B8]" aria-hidden="true">
+                ·
+              </span>
+              <span className="font-semibold text-[#334155] truncate tabular-nums">
+                {warrantyInfo.compactLabel}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* 하단 스펙 요약 & 견적함 담기 버튼 */}
-        <div className="mt-3 pt-2.5 border-t border-[#F1F3F6] flex items-center justify-between gap-2 min-w-0">
-          <p className="min-w-0 truncate text-hb-xs font-medium text-[#4E5968] tabular-nums">
+        {/* 하단 핵심 스펙(tabular-nums) + 비교·담기 / 빠른 견적 진입 동선 */}
+        <div className="mt-3 pt-2.5 border-t border-[#E2E6EC] space-y-2 min-w-0">
+          <p className="min-w-0 truncate font-mono text-hb-xs font-semibold text-[#334155] tabular-nums">
             {specSummaryText}
           </p>
 
           {!isSelectMode && !sold ? (
-            <button
-              type="button"
-              onClick={handleToggleBasket}
-              aria-pressed={inBasket}
-              title={inBasket ? "견적함에서 제외" : "관심 매물 견적함에 담기"}
-              aria-label={`${inBasket ? "담김" : "견적함"} - ${
-                product.title
-              } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-              className={`hb-trim relative z-20 shrink-0 inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] cursor-pointer ${
-                inBasket
-                  ? "bg-[#FFF4EE] text-[#C84312] ring-1 ring-[#C84312]/40"
-                  : "bg-[#F1F3F6] text-[#141A23] hover:bg-[#141A23] hover:text-white"
-              }`}
-            >
-              <Icon
-                d={inBasket ? ICON.check : ICON.plus}
-                className={`h-3 w-3 ${
-                  inBasket ? "text-[#E8521A]" : "text-current"
+            <div className="flex items-center gap-1.5 min-w-0">
+              <button
+                type="button"
+                onClick={handleToggleBasket}
+                aria-pressed={inBasket}
+                title={inBasket ? "비교·견적함에서 제외" : "비교·견적함에 담기"}
+                aria-label={`${inBasket ? "담김" : "비교·담기"} - ${
+                  product.title
+                } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
+                className={`hb-trim relative z-20 flex-1 min-h-[34px] inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-[background-color,color,border-color,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer whitespace-nowrap ${
+                  inBasket
+                    ? "bg-[#FFF4EE] text-[#C84312] border border-[#C84312]/40"
+                    : "bg-[#F7F8FA] text-[#141A23] border border-[#CBD2DC] hover:bg-[#141A23] hover:border-[#141A23] hover:text-white"
                 }`}
-              />
-              <span>{inBasket ? "담김" : "담기"}</span>
-            </button>
+              >
+                <Icon
+                  d={inBasket ? ICON.check : ICON.columns}
+                  className={`h-3 w-3 shrink-0 ${
+                    inBasket ? "text-[#C84312]" : "text-current"
+                  }`}
+                />
+                <span>{inBasket ? "담김" : "비교·담기"}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleQuickQuote}
+                title={`${product.title} 빠른 견적 문의`}
+                aria-label={`${product.title} 빠른 견적 문의`}
+                className="hb-trim relative z-20 hidden sm:inline-flex min-h-[34px] shrink-0 items-center justify-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-2.5 py-1.5 text-hb-xs font-bold text-[#334155] hover:border-[#C84312] hover:bg-[#FFF4EE] hover:text-[#C84312] active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] transition-[background-color,color,border-color,transform] duration-150 cursor-pointer whitespace-nowrap"
+              >
+                <Icon d={ICON.chat} className="h-3 w-3 shrink-0" />
+                <span>견적</span>
+              </button>
+            </div>
           ) : (
-            <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-semibold text-[#64748B] group-hover:text-[#141A23] transition-colors">
-              <span>상세</span>
-              <Icon d={ICON.right} className="h-3.5 w-3.5" />
-            </span>
+            <div className="flex items-center justify-end">
+              <span className="inline-flex shrink-0 items-center gap-0.5 text-hb-xs font-bold text-[#475569] group-hover:text-[#141A23] transition-colors">
+                <span>상세 보기</span>
+                <Icon d={ICON.right} className="h-3.5 w-3.5" />
+              </span>
+            </div>
           )}
         </div>
       </div>

@@ -39,13 +39,12 @@ const contentSecurityPolicy = [
   `img-src 'self' data: blob: ${supabaseHost.origin} https://hanbatmall.com https://www.google-analytics.com https://www.googletagmanager.com`,
   `connect-src 'self' ${supabaseHost.origin} ${supabaseHost.wsOrigin} https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com https://www.googletagmanager.com https://cdn.jsdelivr.net`,
   "frame-src 'self' https://maps.google.com https://www.google.com",
-  "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+  "base-uri 'self'; object-src 'none'; form-action 'self'",
   ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "SAMEORIGIN" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Strict-Transport-Security",
@@ -73,6 +72,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200],
+    qualities: [75, 80, 85, 90],
     minimumCacheTTL: 2678400,
     remotePatterns: [
       {

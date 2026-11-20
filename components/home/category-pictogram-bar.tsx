@@ -2,7 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { trackEvent, normalizeProductCategory } from "../../lib/site";
+import {
+  trackEvent,
+  normalizeProductCategory,
+  getCategoryWarrantyInfo,
+} from "../../lib/site";
 import { Icon, ICON } from "../../lib/icons";
 import { ModernApplianceIcon, type ModernIconType } from "../ui/modern-icons";
 
@@ -20,6 +24,7 @@ export interface ShowroomCategoryItem {
   key: PictogramKey;
   label: string;
   subLabel: string;
+  specPoint: string;
   icon: ModernIconType;
   href: string;
   filterCategory: string;
@@ -32,6 +37,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "all",
     label: "전체 실매물",
     subLabel: "전 품목 한눈에",
+    specPoint: "고압세척·작동점검",
     icon: "all",
     href: "/gallery",
     filterCategory: "전체",
@@ -41,6 +47,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "aircon",
     label: "에어컨·냉난방",
     subLabel: "벽걸이·스탠드·천장형",
+    specPoint: "인버터·평형·가스점검",
     icon: "aircon",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     filterCategory: "에어컨/냉난방기",
@@ -50,6 +57,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "fridge",
     label: "냉장고·김치냉장",
     subLabel: "양문·4도어·김치",
+    specPoint: "도어패킹·냉각점검",
     icon: "fridge",
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
     filterCategory: "냉장고",
@@ -59,6 +67,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "washer",
     label: "세탁기·건조기",
     subLabel: "드럼·통돌이·건조기",
+    specPoint: "급배수·탈수·작동점검",
     icon: "washer",
     href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
     filterCategory: "세탁기/건조기",
@@ -68,6 +77,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "small",
     label: "TV·소형가전",
     subLabel: "TV·전자레인지·기타",
+    specPoint: "화면·단자·전원확인",
     icon: "small",
     href: "/gallery?category=%EA%B8%B0%ED%83%80",
     filterCategory: "기타",
@@ -77,6 +87,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "bizFridge",
     label: "업소용 냉장고",
     subLabel: "25·45박스·테이블",
+    specPoint: "220V단상·냉각점검",
     icon: "biz-fridge",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
     filterCategory: "업소용기기",
@@ -87,6 +98,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "showcase",
     label: "음료·주류 쇼케이스",
     subLabel: "음료·주류·디저트",
+    specPoint: "결로열선·냉각점검",
     icon: "showcase",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
     filterCategory: "업소용기기",
@@ -97,12 +109,22 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "kitchen",
     label: "제빙기·주방설비",
     subLabel: "제빙기·세척기·스텐",
+    specPoint: "220V단상·작동점검",
     icon: "kitchen",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%A0%9C%EB%B9%99%EA%B8%B0",
     filterCategory: "업소용기기",
     group: "biz",
   },
 ];
+
+export function getShowroomCategoryWarrantyLabel(
+  item: ShowroomCategoryItem
+): string {
+  if (item.key === "all") {
+    return "직영 무상 A/S 보증";
+  }
+  return getCategoryWarrantyInfo(item.filterCategory).compactLabel;
+}
 
 /**
  * 쇼룸 카테고리별 상호 배타(1:1) 매칭 SSOT
@@ -186,14 +208,18 @@ export function CategoryPictogramBar({
     <Wrapper
       id="category-section"
       aria-label="취급 품목 및 주요 서비스 바로가기"
-      className={embedded ? "bg-white pt-7 pb-3 sm:pt-9 sm:pb-4" : "bg-white pt-8 pb-5 sm:pt-10 sm:pb-6"}
+      className={
+        embedded
+          ? "bg-white pt-7 pb-5 sm:pt-9 sm:pb-7"
+          : "bg-white pt-8 pb-6 sm:pt-10 sm:pb-8"
+      }
     >
       <div className="hb-container">
         {/* 상단 쇼룸 카탈로그 단일 통합 컨트롤 바 */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5">
           <div className="flex flex-wrap items-center gap-2.5">
             <h2
-              id="featured-heading"
+              id={embedded ? "category-heading" : "featured-heading"}
               className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] tracking-[-0.025em]"
             >
               {selectedItem.key === "all"
@@ -219,14 +245,14 @@ export function CategoryPictogramBar({
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <Link
               href={cardViewHref}
-              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#141A23] px-3.5 py-2 text-hb-xs font-bold text-white shadow-2xs hover:bg-[#1E2736] active:scale-[0.96] transition-[background-color,transform] duration-150"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#141A23] px-3.5 py-2 text-hb-xs font-bold text-white shadow-2xs hover:bg-[#1E2736] active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap"
             >
               <Icon d={ICON.grid} className="w-3.5 h-3.5 text-[#FF8A50]" />
               <span>카드형 갤러리</span>
             </Link>
             <Link
               href={tableViewHref}
-              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
             >
               <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
               <span>스펙 일람표 보기</span>
@@ -234,13 +260,14 @@ export function CategoryPictogramBar({
           </div>
         </div>
 
-        {/* 전 품목 쇼룸 카탈로그 트레이 */}
-        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 sm:p-3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-2 sm:gap-2.5">
+        {/* 전 품목 쇼룸 카탈로그 트레이 (스위스 4열×2행 고밀도 스펙·보증 카드) */}
+        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 sm:p-3.5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             {SHOWROOM_CATEGORIES.map((item) => {
               const isSelected = selectedKey === item.key;
               const count = categoryCounts?.[item.key];
               const isBiz = item.group === "biz";
+              const warrantyLabel = getShowroomCategoryWarrantyLabel(item);
               const isCoolIcon =
                 item.key === "aircon" ||
                 item.key === "fridge" ||
@@ -251,16 +278,16 @@ export function CategoryPictogramBar({
               const iconBoxTone = isSelected
                 ? "bg-white/10 border-white/15"
                 : isCoolIcon
-                ? "bg-[#F0F9FF] border-[#BAE6FD] group-hover:bg-[#E0F2FE]"
+                ? "bg-[#F0F9FF] border-[#BAE6FD] group-hover:bg-[#E0F2FE] group-focus-visible:bg-[#E0F2FE]"
                 : isCleanIcon
-                ? "bg-[#F0FDFA] border-[#99F6E4] group-hover:bg-[#CCFBF1]"
-                : "bg-[#FFF7ED] border-[#FED7AA] group-hover:bg-[#FFEDD5]";
+                ? "bg-[#F0FDFA] border-[#99F6E4] group-hover:bg-[#CCFBF1] group-focus-visible:bg-[#CCFBF1]"
+                : "bg-[#FFF7ED] border-[#FED7AA] group-hover:bg-[#FFEDD5] group-focus-visible:bg-[#FFEDD5]";
 
               const countBadgeTone = isSelected
                 ? "bg-white/15 text-[#FF8A50]"
                 : isBiz
                 ? "bg-[#FFF4EE] text-[#C84312] border border-[#FED7AA]"
-                : "bg-[#F1F3F6] text-[#334155]";
+                : "bg-[#F1F3F6] text-[#141A23]";
 
               return (
                 <button
@@ -268,26 +295,46 @@ export function CategoryPictogramBar({
                   type="button"
                   aria-pressed={isSelected}
                   onClick={() => handleCategoryClick(item)}
-                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+                  className={`group relative flex flex-col justify-between overflow-hidden rounded-xl p-3 sm:p-3.5 text-left transition-[background-color,border-color,box-shadow,transform] duration-150 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-1 cursor-pointer ${
                     isSelected
                       ? "bg-[#141A23] text-white shadow-card ring-1 ring-[#141A23]"
-                      : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5"
+                      : "border border-[#E2E6EC] bg-white text-[#141A23] shadow-2xs hover:border-[#94A3B8] hover:shadow-card hover:-translate-y-0.5 focus-visible:border-[#141A23]"
                   }`}
                 >
-                  {/* 상단 행: 틴트 아이콘 웰 + 캡슐형 대수 표기 */}
-                  <div className="flex items-start justify-between gap-1.5 w-full">
-                    <div
-                      className={`grid h-10 w-10 place-items-center rounded-xl border transition-colors duration-150 shrink-0 ${iconBoxTone}`}
-                    >
-                      <ModernApplianceIcon
-                        name={item.icon}
-                        dark={isSelected}
-                        className="w-7 h-7"
-                      />
+                  {/* 상단 행: 틴트 아이콘 + 품목명/서브라벨 + 재고 수량 */}
+                  <div className="flex items-start justify-between gap-2 w-full">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div
+                        className={`grid h-10 w-10 place-items-center rounded-xl border transition-colors duration-150 shrink-0 ${iconBoxTone}`}
+                      >
+                        <ModernApplianceIcon
+                          name={item.icon}
+                          dark={isSelected}
+                          className="w-7 h-7"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <strong
+                          className={`block text-hb-sm font-bold tracking-tight truncate transition-colors duration-150 ${
+                            isSelected
+                              ? "text-white"
+                              : "text-[#141A23] group-hover:text-[#C84312] group-focus-visible:text-[#C84312]"
+                          }`}
+                        >
+                          {item.label}
+                        </strong>
+                        <span
+                          className={`mt-0.5 block text-hb-xs font-medium truncate transition-colors duration-150 ${
+                            isSelected ? "text-white/75" : "text-[#475569]"
+                          }`}
+                        >
+                          {item.subLabel}
+                        </span>
+                      </div>
                     </div>
 
                     <span
-                      className={`hb-trim rounded-full px-2 py-0.5 font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 ${countBadgeTone}`}
+                      className={`hb-trim rounded-md px-2 py-0.5 font-mono text-hb-xs font-bold leading-none tabular-nums shrink-0 ${countBadgeTone}`}
                     >
                       {typeof count === "number"
                         ? `${count}건`
@@ -297,30 +344,63 @@ export function CategoryPictogramBar({
                     </span>
                   </div>
 
-                  {/* 하단 행: 품목명 + 서브라벨 */}
-                  <div className="mt-3 min-w-0 w-full">
-                    <strong
-                      className={`block text-hb-sm font-bold tracking-tight truncate transition-colors duration-150 ${
-                        isSelected
-                          ? "text-white"
-                          : "text-[#141A23] group-hover:text-[#E8521A]"
-                      }`}
-                    >
-                      {item.label}
-                    </strong>
-                    <span
-                      className={`mt-0.5 block text-hb-xs font-medium truncate transition-colors duration-150 ${
-                        isSelected ? "text-white/75" : "text-[#64748B]"
-                      }`}
-                    >
-                      {item.subLabel}
-                    </span>
+                  {/* 하단 검수 포인트 & 보증 범위 스트립 (호버·포커스·선택 시 선명하게 부각) */}
+                  <div
+                    className={`mt-3 pt-2.5 border-t w-full flex flex-col gap-1 transition-colors duration-150 ${
+                      isSelected
+                        ? "border-white/15"
+                        : "border-[#F1F3F6] group-hover:border-[#E2DDD3] group-focus-visible:border-[#E2DDD3]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-1.5 min-w-0">
+                      <span
+                        className={`inline-flex items-center gap-1 min-w-0 text-hb-xs font-semibold truncate transition-colors duration-150 ${
+                          isSelected
+                            ? "text-[#5EEAD4]"
+                            : "text-[#475569] group-hover:text-[#141A23] group-focus-visible:text-[#141A23]"
+                        }`}
+                      >
+                        <Icon
+                          d={ICON.check}
+                          className={`w-3 h-3 shrink-0 transition-colors duration-150 ${
+                            isSelected
+                              ? "text-[#5EEAD4]"
+                              : "text-[#0F766E] opacity-75 group-hover:opacity-100 group-focus-visible:opacity-100"
+                          }`}
+                        />
+                        <span className="truncate">{item.specPoint}</span>
+                      </span>
+
+                      <Icon
+                        d={ICON.right}
+                        className={`hidden sm:block w-3.5 h-3.5 shrink-0 transition-[color,transform,opacity] duration-150 ${
+                          isSelected
+                            ? "text-[#FF8A50] opacity-100"
+                            : "text-[#94A3B8] opacity-60 group-hover:opacity-100 group-hover:text-[#C84312] group-hover:translate-x-0.5 group-focus-visible:opacity-100 group-focus-visible:text-[#C84312]"
+                        }`}
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span
+                        className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-hb-xs font-bold leading-none truncate transition-colors duration-150 ${
+                          isSelected
+                            ? "bg-white/15 text-[#FF8A50]"
+                            : item.key === "aircon"
+                            ? "bg-[#FFF4EE] text-[#C84312] group-hover:bg-[#C84312] group-hover:text-white group-focus-visible:bg-[#C84312] group-focus-visible:text-white"
+                            : "bg-[#F0FDFA] text-[#0F766E] group-hover:bg-[#0F766E] group-hover:text-white group-focus-visible:bg-[#0F766E] group-focus-visible:text-white"
+                        }`}
+                      >
+                        <Icon d={ICON.shieldCheck} className="w-3 h-3 shrink-0" />
+                        <span className="truncate">{warrantyLabel}</span>
+                      </span>
+                    </div>
                   </div>
 
                   {/* 활성 상태 하단 시그널 오렌지 바 (Zero CLS) */}
                   <span
                     className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-opacity duration-150 ${
-                      isSelected ? "opacity-100" : "opacity-0"
+                      isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-40"
                     }`}
                     aria-hidden="true"
                   />

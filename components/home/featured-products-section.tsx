@@ -3,14 +3,18 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import {
   getCategoryWarrantyInfo,
   isProductSold,
   STORE,
   STORE_MERCHANT_POLICY,
   telHref,
+  trackEvent,
+  triggerQuickInquiry,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/icons";
+import { useQuoteBasket } from "../../lib/ui";
 import {
   ProductCard,
   type ProductItem,
@@ -23,6 +27,14 @@ import {
   ModernApplianceIcon,
   type ModernIconType,
 } from "../ui/modern-icons";
+
+const ProductCompareModal = dynamic(
+  () =>
+    import("../products/product-compare-modal").then(
+      (m) => m.ProductCompareModal
+    ),
+  { ssr: false }
+);
 
 interface CategoryQualityFact {
   badge: string;
@@ -37,70 +49,70 @@ const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
 const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
   aircon: {
     badge: "에어컨·냉난방기 출고 기준",
-    headline: "완전 분해 고압 살균세척 · 실외기 콤프레셔 및 냉매 압력 테스트",
+    headline: "고압세척 정리 · 실내외기 1:1 세트 구성 및 가스 누설·냉방 작동 점검",
     points: [
-      "분해 고압세척 및 열교환기 핀 살균 완료",
-      "냉매 가스 누설 진공 시험 및 압축기 시운전",
-      AIRCON_WARRANTY.detailLabel,
+      "필터·열교환기 및 외관 고압세척 완료",
+      "가스 누설 여부 및 냉방 작동 점검",
+      AIRCON_WARRANTY.compactLabel,
     ],
     icon: "aircon",
   },
   fridge: {
     badge: "냉장고·김치냉장고 출고 기준",
-    headline: "내부 선반·도어패킹 고온 스팀 클리닝 · 콤프레셔 냉각 사이클 시운전",
+    headline: "내부 선반·도어패킹 세척 · 배송 전 냉장·냉동 작동 점검",
     points: [
-      "선반·야채칸 분해 세척 및 탈취 소독 완료",
-      "콤프레셔 냉각 사이클 온도 측정 시험",
-      MAJOR_WARRANTY.detailLabel,
+      "선반·야채칸·도어패킹 깔끔 세척 완료",
+      "배송 전 냉장·냉동 냉기 작동 점검",
+      MAJOR_WARRANTY.compactLabel,
     ],
     icon: "fridge",
   },
   washer: {
     badge: "세탁기·건조기 출고 기준",
-    headline: "세탁조 분해 세척 및 내부 잔여물 제거 · 고속 탈수 진동 밸런스 검수",
+    headline: "내·외부 고압세척 · 배송 전 급배수 및 탈수 작동 점검",
     points: [
-      "세탁조 전면 분해 살균 및 내부 잔여물 세척",
-      "고속 탈수 진동 밸런스 및 급수/배수 누수 시험",
-      MAJOR_WARRANTY.detailLabel,
+      "내부·거름망·외관 고압세척 완료",
+      "배송 전 급수·배수 및 탈수 작동 점검",
+      MAJOR_WARRANTY.compactLabel,
     ],
     icon: "washer",
   },
   small: {
     badge: "TV·소형가전 출고 기준",
-    headline: "화면 무결점 점검 · 포트 입출력 및 전원 안정성 정밀 테스트",
+    headline: "화면 출력 · 단자 연결 및 전원 작동 상태 확인 후 출고",
     points: [
-      "화면 패널 잔상 및 백라이트 균일도 검수",
-      "HDMI/음향 단자 및 리모컨 수신 정밀 점검",
-      `기능 불량 시 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 무상 교환·환불 보장`,
+      "화면 출력 및 외관 상태 실물 확인",
+      "단자 입출력 및 리모컨·전원 작동 점검",
+      `초기 기능 불량 시 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 교환·환불 지원`,
     ],
     icon: "small",
   },
   bizFridge: {
     badge: "업소용 냉장설비 출고 기준",
-    headline: "상업용 고출력 콤프레셔 압력 측정 · 디지털 온도센서 캘리브레이션",
+    headline: "업소용 냉장·냉동 설비 고압세척 및 배송 전 냉각 작동 점검",
     points: [
-      "상업용 콤프레셔 냉각 성능 및 가스 충전 완비",
-      "즉시 식당 영업 투입 가능한 청결 소독 상태",
+      "내·외부 고압세척 및 냉각 작동 점검",
+      "식당·카페 바로 투입 가능한 정리 상태",
       "사업자 전자세금계산서 발행 및 직배송",
     ],
     icon: "biz-fridge",
   },
   showcase: {
     badge: "쇼케이스 출고 기준",
-    headline: "도어 유리 결로 방지 열선 점검 · 음료/주류 보관 최적 온도 테스트",
+    headline: "유리 도어·선반 세척 및 배송 전 냉각·조명 작동 점검",
     points: [
-      "도어 유리 열선 및 LED 내부 조명 전체 점검",
-      "급속 냉각 사이클 및 서리 발생 방지 시험",
+      "도어 유리 열선 및 내부 조명 작동 확인",
+      "배송 전 냉각 작동 및 온도 도달 확인",
       "식당·카페 매장 맞춤 배송 및 자리 배치",
     ],
     icon: "showcase",
   },
   kitchen: {
     badge: "제빙기·주방설비 출고 기준",
-    headline: "얼음 생성 사이클 측정 · 급수 전자밸브 및 배수 펌프 정밀 검수",
+    headline: "제빙기·주방설비 세척 정리 및 출고 전 기본 작동 점검",
     points: [
-      "제빙 노즐 스팀 살균 및 얼음 생산량 검증",
-      "스테인리스 주방설비 연마 및 세척 완료",
+      "제빙기·주방설비 내·외부 세척 정리",
+      "급수·배수 및 기본 작동 상태 확인",
       "창업 일괄 납품 및 사업자 세금계산서 발행",
     ],
     icon: "kitchen",
@@ -129,6 +141,9 @@ export function FeaturedProductsSection({
   const currentCategoryKey = selectedCategory?.key || "all";
   const [prevCategoryKey, setPrevCategoryKey] = useState(currentCategoryKey);
   const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
+  const [compareOpen, setCompareOpen] = useState(false);
+
+  const basketItems = useQuoteBasket();
 
   if (prevCategoryKey !== currentCategoryKey) {
     setPrevCategoryKey(currentCategoryKey);
@@ -158,13 +173,18 @@ export function FeaturedProductsSection({
 
   const activeCategoryTitle =
     selectedCategory && selectedCategory.key !== "all"
-      ? `${selectedCategory.label} 전시 매물`
-      : "쇼룸 전시 매물";
+      ? `${selectedCategory.label} 검수 완료 실매물`
+      : "검수 완료 쇼룸 전시 매물";
 
   const galleryHref = selectedCategory?.href || "/gallery";
+  const tableViewHref = galleryHref.includes("?")
+    ? `${galleryHref}&view=table`
+    : `${galleryHref}?view=table`;
 
   const categoryFact =
-    currentCategoryKey !== "all" ? CATEGORY_QUALITY_FACTS[currentCategoryKey] : undefined;
+    currentCategoryKey !== "all"
+      ? CATEGORY_QUALITY_FACTS[currentCategoryKey]
+      : undefined;
 
   const Wrapper = embedded ? "div" : "section";
 
@@ -175,59 +195,165 @@ export function FeaturedProductsSection({
       className={
         embedded
           ? "bg-white pt-4 pb-10 sm:pt-5 sm:pb-12"
-          : "border-b border-[#E2E6EC] bg-white pt-6 pb-12 sm:pt-8 sm:pb-16"
+          : "border-b border-[#E2E6EC] bg-white pt-8 pb-12 sm:pt-11 sm:pb-16"
       }
     >
       <div className="hb-container">
-        {/* 독립 섹션 사용 시에만 상단 카탈로그 헤더 렌더링 (embedded 시에는 CategoryPictogramBar 단일 통합 바가 담당) */}
+        {/* 상단 실매물 쇼케이스 헤더 및 빠른 비교/일람표 액션 바 */}
         {!embedded && (
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E6EC]">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h2
-                id="featured-heading"
-                className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23]"
-              >
-                {activeCategoryTitle}
-              </h2>
-              <span className="text-hb-sm sm:text-hb-base font-bold text-[#475569] tabular-nums">
-                {filteredProducts.length}건
-              </span>
-              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVisibleCount(INITIAL_DISPLAY_LIMIT);
-                    onResetCategory();
-                  }}
-                  className="rounded-xl bg-[#F1F3F6] px-2.5 py-1 text-hb-xs font-bold text-[#475569] hover:bg-[#E2E6EC] hover:text-[#141A23] active:scale-[0.96] transition-[background-color,color,transform] duration-150 cursor-pointer"
+          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#E2E6EC]">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#0F766E]">
+                <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 shrink-0" />
+                <span>입고 확인 · 배송 전 작동 점검 실매물</span>
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2.5">
+                <h2
+                  id="featured-heading"
+                  className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23]"
                 >
-                  전체 품목 보기
-                </button>
-              )}
+                  {activeCategoryTitle}
+                </h2>
+                <span className="rounded-md bg-[#F1F3F6] px-2.5 py-0.5 font-mono text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums">
+                  {filteredProducts.length}건
+                </span>
+                {selectedCategory &&
+                  selectedCategory.key !== "all" &&
+                  onResetCategory && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVisibleCount(INITIAL_DISPLAY_LIMIT);
+                        onResetCategory();
+                      }}
+                      className="min-h-[34px] rounded-xl border border-[#CBD2DC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
+                    >
+                      전체 품목 보기
+                    </button>
+                  )}
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Link
+                href={tableViewHref}
+                className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+              >
+                <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
+                <span>스펙 일람표</span>
+              </Link>
               <Link
                 href={galleryHref}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-4 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150"
+                className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-4 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap"
               >
-                <span>상세 필터 · 전체 매물 보기</span>
-                <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FB923C]" />
+                <span>전체 매물 필터</span>
+                <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FF8A50]" />
               </Link>
             </div>
           </div>
         )}
 
-        {/* 선택 카테고리 특화 검수 기준 스트립 */}
+        {/* 빠른 비교 · 묶음 견적 진입 도크 (담긴 매물이 있을 때 즉시 활성화) */}
+        {!loading && !error && (
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-4 py-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#141A23] text-[#FF8A50] shrink-0">
+                <Icon d={ICON.columns} className="w-4 h-4" />
+              </span>
+              <div className="min-w-0">
+                {basketItems.length > 0 ? (
+                  <p className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] truncate">
+                    관심 매물{" "}
+                    <span className="font-mono text-[#C84312] tabular-nums">
+                      {basketItems.length}대
+                    </span>
+                    가 비교·견적함에 담겼습니다
+                  </p>
+                ) : (
+                  <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#334155] break-keep">
+                    마음에 드는 카드의{" "}
+                    <strong className="font-bold text-[#141A23]">비교·담기</strong>를 누르면 최대{" "}
+                    <span className="font-mono font-bold tabular-nums text-[#C84312]">3대</span>{" "}
+                    스펙·가로폭을 나란히 비교하고 한 번에 견적을 받을 수 있습니다.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              {basketItems.length > 0 ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      trackEvent("compare_products", {
+                        count: basketItems.length,
+                        location: "home_featured_bar",
+                      });
+                      setCompareOpen(true);
+                    }}
+                    className="hb-btn-primary min-h-[38px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                  >
+                    <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                    <span>
+                      나란히 스펙 비교 ({Math.min(basketItems.length, 3)})
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      trackEvent("begin_buy_inquiry", {
+                        count: basketItems.length,
+                        use_bundle: true,
+                        location: "home_featured_bar",
+                      });
+                      triggerQuickInquiry({
+                        type: "구매 문의",
+                        useBundle: true,
+                      });
+                    }}
+                    className="hb-btn-accent min-h-[38px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                  >
+                    <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                    <span>묶음 견적 문의</span>
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackEvent("begin_buy_inquiry", {
+                      category: selectedCategory?.label || "전체",
+                      location: "home_featured_bar",
+                    });
+                    triggerQuickInquiry({
+                      type: "구매 문의",
+                      productTitle:
+                        selectedCategory && selectedCategory.key !== "all"
+                          ? `${selectedCategory.label} 맞춤 추천 문의`
+                          : undefined,
+                    });
+                  }}
+                  className="hb-btn-outline min-h-[38px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                >
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
+                  <span>조건별 맞춤 매물 추천받기</span>
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* 선택 카테고리 특화 검수 기준 스트립 (WCAG AA 대비 강화) */}
         {!loading && !error && categoryFact && (
-          <div className={`${embedded ? "mt-1" : "mt-4"} rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4`}>
+          <div className="mt-3.5 rounded-xl border border-[#CBD2DC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
                 name={categoryFact.icon}
                 className="w-8 h-8 shrink-0 text-[#141A23]"
               />
               <div className="min-w-0">
-                <span className="hb-trim block text-hb-xs font-bold text-[#E8521A]">
+                <span className="hb-trim block text-hb-xs font-bold text-[#C84312]">
                   {categoryFact.badge}
                 </span>
                 <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep [text-wrap:pretty]">
@@ -240,11 +366,11 @@ export function FeaturedProductsSection({
               {categoryFact.points.map((pt) => (
                 <span
                   key={pt}
-                  className="inline-flex items-center gap-1.5 font-semibold text-[#334155] tabular-nums"
+                  className="inline-flex items-center gap-1.5 font-semibold text-[#141A23] tabular-nums"
                 >
                   <Icon
                     d={ICON.check}
-                    className="w-3.5 h-3.5 text-[#E8521A] shrink-0"
+                    className="w-3.5 h-3.5 text-[#0F766E] shrink-0"
                   />
                   <span>{pt}</span>
                 </span>
@@ -256,7 +382,7 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch"
+            className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch"
             aria-hidden="true"
           >
             {Array.from({ length: 8 }).map((_, idx) => (
@@ -274,11 +400,11 @@ export function FeaturedProductsSection({
             ))}
           </div>
         ) : error ? (
-          <div className="mt-7 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-8 sm:p-10 text-center">
+          <div className="mt-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-8 sm:p-10 text-center">
             <p className="text-hb-base font-bold text-[#141A23]">
               상품 목록을 불러오지 못했습니다.
             </p>
-            <p className="mt-1.5 text-hb-sm text-[#64748B]">
+            <p className="mt-1.5 text-hb-sm text-[#475569]">
               네트워크 상태를 확인하시거나 잠시 후 다시 시도해 주세요.
             </p>
             <button
@@ -290,25 +416,27 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : displayedProducts.length === 0 ? (
-          <div className="mt-7 flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-6 sm:p-8 sm:flex-row sm:items-center">
+          <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
               <p className="text-hb-lg font-bold text-[#141A23]">
                 선택하신 분류의 온라인 등록 매물을 준비 중입니다.
               </p>
-              <p className="mt-1 text-hb-sm text-[#4E5968]">
+              <p className="mt-1 text-hb-sm text-[#475569]">
                 매장에는 온라인에 미처 올리지 못한 가전과 주방설비가 상시 준비되어 있습니다. 찾으시는 품목을 말씀해 주시면 즉시 재고를 확인해 드립니다.
               </p>
             </div>
             <div className="flex flex-wrap gap-2.5 shrink-0">
-              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
-                <button
-                  type="button"
-                  onClick={onResetCategory}
-                  className="hb-btn-outline h-11 px-4 text-hb-sm active:scale-[0.96]"
-                >
-                  전체 매물 보기
-                </button>
-              )}
+              {selectedCategory &&
+                selectedCategory.key !== "all" &&
+                onResetCategory && (
+                  <button
+                    type="button"
+                    onClick={onResetCategory}
+                    className="hb-btn-outline h-11 px-4 text-hb-sm active:scale-[0.96]"
+                  >
+                    전체 매물 보기
+                  </button>
+                )}
               <a
                 href={telHref(STORE.tel)}
                 className="hb-btn-primary h-11 px-5 text-hb-sm active:scale-[0.96]"
@@ -319,24 +447,21 @@ export function FeaturedProductsSection({
           </div>
         ) : (
           <>
-            <div className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch">
+            <div className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 lg:grid-cols-4 items-stretch">
               {displayedProducts.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
 
             {/* 하단 더보기 및 전체 갤러리 이동 바 */}
             <div className="mt-10 pt-6 border-t border-[#E2E6EC] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <p className="text-hb-xs sm:text-hb-sm text-[#64748B]">
+              <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
                 표시 중:{" "}
-                <strong className="font-bold text-[#141A23] tabular-nums">
+                <strong className="font-mono font-bold text-[#141A23] tabular-nums">
                   {displayedProducts.length}
                 </strong>{" "}
                 / 전체{" "}
-                <strong className="font-bold text-[#141A23] tabular-nums">
+                <strong className="font-mono font-bold text-[#141A23] tabular-nums">
                   {filteredProducts.length}
                 </strong>
                 건
@@ -358,13 +483,21 @@ export function FeaturedProductsSection({
                   className="hb-btn-primary h-11 px-6 text-hb-sm font-bold active:scale-[0.96]"
                 >
                   <span>전체 판매 제품 갤러리 ({totalSellingCount}건)</span>
-                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FB923C]" />
+                  <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
                 </Link>
               </div>
             </div>
           </>
         )}
       </div>
+
+      {compareOpen && (
+        <ProductCompareModal
+          open={compareOpen}
+          onClose={() => setCompareOpen(false)}
+          items={basketItems}
+        />
+      )}
     </Wrapper>
   );
 }

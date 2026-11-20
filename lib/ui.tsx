@@ -444,7 +444,7 @@ export function Modal({
 const HEADER_NAV = [
   { label: "판매 제품", href: "/gallery", matchPrefix: "/gallery" },
   { label: "가전 매입", href: "/purchase", matchPrefix: "/purchase" },
-  { label: "업소·창업", href: "/#business-section", matchPrefix: "" },
+  { label: "업소·창업", href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0", matchPrefix: "" },
   { label: "정보 게시판", href: "/guide", matchPrefix: "/guide" },
   { label: "매장 안내", href: "/#location-section", matchPrefix: "" },
 ] as const;
@@ -1131,7 +1131,7 @@ export function SiteFooter({
                 </span>
               </div>
               <p className="max-w-md text-hb-sm leading-[1.7] text-white/70 break-keep">
-                가정용 중고가전부터 식당·카페 업소용 설비까지 직접 분해·고압세척 및 시운전 작동 검수를 마친 정직한 매물만 출고합니다.
+                가정용 중고가전부터 식당·카페 업소용 설비까지 고압세척과 배송 전 작동 점검을 마친 정직한 매물만 출고합니다.
               </p>
 
               <div className="pt-2 text-hb-xs space-y-1">

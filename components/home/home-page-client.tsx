@@ -47,8 +47,18 @@ import {
   type ShowroomCategoryItem,
   type PictogramKey,
 } from "./category-pictogram-bar";
-import { ModernApplianceIcon } from "../ui/modern-icons";
 import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
+import { ShowroomTrustShowcase } from "./showroom-trust-showcase";
+import {
+  HomeGuideShowcase,
+  type HomeGuidePreviewItem,
+} from "./home-guide-showcase";
+import {
+  formatInquiryRelativeDate,
+  getInquiryTypeTone,
+  isInquiryAnswered,
+  summarizeInquiryActivity,
+} from "../../lib/inquiry-feed";
 
 const AirconGuideModal = dynamic(
   () =>
@@ -89,84 +99,79 @@ type InquiryRow = {
   created_at?: string | null;
 };
 
-const COMMERCIAL_EQUIP_MATRIX = [
-  {
-    code: "냉장 · 냉동 설비",
-    title: "업소용 냉장 · 냉동 설비",
-    items: "45박스 · 25박스 수직냉장/냉동 · 테이블냉장고 · 반찬냉장고 · 급속냉동고",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
-    icon: "biz-fridge" as const,
-  },
-  {
-    code: "쇼케이스 설비",
-    title: "음료 · 제과 · 주류 쇼케이스",
-    items: "음료/주류 직냉식·간냉식 쇼케이스 · 제과/케이크 쇼케이스 · 오픈 쇼케이스",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
-    icon: "showcase" as const,
-  },
-  {
-    code: "제빙기 · 주방집기",
-    title: "제빙기 · 세척기 · 스텐 주방",
-    items: "업소용 제빙기 · 식기세척기 · 스텐 작업대 · 싱크대 · 가스레인지 · 육수통",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
-    icon: "kitchen" as const,
-  },
-  {
-    code: "상가 · 사무실 냉난방",
-    title: "상가·사무실 중대형 냉난방기",
-    items: "상가·식당·사무실 중대형 스탠드/천장형 4WAY 냉난방기 · 단상/삼상 현장 맞춤 시공",
-    href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
-    icon: "aircon" as const,
-  },
-] as const;
+type FaqCategoryKey = "all" | "buy" | "delivery" | "sell";
 
-const FAQS = [
+const FAQ_FILTER_OPTIONS: ReadonlyArray<{
+  key: FaqCategoryKey;
+  label: string;
+}> = [
+  { key: "all", label: "전체 질문" },
+  { key: "buy", label: "구매·A/S" },
+  { key: "delivery", label: "배송·설치" },
+  { key: "sell", label: "매입·결제" },
+];
+
+const FAQS: ReadonlyArray<{
+  group: Exclude<FaqCategoryKey, "all">;
+  tag: string;
+  q: string;
+  a: string;
+}> = [
   {
+    group: "buy",
     tag: "직거래 비교 · 매장 구매 혜택",
     q: "당근 등 개인 직거래 대신 매장에서 구매하면 어떤 점이 더 좋나요?",
-    a: `개인 직거래는 용달 섭외와 무거운 가전 운반을 직접 해야 하고, 집에 가져와서 고장 나도 환불이나 수리를 받기 어렵습니다. ${STORE.name}에서는 매장 직영 기사가 집 안까지 직접 배송하고 수평·배관 설치까지 안전하게 마무리해 드립니다. 입고 시 꼼꼼한 분해 세척과 동작 테스트를 통과한 제품만 판매하며, 에어컨 최대 8개월, 일반 가전 최대 4개월간 무상 A/S를 보증해 드리니 안심하고 쓰실 수 있습니다.`,
+    a: `개인 직거래는 용달 섭외와 무거운 가전 운반을 직접 해야 하고, 집에 가져와서 고장 나도 환불이나 수리를 받기 어렵습니다. ${STORE.name}에서는 매장 직영 기사가 집 안까지 직접 배송하고 수평·배관 설치까지 안전하게 마무리해 드립니다. 현장 확인 후 고압세척과 배송 전 작동 점검을 마친 제품만 판매하며, 에어컨 최대 8개월, 일반 가전 최대 4개월간 무상 A/S를 보증해 드리니 안심하고 쓰실 수 있습니다.`,
   },
   {
+    group: "delivery",
     tag: "세종 · 충청권 배송 및 출장 매입",
     q: "대전 외에 세종, 청주 등 인근 지역도 배송과 방문 매입이 되나요?",
     a: `네, 가능합니다. 대전 전 지역은 물론 세종, 청주, 천안, 공주, 계룡, 논산 등 충청권 전역에 직영 기사가 직접 배송·설치해 드리며, 이사나 폐업 시 방문 매입도 함께 진행합니다. 그 외 지역도 안전한 화물 택배로 배송을 지원합니다.`,
   },
   {
+    group: "delivery",
     tag: "배송 일정 · 이사 지정일 예약",
     q: "원하는 배송 날짜나 이사 일정에 맞춰서 받아볼 수 있나요?",
     a: "네, 가능합니다. 원하시는 이사나 입주 날짜에 맞춰 지정일 배송으로 예약해 두실 수 있습니다. 대전 및 인근 지역은 매장 재고 확인 후 당일이나 익일 빠른 배차도 가능하니, 급하게 가전이 필요하신 경우에도 편하게 일정 문의해 주세요.",
   },
   {
+    group: "buy",
     tag: "A/S 접수 · 보증 기준",
     q: "사용하다가 고장 나면 A/S는 어떻게 신청하나요?",
     a: `대표전화(${STORE.tel})나 카카오톡으로 증상을 남겨주시면 직영 기사가 확인 후 방문 점검과 수리를 진행합니다. 보증 기간(에어컨 최대 8개월, 일반 가전 최대 4개월) 내 정상 사용 중 발생한 기능 이상은 무상으로 수리해 드리며, 수리가 어려운 경우 동급 제품으로 교환해 드립니다. (※ 세부 보증 기간은 구매 시 거래 조건 기준 적용)`,
   },
   {
+    group: "sell",
     tag: "보상판매 · 기존 가전 수거",
     q: "새로 사면서 기존에 쓰던 가전을 처분하거나 폐가전 수거도 가능한가요?",
     a: "네, 가능합니다. 새 가전을 배송·설치해 드리는 날 기존 가전을 현장에서 바로 수거해 드립니다. 연식과 작동 상태가 양호한 가전은 매입 금액만큼 결제 금액에서 빼드리는 보상판매를 진행하며, 노후 고장 가전도 현장 여건에 따라 함께 수거·철거 상담이 가능합니다.",
   },
   {
+    group: "delivery",
     tag: "계단 운반 · 에어컨 설치비",
     q: "엘리베이터가 없는 층이거나 에어컨 설치 시 추가 비용이 나오나요?",
     a: "냉장고·세탁기는 1층 및 엘리베이터가 있는 건물 기준 기본 배송·수평 설치가 무료로 지원됩니다. 엘리베이터가 없는 2층 이상 계단 운반이나 사다리차 진입이 필요한 경우에만 사전 협의 후 최소 실비가 적용됩니다. 에어컨은 배관 길이, 타공 여부, 실외기 앵글 등에 따라 달라지므로, 설치 장소 사진을 보내주시면 현장 추가금 없이 정확한 견적을 먼저 안내해 드립니다.",
   },
   {
+    group: "buy",
     tag: "에어컨 · 냉난방기 구매 안내",
     q: "에어컨 살 때 실외기만 따로 살 수도 있나요?",
     a: `${STORE.name}의 모든 에어컨과 냉난방기는 냉매 호환성과 냉방 효율 보증을 위해 실내기와 실외기를 1:1 세트로만 판매합니다. 실외기 단품 구매는 지원하지 않으니 양해 부탁드립니다. 공간 평수와 배관 환경에 맞는 모델은 언제든 문의해 주시면 맞춤 추천해 드립니다.`,
   },
   {
+    group: "sell",
     tag: "비대면 주문 · 결제 방법",
     q: "매장에 직접 가지 않고 온라인이나 전화로 바로 구매할 수 있나요?",
-    a: `네, 가능합니다. 원하시는 매물의 실물 사진과 작동 테스트 영상을 카카오톡으로 꼼꼼하게 확인하신 뒤 비대면으로 주문하실 수 있습니다. 계좌이체, 신용카드 결제, 현금영수증 및 사업자 전자세금계산서 발행을 모두 지원합니다.`,
+    a: `네, 가능합니다. 원하시는 매물의 실물 사진과 작동 확인 내용을 카카오톡으로 꼼꼼하게 확인하신 뒤 비대면으로 주문하실 수 있습니다. 계좌이체, 신용카드 결제, 현금영수증 및 사업자 전자세금계산서 발행을 모두 지원합니다.`,
   },
   {
+    group: "sell",
     tag: "가전 판매 견적 팁",
     q: "가전을 팔고 싶은데, 사진을 어떻게 찍어 보내야 견적이 바로 나오나요?",
     a: "① 제품 정면 전체 사진, ② 측면이나 문 안쪽에 붙은 '에너지소비효율 스티커 또는 정격 명판(모델명·제조년월)' 사진, ③ 외관 흠집 유무와 엘리베이터 유무(층수)를 함께 알려주시면 현장 감가 없이 가장 빠르고 정확한 매입 견적을 안내해 드립니다.",
   },
-] as const;
+];
 
 function handleTabListKeyDown<T extends string>(
   e: React.KeyboardEvent<HTMLDivElement>,
@@ -193,22 +198,20 @@ function handleTabListKeyDown<T extends string>(
 /* ════════════════════════════════════════════════════════════
    2. 메인 페이지 컴포넌트 (Modern Appliance Showroom 아키텍처)
    ════════════════════════════════════════════════════════════ */
-export type GuidePreviewSummary = {
-  slug: string;
-  category: string;
-  title: string;
-};
+export type GuidePreviewSummary = HomeGuidePreviewItem;
 
 export default function Home({
   initialProducts,
   initialReviews,
   initialRecent = null,
+  totalInquiryCount = null,
   guideTotalCount = 0,
   latestGuides = [],
 }: {
   initialProducts: ProductItem[] | null;
   initialReviews: Review[] | null;
   initialRecent?: InquiryRow[] | null;
+  totalInquiryCount?: number | null;
   guideTotalCount?: number;
   latestGuides?: readonly GuidePreviewSummary[];
 }) {
@@ -231,25 +234,14 @@ export default function Home({
     initialReviews === null
   );
   const [recent, setRecent] = useState<InquiryRow[]>(initialRecent ?? []);
+  const [showAllRecent, setShowAllRecent] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
   const isAdmin = useIsAdminSession();
 
   /* UI 인터랙션 상태 (FAQ 기본 닫힘) */
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [showAllFaqs, setShowAllFaqs] = useState(false);
-  const [guideTab, setGuideTab] = useState<"faq" | "comparison">("faq");
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [faqFilter, setFaqFilter] = useState<FaqCategoryKey>("all");
   const [showAllReviews, setShowAllReviews] = useState(false);
-
-  useEffect(() => {
-    const syncGuideHash = () => {
-      if (window.location.hash === "#buying-guide-section") {
-        setGuideTab("comparison");
-      }
-    };
-    syncGuideHash();
-    window.addEventListener("hashchange", syncGuideHash);
-    return () => window.removeEventListener("hashchange", syncGuideHash);
-  }, []);
   const [reviewFilter, setReviewFilter] = useState<
     "all" | "home" | "commercial"
   >("all");
@@ -326,11 +318,11 @@ export default function Home({
 
   /* ── 3) 최근 문의 현황 로드 ── */
   const fetchRecentList = useCallback(async (): Promise<InquiryRow[]> => {
-    const res = await fetch("/api/inquiries?limit=8");
+    const res = await fetch("/api/inquiries?limit=24");
     if (!res.ok) return [];
     const json = await res.json();
     const rows = (json.inquiries ?? []) as InquiryRow[];
-    return rows.filter((r) => !r.is_notice).slice(0, 5);
+    return rows.filter((r) => !r.is_notice).slice(0, 12);
   }, []);
 
   useEffect(() => {
@@ -460,6 +452,19 @@ export default function Home({
   const shownReviews = showAllReviews
     ? filteredReviews
     : filteredReviews.slice(0, 4);
+
+  const inquiryActivity = useMemo(
+    () => summarizeInquiryActivity(recent),
+    [recent]
+  );
+
+  const filteredFaqs = useMemo(
+    () =>
+      faqFilter === "all"
+        ? FAQS
+        : FAQS.filter((item) => item.group === faqFilter),
+    [faqFilter]
+  );
 
   const openInquiry = useCallback(
     (type?: InquiryTypeValue, productTitle?: string) => {
@@ -699,13 +704,13 @@ export default function Home({
                     id="hero-title"
                     className="mt-2.5 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
                   >
-                    분해 고압세척과 시운전을 마친
+                    고압세척과 작동 점검을 마친
                     <br />
                     <span className="text-[#C84312]">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
                   <p className="mt-2 max-w-xl text-hb-sm sm:text-hb-base leading-[1.6] text-[#475569] break-keep [text-wrap:pretty]">
-                    가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 전 품목 정밀 점검 후{" "}
+                    가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 배송 전 작동 점검 후{" "}
                     <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
@@ -737,37 +742,70 @@ export default function Home({
                     </div>
                   </div>
 
-                  {/* 핵심 행동 2개만 유지 — 나머지 중복 전화·카톡·업소 분기는 헤더/하단 바와 B2B 섹션이 담당 */}
+                  {/* 핵심 행동 2개 고도화: 구매(실매물 확인) + 매입(방문 매입·폐업 정리 통합 허브) */}
                   <div className="mt-4 max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <Link
                       href="/gallery"
-                      className="hb-btn-primary min-h-[48px] h-12 px-5 text-hb-sm font-bold justify-between active:scale-[0.98]"
+                      className="group flex items-center justify-between gap-3 rounded-xl bg-[#141A23] px-4 py-3 text-left text-white shadow-sm hover:bg-[#1E2736] active:scale-[0.98] transition-[background-color,transform] duration-150"
                     >
-                      <span className="inline-flex items-center gap-2">
-                        <span>실매물 확인</span>
-                        {sellingCount > 0 && (
-                          <span className="rounded-md bg-white/15 px-2 py-0.5 font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
-                            {sellingCount}대
-                          </span>
-                        )}
-                      </span>
-                      <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
+                      <div className="min-w-0">
+                        <span className="inline-flex items-center gap-2 text-hb-sm font-bold text-white">
+                          <span>실매물 확인</span>
+                          {sellingCount > 0 && (
+                            <span className="rounded-md bg-white/15 px-2 py-0.5 font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                              {sellingCount}대
+                            </span>
+                          )}
+                        </span>
+                        <span className="mt-0.5 block text-hb-xs text-white/75 truncate">
+                          전시장 실물 · 충청권 직영 배송
+                        </span>
+                      </div>
+                      <Icon
+                        d={ICON.arrow}
+                        className="w-4 h-4 shrink-0 text-[#FF8A50] transition-transform group-hover:translate-x-0.5"
+                      />
                     </Link>
+
                     <Link
                       href="/purchase"
-                      className="hb-btn-accent min-h-[48px] h-12 px-5 text-hb-sm font-bold justify-between active:scale-[0.98]"
+                      className="group flex items-center justify-between gap-3 rounded-xl bg-[#C84312] px-4 py-3 text-left text-white shadow-sm hover:bg-[#B2390D] active:scale-[0.98] transition-[background-color,transform] duration-150"
                     >
-                      <span>가전 · 폐업 설비 팔기</span>
-                      <Icon d={ICON.arrow} className="w-4 h-4" />
+                      <div className="min-w-0">
+                        <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-white">
+                          <span>가전 · 폐업 설비 팔기</span>
+                        </span>
+                        <span className="mt-0.5 block text-hb-xs text-white/90 truncate">
+                          당일 방문 수거 · 현장 즉시 입금
+                        </span>
+                      </div>
+                      <Icon
+                        d={ICON.arrow}
+                        className="w-4 h-4 shrink-0 text-white transition-transform group-hover:translate-x-0.5"
+                      />
                     </Link>
                   </div>
-                  <p className="mt-2 text-hb-xs text-[#475569]">
-                    업소·창업 설비는{" "}
-                    <a href="#business-section" className="font-bold text-[#141A23] underline underline-offset-4 hover:text-[#C84312]">
-                      아래 B2B 쇼룸
+
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-hb-xs text-[#475569]">
+                    <a
+                      href={STORE.kakaoChat}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 font-bold text-[#141A23] underline underline-offset-4 hover:text-[#C84312]"
+                    >
+                      <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
+                      <span>카카오톡 사진 1장 매입 견적</span>
                     </a>
-                    에서 스펙 표로 비교하세요.
-                  </p>
+                    <span className="text-[#CBD2DC]" aria-hidden="true">
+                      ·
+                    </span>
+                    <Link
+                      href="/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0"
+                      className="font-semibold text-[#475569] hover:text-[#141A23] underline underline-offset-4"
+                    >
+                      식당·카페 업소용 설비 바로보기
+                    </Link>
+                  </div>
                 </div>
               </div>
 
@@ -808,7 +846,7 @@ export default function Home({
                       출고 점검
                     </span>
                     <strong className="block text-hb-xs font-bold text-[#141A23]">
-                      전원·냉매 시운전
+                      배송 전 작동 점검
                     </strong>
                   </div>
                   <div className="px-3 py-2 sm:px-4 sm:py-2.5">
@@ -856,11 +894,11 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [2/6] 품목별 쇼룸 탐색 바 + 실시간 쇼룸 전시 매물
+            [2/6] 품목별 쇼룸 탐색 바 → 6단계 리퍼비시 검수 쇼케이스 → 실시간 쇼룸 전시 매물
             ════════════════════════════════════════════════════════════ */}
         <section
-          aria-label="품목별 카탈로그 및 실시간 전시 매물"
-          className="border-b border-[#E2E6EC] bg-white"
+          aria-label="품목별 쇼룸 카탈로그"
+          className="bg-white"
         >
           <CategoryPictogramBar
             embedded
@@ -870,180 +908,49 @@ export default function Home({
               setSelectedCategory(item);
             }}
           />
-
-          <FeaturedProductsSection
-            embedded
-            products={featuredProducts}
-            loading={productsLoading}
-            error={productsError}
-            onRetry={() => {
-              setProductsLoading(true);
-              setProductsError(false);
-              void loadFeaturedProducts();
-            }}
-            selectedCategory={selectedCategory}
-            onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
-          />
         </section>
 
-        {/* ════════════════════════════════════════════════════════════
-            [Section 3] 업소 · 창업 B2B 전용 다크 쇼룸 (#business-section)
-            ════════════════════════════════════════════════════════════ */}
-        <section
-          id="business-section"
-          className="border-b border-[#E2E6EC]"
-          aria-labelledby="business-title"
-        >
-          {/* 상단 다크 네이비 B2B 쇼룸 밴드 */}
-          <div className="bg-[#141A23] hb-dark-mesh relative overflow-hidden text-white py-10 sm:py-14 border-b border-[#263040]">
-            <div className="hb-container">
-              <div className="grid gap-8 lg:grid-cols-12 lg:gap-12 items-start">
-                {/* 좌측 (5열): 업소용 핵심 메시지 & 이원화 CTA */}
-                <div className="lg:col-span-5 min-w-0">
-                  <span className="text-hb-xs sm:text-hb-sm font-bold text-[#FB923C]">
-                    업소용 설비 · 사업자 전용
-                  </span>
-                  <h2
-                    id="business-title"
-                    className="mt-2.5 text-hb-2xl sm:text-hb-3xl font-bold text-white tracking-tight leading-[1.25] break-keep [text-wrap:balance]"
-                  >
-                    식당·카페 창업 설비 도입부터
-                    <br />
-                    폐업 매장 일괄 정리까지
-                  </h2>
-                  <p className="mt-3 text-hb-sm sm:text-hb-base text-white/80 leading-relaxed break-keep [text-wrap:balance]">
-                    45박스 냉장고·쇼케이스·제빙기·냉난방기 맞춤 패키지 납품 및 전자세금계산서 100% 발행
-                  </p>
+        <ShowroomTrustShowcase />
 
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <Link
-                      href="/inquiry?write=1&type=bulk"
-                      className="hb-btn-accent min-h-[44px] h-12 px-6 text-hb-base font-bold active:scale-[0.96]"
-                    >
-                      <span>창업 · 대량 구매 견적</span>
-                      <Icon d={ICON.arrow} className="w-4 h-4" />
-                    </Link>
-                    <Link
-                      href="/purchase"
-                      className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/10 hover:bg-white/20 active:scale-[0.96] min-h-[44px] h-12 px-5 text-hb-sm font-bold text-white transition-[background-color,transform] duration-150"
-                    >
-                      <span>식당·카페 폐업 일괄정리</span>
-                      <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
-                    </Link>
-                  </div>
-                </div>
-
-                {/* 우측 (7열): 스위스 다크 벤토 헤어라인 2×2 업소용 주력 품목 매트릭스 */}
-                <div className="lg:col-span-7 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-px rounded-2xl border border-white/15 bg-white/15 overflow-hidden">
-                  {COMMERCIAL_EQUIP_MATRIX.map((cell, idx) => (
-                    <Link
-                      key={cell.code}
-                      href={cell.href}
-                      className="group relative flex flex-col justify-between p-5 sm:p-6 bg-[#161E2B] hover:bg-[#1E293B] active:bg-[#233044] transition-colors duration-150"
-                    >
-                      <div>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            <ModernApplianceIcon name={cell.icon} dark className="w-8 h-8 shrink-0" />
-                            <div className="min-w-0">
-                              <span className="block font-mono text-hb-xs font-bold text-white/60 tabular-nums leading-none">
-                                {String(idx + 1).padStart(2, "0")}
-                              </span>
-                              <span className="mt-1 block font-mono text-hb-xs font-bold text-[#FB923C] truncate">
-                                {cell.code}
-                              </span>
-                            </div>
-                          </div>
-                          <Icon
-                            d={ICON.arrow}
-                            className="w-4 h-4 text-white/50 group-hover:text-[#FB923C] group-hover:translate-x-1 transition-[color,transform] duration-150 shrink-0"
-                          />
-                        </div>
-                        <h3 className="mt-3 text-hb-lg font-bold text-white group-hover:text-[#FB923C] transition-colors">
-                          {cell.title}
-                        </h3>
-                        <p className="mt-1.5 text-hb-xs sm:text-hb-sm text-white/75 leading-relaxed break-keep">
-                          {cell.items}
-                        </p>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
+        <FeaturedProductsSection
+          products={featuredProducts}
+          loading={productsLoading}
+          error={productsError}
+          onRetry={() => {
+            setProductsLoading(true);
+            setProductsError(false);
+            void loadFeaturedProducts();
+          }}
+          selectedCategory={selectedCategory}
+          onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
+        />
 
         {/* ════════════════════════════════════════════════════════════
-            [Section 5] 가전 매입 · 폐업 정리 안내 (#sell-section)
-            ════════════════════════════════════════════════════════════ */}
-        <section
-          id="sell-section"
-          aria-labelledby="sell-title"
-          className="scroll-mt-20 border-b border-[#E2E6EC] bg-[#F7F8FA] py-5 sm:py-6"
-        >
-          <div className="hb-container flex flex-col gap-3.5 md:flex-row md:items-center md:justify-between">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex items-center rounded-md bg-[#FFF4EE] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#C84312]">
-                  가전 · 설비 팔기
-                </span>
-                <h2
-                  id="sell-title"
-                  className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight"
-                >
-                  안 쓰는 가전·식당 폐업 설비 방문 매입
-                </h2>
-              </div>
-              <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#475569] break-keep">
-                사진과 명판만 보내주시면 대전·세종·충청 당일 방문 수거 후 현장 즉시 입금해 드립니다.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <Link
-                href="/purchase"
-                className="hb-btn-accent min-h-[44px] h-11 px-4 sm:px-5 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
-              >
-                <span>매입 기준 · 사진 견적 신청</span>
-                <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-              </Link>
-              <a
-                href={STORE.kakaoChat}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hb-btn-kakao min-h-[44px] h-11 px-4 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
-              >
-                <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                <span>카카오톡 사진 문의</span>
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════════
-            [4/6] 오프라인 직영 쇼룸 및 실시간 상담 안내 (#inquiry-section + #location-section)
+            [3/6] 오프라인 직영 쇼룸 오시는 길 (확대 지도) 및 실시간 상담 현황 (#inquiry-section + #location-section)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="inquiry-section"
-          className="border-b border-[#E2E6EC] bg-white py-8 sm:py-11"
+          className="border-b border-[#E2E6EC] bg-white py-9 sm:py-12"
           aria-labelledby="cta-title"
         >
           <div className="hb-container">
             <SectionHeading
-              title={<span id="cta-title" className="[text-wrap:balance]">오프라인 매장 오시는 길 및 1:1 문의</span>}
-              desc="대전·세종·충청권 직배송 지원 및 매장 실물 확인·현장 상차가 가능합니다."
+              title={
+                <span id="cta-title" className="[text-wrap:balance]">
+                  오프라인 매장 오시는 길 및 실시간 1:1 문의
+                </span>
+              }
+              desc="대전·세종·충청권 직배송은 물론, 매장에 직접 방문해 실물 확인 후 상차하실 수 있습니다."
             />
 
-            <div className="mt-5 grid gap-5 lg:grid-cols-12 items-stretch">
-              {/* 좌측 (7열): 오프라인 매장 지도 및 주소·편의시설 일체형 카드 (#location-section) */}
+            <div className="mt-6 grid gap-5 lg:grid-cols-12 items-stretch">
+              {/* 좌측 (7열): 확대된 오프라인 매장 지도 및 주소·편의시설 일체형 카드 (#location-section) */}
               <div
                 id="location-section"
                 aria-labelledby="location-title"
-                className="lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs"
+                className="scroll-mt-24 lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs"
               >
-                <div className="relative h-[200px] sm:h-[225px] w-full bg-[#F1F3F6] overflow-hidden">
+                <div className="relative h-[280px] sm:h-[340px] lg:h-[370px] w-full bg-[#F1F3F6] overflow-hidden">
                   {mapLoaded ? (
                     <iframe
                       title={`${STORE.name} 매장 위치 지도`}
@@ -1057,25 +964,28 @@ export default function Home({
                     <button
                       type="button"
                       onClick={() => setMapLoaded(true)}
-                      className="group relative flex h-full w-full flex-col items-center justify-center gap-2.5 bg-[radial-gradient(circle_at_top,_rgba(232,82,26,0.08),_transparent_55%),linear-gradient(135deg,#F8FAFC_0%,#EEF2F6_100%)] px-4 text-center transition-colors hover:bg-[#E8EDF3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23]"
+                      className="group relative flex h-full w-full flex-col items-center justify-center gap-3 bg-[radial-gradient(circle_at_top,_rgba(232,82,26,0.10),_transparent_55%),linear-gradient(135deg,#F8FAFC_0%,#E9EEF4_100%)] px-6 text-center transition-colors hover:bg-[#E4EBF2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] cursor-pointer"
                     >
                       <span
-                        className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,#CBD5E1_1px,transparent_1px),linear-gradient(to_bottom,#CBD5E1_1px,transparent_1px)] [background-size:28px_28px]"
+                        className="pointer-events-none absolute inset-0 opacity-45 [background-image:linear-gradient(to_right,#CBD5E1_1px,transparent_1px),linear-gradient(to_bottom,#CBD5E1_1px,transparent_1px)] [background-size:32px_32px]"
                         aria-hidden="true"
                       />
-                      <span className="relative z-10 inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-[#E2E6EC] bg-white text-[#E8521A] shadow-sm transition-transform group-hover:scale-105">
-                        <Icon d={ICON.pin} className="h-5 w-5" />
+                      <span className="relative z-10 inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-[#E2E6EC] bg-white text-[#C84312] shadow-sm transition-transform group-hover:scale-105">
+                        <Icon d={ICON.pin} className="h-6 w-6" />
                       </span>
-                      <div className="relative z-10 space-y-0.5">
-                        <p className="text-hb-sm font-bold text-[#141A23]">
-                          {STORE.name} 오프라인 매장 약도
+                      <div className="relative z-10 space-y-1">
+                        <span className="inline-block rounded-md bg-white/90 border border-[#CBD2DC] px-2.5 py-0.5 text-hb-xs font-bold text-[#0F766E]">
+                          전용 주차 8대 · 1톤 화물 진입 수월
+                        </span>
+                        <p className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
+                          {STORE.name} 오프라인 매장 위치 지도
                         </p>
-                        <p className="text-hb-xs text-[#475569]">
-                          {STORE.roadAddress} ({STORE.jibunAddress})
+                        <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
+                          {STORE.roadAddress} ({STORE.addressNote})
                         </p>
                       </div>
-                      <span className="relative z-10 inline-flex items-center gap-1.5 rounded-full bg-[#141A23] px-3.5 py-1.5 text-hb-xs font-semibold text-white shadow-xs transition-colors group-hover:bg-[#E8521A]">
-                        지도 열기
+                      <span className="relative z-10 inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] px-4 py-2 text-hb-xs sm:text-hb-sm font-bold text-white shadow-xs transition-colors group-hover:bg-[#C84312]">
+                        <span>크게 지도 펼치기</span>
                         <Icon d={ICON.right} className="h-3.5 w-3.5" />
                       </span>
                     </button>
@@ -1083,7 +993,6 @@ export default function Home({
                 </div>
 
                 <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E2E6EC] bg-white space-y-3.5">
-                  {/* 상단 주소 및 주소 복사 */}
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
                     <div className="min-w-0">
                       <h3
@@ -1092,7 +1001,7 @@ export default function Home({
                       >
                         {STORE.roadAddress}
                       </h3>
-                      <p className="mt-0.5 text-hb-xs text-[#475569]">
+                      <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#475569]">
                         지번: {STORE.jibunAddress} ({STORE.addressNote}) · {STORE.hours} ({STORE.closed})
                       </p>
                     </div>
@@ -1100,21 +1009,19 @@ export default function Home({
                     <button
                       type="button"
                       onClick={handleCopyAddress}
-                      className="hb-btn-outline h-8 px-3 text-hb-xs shrink-0 self-start active:scale-[0.96]"
+                      className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold shrink-0 self-start active:scale-[0.96] cursor-pointer"
                     >
-                      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
+                      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#C84312]" />
                       <span>주소 복사</span>
                     </button>
                   </div>
 
-                  {/* 쇼룸 방문 핵심 요약 */}
-                  <p className="pt-3 border-t border-[#E2E6EC] text-hb-xs text-[#475569] leading-relaxed">
+                  <p className="pt-3 border-t border-[#E2E6EC] text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed">
                     <strong className="font-semibold text-[#141A23]">전용 주차 8대</strong>(1톤 화물 진입 수월) ·{" "}
-                    <strong className="font-semibold text-[#141A23]">현장 전원 점검</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
+                    <strong className="font-semibold text-[#141A23]">현장 전원 확인</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
                   </p>
 
-                  {/* 지도 앱 길찾기 */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
+                  <div className="grid grid-cols-2 gap-2.5 pt-1">
                     <a
                       href={STORE.naverMap}
                       target="_blank"
@@ -1135,97 +1042,197 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 최근 접수 문의 현황 + 단일 1:1 견적 접수 바 (중복 전화/카톡 박스 슬림화) */}
+              {/* 우측 (5열): 실시간 고객 문의 현황 보드 (실데이터 누적 건수·답변율·상대시각 표시) */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between">
-                <div className="rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-5 flex-1 flex flex-col justify-between shadow-2xs">
+                <div className="rounded-2xl border border-[#E2DDD3] bg-white overflow-hidden flex-1 flex flex-col justify-between shadow-2xs">
                   <div>
-                    <div className="flex items-center justify-between pb-2.5 border-b border-[#E2E6EC]">
-                      <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
-                        최근 접수된 문의 현황
-                      </h3>
-                      <Link
-                        href="/inquiry"
-                        className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#C84312] hover:underline"
-                      >
-                        <span>전체 게시판</span>
-                        <Icon d={ICON.right} className="h-3.5 w-3.5" />
-                      </Link>
-                    </div>
-                    {recent.length === 0 ? (
-                      <div className="py-3.5 text-hb-xs text-[#334155] space-y-1.5">
-                        <p className="font-bold text-[#141A23]">
-                          비밀번호로 보호되는 1:1 비공개 견적 게시판입니다.
-                        </p>
-                        <p className="text-[#475569] leading-relaxed break-keep">
-                          가전 구매 재고 확인, 방문 매입, 식당·카페 업소용 묶음 견적을 남겨주시면 신속히 안내해 드립니다.
-                        </p>
+                    {/* 상단 실시간 접수 헤더 + 실데이터 활동 지표 */}
+                    <div className="bg-[#FAF9F6] border-b border-[#E2DDD3] px-4 py-3.5 sm:px-5">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="inline-flex items-center gap-2 min-w-0">
+                          <span
+                            className="h-2.5 w-2.5 rounded-full bg-[#10B981] animate-pulse shrink-0"
+                            aria-hidden="true"
+                          />
+                          <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] truncate">
+                            실시간 접수된 문의 현황
+                          </h3>
+                        </div>
+                        <Link
+                          href="/inquiry"
+                          className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#C84312] hover:underline shrink-0"
+                        >
+                          <span>전체 게시판</span>
+                          <Icon d={ICON.right} className="h-3.5 w-3.5" />
+                        </Link>
                       </div>
-                    ) : (
-                      <ul className="divide-y divide-[#E2E6EC]">
-                        {recent.slice(0, 5).map((r) => {
-                          const isDone =
-                            r.status === INQUIRY_STATUS.ANSWERED ||
-                            r.status === INQUIRY_STATUS.COMPLETED;
-                          const cleanCategory = (r.category || "상담 문의").replace(
-                            /^\[[^\]]+\]\s*/,
-                            ""
-                          );
-                          return (
-                            <li
-                              key={r.id}
-                              className="flex items-center justify-between gap-2.5 py-2.5 text-hb-xs sm:text-hb-sm"
-                            >
-                              <div className="flex min-w-0 flex-1 items-center gap-2">
-                                <span className="shrink-0 rounded-md bg-[#F1F3F6] px-2 py-0.5 text-hb-xs font-semibold text-[#141A23]">
-                                  {getInquiryTypeLabel(r.inquiry_type)}
+
+                      {/* 실데이터 기반 3단 활동 요약 */}
+                      <div className="mt-3 grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-[#E2DDD3] bg-[#E2DDD3]">
+                        <div className="bg-white px-2.5 py-2 text-center">
+                          <span className="block text-hb-xs text-[#64748B]">
+                            누적 접수
+                          </span>
+                          <strong className="mt-0.5 block font-mono text-hb-sm font-extrabold text-[#141A23] tabular-nums">
+                            {typeof totalInquiryCount === "number" &&
+                            totalInquiryCount > 0
+                              ? `${totalInquiryCount.toLocaleString()}건`
+                              : `${recent.length}건`}
+                          </strong>
+                        </div>
+                        <div className="bg-white px-2.5 py-2 text-center">
+                          <span className="block text-hb-xs text-[#64748B]">
+                            최근 답변율
+                          </span>
+                          <strong className="mt-0.5 block font-mono text-hb-sm font-extrabold text-[#0F766E] tabular-nums">
+                            {inquiryActivity.totalShown > 0
+                              ? `${inquiryActivity.answeredRate}%`
+                              : "신속 응대"}
+                          </strong>
+                        </div>
+                        <div className="bg-white px-2.5 py-2 text-center">
+                          <span className="block text-hb-xs text-[#64748B]">
+                            매입 · 구매
+                          </span>
+                          <strong className="mt-0.5 block font-mono text-hb-xs sm:text-hb-sm font-extrabold text-[#C84312] tabular-nums">
+                            {inquiryActivity.totalShown > 0
+                              ? `${inquiryActivity.sellCount} · ${inquiryActivity.buyOrBulkCount}`
+                              : "상시 접수"}
+                          </strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 최근 문의 피드 리스트 */}
+                    <div className="px-4 sm:px-5">
+                      {recent.length === 0 ? (
+                        <div className="py-6 text-hb-xs text-[#334155] space-y-1.5">
+                          <p className="font-bold text-[#141A23]">
+                            비밀번호로 보호되는 1:1 비공개 견적 게시판입니다.
+                          </p>
+                          <p className="text-[#475569] leading-relaxed break-keep">
+                            가전 구매 재고 확인, 방문 매입, 식당·카페 업소용 묶음 견적을 남겨주시면 신속히 안내해 드립니다.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <ul className="divide-y divide-[#F1F3F6]">
+                            {(showAllRecent ? recent : recent.slice(0, 7)).map(
+                              (r) => {
+                                const isDone = isInquiryAnswered(r.status);
+                                const tone = getInquiryTypeTone(r.inquiry_type);
+                                const cleanCategory = (
+                                  r.category || "상담 문의"
+                                ).replace(/^\[[^\]]+\]\s*/, "");
+                                const relDate = formatInquiryRelativeDate(
+                                  r.created_at
+                                );
+
+                                const typeBadgeClass =
+                                  tone === "sell"
+                                    ? "bg-[#FFF4EE] text-[#C84312] border border-[#FED7AA]"
+                                    : tone === "bulk"
+                                    ? "bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]"
+                                    : "bg-[#F1F3F6] text-[#141A23] border border-[#E2E6EC]";
+
+                                return (
+                                  <li
+                                    key={r.id}
+                                    className="flex items-center justify-between gap-2 py-2.5 text-hb-xs"
+                                  >
+                                    <div className="flex min-w-0 flex-1 items-center gap-2">
+                                      <span
+                                        className={`shrink-0 rounded-md px-2 py-0.5 text-hb-xs font-bold leading-none ${typeBadgeClass}`}
+                                      >
+                                        {getInquiryTypeLabel(r.inquiry_type)}
+                                      </span>
+                                      <Link
+                                        href="/inquiry"
+                                        className="min-w-0 flex-1 truncate text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] hover:text-[#C84312] transition-colors"
+                                      >
+                                        {cleanCategory || "상담 문의"}
+                                      </Link>
+                                    </div>
+                                    <div className="flex shrink-0 items-center gap-1.5 text-hb-xs">
+                                      <span className="text-[#475569] font-medium">
+                                        {r.masked_name || maskName(r.name)}
+                                      </span>
+                                      {relDate && (
+                                        <span className="hidden sm:inline font-mono text-hb-xs text-[#64748B] tabular-nums">
+                                          {relDate}
+                                        </span>
+                                      )}
+                                      <span
+                                        className={`rounded-md px-1.5 py-0.5 text-hb-xs font-bold leading-none ${
+                                          isDone
+                                            ? "bg-[#F0FDFA] text-[#0F766E] border border-[#0D9488]/25"
+                                            : "bg-[#FFF4EE] text-[#C84312] border border-[#C84312]/25"
+                                        }`}
+                                      >
+                                        {r.status ?? INQUIRY_STATUS.RECEIVED}
+                                      </span>
+                                    </div>
+                                  </li>
+                                );
+                              }
+                            )}
+                          </ul>
+
+                          {recent.length > 7 && (
+                            <div className="pt-2 pb-1 text-center">
+                              <button
+                                type="button"
+                                onClick={() => setShowAllRecent((v) => !v)}
+                                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#475569] hover:text-[#141A23] cursor-pointer"
+                              >
+                                <span>
+                                  {showAllRecent
+                                    ? "접기"
+                                    : `최근 문의 ${recent.length - 7}건 더 보기`}
                                 </span>
-                                <Link
-                                  href="/inquiry"
-                                  className="min-w-0 flex-1 truncate font-semibold text-[#141A23] hover:text-[#C84312] transition-colors"
-                                >
-                                  {cleanCategory || "상담 문의"}
-                                </Link>
-                              </div>
-                              <div className="flex shrink-0 items-center gap-2 text-hb-xs">
-                                <span className="text-[#475569]">
-                                  {r.masked_name || maskName(r.name)}
-                                </span>
-                                <span
-                                  className={`rounded-md px-1.5 py-0.5 text-hb-xs font-semibold ${
-                                    isDone
-                                      ? "bg-[#F0FDFA] text-[#0F766E] border border-[#0D9488]/20"
-                                      : "bg-[#FFF4EE] text-[#C84312] border border-[#C84312]/20"
+                                <Icon
+                                  d={ICON.down}
+                                  className={`h-3.5 w-3.5 transition-transform ${
+                                    showAllRecent ? "rotate-180" : ""
                                   }`}
-                                >
-                                  {r.status ?? INQUIRY_STATUS.RECEIVED}
-                                </span>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
+                                />
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="mt-4 pt-3.5 border-t border-[#E2E6EC] space-y-2.5">
-                    <div className="flex items-center justify-between gap-2 text-hb-xs text-[#475569]">
-                      <span>대표전화 {STORE.tel} · 직통 {STORE.mobile}</span>
-                      <span className="font-semibold text-[#0F766E]">비공개 비밀글 지원</span>
+                  {/* 하단 즉시 견적 접수 영역 */}
+                  <div className="mt-2 border-t border-[#E2DDD3] bg-[#FAF9F6] px-4 py-3.5 sm:px-5 space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs text-[#475569]">
+                      <span className="font-mono font-semibold tabular-nums">
+                        {STORE.tel} · {STORE.mobile}
+                      </span>
+                      <span className="font-bold text-[#0F766E]">
+                        비공개 비밀글 · 사진 첨부 가능
+                      </span>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <button
                         type="button"
                         onClick={() => openInquiry("구매 문의")}
-                        className="hb-btn-accent min-h-[40px] h-10 px-3 text-hb-xs font-bold cursor-pointer active:scale-[0.96]"
+                        className="hb-btn-accent min-h-[42px] h-10 px-3 text-hb-xs font-bold cursor-pointer active:scale-[0.96]"
                       >
                         <Icon d={ICON.pen} className="w-3.5 h-3.5" />
                         <span>1:1 간편 견적 접수</span>
                       </button>
                       <Link
                         href="/inquiry?write=1"
-                        className="hb-btn-outline min-h-[40px] h-10 px-3 text-hb-xs font-bold active:scale-[0.96]"
+                        className="hb-btn-outline min-h-[42px] h-10 px-3 text-hb-xs font-bold active:scale-[0.96]"
                       >
-                        <span>상세 문의글 작성 →</span>
+                        <span>
+                          {typeof totalInquiryCount === "number" &&
+                          totalInquiryCount > 0
+                            ? `문의글 작성 (${totalInquiryCount}건+)`
+                            : "상세 문의글 작성 →"}
+                        </span>
                       </Link>
                     </div>
                   </div>
@@ -1330,7 +1337,7 @@ export default function Home({
 
                 <span className="hidden sm:inline-flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B]">
                   <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#E8521A]" />
-                  전 매물 직영 2인 1조 수평설치 및 시운전 완료
+                  직영 기사 직접 운반 · 수평설치 및 작동 확인
                 </span>
               </div>
             )}
@@ -1446,82 +1453,127 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [6/6] 구매 전 안심 비교 · 자주 묻는 질문 (#faq-section + #buying-guide-section)
+            [5/7] 개인 직거래 vs 직영 매장 비교 (VS 디시전 카드)
+            ════════════════════════════════════════════════════════════ */}
+        <AiRecommendationGuideSection />
+
+        {/* ════════════════════════════════════════════════════════════
+            [6/7] 자주 묻는 질문 (#faq-section — 12컬럼 에디토리얼 + 주제 필터)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="faq-section"
-          className="border-b border-[#E2E6EC] bg-white py-8 sm:py-11"
+          className="border-b border-[#E2E6EC] bg-white py-10 sm:py-14"
           aria-labelledby="faq-title"
         >
           <div className="hb-container">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between pb-5 border-b border-[#E2E6EC]">
-              <SectionHeading
-                title={
-                  <span id="faq-title" className="[text-wrap:balance]">
-                    자주 묻는 질문 · 직영 매장 비교
-                  </span>
-                }
-                desc="A/S 보증·배송·설치 안내와 개인 직거래 대비 차이를 확인해 보세요."
-              />
-
-              <div
-                id="buying-guide-section"
-                className="flex flex-wrap items-center gap-2 shrink-0"
-                role="tablist"
-                aria-label="구매 안내 보기 전환"
-                onKeyDown={(e) =>
-                  handleTabListKeyDown(
-                    e,
-                    ["faq", "comparison"] as const,
-                    guideTab,
-                    setGuideTab
-                  )
-                }
-              >
-                <button
-                  type="button"
-                  role="tab"
-                  tabIndex={guideTab === "faq" ? 0 : -1}
-                  aria-selected={guideTab === "faq"}
-                  onClick={() => setGuideTab("faq")}
-                  className={`hb-tab-indicator hb-trim rounded-xl px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold transition-colors cursor-pointer ${
-                    guideTab === "faq"
-                      ? "bg-[#141A23] text-white"
-                      : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#4E5968] hover:text-[#141A23]"
-                  }`}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-7 lg:gap-10 items-start">
+              {/* 좌측 4컬럼: 제목 · 주제 필터 · 빠른 상담 카드 */}
+              <div className="lg:col-span-4 lg:sticky lg:top-24">
+                <p className="font-mono text-hb-xs font-bold uppercase tracking-widest text-[#C84312]">
+                  FAQ &amp; GUIDE
+                </p>
+                <h2
+                  id="faq-title"
+                  className="mt-1.5 text-hb-xl sm:text-hb-2xl font-extrabold tracking-tight text-[#141A23] leading-tight break-keep [text-wrap:balance]"
                 >
-                  자주 묻는 질문 ({FAQS.length})
-                </button>
-                <button
-                  type="button"
-                  role="tab"
-                  tabIndex={guideTab === "comparison" ? 0 : -1}
-                  aria-selected={guideTab === "comparison"}
-                  onClick={() => setGuideTab("comparison")}
-                  className={`hb-tab-indicator hb-trim rounded-xl px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold transition-colors cursor-pointer ${
-                    guideTab === "comparison"
-                      ? "bg-[#141A23] text-white"
-                      : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#4E5968] hover:text-[#141A23]"
-                  }`}
-                >
-                  직거래 vs {STORE.name} 비교
-                </button>
-              </div>
-            </div>
+                  자주 묻는 질문
+                </h2>
+                <p className="mt-2 text-hb-sm text-[#475569] leading-relaxed break-keep">
+                  보증 기준, 배송·설치 비용, 기존 가전 매입까지 구매 전 가장 많이 확인하시는 내용을 모았습니다.
+                </p>
 
-            {guideTab === "comparison" ? (
-              <div className="mt-5" role="tabpanel" aria-label="일반 개인 직거래 대비 비교표">
-                <AiRecommendationGuideSection embedded />
+                {/* 주제별 필터 탭 */}
+                <div
+                  className="mt-5 flex flex-wrap gap-2"
+                  role="tablist"
+                  aria-label="자주 묻는 질문 주제 필터"
+                  onKeyDown={(e) =>
+                    handleTabListKeyDown(
+                      e,
+                      FAQ_FILTER_OPTIONS.map((o) => o.key),
+                      faqFilter,
+                      (next) => {
+                        setFaqFilter(next);
+                        setOpenFaq(0);
+                      }
+                    )
+                  }
+                >
+                  {FAQ_FILTER_OPTIONS.map((opt) => {
+                    const active = faqFilter === opt.key;
+                    const count =
+                      opt.key === "all"
+                        ? FAQS.length
+                        : FAQS.filter((f) => f.group === opt.key).length;
+                    return (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        role="tab"
+                        tabIndex={active ? 0 : -1}
+                        aria-selected={active}
+                        onClick={() => {
+                          setFaqFilter(opt.key);
+                          setOpenFaq(0);
+                        }}
+                        className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-hb-xs font-bold transition-colors cursor-pointer ${
+                          active
+                            ? "bg-[#141A23] text-white"
+                            : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#475569] hover:border-[#141A23] hover:text-[#141A23]"
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                        <span
+                          className={`font-mono tabular-nums ${
+                            active ? "text-white/75" : "text-[#64748B]"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 바로 물어보기 안내 박스 */}
+                <div className="mt-6 rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6] p-4">
+                  <p className="text-hb-xs font-bold text-[#141A23]">
+                    찾으시는 내용이 없으신가요?
+                  </p>
+                  <p className="mt-1 text-hb-xs text-[#475569] leading-relaxed break-keep">
+                    설치 공간 사진이나 모델명을 보내주시면 매장 담당자가 바로 확인해 드립니다.
+                  </p>
+                  <div className="mt-3.5 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => openInquiry("구매 문의")}
+                      className="hb-btn-primary h-9 px-3.5 text-hb-xs active:scale-[0.97]"
+                    >
+                      <Icon d={ICON.chat} className="h-3.5 w-3.5" />
+                      <span>1:1 간편 문의</span>
+                    </button>
+                    <a
+                      href={telHref(STORE.tel)}
+                      className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors tabular-nums"
+                    >
+                      <Icon d={ICON.phone} className="h-3.5 w-3.5 text-[#C84312]" />
+                      <span>{STORE.tel}</span>
+                    </a>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="mt-5" role="tabpanel" aria-label="자주 묻는 질문 목록">
-                <div className="space-y-2">
-                  {(showAllFaqs ? FAQS : FAQS.slice(0, 5)).map((f, i) => {
+
+              {/* 우측 8컬럼: 아코디언 목록 */}
+              <div className="lg:col-span-8" role="tabpanel" aria-label="선택한 주제의 자주 묻는 질문">
+                <div className="divide-y divide-[#E2E6EC] rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden">
+                  {filteredFaqs.map((f, i) => {
                     const open = openFaq === i;
                     return (
                       <div
                         key={f.q}
-                        className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-4 shadow-2xs hover:border-[#CBD2DC] transition-[border-color,box-shadow] duration-150"
+                        className={`transition-colors ${
+                          open ? "bg-[#FAF9F6]" : "bg-white hover:bg-[#F7F8FA]"
+                        }`}
                       >
                         <h3>
                           <button
@@ -1530,24 +1582,29 @@ export default function Home({
                             aria-expanded={open}
                             aria-controls={`faq-a-${i}`}
                             onClick={() => setOpenFaq(open ? null : i)}
-                            className="flex w-full items-center justify-between gap-3 py-3 sm:py-3.5 text-left cursor-pointer"
+                            className="flex w-full items-start justify-between gap-4 px-5 py-4 sm:px-6 sm:py-5 text-left cursor-pointer"
                           >
-                            <div className="flex items-start gap-2.5 min-w-0">
-                              <span className="font-mono text-hb-xs sm:text-hb-sm font-bold text-[#C84312] shrink-0 pt-0.5">
-                                Q{String(i + 1).padStart(2, "0")}.
+                            <div className="min-w-0">
+                              <span className="inline-block rounded-md bg-white border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#64748B]">
+                                {f.tag}
                               </span>
-                              <span className="block text-hb-sm sm:text-hb-base font-bold leading-snug text-[#141A23] break-keep">
-                                {f.q}
+                              <span className="mt-1.5 flex items-start gap-2.5">
+                                <span className="font-mono text-hb-xs sm:text-hb-sm font-bold text-[#C84312] shrink-0 pt-0.5 tabular-nums">
+                                  Q{String(i + 1).padStart(2, "0")}.
+                                </span>
+                                <span className="block text-hb-sm sm:text-hb-base font-bold leading-snug text-[#141A23] break-keep">
+                                  {f.q}
+                                </span>
                               </span>
                             </div>
                             <span
-                              className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border border-[#CBD2DC] text-[#141A23] transition-transform duration-200 ${
+                              className={`mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-transform duration-200 ${
                                 open
                                   ? "rotate-45 bg-[#141A23] text-white border-[#141A23]"
-                                  : "bg-white"
+                                  : "bg-white border-[#CBD2DC] text-[#141A23]"
                               }`}
                             >
-                              <Icon d={ICON.plus} className="h-3 w-3" />
+                              <Icon d={ICON.plus} className="h-3.5 w-3.5" />
                             </span>
                           </button>
                         </h3>
@@ -1560,7 +1617,7 @@ export default function Home({
                           inert={!open}
                           className="hb-faq-panel"
                         >
-                          <div className="pb-3.5 pl-8 pr-2 text-hb-xs sm:text-hb-sm leading-[1.7] text-[#475569] break-keep [text-wrap:pretty]">
+                          <div className="px-5 pb-5 sm:px-6 sm:pl-14 text-hb-xs sm:text-hb-sm leading-[1.75] text-[#475569] break-keep [text-wrap:pretty]">
                             {f.a.includes(STORE.tel) ? (
                               <>
                                 {f.a.split(STORE.tel).map((part, pIdx, arr) => (
@@ -1582,7 +1639,7 @@ export default function Home({
                             )}
 
                             {f.tag === "에어컨 · 냉난방기 구매 안내" && (
-                              <div className="mt-3 pt-2.5 border-t border-[#E2E6EC] flex flex-wrap gap-2">
+                              <div className="mt-3.5 pt-3 border-t border-[#E2DDD3] flex flex-wrap gap-2">
                                 <button
                                   type="button"
                                   onClick={() => setAirconModalOpen(true)}
@@ -1606,84 +1663,17 @@ export default function Home({
                   })}
                 </div>
               </div>
-            )}
-
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              {guideTab === "faq" && FAQS.length > 5 ? (
-                <button
-                  type="button"
-                  onClick={() => setShowAllFaqs((v) => !v)}
-                  className="hb-btn-outline h-9 px-4 text-hb-xs active:scale-[0.96]"
-                >
-                  <span>
-                    {showAllFaqs
-                      ? "질문 접기"
-                      : `자주 묻는 질문 ${FAQS.length - 5}건 더 보기`}
-                  </span>
-                  <Icon
-                    d={ICON.down}
-                    className={`h-3.5 w-3.5 transition-transform ${
-                      showAllFaqs ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-              ) : (
-                <span />
-              )}
-
-              <Link
-                href="/inquiry"
-                className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] active:scale-[0.96] transition-[color,transform] duration-150 underline underline-offset-4"
-              >
-                <span>1:1 문의 게시판 바로가기 →</span>
-              </Link>
-            </div>
-
-            {/* 가전·전기·설치 실전 정보 게시판 연결 스트립 */}
-            <div className="mt-7 rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 sm:p-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
-                <div>
-                  <p className="text-hb-xs font-bold text-[#C84312]">
-                    가전 · 전기 · 설치 정보 게시판
-                  </p>
-                  <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] [text-wrap:balance]">
-                    220V/380V, 한전 승압, 사다리차·문폭 기준까지 미리 확인하세요
-                  </h3>
-                </div>
-                <Link
-                  href="/guide"
-                  className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#C84312] whitespace-nowrap shrink-0 underline underline-offset-4"
-                >
-                  <span>정보 게시판 전체 보기 ({guideTotalCount})</span>
-                  <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-
-              <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-                {latestGuides.map((article) => (
-                  <Link
-                    key={article.slug}
-                    href={`/guide/${article.slug}`}
-                    className="group rounded-xl border border-[#E2E6EC] bg-white px-3.5 py-3 hover:border-[#141A23] transition-colors flex flex-col justify-between gap-2"
-                  >
-                    <div>
-                      <span className="text-hb-xs font-bold text-[#64748B]">
-                        {article.category}
-                      </span>
-                      <p className="mt-1 text-hb-sm font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug line-clamp-2 break-keep">
-                        {article.title}
-                      </p>
-                    </div>
-                    <span className="inline-flex items-center gap-1 text-hb-xs font-semibold text-[#475569] group-hover:text-[#141A23]">
-                      <span>읽어보기</span>
-                      <Icon d={ICON.right} className="w-3.5 h-3.5" />
-                    </span>
-                  </Link>
-                ))}
-              </div>
             </div>
           </div>
         </section>
+
+        {/* ════════════════════════════════════════════════════════════
+            [7/7] 가전 · 전기 · 설치 정보 게시판 비주얼 쇼케이스
+            ════════════════════════════════════════════════════════════ */}
+        <HomeGuideShowcase
+          guides={[...latestGuides]}
+          totalCount={guideTotalCount}
+        />
       </main>
 
       {/* [S9] 공통 푸터 및 슬림 모바일 하단 CTA 바 */}

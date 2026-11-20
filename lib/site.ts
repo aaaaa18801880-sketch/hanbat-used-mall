@@ -66,8 +66,8 @@ export function getCategoryWarrantyInfo(category?: string | null): {
     };
   }
   return {
-    shortLabel: "계약조건별 보증",
-    compactLabel: "계약별 무상보증 협의",
+    shortLabel: "품목별 A/S 보증",
+    compactLabel: "품목별 A/S 보증",
     detailLabel: STORE_MERCHANT_POLICY.warrantyGeneral,
   };
 }
