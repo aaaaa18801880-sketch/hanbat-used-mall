@@ -216,36 +216,6 @@ body {
     background-image: linear-gradient(135deg, #bc3d0f 0%, #9b3009 100%);
   }
 
-  .hb-compare-range {
-    -webkit-appearance: none;
-    appearance: none;
-    background: transparent;
-  }
-
-  .hb-compare-range::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 9999px;
-    background: transparent;
-    cursor: ew-resize;
-  }
-
-  .hb-compare-range::-moz-range-thumb {
-    width: 44px;
-    height: 44px;
-    border: 0;
-    border-radius: 9999px;
-    background: transparent;
-    cursor: ew-resize;
-  }
-
-  .hb-compare-range:focus-visible {
-    outline: 2px solid #c84312;
-    outline-offset: -2px;
-  }
-
   .hb-btn-outline {
     @apply hb-btn border border-[#E2E6EC] bg-white text-[#141A23] hover:border-[#CBD2DC] hover:bg-[#F7F8FA] active:bg-[#F1F3F6];
   }

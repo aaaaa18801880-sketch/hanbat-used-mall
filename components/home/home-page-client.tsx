@@ -49,7 +49,6 @@ import {
 } from "./category-pictogram-bar";
 import { ModernApplianceIcon } from "../ui/modern-icons";
 import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
-import { RefurbishTransparencySection } from "./refurbish-transparency-section";
 
 const AirconGuideModal = dynamic(
   () =>
@@ -947,12 +946,7 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [Section 3] 하드웨어 분해세척 & 외관 등급 투명성 쇼케이스
-            ════════════════════════════════════════════════════════════ */}
-        <RefurbishTransparencySection />
-
-        {/* ════════════════════════════════════════════════════════════
-            [Section 4] 업소 · 창업 B2B 전용 다크 쇼룸 (#business-section)
+            [Section 3] 업소 · 창업 B2B 전용 다크 쇼룸 (#business-section)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="business-section"
