@@ -1,5 +1,6 @@
 // 파일 경로: lib/product-card-meta.ts
 // 판매 제품 갤러리 카드용 회사명(브랜드) 추출, 중복 없는 제품명 정제, 핵심 사양 요약 순수 헬퍼
+import { detectProductCategoryMismatch } from "./product-category-audit";
 
 interface BrandRule {
   pattern: RegExp;
@@ -345,26 +346,21 @@ export interface CardWarrantyHighlight {
   label: string;
 }
 
-const NON_HVAC_APPLIANCE_PATTERN =
-  /전자레인지|광파오븐|오븐|전기밥솥|밥솥|청소기|모니터|텔레비전|\bTV\b|전기온수기|온수기|수저소독기|실링기|제빙기|식기세척기/i;
-const HVAC_SIGNAL_PATTERN = /에어컨|냉난방|냉방|난방|실내기|실외기|천장형|카세트형/;
-
 /**
- * DB 카테고리 오분류(예: 전자레인지·광파오븐이 에어컨/냉난방기로 등록된 경우)로 인해
- * 에어컨 전용 8개월 보증이 소형가전에 잘못 노출되는 것을 방지합니다.
+ * DB 카테고리 오분류(예: 전자레인지·광파오븐이 에어컨/냉난방기 또는 세탁기/건조기로 등록된 경우)로 인해
+ * 에어컨 전용 8개월 또는 주요가전 4개월 보증이 소형가전에 잘못 노출되는 것을 방지합니다.
  */
 export function resolveCardWarrantyCategory(
   categoryLabel: string,
   title: string | null | undefined
 ): string {
-  const safeTitle = (title || "").trim();
-  if (
-    categoryLabel === "에어컨/냉난방기" &&
-    safeTitle &&
-    NON_HVAC_APPLIANCE_PATTERN.test(safeTitle) &&
-    !HVAC_SIGNAL_PATTERN.test(safeTitle)
-  ) {
-    return "기타";
+  const mismatch = detectProductCategoryMismatch({
+    id: "card-warranty-guard",
+    title,
+    category: categoryLabel,
+  });
+  if (mismatch) {
+    return mismatch.suggestedCategory;
   }
   return categoryLabel;
 }

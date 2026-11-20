@@ -315,14 +315,14 @@ export function ProductCard({
         )}
       </div>
 
-      {/* 2. 보더리스 에디토리얼 타이포그래피 블록 (브랜드 12px Bold → 제품명 14px Regular 2줄 → 2단 Bold 보증 앵커 → 직배송 미세 아이콘) */}
-      <div className="pt-2.5 sm:pt-3 min-w-0">
-        {/* 1행: 제조사명(회사명) — 12px Bold(700) · 선명한 다크 잉크 · 타이트 자간 */}
+      {/* 2. 보더리스 에디토리얼 타이포그래피 블록 (브랜드 16px Bold → 제품명 15px Regular 2줄 → 보증 13.5px Semibold → 직배송 12.5px 메타) */}
+      <div className="pt-2.5 min-w-0">
+        {/* 1행: 제조사명(회사명) — 상단 시각 앵커 (가장 크고 선명한 Bold) */}
         <p
-          className={`truncate text-hb-xs leading-[1.35] tracking-[-0.022em] ${
+          className={`truncate hb-card-brand ${
             hasBrand
               ? "font-bold text-[#141A23]"
-              : "font-semibold text-[#525E6D]"
+              : "font-bold text-[#3B4554]"
           }`}
         >
           {brandLabel}
@@ -330,10 +330,10 @@ export function ProductCard({
 
         {/* 2행: 중복 제조사명·모델코드는 걷어내고 용도·규격은 명확히 살린 2줄 제품명 */}
         <h3
-          className={`mt-0.5 line-clamp-2 text-hb-xs sm:text-hb-sm font-normal leading-[1.42] sm:leading-[1.42] tracking-[-0.024em] sm:tracking-[-0.026em] transition-colors break-keep ${
+          className={`mt-0.5 line-clamp-2 hb-card-title font-normal transition-colors break-keep ${
             sold
               ? "text-[#8B95A1]"
-              : "text-[#353C45] group-hover:text-[#141A23]"
+              : "text-[#2B323B] group-hover:text-[#141A23]"
           }`}
         >
           {onSelect ? (
@@ -357,21 +357,25 @@ export function ProductCard({
           )}
         </h3>
 
-        {/* 3행: 2단 컬러 Bold 시각 앵커 (SSOT 품목별 보증 정책 · 가격/별점/판매중/A급 미노출) */}
+        {/* 3행: 품목별 무상보증 안내 — 제목보다 작고 차분한 보조 강조 (본말전도 방지) */}
         {sold ? (
-          <p className="mt-1.5 text-hb-sm sm:text-hb-base font-bold leading-[1.25] sm:leading-[1.25] tracking-[-0.026em] sm:tracking-[-0.028em] text-[#8B95A1]">
+          <p className="mt-1 hb-card-warranty font-semibold text-[#8B95A1]">
             판매완료
           </p>
         ) : (
-          <p className="mt-1.5 flex items-baseline gap-1.5 truncate text-hb-sm sm:text-hb-base font-bold leading-[1.25] sm:leading-[1.25] tracking-[-0.026em] sm:tracking-[-0.028em] tabular-nums">
-            <span className="text-[#C84312]">{warrantyHighlight.accent}</span>
-            <span className="text-[#141A23]">{warrantyHighlight.label}</span>
+          <p className="mt-1 flex items-baseline gap-1.5 truncate hb-card-warranty tabular-nums">
+            <span className="font-bold text-[#C84312]">
+              {warrantyHighlight.accent}
+            </span>
+            <span className="font-semibold text-[#334155]">
+              {warrantyHighlight.label}
+            </span>
           </p>
         )}
 
         {/* 4행: 미세 트럭 아이콘 + 직배송·모델코드 1줄 메타 */}
         <p
-          className="mt-1 flex items-center gap-1 min-w-0 text-hb-xs font-normal leading-[1.35] tracking-[-0.016em] text-[#7B8490] tabular-nums"
+          className="mt-0.5 flex items-center gap-1 min-w-0 hb-card-meta font-normal text-[#76808C] tabular-nums"
           title={sold ? "유사매물 문의 가능" : deliveryMetaLine}
         >
           {sold ? (

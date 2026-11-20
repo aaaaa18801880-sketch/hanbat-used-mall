@@ -80,7 +80,7 @@ export function AiRecommendationGuideSection({
 
           <ul className="divide-y divide-[#E2E6EC] px-5 sm:px-6">
             {COMPARISON_ROWS.map((row) => (
-              <li key={row.criteria} className="py-3.5 sm:py-4">
+              <li key={row.criteria} className="py-2.5 sm:py-3">
                 <span className="block text-hb-xs font-bold text-[#64748B]">
                   {row.criteria}
                 </span>
@@ -128,7 +128,7 @@ export function AiRecommendationGuideSection({
             {COMPARISON_ROWS.map((row) => (
               <li
                 key={row.criteria}
-                className={`py-3.5 sm:py-4 ${
+                className={`py-2.5 sm:py-3 ${
                   row.highlight ? "-mx-5 px-5 sm:-mx-6 sm:px-6 bg-[#FFF9F5]" : ""
                 }`}
               >
@@ -192,10 +192,10 @@ export function AiRecommendationGuideSection({
     <section
       id="buying-guide-section"
       aria-labelledby="buying-guide-title"
-      className="border-b border-[#E2E6EC] bg-white py-9 sm:py-12"
+      className="border-b border-[#E2E6EC] bg-white py-7 sm:py-9"
     >
       <div className="hb-container">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-6">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-5">
           <div>
             <span className="hb-eyebrow">구매 전 안심 비교</span>
             <h2

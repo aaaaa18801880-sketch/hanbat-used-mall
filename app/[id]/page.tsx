@@ -47,6 +47,7 @@ import { ProductStructuredDescription } from "../../components/products/product-
 import { RecentViewedStrip } from "../../components/products/recent-viewed-strip";
 import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
 import { V2SpatialFitPlanner } from "../../components/products/v2-spatial-fit-planner";
+import { DetailCollapsibleSection } from "../../components/products/detail-collapsible-section";
 import { getInfoGuidesForProductCategory } from "../../lib/info-guides";
 
 const RefrigeratorCompartmentDiagram = dynamic(() =>
@@ -578,21 +579,15 @@ export default async function ProductDetailPage({
           </div>
         </div>
 
-        {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
-        <section
-          aria-label="출고 전 점검 안내 및 우리 집 설치 환경 체크"
-          className="mt-12 pt-8 border-t border-[#E2DDD3]"
+        {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 (기본 접힘으로 모바일·데스크톱 스크롤 압박 해소) */}
+        <DetailCollapsibleSection
+          ariaLabel="출고 전 점검 안내 및 우리 집 설치 환경 체크"
+          badge="선택 도구"
+          title="출고 전 점검 안내 & 우리 집 설치 환경 체크"
+          subtitle={`${STORE.name} 직영 매장의 출고 전 점검 기준과 출입문·설치 공간 통과 가능 여부를 미리 확인하세요.`}
+          className="mt-8"
         >
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
-            <h2 className="text-hb-xl font-bold text-[#141A23]">
-              출고 전 점검 안내 &amp; 우리 집 설치 환경 체크
-            </h2>
-            <p className="text-hb-xs text-[#64748B]">
-              {STORE.name} 직영 매장의 출고 전 점검 기준과 설치 가능 여부를 확인하세요.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
             <V2VisualInspectionViewer
               category={categoryLabel}
               conditionGrade={product.condition_grade}
@@ -604,23 +599,23 @@ export default async function ProductDetailPage({
               category={categoryLabel}
             />
           </div>
-        </section>
+        </DetailCollapsibleSection>
 
         {/* 동일 카테고리 추천 매물 4선 */}
         {relatedProducts.length > 0 && (
-          <section className="mt-12 pt-8 border-t border-[#E2E6EC]">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-hb-xl font-bold text-[#141A23]">
+          <section className="mt-9 pt-7 border-t border-[#E2E6EC]">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
                 같은 카테고리의 다른 실매물
               </h2>
               <Link
                 href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                className="text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4"
+                className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4"
               >
                 {categoryLabel} 전체 보기 →
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-5">
               {relatedProducts.map((rel) => (
                 <ProductCard key={rel.id} product={rel} />
               ))}
@@ -628,41 +623,44 @@ export default async function ProductDetailPage({
           </section>
         )}
 
-        {/* [기능 8] 해당 품목 구매·설치 관련 자주 묻는 질문 (FAQ) */}
-        <section
-          aria-label={`${categoryLabel} 자주 묻는 질문`}
-          className="mt-12 pt-8 border-t border-[#E2E6EC]"
+        {/* [기능 8] 해당 품목 구매·설치 관련 자주 묻는 질문 (FAQ — DOM 보존형 접기/펼치기) */}
+        <DetailCollapsibleSection
+          ariaLabel={`${categoryLabel} 자주 묻는 질문`}
+          badge={`FAQ ${categoryFaqs.length}건`}
+          title={`${categoryLabel} 구매 · 설치 자주 묻는 질문`}
+          subtitle="배송·설치비, 보증 기간, 기존 가전 수거 기준을 한눈에 확인하세요."
+          className="mt-8"
         >
-          <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#E2E6EC]">
-            <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
-              {categoryLabel} 구매 · 설치 자주 묻는 질문
-            </h2>
-            <Link
-              href="/#faq-section"
-              className="text-hb-xs font-bold text-[#64748B] hover:text-[#141A23] underline underline-offset-4"
-            >
-              전체 FAQ 보기 →
-            </Link>
-          </div>
-          <dl className="mt-5 grid gap-3">
+          <dl className="grid gap-3">
             {categoryFaqs.map((faq) => (
-              <div key={faq.q} className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs">
-                <dt className="flex items-start gap-2 text-hb-base font-bold text-[#141A23]">
+              <div
+                key={faq.q}
+                className="rounded-xl border border-[#E2E6EC] bg-white p-4 shadow-2xs"
+              >
+                <dt className="flex items-start gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
                   <span className="text-[#E8521A] font-bold">Q.</span>
                   <span>{faq.q}</span>
                 </dt>
-                <dd className="mt-1.5 pl-6 text-hb-sm leading-relaxed text-[#334155] break-keep">
+                <dd className="mt-1.5 pl-6 text-hb-xs sm:text-hb-sm leading-relaxed text-[#334155] break-keep">
                   {faq.a}
                 </dd>
               </div>
             ))}
           </dl>
-        </section>
+          <div className="mt-3.5 text-right">
+            <Link
+              href="/#faq-section"
+              className="text-hb-xs font-bold text-[#475569] hover:text-[#141A23] underline underline-offset-4"
+            >
+              전체 FAQ 보기 →
+            </Link>
+          </div>
+        </DetailCollapsibleSection>
 
         {/* 구매 전 함께 확인하는 현장 실무 가이드 (상품-정보 게시판 비주얼 연결) */}
         <section
           aria-label="구매 전 확인해야 할 현장 실무 가이드"
-          className="mt-10 pt-8 border-t border-[#E2DDD3]"
+          className="mt-8 pt-7 border-t border-[#E2DDD3]"
         >
           <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
             <div className="space-y-1">

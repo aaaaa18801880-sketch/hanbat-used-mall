@@ -172,9 +172,15 @@ export function V2InquirySectionWithWizard({
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const previewsRef = useRef<string[]>([]);
-  useEffect(() => {
-    previewsRef.current = filePreviews;
-  }, [filePreviews]);
+
+  const updateFilePreviews = (
+    updater: string[] | ((prev: string[]) => string[])
+  ) => {
+    const next =
+      typeof updater === "function" ? updater(previewsRef.current) : updater;
+    previewsRef.current = next;
+    setFilePreviews(next);
+  };
 
   useEffect(() => {
     return () => {
@@ -250,7 +256,7 @@ export function V2InquirySectionWithWizard({
     if (ok.length === 0) return;
 
     setSelectedFiles((prev) => [...prev, ...ok]);
-    setFilePreviews((prev) => [...prev, ...previews]);
+    updateFilePreviews((prev) => [...prev, ...previews]);
   };
 
   const handleRemoveFile = (index: number) => {
@@ -259,7 +265,7 @@ export function V2InquirySectionWithWizard({
       setAiResult(null);
     }
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setFilePreviews((prev) => prev.filter((_, i) => i !== index));
+    updateFilePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleAiPhotoAnalyze = async () => {
@@ -451,7 +457,7 @@ export function V2InquirySectionWithWizard({
       );
       setMemo("");
       setSelectedFiles([]);
-      setFilePreviews([]);
+      updateFilePreviews([]);
       setAgreed(false);
       setCreatedInquiryId(newId ? String(newId) : null);
       setSubmittedTitle(autoTitle);

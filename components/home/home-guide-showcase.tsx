@@ -38,7 +38,7 @@ export function HomeGuideShowcase({
     <section
       id="home-guide-section"
       aria-labelledby="home-guide-heading"
-      className="border-b border-[#E2DDD3] bg-[#FAF9F6] py-9 sm:py-12"
+      className="border-b border-[#E2DDD3] bg-[#FAF9F6] py-7 sm:py-9"
     >
       <div className="hb-container">
         {/* 상단 에디토리얼 헤더 */}
@@ -197,17 +197,17 @@ export function HomeGuideShowcase({
                   </div>
                 </div>
 
-                <div className="flex flex-1 flex-col justify-between p-4">
+                <div className="flex flex-1 flex-col justify-between p-3.5">
                   <div>
                     <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors leading-snug line-clamp-2 break-keep">
                       {article.title}
                     </h3>
-                    <p className="mt-1.5 text-hb-xs text-[#475569] leading-relaxed line-clamp-2 break-keep">
+                    <p className="mt-1 text-hb-xs text-[#475569] leading-relaxed line-clamp-2 break-keep">
                       {article.summary}
                     </p>
                   </div>
 
-                  <div className="mt-3 pt-2.5 border-t border-[#F1F3F6] flex items-center justify-between text-hb-xs">
+                  <div className="mt-2.5 pt-2 border-t border-[#F1F3F6] flex items-center justify-between text-hb-xs">
                     <span className="font-mono font-semibold text-[#64748B] tabular-nums">
                       {article.readMinutes}분 읽기
                     </span>

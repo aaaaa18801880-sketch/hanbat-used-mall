@@ -76,11 +76,11 @@ export function ShowroomTrustShowcase() {
     <section
       id="refurbish-process-section"
       aria-labelledby="refurbish-process-heading"
-      className="border-y border-[#E2DDD3] bg-[#FAF9F6] py-8 sm:py-11"
+      className="border-y border-[#E2DDD3] bg-[#FAF9F6] py-7 sm:py-9"
     >
       <div className="hb-container">
         {/* 상단 헤더: 섹션 타이틀 + 현재 단계 카운터 및 좌우 이동 컨트롤 */}
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between mb-5 sm:mb-6">
+        <div className="flex flex-col gap-3.5 lg:flex-row lg:items-end lg:justify-between mb-4 sm:mb-5">
           <div className="min-w-0">
             <span className="hb-eyebrow">
               {STORE.name} 현장 확인 · 세척 · 출고 절차 안내

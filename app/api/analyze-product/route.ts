@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
-  PRODUCT_CATEGORIES,
   STORE,
-  normalizeProductCategory,
   sanitizeOldManufactureYear,
 } from "../../../lib/site";
+import { resolveAnalyzedProductCategory } from "../../../lib/product-category-audit";
+import { parseAnalyzedImageCrops } from "../../../lib/image-smart-crop";
 import {
   checkRateLimit,
   getClientIp,
@@ -113,6 +113,16 @@ function cleanAndParseAIJson(responseText: string): Record<string, unknown> {
 
   const ir = extractObjects("imageRotations");
   if (ir.length > 0) fallback.imageRotations = ir;
+
+  const cropsMatch = cleaned.match(/"imageCrops"\s*:\s*\[([\s\S]*?)\](?=\s*,|\s*\})/);
+  if (cropsMatch && cropsMatch[1]) {
+    try {
+      const parsedCrops = JSON.parse(`[${cropsMatch[1]}]`);
+      if (Array.isArray(parsedCrops)) fallback.imageCrops = parsedCrops;
+    } catch {
+      // ignore partial imageCrops truncation
+    }
+  }
 
   return fallback;
 }
@@ -234,6 +244,12 @@ export async function POST(req: NextRequest) {
   * 사양("specDetails")의 [주요 사양] 목록에서도 '제조년월' 항목 자체를 아예 빼고 작성하세요.
 - **반대로, 최근 5년 이내 최신 기기(${oldYearThreshold + 1}년~${currentYear}년: ${oldYearThreshold + 1}년 이후)**인 경우에만 제품의 가치를 높여주는 강점이 되므로 제조년월/연식을 정상 표기할 수 있습니다.
 
+7. [필수] 사진별 유형 및 핵심 영역 좌표 자동 추출 (imageCrops)
+- 첨부된 각 사진(전달된 순서대로 1번부터, 회전 전 원본 좌표 기준)에 대해 아래 규칙으로 role과 정규화 좌표 box_2d([ymin, xmin, ymax, xmax], 0~1000 정수)를 함께 산출하세요:
+  * "product": 단독 판매 제품 외관 사진 → 배경(실외기·건물·바닥·벽면)을 제외하고 핵심 제품 본체 전체(손잡이·상하단 모서리 포함)를 정확히 감싸는 box_2d
+  * "nameplate": 모델명·KC인증·정격전압·제조년월이 적힌 명판 스티커 또는 에너지소비효율 라벨 근접 사진 → 주변 철판/벽면/브래킷을 제외하고 스티커 네모 박스 테두리만 정확히 감싸는 box_2d
+  * "other": 서로 다른 가전이 여러 대 쌓여 주인공 1대를 특정하기 어렵거나 단순 부속품/현장 사진인 경우 (무리하게 크롭하지 않도록 "other"로 분류)
+
 ## 카테고리 자동 판별
 관리자 선택값("${categoryHint || "미지정"}")과 무관하게, 첨부 사진 속 실제 제품을 보고 아래 5개 중 하나로 분류:
 - "에어컨/냉난방기": 벽걸이/스탠드/천장형 에어컨, 시스템 냉난방기 전용 (※ TV나 다른 가전은 절대 에어컨으로 분류 금지)
@@ -250,6 +266,10 @@ export async function POST(req: NextRequest) {
   "imageRotations": [
     { "index": 1, "rotate": 0, "brightness": 1.12, "contrast": 1.08 },
     { "index": 2, "rotate": 90, "brightness": 1.05, "contrast": 1.05 }
+  ],
+  "imageCrops": [
+    { "index": 1, "role": "product", "box_2d": [85, 190, 920, 760] },
+    { "index": 2, "role": "nameplate", "box_2d": [210, 150, 610, 830] }
   ],
   "photoObserved": [
     "제품 유형: 업소용 45박스 4도어 수직형 냉장냉동고 외관 확인",
@@ -294,19 +314,14 @@ export async function POST(req: NextRequest) {
 
     const aiCategory =
       typeof rawParsed.category === "string" ? rawParsed.category.trim() : "";
-    const normalizedAiCategory = (
-      PRODUCT_CATEGORIES as readonly string[]
-    ).includes(aiCategory)
-      ? aiCategory
-      : normalizeProductCategory(aiCategory);
+    const rawTitleForCategory =
+      typeof rawParsed.title === "string" ? rawParsed.title.trim() : "";
 
-    // AI 카테고리가 비어있거나 "기타"이고, 관리자가 기존에 선택한 유효 카테고리가 있으면 보존
-    const finalCategory =
-      normalizedAiCategory && normalizedAiCategory !== "기타"
-        ? normalizedAiCategory
-        : categoryHint && (PRODUCT_CATEGORIES as readonly string[]).includes(categoryHint)
-        ? categoryHint
-        : normalizedAiCategory || "기타";
+    const finalCategory = resolveAnalyzedProductCategory({
+      aiCategory,
+      title: rawTitleForCategory,
+      categoryHint,
+    });
 
     let modelNumber = rawParsed.modelNumber
       ? String(rawParsed.modelNumber).trim()
@@ -471,6 +486,8 @@ export async function POST(req: NextRequest) {
       currentYear
     );
 
+    const imageCrops = parseAnalyzedImageCrops(rawParsed.imageCrops);
+
     return NextResponse.json({
       isDraft: true,
       modelUsed, // <-- 실제 사용된 모델(폴백 포함) 반환
@@ -484,6 +501,7 @@ export async function POST(req: NextRequest) {
       needsReview: sanitized.needsReview || needsReview,
       sourceUrls,
       imageRotations,
+      imageCrops,
     });
 
   } catch (error: unknown) {

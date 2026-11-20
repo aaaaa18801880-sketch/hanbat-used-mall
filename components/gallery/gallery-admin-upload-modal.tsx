@@ -10,6 +10,7 @@ import {
   PRODUCT_STATUS,
 } from "../../lib/site";
 import { ICON, Icon, Modal } from "../../lib/ui";
+import type { PhotoCropState } from "../../lib/image-smart-crop";
 
 interface GalleryAdminUploadModalProps {
   open: boolean;
@@ -19,8 +20,11 @@ interface GalleryAdminUploadModalProps {
   uploadingProduct: boolean;
   searchSpecs: boolean;
   setSearchSpecs: (v: boolean) => void;
+  autoSmartCrop: boolean;
+  setAutoSmartCrop: (v: boolean) => void;
   productFiles: File[];
   productPreviews: string[];
+  productCropStates: Array<PhotoCropState | null>;
   analyzeImageWithAI: (files: File[]) => void;
   onFileChange: React.ChangeEventHandler<HTMLInputElement>;
   makePrimaryUploadFile: (index: number) => void;
@@ -35,6 +39,7 @@ interface GalleryAdminUploadModalProps {
     },
     isAuto?: boolean
   ) => void;
+  toggleUploadFileCrop: (index: number) => void;
   moveUploadFile: (fromIdx: number, toIdx: number) => void;
   photoObserved: string[];
   searchDerivedSpecs: string[];
@@ -66,13 +71,17 @@ export function GalleryAdminUploadModal({
   uploadingProduct,
   searchSpecs,
   setSearchSpecs,
+  autoSmartCrop,
+  setAutoSmartCrop,
   productFiles,
   productPreviews,
+  productCropStates,
   analyzeImageWithAI,
   onFileChange,
   makePrimaryUploadFile,
   onRemoveUploadFile,
   enhanceUploadFile,
+  toggleUploadFileCrop,
   moveUploadFile,
   photoObserved,
   searchDerivedSpecs,
@@ -145,26 +154,37 @@ export function GalleryAdminUploadModal({
                 </span>
               </div>
 
-              <div className="mb-2.5 flex items-center justify-between gap-2 p-2.5 bg-[#F7F8FA] rounded border border-[#E2E6EC]">
-                <label className="flex items-center gap-2 text-hb-xs font-semibold text-[#141A23] cursor-pointer select-none">
+              <div className="mb-2.5 space-y-2 p-2.5 bg-[#F7F8FA] rounded border border-[#E2E6EC]">
+                <div className="flex items-center justify-between gap-2">
+                  <label className="flex items-center gap-2 text-hb-xs font-semibold text-[#141A23] cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={searchSpecs}
+                      onChange={(e) => setSearchSpecs(e.target.checked)}
+                      className="w-4 h-4 accent-[#141A23]"
+                    />
+                    <span>인터넷 공식 제원 정밀 검색 (기본 활성화)</span>
+                  </label>
+                  {productFiles.length > 0 && (
+                    <button
+                      type="button"
+                      disabled={isAnalyzing}
+                      onClick={() => analyzeImageWithAI(productFiles)}
+                      className="text-hb-xs font-bold text-[#E8521A] underline underline-offset-2 disabled:opacity-50 shrink-0"
+                    >
+                      AI 재분석
+                    </button>
+                  )}
+                </div>
+                <label className="flex items-center gap-2 text-hb-xs font-semibold text-[#4B5260] cursor-pointer select-none border-t border-[#E2E6EC]/80 pt-2">
                   <input
                     type="checkbox"
-                    checked={searchSpecs}
-                    onChange={(e) => setSearchSpecs(e.target.checked)}
-                    className="w-4 h-4 accent-[#141A23]"
+                    checked={autoSmartCrop}
+                    onChange={(e) => setAutoSmartCrop(e.target.checked)}
+                    className="w-4 h-4 accent-[#E8521A]"
                   />
-                  <span>인터넷 공식 제원 정밀 검색 (기본 활성화)</span>
+                  <span>제품·명판 자동 크롭 (1:1 비율 보호 · 원본 복구 가능)</span>
                 </label>
-                {productFiles.length > 0 && (
-                  <button
-                    type="button"
-                    disabled={isAnalyzing}
-                    onClick={() => analyzeImageWithAI(productFiles)}
-                    className="text-hb-xs font-bold text-[#E8521A] underline underline-offset-2 disabled:opacity-50"
-                  >
-                    AI 재분석
-                  </button>
-                )}
               </div>
 
               <input
@@ -242,6 +262,28 @@ export function GalleryAdminUploadModal({
                           <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
                         </button>
                       </div>
+                      {productCropStates[index] && (
+                        <button
+                          type="button"
+                          onClick={() => toggleUploadFileCrop(index)}
+                          title={
+                            productCropStates[index]?.active
+                              ? "클릭하면 크롭 전 원본 사진으로 복구합니다"
+                              : "클릭하면 AI 자동 크롭을 다시 적용합니다"
+                          }
+                          className={`w-full border-t border-[#E2E6EC] px-1.5 py-1 text-center text-hb-xs font-bold transition-colors ${
+                            productCropStates[index]?.active
+                              ? "bg-[#FFF4EE] text-[#C84312] hover:bg-[#FADCD0]"
+                              : "bg-[#F3F4F6] text-[#4B5260] hover:bg-[#E5E7EB]"
+                          }`}
+                        >
+                          {productCropStates[index]?.active
+                            ? productCropStates[index]?.role === "nameplate"
+                              ? "명판 크롭 · 원본 복구"
+                              : "제품 크롭 · 원본 복구"
+                            : "원본 · 크롭 적용"}
+                        </button>
+                      )}
                       <div className="border-t border-[#E2E6EC] bg-white text-hb-xs font-bold text-[#334155]">
                         <div className="grid grid-cols-2 divide-x divide-[#E2E6EC]">
                           <button

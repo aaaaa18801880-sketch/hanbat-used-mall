@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+/**
+ * 실시간 판매 제품 갤러리 (지연 로딩 아키텍처):
+ * - 상세 모달(`ProductDetailModal`)은 `ProductStructuredDescription` 및 `lib/product-ops.ts` 수정 로직을 지연 로딩합니다.
+ * - 관리자 업로드(`GalleryAdminUploadController`)는 `compressAndUploadProductImages` 기반 등록을 지연 로딩합니다.
+ * - 삭제·일괄 변경은 `lib/product-ops.ts` (`removeProductImagesFromStorage` 포함) 통합 CRUD를 사용합니다.
+ */
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
@@ -14,34 +20,31 @@ import {
   telHref,
   smsHref,
   splitImages,
-  compressImage,
-  enhanceImageFile,
-  PRODUCT_IMAGE_TONE_PRESET,
-  revokeObjectUrls,
-  sanitizeOldManufactureYear,
-  validateImageFiles,
-  MAX_PHOTOS,
-  PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
-  PRODUCT_STATUS,
   isProductSold,
-  isProductReserved,
   normalizeProductStatus,
   normalizeProductCategory,
   hasProductPrice,
-  formatProductPrice,
   extractModelName,
-  extractSpecCapsules,
-  matchesSearchQuery,
   trackEvent,
   addRecentViewedProduct,
 } from "../../lib/site";
-
+import {
+  buildGalleryQueryUrl,
+  CATEGORIES_WITH_ALL,
+  computeCategoryCounts,
+  filterAndSortGalleryProducts,
+  PAGE_STEP,
+  parseGalleryQueryParams,
+  PRICE_RANGE_OPTIONS,
+  SITUATION_PRESETS,
+  type GalleryViewMode,
+  type PriceRangeOption,
+  type SortOption,
+  type StatusFilter,
+} from "../../lib/gallery-filter";
 import {
   Icon,
   ICON,
-  SafeImg,
-  Modal,
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
@@ -49,992 +52,36 @@ import {
 } from "../../lib/ui";
 import {
   ProductCard,
-  ProductTrustMicroStrip,
   type ProductItem,
 } from "../../components/products/product-card";
 import { GallerySpecTable } from "../../components/products/gallery-spec-table";
-import { ProductStatusBadge } from "../../components/products/product-status-badge";
-import {
-  CopyPromoPostButton,
-  QuoteBasketButton,
-} from "../../components/products/product-detail-gallery";
 import { RecentViewedStrip } from "../../components/products/recent-viewed-strip";
 import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
-import { ProductStructuredDescription } from "../../components/products/product-structured-description";
+import { useGalleryInitialProducts } from "../../components/gallery/gallery-initial-data";
 
-const GalleryAdminUploadModal = dynamic(
+const ProductDetailModal = dynamic(
   () =>
-    import("../../components/gallery/gallery-admin-upload-modal").then(
-      (m) => m.GalleryAdminUploadModal
+    import("../../components/gallery/product-detail-modal").then(
+      (m) => m.ProductDetailModal
     ),
   { ssr: false }
 );
-import { useGalleryInitialProducts } from "../../components/gallery/gallery-initial-data";
 
-type PriceRangeOption = "all" | "under30" | "30to70" | "70to150" | "over150";
+const GalleryAdminUploadController = dynamic(
+  () =>
+    import("../../components/gallery/gallery-admin-upload-controller").then(
+      (m) => m.GalleryAdminUploadController
+    ),
+  { ssr: false }
+);
 
-const PRICE_RANGE_OPTIONS: ReadonlyArray<{
-  value: PriceRangeOption;
-  label: string;
-  min?: number;
-  max?: number;
-}> = [
-  { value: "all", label: "전체 가격대" },
-  { value: "under30", label: "30만원 이하", max: 300000 },
-  { value: "30to70", label: "30만 ~ 70만원", min: 300000, max: 700000 },
-  { value: "70to150", label: "70만 ~ 150만원", min: 700000, max: 1500000 },
-  { value: "over150", label: "150만원 이상", min: 1500000 },
-] as const;
-
-const SITUATION_PRESETS = [
-  {
-    label: "원룸·자취필수",
-    category: "냉장고",
-    keyword: "",
-    desc: "원룸·오피스텔 입주용 가전",
-  },
-  {
-    label: "카페·디저트창업",
-    category: "업소용기기",
-    keyword: "쇼케이스",
-    desc: "제빙기·테이블냉장·쇼케이스",
-  },
-  {
-    label: "식당·주방설비",
-    category: "업소용기기",
-    keyword: "45박스",
-    desc: "45박스·식기세척기·작업대",
-  },
-  {
-    label: "사계절 냉난방",
-    category: "에어컨/냉난방기",
-    keyword: "냉난방",
-    desc: "상가·사무실·가정용 냉난방기",
-  },
-] as const;
-
-
-
-type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
-type StatusFilter = "all" | "selling" | "reserved" | "sold";
-type GalleryViewMode = "card" | "table";
-
-const CATEGORIES_WITH_ALL = ["전체", ...PRODUCT_CATEGORIES] as const;
-const PAGE_STEP = 25;
-
-// removeProductImagesFromStorage imported from lib/product-ops
-
-/* ════════════════════════════════════════════════════════════
-   상세 보기 및 관리자 단건 수정 모달 (사진 순서 변경·추가·삭제 지원)
-   ════════════════════════════════════════════════════════════ */
-function ProductDetailModal({
-  product,
-  isAdmin,
-  onClose,
-  onProductUpdated,
-  onDeleteProduct,
-}: {
-  product: ProductItem;
-  isAdmin: boolean;
-  onClose: () => void;
-  onProductUpdated: (updated: ProductItem) => void;
-  onDeleteProduct: (id: string) => void;
-}) {
-  const images = splitImages(product.image_url);
-  const displayImages = images.length > 0 ? images : [""];
-  const [idx, setIdx] = useState(0);
-  const [isZoomOpen, setIsZoomOpen] = useState(false);
-
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState(product.title);
-  const [editCategory, setEditCategory] = useState<string>(
-    normalizeProductCategory(product.category)
-  );
-  const [editPrice, setEditPrice] = useState(
-    product.price && product.price > 0 ? String(product.price) : ""
-  );
-  const [editGrade, setEditGrade] = useState<string>(
-    product.condition_grade || PRODUCT_CONDITION_GRADES[1]
-  );
-  const [editStatus, setEditStatus] = useState<string>(
-    normalizeProductStatus(product.status)
-  );
-  const [editDescription, setEditDescription] = useState(
-    product.description || ""
-  );
-  const [editExistingImages, setEditExistingImages] = useState<string[]>(images);
-  const [editNewFiles, setEditNewFiles] = useState<File[]>([]);
-  const [editNewPreviews, setEditNewPreviews] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const go = useCallback(
-    (d: number) => {
-      if (displayImages.length < 2) return;
-      setIdx((i) => (i + d + displayImages.length) % displayImages.length);
-    },
-    [displayImages.length]
-  );
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (isEditing || displayImages.length < 2) return;
-      const target = e.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === "INPUT" ||
-          target.tagName === "TEXTAREA" ||
-          target.tagName === "SELECT" ||
-          target.isContentEditable)
-      ) {
-        return;
-      }
-      if (e.key === "ArrowLeft") go(-1);
-      if (e.key === "ArrowRight") go(1);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [displayImages.length, go, isEditing]);
-
-  const currentStatus = isEditing ? editStatus : product.status;
-  const sold = isProductSold(currentStatus);
-  const categoryLabel = normalizeProductCategory(product.category);
-  const modelName = extractModelName(product.description, product.title);
-  const specCapsules = extractSpecCapsules(
-    product.title,
-    product.description,
-    4,
-    product.category
-  );
-
-  const moveExistingImage = (fromIdx: number, toIdx: number) => {
-    if (toIdx < 0 || toIdx >= editExistingImages.length) return;
-    setEditExistingImages((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, moved);
-      return next;
-    });
-  };
-
-  const makePrimaryExistingImage = (targetIdx: number) => {
-    if (targetIdx <= 0 || targetIdx >= editExistingImages.length) return;
-    setEditExistingImages((prev) => {
-      const next = [...prev];
-      const [picked] = next.splice(targetIdx, 1);
-      return [picked, ...next];
-    });
-  };
-
-  const removeExistingImage = (targetIdx: number) => {
-    setEditExistingImages((prev) => prev.filter((_, i) => i !== targetIdx));
-  };
-
-  const handleAddEditFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const picked = Array.from(e.target.files);
-    e.target.value = "";
-    const remainingSlots =
-      MAX_PHOTOS - (editExistingImages.length + editNewFiles.length);
-    if (remainingSlots <= 0) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 등록할 수 있습니다.`);
-      return;
-    }
-    const { ok, error } = validateImageFiles(picked, remainingSlots);
-    if (error) toast.error(error);
-    if (ok.length === 0) return;
-
-    const toned = await Promise.all(
-      ok.map(async (f) => {
-        try {
-          return await enhanceImageFile(f, PRODUCT_IMAGE_TONE_PRESET);
-        } catch {
-          return f;
-        }
-      })
-    );
-
-    setEditNewFiles((prev) => [...prev, ...toned]);
-    setEditNewPreviews((prev) => [
-      ...prev,
-      ...toned.map((f) => URL.createObjectURL(f)),
-    ]);
-  };
-
-  const removeNewEditFile = (targetIdx: number) => {
-    revokeObjectUrls([editNewPreviews[targetIdx]]);
-    setEditNewFiles((prev) => prev.filter((_, i) => i !== targetIdx));
-    setEditNewPreviews((prev) => prev.filter((_, i) => i !== targetIdx));
-  };
-
-  const rotateNewEditFile = async (i: number, degrees = 90) => {
-    const file = editNewFiles[i];
-    if (!file) return;
-    try {
-      const rotated = await enhanceImageFile(file, { degrees });
-      setEditNewFiles((prev) => {
-        const next = [...prev];
-        next[i] = rotated;
-        return next;
-      });
-      setEditNewPreviews((prev) => {
-        const next = [...prev];
-        if (next[i]) revokeObjectUrls([next[i]]);
-        next[i] = URL.createObjectURL(rotated);
-        return next;
-      });
-      toast.success("사진이 90° 회전되었습니다.");
-    } catch {
-      toast.error("사진 회전에 실패했습니다.");
-    }
-  };
-
-  const handleSaveEdit = async () => {
-    if (!editTitle.trim()) {
-      toast.error("제품명을 입력해 주세요.");
-      return;
-    }
-    if (editExistingImages.length + editNewFiles.length === 0) {
-      toast.error("최소 1장의 상품 사진이 필요합니다.");
-      return;
-    }
-
-    const numericPrice = editPrice
-      ? Number(editPrice.replace(/[^0-9]/g, ""))
-      : 0;
-    if (!Number.isFinite(numericPrice) || numericPrice < 0) {
-      toast.error("유효한 판매 가격을 입력해 주세요.");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      const [
-        { supabase, revalidateAdminCache },
-        { compressAndUploadProductImages, removeProductImagesFromStorage },
-      ] = await Promise.all([
-        import("../../lib/supabase"),
-        import("../../lib/product-ops"),
-      ]);
-      const newlyUploadedUrls = await compressAndUploadProductImages(editNewFiles);
-
-      const finalImages = [...editExistingImages, ...newlyUploadedUrls];
-      const finalImageUrl = finalImages.join(",");
-      const normalizedCat = normalizeProductCategory(editCategory);
-      const normalizedStat = normalizeProductStatus(editStatus);
-
-      const { data: updatedRows, error } = await supabase
-        .from("products")
-        .update({
-          title: editTitle.trim(),
-          category: normalizedCat,
-          price: numericPrice,
-          condition_grade: editGrade || null,
-          status: normalizedStat,
-          description: editDescription.trim(),
-          image_url: finalImageUrl,
-        })
-        .eq("id", product.id)
-        .select();
-
-      if (error) throw error;
-      if (!updatedRows || updatedRows.length === 0) {
-        throw new Error(
-          "데이터베이스 수정 권한(RLS)이 없거나 대상 상품을 찾을 수 없습니다."
-        );
-      }
-
-      const removedUrls = images.filter((u) => !editExistingImages.includes(u));
-      if (removedUrls.length > 0) {
-        await removeProductImagesFromStorage(removedUrls);
-      }
-
-      revokeObjectUrls(editNewPreviews);
-      setEditNewFiles([]);
-      setEditNewPreviews([]);
-
-      const updated: ProductItem = {
-        ...product,
-        title: editTitle.trim(),
-        category: normalizedCat,
-        price: numericPrice,
-        condition_grade: editGrade || null,
-        status: normalizedStat,
-        description: editDescription.trim(),
-        image_url: finalImageUrl,
-      };
-
-      onProductUpdated(updated);
-      void revalidateAdminCache(product.id);
-      setIdx(0);
-      setIsEditing(false);
-      toast.success("상품 정보가 저장되었습니다.");
-    } catch (err: unknown) {
-      toast.error(
-        "저장 실패: " +
-          (err instanceof Error ? err.message : "오류가 발생했습니다.")
-      );
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    revokeObjectUrls(editNewPreviews);
-    setEditNewFiles([]);
-    setEditNewPreviews([]);
-    setEditExistingImages(images);
-    setEditTitle(product.title);
-    setEditCategory(normalizeProductCategory(product.category));
-    setEditPrice(
-      product.price && product.price > 0 ? String(product.price) : ""
-    );
-    setEditGrade(product.condition_grade || PRODUCT_CONDITION_GRADES[1]);
-    setEditStatus(normalizeProductStatus(product.status));
-    setEditDescription(product.description || "");
-    setIsEditing(false);
-  };
-
-  const handleCloseDetail = () => {
-    if (isEditing) {
-      const hasChanges =
-        editTitle.trim() !== product.title ||
-        editPrice.trim() !==
-          (product.price && product.price > 0 ? String(product.price) : "") ||
-        editDescription.trim() !== (product.description || "") ||
-        editNewFiles.length > 0;
-
-      if (hasChanges) {
-        if (
-          !confirm(
-            "수정 중인 상품 정보가 저장되지 않았습니다. 수정을 취소하고 창을 닫으시겠습니까?"
-          )
-        ) {
-          return;
-        }
-      }
-      handleCancelEdit();
-    }
-    onClose();
-  };
-
-  const inquiryParams = new URLSearchParams({
-    write: "1",
-    type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
-    productId: String(product.id),
-    title: sold
-      ? `[유사매물 재고문의] ${product.title}`
-      : `[상품문의] ${product.title}`,
-    category: categoryLabel,
-  });
-  if (modelName) {
-    inquiryParams.set("model", modelName);
-  }
-  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
-
-  return (
-    <>
-      <Modal
-        open={true}
-        onClose={handleCloseDetail}
-        label={`${product.title} 상세 정보`}
-        panelClassName="max-w-xl"
-        closeOnOverlayClick={!isEditing && !isZoomOpen}
-        closeOnEsc={!isEditing && !isZoomOpen}
-      >
-        <div className="bg-white rounded-xl shadow-2xl border border-[#E2E6EC] flex flex-col overflow-hidden max-h-[90vh] w-full">
-          {/* 모달 상단 헤더 */}
-          <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#E2E6EC] bg-white sticky top-0 z-20">
-            <div className="flex flex-wrap items-center gap-1.5">
-              {!isEditing ? (
-                <>
-                  <span className="text-hb-xs font-bold text-[#334155] bg-[#F7F8FA] border border-[#E2E6EC] px-2.5 py-1 rounded-lg">
-                    {categoryLabel}
-                  </span>
-                  <ProductStatusBadge
-                    status={product.status}
-                    createdAt={product.created_at}
-                  />
-                  {product.condition_grade && (
-                    <span className="rounded-lg border border-[#FADCD0] bg-[#FFF4EE] px-2 py-0.5 text-hb-xs font-bold text-[#E8521A]">
-                      {product.condition_grade}
-                    </span>
-                  )}
-                </>
-              ) : (
-                <span className="text-hb-xs font-bold text-[#E8521A] bg-[#FFF4EE] border border-[#FADCD0] px-2.5 py-1 rounded-lg">
-                  상품 정보 및 사진 편집 모드
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-1.5">
-              {!isEditing && (
-                <CopyPromoPostButton
-                  product={product}
-                  className="hidden sm:inline-flex items-center gap-1 rounded border border-[#E2E6EC] bg-[#F7F8FA] px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
-                />
-              )}
-              {isAdmin && !isEditing && (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setIsEditing(true)}
-                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] bg-[#F1F3F6] hover:bg-[#E2E6EC] border border-[#E2E6EC] px-2.5 py-1.5 rounded transition-colors"
-                  >
-                    <Icon d={ICON.pen} className="w-3.5 h-3.5" /> 수정
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onDeleteProduct(product.id)}
-                    className="inline-flex items-center gap-1 text-hb-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-2.5 py-1.5 rounded transition-colors"
-                  >
-                    삭제
-                  </button>
-                </>
-              )}
-              <button
-                type="button"
-                onClick={handleCloseDetail}
-                aria-label="닫기"
-                className="text-[#64748B] hover:text-[#141A23] transition-colors p-1"
-              >
-                <Icon d={ICON.close} className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* 모달 본문 */}
-          <div className="overflow-y-auto flex-1">
-            {!isEditing && (
-              <>
-                <div
-                  onClick={() => displayImages[idx] && setIsZoomOpen(true)}
-                  className="relative w-full h-[300px] sm:h-[370px] bg-[#F7F8FA] border-b border-[#E2E6EC] flex items-center justify-center p-3 overflow-hidden cursor-zoom-in group select-none"
-                  title="클릭하여 전체화면으로 확대"
-                >
-                  <SafeImg
-                    key={displayImages[idx]}
-                    src={displayImages[idx]}
-                    alt={product.title}
-                    eager
-                    className={`max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-300 group-hover:scale-[1.02] ${
-                      sold ? "grayscale opacity-75" : ""
-                    }`}
-                  />
-
-                  {sold && (
-                    <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#141A23]/45 pointer-events-none">
-                      <span className="px-5 py-2 rounded-sm bg-[#141A23]/90 text-white text-hb-sm font-bold tracking-[0.2em] border border-white/20">
-                        판매완료
-                      </span>
-                    </div>
-                  )}
-
-                  {displayImages[idx] && (
-                    <div className="absolute top-3 right-3 z-10 bg-black/65 text-white text-hb-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1.5 pointer-events-none">
-                      <Icon d={ICON.search} className="w-3.5 h-3.5" />
-                      <span>클릭하여 확대</span>
-                    </div>
-                  )}
-
-                  {displayImages.length > 1 && (
-                    <>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          go(-1);
-                        }}
-                        aria-label="이전 사진"
-                        className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white z-10"
-                      >
-                        <Icon d={ICON.left} className="w-4 h-4" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          go(1);
-                        }}
-                        aria-label="다음 사진"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white z-10"
-                      >
-                        <Icon d={ICON.right} className="w-4 h-4" />
-                      </button>
-                      <span className="absolute bottom-3 right-3 bg-black/75 text-white text-hb-xs font-semibold px-2.5 py-1 rounded-full z-10 pointer-events-none">
-                        {idx + 1} / {displayImages.length}
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                {displayImages.length > 1 && (
-                  <div className="flex gap-2 p-3 bg-[#F7F8FA] border-b border-[#E2E6EC] overflow-x-auto">
-                    {displayImages.map((img, i) => (
-                      <button
-                        key={img + i}
-                        type="button"
-                        onClick={() => setIdx(i)}
-                        aria-label={`${i + 1}번 사진 보기`}
-                        className={`relative w-14 h-14 shrink-0 rounded overflow-hidden bg-white border transition-[border-color,opacity] duration-150 ${
-                          i === idx
-                            ? "border-[#E8521A] ring-2 ring-[#E8521A]/30"
-                            : "border-[#E2E6EC] opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <SafeImg
-                          src={img}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            <div className="p-5 sm:p-6 space-y-5">
-              {isEditing ? (
-                <div className="space-y-4">
-                  {/* 사진 순서 변경 및 대표 이미지 지정 UI */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="hb-label">
-                        등록된 사진 관리 ({editExistingImages.length + editNewFiles.length}/{MAX_PHOTOS}장)
-                      </span>
-                      <span className="text-hb-xs font-semibold text-[#E8521A]">
-                        맨 앞(1번) 사진이 대표 이미지입니다
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2.5">
-                      {editExistingImages.map((imgUrl, i) => (
-                        <div
-                          key={imgUrl + i}
-                          className="relative flex flex-col overflow-hidden rounded border border-[#E2E6EC] bg-[#F7F8FA]"
-                        >
-                          <div className="relative aspect-square w-full bg-[#F1F3F6]">
-                            <SafeImg
-                              src={imgUrl}
-                              alt={`기존 사진 ${i + 1}`}
-                              className="h-full w-full object-cover"
-                            />
-                            {i === 0 ? (
-                              <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#E8521A] px-1.5 py-0.5 text-hb-xs font-bold text-white">
-                                대표
-                              </span>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => makePrimaryExistingImage(i)}
-                                className="absolute left-1.5 top-1.5 rounded-sm bg-[#141A23]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#E8521A]"
-                              >
-                                대표 지정
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => removeExistingImage(i)}
-                              aria-label="사진 삭제"
-                              className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
-                            >
-                              <Icon d={ICON.close} className="w-3 h-3" />
-                            </button>
-                          </div>
-                          <div className="grid grid-cols-2 divide-x divide-[#E2E6EC] border-t border-[#E2E6EC] bg-white text-hb-xs font-bold text-[#334155]">
-                            <button
-                              type="button"
-                              disabled={i === 0}
-                              onClick={() => moveExistingImage(i, i - 1)}
-                              className="py-1 hover:bg-[#F1F3F6] disabled:opacity-30"
-                            >
-                              ← 앞으로
-                            </button>
-                            <button
-                              type="button"
-                              disabled={i === editExistingImages.length - 1}
-                              onClick={() => moveExistingImage(i, i + 1)}
-                              className="py-1 hover:bg-[#F1F3F6] disabled:opacity-30"
-                            >
-                              뒤로 →
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-
-                      {editNewPreviews.map((preview, i) => (
-                        <div
-                          key={preview}
-                          className="relative aspect-square overflow-hidden rounded border border-[#E8521A] bg-[#EFECE6]"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={preview}
-                            alt={`추가 사진 ${i + 1}`}
-                            className="h-full w-full object-cover"
-                          />
-                          <span className="absolute left-1.5 top-1.5 rounded-sm bg-[#141A23] px-1.5 py-0.5 text-hb-xs font-bold text-white">
-                            신규 추가
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeNewEditFile(i)}
-                            aria-label="추가 사진 삭제"
-                            className="absolute right-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full bg-black/70 text-white hover:bg-red-600"
-                          >
-                            <Icon d={ICON.close} className="w-3 h-3" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => rotateNewEditFile(i, 90)}
-                            title="시계방향 90도 회전"
-                            aria-label="시계방향 90도 회전"
-                            className="absolute bottom-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-black/75 text-white hover:bg-[#E8521A] shadow-sm transition-colors"
-                          >
-                            <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-
-                      {editExistingImages.length + editNewFiles.length <
-                        MAX_PHOTOS && (
-                        <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded border border-dashed border-[#CBD2DC] bg-[#F7F8FA] text-hb-xs font-semibold text-[#64748B] hover:border-[#141A23] hover:text-[#141A23]">
-                          <Icon d={ICON.plus} className="h-5 w-5" />
-                          <span>사진 추가</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={handleAddEditFiles}
-                            className="sr-only"
-                          />
-                        </label>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="hb-label">카테고리</label>
-                      <select
-                        value={editCategory}
-                        onChange={(e) => setEditCategory(e.target.value)}
-                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
-                      >
-                        {PRODUCT_CATEGORIES.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="hb-label">판매 상태</label>
-                      <select
-                        value={editStatus}
-                        onChange={(e) => setEditStatus(e.target.value)}
-                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
-                      >
-                        <option value={PRODUCT_STATUS.SELLING}>판매중</option>
-                        <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
-                        <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="hb-label">상태 등급</label>
-                      <select
-                        value={editGrade}
-                        onChange={(e) => setEditGrade(e.target.value)}
-                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
-                      >
-                        {PRODUCT_CONDITION_GRADES.map((g) => (
-                          <option key={g} value={g}>
-                            {g}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="hb-label">제품명 *</label>
-                    <input
-                      type="text"
-                      value={editTitle}
-                      onChange={(e) => setEditTitle(e.target.value)}
-                      className="hb-input mt-1"
-                      placeholder="제품명을 입력하세요"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="hb-label">판매 가격 (원)</label>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={
-                        editPrice ? Number(editPrice).toLocaleString() : ""
-                      }
-                      onChange={(e) =>
-                        setEditPrice(e.target.value.replace(/[^0-9]/g, ""))
-                      }
-                      className="hb-input mt-1"
-                      placeholder="비워두면 카테고리별 맞춤 상담 문구로 표시됩니다"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="hb-label">제품 규격 및 상세 설명</label>
-                    <textarea
-                      rows={8}
-                      value={editDescription}
-                      onChange={(e) => setEditDescription(e.target.value)}
-                      className="hb-input mt-1 font-mono text-hb-base sm:text-hb-sm leading-relaxed resize-y"
-                      placeholder="특징 및 사양 내용을 수정하세요"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div>
-                    <h2 className="text-hb-xl font-bold text-[#141A23] leading-snug tracking-tight">
-                      {product.title}
-                    </h2>
-                    {specCapsules.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {specCapsules.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded bg-[#F7F8FA] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-semibold text-[#334155]"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    {modelName && (
-                      <p className="mt-1.5 text-hb-sm font-semibold text-[#334155]">
-                        모델명:{" "}
-                        <span className="font-mono text-[#141A23]">
-                          {modelName}
-                        </span>
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#F7F8FA] p-4 rounded-xl border border-[#E2E6EC]">
-                    <div>
-                      <span className="text-hb-xs font-semibold text-[#64748B] block mb-0.5">
-                        판매 가격
-                      </span>
-                      {sold ? (
-                        <p className="text-hb-2xl font-bold text-[#94A3B8]">
-                          판매완료
-                        </p>
-                      ) : hasProductPrice(product.price) ? (
-                        <p className="text-hb-2xl font-bold tracking-tight text-[#E8521A] tabular-nums">
-                          {formatProductPrice(product.price, categoryLabel)}
-                        </p>
-                      ) : (
-                        <a
-                          href={telHref(STORE.tel)}
-                          className="inline-flex items-center gap-2 text-hb-xl font-bold text-[#E8521A] hover:text-[#BF4715]"
-                        >
-                          <span className="underline underline-offset-4">
-                            {formatProductPrice(product.price, categoryLabel)}
-                          </span>
-                        </a>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      <span className="text-hb-xs font-semibold text-[#64748B] tabular-nums">
-                        조회 <strong className="text-[#141A23]">{product.views || 0}</strong>회
-                      </span>
-                      <Link
-                        href={`/${product.id}`}
-                        className="rounded border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
-                      >
-                        개별 상세페이지 →
-                      </Link>
-                    </div>
-                  </div>
-
-                  {!sold && (
-                    <QuoteBasketButton
-                      item={{
-                        id: product.id,
-                        title: product.title,
-                        category: categoryLabel,
-                        price: product.price,
-                        status: product.status,
-                        conditionGrade: product.condition_grade,
-                        description: product.description,
-                        modelName,
-                        imageUrl: images[0] || null,
-                        quantity: 1,
-                      }}
-                    />
-                  )}
-
-                  {/* 핵심 가치 아이콘 바 (Trust Micro-strip) */}
-                  <ProductTrustMicroStrip category={categoryLabel} />
-
-                  {categoryLabel === "에어컨/냉난방기" && (
-                    <AirconSetGuideBanner variant="card" className="mt-4" />
-                  )}
-
-                  {/* 구조화된 제품 사양 및 상태 설명 (통합 구조화 컴포넌트) */}
-                  {product.description && (
-                    <ProductStructuredDescription description={product.description} />
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* 모달 하단 액션 바 (전화 / 문자 / 카톡 / 온라인 문의) */}
-          <div className="p-4 border-t border-[#E2E6EC] bg-white shrink-0">
-            {isEditing ? (
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleCancelEdit}
-                  disabled={isSaving}
-                  className="hb-btn-outline h-11 text-hb-sm"
-                >
-                  취소
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveEdit}
-                  disabled={isSaving}
-                  className="hb-btn-primary h-11 text-hb-sm"
-                >
-                  {isSaving ? "저장 중..." : "변경사항 저장"}
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <a
-                  href={telHref(STORE.tel)}
-                  className="hb-btn-primary h-11 text-hb-sm"
-                >
-                  <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
-                  <span>전화 문의</span>
-                </a>
-                <a
-                  href={smsHref(
-                    STORE.mobile,
-                    sold
-                      ? `[${STORE.name} 유사매물문의] 판매완료된 '${product.title}'${
-                          modelName ? ` (${modelName})` : ""
-                        }와 비슷한 스펙의 현재 재고 문의드립니다.`
-                      : `[${STORE.name} 상품문의] ${product.title}${
-                          modelName ? ` (${modelName})` : ""
-                        } 재고 및 배송·설치 견적 문의드립니다.`
-                  )}
-                  className="hb-btn-outline h-11 text-hb-sm"
-                >
-                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />
-                  <span>문자 문의</span>
-                </a>
-                <a
-                  href={STORE.kakaoChat}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 text-hb-sm"
-                >
-                  <Icon d={ICON.chat} className="w-4 h-4" />
-                  <span>카톡 상담</span>
-                </a>
-                <Link
-                  href={inquiryHref}
-                  className="hb-btn-outline h-11 text-hb-sm"
-                >
-                  <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#E8521A]" />
-                  <span>{sold ? "유사매물 문의" : "온라인 문의"}</span>
-                </Link>
-              </div>
-            )}
-          </div>
-        </div>
-      </Modal>
-
-      {/* 전체화면 확대 라이트박스 (Top-Layer Dialog) */}
-      <Modal
-        open={isZoomOpen}
-        onClose={() => setIsZoomOpen(false)}
-        variant="lightbox"
-        label="사진 전체화면 확대 보기"
-        panelClassName="max-w-5xl w-full rounded-none overflow-visible"
-      >
-        <div
-          onClick={() => setIsZoomOpen(false)}
-          className="relative flex flex-col items-center justify-center p-2 sm:p-4 select-none"
-        >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="mb-3 flex w-full items-center justify-between text-white"
-          >
-            <span className="text-hb-sm font-semibold bg-white/15 px-3 py-1 rounded-full tabular-nums">
-              {idx + 1} / {displayImages.length}
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsZoomOpen(false)}
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-              aria-label="닫기"
-              autoFocus
-            >
-              <Icon d={ICON.close} className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div
-            onClick={(e) => e.stopPropagation()}
-            className="relative max-w-full max-h-[80vh] flex items-center justify-center"
-          >
-            <SafeImg
-              src={displayImages[idx]}
-              alt={product.title}
-              eager
-              className="max-w-full max-h-[80vh] w-auto h-auto object-contain rounded"
-            />
-          </div>
-
-          {displayImages.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  go(-1);
-                }}
-                className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
-                aria-label="이전 사진"
-              >
-                <Icon d={ICON.left} className="w-6 h-6" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  go(1);
-                }}
-                className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-white/20 hover:bg-white/35 text-white flex items-center justify-center z-20"
-                aria-label="다음 사진"
-              >
-                <Icon d={ICON.right} className="w-6 h-6" />
-              </button>
-            </>
-          )}
-        </div>
-      </Modal>
-    </>
-  );
-}
+const GalleryBulkActionBar = dynamic(
+  () =>
+    import("../../components/gallery/gallery-bulk-action-bar").then(
+      (m) => m.GalleryBulkActionBar
+    ),
+  { ssr: false }
+);
 
 /* ════════════════════════════════════════════════════════════
    메인 갤러리 페이지 컴포넌트
@@ -1094,36 +141,9 @@ export default function GalleryPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isBulkLoading, setIsBulkLoading] = useState(false);
 
-  /* 관리자 로그인 모달 */
+  /* 관리자 로그인 · 신규 상품 등록 모달 */
   const [isAdminAuthModalOpen, setIsAdminAuthModalOpen] = useState(false);
-
-  /* 관리자 상품 등록 모달 상태 */
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [productTitle, setProductTitle] = useState("");
-  const [productModel, setProductModel] = useState("");
-  const [productDescription, setProductDescription] = useState("");
-  const [productCategory, setProductCategory] = useState<string>(
-    PRODUCT_CATEGORIES[0]
-  );
-  const [productPrice, setProductPrice] = useState("");
-  const [productStatus, setProductStatus] = useState<string>(
-    PRODUCT_STATUS.SELLING
-  );
-  const [productGrade, setProductGrade] = useState<string>(
-    PRODUCT_CONDITION_GRADES[1]
-  );
-  const [productFiles, setProductFiles] = useState<File[]>([]);
-  const productFilesRef = useRef<File[]>([]);
-  const [productPreviews, setProductPreviews] = useState<string[]>([]);
-  const [uploadingProduct, setUploadingProduct] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-
-  /* AI 판독 결과 구분 상태 (기본값 true: 모델명 기반 공식 사양 정밀 검색 자동 활성화) */
-  const [searchSpecs, setSearchSpecs] = useState(true);
-  const [photoObserved, setPhotoObserved] = useState<string[]>([]);
-  const [searchDerivedSpecs, setSearchDerivedSpecs] = useState<string[]>([]);
-  const [reviewWarnings, setReviewWarnings] = useState<string[]>([]);
-  const [foundSources, setFoundSources] = useState<string[]>([]);
 
   const fetchProducts = useCallback(async (silent = false, showSpinner = false) => {
     if (!silent && showSpinner) {
@@ -1144,47 +164,16 @@ export default function GalleryPage() {
 
   /* 초기 URL 쿼리 파싱 및 최초 데이터 조회 */
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const parsed = parseGalleryQueryParams(
+      new URLSearchParams(window.location.search)
+    );
     queueMicrotask(() => {
-      const catParam = params.get("category");
-      if (catParam) {
-        const normalized =
-          catParam === "전체" ? "전체" : normalizeProductCategory(catParam);
-        if ((CATEGORIES_WITH_ALL as readonly string[]).includes(normalized)) {
-          setActiveCategory(normalized);
-        }
-      }
-      const qParam = params.get("q");
-      if (qParam) setSearch(qParam);
-
-      const sortParam = params.get("sort") as SortOption | null;
-      if (
-        sortParam &&
-        ["latest", "views", "priceAsc", "priceDesc"].includes(sortParam)
-      ) {
-        setSort(sortParam);
-      }
-
-      const statusParam = params.get("status") as StatusFilter | null;
-      if (
-        statusParam &&
-        ["all", "selling", "reserved", "sold"].includes(statusParam)
-      ) {
-        setStatusFilter(statusParam);
-      }
-
-      const priceParam = params.get("price") as PriceRangeOption | null;
-      if (
-        priceParam &&
-        ["all", "under30", "30to70", "70to150", "over150"].includes(priceParam)
-      ) {
-        setPriceRange(priceParam);
-      }
-
-      const viewParam = params.get("view");
-      if (viewParam === "table") {
-        setViewMode("table");
-      }
+      if (parsed.activeCategory) setActiveCategory(parsed.activeCategory);
+      if (parsed.search) setSearch(parsed.search);
+      if (parsed.sort) setSort(parsed.sort);
+      if (parsed.statusFilter) setStatusFilter(parsed.statusFilter);
+      if (parsed.priceRange) setPriceRange(parsed.priceRange);
+      if (parsed.viewMode) setViewMode(parsed.viewMode);
       setUrlParamsHydrated(true);
     });
 
@@ -1218,45 +207,16 @@ export default function GalleryPage() {
   /* 필터 상태 변경 시 URL 쿼리 파라미터 동기화 (새로고침 시 유지) */
   useEffect(() => {
     if (!urlParamsHydrated) return;
-    const url = new URL(window.location.href);
-
-    if (activeCategory && activeCategory !== "전체") {
-      url.searchParams.set("category", activeCategory);
-    } else {
-      url.searchParams.delete("category");
-    }
-
-    if (search.trim()) {
-      url.searchParams.set("q", search.trim());
-    } else {
-      url.searchParams.delete("q");
-    }
-
-    if (sort !== "latest") {
-      url.searchParams.set("sort", sort);
-    } else {
-      url.searchParams.delete("sort");
-    }
-
-    if (statusFilter !== "all") {
-      url.searchParams.set("status", statusFilter);
-    } else {
-      url.searchParams.delete("status");
-    }
-
-    if (hasPricedProducts && priceRange !== "all") {
-      url.searchParams.set("price", priceRange);
-    } else {
-      url.searchParams.delete("price");
-    }
-
-    if (viewMode === "table") {
-      url.searchParams.set("view", "table");
-    } else {
-      url.searchParams.delete("view");
-    }
-
-    window.history.replaceState(null, "", url.toString());
+    const nextUrl = buildGalleryQueryUrl(window.location.href, {
+      activeCategory,
+      search,
+      sort,
+      statusFilter,
+      priceRange,
+      viewMode,
+      hasPricedProducts,
+    });
+    window.history.replaceState(null, "", nextUrl);
   }, [
     urlParamsHydrated,
     activeCategory,
@@ -1269,14 +229,10 @@ export default function GalleryPage() {
   ]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
-  const categoryCounts = useMemo(() => {
-    const counts: Record<string, number> = { 전체: products.length };
-    products.forEach((p) => {
-      const key = normalizeProductCategory(p.category);
-      counts[key] = (counts[key] || 0) + 1;
-    });
-    return counts;
-  }, [products]);
+  const categoryCounts = useMemo(
+    () => computeCategoryCounts(products),
+    [products]
+  );
 
   const sellingCount = useMemo(
     () => products.filter((p) => !isProductSold(p.status)).length,
@@ -1284,70 +240,17 @@ export default function GalleryPage() {
   );
 
   /* 필터링 및 정렬된 상품 목록 (제품명 + 모델명 통합 검색) */
-  const filteredProducts = useMemo(() => {
-    const q = search.trim().toLowerCase();
-
-    const list = products.filter((p) => {
-      const cat = normalizeProductCategory(p.category);
-      if (activeCategory !== "전체" && cat !== activeCategory) return false;
-
-      const sold = isProductSold(p.status);
-      const reserved = isProductReserved(p.status);
-      if (statusFilter === "selling" && (sold || reserved)) return false;
-      if (statusFilter === "reserved" && !reserved) return false;
-      if (statusFilter === "sold" && !sold) return false;
-
-      if (effectivePriceRange !== "all") {
-        if (!hasProductPrice(p.price)) return false;
-        const priceVal = Number(p.price);
-        if (effectivePriceRange === "under30" && priceVal > 300000) return false;
-        if (
-          effectivePriceRange === "30to70" &&
-          (priceVal < 300000 || priceVal > 700000)
-        )
-          return false;
-        if (
-          effectivePriceRange === "70to150" &&
-          (priceVal < 700000 || priceVal > 1500000)
-        )
-          return false;
-        if (effectivePriceRange === "over150" && priceVal < 1500000)
-          return false;
-      }
-
-      if (q) {
-        const modelText = extractModelName(p.description, p.title) || "";
-        if (!matchesSearchQuery(q, p.title, modelText, p.description)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    const MAX = Number.MAX_SAFE_INTEGER;
-    return [...list].sort((a, b) => {
-      const soldA = isProductSold(a.status) ? 1 : 0;
-      const soldB = isProductSold(b.status) ? 1 : 0;
-      if (soldA !== soldB) return soldA - soldB;
-
-      if (sort === "priceAsc") {
-        return (
-          (hasProductPrice(a.price) ? a.price! : MAX) -
-          (hasProductPrice(b.price) ? b.price! : MAX)
-        );
-      }
-      if (sort === "priceDesc") {
-        return (b.price || 0) - (a.price || 0);
-      }
-      if (sort === "views") {
-        return (b.views || 0) - (a.views || 0);
-      }
-      return (
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      );
-    });
-  }, [products, activeCategory, statusFilter, effectivePriceRange, search, sort]);
+  const filteredProducts = useMemo(
+    () =>
+      filterAndSortGalleryProducts(products, {
+        activeCategory,
+        statusFilter,
+        effectivePriceRange,
+        search,
+        sort,
+      }),
+    [products, activeCategory, statusFilter, effectivePriceRange, search, sort]
+  );
 
   const displayedProducts = useMemo(
     () => filteredProducts.slice(0, visibleLimit),
@@ -1488,28 +391,17 @@ export default function GalleryPage() {
     );
 
     try {
-      const { supabase, revalidateAdminCache } = await import(
-        "../../lib/supabase"
+      const { bulkUpdateProductStatus } = await import("../../lib/product-ops");
+      const { status, updatedCount } = await bulkUpdateProductStatus(
+        ids,
+        targetStatus
       );
-      const { data: updatedRows, error } = await supabase
-        .from("products")
-        .update({ status: targetStatus })
-        .in("id", ids)
-        .select("id");
-
-      if (error) throw error;
-      if (!updatedRows || updatedRows.length === 0) {
-        throw new Error("상태 변경 권한(RLS)이 없거나 반영되지 않았습니다.");
-      }
 
       setProducts((prev) =>
-        prev.map((p) =>
-          selectedIds.has(p.id) ? { ...p, status: targetStatus } : p
-        )
+        prev.map((p) => (selectedIds.has(p.id) ? { ...p, status } : p))
       );
-      void revalidateAdminCache();
       toast.success(
-        `${updatedRows.length}개 상품이 '${targetStatus}' 처리되었습니다.`,
+        `${updatedCount}개 상품이 '${status}' 처리되었습니다.`,
         { id: toastId }
       );
       setSelectedIds(new Set());
@@ -1538,27 +430,13 @@ export default function GalleryPage() {
     const toastId = toast.loading(`${ids.length}개 상품 삭제 중...`);
 
     try {
-      const [
-        { supabase, revalidateAdminCache },
-        { removeProductImagesFromStorage },
-      ] = await Promise.all([
-        import("../../lib/supabase"),
-        import("../../lib/product-ops"),
-      ]);
-      const targetProducts = products.filter((p) => selectedIds.has(p.id));
-      const allImageUrls = targetProducts.flatMap((p) =>
-        splitImages(p.image_url)
+      const { bulkDeleteProductRecords } = await import(
+        "../../lib/product-ops"
       );
-
-      const { error } = await supabase.from("products").delete().in("id", ids);
-      if (error) throw error;
-
-      if (allImageUrls.length > 0) {
-        await removeProductImagesFromStorage(allImageUrls);
-      }
+      const targetProducts = products.filter((p) => selectedIds.has(p.id));
+      await bulkDeleteProductRecords(targetProducts);
 
       setProducts((prev) => prev.filter((p) => !selectedIds.has(p.id)));
-      void revalidateAdminCache();
       toast.success(`${ids.length}개 상품이 삭제되었습니다.`, { id: toastId });
       setSelectedIds(new Set());
     } catch (err: unknown) {
@@ -1582,25 +460,13 @@ export default function GalleryPage() {
       return;
 
     try {
-      const [
-        { supabase, revalidateAdminCache },
-        { removeProductImagesFromStorage },
-      ] = await Promise.all([
-        import("../../lib/supabase"),
-        import("../../lib/product-ops"),
-      ]);
-      const { error } = await supabase.from("products").delete().eq("id", id);
-      if (error) throw error;
-
-      if (target?.image_url) {
-        await removeProductImagesFromStorage(splitImages(target.image_url));
-      }
+      const { deleteProductRecord } = await import("../../lib/product-ops");
+      await deleteProductRecord(id, target?.image_url);
 
       setProducts((prev) => prev.filter((p) => p.id !== id));
       if (selectedProduct?.id === id) {
         setSelectedProduct(null);
       }
-      void revalidateAdminCache(id);
       toast.success("상품이 삭제되었습니다.");
     } catch (error: unknown) {
       toast.error(
@@ -1621,371 +487,6 @@ export default function GalleryPage() {
     }
   };
 
-  /* ───── 관리자 신규 상품 등록 및 사진 순서·AI 분석 ───── */
-  const userManuallyRotatedRef = useRef<Set<number>>(new Set());
-
-  const resetUploadForm = () => {
-    revokeObjectUrls(productPreviews);
-    productFilesRef.current = [];
-    userManuallyRotatedRef.current.clear();
-    setProductTitle("");
-    setProductModel("");
-    setProductDescription("");
-    setProductPrice("");
-    setProductCategory(PRODUCT_CATEGORIES[0]);
-    setProductGrade(PRODUCT_CONDITION_GRADES[1]);
-    setProductStatus(PRODUCT_STATUS.SELLING);
-    setProductFiles([]);
-    setProductPreviews([]);
-    setPhotoObserved([]);
-    setSearchDerivedSpecs([]);
-    setReviewWarnings([]);
-    setFoundSources([]);
-    setSearchSpecs(true);
-    setIsAnalyzing(false);
-  };
-
-  const handleCloseUploadModal = () => {
-    if (uploadingProduct || isAnalyzing) {
-      if (
-        !confirm(
-          "상품 등록 또는 AI 분석이 진행 중입니다. 작업을 중단하고 창을 닫으시겠습니까?"
-        )
-      ) {
-        return;
-      }
-    } else {
-      const hasData =
-        productFiles.length > 0 ||
-        productPreviews.length > 0 ||
-        productTitle.trim().length > 0 ||
-        productPrice.trim().length > 0 ||
-        productDescription.trim().length > 0 ||
-        productModel.trim().length > 0;
-
-      if (hasData) {
-        if (
-          !confirm(
-            "작성 중인 상품 정보 및 사진이 있습니다. 등록을 취소하고 창을 닫으시겠습니까?\n(창을 닫으면 작성한 내용이 모두 사라집니다.)"
-          )
-        ) {
-          return;
-        }
-      }
-    }
-
-    setIsUploadModalOpen(false);
-    resetUploadForm();
-  };
-
-  const analyzeImageWithAI = async (filesToAnalyze: File[]) => {
-    if (filesToAnalyze.length === 0) return;
-    setIsAnalyzing(true);
-    const toastId = toast.loading(
-      searchSpecs
-        ? "AI가 사진을 판독하고 인터넷 제원을 정밀 검색 중입니다..."
-        : "AI가 사진 속 모델명과 외관을 초고속 분석 중입니다..."
-    );
-
-    try {
-      const formData = new FormData();
-      formData.append("category", productCategory);
-      formData.append("searchSpecs", searchSpecs ? "true" : "false");
-
-      for (const file of filesToAnalyze.slice(0, MAX_PHOTOS)) {
-        const compressedBlob = await compressImage(file, 1080, 0.72);
-        const optimizedFile = new File([compressedBlob], file.name, {
-          type: "image/jpeg",
-        });
-        formData.append("files", optimizedFile);
-      }
-
-
-      const authHeaders = await getOptionalAdminAuthHeaders();
-      const res = await fetch("/api/analyze-product", {
-        method: "POST",
-        headers: authHeaders,
-        body: formData,
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || "분석 요청에 실패했습니다.");
-      }
-
-      // 5년 이상 지난 제품(2026년 기준 2020년 및 그 이전)의 제조년월/연식 표기 자동 제외
-      const cleanData = sanitizeOldManufactureYear(data);
-
-      if (
-        cleanData.category &&
-        (PRODUCT_CATEGORIES as readonly string[]).includes(cleanData.category)
-      ) {
-        setProductCategory(cleanData.category);
-      }
-      if (cleanData.title) setProductTitle(cleanData.title);
-      if (cleanData.modelNumber) setProductModel(cleanData.modelNumber);
-      if (cleanData.specDetails) setProductDescription(cleanData.specDetails);
-
-      setPhotoObserved(
-        Array.isArray(cleanData.photoObserved) ? cleanData.photoObserved : []
-      );
-      setSearchDerivedSpecs(
-        Array.isArray(cleanData.searchDerivedSpecs)
-          ? cleanData.searchDerivedSpecs
-          : []
-      );
-      setReviewWarnings(
-        Array.isArray(cleanData.needsReview) ? cleanData.needsReview : []
-      );
-      setFoundSources(Array.isArray(cleanData.sourceUrls) ? cleanData.sourceUrls : []);
-
-      // 업로드 시 이미 스튜디오 톤업이 적용되므로 AI는 방향 교정만 수행
-      if (Array.isArray(data.imageRotations) && data.imageRotations.length > 0) {
-        let rotatedCount = 0;
-
-        try {
-          for (const r of data.imageRotations as Array<{
-            index?: unknown;
-            rotate?: unknown;
-          }>) {
-            const idx = typeof r.index === "number" ? r.index - 1 : -1;
-            const deg = typeof r.rotate === "number" ? r.rotate : 0;
-
-            if (
-              idx >= 0 &&
-              idx < filesToAnalyze.length &&
-              !userManuallyRotatedRef.current.has(idx) &&
-              deg > 0 &&
-              deg < 360
-            ) {
-              await enhanceUploadFile(idx, { degrees: deg }, true);
-              rotatedCount++;
-            }
-          }
-
-          if (rotatedCount > 0) {
-            toast.success(
-              "AI가 옆으로 누운 사진을 감지하여 정방향으로 자동 회전했습니다."
-            );
-          }
-        } catch (enhanceErr) {
-          console.warn("AI 자동 회전 적용 중 오류:", enhanceErr);
-        }
-      }
-
-      toast.success(
-        "AI 초안이 작성되었습니다. 검토 필요 항목을 확인해 주세요.",
-        { id: toastId }
-      );
-    } catch (error: unknown) {
-      console.error("AI 분석 오류:", error);
-      toast.error(
-        (error instanceof Error && error.message) ||
-          "자동 분석에 실패했습니다. 직접 입력해 주세요.",
-        { id: toastId }
-      );
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files);
-    e.target.value = "";
-    userManuallyRotatedRef.current.clear();
-    const remaining = MAX_PHOTOS - productFiles.length;
-    if (remaining <= 0) {
-      toast.error(`사진은 최대 ${MAX_PHOTOS}장까지 등록 가능합니다.`);
-      return;
-    }
-
-    const { ok, error } = validateImageFiles(files, remaining);
-    if (error) toast.error(error);
-    if (ok.length === 0) return;
-
-    // 업로드 즉시 쇼룸 스튜디오 톤업 자동 적용
-    const toned = await Promise.all(
-      ok.map(async (f) => {
-        try {
-          return await enhanceImageFile(f, PRODUCT_IMAGE_TONE_PRESET);
-        } catch {
-          return f;
-        }
-      })
-    );
-
-    const updatedFiles = [...productFilesRef.current, ...toned];
-    productFilesRef.current = updatedFiles;
-    setProductFiles(updatedFiles);
-    setProductPreviews((prev) => [
-      ...prev,
-      ...toned.map((f) => URL.createObjectURL(f)),
-    ]);
-    toast.success(
-      `사진 ${toned.length}장에 쇼룸 스튜디오 톤업(밝기 +20%)을 자동 적용했습니다.`
-    );
-
-    if (productFiles.length === 0 && ok.length > 0) {
-      analyzeImageWithAI(ok);
-    }
-  };
-
-  const handleRemoveUploadFile = (index: number) => {
-    revokeObjectUrls([productPreviews[index]]);
-    setProductFiles((prev) => {
-      const next = prev.filter((_, i) => i !== index);
-      productFilesRef.current = next;
-      return next;
-    });
-    setProductPreviews((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const enhanceUploadFile = async (
-    index: number,
-    options: { degrees?: number; brightness?: number; contrast?: number; saturate?: number } = {},
-    isAuto = false
-  ) => {
-    const targetFile = productFilesRef.current[index] || null;
-    if (!targetFile) return;
-
-    const isRotateAction = Boolean(options.degrees);
-    try {
-      const enhanced = await enhanceImageFile(targetFile, options);
-      setProductFiles((prev) => {
-        const next = [...prev];
-        if (index < next.length) next[index] = enhanced;
-        productFilesRef.current = next;
-        return next;
-      });
-
-      setProductPreviews((prev) => {
-        const next = [...prev];
-        if (index < next.length) {
-          if (next[index]) revokeObjectUrls([next[index]]);
-          next[index] = URL.createObjectURL(enhanced);
-        }
-        return next;
-      });
-
-      if (!isAuto) {
-        userManuallyRotatedRef.current.add(index);
-        toast.success(
-          isRotateAction
-            ? `${index + 1}번 사진이 90° 회전되었습니다.`
-            : `${index + 1}번 사진이 한 단계 더 밝게 보정되었습니다.`
-        );
-      }
-    } catch (err) {
-      console.error("사진 보정 오류:", err);
-      if (!isAuto) {
-        toast.error(
-          isRotateAction ? "사진 회전에 실패했습니다." : "사진 보정에 실패했습니다."
-        );
-      }
-    }
-  };
-
-  const moveUploadFile = (fromIdx: number, toIdx: number) => {
-    if (toIdx < 0 || toIdx >= productFilesRef.current.length) return;
-    const nextFiles = [...productFilesRef.current];
-    const [movedFile] = nextFiles.splice(fromIdx, 1);
-    nextFiles.splice(toIdx, 0, movedFile);
-    productFilesRef.current = nextFiles;
-    setProductFiles(nextFiles);
-    setProductPreviews((prev) => {
-      const next = [...prev];
-      const [moved] = next.splice(fromIdx, 1);
-      next.splice(toIdx, 0, moved);
-      return next;
-    });
-  };
-
-  const makePrimaryUploadFile = (targetIdx: number) => {
-    if (targetIdx <= 0 || targetIdx >= productFilesRef.current.length) return;
-    const nextFiles = [...productFilesRef.current];
-    const [pickedFile] = nextFiles.splice(targetIdx, 1);
-    const reorderedFiles = [pickedFile, ...nextFiles];
-    productFilesRef.current = reorderedFiles;
-    setProductFiles(reorderedFiles);
-    setProductPreviews((prev) => {
-      const next = [...prev];
-      const [picked] = next.splice(targetIdx, 1);
-      return [picked, ...next];
-    });
-  };
-
-  const appendSearchSpecsToDescription = () => {
-    if (searchDerivedSpecs.length === 0) return;
-    const block = searchDerivedSpecs.map((s) => `• ${s}`).join("\n");
-    setProductDescription((prev) =>
-      prev.trim() ? `${prev.trim()}\n\n[검색 참조 사양]\n${block}` : block
-    );
-    toast.success("검색 참조 사양이 설명란에 추가되었습니다.");
-  };
-
-  const handleProductSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!productTitle.trim()) {
-      toast.error("제품명을 입력해 주세요.");
-      return;
-    }
-    if (productFiles.length === 0) {
-      toast.error("최소 1장의 상품 사진을 첨부해 주세요.");
-      return;
-    }
-
-    const parsedPrice = productPrice
-      ? Number(productPrice.replace(/[^0-9]/g, ""))
-      : 0;
-    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
-      toast.error("유효한 판매 가격을 입력해 주세요.");
-      return;
-    }
-
-    setUploadingProduct(true);
-    try {
-      const [
-        { supabase, revalidateAdminCache },
-        { compressAndUploadProductImages },
-      ] = await Promise.all([
-        import("../../lib/supabase"),
-        import("../../lib/product-ops"),
-      ]);
-      const uploadedUrls = await compressAndUploadProductImages(productFiles);
-
-      let finalDesc = productDescription.trim();
-      if (productModel.trim() && !finalDesc.includes("모델명")) {
-        finalDesc = `• 모델명: ${productModel.trim()}\n` + finalDesc;
-      }
-
-      const { error } = await supabase.from("products").insert({
-        title: productTitle.trim(),
-        category: normalizeProductCategory(productCategory),
-        description: finalDesc,
-        image_url: uploadedUrls.join(","),
-        price: parsedPrice,
-        condition_grade: productGrade || null,
-        status: normalizeProductStatus(productStatus),
-        views: 0,
-      });
-
-      if (error) throw error;
-
-      toast.success("새 상품이 등록되었습니다.");
-      void revalidateAdminCache();
-      setIsUploadModalOpen(false);
-      resetUploadForm();
-      await fetchProducts();
-    } catch (error: unknown) {
-      toast.error(
-        "등록 실패: " +
-          (error instanceof Error ? error.message : "알 수 없는 오류")
-      );
-    } finally {
-      setUploadingProduct(false);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-white text-[#141A23] font-sans flex flex-col">
@@ -2405,6 +906,9 @@ export default function GalleryPage() {
           <AirconSetGuideBanner variant="banner" className="mb-6" />
         )}
 
+        {/* [기능 4] 비로그인 최근 본 매물 상단 슬림 스트립 */}
+        <RecentViewedStrip compact className="mb-5" />
+
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
             {Array.from({ length: 10 }).map((_, idx) => (
@@ -2502,7 +1006,7 @@ export default function GalleryPage() {
                 onQuickView={handleProductClick}
               />
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-6 sm:gap-y-7 lg:gap-y-8">
                 {displayedProducts.map((product, idx) => (
                   <ProductCard
                     key={product.id}
@@ -2566,76 +1070,22 @@ export default function GalleryPage() {
             </a>
           </div>
         </div>
-
-        {/* [기능 4] 비로그인 최근 본 매물 스트립 */}
-        <RecentViewedStrip className="mt-10" />
       </main>
 
-      {/* 관리자 일괄 선택 플로팅 작업 바 */}
+      {/* 관리자 일괄 선택 플로팅 작업 바 (지연 로딩) */}
       {effectiveSelectMode && (
-        <div className="fixed bottom-16 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 sm:gap-3 bg-[#141A23]/95 text-white px-4 sm:px-6 py-3.5 rounded-xl shadow-2xl border border-white/15 max-w-[95vw] overflow-x-auto">
-          <span className="text-hb-sm font-bold whitespace-nowrap">
-            <strong className="text-[#FEE500]">{selectedIds.size}</strong>개 선택됨
-          </span>
-
-          <button
-            type="button"
-            onClick={toggleSelectAll}
-            className="text-hb-xs font-semibold text-white/90 px-2.5 py-1.5 rounded bg-white/10 hover:bg-white/20 whitespace-nowrap"
-          >
-            {selectedIds.size === filteredProducts.length
-              ? "선택 해제"
-              : "전체 선택"}
-          </button>
-
-          <button
-            type="button"
-            disabled={selectedIds.size === 0 || isBulkLoading}
-            onClick={() => handleBulkStatusChange("판매중")}
-            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-emerald-700 hover:bg-emerald-600 disabled:opacity-40 whitespace-nowrap"
-          >
-            판매중 변경
-          </button>
-
-          <button
-            type="button"
-            disabled={selectedIds.size === 0 || isBulkLoading}
-            onClick={() => handleBulkStatusChange("예약중")}
-            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-amber-700 hover:bg-amber-600 disabled:opacity-40 whitespace-nowrap"
-          >
-            예약중 변경
-          </button>
-
-          <button
-            type="button"
-            disabled={selectedIds.size === 0 || isBulkLoading}
-            onClick={() => handleBulkStatusChange("판매완료")}
-            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-[#334155] hover:bg-[#606877] disabled:opacity-40 whitespace-nowrap"
-          >
-            판매완료 처리
-          </button>
-
-          <button
-            type="button"
-            disabled={selectedIds.size === 0 || isBulkLoading}
-            onClick={handleBulkDelete}
-            className="text-hb-xs font-bold text-white px-3 py-1.5 rounded bg-red-600 hover:bg-red-700 disabled:opacity-40 whitespace-nowrap"
-          >
-            선택 삭제
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setIsSelectMode(false);
-              setSelectedIds(new Set());
-            }}
-            className="text-white/70 hover:text-white p-1"
-            aria-label="선택 모드 닫기"
-          >
-            <Icon d={ICON.close} className="w-4 h-4" />
-          </button>
-        </div>
+        <GalleryBulkActionBar
+          selectedCount={selectedIds.size}
+          totalFilteredCount={filteredProducts.length}
+          isBulkLoading={isBulkLoading}
+          onToggleSelectAll={toggleSelectAll}
+          onBulkStatusChange={handleBulkStatusChange}
+          onBulkDelete={handleBulkDelete}
+          onClose={() => {
+            setIsSelectMode(false);
+            setSelectedIds(new Set());
+          }}
+        />
       )}
 
       <SiteFooter
@@ -2649,7 +1099,7 @@ export default function GalleryPage() {
         inquiryFallbackType="구매 문의"
       />
 
-      {/* 상세 보기 및 단건 수정 모달 */}
+      {/* 상세 보기 및 단건 수정 모달 (지연 로딩) */}
       {selectedProduct && (
         <ProductDetailModal
           product={selectedProduct}
@@ -2660,43 +1110,12 @@ export default function GalleryPage() {
         />
       )}
 
-      {/* 관리자 신규 상품 등록 모달 (사진 순서 변경 + AI 판독/검색 구분 검토) */}
+      {/* 관리자 신규 상품 등록 모달 (지연 로딩) */}
       {isAdmin && isUploadModalOpen && (
-        <GalleryAdminUploadModal
+        <GalleryAdminUploadController
           open={isUploadModalOpen}
-          onClose={handleCloseUploadModal}
-          onSubmit={handleProductSubmit}
-          isAnalyzing={isAnalyzing}
-          uploadingProduct={uploadingProduct}
-          searchSpecs={searchSpecs}
-          setSearchSpecs={setSearchSpecs}
-          productFiles={productFiles}
-          productPreviews={productPreviews}
-          analyzeImageWithAI={analyzeImageWithAI}
-          onFileChange={handleFileChange}
-          makePrimaryUploadFile={makePrimaryUploadFile}
-          onRemoveUploadFile={handleRemoveUploadFile}
-          enhanceUploadFile={enhanceUploadFile}
-          moveUploadFile={moveUploadFile}
-          photoObserved={photoObserved}
-          searchDerivedSpecs={searchDerivedSpecs}
-          reviewWarnings={reviewWarnings}
-          foundSources={foundSources}
-          appendSearchSpecsToDescription={appendSearchSpecsToDescription}
-          productCategory={productCategory}
-          setProductCategory={setProductCategory}
-          productStatus={productStatus}
-          setProductStatus={setProductStatus}
-          productGrade={productGrade}
-          setProductGrade={setProductGrade}
-          productTitle={productTitle}
-          setProductTitle={setProductTitle}
-          productModel={productModel}
-          setProductModel={setProductModel}
-          productPrice={productPrice}
-          setProductPrice={setProductPrice}
-          productDescription={productDescription}
-          setProductDescription={setProductDescription}
+          onClose={() => setIsUploadModalOpen(false)}
+          onUploaded={() => fetchProducts()}
         />
       )}
 

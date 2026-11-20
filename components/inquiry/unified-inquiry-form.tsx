@@ -153,9 +153,14 @@ export function UnifiedInquiryForm({
   const [filePreviews, setFilePreviews] = useState<string[]>([]);
   const filePreviewsRef = useRef<string[]>([]);
 
-  useEffect(() => {
-    filePreviewsRef.current = filePreviews;
-  }, [filePreviews]);
+  const updateFilePreviews = (
+    updater: string[] | ((prev: string[]) => string[])
+  ) => {
+    const next =
+      typeof updater === "function" ? updater(filePreviewsRef.current) : updater;
+    filePreviewsRef.current = next;
+    setFilePreviews(next);
+  };
 
   // 문의 폼 실제 언마운트 시에만 메모리에 잔류하는 미리보기 Blob URL 일괄 해제 (사진 추가 시 기존 미리보기 파기 방지)
   useEffect(() => {
@@ -275,14 +280,14 @@ export function UnifiedInquiryForm({
     if (ok.length === 0) return;
 
     setSelectedFiles((prev) => [...prev, ...ok]);
-    setFilePreviews((prev) => [...prev, ...previews]);
+    updateFilePreviews((prev) => [...prev, ...previews]);
     setCachedUploadedUrls(null);
   };
 
   const handleRemoveFile = (index: number) => {
     revokeObjectUrls([filePreviews[index]]);
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setFilePreviews((prev) => prev.filter((_, i) => i !== index));
+    updateFilePreviews((prev) => prev.filter((_, i) => i !== index));
     setCachedUploadedUrls(null);
   };
 
@@ -678,7 +683,7 @@ export function UnifiedInquiryForm({
   const resetToInitial = () => {
     revokeObjectUrls(filePreviews);
     setSelectedFiles([]);
-    setFilePreviews([]);
+    updateFilePreviews([]);
     setCachedUploadedUrls(null);
     setAiResult(null);
     setPendingConflicts(null);

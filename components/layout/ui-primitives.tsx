@@ -1,0 +1,423 @@
+"use client";
+
+import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import toast from "react-hot-toast";
+import { ICON, Icon } from "../../lib/icons";
+import {
+  STORE,
+  copyQuoteBasketText,
+  trackEvent,
+  getQuoteBasket,
+  EMPTY_QUOTE_BASKET,
+  subscribeQuoteBasket,
+  type QuoteBasketItem,
+} from "../../lib/site";
+
+const getServerQuoteBasketSnapshot = () => EMPTY_QUOTE_BASKET;
+
+export function useQuoteBasket(): QuoteBasketItem[] {
+  return useSyncExternalStore(
+    subscribeQuoteBasket,
+    getQuoteBasket,
+    getServerQuoteBasketSnapshot
+  );
+}
+
+export async function copyQuoteAndOpenKakao(
+  items: QuoteBasketItem[],
+  eventName: "click_quote_basket_kakao" | "click_quote_compare_kakao",
+  toastMessage: string,
+  duration = 4000
+): Promise<void> {
+  trackEvent(eventName, { count: items.length });
+  await copyQuoteBasketText(items);
+  toast.success(toastMessage, { duration });
+  window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+}
+
+/* ════════════════════════════════════════════════════════════
+   1. 브랜드 로고 시스템
+   ════════════════════════════════════════════════════════════ */
+
+export function HanbatBrandLogo({
+  dark = false,
+  size = "default",
+}: {
+  dark?: boolean;
+  size?: "default" | "compact";
+}) {
+  const primaryInk = dark ? "#FFFFFF" : "#141A23";
+  const accentFill = dark ? "#FF8A50" : "#E8521A";
+
+  return (
+    <span className="inline-flex items-center gap-2 sm:gap-2.5 select-none">
+      <svg
+        viewBox="0 0 40 40"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        className={
+          size === "compact"
+            ? "h-8 w-8 shrink-0"
+            : "h-9 w-9 sm:h-[38px] sm:w-[38px] shrink-0"
+        }
+      >
+        {/* 모듈러 가전 코어 H 심볼 */}
+        <rect x="5" y="5" width="9.5" height="30" rx="4.75" fill={primaryInk} />
+        <rect x="10" y="17.5" width="20.25" height="8.5" fill={primaryInk} />
+        <rect x="25.5" y="17.5" width="9.5" height="17.5" rx="4.75" fill={primaryInk} />
+        <rect x="25.5" y="5" width="9.5" height="9.5" rx="4.75" fill={accentFill} />
+      </svg>
+      <span className="flex flex-col justify-center">
+        <span
+          className={`font-extrabold tracking-[-0.04em] leading-none ${
+            size === "compact"
+              ? "text-hb-lg"
+              : "text-hb-lg sm:text-hb-xl"
+          } ${dark ? "text-white" : "text-[#141A23]"}`}
+        >
+          {STORE.name}
+        </span>
+      </span>
+    </span>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   2. 안전 이미지 컴포넌트 (SafeImg)
+   ════════════════════════════════════════════════════════════ */
+export function SafeImg({
+  src,
+  alt = "",
+  className = "",
+  eager = false,
+  priority,
+  ...props
+}: Omit<
+  React.ImgHTMLAttributes<HTMLImageElement>,
+  "src" | "alt" | "className" | "fetchPriority"
+> & {
+  src?: string | null;
+  alt?: string;
+  className?: string;
+  eager?: boolean;
+  priority?: "high" | "low";
+}) {
+  const [failedSrc, setFailedSrc] = useState<string | null | undefined>(
+    undefined
+  );
+  const error = Boolean(src && failedSrc === src);
+
+  if (!src || error) {
+    return (
+      <div
+        role="img"
+        aria-label={alt || "상품 이미지 준비 중"}
+        className={`flex flex-col items-center justify-center gap-1 bg-[#F1F3F6] text-[#64748B] text-hb-xs font-medium select-none ${className}`}
+      >
+        <Icon d={ICON.image} className="w-5 h-5 text-[#94A3B8]/70" />
+        <span>이미지 준비 중</span>
+      </div>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      loading={eager ? "eager" : "lazy"}
+      fetchPriority={priority}
+      decoding={eager ? "sync" : "async"}
+      onError={() => setFailedSrc(src)}
+      className={className}
+      {...props}
+    />
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   3. 공통 섹션 헤더 (SectionHeading)
+   ════════════════════════════════════════════════════════════ */
+export function SectionHeading({
+  eyebrow,
+  title,
+  desc,
+  action,
+  dark = false,
+  className = "",
+}: {
+  eyebrow?: string;
+  title: React.ReactNode;
+  desc?: React.ReactNode;
+  action?: React.ReactNode;
+  dark?: boolean;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`${
+        action
+          ? "flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+          : ""
+      } ${className}`}
+    >
+      <div className="min-w-0">
+        {eyebrow && (
+          <p
+            className={`mb-1.5 text-hb-xs sm:text-hb-sm font-bold tracking-[-0.01em] ${
+              dark ? "text-[#FF8A50]" : "text-[#C84312]"
+            }`}
+          >
+            {eyebrow}
+          </p>
+        )}
+        <h2
+          className={`text-hb-xl sm:text-hb-2xl font-bold leading-[1.26] tracking-[-0.025em] break-keep [text-wrap:balance] ${
+            dark ? "text-white" : "text-[#141A23]"
+          }`}
+        >
+          {title}
+        </h2>
+        {desc && (
+          <p
+            className={`mt-2 max-w-2xl text-hb-sm sm:text-hb-base leading-[1.65] break-keep [text-wrap:pretty] ${
+              dark ? "text-white/75" : "text-[#475569]"
+            }`}
+          >
+            {desc}
+          </p>
+        )}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   4. 접근성 강화 모달 컴포넌트 (Native Top-Layer <dialog>)
+   ════════════════════════════════════════════════════════════ */
+let cachedDisplayTransitionSupport: boolean | undefined;
+
+function canTransitionDisplay(): boolean {
+  if (cachedDisplayTransitionSupport !== undefined) {
+    return cachedDisplayTransitionSupport;
+  }
+  if (
+    typeof window === "undefined" ||
+    !window.CSS?.supports?.("transition-behavior", "allow-discrete") ||
+    !document.body
+  ) {
+    return false;
+  }
+  const probe = document.createElement("div");
+  probe.style.cssText =
+    "transition: display 1s allow-discrete !important; display: block;";
+  document.body.appendChild(probe);
+  void getComputedStyle(probe).display;
+  probe.style.display = "none";
+  cachedDisplayTransitionSupport = getComputedStyle(probe).display === "block";
+  probe.remove();
+  return cachedDisplayTransitionSupport;
+}
+
+function supportsTopLayerExit(): boolean {
+  return Boolean(
+    typeof window !== "undefined" &&
+      window.CSS?.supports?.("overlay", "auto") &&
+      canTransitionDisplay()
+  );
+}
+
+async function waitForTopLayerAnimations(el: HTMLDialogElement) {
+  const animations =
+    typeof el.getAnimations === "function"
+      ? el.getAnimations({ subtree: true })
+      : [];
+  if (animations.length === 0) return;
+  await Promise.race([
+    Promise.allSettled(animations.map((a) => a.finished)),
+    new Promise((resolve) => setTimeout(resolve, 400)),
+  ]);
+}
+
+export async function closeTopLayerElement(el: HTMLDialogElement) {
+  if (!el.open) return;
+
+  if (!supportsTopLayerExit()) {
+    el.setAttribute("data-closing", "");
+    await waitForTopLayerAnimations(el);
+    el.removeAttribute("data-closing");
+    if (el.open) el.close();
+    return;
+  }
+
+  el.close();
+  await waitForTopLayerAnimations(el);
+}
+
+export function isOutsideDialogBounds(
+  clientX: number,
+  clientY: number,
+  dialog: HTMLDialogElement
+): boolean {
+  const rect = dialog.getBoundingClientRect();
+  return (
+    clientX < rect.left ||
+    clientX > rect.right ||
+    clientY < rect.top ||
+    clientY > rect.bottom
+  );
+}
+
+export function Modal({
+  children,
+  onClose,
+  label = "대화상자",
+  panelClassName = "",
+  variant = "default",
+  sheet = false,
+  open = true,
+  closeOnOverlayClick = true,
+  closeOnEsc = true,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+  label?: string;
+  panelClassName?: string;
+  variant?: "default" | "lightbox";
+  sheet?: boolean;
+  open?: boolean;
+  closeOnOverlayClick?: boolean;
+  closeOnEsc?: boolean;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const onCloseRef = useRef(onClose);
+  const pressedOutsideRef = useRef(false);
+  const isDismissingRef = useRef(false);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const [closing, setClosing] = useState(false);
+  const [dismissedFromDialog, setDismissedFromDialog] = useState(false);
+
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (!open && dismissedFromDialog) {
+      setClosing(false);
+      setDismissedFromDialog(false);
+    } else {
+      setClosing(!open);
+      if (open) setDismissedFromDialog(false);
+    }
+  }
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
+  const dismissWithAnimation = useRef(async () => {
+    const dialog = dialogRef.current;
+    if (!dialog || isDismissingRef.current) return;
+    isDismissingRef.current = true;
+    setClosing(true);
+    try {
+      await closeTopLayerElement(dialog);
+    } finally {
+      isDismissingRef.current = false;
+      setClosing(false);
+    }
+    setDismissedFromDialog(true);
+    onCloseRef.current();
+  });
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (open) {
+      isDismissingRef.current = false;
+      dialog.removeAttribute("data-closing");
+      if (!dialog.open) {
+        try {
+          dialog.showModal();
+        } catch {
+          // Ignore invalid dialog state during teardown
+        }
+      }
+      return;
+    }
+
+    if (!isDismissingRef.current) {
+      let active = true;
+      void closeTopLayerElement(dialog).finally(() => {
+        if (active) setClosing(false);
+      });
+      return () => {
+        active = false;
+      };
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog || !open || !closeOnOverlayClick) return;
+    if ("closedBy" in HTMLDialogElement.prototype) return;
+
+    const handlePointerDown = (e: PointerEvent) => {
+      pressedOutsideRef.current = isOutsideDialogBounds(
+        e.clientX,
+        e.clientY,
+        dialog
+      );
+    };
+
+    const handlePointerUp = (e: PointerEvent) => {
+      if (
+        pressedOutsideRef.current &&
+        isOutsideDialogBounds(e.clientX, e.clientY, dialog)
+      ) {
+        pressedOutsideRef.current = false;
+        void dismissWithAnimation.current();
+        return;
+      }
+      pressedOutsideRef.current = false;
+    };
+
+    dialog.addEventListener("pointerdown", handlePointerDown);
+    dialog.addEventListener("pointerup", handlePointerUp);
+    return () => {
+      dialog.removeEventListener("pointerdown", handlePointerDown);
+      dialog.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [open, closeOnOverlayClick]);
+
+  const closedByValue =
+    closeOnOverlayClick && closeOnEsc
+      ? "any"
+      : closeOnEsc
+      ? "closerequest"
+      : "none";
+
+  return (
+    <dialog
+      ref={dialogRef}
+      aria-label={label}
+      {...({ closedby: closedByValue } as Record<string, string>)}
+      data-variant={variant === "lightbox" ? "lightbox" : undefined}
+      onCancel={(e) => {
+        e.preventDefault();
+        if (!closeOnEsc) return;
+        void dismissWithAnimation.current();
+      }}
+      onClose={() => {
+        if (!isDismissingRef.current && open) {
+          onCloseRef.current();
+        }
+      }}
+      className={`hb-dialog m-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] overflow-y-auto overscroll-contain bg-transparent p-0 border-0 rounded-2xl focus:outline-none ${
+        sheet ? "hb-dialog-sheet" : ""
+      } ${panelClassName}`}
+    >
+      {open || closing ? children : null}
+    </dialog>
+  );
+}
