@@ -182,7 +182,7 @@ export default async function GuideBoardPage() {
                   </div>
                   <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
                     <strong className="block font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
-                      {INFO_GUIDE_CATEGORY_LIST.length}
+                      {INFO_GUIDE_CATEGORY_LIST.filter((c) => c !== "전체").length}
                     </strong>
                     <span className="block text-hb-xs font-semibold text-[#475569]">
                       주제 분류

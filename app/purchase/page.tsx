@@ -65,46 +65,25 @@ const BUYBACK_STEPS = [
 ] as const;
 
 export default function PurchasePage() {
-  const jsonLd = {
+  const faqJsonLd = {
     "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Service",
-        name: `${STORE.name} 중고가전 · 업소용 폐업설비 방문 매입`,
-        serviceType: "중고가전 방문 매입 및 업소용 주방·냉난방 설비 일괄 철거",
-        provider: {
-          "@type": "LocalBusiness",
-          name: STORE.name,
-          telephone: STORE.tel,
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: STORE.roadAddress,
-            addressLocality: "대전광역시",
-            addressCountry: "KR",
-          },
-          url: `${STORE.url}/purchase`,
-        },
-        areaServed: ["대전광역시", "세종특별자치시", "계룡시", "공주시", "논산시", "청주시"],
+    "@type": "FAQPage",
+    "@id": `${STORE.url}/purchase#faq`,
+    mainEntity: BUYBACK_FAQS.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.a,
       },
-      {
-        "@type": "FAQPage",
-        mainEntity: BUYBACK_FAQS.map((item) => ({
-          "@type": "Question",
-          name: item.q,
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: item.a,
-          },
-        })),
-      },
-    ],
+    })),
   };
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] font-sans text-[#141A23] flex flex-col">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
       />
       <SiteHeader />
 

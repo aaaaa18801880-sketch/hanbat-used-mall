@@ -269,7 +269,7 @@ export function GallerySpecTable({
                     <span className="text-hb-xs text-[#475569]">
                       {product.condition_grade
                         ? product.condition_grade.split(" ")[0]
-                        : "출고 시운전"}
+                        : "작동 점검"}
                     </span>
                   </div>
                 </td>

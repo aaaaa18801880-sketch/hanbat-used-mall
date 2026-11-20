@@ -96,9 +96,9 @@ export function ShowroomVisitModal({
       panelClassName="max-w-2xl"
       closeOnOverlayClick={false}
     >
-      <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xl">
+      <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6] shadow-2xl">
         {/* 상단 헤더 */}
-        <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-4 text-white">
+        <div className="flex items-center justify-between border-b border-[#E2DDD3] bg-[#141A23] px-5 py-4 text-white">
           <div className="flex items-center gap-2.5">
             <div className="grid h-8 w-8 place-items-center rounded-lg bg-[#FF8A50]/20 text-[#FF8A50]">
               <Icon d={ICON.pin} className="w-4 h-4" />
@@ -156,7 +156,7 @@ export function ShowroomVisitModal({
                 </div>
               </div>
               <p className="mt-2.5 text-hb-xs text-[#334155] leading-relaxed">
-                ※ 방문 전 예약 문자를 남겨주시면, 오시는 동안 타 고객에게 판매되지 않도록 우선 안내해 드리고 매장에서 전원을 미리 연결하여 시운전 준비를 해드립니다.
+                ※ 방문 전 예약 문자를 남겨주시면, 오시는 동안 타 고객에게 판매되지 않도록 우선 안내해 드리고 매장에서 전원을 연결해 작동 상태를 바로 확인하실 수 있게 준비해 드립니다.
               </p>
             </div>
           )}
@@ -212,7 +212,7 @@ export function ShowroomVisitModal({
           </div>
 
           {/* 4. 내비게이션 3사 원클릭 길찾기 */}
-          <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 space-y-3">
+          <div className="rounded-xl border border-[#E2DDD3] bg-white p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-hb-xs font-bold text-[#E8521A]">
                 내비게이션 바로 길찾기
@@ -262,7 +262,7 @@ export function ShowroomVisitModal({
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => trackEvent("click_nav_tmap")}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white hover:bg-[#F1F3F6] px-2 py-2.5 text-hb-xs font-bold text-[#141A23] transition-[background-color,transform] duration-150 active:scale-[0.96]"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] hover:bg-[#F3EFE8] px-2 py-2.5 text-hb-xs font-bold text-[#141A23] transition-[background-color,transform] duration-150 active:scale-[0.96]"
               >
                 <span>티맵 길안내</span>
                 <Icon d={ICON.external} className="w-3 h-3" />
@@ -270,8 +270,8 @@ export function ShowroomVisitModal({
             </div>
           </div>
 
-          {/* 5. 매장 방문 편의 & 주차 안내 (실제 매장 배치와 다른 층별 구분 박스 제거) */}
-          <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#334155]">
+          {/* 5. 매장 방문 편의 & 주차 안내 */}
+          <div className="rounded-2xl border border-[#E2DDD3] bg-white p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#334155]">
             <div className="flex items-center gap-1.5 font-bold text-[#141A23]">
               <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#E8521A]" />
               <span>{STORE_NAVIGATION.parking}</span>
@@ -283,7 +283,7 @@ export function ShowroomVisitModal({
         </div>
 
         {/* 하단 닫기 바 */}
-        <div className="border-t border-[#E2E6EC] bg-[#F7F8FA] px-5 py-3 flex items-center justify-between">
+        <div className="border-t border-[#E2DDD3] bg-[#F3EFE8] px-5 py-3 flex items-center justify-between">
           <span className="text-hb-xs text-[#64748B]">
             방문 전 문의: {STORE.tel} · {STORE.mobile}
           </span>

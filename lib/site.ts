@@ -1135,7 +1135,7 @@ export function getCategoryFaqs(
       },
       {
         q: "중고 냉장고·세탁기의 위생 상태와 A/S 보증 기준이 궁금합니다.",
-        a: "입고 후 전문 엔지니어가 분해 고압 살균 세척과 냉각·탈수·누수 시운전을 완료한 제품만 출고하며, 주요 가정용 가전은 계약 조건에 따라 최대 4개월 무상 A/S를 보증합니다.",
+        a: `내·외부 고압세척과 배송 전 냉각·급배수·탈수 작동 점검을 마친 제품만 출고하며, 주요 가정용 가전은 ${getCategoryWarrantyInfo("냉장고").compactLabel} 기준을 적용합니다.`,
       }
     );
   } else {
@@ -1696,7 +1696,7 @@ export function buildShowroomVisitSmsBody(options?: {
     `[${STORE.name} 실물확인 방문예약]`,
     `• 관심매물: [${cat}] ${product.title.trim()}${modelPart}${shortId}`,
     `• 방문희망시간: ${visitTimeStr}`,
-    `실물 확인 및 전원 시운전 준비 부탁드립니다.`,
+    `실물 확인 및 전원 작동 확인 준비 부탁드립니다.`,
     linkPart,
   ]
     .filter(Boolean)

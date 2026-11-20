@@ -37,7 +37,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "all",
     label: "전체 실매물",
     subLabel: "전 품목 한눈에",
-    specPoint: "고압세척·작동점검",
+    specPoint: "고압세척 · 작동점검",
     icon: "all",
     href: "/gallery",
     filterCategory: "전체",
@@ -47,7 +47,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "aircon",
     label: "에어컨·냉난방",
     subLabel: "벽걸이·스탠드·천장형",
-    specPoint: "인버터·평형·가스점검",
+    specPoint: "인버터 · 평형 · 가스점검",
     icon: "aircon",
     href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     filterCategory: "에어컨/냉난방기",
@@ -57,7 +57,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "fridge",
     label: "냉장고·김치냉장",
     subLabel: "양문·4도어·김치",
-    specPoint: "도어패킹·냉각점검",
+    specPoint: "도어패킹 · 냉각점검",
     icon: "fridge",
     href: "/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0",
     filterCategory: "냉장고",
@@ -67,7 +67,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "washer",
     label: "세탁기·건조기",
     subLabel: "드럼·통돌이·건조기",
-    specPoint: "급배수·탈수·작동점검",
+    specPoint: "급배수 · 탈수 · 작동점검",
     icon: "washer",
     href: "/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0",
     filterCategory: "세탁기/건조기",
@@ -77,7 +77,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "small",
     label: "TV·소형가전",
     subLabel: "TV·전자레인지·기타",
-    specPoint: "화면·단자·전원확인",
+    specPoint: "화면 · 단자 · 전원확인",
     icon: "small",
     href: "/gallery?category=%EA%B8%B0%ED%83%80",
     filterCategory: "기타",
@@ -87,7 +87,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "bizFridge",
     label: "업소용 냉장고",
     subLabel: "25·45박스·테이블",
-    specPoint: "220V단상·냉각점검",
+    specPoint: "220V단상 · 냉각점검",
     icon: "biz-fridge",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EB%83%89%EC%9E%A5",
     filterCategory: "업소용기기",
@@ -98,7 +98,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "showcase",
     label: "음료·주류 쇼케이스",
     subLabel: "음료·주류·디저트",
-    specPoint: "결로열선·냉각점검",
+    specPoint: "결로열선 · 냉각점검",
     icon: "showcase",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%87%BC%EC%BC%80%EC%9D%B4%EC%8A%A4",
     filterCategory: "업소용기기",
@@ -109,7 +109,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     key: "kitchen",
     label: "제빙기·주방설비",
     subLabel: "제빙기·세척기·스텐",
-    specPoint: "220V단상·작동점검",
+    specPoint: "220V단상 · 작동점검",
     icon: "kitchen",
     href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%A0%9C%EB%B9%99%EA%B8%B0",
     filterCategory: "업소용기기",
@@ -227,7 +227,7 @@ export function CategoryPictogramBar({
                 : `${selectedItem.label} 전시 매물`}
             </h2>
             {typeof selectedCount === "number" && (
-              <span className="rounded-md bg-[#F1F3F6] px-2.5 py-0.5 font-mono text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums">
+              <span className="rounded-md bg-[#F3EFE8] border border-[#E2DDD3] px-2.5 py-0.5 font-mono text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums">
                 {selectedCount}건 전시중
               </span>
             )}
@@ -235,7 +235,7 @@ export function CategoryPictogramBar({
               <button
                 type="button"
                 onClick={() => onSelectCategory(SHOWROOM_CATEGORIES[0])}
-                className="min-h-[36px] rounded-xl border border-[#CBD2DC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
+                className="min-h-[36px] rounded-xl border border-[#D8D1C5] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#FAF9F6] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
               >
                 전체 품목 보기
               </button>
@@ -252,7 +252,7 @@ export function CategoryPictogramBar({
             </Link>
             <Link
               href={tableViewHref}
-              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#D8D1C5] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#FAF9F6] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
             >
               <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
               <span>스펙 일람표 보기</span>
@@ -261,7 +261,7 @@ export function CategoryPictogramBar({
         </div>
 
         {/* 전 품목 쇼룸 카탈로그 트레이 (스위스 4열×2행 고밀도 스펙·보증 카드) */}
-        <div className="rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 sm:p-3.5">
+        <div className="rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6] p-2.5 sm:p-3.5">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
             {SHOWROOM_CATEGORIES.map((item) => {
               const isSelected = selectedKey === item.key;

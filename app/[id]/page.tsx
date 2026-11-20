@@ -580,15 +580,15 @@ export default async function ProductDetailPage({
 
         {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
         <section
-          aria-label="출고 전 정밀 검수 내역 및 우리 집 설치 환경 체크"
-          className="mt-12 pt-8 border-t border-[#E2E6EC]"
+          aria-label="출고 전 점검 안내 및 우리 집 설치 환경 체크"
+          className="mt-12 pt-8 border-t border-[#E2DDD3]"
         >
           <div className="mb-5 flex flex-wrap items-end justify-between gap-2">
             <h2 className="text-hb-xl font-bold text-[#141A23]">
-              출고 전 정밀 검수 내역 &amp; 우리 집 설치 환경 체크
+              출고 전 점검 안내 &amp; 우리 집 설치 환경 체크
             </h2>
             <p className="text-hb-xs text-[#64748B]">
-              {STORE.name} 전문 엔지니어의 4대 핵심 검수 내역과 설치 가능 여부를 확인하세요.
+              {STORE.name} 직영 매장의 출고 전 점검 기준과 설치 가능 여부를 확인하세요.
             </p>
           </div>
 

@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { STORE } from "../../lib/site";
 import { INFO_GUIDE_ARTICLES } from "../../lib/info-guides";
+import { resolveGuideThumbnail } from "../../lib/guides/thumbnails";
 
 export const revalidate = 3600;
 
@@ -12,6 +13,12 @@ function escapeXml(value: string): string {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&apos;");
+}
+
+function resolveEnclosureMimeType(src: string): string {
+  if (src.endsWith(".png")) return "image/png";
+  if (src.endsWith(".webp")) return "image/webp";
+  return "image/jpeg";
 }
 
 export async function GET() {
@@ -26,9 +33,8 @@ export async function GET() {
     const link = `${STORE.url}/guide/${article.slug}`;
     const pubDate = new Date(`${article.updatedAt}T09:00:00+09:00`).toUTCString();
     const fullDesc = `${article.summary} [핵심 정리] 1) ${article.keyPoints[0]} 2) ${article.keyPoints[1]} 3) ${article.keyPoints[2]}`;
-    const imageTag = article.heroImage
-      ? `<enclosure url="${escapeXml(`${STORE.url}${article.heroImage.src}`)}" type="image/jpeg" />`
-      : "";
+    const thumb = resolveGuideThumbnail(article);
+    const imageTag = `<enclosure url="${escapeXml(`${STORE.url}${thumb.src}`)}" type="${resolveEnclosureMimeType(thumb.src)}" />`;
 
     return `    <item>
       <title>${escapeXml(article.title)}</title>

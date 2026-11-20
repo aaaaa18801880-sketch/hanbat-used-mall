@@ -124,7 +124,7 @@ export function WasherTubInspectionDiagram() {
     <DiagramFigure
       title="중고 세탁기 구매 전 손으로 확인하는 3대 핵심 점검 위치"
       badgeLabel="실사 점검 · 직거래 체크"
-      caption={`${STORE.name} 출고 매물은 내·외조 고압세척 및 급수·탈수·배수 부하 시운전을 거쳐 출고됩니다. 개인 직거래나 매장 방문 시 도어 고무패킹(01), 세탁조·베어링 유격(02), 배수펌프 거름망(03)을 직접 눌러 확인하세요.`}
+      caption={`${STORE.name} 출고 매물은 고압세척과 배송 전 급·배수·탈수 작동 점검을 거쳐 출고됩니다. 개인 직거래나 매장 방문 시 도어 고무패킹(01), 세탁조·베어링 유격(02), 배수펌프 거름망(03)을 직접 눌러 확인하세요.`}
     >
       <WasherInspectionPhotoDiagram />
     </DiagramFigure>
@@ -581,7 +581,7 @@ export function DryerHeatpumpCondenserDiagram() {
           ③ 물통·자동세척 펌프 점검
         </text>
         <text x="554" y="236" fontSize="9.5" fill="#334155">
-          매장 분해 세척 + 젖은수건 시운전
+          매장 세척 + 배송 전 작동 점검
         </text>
       </svg>
     </DiagramFigure>

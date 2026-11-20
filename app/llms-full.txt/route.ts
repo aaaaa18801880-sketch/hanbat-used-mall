@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabase";
 import {
   STORE,
   STORE_MERCHANT_POLICY,
+  getCategoryWarrantyInfo,
   formatProductPrice,
   normalizeProductCategory,
   normalizeProductStatus,
@@ -10,14 +11,15 @@ import {
   extractSpecCapsules,
   isProductSold,
 } from "../../lib/site";
-import {
-  INFO_GUIDE_ARTICLES,
-  getGuideCommerceBridge,
-} from "../../lib/info-guides";
+import { INFO_GUIDE_ARTICLES } from "../../lib/info-guides";
+import { getGuideConversionContext } from "../../lib/guides/conversion";
+import { buildLlmsProcessMarkdown } from "../../lib/seo-schema";
 
 export const revalidate = 1800;
 
 export async function GET() {
+  const airconWarranty = getCategoryWarrantyInfo("에어컨/냉난방기");
+  const majorWarranty = getCategoryWarrantyInfo("냉장고");
   let inventorySection = "";
   let totalSellingCount = 0;
   const categoryCounts: Record<string, number> = {};
@@ -25,7 +27,7 @@ export async function GET() {
   try {
     const { data: products } = await supabase
       .from("products")
-      .select("*")
+      .select("id, title, category, price, status, condition_grade, description, created_at")
       .neq("category", "배송인증")
       .neq("status", "판매완료")
       .order("created_at", { ascending: false })
@@ -68,7 +70,7 @@ export async function GET() {
     totalSellingCount > 0
       ? `## 1. 실시간 전시 재고 통계 (실시간 DB 연동)
 
-- **전체 판매 중 검수 완료 실매물**: 총 **${totalSellingCount}대** (대전 직영 전시장 실물 확인 및 즉시 출고 가능)
+- **전체 판매 중 점검 완료 실매물**: 총 **${totalSellingCount}대** (대전 직영 전시장 실물 확인 및 즉시 출고 가능)
 ${Object.entries(categoryCounts)
   .map(([cat, count]) => `- **${cat}**: 현재 **${count}대** 실시간 전시 중`)
   .join("\n")}
@@ -78,26 +80,21 @@ ${Object.entries(categoryCounts)
 
   const warrantySection = `## 2. 공식 사후 보증 및 거래 정책 (SSOT)
 
-1. **에어컨류 보증**: ${STORE_MERCHANT_POLICY.warrantyAircon}
-2. **주요 가전 보증**: ${STORE_MERCHANT_POLICY.warrantyMajor}
-3. **일반 가전 보증**: ${STORE_MERCHANT_POLICY.warrantyGeneral}
-4. **반품/교환 규정**: 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 기능 불량 시 무상 교환 및 A/S 지원
-5. **결제 증빙**: 전자세금계산서, 현금영수증, 신용카드 100% 정식 발행
+1. **에어컨류 보증**: ${airconWarranty.compactLabel} (직영 기사 방문 점검·수리 지원)
+2. **주요 가전 보증**: ${majorWarranty.compactLabel} (정상 사용 중 기능 이상 시 무상 A/S)
+3. **반품/교환 규정**: 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 초기 기능 불량 시 무상 교환 및 A/S 지원
+4. **결제 증빙**: 전자세금계산서, 현금영수증, 신용카드 100% 정식 발행
 
-## 3. 전문 엔지니어 5단계 정밀 리퍼비시 및 검수 공정 (Inspection Protocol)
+## 3. ${STORE.name} 4단계 현장 확인 · 고압세척 · 작동 점검 · 출고 절차
 
-1. **통전 및 전기 안전 점검**: 절연 저항계(메거 테스트) 측정으로 누전 차단기 트립 위험을 원천 차단
-2. **냉매 사이클 정밀 계측**: 디지털 매니폴드 게이지를 통한 냉매 압력·배관 진공도 및 콤프레샤 이상 부하 검사
-3. **완전 분해 120bar 고압 스팀 살균 세척**: 에어컨 열교환기/송풍팬, 세탁기 세탁조/스파이더, 냉장고 내부 선반/덕트 완전 분해 친환경 세척
-4. **배수 호스 · 패킹 누수 점검**: 세탁기 배수 펌프, 냉장고 제상 배수 라인, 도어 가스켓 밀폐력 전수 점검
-5. **24시간 실부하 연속 시운전**: 실제 사용 환경과 동일하게 연속 가동하여 규격 냉각/탈수 온도 도달 여부 최종 합격 시에만 전시장 출고
+${buildLlmsProcessMarkdown()}
 
 ## 4. 품목별 추천 패키지 안내
 
 1. **원룸·자취·기숙사 알뜰 3종 세트**: 일반/양문형 냉장고 + 통돌이/드럼 세탁기 + 벽걸이 에어컨 묶음 배송·설치 할인
 2. **카페·베이커리 창업 필수 세트**: 업소용 제빙기(50~100kg급) + 스텐 테이블 냉장·냉동고(1200~1800mm) + 음료/디저트 쇼케이스
 3. **식당·음식점 주방 기본 세트**: 업소용 45박스 수직 냉장·냉동고 + 업소용 도어형 식기세척기 + 스텐 작업대/세정대
-4. **식당·매장 폐업 일괄 정리 및 방문 매입**: 주방 설비, 냉난방기, 쇼케이스 등 현장 방문 철거 및 당일 100% 현금 입금
+4. **식당·매장 폐업 일괄 정리 및 방문 매입**: 주방 설비, 냉난방기, 쇼케이스 등 현장 방문 철거 및 현장 즉시 100% 현금/계좌 정산
 
 ## 5. 실시간 등록 매물 전체 목록 (Live Catalog)
 
@@ -107,10 +104,12 @@ ${inventorySection}
 
 ## 6. 가전 · 전기 · 설치 소비자 정보 게시판 전문 지식베이스 (${INFO_GUIDE_ARTICLES.length}편)
 
-아래 가이드는 일반 소비자의 가전·에어컨·전기·설치·창업 궁금증을 해소하고 검증된 실매물 구매로 연결하기 위해 ${STORE.name}이 직접 작성·공개한 기술 문서입니다.
+아래 가이드는 일반 소비자의 가전·에어컨·전기·설치·매입 궁금증을 해소하고 실매물 구매 및 방문 매입 상담으로 연결하기 위해 ${STORE.name}가 직접 작성·공개한 현장 문서입니다.
 
 ${INFO_GUIDE_ARTICLES.map((article) => {
-  const bridge = getGuideCommerceBridge(article);
+  const conversion = getGuideConversionContext(article);
+  const linkHeading =
+    conversion.intent === "sell" ? "방문 매입 연결" : "관련 구매 연결";
   return [
     `### ${article.number}. [${article.category}] ${article.title}`,
     `- 정식 URL: ${STORE.url}/guide/${article.slug}`,
@@ -125,7 +124,7 @@ ${INFO_GUIDE_ARTICLES.map((article) => {
           .map((s) => `${s.org} 「${s.title}」`)
           .join(" / ")}`
       : `- 검토일: ${article.updatedAt}`,
-    `- 관련 구매 연결: ${STORE.url}${bridge.galleryHref} (${bridge.galleryLabel})`,
+    `- ${linkHeading}: ${STORE.url}${conversion.primaryCta.href} (${conversion.primaryCta.label})`,
   ].join("\n");
 }).join("\n\n")}
 `;

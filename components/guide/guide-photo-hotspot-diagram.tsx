@@ -506,7 +506,7 @@ const AIRCON_LEAK_SPOTS: readonly PhotoHotspotItem[] = [
     partName: "하단 물받이(드레인 팬)",
     title: "2. 젤리형 물때 · 배수구 막힘",
     details: ["습기와 곰팡이가 엉킨 슬라임이 배수 구멍을 막음", "찬 바람은 정상인데 가동 중 본체 아래로 물이 뚝뚝 떨어짐"],
-    verdict: "완전 분해 세척 및 드레인 호스 석션 청소 필요",
+    verdict: "내부 세척 및 드레인 호스 배수 점검 필요",
     pinLeft: "29%",
     pinTop: "57%",
     boxLeft: "15%",

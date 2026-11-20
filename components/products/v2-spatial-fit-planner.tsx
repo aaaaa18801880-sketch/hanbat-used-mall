@@ -236,7 +236,7 @@ export function V2SpatialFitPlanner({
 
     const basicItems: string[] = [
       "실내기 + 전용 실외기 + 리모컨 본체 풀세트",
-      "출고 전 냉매 정량 충진 및 열교환기 고압 살균 세척",
+      "고압세척 및 배송 전 냉방 작동 점검 완료",
     ];
     const extraCheckItems: string[] = [];
 

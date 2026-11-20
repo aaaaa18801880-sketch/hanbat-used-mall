@@ -7,6 +7,8 @@ import {
   fetchInitialPublicInquiries,
   fetchPublicInquiryTotalCount,
 } from "../lib/server-inquiries";
+import { serializeJsonLd } from "../lib/json-ld";
+import { buildHomeFaqJsonLd } from "../lib/seo-schema";
 import Home, {
   type GuidePreviewSummary,
   type Review,
@@ -77,14 +79,22 @@ export default async function Page() {
     ? null
     : [];
 
+  const faqJsonLd = buildHomeFaqJsonLd();
+
   return (
-    <Home
-      initialProducts={initialProducts}
-      initialReviews={initialReviews}
-      initialRecent={initialRecent}
-      totalInquiryCount={totalInquiryCount}
-      guideTotalCount={guideTotalCount}
-      latestGuides={latestGuides}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
+      />
+      <Home
+        initialProducts={initialProducts}
+        initialReviews={initialReviews}
+        initialRecent={initialRecent}
+        totalInquiryCount={totalInquiryCount}
+        guideTotalCount={guideTotalCount}
+        latestGuides={latestGuides}
+      />
+    </>
   );
 }

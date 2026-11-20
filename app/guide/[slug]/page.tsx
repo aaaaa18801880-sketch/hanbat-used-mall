@@ -337,9 +337,9 @@ export default async function GuideDetailPage({
               </figcaption>
             </figure>
 
-            {/* 핵심 기준 3가지 (좌측 포인트 선 인용 스타일) */}
+            {/* 핵심 기준 3가지 (Warm Editorial Stone 요약 카드) */}
             {article.keyPoints.length > 0 && (
-              <div className="border-l-4 border-[#E8521A] bg-[#FAF9F6] pl-4 sm:pl-6 pr-4 py-4 space-y-2.5 rounded-r-lg">
+              <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-5 py-4 sm:px-6 sm:py-5 space-y-2.5">
                 <p className="text-hb-xs font-bold text-[#C84312]">
                   핵심 요약 3가지
                 </p>
@@ -362,7 +362,7 @@ export default async function GuideDetailPage({
             {article.sections.length > 2 && (
               <nav
                 aria-label="본문 목차"
-                className="border-y border-[#E2E6EC] py-4 space-y-2"
+                className="border-y border-[#E2DDD3] py-4 space-y-2"
               >
                 <p className="text-hb-xs font-bold text-[#64748B]">
                   이 글의 순서
@@ -393,7 +393,7 @@ export default async function GuideDetailPage({
                 <React.Fragment key={section.heading}>
                 <section
                   id={`section-${sectionIdx + 1}`}
-                  className="scroll-mt-24 space-y-4 pt-8 border-t border-[#E2E6EC] first:border-t-0 first:pt-0"
+                  className="scroll-mt-24 space-y-4 pt-8 border-t border-[#E2DDD3] first:border-t-0 first:pt-0"
                 >
                   <h2 className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] leading-[1.35] tracking-[-0.02em] break-keep [text-wrap:balance]">
                     {section.heading}
@@ -416,17 +416,17 @@ export default async function GuideDetailPage({
                       tabIndex={0}
                       role="region"
                       aria-labelledby={tableCaptionId}
-                      className="my-5 overflow-x-auto border-y border-[#CBD5E1] focus-visible:outline-2 focus-visible:outline-[#141A23]"
+                      className="my-5 overflow-x-auto rounded-xl border border-[#E2DDD3] focus-visible:outline-2 focus-visible:outline-[#141A23]"
                     >
                       <table className="w-full min-w-[440px] border-collapse text-left text-hb-xs sm:text-hb-sm">
                         <caption
                           id={tableCaptionId}
-                          className="bg-[#FAFBFD] px-3.5 py-2.5 text-left text-hb-xs font-bold text-[#475569] border-b border-[#E2E6EC]"
+                          className="bg-[#FAF9F6] px-3.5 py-2.5 text-left text-hb-xs font-bold text-[#475569] border-b border-[#E2DDD3]"
                         >
                           {section.table.caption}
                         </caption>
                         <thead>
-                          <tr className="bg-[#FAFBFD] border-b border-[#CBD5E1]">
+                          <tr className="bg-[#FAF9F6] border-b border-[#E2DDD3]">
                             {section.table.headers.map((header) => (
                               <th
                                 key={header}
@@ -438,11 +438,11 @@ export default async function GuideDetailPage({
                             ))}
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#E2E6EC] bg-white">
+                        <tbody className="divide-y divide-[#E2DDD3] bg-white">
                           {section.table.rows.map((row, rIdx) => (
                             <tr
                               key={rIdx}
-                              className="hover:bg-[#FAFBFD] transition-colors"
+                              className="hover:bg-[#FAF9F6] transition-colors"
                             >
                               {row.map((cell, cIdx) => (
                                 <td
@@ -481,7 +481,7 @@ export default async function GuideDetailPage({
                   )}
 
                   {section.tip && (
-                    <div className="border-l-4 border-[#141A23] bg-[#FAFBFD] pl-4 sm:pl-5 pr-4 py-4 space-y-2.5">
+                    <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-5 py-4 sm:px-6 sm:py-5 space-y-2.5">
                       <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
                         {section.tip.title}
                       </p>

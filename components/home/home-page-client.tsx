@@ -8,7 +8,6 @@ import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import { notifyAdminAuthChanged } from "../../lib/admin-auth";
 import { useIsAdminSession } from "../../lib/use-admin-session";
-import { serializeJsonLd } from "../../lib/json-ld";
 import {
   SafeImg,
   Modal,
@@ -638,23 +637,8 @@ export default function Home({
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox, moveLightbox]);
 
-  /* ── FAQPage 구조화 데이터 ── */
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQS.map((f) => ({
-      "@type": "Question",
-      name: f.q,
-      acceptedAnswer: { "@type": "Answer", text: f.a },
-    })),
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#141A23]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqJsonLd) }}
-      />
 
       {/* [S0] 상단 공통 헤더 */}
       <SiteHeader>
@@ -715,7 +699,7 @@ export default function Home({
                   </p>
 
                   {/* 스위스 벤토 2.0 3단 핵심 신뢰 지표 스트립 */}
-                  <div className="mt-3.5 max-w-2xl grid grid-cols-3 divide-x divide-[#E2E6EC] rounded-xl border border-[#CBD2DC] bg-white/95 shadow-2xs">
+                  <div className="mt-3.5 max-w-2xl grid grid-cols-3 divide-x divide-[#E2DDD3] rounded-xl border border-[#E2DDD3] bg-white/95 shadow-2xs">
                     <div className="px-3 py-2 sm:px-4 sm:py-2.5">
                       <span className="block text-hb-xs font-semibold text-[#475569] truncate">
                         에어컨 · 냉난방
@@ -810,7 +794,7 @@ export default function Home({
               </div>
 
               {/* 우측 (5열): 대형 쇼룸 사진 + 상태 칩 + 단일 주소/영업시간/길찾기 도크 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2E6EC] bg-white hb-surface-card hover:translate-y-0">
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2DDD3] bg-white hb-surface-card hover:translate-y-0">
                 <div className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
                   <Image
                     src="/store-exterior.jpg"
@@ -818,21 +802,19 @@ export default function Home({
                     fill
                     sizes="(max-width: 1024px) 100vw, 42vw"
                     priority
+                    loading="eager"
                     quality={80}
                     className="object-cover object-center"
                   />
 
                   <div className="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-md bg-[#141A23]/90 backdrop-blur-md border border-white/15 px-2.5 py-1 text-hb-xs font-bold text-white shadow-sm">
-                    <span
-                      className="h-2 w-2 rounded-full bg-[#10B981]"
-                      aria-hidden="true"
-                    />
+                    <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#FF8A50] shrink-0" />
                     <span>1·2층 직영 쇼룸 · 실물 상시 전시</span>
                   </div>
                 </div>
 
                 {/* 벤토 3단 현장 인프라 지표 바 */}
-                <div className="grid grid-cols-3 divide-x divide-[#E2E6EC] border-t border-[#E2E6EC] bg-[#F7F8FA] text-center sm:text-left">
+                <div className="grid grid-cols-3 divide-x divide-[#E2DDD3] border-t border-[#E2DDD3] bg-[#FAF9F6] text-center sm:text-left">
                   <div className="px-3 py-2 sm:px-4 sm:py-2.5">
                     <span className="block text-hb-xs font-semibold text-[#475569]">
                       전용 주차
@@ -1016,7 +998,7 @@ export default function Home({
                     </button>
                   </div>
 
-                  <p className="pt-3 border-t border-[#E2E6EC] text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed">
+                  <p className="pt-3 border-t border-[#E2DDD3] text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed">
                     <strong className="font-semibold text-[#141A23]">전용 주차 8대</strong>(1톤 화물 진입 수월) ·{" "}
                     <strong className="font-semibold text-[#141A23]">현장 전원 확인</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
                   </p>
@@ -1050,9 +1032,9 @@ export default function Home({
                     <div className="bg-[#FAF9F6] border-b border-[#E2DDD3] px-4 py-3.5 sm:px-5">
                       <div className="flex items-center justify-between gap-2">
                         <div className="inline-flex items-center gap-2 min-w-0">
-                          <span
-                            className="h-2.5 w-2.5 rounded-full bg-[#10B981] animate-pulse shrink-0"
-                            aria-hidden="true"
+                          <Icon
+                            d={ICON.chat}
+                            className="h-4 w-4 text-[#C84312] shrink-0"
                           />
                           <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] truncate">
                             실시간 접수된 문의 현황

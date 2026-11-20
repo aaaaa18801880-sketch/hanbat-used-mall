@@ -6,7 +6,11 @@ import {
   createServiceRoleClient,
   isAuthorizedAdminUser,
 } from "../../../../../lib/supabase";
-import { checkRateLimit, getClientIp } from "../../../../../lib/server-security";
+import {
+  checkRateLimit,
+  getClientIp,
+  verifySameOriginRequest,
+} from "../../../../../lib/server-security";
 
 export const runtime = "nodejs";
 
@@ -20,6 +24,13 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    if (!verifySameOriginRequest(req)) {
+      return NextResponse.json(
+        { error: "허용되지 않은 요청 출처입니다." },
+        { status: 403 }
+      );
+    }
+
     const { id } = await params;
     if (!id || !isValidProductId(id)) {
       return NextResponse.json(

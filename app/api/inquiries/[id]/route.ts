@@ -24,6 +24,7 @@ import { signInquiryImageLists } from "../../../../lib/inquiry-attachments";
 import {
   SAFE_INQUIRY_SELECT_COLUMNS,
   toInquiryDetailItem,
+  type RawInquiryRow,
 } from "../../../../lib/server-inquiries";
 
 export const runtime = "nodejs";
@@ -176,9 +177,14 @@ export async function POST(
       ? createAnonServerClient(adminCheck.accessToken)
       : createServiceRoleClient();
 
+    // [SEC-001] select("*") 대신 명시적 컬럼 조회 (관리자 열람 시에는 password 컬럼도 조회하지 않음)
+    const selectColumns = isAdmin
+      ? SAFE_INQUIRY_SELECT_COLUMNS
+      : `${SAFE_INQUIRY_SELECT_COLUMNS}, password`;
+
     const { data: row, error } = await supabase
       .from("purchase_requests")
-      .select("*")
+      .select(selectColumns)
       .eq("id", id)
       .single();
 
@@ -189,13 +195,16 @@ export async function POST(
       );
     }
 
-    const isNotice = Boolean(row.is_notice);
+    const inquiryRow = row as unknown as RawInquiryRow & {
+      password?: string | null;
+    };
+    const isNotice = Boolean(inquiryRow.is_notice);
 
     if (!isNotice && !isAdmin) {
       // [SEC-003] 동기식 scryptSync 폴백을 완전히 제거하고 비동기 verifyInquiryPasswordWithMeta만 사용
       const pwResult = await verifyInquiryPasswordWithMeta(
         inputPassword,
-        row.password
+        inquiryRow.password
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
@@ -220,12 +229,12 @@ export async function POST(
     }
 
     const [images] = await signInquiryImageLists(supabase, [
-      extractInquiryImages(row),
+      extractInquiryImages(inquiryRow),
     ]);
 
     return NextResponse.json(
       {
-        inquiry: toInquiryDetailItem(row, { isAdmin, images }),
+        inquiry: toInquiryDetailItem(inquiryRow, { isAdmin, images }),
       },
       {
         headers: {

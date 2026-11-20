@@ -88,23 +88,23 @@ export function QuickInquiryModal() {
       panelClassName="max-w-2xl w-full"
       closeOnOverlayClick={false}
     >
-      <div className="relative rounded-2xl bg-white border border-[#E2E6EC] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative rounded-2xl bg-white border border-[#E2DDD3] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* 모달 상단 헤더 */}
         <div className="bg-[#141A23] text-white p-4 sm:p-5 flex items-start justify-between gap-3 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="rounded bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
+              <span className="rounded bg-[#C84312] px-2 py-0.5 text-hb-xs font-bold text-white tracking-wide">
                 직영 매장 직통
               </span>
-              <span className="text-hb-xs font-medium text-white/70">
+              <span className="text-hb-xs font-medium text-white/75">
                 대표전화 {STORE.tel} · {STORE.hours}
               </span>
             </div>
             <h2 className="text-hb-lg font-bold text-white tracking-tight">
               견적 문의
             </h2>
-            <p className="mt-0.5 text-hb-xs text-white/75">
-              처분/구매 품목과 연락처를 남겨주시면 담당 엔지니어가 확인 후 안내해 드립니다.
+            <p className="mt-0.5 text-hb-xs text-white/80">
+              처분/구매 품목과 연락처를 남겨주시면 매장 담당자가 확인 후 안내해 드립니다.
             </p>
           </div>
           <button
@@ -118,7 +118,7 @@ export function QuickInquiryModal() {
         </div>
 
         {/* 폼 본문 (스크롤 영역) */}
-        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#F7F8FA]">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1 bg-[#FAF9F6]">
           <V2InquirySectionWithWizard
             key={`${openSession}_${inquiryType}_${linkedProduct?.useBundle ? "bundle" : "single"}_${linkedProduct?.productTitle || ""}`}
             defaultType={inquiryType}

@@ -2523,7 +2523,7 @@ export default function GalleryPage() {
                   <ProductCard
                     key={product.id}
                     product={product}
-                    eager={idx < 2}
+                    eager={idx < 4}
                     onSelect={effectiveSelectMode ? handleProductClick : undefined}
                     onQuickView={handleProductClick}
                     isSelectMode={effectiveSelectMode}

@@ -220,6 +220,7 @@ export function ProductCard({
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             priority={eager}
+            loading={eager ? "eager" : undefined}
             quality={80}
             referrerPolicy="no-referrer"
             onError={() => setFailedSrc(primaryImage)}

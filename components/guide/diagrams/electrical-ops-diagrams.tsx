@@ -1,6 +1,6 @@
 // 파일 경로: components/guide/diagrams/electrical-ops-diagrams.tsx
 import React, { useId } from "react";
-import { STORE, STORE_MERCHANT_POLICY } from "../../../lib/site";
+import { getCategoryWarrantyInfo, STORE } from "../../../lib/site";
 import { DiagramFigure } from "./diagram-shared";
 import {
   ClearanceMeasurePhotoDiagram,
@@ -412,10 +412,10 @@ export function UsedVsStoreFlowDiagram() {
 
         <rect x="205" y="128" width="164" height="62" rx="8" fill="#FFFFFF" stroke="#141A23" strokeWidth="1.5" />
         <text x="287" y="151" textAnchor="middle" fontSize="11" fontWeight="700" fill="#141A23">
-          2. 분해 세척 · 시운전
+          2. 입고 세척 · 작동 점검
         </text>
         <text x="287" y="170" textAnchor="middle" fontSize="10" fill="#475569">
-          고장 여부 사전 검수 완료
+          고장 여부 사전 점검 완료
         </text>
 
         <path d="M374 159 L390 159" stroke="#E8521A" strokeWidth="2" />
@@ -432,10 +432,10 @@ export function UsedVsStoreFlowDiagram() {
 
         <rect x="583" y="128" width="161" height="62" rx="8" fill="#FFF4EE" stroke="#E8521A" strokeWidth="1.5" />
         <text x="663" y="151" textAnchor="middle" fontSize="11" fontWeight="700" fill="#C2410C">
-          4. 계약 조건별 무상 A/S
+          4. 직영 무상 A/S 보증
         </text>
         <text x="663" y="170" textAnchor="middle" fontSize="9.5" fill="#C2410C">
-          {STORE_MERCHANT_POLICY.warrantyAircon.split(" (")[0]}
+          에어컨 {getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel}
         </text>
 
         {/* 하단: 총비용(TCO) 누적 막대 비교 */}
@@ -459,7 +459,7 @@ export function UsedVsStoreFlowDiagram() {
         <rect x="90" y="255" width="210" height="14" rx="2" fill="#141A23" />
         <rect x="302" y="255" width="44" height="14" rx="2" fill="#0F766E" />
         <text x="356" y="266" fontSize="9.5" fontWeight="700" fill="#0F766E">
-          검수·세척·설치 상담 일괄 포함 ({STORE_MERCHANT_POLICY.warrantyMajor.split(" (")[0]})
+          점검·세척·설치 상담 일괄 포함 (주요 가전 {getCategoryWarrantyInfo("냉장고").compactLabel})
         </text>
       </svg>
     </DiagramFigure>

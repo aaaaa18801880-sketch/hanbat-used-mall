@@ -13,7 +13,7 @@ CREATE OR REPLACE FUNCTION public.increment_product_views(target_id text)
 RETURNS integer
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
   new_views integer;
@@ -61,7 +61,7 @@ CREATE OR REPLACE FUNCTION public.check_rate_limit_atomic(
 RETURNS TABLE(allowed boolean, retry_after_sec integer, current_count integer)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
   v_now timestamptz := now();
@@ -159,7 +159,7 @@ CREATE OR REPLACE FUNCTION public.claim_notification_idempotency(
 RETURNS TABLE(is_duplicate boolean, current_status text, attempt_count integer)
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
   v_now timestamptz := now();
@@ -235,7 +235,7 @@ CREATE OR REPLACE FUNCTION public.complete_notification_idempotency(
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
 DECLARE
   v_now timestamptz := now();
@@ -297,6 +297,12 @@ CREATE INDEX IF NOT EXISTS idx_products_category_status_created
 CREATE INDEX IF NOT EXISTS idx_purchase_requests_notice_status_created
   ON public.purchase_requests (is_notice, status, created_at DESC);
 
+CREATE INDEX IF NOT EXISTS idx_api_rate_limits_reset_at
+  ON public.api_rate_limits (reset_at);
+
+CREATE INDEX IF NOT EXISTS idx_notification_dispatches_expires_at
+  ON public.notification_dispatches (expires_at);
+
 -- ----------------------------------------------------------------------------
 -- 6. [H-2] 문의 삭제 시 40,000행 풀스캔 방지를 위한 첨부파일 참조 확인 RPC
 -- ----------------------------------------------------------------------------
@@ -307,7 +313,7 @@ CREATE OR REPLACE FUNCTION public.get_referenced_storage_paths(
 RETURNS text[]
 LANGUAGE sql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = ''
 AS $$
   SELECT COALESCE(array_agg(DISTINCT target_path), ARRAY[]::text[])
   FROM unnest(COALESCE(p_paths, ARRAY[]::text[])) AS target_path
@@ -327,7 +333,7 @@ AS $$
   );
 $$;
 
-REVOKE ALL ON FUNCTION public.get_referenced_storage_paths(text[], text) FROM PUBLIC;
+REVOKE ALL ON FUNCTION public.get_referenced_storage_paths(text[], text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.get_referenced_storage_paths(text[], text) TO service_role;
 
 COMMIT;

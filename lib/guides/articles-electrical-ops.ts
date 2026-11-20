@@ -1,5 +1,5 @@
 // 파일 경로: lib/guides/articles-electrical-ops.ts
-import { STORE, STORE_MERCHANT_POLICY } from "../site";
+import { getCategoryWarrantyInfo, STORE, STORE_MERCHANT_POLICY } from "../site";
 import type { InfoGuideArticle } from "./types";
 
 export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
@@ -409,7 +409,7 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     keyPoints: [
       "식당·카페 창업 시 주방설비와 냉난방기를 검증된 중고로 세팅하면 새 제품 대비 초기 시설비를 40~60% 낮춰 운영 자금 여유를 확보할 수 있습니다.",
       "개인 직거래는 용달 섭외와 운반 부담이 크고, 겉으로 보이지 않는 냉매 누설이나 내부 오염, 거래 후 보증 공백 위험이 있습니다.",
-      `직영 매장은 분해 세척과 연속 시운전, 기사 직접 운반·설치, 무상 보증(${STORE_MERCHANT_POLICY.warrantyAircon}, ${STORE_MERCHANT_POLICY.warrantyMajor}) 및 세금계산서 발행을 한 번에 처리합니다.`,
+      `직영 매장은 현장 점검·입고 세척과 출고 전 작동 점검, 기사 직접 운반·설치, 무상 보증(에어컨류 ${getCategoryWarrantyInfo("에어컨").compactLabel}, 주요 가전 ${getCategoryWarrantyInfo("냉장고").compactLabel}) 및 세금계산서 발행을 한 번에 처리합니다.`,
     ],
     sections: [
       {

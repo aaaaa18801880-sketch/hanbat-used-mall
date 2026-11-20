@@ -577,13 +577,6 @@ export function InquiryBoardClient({
             통합 관리자 대시보드
           </Link>
         )}
-        <button
-          type="button"
-          onClick={handleOpenWrite}
-          className="hb-btn-primary h-10 sm:h-11 px-4 text-hb-sm whitespace-nowrap"
-        >
-          문의 글쓰기
-        </button>
       </SiteHeader>
 
       {/* 상단 게시판 헤더 */}
@@ -689,7 +682,7 @@ export function InquiryBoardClient({
                 }}
                 placeholder="제목·품목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-full md:w-[230px] rounded-lg border border-[#CBD2DC] bg-white px-3 pl-9 pr-8 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none"
+                className="h-10 w-full md:w-[230px] rounded-lg border border-[#D8D1C5] bg-white px-3 pl-9 pr-8 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
@@ -708,15 +701,6 @@ export function InquiryBoardClient({
                 </button>
               )}
             </div>
-
-            <button
-              type="button"
-              onClick={handleOpenWrite}
-              className="hb-btn-primary h-10 px-4 text-hb-sm whitespace-nowrap"
-            >
-              <Icon d={ICON.plus} className="w-4 h-4" />
-              <span>글쓰기</span>
-            </button>
           </div>
         </div>
 

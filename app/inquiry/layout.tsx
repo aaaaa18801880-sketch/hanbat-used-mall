@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { STORE } from "../../lib/site";
+import { serializeJsonLd } from "../../lib/json-ld";
+import { buildBreadcrumbJsonLd } from "../../lib/seo-schema";
 
 export const metadata: Metadata = {
   title: "고객 문의 · 매입 신청 게시판",
@@ -15,15 +17,22 @@ export const metadata: Metadata = {
     siteName: STORE.name,
     title: `고객 문의 · 매입 신청 게시판 | ${STORE.name}`,
     description:
-      "한밭중고전자 구매 문의 및 무료 방문 매입 견적 상담 게시판입니다.",
+      `${STORE.name} 구매 문의 및 무료 방문 매입 견적 상담 게시판입니다.`,
     images: [
       {
-        url: `${STORE.url}/og-image.jpg`,
-        width: 1200,
-        height: 630,
+        url: `${STORE.url}/store-exterior.jpg`,
+        width: 1024,
+        height: 576,
         alt: STORE.name,
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `고객 문의 · 매입 신청 게시판 | ${STORE.name}`,
+    description:
+      `${STORE.name} 구매 문의 및 무료 방문 매입 견적 상담 게시판입니다.`,
+    images: [`${STORE.url}/store-exterior.jpg`],
   },
 };
 
@@ -32,5 +41,18 @@ export default function InquiryLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  const breadcrumbJsonLd = buildBreadcrumbJsonLd([
+    { name: "홈", path: "/" },
+    { name: "고객 문의 · 매입 게시판", path: "/inquiry" },
+  ]);
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbJsonLd) }}
+      />
+      {children}
+    </>
+  );
 }

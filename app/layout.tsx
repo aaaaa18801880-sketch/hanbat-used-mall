@@ -2,11 +2,17 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
-import { STORE, STORE_MERCHANT_POLICY } from "../lib/site";
+import {
+  STORE,
+  STORE_MERCHANT_POLICY,
+  getCategoryWarrantyInfo,
+} from "../lib/site";
 import { serializeJsonLd } from "../lib/json-ld";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
+const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
+const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
 
 export const metadata: Metadata = {
   metadataBase: new URL(STORE.url),
@@ -33,7 +39,7 @@ export const metadata: Metadata = {
     template: `%s | ${STORE.name}`,
   },
   description:
-    "[실매물 가격 문의 · 무상A/S 최대 8개월] 1997년 개업 대전 중촌동 1·2층 직영 쇼룸. 분해 고압 세척을 마친 중고 냉장고·세탁기·에어컨·업소용 45박스 냉장고·제빙기·쇼케이스 판매 및 이사·폐업 당일 현금 방문매입. (세금계산서 100% 발행)",
+    `[실매물 가격 문의 · 에어컨 ${AIRCON_WARRANTY.compactLabel}] ${STORE.since}년 개업 대전 중촌동 1·2층 직영 쇼룸. 고압세척과 배송 전 작동 점검을 마친 중고 냉장고·세탁기·에어컨·업소용 45박스 냉장고·제빙기·쇼케이스 판매 및 이사·폐업 당일 현금 방문매입. (세금계산서 100% 발행)`,
   keywords: [
     "대전 중고가전",
     "대전 중고가전 매입",
@@ -63,9 +69,9 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     url: STORE.url,
     siteName: STORE.name,
-    title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
+    title: `${STORE.name} | 대전 중고가전·업소용 주방설비 직영 매장 (${AIRCON_WARRANTY.compactLabel})`,
     description:
-      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+      `SINCE ${STORE.since} 대전 중구 중촌동 직영 매장. 고압세척·배송 전 작동 점검 완료 실매물, 에어컨 ${AIRCON_WARRANTY.compactLabel} · 주요가전 ${MAJOR_WARRANTY.compactLabel}. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.`,
     images: [
       {
         url: "/store-exterior.jpg",
@@ -92,9 +98,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${STORE.name} | 분해세척 실매물 중고가전·업소용 주방설비 (무상A/S 보증)`,
+    title: `${STORE.name} | 대전 중고가전·업소용 주방설비 직영 매장 (${AIRCON_WARRANTY.compactLabel})`,
     description:
-      "SINCE 1997 대전 중구 중촌동 직영 매장. 에어컨·냉난방기 최대 8개월, 일반·업소용 가전 최대 4개월 계약 조건별 무상 A/S 보증. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.",
+      `SINCE ${STORE.since} 대전 중구 중촌동 직영 매장. 고압세척·배송 전 작동 점검 완료 실매물, 에어컨 ${AIRCON_WARRANTY.compactLabel} · 주요가전 ${MAJOR_WARRANTY.compactLabel}. 가정용 가전부터 식당·카페 창업 설비 판매 및 당일 현금 방문매입.`,
     images: ["/store-exterior.jpg", "/og-image.jpg"],
   },
   verification: {
@@ -177,9 +183,9 @@ export default function RootLayout({
       "@id": `${STORE.url}/`,
       url: `${STORE.url}/`,
     },
-    slogan: "대전·세종·충청 1등 분해세척 중고가전 & 업소용 주방설비 직영 전시장",
+    slogan: "대전·세종·충청 직영 중고가전 & 업소용 주방설비 전시장",
     description:
-      "1997년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 전 제품 분해 고압 세척 및 24시간 시운전 검수 후 출고하며, 품목 및 계약 조건에 따라 에어컨·냉난방기 최대 8개월, 일반 및 업소용 가전 최대 4개월 무상 A/S 보증과 전자세금계산서 100% 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 당일 현금 방문 매입을 진행합니다.",
+      `${STORE.since}년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 매입 현장에서 작동·가스 상태를 먼저 확인하고 고압세척과 배송 전 작동 점검을 마친 뒤 출고하며, 에어컨·냉난방기 ${AIRCON_WARRANTY.compactLabel}, 주요 가전 ${MAJOR_WARRANTY.compactLabel}과 전자세금계산서 100% 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 방문 매입을 진행합니다.`,
     image: [
       `${STORE.url}/store-exterior.jpg`,
       `${STORE.url}/og-image.jpg`,
@@ -240,7 +246,7 @@ export default function RootLayout({
       "업소용 제빙기·업소용 식기세척기·스텐 작업대",
       "식당·카페 창업 주방설비 패키지 및 폐업 일괄 정리",
       "원룸·자취방 입주 알뜰 가전 3종 패키지",
-      "개인 직거래(당근마켓) 대비 분해 고압 세척 및 사후 보증",
+      "개인 직거래(당근마켓) 대비 고압세척·작동 점검 및 직영 사후 보증",
     ],
     hasMerchantReturnPolicy: {
       "@type": "MerchantReturnPolicy",
@@ -278,17 +284,17 @@ export default function RootLayout({
       itemListElement: [
         {
           "@type": "OfferCatalog",
-          name: "에어컨 · 냉난방기 (계약 조건별 최대 8개월 보증)",
+          name: `에어컨 · 냉난방기 (${AIRCON_WARRANTY.compactLabel})`,
           url: `${STORE.url}/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0`,
         },
         {
           "@type": "OfferCatalog",
-          name: "가정용 냉장고 · 김치냉장고 (계약 조건별 최대 4개월 보증)",
+          name: `가정용 냉장고 · 김치냉장고 (${MAJOR_WARRANTY.compactLabel})`,
           url: `${STORE.url}/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0`,
         },
         {
           "@type": "OfferCatalog",
-          name: "세탁기 · 의류건조기 (분해 고압 살균 세척 완료)",
+          name: `세탁기 · 의류건조기 (고압세척·작동 점검 완료 · ${MAJOR_WARRANTY.compactLabel})`,
           url: `${STORE.url}/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0`,
         },
         {
