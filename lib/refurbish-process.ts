@@ -138,9 +138,9 @@ export const REFURBISH_STEPS: readonly RefurbishStep[] = [
     headline: "배송·출고 전에 직접 돌려보며 정상 작동 여부를 한 번 더 확인합니다",
     summary:
       "고객님께 전달해 드리기 전 전원을 연결해 실제로 작동시켜 보며 이상이 없는지 다시 점검합니다. 냉장·냉동 냉기, 세탁기 급·배수와 탈수, 에어컨 냉방 등 핵심 기능을 확인한 뒤 출고합니다.",
-    imageSrc: "/images/guide/fridge-warm-check.jpg",
-    imageAlt: `${STORE.name} 배송 전 냉장고 냉각 및 주요 기능 작동 점검`,
-    imageCaption: "배송·출고 전 전원 연결 및 냉각·탈수·배수 작동 확인",
+    imageSrc: "/images/precheck-operation.jpg",
+    imageAlt: `${STORE.name} 배송 전 매장에서 냉장고 문을 열어 냉기·작동 상태를 직접 점검하는 모습`,
+    imageCaption: "배송·출고 전 전원 연결 후 냉각·구동·이상 유무 직접 점검",
     focusTag: "출고 전 실작동 확인 · 기능 점검",
     metrics: [
       {
@@ -182,9 +182,9 @@ export const REFURBISH_STEPS: readonly RefurbishStep[] = [
     headline: "직영 기사가 배송·설치하고 사용 중 문제 시 무상 A/S를 지원합니다",
     summary:
       "매장 직영 기사가 직접 운반해 수평·기본 설치까지 마무리해 드립니다. 에어컨류와 주요 가전은 안내된 무상 보증 기간 동안 방문 점검·수리를 지원하며, 사업자 전자세금계산서 발행도 가능합니다.",
-    imageSrc: "/store-exterior.jpg",
-    imageAlt: `${STORE.name} ${STORE.jibunAddress} 1·2층 직영 전시장 및 배송 출고 현장`,
-    imageCaption: `${STORE.name} ${STORE.jibunAddress} 직영 전시장 · 충청권 직배송`,
+    imageSrc: "/images/direct-delivery-install.jpg",
+    imageAlt: `${STORE.name} 직영 배송 기사들이 고객 가정에 냉장고를 안전하게 설치하고 수평을 맞추는 모습`,
+    imageCaption: `${STORE.name} 직영 기사 직접 운반·수평 설치 및 사후 A/S 지원`,
     focusTag: "직영 배송·설치 · 사후 A/S 보증",
     metrics: [
       {

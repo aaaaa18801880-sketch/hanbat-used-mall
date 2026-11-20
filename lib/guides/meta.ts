@@ -18,6 +18,8 @@ export {
   type InfoGuidePriorityTier,
 };
 
+import { resolveGuideThumbnail } from "./thumbnails";
+
 export interface GuideBoardSummaryItem {
   number: number;
   slug: string;
@@ -27,10 +29,13 @@ export interface GuideBoardSummaryItem {
   priorityRank: number;
   title: string;
   summary: string;
+  readMinutes: number;
   updatedAt: string;
   keywords: string[];
   hasTable: boolean;
   hasDiagram: boolean;
+  thumbnailSrc: string;
+  thumbnailAlt: string;
 }
 
 export function sortGuidesByPriority<
@@ -54,6 +59,7 @@ export function sortGuidesByPriority<
 export function toGuideBoardSummary(
   article: PrioritizedInfoGuideArticle,
 ): GuideBoardSummaryItem {
+  const thumb = resolveGuideThumbnail(article);
   return {
     number: article.number,
     slug: article.slug,
@@ -63,9 +69,12 @@ export function toGuideBoardSummary(
     priorityRank: article.priorityRank,
     title: article.title,
     summary: article.summary,
+    readMinutes: article.readMinutes,
     updatedAt: article.updatedAt,
     keywords: article.keywords,
     hasTable: article.sections.some((section) => Boolean(section.table)),
     hasDiagram: Boolean(article.heroImage),
+    thumbnailSrc: thumb.src,
+    thumbnailAlt: thumb.alt,
   };
 }

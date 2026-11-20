@@ -56,27 +56,30 @@ export const metadata: Metadata = {
 };
 
 function GuideBoardStaticFallback() {
-  const prioritized = sortGuidesByPriority(INFO_GUIDE_ARTICLES);
+  const prioritized = sortGuidesByPriority(INFO_GUIDE_ARTICLES).map(
+    toGuideBoardSummary
+  );
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {prioritized.slice(0, 12).map((article) => (
         <Link
           key={article.slug}
           href={`/guide/${article.slug}`}
-          className="group flex flex-col rounded-2xl border border-[#E2E6EC] bg-white p-5 transition-colors hover:border-[#94A3B8]"
+          className="group flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-colors hover:border-[#141A23]"
         >
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs font-semibold text-[#475569]">
-            <span className="font-bold text-[#141A23]">{article.category}</span>
-            <time dateTime={article.updatedAt} className="tabular-nums">
-              {article.updatedAt}
-            </time>
+          <div className="aspect-[16/9] w-full bg-[#141A23]/10" />
+          <div className="p-4 sm:p-5">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs font-semibold text-[#475569]">
+              <span className="font-bold text-[#141A23]">{article.category}</span>
+              <span className="tabular-nums">{article.readMinutes}분 읽기</span>
+            </div>
+            <h3 className="mt-2 text-hb-base sm:text-hb-lg font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors break-keep">
+              {article.title}
+            </h3>
+            <p className="mt-1.5 line-clamp-2 text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.65]">
+              {article.summary}
+            </p>
           </div>
-          <h3 className="mt-2 text-hb-lg font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors break-keep">
-            {article.title}
-          </h3>
-          <p className="mt-2 line-clamp-3 text-hb-sm text-[#475569] leading-[1.65]">
-            {article.summary}
-          </p>
         </Link>
       ))}
     </div>
@@ -129,7 +132,7 @@ export default async function GuideBoardPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="min-h-screen flex flex-col bg-[#FAF9F6]">
       <SiteHeader />
 
       <main id="main-content" className="flex-1 pb-24 lg:pb-16">
@@ -138,8 +141,8 @@ export default async function GuideBoardPage() {
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
 
-        {/* 상단 헤더 밴드 (중앙 리딩 폭과 일치) */}
-        <section className="border-b border-[#E2E6EC] bg-[#FAFBFD]">
+        {/* 상단 에디토리얼 헤더 밴드 (메인 정보 게시판 쇼케이스와 동일한 톤) */}
+        <section className="border-b border-[#E2DDD3] bg-white">
           <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 sm:py-11">
             <nav
               aria-label="페이지 경로"
@@ -155,35 +158,38 @@ export default async function GuideBoardPage() {
             </nav>
 
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
-              <div className="space-y-2.5">
-                <h1 className="hb-fluid-h1 text-[#141A23]">
-                  가전 · 전기 · 설치 정보 게시판
+              <div className="space-y-2">
+                <p className="text-hb-xs font-bold text-[#C84312]">
+                  가전 · 전기 · 설치 현장 백과 ({INFO_GUIDE_ARTICLES.length}편)
+                </p>
+                <h1 className="hb-fluid-h1 text-[#141A23] break-keep [text-wrap:balance]">
+                  모르고 진행하면 손해 보는 설치·전기·고장 실전 가이드
                 </h1>
-                <p className="max-w-[58ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.68] [text-wrap:pretty]">
-                  중고가전 매입·구매 전 꼭 확인할 기준부터 에어컨 배관·설치, 매장 전기 용량, 고장 점검까지 현장에서 자주 묻는 내용을 정리했습니다.
+                <p className="max-w-[58ch] text-hb-sm sm:text-hb-base text-[#475569] leading-[1.68] break-keep [text-wrap:pretty]">
+                  중고가전 매입·구매 전 꼭 확인할 기준부터 에어컨 배관·설치, 매장 전기 용량, 사다리차·출입구 실측까지 현장에서 자주 묻는 내용을 정리했습니다.
                 </p>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:flex-col lg:items-end">
-                <div className="grid w-full grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[#E2E6EC] bg-[#E2E6EC] shadow-2xs sm:w-auto">
-                  <div className="bg-white px-4 py-3 text-center sm:text-left">
-                    <strong className="block text-hb-lg font-bold text-[#141A23] tabular-nums">
+                <div className="grid w-full grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#E2DDD3] shadow-2xs sm:w-auto">
+                  <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
+                    <strong className="block font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
                       {INFO_GUIDE_ARTICLES.length}
                     </strong>
                     <span className="block text-hb-xs font-semibold text-[#475569]">
                       전체 글
                     </span>
                   </div>
-                  <div className="bg-white px-4 py-3 text-center sm:text-left">
-                    <strong className="block text-hb-lg font-bold text-[#141A23] tabular-nums">
+                  <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
+                    <strong className="block font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
                       {INFO_GUIDE_CATEGORY_LIST.length}
                     </strong>
                     <span className="block text-hb-xs font-semibold text-[#475569]">
                       주제 분류
                     </span>
                   </div>
-                  <div className="bg-white px-4 py-3 text-center sm:text-left">
-                    <strong className="block text-hb-lg font-bold text-[#0F766E] tabular-nums">
+                  <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
+                    <strong className="block font-mono text-hb-lg font-bold text-[#0F766E] tabular-nums">
                       {GUIDE_TOOL_KIND_COUNT}
                     </strong>
                     <span className="block text-hb-xs font-semibold text-[#475569]">

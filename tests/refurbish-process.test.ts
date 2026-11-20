@@ -1,3 +1,5 @@
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
@@ -10,9 +12,14 @@ import {
   getInquiryTypeTone,
   summarizeInquiryActivity,
 } from "../lib/inquiry-feed";
+import {
+  INFO_GUIDE_ARTICLES,
+  sortGuidesByPriority,
+  toGuideBoardSummary,
+} from "../lib/info-guides";
 import { STORE, getCategoryWarrantyInfo } from "../lib/site";
 
-test("REFURBISH_STEPS defines 4 authentic steps emphasizing on-site inspection in step 1", () => {
+test("REFURBISH_STEPS defines 4 authentic steps with dedicated local photographs", () => {
   assert.equal(REFURBISH_STEPS.length, 4);
   assert.deepEqual(
     REFURBISH_STEPS.map((s) => s.tabLabel),
@@ -27,6 +34,20 @@ test("REFURBISH_STEPS defines 4 authentic steps emphasizing on-site inspection i
   const step1 = getRefurbishStepById("intake");
   assert.ok(step1.headline.includes("현장"));
   assert.equal(step1.imageSrc, "/images/field-intake-check.jpg");
+
+  const step3 = getRefurbishStepById("precheck");
+  assert.equal(step3.imageSrc, "/images/precheck-operation.jpg");
+
+  const step4 = getRefurbishStepById("delivery");
+  assert.equal(step4.imageSrc, "/images/direct-delivery-install.jpg");
+
+  for (const step of REFURBISH_STEPS) {
+    const absPath = path.join(process.cwd(), "public", step.imageSrc);
+    assert.ok(
+      fs.existsSync(absPath),
+      `단계 이미지 파일이 public 아래에 존재해야 합니다: ${step.imageSrc}`
+    );
+  }
 
   const combinedText = JSON.stringify(REFURBISH_STEPS);
   assert.equal(
@@ -124,4 +145,28 @@ test("inquiry-feed helpers compute accurate real activity summary and relative d
   assert.equal(summary.sellCount, 2);
   assert.equal(summary.buyOrBulkCount, 1);
   assert.equal(summary.answeredRate, 67);
+});
+
+test("all 65 guide board summaries resolve to existing local images with 12 unique thumbnails on page 1", () => {
+  const summaries = sortGuidesByPriority(INFO_GUIDE_ARTICLES).map(
+    toGuideBoardSummary
+  );
+  assert.equal(summaries.length, 65);
+
+  for (const item of summaries) {
+    assert.ok(item.thumbnailSrc.startsWith("/images/guide/"));
+    assert.ok(item.readMinutes > 0);
+    const absPath = path.join(process.cwd(), "public", item.thumbnailSrc);
+    assert.ok(
+      fs.existsSync(absPath),
+      `정보 게시판 썸네일 파일이 존재해야 합니다: ${item.slug} -> ${item.thumbnailSrc}`
+    );
+  }
+
+  const page1Thumbs = new Set(summaries.slice(0, 12).map((s) => s.thumbnailSrc));
+  assert.equal(
+    page1Thumbs.size,
+    12,
+    "정보 게시판 1페이지(12편)의 모든 썸네일은 서로 다른 이미지여야 합니다."
+  );
 });

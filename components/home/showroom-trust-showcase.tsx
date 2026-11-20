@@ -212,16 +212,27 @@ export function ShowroomTrustShowcase() {
             {/* 좌측 5열: 실물 현장 사진 + 핵심 원칙 요약 */}
             <div className="lg:col-span-5 flex flex-col bg-white">
               <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] lg:flex-1 w-full overflow-hidden bg-[#141A23]">
-                <Image
-                  key={activeStep.imageSrc}
-                  src={activeStep.imageSrc}
-                  alt={activeStep.imageAlt}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 42vw"
-                  quality={85}
-                  referrerPolicy="no-referrer"
-                  className="object-cover object-center transition-transform duration-300"
-                />
+                {REFURBISH_STEPS.map((step) => {
+                  const isActiveImage = step.id === activeStep.id;
+                  return (
+                    <Image
+                      key={step.id}
+                      src={step.imageSrc}
+                      alt={step.imageAlt}
+                      fill
+                      loading="eager"
+                      sizes="(max-width: 1024px) 100vw, 42vw"
+                      quality={85}
+                      referrerPolicy="no-referrer"
+                      aria-hidden={!isActiveImage}
+                      className={`object-cover object-center transition-opacity duration-200 ${
+                        isActiveImage
+                          ? "opacity-100"
+                          : "pointer-events-none opacity-0"
+                      }`}
+                    />
+                  );
+                })}
                 <div
                   className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/90 via-[#141A23]/30 to-transparent"
                   aria-hidden="true"
