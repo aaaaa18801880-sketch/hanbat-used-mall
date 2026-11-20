@@ -21,8 +21,8 @@ import {
   trackEvent,
   type InquiryTypeValue,
 } from "../../lib/site";
-import { compressAndUploadProductImages } from "../../lib/product-ops";
-import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
+import { SafeImg, useQuoteBasket } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 import {
   analyzeInquiryPhotos,
   dispatchTelegramFallback,
@@ -202,9 +202,26 @@ export function V2InquirySectionWithWizard({
 
   const goToPhotoStep = () => {
     if (selectedCategories.length === 0) {
+      if (inquiryType === "내 물건 팔기") {
+        if (
+          aiResult?.applianceCategory &&
+          (PRODUCT_CATEGORIES as readonly string[]).includes(
+            aiResult.applianceCategory
+          )
+        ) {
+          setSelectedCategories([aiResult.applianceCategory]);
+          setStep(2);
+          return;
+        }
+        if (selectedFiles.length > 0) {
+          setSelectedCategories(["기타"]);
+          setStep(2);
+          return;
+        }
+      }
       toast.error(
         inquiryType === "내 물건 팔기"
-          ? "처분하실 품목을 1개 이상 선택해 주세요."
+          ? "사진을 첨부해 AI 판독을 실행하시거나 처분할 품목을 1개 이상 선택해 주세요."
           : "상담하실 품목을 1개 이상 선택해 주세요."
       );
       return;
@@ -313,8 +330,8 @@ export function V2InquirySectionWithWizard({
       toast.error("올바른 연락처를 입력해 주세요.");
       return;
     }
-    if (password.trim().length < 4) {
-      toast.error("조회용 비밀번호 4자리 이상을 입력해 주세요.");
+    if (password.trim().length > 0 && password.trim().length < 4) {
+      toast.error("조회용 비밀번호는 4자리 이상 입력하시거나 비워두세요.");
       return;
     }
     if (!agreed) {
@@ -324,9 +341,12 @@ export function V2InquirySectionWithWizard({
 
     setSubmitting(true);
     try {
-      // 1. 사진 업로드 처리 (선택 첨부된 파일이 있는 경우 - [SEC-002] inquiries/ 하위 경로 일관 적용)
+      // 1. 사진 업로드 처리 (선택 첨부된 파일이 있는 경우에만 Supabase 스토리지 모듈 지연 로드)
       let uploadedUrls: string[] = [];
       if (selectedFiles.length > 0) {
+        const { compressAndUploadProductImages } = await import(
+          "../../lib/product-ops"
+        );
         uploadedUrls = await compressAndUploadProductImages(selectedFiles, {
           maxWidth: 1400,
           quality: 0.8,
@@ -336,8 +356,16 @@ export function V2InquirySectionWithWizard({
       }
 
       // 2. 구조화 본문 생성
-      const catSummary = selectedCategories.join(" · ");
+      const catSummary =
+        selectedCategories.length > 0
+          ? selectedCategories.join(" · ")
+          : aiResult?.applianceCategory ||
+            (inquiryType === "내 물건 팔기" ? "방문매입 가전" : "상담 품목");
       const autoTitle = `[${inquiryType}] ${catSummary} 견적 신청`;
+      const effectivePassword =
+        password.trim().length >= 4
+          ? password.trim()
+          : phone.replace(/\D/g, "").slice(-4) || "0000";
       const chipLine =
         selectedChips.length > 0
           ? `• 선택 조건: ${selectedChips.join(", ")}`
@@ -375,7 +403,7 @@ export function V2InquirySectionWithWizard({
         payload: {
           name: name.trim(),
           phone: phone.trim(),
-          password: password.trim(),
+          password: effectivePassword,
           inquiry_type: inquiryType,
           category: autoTitle,
           region: region.trim() || "대전/충청",
@@ -582,10 +610,103 @@ export function V2InquirySectionWithWizard({
               </div>
             )}
 
+            {isSell && (
+              <div className="rounded-xl border border-[#BAE6FD] bg-[#F0F9FF]/60 p-3.5 sm:p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="inline-flex items-center gap-1 rounded-md bg-[#0284C7] px-2 py-0.5 text-hb-xs font-bold text-white">
+                      <Icon d={ICON.sparkles} className="w-3 h-3" />
+                      <span>Photo-First AI 자동입력</span>
+                    </span>
+                    <p className="mt-1 text-hb-xs sm:text-hb-sm font-bold text-[#141A23]">
+                      제품 사진이나 명판 스티커를 먼저 올리면 AI가 품목·모델명을 자동으로 채워드립니다
+                    </p>
+                  </div>
+                  <span className="font-mono text-hb-xs font-bold text-[#0369A1] tabular-nums">
+                    {selectedFiles.length} / {MAX_PHOTOS}장
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {filePreviews.map((src, i) => (
+                    <div
+                      key={src}
+                      className="relative aspect-square w-16 sm:w-20 overflow-hidden rounded-xl border border-[#CBD2DC] bg-white shrink-0"
+                    >
+                      <SafeImg
+                        src={src}
+                        alt={`선택 사진 ${i + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(i)}
+                        aria-label="사진 제거"
+                        className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600 transition-colors"
+                      >
+                        <Icon d={ICON.close} className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+
+                  {selectedFiles.length < MAX_PHOTOS && (
+                    <label className="flex aspect-square w-16 sm:w-20 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#0284C7]/50 bg-white text-hb-xs font-bold text-[#0369A1] hover:border-[#0284C7] hover:bg-[#F0F9FF] transition-colors shrink-0">
+                      <Icon d={ICON.camera} className="w-4 h-4" />
+                      <span className="mt-1">+ 사진</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleFileChange}
+                      />
+                    </label>
+                  )}
+
+                  {selectedFiles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={handleAiPhotoAnalyze}
+                      disabled={analyzingAi}
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#0369A1] px-3.5 py-2 text-hb-xs font-bold text-white hover:bg-[#0284C7] transition-[background-color,transform] active:scale-[0.96] disabled:opacity-50 cursor-pointer shadow-2xs"
+                    >
+                      <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0" />
+                      <span>
+                        {analyzingAi
+                          ? "AI 사진 판독 중..."
+                          : "AI 사진 판독으로 품목·모델명 자동입력"}
+                      </span>
+                    </button>
+                  )}
+                </div>
+
+                {aiResult && (
+                  <div className="rounded-xl border border-[#CCFBF1] bg-white p-2.5 text-hb-xs text-[#0F766E] flex items-start gap-2">
+                    <Icon
+                      d={ICON.check}
+                      className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5"
+                    />
+                    <div className="leading-relaxed">
+                      <strong className="font-bold text-[#141A23]">
+                        AI 판독 자동 반영됨:
+                      </strong>{" "}
+                      {[
+                        aiResult.applianceCategory,
+                        aiResult.title,
+                        aiResult.modelNumber,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div>
               <span className="hb-label mb-2">
                 {hideTypeSelector || fixedType
-                  ? "1. 처분하실 품목을 모두 선택해 주세요 (복수 선택)"
+                  ? "1. 처분하실 품목을 선택해 주세요 (사진 첨부 시 생략 가능 · 복수 선택)"
                   : "2. 해당되는 품목을 모두 선택해 주세요 (복수 선택)"}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -938,18 +1059,17 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div>
-                  <label htmlFor={`${uid}-password`} className="hb-label text-[#64748B]">조회 비밀번호(4자+) *</label>
+                  <label htmlFor={`${uid}-password`} className="hb-label text-[#475569]">조회 비밀번호(선택)</label>
                   <input
                     id={`${uid}-password`}
                     name="new_password"
                     type="password"
                     autoComplete="new-password"
-                    required
                     minLength={4}
                     maxLength={32}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="내 글 확인용 (4~32자)"
+                    placeholder="미입력 시 연락처 뒷4자리 적용"
                     className="hb-input mt-1 h-11"
                   />
                 </div>

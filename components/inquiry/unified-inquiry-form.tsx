@@ -4,7 +4,6 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
-import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
 import {
   clearQuoteBasket,
   compressImage,
@@ -537,6 +536,7 @@ export function UnifiedInquiryForm({
     try {
       let uploadedUrls = cachedUploadedUrls ?? [];
       if (!cachedUploadedUrls && selectedFiles.length > 0) {
+        const { supabase } = await import("../../lib/supabase");
         const freshUrls: string[] = [];
         const uploadBucket = isNotice
           ? STORAGE_BUCKETS.inquiries
@@ -610,7 +610,11 @@ export function UnifiedInquiryForm({
           ? `[${applianceCategory}] ${title.trim()}`
           : title.trim();
 
-      const authHeaders = isNotice ? await getAdminAuthHeaders() : {};
+      let authHeaders: Record<string, string> = {};
+      if (isNotice) {
+        const { getAdminAuthHeaders } = await import("../../lib/supabase");
+        authHeaders = await getAdminAuthHeaders();
+      }
       const resJson = await postInquirySubmission({
         headers: authHeaders,
         payload: {

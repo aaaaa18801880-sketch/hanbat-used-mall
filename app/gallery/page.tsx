@@ -52,6 +52,7 @@ import {
   ProductTrustMicroStrip,
   type ProductItem,
 } from "../../components/products/product-card";
+import { GallerySpecTable } from "../../components/products/gallery-spec-table";
 import { ProductStatusBadge } from "../../components/products/product-status-badge";
 import {
   CopyPromoPostButton,
@@ -116,6 +117,7 @@ const SITUATION_PRESETS = [
 
 type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
 type StatusFilter = "all" | "selling" | "reserved" | "sold";
+type GalleryViewMode = "card" | "table";
 
 const CATEGORIES_WITH_ALL = ["전체", ...PRODUCT_CATEGORIES] as const;
 const PAGE_STEP = 24;
@@ -1078,6 +1080,7 @@ export default function GalleryPage() {
   const [sort, setSort] = useState<SortOption>("latest");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");
+  const [viewMode, setViewMode] = useState<GalleryViewMode>("card");
   const [urlParamsHydrated, setUrlParamsHydrated] = useState(false);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
@@ -1177,6 +1180,11 @@ export default function GalleryPage() {
       ) {
         setPriceRange(priceParam);
       }
+
+      const viewParam = params.get("view");
+      if (viewParam === "table") {
+        setViewMode("table");
+      }
       setUrlParamsHydrated(true);
     });
 
@@ -1242,6 +1250,12 @@ export default function GalleryPage() {
       url.searchParams.delete("price");
     }
 
+    if (viewMode === "table") {
+      url.searchParams.set("view", "table");
+    } else {
+      url.searchParams.delete("view");
+    }
+
     window.history.replaceState(null, "", url.toString());
   }, [
     urlParamsHydrated,
@@ -1251,6 +1265,7 @@ export default function GalleryPage() {
     statusFilter,
     priceRange,
     hasPricedProducts,
+    viewMode,
   ]);
 
   /* 카테고리별 개수 및 상태별 개수 계산 */
@@ -2309,7 +2324,7 @@ export default function GalleryPage() {
 
       {/* 메인 상품 그리드 */}
       <main id="main-content" tabIndex={-1} className="hb-container py-5 sm:py-8 flex-1 focus:outline-none">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#F1F3F6]">
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-[#E2E6EC]">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-hb-xs sm:text-hb-sm text-[#334155]">
               {isLoading ? (
@@ -2332,32 +2347,71 @@ export default function GalleryPage() {
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-hb-xs font-bold text-[#E8521A] underline underline-offset-4 hover:text-[#BF4715] ml-1"
+                className="text-hb-xs font-bold text-[#C84312] underline underline-offset-4 hover:text-[#141A23] ml-1"
               >
                 초기화
               </button>
             )}
           </div>
 
-          {isAdmin && (
-            <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <div
+              role="group"
+              aria-label="매물 표시 방식"
+              className="inline-flex items-center rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] p-0.5"
+            >
+              <button
+                type="button"
+                aria-pressed={viewMode === "card"}
+                onClick={() => {
+                  setViewMode("card");
+                  trackEvent("gallery_view_mode", { mode: "card" });
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 h-8 text-hb-xs font-bold transition-colors cursor-pointer ${
+                  viewMode === "card"
+                    ? "bg-[#141A23] text-white shadow-2xs"
+                    : "text-[#475569] hover:text-[#141A23]"
+                }`}
+              >
+                <Icon d={ICON.grid} className="w-3.5 h-3.5" />
+                <span>카드 보기</span>
+              </button>
+              <button
+                type="button"
+                aria-pressed={viewMode === "table"}
+                onClick={() => {
+                  setViewMode("table");
+                  trackEvent("gallery_view_mode", { mode: "table" });
+                }}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2.5 h-8 text-hb-xs font-bold transition-colors cursor-pointer ${
+                  viewMode === "table"
+                    ? "bg-[#141A23] text-white shadow-2xs"
+                    : "text-[#475569] hover:text-[#141A23]"
+                }`}
+              >
+                <Icon d={ICON.list} className="w-3.5 h-3.5" />
+                <span>스펙 표 보기</span>
+              </button>
+            </div>
+
+            {isAdmin && (
               <button
                 type="button"
                 onClick={() => {
                   setIsSelectMode(!isSelectMode);
                   setSelectedIds(new Set());
                 }}
-                className={`px-3 py-1 rounded text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
+                className={`px-3 h-9 rounded-lg text-hb-xs font-bold border transition-colors flex items-center gap-1.5 ${
                   effectiveSelectMode
-                    ? "bg-[#E8521A] text-white border-[#E8521A]"
+                    ? "bg-[#C84312] text-white border-[#C84312]"
                     : "bg-white text-[#141A23] border-[#E2E6EC] hover:bg-[#F7F8FA]"
                 }`}
               >
                 <Icon d={ICON.check} className="w-3.5 h-3.5" />
                 {effectiveSelectMode ? "선택 종료" : "일괄 관리"}
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {activeCategory === "에어컨/냉난방기" && (
@@ -2454,21 +2508,32 @@ export default function GalleryPage() {
         ) : (
           <>
             <h2 className="sr-only">판매 제품 목록</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5 items-stretch">
-              {displayedProducts.map((product, idx) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  eager={idx < 2}
-                  onSelect={effectiveSelectMode ? handleProductClick : undefined}
-                  onQuickView={handleProductClick}
-                  isSelectMode={effectiveSelectMode}
-                  isSelected={selectedIds.has(product.id)}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteProduct}
-                />
-              ))}
-            </div>
+            {viewMode === "table" ? (
+              <GallerySpecTable
+                products={displayedProducts}
+                isSelectMode={effectiveSelectMode}
+                selectedIds={selectedIds}
+                isAdmin={isAdmin}
+                onProductClick={handleProductClick}
+                onQuickView={handleProductClick}
+              />
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-5 items-stretch">
+                {displayedProducts.map((product, idx) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    eager={idx < 2}
+                    onSelect={effectiveSelectMode ? handleProductClick : undefined}
+                    onQuickView={handleProductClick}
+                    isSelectMode={effectiveSelectMode}
+                    isSelected={selectedIds.has(product.id)}
+                    isAdmin={isAdmin}
+                    onDelete={handleDeleteProduct}
+                  />
+                ))}
+              </div>
+            )}
 
             {filteredProducts.length > visibleLimit && (
               <div className="mt-10 text-center">

@@ -5,9 +5,8 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
-  Icon,
-  ICON,
 } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 import { ModernApplianceIcon } from "../../components/ui/modern-icons";
 import { V2InquirySectionWithWizard } from "../../components/inquiry/v2-wizard-quick-inquiry";
 import { PurchaseGuideLightbox } from "../../components/purchase/purchase-guide-lightbox";
@@ -215,7 +214,10 @@ export default function PurchasePage() {
 
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
           {/* 좌측 8컬럼: 통합 매입 신청 폼 */}
-          <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs lg:col-span-8">
+          <div
+            id="purchase-form"
+            className="scroll-mt-24 rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-7 shadow-2xs lg:col-span-8"
+          >
             <div className="mb-5 pb-4 border-b border-[#E2E6EC] flex flex-wrap items-center justify-between gap-2">
               <div>
                 <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
@@ -330,7 +332,10 @@ export default function PurchasePage() {
       </main>
 
       <SiteFooter />
-      <MobileCtaBar />
+      <MobileCtaBar
+        inquiryScrollTargetId="purchase-form"
+        inquiryFallbackType="내 물건 팔기"
+      />
     </div>
   );
 }

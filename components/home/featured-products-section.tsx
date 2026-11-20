@@ -10,7 +10,7 @@ import {
   STORE_MERCHANT_POLICY,
   telHref,
 } from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 import {
   ProductCard,
   type ProductItem,
@@ -179,48 +179,48 @@ export function FeaturedProductsSection({
       }
     >
       <div className="hb-container">
-        {/* 클린 카탈로그 헤더: 1줄 컴팩트 컨트롤 바 */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E6EC]">
-          {/* 좌측: 타이틀 + 건수 + (필터 해제 버튼) */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h2
-              id="featured-heading"
-              className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23]"
-            >
-              {activeCategoryTitle}
-            </h2>
-            <span className="text-hb-sm sm:text-hb-base font-bold text-[#64748B] tabular-nums">
-              {filteredProducts.length}건
-            </span>
-            {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
-              <button
-                type="button"
-                onClick={() => {
-                  setVisibleCount(INITIAL_DISPLAY_LIMIT);
-                  onResetCategory();
-                }}
-                className="rounded-full bg-[#F1F3F6] px-2.5 py-1 text-hb-xs font-bold text-[#4E5968] hover:bg-[#E2E6EC] hover:text-[#141A23] active:scale-[0.96] transition-[background-color,color,transform] duration-150 cursor-pointer"
+        {/* 독립 섹션 사용 시에만 상단 카탈로그 헤더 렌더링 (embedded 시에는 CategoryPictogramBar 단일 통합 바가 담당) */}
+        {!embedded && (
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-[#E2E6EC]">
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h2
+                id="featured-heading"
+                className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23]"
               >
-                전체 품목 보기
-              </button>
-            )}
-          </div>
+                {activeCategoryTitle}
+              </h2>
+              <span className="text-hb-sm sm:text-hb-base font-bold text-[#475569] tabular-nums">
+                {filteredProducts.length}건
+              </span>
+              {selectedCategory && selectedCategory.key !== "all" && onResetCategory && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisibleCount(INITIAL_DISPLAY_LIMIT);
+                    onResetCategory();
+                  }}
+                  className="rounded-xl bg-[#F1F3F6] px-2.5 py-1 text-hb-xs font-bold text-[#475569] hover:bg-[#E2E6EC] hover:text-[#141A23] active:scale-[0.96] transition-[background-color,color,transform] duration-150 cursor-pointer"
+                >
+                  전체 품목 보기
+                </button>
+              )}
+            </div>
 
-          {/* 우측: 전체 매물 링크 */}
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <Link
-              href={galleryHref}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-4 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150"
-            >
-              <span>상세 필터 · 전체 매물 보기</span>
-              <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FB923C]" />
-            </Link>
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Link
+                href={galleryHref}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white px-4 py-2 text-hb-xs sm:text-hb-sm font-bold shadow-xs active:scale-[0.96] transition-[background-color,transform] duration-150"
+              >
+                <span>상세 필터 · 전체 매물 보기</span>
+                <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FB923C]" />
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* 선택 카테고리 특화 검수 기준 스트립 */}
         {!loading && !error && categoryFact && (
-          <div className="mt-4 rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+          <div className={`${embedded ? "mt-1" : "mt-4"} rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4`}>
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
                 name={categoryFact.icon}

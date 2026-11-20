@@ -39,17 +39,29 @@ export default async function GalleryLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { data } = await supabase
-    .from("products")
-    .select(
-      "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
-    )
-    .neq("category", "배송인증")
-    .order("created_at", { ascending: false })
-    .limit(400);
+  let initialProducts: ProductItem[] | null = null;
+
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select(
+        "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
+      )
+      .neq("category", "배송인증")
+      .order("created_at", { ascending: false })
+      .limit(400);
+
+    if (error) {
+      console.error("[gallery/layout] SSR 상품 조회 실패:", error.message);
+    } else {
+      initialProducts = (data ?? []) as ProductItem[];
+    }
+  } catch (err) {
+    console.error("[gallery/layout] SSR 상품 조회 예외:", err);
+  }
 
   return (
-    <GalleryInitialDataProvider products={(data ?? []) as ProductItem[]}>
+    <GalleryInitialDataProvider products={initialProducts}>
       {children}
     </GalleryInitialDataProvider>
   );

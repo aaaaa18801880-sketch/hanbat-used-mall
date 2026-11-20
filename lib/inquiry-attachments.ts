@@ -30,36 +30,85 @@ export function isValidStorageObjectPath(objectPath: string): boolean {
   );
 }
 
-function isOwnStorageImageUrl(
+const SAFE_UPLOAD_PATH_RE = /^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,199}$/;
+const ALLOWED_IMAGE_EXT_RE = /\.(?:jpe?g|png|webp|heic|heif)$/i;
+
+function extractValidatedBucketPath(
   url: string,
-  options?: { allowPublicBucket?: boolean }
-): boolean {
+  bucket: string,
+  strictAsciiName: boolean
+): string | null {
   const base = getPublicStorageBase();
-  if (!base || !url.startsWith(base)) return false;
-  const rest = url.slice(base.length);
-  const allowPublicBucket = options?.allowPublicBucket ?? true;
+  const prefix = `${base}${bucket}/`;
+  if (!base || !url.startsWith(prefix)) return null;
 
-  const buckets = allowPublicBucket
-    ? [STORAGE_BUCKETS.inquiries, STORAGE_BUCKETS.inquiryAttachments]
-    : [STORAGE_BUCKETS.inquiryAttachments];
+  const rawRest = url.slice(prefix.length);
+  if (!rawRest || rawRest.includes("?") || rawRest.includes("#")) return null;
 
-  for (const bucket of buckets) {
-    const prefix = `${bucket}/`;
-    if (rest.startsWith(prefix)) {
-      const rawPath = rest.slice(prefix.length).split(/[?#]/)[0];
-      try {
-        const decoded = decodeURIComponent(rawPath);
-        if (!isValidStorageObjectPath(decoded)) return false;
-        // 일반 고객 문의 첨부 등록 시에는 비공개 버킷 표준 폴더(inquiries/) 경로만 허용합니다.
-        if (!allowPublicBucket && !decoded.startsWith("inquiries/")) {
-          return false;
-        }
-        return true;
-      } catch {
-        return false;
-      }
-    }
+  let decoded: string;
+  try {
+    decoded = decodeURIComponent(rawRest);
+  } catch {
+    return null;
   }
+
+  if (
+    !decoded ||
+    decoded.length > 200 ||
+    decoded.includes("..") ||
+    decoded.includes("\\") ||
+    decoded.startsWith("/") ||
+    /[\u0000-\u001f\u007f]/.test(decoded) ||
+    !ALLOWED_IMAGE_EXT_RE.test(decoded)
+  ) {
+    return null;
+  }
+
+  if (strictAsciiName && !SAFE_UPLOAD_PATH_RE.test(decoded)) {
+    return null;
+  }
+
+  // 비공개 문의 첨부 버킷은 RLS 정책상 inquiries/ 하위 폴더만 허용합니다.
+  // 신규 등록(strictAsciiName) 시 폴더 경계를 함께 강제해 타 기능 파일 참조를 차단합니다.
+  if (
+    strictAsciiName &&
+    bucket === STORAGE_BUCKETS.inquiryAttachments &&
+    !decoded.startsWith("inquiries/")
+  ) {
+    return null;
+  }
+
+  return decoded;
+}
+
+export function isOwnStorageImageUrl(
+  url: string,
+  options?: { allowPublicBucket?: boolean; strictAsciiName?: boolean }
+): boolean {
+  const allowPublicBucket = options?.allowPublicBucket ?? true;
+  const strictAsciiName = options?.strictAsciiName ?? false;
+
+  if (
+    extractValidatedBucketPath(
+      url,
+      STORAGE_BUCKETS.inquiryAttachments,
+      strictAsciiName
+    ) !== null
+  ) {
+    return true;
+  }
+
+  if (
+    allowPublicBucket &&
+    extractValidatedBucketPath(
+      url,
+      STORAGE_BUCKETS.inquiries,
+      strictAsciiName
+    ) !== null
+  ) {
+    return true;
+  }
+
   return false;
 }
 
@@ -68,26 +117,25 @@ export function sanitizeInquiryImageUrls(
   options?: { allowPublicBucket?: boolean }
 ): string[] {
   if (!Array.isArray(values)) return [];
+  const allowPublicBucket = options?.allowPublicBucket ?? true;
   return values
     .filter(
       (url): url is string =>
-        typeof url === "string" && isOwnStorageImageUrl(url, options)
+        typeof url === "string" &&
+        isOwnStorageImageUrl(url, {
+          allowPublicBucket,
+          strictAsciiName: true,
+        })
     )
     .slice(0, MAX_IMAGES_PER_INQUIRY);
 }
 
 function getAttachmentPath(url: string): string | null {
-  const base = getPublicStorageBase();
-  const prefix = `${base}${STORAGE_BUCKETS.inquiryAttachments}/`;
-  if (!base || !url.startsWith(prefix)) return null;
-  const encoded = url.slice(prefix.length).split(/[?#]/)[0];
-  if (!encoded) return null;
-  try {
-    const decoded = decodeURIComponent(encoded);
-    return isValidStorageObjectPath(decoded) ? decoded : null;
-  } catch {
-    return null;
-  }
+  return extractValidatedBucketPath(
+    url,
+    STORAGE_BUCKETS.inquiryAttachments,
+    false
+  );
 }
 
 export async function signInquiryImageLists(

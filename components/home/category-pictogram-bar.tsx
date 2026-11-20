@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { trackEvent, normalizeProductCategory } from "../../lib/site";
-import { Icon, ICON } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 import { ModernApplianceIcon, type ModernIconType } from "../ui/modern-icons";
 
 export type PictogramKey =
@@ -98,7 +98,7 @@ export const SHOWROOM_CATEGORIES: ShowroomCategoryItem[] = [
     label: "제빙기·주방설비",
     subLabel: "제빙기·세척기·스텐",
     icon: "kitchen",
-    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
+    href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&q=%EC%A0%9C%EB%B9%99%EA%B8%B0",
     filterCategory: "업소용기기",
     group: "biz",
   },
@@ -168,6 +168,18 @@ export function CategoryPictogramBar({
     }
   };
 
+  const selectedItem =
+    SHOWROOM_CATEGORIES.find((c) => c.key === selectedKey) ||
+    SHOWROOM_CATEGORIES[0];
+  const selectedCount =
+    typeof categoryCounts?.[selectedItem.key] === "number"
+      ? categoryCounts[selectedItem.key]
+      : categoryCounts?.all;
+  const cardViewHref = selectedItem.href || "/gallery";
+  const tableViewHref = cardViewHref.includes("?")
+    ? `${cardViewHref}&view=table`
+    : `${cardViewHref}?view=table`;
+
   const Wrapper = embedded ? "div" : "section";
 
   return (
@@ -177,42 +189,49 @@ export function CategoryPictogramBar({
       className={embedded ? "bg-white pt-7 pb-3 sm:pt-9 sm:pb-4" : "bg-white pt-8 pb-5 sm:pt-10 sm:pb-6"}
     >
       <div className="hb-container">
-        {/* 상단 쇼룸 카탈로그 컨트롤 바 */}
+        {/* 상단 쇼룸 카탈로그 단일 통합 컨트롤 바 */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 sm:mb-5">
-          <div className="flex flex-wrap items-baseline gap-2.5">
-            <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-[-0.02em]">
-              품목별 쇼룸 카탈로그
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h2
+              id="featured-heading"
+              className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] tracking-[-0.025em]"
+            >
+              {selectedItem.key === "all"
+                ? "품목별 쇼룸 카탈로그"
+                : `${selectedItem.label} 전시 매물`}
             </h2>
-            {typeof categoryCounts?.all === "number" && (
-              <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#64748B] tabular-nums">
-                총 {categoryCounts.all}건
+            {typeof selectedCount === "number" && (
+              <span className="rounded-md bg-[#F1F3F6] px-2.5 py-0.5 font-mono text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums">
+                {selectedCount}건 전시중
               </span>
+            )}
+            {selectedItem.key !== "all" && onSelectCategory && (
+              <button
+                type="button"
+                onClick={() => onSelectCategory(SHOWROOM_CATEGORIES[0])}
+                className="min-h-[36px] rounded-xl border border-[#CBD2DC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
+              >
+                전체 품목 보기
+              </button>
             )}
           </div>
 
-          {embedded ? (
-            <div className="flex flex-wrap items-center gap-2 text-hb-xs font-semibold">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E6EC] bg-[#F7F8FA] px-2.5 py-1 text-[#334155]">
-                <span className="h-2 w-2 rounded-full bg-[#0284C7]" aria-hidden="true" />
-                <span>가정용 가전 4분류</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[#FED7AA] bg-[#FFF4EE] px-2.5 py-1 text-[#C84312]">
-                <span className="h-2 w-2 rounded-full bg-[#E8521A]" aria-hidden="true" />
-                <span>업소·창업 설비 3분류</span>
-              </span>
-            </div>
-          ) : (
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <Link
-              href="/gallery"
-              className="group inline-flex items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
+              href={cardViewHref}
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#141A23] px-3.5 py-2 text-hb-xs font-bold text-white shadow-2xs hover:bg-[#1E2736] active:scale-[0.96] transition-[background-color,transform] duration-150"
             >
-              <span>갤러리 전체보기</span>
-              <Icon
-                d={ICON.right}
-                className="w-3.5 h-3.5 text-[#E8521A] transition-transform duration-150 group-hover:translate-x-0.5"
-              />
+              <Icon d={ICON.grid} className="w-3.5 h-3.5 text-[#FF8A50]" />
+              <span>카드형 갤러리</span>
             </Link>
-          )}
+            <Link
+              href={tableViewHref}
+              className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150"
+            >
+              <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
+              <span>스펙 일람표 보기</span>
+            </Link>
+          </div>
         </div>
 
         {/* 전 품목 쇼룸 카탈로그 트레이 */}

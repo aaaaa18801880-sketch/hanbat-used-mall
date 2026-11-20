@@ -1,6 +1,7 @@
 import React from "react";
 import { getCategoryWarrantyInfo, STORE } from "../../lib/site";
-import { SectionHeading, Icon, ICON } from "../../lib/ui";
+import { SectionHeading } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 
 const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
 const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");

@@ -158,7 +158,7 @@ interface NotificationDedupEntry {
 }
 
 const MAX_DEDUP_KEYS = 2000;
-const PENDING_INFLIGHT_WINDOW_MS = 8 * 1000;
+const PENDING_INFLIGHT_WINDOW_MS = 15 * 1000;
 const notificationDedupCache = new Map<string, NotificationDedupEntry>();
 
 function hasServiceRoleConfig(): boolean {
@@ -481,15 +481,31 @@ export async function checkRateLimit(
 }
 
 /**
- * 문의 게시글 비밀번호 검증 전용 이중 브루트포스 방어 (분산 RPC + Fail-Closed)
- * 1) 게시글 ID 전역 실패 누적 Lockout 조회(increment=false): 다중 IP 분산 공격 시 15분간 10회 실패 도달 시 잠금
- * 2) IP + 게시글 ID 기준 시도 차감(increment=true): 5분당 최대 5회 시도 허용
+ * 문의 게시글 비밀번호 검증 전용 3중 브루트포스 방어 (분산 RPC + Fail-Closed + TOCTOU 차단)
+ * 1) 전역 IP 버킷(pw_ip_global:{ip}): 15분 최대 20회, scrypt 이전 원자적 선차감
+ * 2) 게시글 전역 Lockout(pw_lockout:{inquiryId}): 15분 최대 10회 실패 잠금 확인(increment=false)
+ * 3) IP + 게시글 ID 버킷(pw_verify:{ip}:{inquiryId}): 5분 최대 5회, scrypt 이전 원자적 선차감
+ * - 모든 버킷은 fail-closed로 동작하여 DB RPC 장애 시에도 브루트포스 우회를 차단합니다.
  */
 export async function checkInquiryPasswordRateLimit(
   ip: string,
   inquiryId: string,
   options?: Pick<RateLimitOptions, "rpcRunner">
 ): Promise<{ allowed: boolean; retryAfterSec: number }> {
+  const globalIpRate = await checkRateLimit(
+    `pw_ip_global:${ip}`,
+    20,
+    15 * 60 * 1000,
+    {
+      failureMode: "fail-closed",
+      increment: true,
+      rpcRunner: options?.rpcRunner,
+    }
+  );
+  if (!globalIpRate.allowed) {
+    return globalIpRate;
+  }
+
   const lockout = await checkRateLimit(
     `pw_lockout:${inquiryId}`,
     10,
@@ -504,10 +520,9 @@ export async function checkInquiryPasswordRateLimit(
     return lockout;
   }
 
-  // 조회 시에는 차감하지 않고 한도 초과 여부만 확인하며, 실제 실패 시점에만 차감합니다.
   return checkRateLimit(`pw_verify:${ip}:${inquiryId}`, 5, 5 * 60 * 1000, {
     failureMode: "fail-closed",
-    increment: false,
+    increment: true,
     rpcRunner: options?.rpcRunner,
   });
 }

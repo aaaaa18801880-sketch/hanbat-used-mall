@@ -153,7 +153,7 @@ CREATE OR REPLACE FUNCTION public.claim_notification_idempotency(
   p_dedup_key text,
   p_channel text DEFAULT 'telegram',
   p_ttl_sec integer DEFAULT 180,
-  p_stale_pending_sec integer DEFAULT 8,
+  p_stale_pending_sec integer DEFAULT 15,
   p_force_retry boolean DEFAULT false
 )
 RETURNS TABLE(is_duplicate boolean, current_status text, attempt_count integer)
@@ -164,6 +164,7 @@ AS $$
 DECLARE
   v_now timestamptz := now();
   v_expires timestamptz := v_now + make_interval(secs => p_ttl_sec);
+  v_inflight_sec integer := GREATEST(15, COALESCE(p_stale_pending_sec, 15));
   v_existing public.notification_dispatches%ROWTYPE;
 BEGIN
   IF random() < 0.02 THEN
@@ -182,7 +183,7 @@ BEGIN
     END IF;
 
     IF v_existing.status = 'PENDING'
-       AND v_existing.updated_at > (v_now - make_interval(secs => p_stale_pending_sec)) THEN
+       AND v_existing.updated_at > (v_now - make_interval(secs => v_inflight_sec)) THEN
       RETURN QUERY SELECT true, v_existing.status, v_existing.attempt_count;
       RETURN;
     END IF;
@@ -201,9 +202,25 @@ BEGIN
           WHEN public.notification_dispatches.expires_at <= v_now THEN 1
           ELSE public.notification_dispatches.attempt_count + 1
         END,
-        expires_at = v_expires,
+        expires_at = EXCLUDED.expires_at,
         updated_at = v_now
+    WHERE p_force_retry = true
+       OR public.notification_dispatches.expires_at <= v_now
+       OR public.notification_dispatches.status = 'FAILED'
+       OR (
+         public.notification_dispatches.status = 'PENDING'
+         AND public.notification_dispatches.updated_at <= v_now - make_interval(secs => v_inflight_sec)
+       )
   RETURNING * INTO v_existing;
+
+  IF NOT FOUND THEN
+    SELECT * INTO v_existing
+    FROM public.notification_dispatches
+    WHERE dedup_key = p_dedup_key;
+
+    RETURN QUERY SELECT true, v_existing.status, v_existing.attempt_count;
+    RETURN;
+  END IF;
 
   RETURN QUERY SELECT false, v_existing.status, v_existing.attempt_count;
 END;
@@ -279,5 +296,38 @@ CREATE INDEX IF NOT EXISTS idx_products_category_status_created
 
 CREATE INDEX IF NOT EXISTS idx_purchase_requests_notice_status_created
   ON public.purchase_requests (is_notice, status, created_at DESC);
+
+-- ----------------------------------------------------------------------------
+-- 6. [H-2] 문의 삭제 시 40,000행 풀스캔 방지를 위한 첨부파일 참조 확인 RPC
+-- ----------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_referenced_storage_paths(
+  p_paths text[],
+  p_exclude_inquiry_id text DEFAULT NULL
+)
+RETURNS text[]
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT COALESCE(array_agg(DISTINCT target_path), ARRAY[]::text[])
+  FROM unnest(COALESCE(p_paths, ARRAY[]::text[])) AS target_path
+  WHERE EXISTS (
+    SELECT 1
+    FROM public.products p
+    WHERE strpos(coalesce(p.image_url, ''), target_path) > 0
+  )
+  OR EXISTS (
+    SELECT 1
+    FROM public.purchase_requests pr
+    WHERE (p_exclude_inquiry_id IS NULL OR pr.id::text <> p_exclude_inquiry_id)
+      AND (
+        strpos(coalesce(pr.image_url, ''), target_path) > 0
+        OR strpos(coalesce(pr.images::text, ''), target_path) > 0
+      )
+  );
+$$;
+
+REVOKE ALL ON FUNCTION public.get_referenced_storage_paths(text[], text) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION public.get_referenced_storage_paths(text[], text) TO service_role;
 
 COMMIT;

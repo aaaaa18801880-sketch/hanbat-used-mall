@@ -16,7 +16,6 @@ import {
   getClientIp,
   hashInquiryPasswordAsync,
   recordInquiryPasswordFailure,
-  recordInquiryPasswordIpFailure,
   verifyAdminRequest,
   verifyInquiryPasswordWithMeta,
   verifySameOriginRequest,
@@ -32,6 +31,103 @@ export const runtime = "nodejs";
 function isValidInquiryId(id: string): boolean {
   const trimmed = id.trim();
   return trimmed.length > 0 && trimmed.length <= 64 && /^[a-zA-Z0-9_-]+$/.test(trimmed);
+}
+
+function isSafeFilterFileName(filePath: string): boolean {
+  return (
+    filePath.length > 0 &&
+    filePath.length <= 200 &&
+    /^[a-zA-Z0-9][a-zA-Z0-9._/-]{0,199}$/.test(filePath) &&
+    !filePath.includes("..")
+  );
+}
+
+async function filterUnreferencedStorageFiles(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+  candidatePaths: string[],
+  attachedUrls: string[],
+  excludeInquiryId: string
+): Promise<string[]> {
+  const safePaths = Array.from(
+    new Set(candidatePaths.filter((p) => isSafeFilterFileName(p)))
+  ).slice(0, 5);
+  if (safePaths.length === 0) return [];
+
+  // 1순위: PostgreSQL RPC(get_referenced_storage_paths)로 1~5개 파일명만 DB 내부 EXISTS 단건 조회
+  try {
+    const { data: rpcReferenced, error: rpcErr } = await supabase.rpc(
+      "get_referenced_storage_paths",
+      {
+        p_paths: safePaths,
+        p_exclude_inquiry_id: excludeInquiryId,
+      }
+    );
+    if (!rpcErr && Array.isArray(rpcReferenced)) {
+      const referencedSet = new Set(
+        rpcReferenced.map((item: unknown) => String(item))
+      );
+      return safePaths.filter((p) => !referencedSet.has(p));
+    }
+  } catch {
+    // RPC 미배포 환경에서는 아래 제한적 조건 조회 폴백 사용
+  }
+
+  // 2순위 폴백: 40,000행 풀스캔 없이 대상 파일명 1~5개에 대해서만 .or(...) 조건 조회
+  const orImageUrlFilter = safePaths
+    .map((p) => `image_url.ilike.*${p}*`)
+    .join(",");
+
+  const [prodRes, inqUrlRes, inqArrRes] = await Promise.all([
+    supabase
+      .from("products")
+      .select("image_url")
+      .or(orImageUrlFilter)
+      .limit(20),
+    supabase
+      .from("purchase_requests")
+      .select("image_url")
+      .neq("id", excludeInquiryId)
+      .or(orImageUrlFilter)
+      .limit(20),
+    attachedUrls.length > 0
+      ? supabase
+          .from("purchase_requests")
+          .select("images")
+          .neq("id", excludeInquiryId)
+          .overlaps("images", attachedUrls.slice(0, 5))
+          .limit(20)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+
+  // 참조 확인 쿼리가 실패한 경우 다른 레코드의 공용 파일 오삭제를 막기 위해 보수적으로 중단
+  if (prodRes.error || inqUrlRes.error) {
+    console.warn(
+      "[inquiries DELETE] 첨부 참조 확인 실패로 Storage 삭제 생략:",
+      prodRes.error?.message || inqUrlRes.error?.message
+    );
+    return [];
+  }
+
+  const haystacks: string[] = [];
+  for (const row of prodRes.data ?? []) {
+    if (typeof row.image_url === "string") haystacks.push(row.image_url);
+  }
+  for (const row of inqUrlRes.data ?? []) {
+    if (typeof row.image_url === "string") haystacks.push(row.image_url);
+  }
+  if (!inqArrRes.error) {
+    for (const row of inqArrRes.data ?? []) {
+      if (Array.isArray(row.images)) {
+        for (const u of row.images) {
+          if (typeof u === "string") haystacks.push(u);
+        }
+      }
+    }
+  }
+
+  return safePaths.filter(
+    (filePath) => !haystacks.some((refText) => refText.includes(filePath))
+  );
 }
 
 const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
@@ -103,7 +199,6 @@ export async function POST(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
-        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않습니다." },
           { status: 401 }
@@ -236,7 +331,6 @@ export async function PATCH(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
-        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           {
             error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
@@ -403,7 +497,6 @@ export async function DELETE(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
-        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않아 삭제할 수 없습니다." },
           { status: 401 }
@@ -411,10 +504,12 @@ export async function DELETE(
       }
     }
 
-    const { error: deleteError } = await supabase
+    const { data: deletedRow, error: deleteError } = await supabase
       .from("purchase_requests")
       .delete()
-      .eq("id", id);
+      .eq("id", id)
+      .select("id")
+      .maybeSingle();
 
     if (deleteError) {
       console.error("[inquiries DELETE] DB 삭제 오류:", deleteError.message);
@@ -424,7 +519,14 @@ export async function DELETE(
       );
     }
 
-    // 게시글 삭제 성공 시 다른 레코드에서 참조하지 않는 본인 첨부 Storage 이미지만 안전하게 파기
+    if (!deletedRow) {
+      return NextResponse.json(
+        { error: "해당 게시글을 삭제할 권한이 없거나 이미 삭제되었습니다." },
+        { status: !isAdmin && !process.env.SUPABASE_SERVICE_ROLE_KEY ? 403 : 404 }
+      );
+    }
+
+    // 게시글 삭제 확정 후 연결된 Storage 첨부파일만 조건 조회하여 안전 파기
     try {
       const attachedImages = extractInquiryImages(existing);
       if (attachedImages.length > 0) {
@@ -434,91 +536,44 @@ export async function DELETE(
           attachments: attachmentFiles,
         } = extractStorageFilesByBucket(attachedImages);
 
-        const cleanupClient = isAdmin ? supabase : createServiceRoleClient();
-        const referencedPaths = new Set<string>();
-        let canVerifyRefs = true;
-        const pageSize = 500;
-        const maxPages = 40;
+        const cleanupClient = createServiceRoleClient();
 
-        for (let page = 0; page < maxPages; page++) {
-          const from = page * pageSize;
-          const { data: otherRows, error: refErr } = await cleanupClient
-            .from("purchase_requests")
-            .select("id, images, image_url")
-            .neq("id", id)
-            .order("id", { ascending: true })
-            .range(from, from + pageSize - 1);
-
-          if (refErr) {
-            canVerifyRefs = false;
-            break;
-          }
-          const rows = otherRows ?? [];
-          for (const row of rows) {
-            for (const url of extractInquiryImages(row)) {
-              const extracted = extractStorageFilesByBucket([url]);
-              [
-                ...extracted.inquiries,
-                ...extracted.productImages,
-                ...extracted.attachments,
-              ].forEach((p) => referencedPaths.add(p));
-            }
-          }
-          if (rows.length < pageSize) break;
-          if (page === maxPages - 1) canVerifyRefs = false;
+        const safeAttachmentFiles = await filterUnreferencedStorageFiles(
+          cleanupClient,
+          attachmentFiles,
+          attachedImages,
+          id
+        );
+        if (safeAttachmentFiles.length > 0) {
+          await cleanupClient.storage
+            .from(STORAGE_BUCKETS.inquiryAttachments)
+            .remove(safeAttachmentFiles);
         }
 
-        // 관리자 공지/레거시 공용 버킷 삭제 전에는 상품 테이블 참조 여부까지 함께 확인
-        if (isAdmin && canVerifyRefs && (inqFiles.length > 0 || prodFiles.length > 0)) {
-          for (let page = 0; page < maxPages; page++) {
-            const from = page * pageSize;
-            const { data: prodRows, error: prodRefErr } = await cleanupClient
-              .from("products")
-              .select("id, image_url")
-              .order("id", { ascending: true })
-              .range(from, from + pageSize - 1);
-
-            if (prodRefErr) {
-              canVerifyRefs = false;
-              break;
-            }
-            const pRows = prodRows ?? [];
-            for (const pRow of pRows) {
-              const raw = typeof pRow.image_url === "string" ? pRow.image_url : "";
-              if (!raw) continue;
-              const extracted = extractStorageFilesByBucket(raw.split(",").map((s) => s.trim()));
-              [...extracted.inquiries, ...extracted.productImages].forEach((p) =>
-                referencedPaths.add(p)
-              );
-            }
-            if (pRows.length < pageSize) break;
-            if (page === maxPages - 1) canVerifyRefs = false;
-          }
-        }
-
-        if (canVerifyRefs) {
-          const unreferencedAttachments = attachmentFiles.filter(
-            (p) => !referencedPaths.has(p) && (isAdmin || p.startsWith("inquiries/"))
+        // 공개 버킷(inquiries / product-images)은 공지사항이거나 관리자 삭제 시에만 미참조 검증 후 삭제
+        if (isAdmin || Boolean(existing.is_notice)) {
+          const safeInqFiles = await filterUnreferencedStorageFiles(
+            cleanupClient,
+            inqFiles,
+            attachedImages,
+            id
           );
-          if (unreferencedAttachments.length > 0) {
+          if (safeInqFiles.length > 0) {
             await cleanupClient.storage
-              .from(STORAGE_BUCKETS.inquiryAttachments)
-              .remove(unreferencedAttachments);
+              .from(STORAGE_BUCKETS.inquiries)
+              .remove(safeInqFiles);
           }
 
-          if (isAdmin) {
-            const unreferencedInq = inqFiles.filter((p) => !referencedPaths.has(p));
-            if (unreferencedInq.length > 0) {
-              await cleanupClient.storage
-                .from(STORAGE_BUCKETS.inquiries)
-                .remove(unreferencedInq);
-            }
-            const unreferencedProd = prodFiles.filter((p) => !referencedPaths.has(p));
-            if (unreferencedProd.length > 0) {
-              await cleanupClient.storage
-                .from(STORAGE_BUCKETS.legacyProductImages)
-                .remove(unreferencedProd);
-            }
+          const safeProdFiles = await filterUnreferencedStorageFiles(
+            cleanupClient,
+            prodFiles,
+            attachedImages,
+            id
+          );
+          if (safeProdFiles.length > 0) {
+            await cleanupClient.storage
+              .from(STORAGE_BUCKETS.legacyProductImages)
+              .remove(safeProdFiles);
           }
         }
       }
@@ -526,7 +581,7 @@ export async function DELETE(
       console.warn("문의 첨부 이미지 Storage 정리 중 경미한 오류:", storageErr);
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, deletedId: deletedRow.id });
   } catch {
     return NextResponse.json(
       { error: "게시글 삭제 처리 중 오류가 발생했습니다." },

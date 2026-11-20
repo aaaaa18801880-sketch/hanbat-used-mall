@@ -2,13 +2,13 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { supabase, getAdminAuthHeaders } from "../../lib/supabase";
 import { useIsAdminSession } from "../../lib/use-admin-session";
 import toast from "react-hot-toast";
 import {
   STORE,
   telHref,
   maskName,
+  formatKstBoardDate,
   isSellInquiry,
   isBuyInquiry,
   isBulkBizInquiry,
@@ -73,15 +73,23 @@ const typeStyle = (t?: string | null) =>
     ? "bg-[#F1F3F6] text-[#141A23]"
     : "bg-[#F7F8FA] text-[#334155]";
 
-const formatDate = (dateStr?: string | null) => {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return d.getFullYear() === new Date().getFullYear()
-    ? `${mm}-${dd}`
-    : `${String(d.getFullYear()).slice(2)}-${mm}-${dd}`;
-};
+const formatDate = (dateStr?: string | null) =>
+  formatKstBoardDate(dateStr ?? undefined);
+
+function hasStoredSupabaseSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    for (let i = 0; i < window.localStorage.length; i += 1) {
+      const key = window.localStorage.key(i);
+      if (key && key.startsWith("sb-") && key.endsWith("-auth-token")) {
+        return Boolean(window.localStorage.getItem(key));
+      }
+    }
+  } catch {
+    return false;
+  }
+  return false;
+}
 
 function StatusBadge({
   status,
@@ -156,11 +164,22 @@ export function InquiryBoardClient({
   const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
 
+  const getOptionalAdminHeaders = useCallback(
+    async (): Promise<Record<string, string>> => {
+      if (!isAdmin && !hasStoredSupabaseSession()) {
+        return {};
+      }
+      const { getAdminAuthHeaders } = await import("../../lib/supabase");
+      return getAdminAuthHeaders();
+    },
+    [isAdmin]
+  );
+
   const loadData = useCallback(async () => {
     setIsLoading(true);
     setLoadError(false);
     try {
-      const headers = await getAdminAuthHeaders();
+      const headers = await getOptionalAdminHeaders();
       const res = await fetch("/api/inquiries", { headers });
       if (!res.ok) throw new Error("목록 조회 실패");
       const json = await res.json();
@@ -171,7 +190,7 @@ export function InquiryBoardClient({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [getOptionalAdminHeaders]);
 
   const wasAdminRef = React.useRef(isAdmin);
 
@@ -182,7 +201,7 @@ export function InquiryBoardClient({
     let active = true;
     void (async () => {
       try {
-        const headers = await getAdminAuthHeaders();
+        const headers = await getOptionalAdminHeaders();
         const res = await fetch("/api/inquiries", { headers });
         if (!res.ok) throw new Error("목록 조회 실패");
         const json = await res.json();
@@ -200,7 +219,7 @@ export function InquiryBoardClient({
     return () => {
       active = false;
     };
-  }, [isAdmin, initialLoaded]);
+  }, [isAdmin, initialLoaded, getOptionalAdminHeaders]);
 
   /* 상품 상세 페이지(/gallery 또는 /[id])에서 넘어온 쿼리 파라미터 자동 프리필 */
   useEffect(() => {
@@ -350,7 +369,7 @@ export function InquiryBoardClient({
 
     if (isAdmin) {
       try {
-        const headers = await getAdminAuthHeaders();
+        const headers = await getOptionalAdminHeaders();
         const res = await fetch(`/api/inquiries/${item.id}`, {
           method: "POST",
           headers: { ...headers, "Content-Type": "application/json" },
@@ -406,7 +425,7 @@ export function InquiryBoardClient({
     }
     setIsReplying(true);
     try {
-      const headers = await getAdminAuthHeaders();
+      const headers = await getOptionalAdminHeaders();
       const res = await fetch(`/api/inquiries/${selectedItem.id}`, {
         method: "PATCH",
         headers: { ...headers, "Content-Type": "application/json" },
@@ -437,7 +456,7 @@ export function InquiryBoardClient({
 
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     try {
-      const headers = await getAdminAuthHeaders();
+      const headers = await getOptionalAdminHeaders();
       const res = await fetch(`/api/inquiries/${id}`, {
         method: "PATCH",
         headers: { ...headers, "Content-Type": "application/json" },
@@ -463,6 +482,7 @@ export function InquiryBoardClient({
 
   const handleAdminLogout = async () => {
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
+      const { supabase } = await import("../../lib/supabase");
       await supabase.auth.signOut();
       toast.success("관리자 모드가 종료되었습니다.");
     }
@@ -483,7 +503,7 @@ export function InquiryBoardClient({
     const nextType = selectedItem.is_notice ? "공지사항" : editInquiryType;
 
     try {
-      const headers = await getAdminAuthHeaders();
+      const headers = await getOptionalAdminHeaders();
       const res = await fetch(`/api/inquiries/${selectedItem.id}`, {
         method: "PATCH",
         headers: { ...headers, "Content-Type": "application/json" },
@@ -521,7 +541,7 @@ export function InquiryBoardClient({
     if (!confirm("정말 이 글을 삭제하시겠습니까? (복구 불가능)")) return;
     const id = selectedItem.id;
     try {
-      const headers = await getAdminAuthHeaders();
+      const headers = await getOptionalAdminHeaders();
       const res = await fetch(`/api/inquiries/${id}`, {
         method: "DELETE",
         headers: { ...headers, "Content-Type": "application/json" },

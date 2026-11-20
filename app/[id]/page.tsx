@@ -28,9 +28,8 @@ import {
   SiteHeader,
   SiteFooter,
   MobileCtaBar,
-  Icon,
-  ICON,
 } from "../../lib/ui";
+import { Icon, ICON } from "../../lib/icons";
 import {
   ProductDetailGallery,
   CopyProductLinkButton,

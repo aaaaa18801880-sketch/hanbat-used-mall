@@ -358,6 +358,20 @@ export default function RootLayout({
             __html: serializeJsonLd(localBusinessJsonLd),
           }}
         />
+        <script
+          type="speculationrules"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              prefetch: [
+                {
+                  source: "list",
+                  urls: ["/", "/gallery", "/purchase", "/guide"],
+                  eagerness: "moderate",
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body>
         <Toaster position="top-center" toastOptions={{ duration: 3000 }} />

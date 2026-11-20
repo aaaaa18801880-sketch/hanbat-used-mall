@@ -9,7 +9,7 @@ export function GalleryInitialDataProvider({
   products,
   children,
 }: {
-  products: ProductItem[];
+  products: ProductItem[] | null;
   children: ReactNode;
 }) {
   return (

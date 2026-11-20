@@ -81,11 +81,12 @@ export function ProductCompareModal({
         {/* 상단 헤더 */}
         <div className="flex items-center justify-between border-b border-[#E2E6EC] bg-[#141A23] px-5 py-4 text-white">
           <div>
-            <span className="text-hb-xs font-bold text-[#FF8A50]">
-              실매물 스펙 · 조건 한눈에 비교
+            <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#FF8A50]">
+              <Icon d={ICON.columns} className="w-3.5 h-3.5" />
+              <span>실매물 스펙 · 가로폭 스플릿 비교</span>
             </span>
-            <h2 className="text-hb-lg font-bold">
-              선택한 매물 비교 (<span className="tabular-nums font-mono">{compareItems.length}</span>건)
+            <h2 className="mt-0.5 text-hb-lg font-bold">
+              선택한 매물 나란히 비교 (<span className="tabular-nums font-mono">{compareItems.length}</span> / 3종)
             </h2>
           </div>
           <button
@@ -154,7 +155,7 @@ export function ProductCompareModal({
               <table className="w-full min-w-[540px] border-collapse text-left text-hb-sm">
                 <thead>
                   <tr className="border-b border-[#E2E6EC]">
-                    <th className="w-[110px] sm:w-[130px] bg-[#F7F8FA] p-3 font-bold text-[#64748B] align-middle">
+                    <th className="w-[110px] sm:w-[130px] bg-[#F7F8FA] p-3 font-bold text-[#475569] align-middle">
                       비교 항목
                     </th>
                     {compareItems.map((item) => {
@@ -217,7 +218,7 @@ export function ProductCompareModal({
                       return (
                         <td
                           key={item.id}
-                          className="p-3 font-bold text-hb-base text-[#E8521A] border-l border-[#E2E6EC] tabular-nums"
+                          className="p-3 font-bold text-hb-base text-[#C84312] border-l border-[#E2E6EC] tabular-nums"
                         >
                           {sold
                             ? "판매완료 (유사재고 문의)"
@@ -305,7 +306,7 @@ export function ProductCompareModal({
                               {model}
                             </span>
                           ) : (
-                            <span className="text-[#94A3B8]">
+                            <span className="text-[#526071]">
                               정보 없음 (상세 문의)
                             </span>
                           )}
@@ -322,11 +323,11 @@ export function ProductCompareModal({
                     {compareItems.map((item) => (
                       <td key={item.id} className="p-3 border-l border-[#E2E6EC]">
                         {item.conditionGrade ? (
-                          <span className="inline-block rounded bg-[#FFF4EE] border border-[#FADCD0] px-2 py-0.5 text-hb-xs font-bold text-[#E8521A]">
+                          <span className="inline-block rounded bg-[#FFF4EE] border border-[#FADCD0] px-2 py-0.5 text-hb-xs font-bold text-[#C84312]">
                             {item.conditionGrade}
                           </span>
                         ) : (
-                          <span className="text-[#64748B]">
+                          <span className="text-[#475569]">
                             세척·점검 완료 (상세 문의)
                           </span>
                         )}
@@ -363,7 +364,7 @@ export function ProductCompareModal({
                               ))}
                             </div>
                           ) : (
-                            <span className="text-[#94A3B8]">
+                            <span className="text-[#526071]">
                               정보 없음 (상세 문의)
                             </span>
                           )}
@@ -386,7 +387,7 @@ export function ProductCompareModal({
                             className="p-3 border-l border-[#E2E6EC] text-[#141A23]"
                           >
                             {val || (
-                              <span className="text-[#94A3B8]">
+                              <span className="text-[#526071]">
                                 정보 없음 (상세 문의)
                               </span>
                             )}

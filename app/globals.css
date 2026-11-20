@@ -6,14 +6,46 @@
 :root {
   interpolate-size: allow-keywords;
 
-  --hb-surface: #ffffff;
-  --hb-surface-muted: #f7f8fa;
-  --hb-border: #e2e6ec;
-  --hb-brand: #e8521a;
+  /* 1. Primary Navy */
+  --hb-navy: #141a23;
+  --hb-navy-hover: #1e2736;
+  --hb-navy-subtle: #f1f3f6;
+
+  /* 2. Brand Accent: 장식 도트/그래픽 #E8521A · 밝은 배경 텍스트·단색 버튼 #C84312 (WCAG AA) */
+  --hb-orange: #e8521a;
   --hb-brand-text: #c84312;
+  --hb-orange-hover: #a9370d;
+  --hb-orange-subtle: #fff4ee;
+  --hb-orange-oklch: oklch(62.8% 0.194 38);
+
+  /* 3. Semantic Accents: Hygiene Teal & Technical Cyan */
+  --hb-teal: #0d9488;
+  --hb-teal-text: #0f766e;
+  --hb-teal-subtle: #f0fdfa;
+  --hb-teal-border: #ccfbf1;
+
+  --hb-cyan: #0284c7;
+  --hb-cyan-text: #0369a1;
+  --hb-cyan-subtle: #f0f9ff;
+  --hb-cyan-border: #bae6fd;
+
+  /* 4. Canvas & Surfaces */
+  --hb-surface: #ffffff;
+  --hb-bg-subtle: #f7f8fa;
+  --hb-bg-warm: #f1f3f6;
+  --hb-bg-muted: #e2e6ec;
+
+  --hb-border: #e2e6ec;
+  --hb-border-strong: #cbd2dc;
+
   --hb-text-primary: #141a23;
   --hb-text-secondary: #334155;
   --hb-text-muted: #475569;
+  --hb-text-subtle: #64748b;
+
+  /* 기존 컴포넌트 호환 별칭 */
+  --hb-surface-muted: var(--hb-bg-subtle);
+  --hb-brand: var(--hb-orange);
 
   --hb-shadow-card:
     0 1px 2px rgba(20, 26, 35, 0.04),
@@ -142,7 +174,7 @@ body {
   }
 
   .hb-input {
-    @apply w-full h-11 rounded-xl border border-[#CBD2DC] bg-white px-3.5 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-[border-color,box-shadow,background-color] duration-150 focus:border-[#141A23] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 disabled:bg-[#F1F3F6] disabled:text-[#94A3B8];
+    @apply w-full h-11 rounded-xl border border-[#CBD2DC] bg-white px-3.5 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#475569] transition-[border-color,box-shadow,background-color] duration-150 focus:border-[#141A23] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 disabled:bg-[#F1F3F6] disabled:text-[#475569];
   }
 
   .hb-btn {
@@ -174,14 +206,44 @@ body {
   .hb-btn-accent {
     @apply hb-btn text-white focus-visible:ring-[#C84312];
     background-color: #c84312;
-    background-image: linear-gradient(135deg var(--in-oklch), #d64915 0%, #b53a0c 100%);
+    background-image: linear-gradient(135deg, #d14815 0%, #b2380c 100%);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.25),
-      0 4px 12px -2px rgba(200, 67, 18, 0.3);
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
+      0 4px 12px -2px rgba(200, 67, 18, 0.28);
   }
 
   .hb-btn-accent:hover {
-    background-image: linear-gradient(135deg var(--in-oklch), #c84312 0%, #9e320a 100%);
+    background-image: linear-gradient(135deg, #bc3d0f 0%, #9b3009 100%);
+  }
+
+  .hb-compare-range {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+  }
+
+  .hb-compare-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 9999px;
+    background: transparent;
+    cursor: ew-resize;
+  }
+
+  .hb-compare-range::-moz-range-thumb {
+    width: 44px;
+    height: 44px;
+    border: 0;
+    border-radius: 9999px;
+    background: transparent;
+    cursor: ew-resize;
+  }
+
+  .hb-compare-range:focus-visible {
+    outline: 2px solid #c84312;
+    outline-offset: -2px;
   }
 
   .hb-btn-outline {
@@ -220,11 +282,6 @@ body {
       #eaeef4 100%
     );
     box-shadow: inset 0 -1px 0 0 rgba(20, 26, 35, 0.05);
-  }
-
-  .hb-below-fold {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 540px;
   }
 
   .hb-guide-deferred-card {
@@ -507,5 +564,126 @@ dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
   .hb-product-card:hover,
   .hb-btn:hover > svg:last-child {
     transform: none;
+  }
+
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* View Transitions & Scroll-Driven Animations (2026 Progressive Enhancement, Zero JS scroll listeners) */
+@view-transition {
+  navigation: auto;
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hb-scroll-reveal {
+      animation: hbViewReveal linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 22%;
+    }
+  }
+}
+
+@keyframes hbViewReveal {
+  from {
+    opacity: 0.92;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .hb-header {
+    animation: hbHeaderScrollShadow linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0px 48px;
+  }
+}
+
+@keyframes hbHeaderScrollShadow {
+  from {
+    border-bottom-color: rgba(226, 230, 236, 0.85);
+  }
+  to {
+    border-bottom-color: #cbd2dc;
+  }
+}
+
+/* Gallery Spec Sheet Responsive Table (Swiss Grid + @container stacked fallback) */
+.hb-spec-table-wrap {
+  container-type: inline-size;
+  overflow: auto;
+  max-inline-size: 100%;
+  scrollbar-gutter: stable;
+}
+
+.hb-spec-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+@container (width >= 680px) {
+  .hb-spec-table thead {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 10;
+  }
+}
+
+@container (width < 680px) {
+  .hb-spec-table,
+  .hb-spec-table thead,
+  .hb-spec-table tbody,
+  .hb-spec-table tr,
+  .hb-spec-table th,
+  .hb-spec-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .hb-spec-table thead {
+    display: none;
+  }
+
+  .hb-spec-table tbody tr {
+    border-bottom: 1px solid #e2e6ec;
+    padding: 0.75rem;
+    background-color: #ffffff;
+  }
+
+  .hb-spec-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .hb-spec-table tbody th[scope="row"] {
+    padding: 0 0 0.625rem 0;
+    border-bottom: 1px solid #f1f3f6;
+  }
+
+  .hb-spec-table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+    border-top: 0;
+    text-align: right;
+  }
+
+  .hb-spec-table tbody td[data-label]::before {
+    content: attr(data-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #526071;
+    flex-shrink: 0;
+    text-align: left;
   }
 }

@@ -806,8 +806,17 @@ function QuoteBasketFloatingBar() {
               return (
                 <div
                   key={item.id}
-                  className="flex items-center justify-between gap-2 rounded bg-white/5 px-2.5 py-2 text-hb-xs"
+                  className="flex items-center justify-between gap-2 rounded-lg bg-white/5 px-2.5 py-2 text-hb-xs border border-white/10"
                 >
+                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-md border border-white/15 bg-white">
+                    <SafeImg
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className={`h-full w-full object-cover ${
+                        sold ? "grayscale opacity-65" : ""
+                      }`}
+                    />
+                  </div>
                   <div className="min-w-0 flex-1">
                     <Link
                       href={`/${item.id}`}
@@ -901,15 +910,31 @@ function QuoteBasketFloatingBar() {
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="flex min-w-0 items-center gap-1.5 text-left text-hb-xs sm:text-hb-sm font-semibold text-white hover:text-[#FF8A50]"
+            className="flex min-w-0 items-center gap-2 text-left text-hb-xs sm:text-hb-sm font-semibold text-white hover:text-[#FF8A50] cursor-pointer"
           >
-            <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#E8521A] px-1.5 text-hb-xs font-bold text-white tabular-nums">
+            {!expanded && (
+              <div className="hidden sm:flex items-center -space-x-1.5 shrink-0" aria-hidden="true">
+                {items.slice(0, 3).map((item) => (
+                  <span
+                    key={item.id}
+                    className="h-6 w-6 overflow-hidden rounded-md border border-[#141A23] bg-white ring-1 ring-white/25"
+                  >
+                    <SafeImg
+                      src={item.imageUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </span>
+                ))}
+              </div>
+            )}
+            <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#C84312] px-1.5 text-hb-xs font-bold text-white tabular-nums">
               {items.length}
             </span>
             <span className="truncate">
-              견적함 ({totalUnits}대){" "}
-              <span className="hidden sm:inline text-hb-xs font-normal text-white/70">
-                {expanded ? "접기" : "수량·목록"}
+              선택 {totalUnits}대{" "}
+              <span className="hidden sm:inline text-hb-xs font-normal text-white/75">
+                {expanded ? "접기" : "목록 · 수량"}
               </span>
             </span>
           </button>
@@ -922,9 +947,10 @@ function QuoteBasketFloatingBar() {
                   trackEvent("compare_products", { count: items.length });
                   setCompareOpen(true);
                 }}
-                className="rounded-full border border-white/25 bg-white/10 px-2.5 h-8 text-hb-xs font-semibold text-white hover:bg-white/20 whitespace-nowrap"
+                className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-3 h-8 text-hb-xs font-bold text-white hover:bg-white/25 whitespace-nowrap cursor-pointer"
               >
-                비교({Math.min(3, items.length)})
+                <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                <span>스플릿 비교({Math.min(3, items.length)})</span>
               </button>
             )}
             <a
@@ -1344,9 +1370,13 @@ interface MobileProductCtaContext {
 
 export function MobileCtaBar({
   onInquiryClick,
+  inquiryScrollTargetId,
+  inquiryFallbackType = "구매 문의",
   productContext,
 }: {
   onInquiryClick?: () => void;
+  inquiryScrollTargetId?: string;
+  inquiryFallbackType?: InquiryTypeValue;
   productContext?: MobileProductCtaContext;
 }) {
   const basketItems = useQuoteBasket();
@@ -1518,6 +1548,13 @@ export function MobileCtaBar({
             });
             if (onInquiryClick) {
               onInquiryClick();
+            } else if (inquiryScrollTargetId) {
+              const target = document.getElementById(inquiryScrollTargetId);
+              if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "start" });
+              } else {
+                triggerQuickInquiry({ type: inquiryFallbackType });
+              }
             } else {
               triggerQuickInquiry({ type: "구매 문의" });
             }

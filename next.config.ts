@@ -2,6 +2,46 @@ import path from "node:path";
 import type { NextConfig } from "next";
 
 const projectRoot = path.resolve(process.cwd());
+const isDev = process.env.NODE_ENV !== "production";
+
+function resolveSupabaseHost(): {
+  origin: string;
+  wsOrigin: string;
+  hostname: string;
+} {
+  const raw = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
+  try {
+    const parsed = new URL(raw);
+    if (parsed.protocol === "https:" && parsed.hostname) {
+      return {
+        origin: parsed.origin,
+        wsOrigin: `wss://${parsed.hostname}`,
+        hostname: parsed.hostname,
+      };
+    }
+  } catch {
+    // 정적 빌드/환경변수 미주입 시 안전 폴백
+  }
+  return {
+    origin: "https://*.supabase.co",
+    wsOrigin: "wss://*.supabase.co",
+    hostname: "**.supabase.co",
+  };
+}
+
+const supabaseHost = resolveSupabaseHost();
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://www.googletagmanager.com https://www.google-analytics.com`,
+  "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+  "font-src 'self' data: https://cdn.jsdelivr.net",
+  `img-src 'self' data: blob: ${supabaseHost.origin} https://hanbatmall.com https://www.google-analytics.com https://www.googletagmanager.com`,
+  `connect-src 'self' ${supabaseHost.origin} ${supabaseHost.wsOrigin} https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com https://www.googletagmanager.com https://cdn.jsdelivr.net`,
+  "frame-src 'self' https://maps.google.com https://www.google.com",
+  "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
+].join("; ");
 
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -17,7 +57,7 @@ const securityHeaders = [
   },
   {
     key: "Content-Security-Policy",
-    value: "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+    value: contentSecurityPolicy,
   },
 ];
 
@@ -37,7 +77,13 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**.supabase.co", // Supabase 스토리지 이미지 허용
+        hostname: supabaseHost.hostname,
+        pathname: "/storage/v1/object/**",
+      },
+      {
+        protocol: "https",
+        hostname: "hanbatmall.com",
+        pathname: "/**",
       },
     ],
   },

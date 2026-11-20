@@ -144,6 +144,9 @@ export function normalizeProductStatus(
   return PRODUCT_STATUS.SELLING;
 }
 
+/** 상태 라벨 조회 별칭 — 기존 normalizeProductStatus와 동일한 단일 출처를 사용합니다. */
+export const getProductStatusLabel = normalizeProductStatus;
+
 export function normalizeProductCategory(
   raw?: string | null
 ): ProductCategoryValue {
@@ -562,8 +565,8 @@ export function sanitizeOldManufactureYear<
     // 4자리 연도 (1970 ~ 2099)
     const m = str.match(/\b(19\d\d|20\d\d)\b/);
     if (m) return Number(m[1]);
-    // 2자리 연식 (예: '18년식, 18년식, '20년형)
-    const m2 = str.match(/(?:'|\b)([89]\d|[0-2]\d)\s*년(?:식|형)/);
+    // 2자리 연식 (예: '18년식, 18년식, '20년형, '24년식)
+    const m2 = str.match(/(?:'|\b)(\d{2})\s*년(?:식|형)/);
     if (m2) {
       const val = Number(m2[1]);
       return val >= 70 ? 1900 + val : 2000 + val;
@@ -582,21 +585,29 @@ export function sanitizeOldManufactureYear<
     return year !== null && isOldYear(year);
   };
 
-  // 1. title 정제: 2018년식 등 구형 연식 표기 제거
+  const removeIfOldYearMatch = (fullMatch: string): string => {
+    const year = extractYearFromText(fullMatch);
+    return year !== null && isOldYear(year) ? "" : fullMatch;
+  };
+
+  // 1. title 정제: oldYearThreshold 이하 구형 연식만 제거하고 최신 연식(2021~2029, '24년식 등)은 보존
   let cleanTitle = data.title || "";
   if (cleanTitle) {
     cleanTitle = cleanTitle
       .replace(
-        /\b(?:19\d\d|20[0-1]\d|2020|'?[0-2][0-9])\s*년(?:식|형)\s*[,·/]?\s*/g,
-        ""
+        /\(\s*(?:(?:19|20)\d\d|'?\d{2})\s*년(?:식|형)\s*\)/g,
+        removeIfOldYearMatch
       )
       .replace(
-        /\s*[,·/]\s*(?:19\d\d|20[0-1]\d|2020|'?[0-2][0-9])\s*년(?:식|형)/g,
-        ""
+        /\s*[,·/]\s*(?:(?:19|20)\d\d|'?\d{2})\s*년(?:식|형)/g,
+        removeIfOldYearMatch
       )
       .replace(
-        /\(\s*(?:19\d\d|20[0-1]\d|2020|'?[0-2][0-9])\s*년(?:식|형)\s*\)/g,
-        ""
+        /(^|[\s(\[,·/\-])((?:19|20)\d\d|'?\d{2})\s*년(?:식|형)[,·/]?/g,
+        (fullMatch: string, prefix: string, yearToken: string) => {
+          const year = extractYearFromText(`${yearToken}년식`);
+          return year !== null && isOldYear(year) ? prefix : fullMatch;
+        }
       )
       .replace(/\s{2,}/g, " ")
       .trim();
@@ -1358,6 +1369,7 @@ export type AnalyticsEventName =
   | "click_guide_tool_action"
   | "submit_inquiry_success"
   | "filter_gallery"
+  | "gallery_view_mode"
   | "click_situation_preset"
   | "click_quote_compare_sms"
   | "click_quote_compare_kakao"
@@ -1425,6 +1437,74 @@ export function isRecentlyCreated(
   const createdMs = new Date(createdAt).getTime();
   if (Number.isNaN(createdMs)) return false;
   return Date.now() - createdMs < days * 24 * 60 * 60 * 1000;
+}
+
+const KST_DATE_FORMATTER = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: "Asia/Seoul",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+export interface KstDateParts {
+  year: number;
+  month: string;
+  day: string;
+}
+
+export function getKstDateParts(
+  input: string | number | Date
+): KstDateParts | null {
+  const d = input instanceof Date ? input : new Date(input);
+  if (Number.isNaN(d.getTime())) return null;
+  const parts = KST_DATE_FORMATTER.formatToParts(d);
+  const yearStr = parts.find((p) => p.type === "year")?.value;
+  const month = parts.find((p) => p.type === "month")?.value;
+  const day = parts.find((p) => p.type === "day")?.value;
+  const year = yearStr ? Number(yearStr) : Number.NaN;
+  if (!Number.isFinite(year) || !month || !day) return null;
+  return { year, month, day };
+}
+
+export function getKstDateKey(input: string | number | Date): string {
+  const parts = getKstDateParts(input);
+  if (!parts) return "";
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
+
+export function formatKstShortDate(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  const parts = getKstDateParts(dateStr);
+  if (!parts) return "";
+  return `${Number(parts.month)}.${parts.day}`;
+}
+
+export function formatKstBoardDate(
+  dateStr?: string | null,
+  referenceDate: Date = new Date()
+): string {
+  if (!dateStr) return "";
+  const target = getKstDateParts(dateStr);
+  const ref = getKstDateParts(referenceDate);
+  if (!target || !ref) return "";
+  return target.year === ref.year
+    ? `${target.month}-${target.day}`
+    : `${String(target.year).slice(2)}-${target.month}-${target.day}`;
+}
+
+export function isWithinKstDays(
+  createdAt: string | null | undefined,
+  referenceKstDateKey: string,
+  days = 7
+): boolean {
+  if (!createdAt || !referenceKstDateKey) return false;
+  const createdKey = getKstDateKey(createdAt);
+  if (!createdKey) return false;
+  const createdUtc = Date.parse(`${createdKey}T00:00:00Z`);
+  const refUtc = Date.parse(`${referenceKstDateKey}T00:00:00Z`);
+  if (Number.isNaN(createdUtc) || Number.isNaN(refUtc)) return false;
+  const diffDays = Math.floor((refUtc - createdUtc) / (24 * 60 * 60 * 1000));
+  return diffDays >= 0 && diffDays <= days;
 }
 
 /* ════════════════════════════════════════════════════════════

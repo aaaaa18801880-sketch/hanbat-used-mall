@@ -1,6 +1,6 @@
 // 파일 경로: components/guide/diagrams/diagram-shared.tsx
 import React from "react";
-import { ICON, Icon } from "../../../lib/ui";
+import { ICON, Icon } from "../../../lib/icons";
 
 export function DiagramFigure({
   title,
