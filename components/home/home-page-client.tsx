@@ -737,96 +737,37 @@ export default function Home({
                     </div>
                   </div>
 
-                  {/* 3대 고객 목적 분기 카드 (Intent-First Showroom Hub) — 중복 전화·카톡·정보게시판 바 제거 */}
-                  <div className="mt-4 max-w-2xl grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    {/* 1. 가정용 실매물 쇼룸 */}
+                  {/* 핵심 행동 2개만 유지 — 나머지 중복 전화·카톡·업소 분기는 헤더/하단 바와 B2B 섹션이 담당 */}
+                  <div className="mt-4 max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <Link
                       href="/gallery"
-                      className="group flex flex-col justify-between rounded-xl bg-[#141A23] p-3.5 sm:p-4 text-left text-white shadow-xs hover:bg-[#1E2736] active:scale-[0.98] transition-[background-color,transform] duration-150"
+                      className="hb-btn-primary min-h-[48px] h-12 px-5 text-hb-sm font-bold justify-between active:scale-[0.98]"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-hb-xs font-semibold text-white/85">
-                          <span
-                            className="h-2 w-2 rounded-full bg-[#34D399]"
-                            aria-hidden="true"
-                          />
-                          <span>가정용 실매물 쇼룸</span>
-                        </span>
-                        <Icon
-                          d={ICON.arrow}
-                          className="w-4 h-4 text-[#FF8A50] shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <strong className="flex flex-wrap items-center gap-1.5 text-hb-base sm:text-hb-lg font-bold tracking-tight">
-                          <span>실매물 확인</span>
-                          {sellingCount > 0 && (
-                            <span className="rounded-md bg-white/15 px-2 py-0.5 font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
-                              {sellingCount}대
-                            </span>
-                          )}
-                        </strong>
-                        <p className="mt-0.5 text-hb-xs text-white/75 truncate">
-                          냉장고 · 세탁기 · 에어컨
-                        </p>
-                      </div>
+                      <span className="inline-flex items-center gap-2">
+                        <span>실매물 확인</span>
+                        {sellingCount > 0 && (
+                          <span className="rounded-md bg-white/15 px-2 py-0.5 font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                            {sellingCount}대
+                          </span>
+                        )}
+                      </span>
+                      <Icon d={ICON.arrow} className="w-4 h-4 text-[#FF8A50]" />
                     </Link>
-
-                    {/* 2. 업소 · 창업 설비 패키지 */}
-                    <Link
-                      href="/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&view=table"
-                      className="group flex flex-col justify-between rounded-xl border border-[#CBD2DC] bg-white p-3.5 sm:p-4 text-left text-[#141A23] shadow-2xs hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.98] transition-[border-color,background-color,transform] duration-150"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#0F766E]">
-                          <Icon d={ICON.building} className="w-3.5 h-3.5 shrink-0" />
-                          <span>업소 · 창업 패키지</span>
-                        </span>
-                        <Icon
-                          d={ICON.arrow}
-                          className="w-4 h-4 text-[#475569] shrink-0 transition-transform duration-150 group-hover:text-[#141A23] group-hover:translate-x-0.5"
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <strong className="block text-hb-base sm:text-hb-lg font-bold tracking-tight">
-                          업소용 스펙 표 비교
-                        </strong>
-                        <p className="mt-0.5 text-hb-xs text-[#475569] truncate">
-                          45박스 · 쇼케이스 · 제빙기
-                        </p>
-                      </div>
-                    </Link>
-
-                    {/* 3. 쓰던 가전 · 폐업 설비 팔기 */}
                     <Link
                       href="/purchase"
-                      onClick={() => {
-                        trackEvent("begin_buyback_inquiry", {
-                          location: "hero_intent_hub_sell",
-                        });
-                      }}
-                      className="group flex flex-col justify-between rounded-xl bg-[#C84312] p-3.5 sm:p-4 text-left text-white shadow-xs hover:bg-[#A9370D] active:scale-[0.98] transition-[background-color,transform] duration-150"
+                      className="hb-btn-accent min-h-[48px] h-12 px-5 text-hb-sm font-bold justify-between active:scale-[0.98]"
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-white/90">
-                          <Icon d={ICON.camera} className="w-3.5 h-3.5 shrink-0" />
-                          <span>방문 수거 · 사진 견적</span>
-                        </span>
-                        <Icon
-                          d={ICON.arrow}
-                          className="w-4 h-4 text-white shrink-0 transition-transform duration-150 group-hover:translate-x-0.5"
-                        />
-                      </div>
-                      <div className="mt-2">
-                        <strong className="block text-hb-base sm:text-hb-lg font-bold tracking-tight">
-                          가전 · 폐업 설비 팔기
-                        </strong>
-                        <p className="mt-0.5 text-hb-xs text-white/90 truncate">
-                          10년 이내 · 정상작동 당일 현금매입
-                        </p>
-                      </div>
+                      <span>가전 · 폐업 설비 팔기</span>
+                      <Icon d={ICON.arrow} className="w-4 h-4" />
                     </Link>
                   </div>
+                  <p className="mt-2 text-hb-xs text-[#475569]">
+                    업소·창업 설비는{" "}
+                    <a href="#business-section" className="font-bold text-[#141A23] underline underline-offset-4 hover:text-[#C84312]">
+                      아래 B2B 쇼룸
+                    </a>
+                    에서 스펙 표로 비교하세요.
+                  </p>
                 </div>
               </div>
 
@@ -1030,194 +971,53 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 하단 B2B 실무 3대 도구 브릿지 바 */}
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-px rounded-2xl border border-white/15 bg-white/15 overflow-hidden">
-                <Link
-                  href="/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0&view=table"
-                  className="group flex items-center justify-between gap-3 bg-[#101620] hover:bg-[#182130] px-4 py-3.5 sm:px-5 transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#FF8A50]">
-                      <Icon d={ICON.list} className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <span className="block font-mono text-hb-xs font-bold text-[#FB923C]">
-                        B2B TOOL 01
-                      </span>
-                      <strong className="block text-hb-sm font-bold text-white truncate">
-                        전 매물 스펙 일람표 보기
-                      </strong>
-                    </div>
-                  </div>
-                  <Icon
-                    d={ICON.arrow}
-                    className="w-4 h-4 text-white/50 group-hover:text-[#FB923C] group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
-                  />
-                </Link>
-
-                <Link
-                  href="/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0"
-                  className="group flex items-center justify-between gap-3 bg-[#101620] hover:bg-[#182130] px-4 py-3.5 sm:px-5 transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#38BDF8]">
-                      <Icon d={ICON.ruler} className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <span className="block font-mono text-hb-xs font-bold text-[#38BDF8]">
-                        B2B TOOL 02
-                      </span>
-                      <strong className="block text-hb-sm font-bold text-white truncate">
-                        다품목 가로폭(mm) 합산 비교
-                      </strong>
-                    </div>
-                  </div>
-                  <Icon
-                    d={ICON.arrow}
-                    className="w-4 h-4 text-white/50 group-hover:text-[#38BDF8] group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
-                  />
-                </Link>
-
-                <Link
-                  href="/guide/commercial-aircon-sizing-by-business-type"
-                  className="group flex items-center justify-between gap-3 bg-[#101620] hover:bg-[#182130] px-4 py-3.5 sm:px-5 transition-colors"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-[#2DD4BF]">
-                      <Icon d={ICON.bolt} className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <span className="block font-mono text-hb-xs font-bold text-[#2DD4BF]">
-                        B2B TOOL 03
-                      </span>
-                      <strong className="block text-hb-sm font-bold text-white truncate">
-                        평형별 냉방용량 · 계약전력(kW) 계산기
-                      </strong>
-                    </div>
-                  </div>
-                  <Icon
-                    d={ICON.arrow}
-                    className="w-4 h-4 text-white/50 group-hover:text-[#2DD4BF] group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
-                  />
-                </Link>
-              </div>
             </div>
           </div>
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [Section 5] 독립 가전 매입 · 폐업 정리 섹션 (#sell-section)
+            [Section 5] 가전 매입 · 폐업 정리 안내 (#sell-section)
             ════════════════════════════════════════════════════════════ */}
         <section
           id="sell-section"
           aria-labelledby="sell-title"
-          className="scroll-mt-20 border-b border-[#E2E6EC] bg-[#F7F8FA] py-10 sm:py-14"
+          className="scroll-mt-20 border-b border-[#E2E6EC] bg-[#F7F8FA] py-5 sm:py-6"
         >
-          <div className="hb-container">
-            <div className="grid gap-6 lg:grid-cols-12 items-stretch">
-              {/* 좌측 5열: Photo-First AI 매입 신청 & 직통 CTA */}
-              <div className="lg:col-span-5 flex flex-col justify-between rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:p-6 shadow-2xs">
-                <div>
-                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[#FFF4EE] border border-[#FED7AA] px-2.5 py-1 text-hb-xs font-bold text-[#C84312]">
-                    <Icon d={ICON.camera} className="w-3.5 h-3.5" />
-                    <span>Photo-First AI 매입 · 당일 현금 정산</span>
-                  </span>
-                  <h2
-                    id="sell-title"
-                    className="mt-3 text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] tracking-tight leading-snug break-keep"
-                  >
-                    안 쓰는 가정용 가전부터
-                    <br />
-                    식당·카페 폐업 설비까지 방문 매입
-                  </h2>
-                  <p className="mt-2 text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed break-keep">
-                    전면 사진과 모델명 명판 스티커만 올려주시면 AI가 품목·모델을 자동 판독하고, 담당 기사가 대전·세종·충청 전역을 방문해 수거 즉시 현장에서 정산해 드립니다.
-                  </p>
-                </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-2.5 pt-4 border-t border-[#E2E6EC]">
-                  <Link
-                    href="/purchase"
-                    className="hb-btn-accent min-h-[44px] h-11 px-5 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
-                  >
-                    <span>사진 올리고 매입 견적 신청</span>
-                    <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => openInquiry("내 물건 팔기")}
-                    className="hb-btn-outline min-h-[44px] h-11 px-4 text-hb-xs sm:text-hb-sm font-bold cursor-pointer active:scale-[0.96]"
-                  >
-                    <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#C84312]" />
-                    <span>1분 간편 매입 위저드</span>
-                  </button>
-                </div>
+          <div className="hb-container flex flex-col gap-3.5 md:flex-row md:items-center md:justify-between">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center rounded-md bg-[#FFF4EE] border border-[#FED7AA] px-2.5 py-0.5 text-hb-xs font-bold text-[#C84312]">
+                  가전 · 설비 팔기
+                </span>
+                <h2
+                  id="sell-title"
+                  className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight"
+                >
+                  안 쓰는 가전·식당 폐업 설비 방문 매입
+                </h2>
               </div>
+              <p className="mt-1 text-hb-xs sm:text-hb-sm text-[#475569] break-keep">
+                사진과 명판만 보내주시면 대전·세종·충청 당일 방문 수거 후 현장 즉시 입금해 드립니다.
+              </p>
+            </div>
 
-              {/* 우측 7열: 매입 가능 기준 vs 매입 제외 기준 한눈 요약 */}
-              <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-2xl border border-[#CCFBF1] bg-white p-5 shadow-2xs flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-[#F0FDFA] px-2.5 py-1 text-hb-xs font-bold text-[#0F766E]">
-                        <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                        <span>매입 가능 · 우대 기준</span>
-                      </span>
-                      <span className="font-mono text-hb-xs font-bold text-[#0F766E] tabular-nums">
-                        10년 이내
-                      </span>
-                    </div>
-                    <ul className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm text-[#141A23] font-medium">
-                      <li className="flex items-start gap-2 leading-snug break-keep">
-                        <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#0F766E] shrink-0 mt-0.5" />
-                        <span>제조 10년 이내 정상 작동 가정용 냉장고 · 세탁기 · 에어컨 · TV</span>
-                      </li>
-                      <li className="flex items-start gap-2 leading-snug break-keep">
-                        <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#0F766E] shrink-0 mt-0.5" />
-                        <span>업소용 45박스 · 테이블냉장고 · 쇼케이스 · 제빙기 일괄 매입</span>
-                      </li>
-                      <li className="flex items-start gap-2 leading-snug break-keep">
-                        <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#0F766E] shrink-0 mt-0.5" />
-                        <span>최근 연식 · 외관 양호 · 실외기/부속 완비 시 우대 시세 적용</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <p className="mt-4 pt-3 border-t border-[#E2E6EC] text-hb-xs font-semibold text-[#0F766E]">
-                    대전 · 세종 · 계룡 · 공주 · 논산 · 청주 직영 차량 방문
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between gap-2 pb-3 border-b border-[#E2E6EC]">
-                      <span className="inline-flex items-center gap-1.5 rounded-md bg-[#F1F3F6] px-2.5 py-1 text-hb-xs font-bold text-[#475569]">
-                        <Icon d={ICON.close} className="w-3.5 h-3.5" />
-                        <span>매입 제외 · 사전 협의</span>
-                      </span>
-                      <span className="font-mono text-hb-xs font-bold text-[#475569]">
-                        사전 확인
-                      </span>
-                    </div>
-                    <ul className="mt-3.5 space-y-2.5 text-hb-xs sm:text-hb-sm text-[#334155]">
-                      <li className="flex items-start gap-2 leading-snug break-keep">
-                        <Icon d={ICON.close} className="w-3.5 h-3.5 text-[#475569] shrink-0 mt-0.5" />
-                        <span>작동 불능 · 심한 부식 · 침수 및 주요 부품이 파손된 기기</span>
-                      </li>
-                      <li className="flex items-start gap-2 leading-snug break-keep">
-                        <Icon d={ICON.close} className="w-3.5 h-3.5 text-[#475569] shrink-0 mt-0.5" />
-                        <span>단품 소형가전 단독 출장 및 재판매가 어려운 10년 초과 초구형 모델</span>
-                      </li>
-                      <li className="flex items-start gap-2 leading-snug break-keep">
-                        <Icon d={ICON.close} className="w-3.5 h-3.5 text-[#475569] shrink-0 mt-0.5" />
-                        <span>엘리베이터 없는 고층 · 천장형 철거 · 사다리차 작업 시 사전 비용 협의</span>
-                      </li>
-                    </ul>
-                  </div>
-                  <p className="mt-4 pt-3 border-t border-[#E2E6EC] text-hb-xs text-[#475569]">
-                    명판 스티커 사진을 함께 보내주시면 헛걸음 없이 정확히 안내해 드립니다.
-                  </p>
-                </div>
-              </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <Link
+                href="/purchase"
+                className="hb-btn-accent min-h-[44px] h-11 px-4 sm:px-5 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
+              >
+                <span>매입 기준 · 사진 견적 신청</span>
+                <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
+              </Link>
+              <a
+                href={STORE.kakaoChat}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hb-btn-kakao min-h-[44px] h-11 px-4 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96]"
+              >
+                <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+                <span>카카오톡 사진 문의</span>
+              </a>
             </div>
           </div>
         </section>
