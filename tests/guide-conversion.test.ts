@@ -27,8 +27,8 @@ test("getGuideConversionContext attaches SSOT aircon warranty to aircon guides",
   assert.equal(ctx.mobilePrimaryHref, "#guide-recommended-products");
 });
 
-test("all 65 guide articles produce valid conversion contexts and local thumbnails without AI slop", () => {
-  assert.equal(INFO_GUIDE_ARTICLES.length, 65);
+test("all 69 guide articles produce valid conversion contexts and local thumbnails without AI slop", () => {
+  assert.equal(INFO_GUIDE_ARTICLES.length, 69);
   const banned = /분해세척|분해 세척|24시간|부하 시운전|UV|고온스팀/;
 
   for (const article of INFO_GUIDE_ARTICLES) {

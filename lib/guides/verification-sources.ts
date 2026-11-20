@@ -1542,6 +1542,98 @@ export const GUIDE_VERIFICATION_BY_SLUG: Record<string, InfoGuideVerification> =
     fieldNote:
       "개별 보온 및 결로 방지 원리는 설비공학회·제조사 지침 기반이며, 일반 PVC 테이프 경화 후 벽지·천장 젖음 민원 사례는 매장 점검·재시공 경험입니다.",
   },
+  "aircon-refrigerant-r32-r410a-r454b-guide": {
+    verifiedAt: "2026-11-20",
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "환경부 · 국가법령정보센터",
+        title: "오존층 보호를 위한 특정물질의 제조규제 등에 관한 법률 및 키갈리 개정서 HFC 단계별 감축 일정",
+        url: URLS.LAW,
+        date: "현행 법령 기준",
+        usedFor: "한국의 2024년 동결, 2029년 10% 감축, 2045년 80% 감축 등 HFC 냉매 관리 흐름 확인",
+      },
+      {
+        org: "ASHRAE · 삼성·LG전자 서비스 기술자료",
+        title: "냉매 종류(R-22 · R-410A · R-32 · R-454B) GWP 및 실외기 명판 표기 기준",
+        url: URLS.ASHRAE,
+        date: "공식 기술 기준",
+        usedFor: "냉매 세대별 지구온난화지수(GWP), 오일 비호환성 및 동일 냉매 정량 보충 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "국제·국내 HFC 감축 로드맵과 GWP 기준은 환경부·법령 및 ASHRAE/제조사 자료에 근거하며, 중고 에어컨 입고·명판 판독 판단은 매장 점검 경험입니다.",
+  },
+  "aircon-refrigerant-recovery-and-leak-check": {
+    verifiedAt: "2026-11-20",
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "국가법령정보센터 · 대기환경보전법",
+        title: "공조용 냉매회수 및 적정 처리 기준",
+        url: URLS.LAW,
+        date: "현행 법령 기준",
+        usedFor: "에어컨 철거·이전 시 냉매 대기 방출 억제 및 회수 관리 필요성 확인",
+      },
+      {
+        org: "삼성전자 · LG전자 설치 지침",
+        title: "이전·철거 시 펌프다운(Pump Down), 진공 작업 및 누설 점검 절차",
+        url: URLS.LG,
+        date: "공식 설치 기준",
+        usedFor: "액관·가스관 순차 폐쇄, 배관 내 수분·공기 진공 제거 및 콤프레샤 보호 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "냉매 회수 법령 기준과 펌프다운·진공 절차는 관계 법령 및 제조사 매뉴얼에 따르며, 매입 철거·출고 압력 점검 사례는 매장 현장 실무 경험입니다.",
+  },
+  "aircon-refrigerant-recharge-cost-and-leak-first": {
+    verifiedAt: "2026-11-20",
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "기술·성능 정보 (권장 재검토 6개월)",
+    primarySources: [
+      {
+        org: "대한설비공학회(SAREK) · 제조사 설치 지침",
+        title: "밀폐 냉매 회로 원리 및 플레어 접속부·밸브 기밀(질소 압력) 테스트",
+        url: URLS.SAREK,
+        date: "설비 기술 기준",
+        usedFor: "정상 배관 비소모 원칙 및 냉매 부족 시 누설 원인 수리 우선 기준 확인",
+      },
+      {
+        org: "공정거래위원회 · 한국소비자원",
+        title: "에어컨 냉방 불량·냉매 재충전 관련 소비자분쟁 예방 가이드",
+        url: URLS.KCA,
+        date: "소비자 안내",
+        usedFor: "원인 수리 없는 반복 보충 방지 및 명판 정량 충전 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "밀폐 회로·누설 탐지 기준은 설비공학회·제조사·소비자원 기준이며, 플레어 너트 오일 비침 등 현장 고장 사례는 매장 A/S 경험입니다.",
+  },
+  "commercial-aircon-refrigerant-management-guide": {
+    verifiedAt: "2026-11-20",
+    contentTypes: ["공식자료 기반", "현장사례 기반"],
+    riskLevel: "안전·법률 정보 (권장 재검토 3개월)",
+    primarySources: [
+      {
+        org: "ASHRAE · 대한설비공학회(SAREK)",
+        title: "냉매 안전 등급(A1 불연성 vs A2L 약가연성 R-32/R-454B) 시공 기준",
+        url: URLS.ASHRAE,
+        date: "국제·학술 기준",
+        usedFor: "차세대 약가연성(A2L) 냉매의 화기 용접 전 냉매 회수 및 질소 치환 안전 수칙 확인",
+      },
+      {
+        org: "국가법령정보센터 · 한국가스안전공사(KGS)",
+        title: "대기환경보전법상 대형 공기조화기 냉매 관리 및 고압가스 용접 안전",
+        url: URLS.KGS,
+        date: "법령·안전 기준",
+        usedFor: "업소용·중대형 공조기기 냉매 관리 및 화기 작업 안전 원칙 확인",
+      },
+    ],
+    fieldNote:
+      "A2L 안전 등급과 냉매 관리 규정은 ASHRAE·KGS·법령에 근거하며, 업소용 단상/삼상·배관 거리에 따른 현장 상담 기준은 매장 납품 경험입니다.",
+  },
 };
 
 export function getGuideVerification(slug: string): InfoGuideVerification | undefined {

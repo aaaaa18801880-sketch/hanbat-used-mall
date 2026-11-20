@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useId, useRef, useState } from "react";
+import Link from "next/link";
 import toast from "react-hot-toast";
 import {
   formatPhone,
@@ -18,6 +19,7 @@ import {
   smsHref,
   STORAGE_BUCKETS,
   STORE,
+  telHref,
   trackEvent,
   type InquiryTypeValue,
 } from "../../lib/site";
@@ -187,6 +189,8 @@ export function V2InquirySectionWithWizard({
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [createdInquiryId, setCreatedInquiryId] = useState<string | null>(null);
+  const [submittedTitle, setSubmittedTitle] = useState<string>("");
 
   /* 촬영 참고 가이드 토글 및 확대 보기 상태 */
   const [showGuide, setShowGuide] = useState(false);
@@ -449,6 +453,8 @@ export function V2InquirySectionWithWizard({
       setSelectedFiles([]);
       setFilePreviews([]);
       setAgreed(false);
+      setCreatedInquiryId(newId ? String(newId) : null);
+      setSubmittedTitle(autoTitle);
       setSubmittedSuccess(true);
       onSuccess?.();
     } catch (err: unknown) {
@@ -464,7 +470,11 @@ export function V2InquirySectionWithWizard({
 
   if (submittedSuccess) {
     return (
-      <div className="rounded-2xl border border-[#CCFBF1] bg-white p-6 sm:p-8 text-center space-y-4 shadow-2xs">
+      <div
+        role="status"
+        aria-live="polite"
+        className="rounded-2xl border border-[#CCFBF1] bg-white p-6 sm:p-8 text-center space-y-4 shadow-2xs"
+      >
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]">
           <Icon d={ICON.check} className="w-6 h-6" />
         </div>
@@ -472,24 +482,71 @@ export function V2InquirySectionWithWizard({
           <h3 className="text-hb-lg font-bold text-[#141A23]">
             {isSell ? "매입 견적 신청이 접수되었습니다" : "견적 상담이 접수되었습니다"}
           </h3>
-          <p className="text-hb-sm text-[#475569] leading-relaxed">
-            매장 담당자가 남기신 내용을 확인한 뒤 순차적으로 연락드리겠습니다.
+          <p className="text-hb-sm text-[#475569] leading-relaxed break-keep">
+            {isSell
+              ? "접수하신 제품 사진과 지역을 매장 담당자가 확인한 뒤 빠른 매입 견적과 방문 수거 일정을 안내해 드리겠습니다."
+              : "요청하신 품목의 매장 작동 점검 상태와 배송 일정을 확인한 뒤 순차적으로 연락드리겠습니다."}
           </p>
         </div>
-        {variant === "embedded" && (
-          <div className="pt-2">
+
+        {(submittedTitle || createdInquiryId) && (
+          <div className="mx-auto max-w-md rounded-xl border border-[#E2E6EC] bg-[#F8F9FA] px-4 py-3 text-left text-hb-xs text-[#334155] space-y-1">
+            {submittedTitle && (
+              <p className="truncate">
+                • 접수 내용:{" "}
+                <strong className="font-bold text-[#141A23]">{submittedTitle}</strong>
+              </p>
+            )}
+            {createdInquiryId && (
+              <p className="font-mono text-[#475569] tabular-nums">
+                • 접수 번호: #{createdInquiryId.slice(0, 8)}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+          <Link
+            href="/inquiry"
+            className="hb-btn-primary h-10 px-4 text-hb-xs font-bold"
+          >
+            문의게시판에서 답변 확인
+          </Link>
+          <a
+            href={STORE.kakaoChat}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() =>
+              trackEvent("click_kakao_consult", { location: "v2_inquiry_success" })
+            }
+            className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
+          >
+            카카오톡 사진·추가 문의
+          </a>
+          <a
+            href={telHref(STORE.tel)}
+            onClick={() =>
+              trackEvent("click_tel_consult", { location: "v2_inquiry_success" })
+            }
+            className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
+          >
+            {STORE.tel} 바로 통화
+          </a>
+          {variant === "embedded" && (
             <button
               type="button"
               onClick={() => {
                 setSubmittedSuccess(false);
+                setCreatedInquiryId(null);
+                setSubmittedTitle("");
                 setStep(1);
               }}
               className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
             >
               새 문의 작성하기
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     );
   }

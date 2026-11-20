@@ -133,8 +133,8 @@ describe("lib/site 도메인 파서·검증·SSOT 테스트", () => {
 });
 
 describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트", () => {
-  it("65개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
-    assert.equal(INFO_GUIDE_ARTICLES.length, 65);
+  it("69개 가이드의 번호와 slug가 모두 고유하고 순차적이다", () => {
+    assert.equal(INFO_GUIDE_ARTICLES.length, 69);
     assert.equal(INFO_GUIDE_CATEGORY_LIST.length, 6);
     const activeCategories = new Set<string>(
       INFO_GUIDE_CATEGORY_LIST.filter((c) => c !== "전체")
@@ -220,7 +220,7 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
     }
 
     assert.equal(tier1Count, 34);
-    assert.equal(tier2Count, 31);
+    assert.equal(tier2Count, 35);
     assert.equal(tier1Count + tier2Count, INFO_GUIDE_ARTICLES.length);
 
     const sorted = sortGuidesByPriority(INFO_GUIDE_ARTICLES);

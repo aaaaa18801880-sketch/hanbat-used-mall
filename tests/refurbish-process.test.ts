@@ -147,11 +147,11 @@ test("inquiry-feed helpers compute accurate real activity summary and relative d
   assert.equal(summary.answeredRate, 67);
 });
 
-test("all 65 guide board summaries resolve to existing local images with 12 unique thumbnails on page 1", () => {
+test("all 69 guide board summaries resolve to existing local images with 12 unique thumbnails on page 1", () => {
   const summaries = sortGuidesByPriority(INFO_GUIDE_ARTICLES).map(
     toGuideBoardSummary
   );
-  assert.equal(summaries.length, 65);
+  assert.equal(summaries.length, 69);
 
   for (const item of summaries) {
     assert.ok(item.thumbnailSrc.startsWith("/images/guide/"));
