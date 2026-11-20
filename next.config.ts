@@ -39,8 +39,8 @@ const contentSecurityPolicy = [
   `img-src 'self' data: blob: ${supabaseHost.origin} https://hanbatmall.com https://www.google-analytics.com https://www.googletagmanager.com`,
   `connect-src 'self' ${supabaseHost.origin} ${supabaseHost.wsOrigin} https://www.google-analytics.com https://analytics.google.com https://*.google-analytics.com https://www.googletagmanager.com https://cdn.jsdelivr.net`,
   "frame-src 'self' https://maps.google.com https://www.google.com",
-  "base-uri 'self'; object-src 'none'; form-action 'self'",
-  ...(isDev ? [] : ["frame-ancestors 'self'", "upgrade-insecure-requests"]),
+  "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'",
+  ...(isDev ? [] : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 const securityHeaders = [
