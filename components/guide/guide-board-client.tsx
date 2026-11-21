@@ -74,10 +74,12 @@ function GuideCard({
   article,
   stat,
   topRank,
+  eager = false,
 }: {
   article: GuideBoardSummaryItem;
   stat?: GuideStat;
   topRank?: GuideTopRank;
+  eager?: boolean;
 }) {
   const views = stat?.views ?? 0;
   const helpfulCount = stat?.helpfulCount ?? 0;
@@ -95,8 +97,10 @@ function GuideCard({
             src={article.thumbnailSrc}
             alt={article.thumbnailAlt}
             fill
+            priority={eager}
+            loading={eager ? "eager" : undefined}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
-            quality={80}
+            quality={85}
             referrerPolicy="no-referrer"
             className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
           />
@@ -799,12 +803,13 @@ export function GuideBoardClient({
             ) : (
               <>
                 <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {listArticles.map((article) => (
+                  {listArticles.map((article, idx) => (
                     <GuideCard
                       key={article.slug}
                       article={article}
                       stat={liveStats[article.slug]}
                       topRank={topRankMap[article.slug]}
+                      eager={!featuredArticle && idx < 2}
                     />
                   ))}
                 </ul>
@@ -880,7 +885,7 @@ export function GuideBoardClient({
                         alt={article.thumbnailAlt}
                         fill
                         sizes="64px"
-                        quality={75}
+                        quality={80}
                         referrerPolicy="no-referrer"
                         className="object-cover object-center transition-transform duration-200 group-hover:scale-105"
                       />

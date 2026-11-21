@@ -322,6 +322,7 @@ export default async function GuideDetailPage({
                 width={1280}
                 height={720}
                 sizes="(max-width: 1024px) 100vw, 760px"
+                quality={85}
                 priority
                 loading="eager"
                 referrerPolicy="no-referrer"

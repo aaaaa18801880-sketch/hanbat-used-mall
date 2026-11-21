@@ -175,7 +175,7 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "free-waste-pickup-15990903-vs-used-buyback": {
     src: "/images/guide/photos/free-waste-pickup-15990903-vs-used-buyback.jpg",
-    alt: "다양한 가정용·생활 가전 제품이 정리된 가전 매장 실사 사진",
+    alt: "방문 매입과 무상수거 기준을 판단하기 위해 거실 가전 상태를 현장에서 점검하는 실사 사진",
   },
   "store-takeover-appliances-power-checklist": {
     src: "/images/guide/photos/store-takeover-appliances-power-checklist.jpg",
@@ -187,7 +187,7 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "aircon-2in1-vs-two-singles-home": {
     src: "/images/guide/photos/aircon-2in1-vs-two-singles-home.jpg",
-    alt: "거실에서 벽걸이·스탠드 에어컨 리모컨을 조작하는 가정 실내 실사 사진",
+    alt: "가정용 스탠드형과 벽걸이형 2in1 멀티 에어컨 구성 실사 사진",
   },
   "commercial-gas-vs-induction-kitchen-setup": {
     src: "/images/guide/photos/commercial-gas-vs-induction-kitchen-setup.jpg",
@@ -219,11 +219,11 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "used-appliance-nameplate-lifespan-guide": {
     src: "/images/guide/photos/used-appliance-nameplate-lifespan-guide.jpg",
-    alt: "가전·모터 측면에 부착된 정격 사양 및 제조 정보 명판 실사 사진",
+    alt: "냉장고 본체에 부착된 제조년월·정격 사양 명판 라벨 근접 실사 사진",
   },
   "aircon-refrigerant-r22-r410a-r32-guide": {
     src: "/images/guide/photos/aircon-refrigerant-r22-r410a-r32-guide.jpg",
-    alt: "에어컨 냉매 충전·점검에 사용되는 냉매 용기와 밸브 실사 사진",
+    alt: "R-410A 등 공조 냉매가 적용된 공랭식 에어컨·냉동기 설비 실사 사진",
   },
   "commercial-fryer-gas-vs-electric-k-class": {
     src: "/images/guide/photos/commercial-fryer-gas-vs-electric-k-class.jpg",
@@ -235,11 +235,11 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "commercial-icemaker-air-vs-water-cooled": {
     src: "/images/guide/photos/commercial-icemaker-air-vs-water-cooled.jpg",
-    alt: "카페 음료 제조용 투명 각얼음이 가득 담긴 바 스테이션 실사 사진",
+    alt: "매장 주방용 스테인리스 업소용 제빙기와 전면 통풍구 실사 사진",
   },
   "cooling-only-vs-heat-pump-nameplate": {
     src: "/images/guide/photos/cooling-only-vs-heat-pump-nameplate.jpg",
-    alt: "외벽에 나란히 설치된 냉방기·냉난방기 실외기 명판 점검 실사 사진",
+    alt: "현장 점검 기사가 냉난방 겸용 시스템 에어컨 작동 상태와 사양을 확인하는 실사 사진",
   },
   "commercial-water-heater-instant-vs-storage": {
     src: "/images/guide/photos/commercial-water-heater-instant-vs-storage.jpg",
