@@ -217,7 +217,7 @@ export async function POST(req: NextRequest) {
           prompt,
           imageParts: imgResult.imageParts,
           config: searchConfig,
-          timeoutMs: 36000,
+          timeoutMs: 16000,
         });
       } catch (searchErr: unknown) {
         console.warn(
@@ -232,7 +232,7 @@ export async function POST(req: NextRequest) {
           prompt,
           imageParts: imgResult.imageParts,
           config: visionConfig,
-          timeoutMs: 22000,
+          timeoutMs: 18000,
         });
       }
     } else {
@@ -243,7 +243,7 @@ export async function POST(req: NextRequest) {
         prompt,
         imageParts: imgResult.imageParts,
         config: visionConfig,
-        timeoutMs: 25000,
+        timeoutMs: 22000,
       });
     }
 

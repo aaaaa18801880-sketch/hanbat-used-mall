@@ -275,7 +275,17 @@ export function GalleryAdminUploadController({
         body: formData,
       });
 
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: Record<string, any> = {};
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch {
+        throw new Error(
+          res.status === 504 || /error occurred|timeout/i.test(rawText)
+            ? "서버 분석 시간이 초과되었습니다. '인터넷 공식 제원 정밀 검색' 체크를 끄고 다시 시도해 주세요."
+            : "서버 응답을 처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
+        );
+      }
       if (!res.ok) {
         throw new Error(data.error || "분석 요청에 실패했습니다.");
       }

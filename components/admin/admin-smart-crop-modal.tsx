@@ -184,7 +184,13 @@ export function AdminSmartCropModal({
         headers,
         body: formData,
       });
-      const data = await aiRes.json();
+      const rawText = await aiRes.text();
+      let data: Record<string, any> = {};
+      try {
+        data = rawText ? JSON.parse(rawText) : {};
+      } catch {
+        throw new Error("서버 분석 시간이 초과되었거나 응답 형식이 올바르지 않습니다.");
+      }
       if (!aiRes.ok) {
         throw new Error(data.error || "AI 사진 분석에 실패했습니다.");
       }
