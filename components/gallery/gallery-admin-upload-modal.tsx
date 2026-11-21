@@ -158,7 +158,7 @@ export function GalleryAdminUploadModal({
                       onChange={(e) => setSearchSpecs(e.target.checked)}
                       className="w-4 h-4 accent-[#141A23]"
                     />
-                    <span>인터넷 공식 제원 정밀 검색 (기본 활성화)</span>
+                    <span>인터넷 공식 제원 정밀 검색 (필요 시 선택)</span>
                   </label>
                   {productFiles.length > 0 && (
                     <button

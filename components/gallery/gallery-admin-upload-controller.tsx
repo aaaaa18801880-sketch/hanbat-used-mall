@@ -54,7 +54,7 @@ export function GalleryAdminUploadController({
   const [uploadingProduct, setUploadingProduct] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  const [searchSpecs, setSearchSpecs] = useState(true);
+  const [searchSpecs, setSearchSpecs] = useState(false);
   const [autoSmartCrop, setAutoSmartCrop] = useState(true);
   const [photoObserved, setPhotoObserved] = useState<string[]>([]);
   const [searchDerivedSpecs, setSearchDerivedSpecs] = useState<string[]>([]);
@@ -93,7 +93,7 @@ export function GalleryAdminUploadController({
     setSearchDerivedSpecs([]);
     setReviewWarnings([]);
     setFoundSources([]);
-    setSearchSpecs(true);
+    setSearchSpecs(false);
     setIsAnalyzing(false);
   };
 

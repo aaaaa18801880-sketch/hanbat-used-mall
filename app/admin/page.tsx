@@ -120,7 +120,7 @@ export default function IntegratedAdminDashboard() {
   const [savingProduct, setSavingProduct] = useState(false);
 
   /* Gemini AI 상품 분석 3계층 상태 */
-  const [useSearchSpecs, setUseSearchSpecs] = useState(true);
+  const [useSearchSpecs, setUseSearchSpecs] = useState(false);
   const [autoSmartCrop, setAutoSmartCrop] = useState(true);
   const [analyzingProduct, setAnalyzingProduct] = useState(false);
   const [aiPhotoObserved, setAiPhotoObserved] = useState<string[]>([]);
