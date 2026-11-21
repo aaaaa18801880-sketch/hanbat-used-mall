@@ -22,6 +22,7 @@ import {
 } from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB

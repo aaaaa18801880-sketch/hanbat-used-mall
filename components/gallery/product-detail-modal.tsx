@@ -17,7 +17,6 @@ import {
   validateImageFiles,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
   PRODUCT_STATUS,
   isProductSold,
   normalizeProductStatus,
@@ -67,7 +66,7 @@ export function ProductDetailModal({
     product.price && product.price > 0 ? String(product.price) : ""
   );
   const [editGrade, setEditGrade] = useState<string>(
-    product.condition_grade || PRODUCT_CONDITION_GRADES[1]
+    product.condition_grade || ""
   );
   const [editStatus, setEditStatus] = useState<string>(
     normalizeProductStatus(product.status)
@@ -266,7 +265,7 @@ export function ProductDetailModal({
     setEditPrice(
       product.price && product.price > 0 ? String(product.price) : ""
     );
-    setEditGrade(product.condition_grade || PRODUCT_CONDITION_GRADES[1]);
+    setEditGrade(product.condition_grade || "");
     setEditStatus(normalizeProductStatus(product.status));
     setEditDescription(product.description || "");
     setIsEditing(false);
@@ -594,10 +593,13 @@ export function ProductDetailModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="hb-label">카테고리</label>
+                      <label htmlFor="detail-edit-category" className="hb-label">
+                        카테고리
+                      </label>
                       <select
+                        id="detail-edit-category"
                         value={editCategory}
                         onChange={(e) => setEditCategory(e.target.value)}
                         className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
@@ -610,8 +612,11 @@ export function ProductDetailModal({
                       </select>
                     </div>
                     <div>
-                      <label className="hb-label">판매 상태</label>
+                      <label htmlFor="detail-edit-status" className="hb-label">
+                        판매 상태
+                      </label>
                       <select
+                        id="detail-edit-status"
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
                         className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
@@ -619,20 +624,6 @@ export function ProductDetailModal({
                         <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                         <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
                         <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="hb-label">상태 등급</label>
-                      <select
-                        value={editGrade}
-                        onChange={(e) => setEditGrade(e.target.value)}
-                        className="hb-input mt-1 text-hb-base sm:text-hb-sm font-semibold"
-                      >
-                        {PRODUCT_CONDITION_GRADES.map((g) => (
-                          <option key={g} value={g}>
-                            {g}
-                          </option>
-                        ))}
                       </select>
                     </div>
                   </div>

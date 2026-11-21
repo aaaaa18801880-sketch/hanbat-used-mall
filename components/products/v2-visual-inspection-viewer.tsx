@@ -27,8 +27,10 @@ export function V2VisualInspectionViewer({
 }) {
   const catLabel = normalizeProductCategory(category);
   const items = getBuyerConcernItems(catLabel);
-  const displayGrade = conditionGrade || "A급 (점검완료)";
   const warrantyText = getCategoryWarrantyInfo(catLabel).compactLabel;
+  const headerRightText = conditionGrade
+    ? `${conditionGrade} · ${warrantyText}`
+    : `고압세척 · 작동 점검 완료 · ${warrantyText}`;
 
   return (
     <div className="hb-surface-card flex h-full flex-col justify-between overflow-hidden border-[#E2DDD3]">
@@ -39,7 +41,7 @@ export function V2VisualInspectionViewer({
             출고 전 점검 안내 · {catLabel}
           </span>
           <span className="font-bold text-[#C84312] tabular-nums">
-            {displayGrade} · {warrantyText}
+            {headerRightText}
           </span>
         </div>
 

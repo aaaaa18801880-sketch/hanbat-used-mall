@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  STORE,
-  sanitizeOldManufactureYear,
-} from "../../../lib/site";
+import { sanitizeOldManufactureYear } from "../../../lib/site";
 import { resolveAnalyzedProductCategory } from "../../../lib/product-category-audit";
 import { parseAnalyzedImageCrops } from "../../../lib/image-smart-crop";
+import {
+  buildProductAnalysisPrompt,
+  sanitizeProductDraftArray,
+  sanitizeProductDraftText,
+} from "../../../lib/product-ai-prompt";
 import {
   checkRateLimit,
   getClientIp,
@@ -17,6 +19,7 @@ import {
 } from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
+export const maxDuration = 60;
 
 const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
@@ -184,132 +187,67 @@ export async function POST(req: NextRequest) {
     const useSearch = formData.get("searchSpecs") === "true";
 
     const currentYear = new Date().getFullYear();
-    const oldYearThreshold = currentYear - 6; // 2026년 기준 2020년 (5년 이상 지난 제품 기준점)
 
-    const prompt = `
-## 역할
-당신은 중고 가전 및 업소용 주방기기를 전문적으로 판매하는 '${STORE.name}'의 상품 상세페이지 전문 카피라이터입니다.
-제품 정보를 단순히 나열하는 데 그치지 않고, 소비자가 제품의 용도와 장점을 이해하고 구매 및 설치 여부를 합리적으로 판단할 수 있도록 핵심만 간결하고 명확하게 작성합니다.
+    const prompt = buildProductAnalysisPrompt({
+      currentYear,
+      categoryHint,
+    });
 
-## 핵심 작성 원칙
+    const visionConfig: Record<string, unknown> = {
+      responseMimeType: "application/json",
+      temperature: 0.1,
+      maxOutputTokens: 4096,
+    };
 
-1. 사실 기반 작성 (환각/추측 절대 금지)
-- 첨부된 사진(명판 스티커, 모델명, 에너지소비효율 라벨, 외관, 도어 형태)에 근거한 사실만 사용합니다.
-- 제품 상태가 불명확하면 상태가 좋다고 단정하지 말고 확인이 필요한 항목("needsReview")으로 표시합니다.
+    const searchConfig: Record<string, unknown> = {
+      tools: [{ googleSearch: {} }],
+      temperature: 0.1,
+      maxOutputTokens: 4096,
+    };
 
-2. 과장 광고 금지 및 객관적 수치 사용
-- '초절전', '최고급', '완벽한 성능' 등 근거 없는 미사여구를 절대 사용하지 않습니다.
-- 소비전력, 용량, 크기 수치는 정확히 숫자로 표기합니다.
+    let usedSearchFallbackToVision = false;
+    let geminiResult: Awaited<ReturnType<typeof generateGeminiWithFallback>>;
 
-3. [필수 - 냉장고/냉장냉동고 구획 및 도어 구성 특정 원칙]
-- 냉장고 및 업소용 냉장냉동고(45박스, 30박스, 25박스, 65박스, 4도어, 양문형 등)처럼 내부가 분할된 기기는 **① 몇 칸이 냉장이고 몇 칸이 냉동인지(도어 수/칸수 분할)**, **② 각각 어디가 냉장실이고 어디가 냉동실인지(물리적 위치: 좌상단, 우측 전체, 상단, 하단 등)**를 반드시 구체적으로 명시해야 합니다.
-- 업소용 냉장냉동고(우성, 유니크, 라셀르 등) 판별 지침:
-  * 모델명 'RF'/'3RF': '냉동 1칸 / 냉장 3칸' (통상 상단 좌측 1도어가 냉동실, 나머지 우측 2도어 및 좌측 하단 1도어가 냉장실)
-  * 모델명 '2RF'/'2R2F'/'HRF': '냉동 2칸 / 냉장 2칸' (통상 좌측 세로 2도어가 냉동실, 우측 세로 2도어가 냉장실)
-  * 모델명 'R': '4칸 전체 냉장실 (올냉장)'
-  * 모델명 'F': '4칸 전체 냉동실 (올냉동)'
-  * 25박스/30박스 2도어: 통상 '상단 냉동 1칸 / 하단 냉장 1칸' 또는 '올냉장' (위/아래 수직 2도어)
-  * 가로 테이블/찬밧드·토핑·반찬/김밥냉장고(900/1200/1500/1800 규격): 높이가 낮고(80~85cm) 상판이 작업대/밧드인 기기. 도어가 세로가 아니라 [좌/우 수평]으로 나란히 배치됨. 도어 위치 작성 시 절대 '상단/하단'으로 쓰지 말고 반드시 '좌측 도어 / 우측 도어 (좌우 수평 배치)' 또는 '좌측 기계실 + 우측 2도어 올냉장'으로 명시할 것! 규격도 25/30박스가 아닌 1200/1500 등 가로폭 규격으로 표기.
-  * 모델명 'RB'/'RTAR'/'RT'/'CWT'/'WST': '테이블/찬밧드 냉장고 (좌우 수평 도어)'
-- 가정용 냉장고: 4도어='상냉장 하냉동', 양문형='좌냉동 우냉장'
-- 가정용 냉장고(삼성 비스포크, LG 디오스/오브제컬렉션, 위니아 등):
-  * 에너지소비효율등급 라벨 또는 명판 스티커에서 모델명(예: RF85T9111AP 등), 전체 용량(예: 850L 등), 월간소비전력량(kWh/월) 등을 정밀 판독
-  * 상품명 예시: "삼성 비스포크 4도어 냉장고 850L (상냉장 하냉동, RF85T9111AP)"
-- 필수 반영 위치:
-  * 상품명("title"): 구획 요약 포함 (예: "우성 45박스 업소용 4도어 직냉식 냉장냉동고 (냉동 1칸 / 냉장 3칸, CWS-1243RF)")
-  * [한눈에 보는 제품 정보]: 도어별 위치와 칸수 구성을 1문장 이상 할애하여 구체적으로 설명
-  * [제품 특징]: 도어별 분할 수납 특징 필수 작성
-  * [주요 사양]: 도어 및 구획 구성, 냉동실 위치, 냉장실 위치 명시
-
-4. 출력 섹션 구성 (불필요한 중복 안내 제거, 핵심 3개 섹션으로 압축)
-상세페이지 시스템에 이미 고정 표기되는 [점검 및 A/S 안내], [구매 및 설치 전 확인사항], [상담 안내]는 별도로 작성하지 마세요.
-오직 아래 3개 항목만 작성합니다:
-- [한눈에 보는 제품 정보]: 제품의 용도, 권장 설치 공간, 핵심 장점 및 구획 구조(2~3문장)
-- [제품 특징]: 제품의 핵심 기능 및 차별점 (2~3개 불릿)
-- [주요 사양]: 모델명, 크기, 용량, 도어/구획 구성, 전원(에어컨·냉난방기 및 3상 기기는 반드시 '단상 220V' 또는 '삼상 380V' 명시), 특이사항(전용선 필요 시 등)
-
-5. [필수] 사진 방향 및 스튜디오 조명/광도 자동 감지 (imageRotations)
-- 첨부된 각 사진(전달된 이미지 순서대로 1번부터)의 기기 외관이나 에너지라벨/명판 텍스트가 옆으로 누워있는지 판독하여, 사람이 고개를 기울이지 않고 정방향으로 편안하게 읽을 수 있도록 세우기 위해 '시계방향'으로 몇 도 회전해야 하는지(rotate: 0, 90, 180, 270)를 반드시 판정하세요:
-  * 0: 이미 정상 정방향으로 서 있음
-  * 90: 사진 속 기기나 라벨 글자가 왼쪽으로 90도 누워있음 (시계방향 90도 회전 필요)
-  * 180: 거꾸로 뒤집혀 있음 (180도 회전 필요)
-  * 270: 오른쪽으로 90도 누워있음 (반시계 90도 / 시계방향 270도 회전 필요)
-- 동시에 매장/창고 실내 조명이 어둡거나 대비가 부족한지 판독하여 맑고 화사한 쇼룸 스튜디오 조명 보정값(brightness: 1.00~1.22, contrast: 1.00~1.18)을 함께 산출하세요.
-
-6. [필수] 제조년월 / 연식 표기 절대 원칙 (5년 이상 지난 제품은 제조년월 일절 미표기)
-- 기준 연도: 현재는 ${currentYear}년입니다.
-- **연식이 5년 이상 지난 기기(${oldYearThreshold}년 및 그 이전 연도: ${oldYearThreshold}년, ${oldYearThreshold - 1}년, ...)인 경우**:
-  * 상품명("title"), [한눈에 보는 제품 정보], [제품 특징], [주요 사양], 사진 판독("photoObserved"), 검색 사양("searchDerivedSpecs"), 검토 필요("needsReview") 등 어떠한 항목에서도 제조년월, 제조년도, 연식(예: "2018년식", "제조년월: 2018.06", "2018년형", "2018년 제조" 등)을 절대 표기하거나 언급하지 마세요!
-  * 사진 명판에 2020년 이전(2020년 포함) 제조년월이 적혀 있더라도 아예 생략하고 쓰지 않습니다.
-  * 사양("specDetails")의 [주요 사양] 목록에서도 '제조년월' 항목 자체를 아예 빼고 작성하세요.
-- **반대로, 최근 5년 이내 최신 기기(${oldYearThreshold + 1}년~${currentYear}년: ${oldYearThreshold + 1}년 이후)**인 경우에만 제품의 가치를 높여주는 강점이 되므로 제조년월/연식을 정상 표기할 수 있습니다.
-
-7. [필수] 사진별 유형 및 핵심 영역 좌표 자동 추출 (imageCrops)
-- 첨부된 각 사진(전달된 순서대로 1번부터, 회전 전 원본 좌표 기준)에 대해 아래 규칙으로 role과 정규화 좌표 box_2d([ymin, xmin, ymax, xmax], 0~1000 정수)를 함께 산출하세요:
-  * "product": 단독 판매 제품 외관 사진 → 배경(실외기·건물·바닥·벽면)을 제외하고 핵심 제품 본체 전체(손잡이·상하단 모서리 포함)를 정확히 감싸는 box_2d
-  * "nameplate": 모델명·KC인증·정격전압·제조년월이 적힌 명판 스티커 또는 에너지소비효율 라벨 근접 사진 → 주변 철판/벽면/브래킷을 제외하고 스티커 네모 박스 테두리만 정확히 감싸는 box_2d
-  * "other": 서로 다른 가전이 여러 대 쌓여 주인공 1대를 특정하기 어렵거나 단순 부속품/현장 사진인 경우 (무리하게 크롭하지 않도록 "other"로 분류)
-
-## 카테고리 자동 판별
-관리자 선택값("${categoryHint || "미지정"}")과 무관하게, 첨부 사진 속 실제 제품을 보고 아래 5개 중 하나로 분류:
-- "에어컨/냉난방기": 벽걸이/스탠드/천장형 에어컨, 시스템 냉난방기 전용 (※ TV나 다른 가전은 절대 에어컨으로 분류 금지)
-- "냉장고"
-- "세탁기/건조기"
-- "업소용기기"
-- "기타": TV, 모니터, 컴퓨터, 영상가전, 전자레인지, 밥솥, 청소기, 주방·생활 소형가전 (※ TV 및 디스플레이는 절대 '에어컨/냉난방기'가 아니며 반드시 '기타'로 분류)
-
-## 출력 형식 (반드시 다른 해설 문장 없이 아래 유효한 JSON 형식으로만 응답)
-{
-  "category": "업소용기기",
-  "title": "우성 45박스 업소용 4도어 직냉식 냉장냉동고 (냉동 1칸 / 냉장 3칸, CWS-1243RF)",
-  "modelNumber": "CWS-1243RF",
-  "imageRotations": [
-    { "index": 1, "rotate": 0, "brightness": 1.12, "contrast": 1.08 },
-    { "index": 2, "rotate": 90, "brightness": 1.05, "contrast": 1.05 }
-  ],
-  "imageCrops": [
-    { "index": 1, "role": "product", "box_2d": [85, 190, 920, 760] },
-    { "index": 2, "role": "nameplate", "box_2d": [210, 150, 610, 830] }
-  ],
-  "photoObserved": [
-    "제품 유형: 업소용 45박스 4도어 수직형 냉장냉동고 외관 확인",
-    "명판 모델명: CWS-1243RF 판독됨"
-  ],
-  "searchDerivedSpecs": [
-    "전체 규격: 1,260 × 800 × 1,900 mm (가로×깊이×높이)",
-    "도어 및 구획: 4도어 (냉동 1칸 / 냉장 3칸)",
-    "소비전력: 2.5A / 단상 220V 60Hz"
-  ],
-  "sourceVerificationNote": "사진 속 명판 및 도어 구조(냉동 1칸/냉장 3칸)와 일치하는지 확인해 주세요.",
-  "specDetails": "[한눈에 보는 제품 정보]\\n식당 및 업소 주방에서 가장 대중적으로 사용되는 우성 45박스 4도어 직냉식 냉장냉동고입니다. 총 4개 도어 중 좌측 상단 1칸은 냉동실, 나머지 3칸(우측 2칸 + 좌측 하단 1칸)은 대용량 냉장실로 나뉘어 있어, 신선 식자재와 자주 쓰는 냉동 식자재를 효율적으로 분리 보관할 수 있습니다.\\n\\n[제품 특징]\\n• 도어별 냉장/냉동 분할 수납: 좌상단 1칸 냉동실 + 나머지 3칸 냉장실 구성으로 불필요한 냉기 유출 최소화\\n• 견고한 스테인리스 외관: 오염과 부식에 강해 바쁜 업소 주방에서도 위생적인 관리 가능\\n• 직냉식 강력 냉각: 벽면 직접 냉각 방식으로 식재료의 수분 증발을 억제하여 신선도 유지\\n\\n[주요 사양]\\n• 모델명: CWS-1243RF\\n• 도어 및 구획 구성: 4도어 (냉동 1칸 / 냉장 3칸)\\n• 냉동실 위치: 좌측 상단 1도어\\n• 냉장실 위치: 우측 상·하단 및 좌측 하단 3도어\\n• 크기(외경): 1,260 × 800 × 1,900 mm (가로×깊이×높이)\\n• 전원 규격: 단상 220V / 60Hz (정격전류 2.5A)\\n• 설치 참고: 제품 가로폭(1,260mm) 및 높이(1,900mm) 출입문 통과 공간 사전 확인 필요",
-  "needsReview": [
-    "실제 명판 스티커의 정격전압 및 외관 상태 확인 필요"
-  ]
-}
-`;
-
-    // 초고속 처리: 불필요한 사족 방지 및 충분한 출력 버퍼(4096 토큰)로 응답 잘림 방지
-    const config = useSearch
-      ? {
-          tools: [{ googleSearch: {} }],
-          temperature: 0.1,
-          maxOutputTokens: 4096,
-        }
-      : {
-          responseMimeType: "application/json",
-          temperature: 0.1,
-          maxOutputTokens: 4096,
-        };
-
-    const { text: responseText, modelUsed, response } =
-      await generateGeminiWithFallback({
+    if (useSearch) {
+      try {
+        geminiResult = await generateGeminiWithFallback({
+          apiKey,
+          defaultModel: DEFAULT_GEMINI_MODEL,
+          fallbackModel: FALLBACK_GEMINI_MODEL,
+          prompt,
+          imageParts: imgResult.imageParts,
+          config: searchConfig,
+          timeoutMs: 36000,
+        });
+      } catch (searchErr: unknown) {
+        console.warn(
+          "[analyze-product] 검색 연동 분석 지연/오류로 사진 판독 전용 모드로 전환:",
+          searchErr instanceof Error ? searchErr.message : String(searchErr)
+        );
+        usedSearchFallbackToVision = true;
+        geminiResult = await generateGeminiWithFallback({
+          apiKey,
+          defaultModel: DEFAULT_GEMINI_MODEL,
+          fallbackModel: FALLBACK_GEMINI_MODEL,
+          prompt,
+          imageParts: imgResult.imageParts,
+          config: visionConfig,
+          timeoutMs: 22000,
+        });
+      }
+    } else {
+      geminiResult = await generateGeminiWithFallback({
         apiKey,
         defaultModel: DEFAULT_GEMINI_MODEL,
         fallbackModel: FALLBACK_GEMINI_MODEL,
         prompt,
         imageParts: imgResult.imageParts,
-        config,
+        config: visionConfig,
+        timeoutMs: 25000,
       });
+    }
+
+    const { text: responseText, modelUsed, response } = geminiResult;
     const rawParsed = cleanAndParseAIJson(responseText);
 
     const aiCategory =
@@ -473,15 +411,21 @@ export async function POST(req: NextRequest) {
           )
       : [];
 
+    if (usedSearchFallbackToVision) {
+      needsReview.unshift(
+        "인터넷 검색 연동이 지연되어 첨부 사진 판독 기준으로 초안을 생성했습니다."
+      );
+    }
+
     const sanitized = sanitizeOldManufactureYear(
       {
         category: finalCategory,
-        title,
-        specDetails,
+        title: sanitizeProductDraftText(title) || title,
+        specDetails: sanitizeProductDraftText(specDetails),
         modelNumber,
-        photoObserved,
-        searchDerivedSpecs,
-        needsReview,
+        photoObserved: sanitizeProductDraftArray(photoObserved),
+        searchDerivedSpecs: sanitizeProductDraftArray(searchDerivedSpecs),
+        needsReview: sanitizeProductDraftArray(needsReview),
       },
       currentYear
     );
@@ -493,11 +437,11 @@ export async function POST(req: NextRequest) {
       modelUsed, // <-- 실제 사용된 모델(폴백 포함) 반환
       category: sanitized.category || finalCategory,
       title: sanitized.title || title,
-      specDetails: sanitized.specDetails || specDetails,
+      specDetails: sanitized.specDetails || sanitizeProductDraftText(specDetails),
       modelNumber,
       photoObserved: sanitized.photoObserved || photoObserved,
       searchDerivedSpecs: sanitized.searchDerivedSpecs || searchDerivedSpecs,
-      sourceVerificationNote,
+      sourceVerificationNote: sanitizeProductDraftText(sourceVerificationNote),
       needsReview: sanitized.needsReview || needsReview,
       sourceUrls,
       imageRotations,

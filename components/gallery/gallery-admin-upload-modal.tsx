@@ -5,7 +5,6 @@ import React from "react";
 import {
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
   PRODUCT_IMAGE_TONE_EXTRA,
   PRODUCT_STATUS,
 } from "../../lib/site";
@@ -50,8 +49,6 @@ interface GalleryAdminUploadModalProps {
   setProductCategory: (v: string) => void;
   productStatus: string;
   setProductStatus: (v: string) => void;
-  productGrade: string;
-  setProductGrade: (v: string) => void;
   productTitle: string;
   setProductTitle: (v: string) => void;
   productModel: string;
@@ -92,8 +89,6 @@ export function GalleryAdminUploadModal({
   setProductCategory,
   productStatus,
   setProductStatus,
-  productGrade,
-  setProductGrade,
   productTitle,
   setProductTitle,
   productModel,
@@ -197,7 +192,11 @@ export function GalleryAdminUploadModal({
               />
 
               {isAnalyzing && (
-                <p className="mt-2.5 p-3 bg-[#FFF4EE] border border-[#FADCD0] rounded-lg text-[#E8521A] text-hb-xs font-semibold">
+                <p
+                  role="status"
+                  aria-live="polite"
+                  className="mt-2.5 p-3 bg-[#FFF4EE] border border-[#FADCD0] rounded-lg text-[#E8521A] text-hb-xs font-semibold"
+                >
                   사진 속 명판과 제품 사양을 분석하고 있습니다...
                 </p>
               )}
@@ -382,11 +381,14 @@ export function GalleryAdminUploadModal({
               </div>
             )}
 
-            {/* 3. 카테고리 · 판매 상태 · 상태 등급 */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* 3. 카테고리 · 판매 상태 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="hb-label">표준 카테고리 *</label>
+                <label htmlFor="gallery-upload-category" className="hb-label">
+                  표준 카테고리 *
+                </label>
                 <select
+                  id="gallery-upload-category"
                   value={productCategory}
                   onChange={(e) => setProductCategory(e.target.value)}
                   className="hb-input mt-1 font-semibold text-hb-sm"
@@ -399,8 +401,11 @@ export function GalleryAdminUploadModal({
                 </select>
               </div>
               <div>
-                <label className="hb-label">판매 상태</label>
+                <label htmlFor="gallery-upload-status" className="hb-label">
+                  판매 상태
+                </label>
                 <select
+                  id="gallery-upload-status"
                   value={productStatus}
                   onChange={(e) => setProductStatus(e.target.value)}
                   className="hb-input mt-1 font-semibold text-hb-sm"
@@ -408,20 +413,6 @@ export function GalleryAdminUploadModal({
                   <option value={PRODUCT_STATUS.SELLING}>판매중</option>
                   <option value={PRODUCT_STATUS.RESERVED}>예약중</option>
                   <option value={PRODUCT_STATUS.SOLD}>판매완료</option>
-                </select>
-              </div>
-              <div>
-                <label className="hb-label">상태 등급</label>
-                <select
-                  value={productGrade}
-                  onChange={(e) => setProductGrade(e.target.value)}
-                  className="hb-input mt-1 font-semibold text-hb-sm"
-                >
-                  {PRODUCT_CONDITION_GRADES.map((g) => (
-                    <option key={g} value={g}>
-                      {g}
-                    </option>
-                  ))}
                 </select>
               </div>
             </div>

@@ -5,7 +5,6 @@ import React from "react";
 import {
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
   PRODUCT_IMAGE_TONE_EXTRA,
   PRODUCT_STATUS_LIST,
 } from "../../lib/site";
@@ -24,8 +23,6 @@ interface AdminProductFormProps {
   setProdPrice: (value: string) => void;
   prodCategory: string;
   setProdCategory: (value: string) => void;
-  prodGrade: string;
-  setProdGrade: (value: string) => void;
   prodStatus: string;
   setProdStatus: (value: string) => void;
   prodDesc: string;
@@ -77,8 +74,6 @@ export function AdminProductForm({
   setProdPrice,
   prodCategory,
   setProdCategory,
-  prodGrade,
-  setProdGrade,
   prodStatus,
   setProdStatus,
   prodDesc,
@@ -237,7 +232,11 @@ export function AdminProductForm({
           </p>
 
           {analyzingProduct && (
-            <p className="mt-2 rounded bg-[#FFF4EE] p-2.5 text-hb-xs font-bold text-[#E8521A]">
+            <p
+              role="status"
+              aria-live="polite"
+              className="mt-2 rounded bg-[#FFF4EE] p-2.5 text-hb-xs font-bold text-[#E8521A]"
+            >
               AI가 사진 판독 및 사양 초안을 작성 중입니다...
             </p>
           )}
@@ -420,8 +419,11 @@ export function AdminProductForm({
 
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="hb-label">표준 카테고리</label>
+            <label htmlFor="admin-prod-category" className="hb-label">
+              표준 카테고리
+            </label>
             <select
+              id="admin-prod-category"
               value={prodCategory}
               onChange={(e) => setProdCategory(e.target.value)}
               className="hb-input mt-1 py-2 text-hb-sm font-semibold"
@@ -434,8 +436,11 @@ export function AdminProductForm({
             </select>
           </div>
           <div>
-            <label className="hb-label">판매 상태</label>
+            <label htmlFor="admin-prod-status" className="hb-label">
+              판매 상태
+            </label>
             <select
+              id="admin-prod-status"
               value={prodStatus}
               onChange={(e) => setProdStatus(e.target.value)}
               className="hb-input mt-1 py-2 text-hb-sm font-semibold"
@@ -450,21 +455,27 @@ export function AdminProductForm({
         </div>
 
         <div>
-          <label className="hb-label">상품명 *</label>
+          <label htmlFor="admin-prod-title" className="hb-label">
+            상품명 *
+          </label>
           <input
+            id="admin-prod-title"
             type="text"
             required
             value={prodTitle}
             onChange={(e) => setProdTitle(e.target.value)}
             className="hb-input mt-1 py-2.5"
-            placeholder="예: 캐리어 벽걸이 냉난방기 9평형"
+            placeholder="예: 캐리어 9평형 인버터 벽걸이형 냉난방기 (단상 220V, 모델명)"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
           <div>
-            <label className="hb-label">모델명 (확인 시)</label>
+            <label htmlFor="admin-prod-model" className="hb-label">
+              모델명 (확인 시)
+            </label>
             <input
+              id="admin-prod-model"
               type="text"
               value={prodModel}
               onChange={(e) => setProdModel(e.target.value)}
@@ -472,36 +483,29 @@ export function AdminProductForm({
             />
           </div>
           <div>
-            <label className="hb-label">가격 (원, 비우면 가격 문의)</label>
+            <label htmlFor="admin-prod-price" className="hb-label">
+              가격 (원, 비우면 가격 문의)
+            </label>
             <input
-              type="number"
+              id="admin-prod-price"
+              type="text"
+              inputMode="numeric"
               value={prodPrice}
-              onChange={(e) => setProdPrice(e.target.value)}
+              onChange={(e) =>
+                setProdPrice(e.target.value.replace(/[^0-9]/g, ""))
+              }
               className="hb-input mt-1 py-2"
+              placeholder="예: 450000"
             />
           </div>
         </div>
 
         <div>
-          <label className="hb-label">상태 등급</label>
-          <select
-            value={prodGrade}
-            onChange={(e) => setProdGrade(e.target.value)}
-            className="hb-input mt-1 py-2 text-hb-sm font-semibold"
-          >
-            {PRODUCT_CONDITION_GRADES.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="hb-label">
+          <label htmlFor="admin-prod-desc" className="hb-label">
             AI 작성 설명 초안 (검토 및 편집 후 저장)
           </label>
           <textarea
+            id="admin-prod-desc"
             rows={6}
             value={prodDesc}
             onChange={(e) => setProdDesc(e.target.value)}

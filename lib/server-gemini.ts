@@ -54,8 +54,35 @@ export async function extractValidatedImageParts(
   };
 }
 
+const LIVE_FLASH_FALLBACK_CHAIN = [
+  "gemini-3.8-flash",
+  "gemini-3.7-flash",
+  "gemini-flash-latest",
+] as const;
+
+function isRetryableModelError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err || "");
+  const lowerMsg = msg.toLowerCase();
+  return (
+    msg.includes("404") ||
+    msg.includes("429") ||
+    msg.includes("500") ||
+    msg.includes("503") ||
+    lowerMsg.includes("not found") ||
+    lowerMsg.includes("no longer available") ||
+    lowerMsg.includes("not supported") ||
+    lowerMsg.includes("resource_exhausted") ||
+    lowerMsg.includes("unavailable") ||
+    lowerMsg.includes("internal") ||
+    lowerMsg.includes("timeout") ||
+    lowerMsg.includes("aborted") ||
+    (err instanceof Error &&
+      (err.name === "TimeoutError" || err.name === "AbortError"))
+  );
+}
+
 /**
- * Gemini 모델을 호출하고 404/미지원 오류 시 지정된 폴백 모델로 1회 자동 재시도합니다.
+ * Gemini 모델을 호출하고 404·미지원·일시적 지연 시 살아있는 모델 체인으로 자동 폴백 재시도합니다.
  */
 export async function generateGeminiWithFallback(options: {
   apiKey: string;
@@ -64,6 +91,7 @@ export async function generateGeminiWithFallback(options: {
   prompt: string;
   imageParts: GeminiInlineImagePart[];
   config?: Record<string, unknown>;
+  timeoutMs?: number;
 }): Promise<{
   text: string;
   modelUsed: string;
@@ -77,59 +105,63 @@ export async function generateGeminiWithFallback(options: {
     },
   ];
   const baseConfig = options.config ?? { responseMimeType: "application/json" };
-  const primaryConfig = {
-    ...baseConfig,
-    abortSignal:
-      (baseConfig.abortSignal as AbortSignal | undefined) ??
-      AbortSignal.timeout(20000),
-  };
+  const hasTools =
+    Array.isArray(baseConfig.tools) && baseConfig.tools.length > 0;
+  const resolvedTimeoutMs =
+    typeof options.timeoutMs === "number" && options.timeoutMs > 0
+      ? options.timeoutMs
+      : hasTools
+      ? 40000
+      : 25000;
 
-  let modelUsed = options.defaultModel;
-  let response;
+  const candidateModels = Array.from(
+    new Set(
+      [
+        options.defaultModel,
+        options.fallbackModel,
+        ...LIVE_FLASH_FALLBACK_CHAIN,
+      ]
+        .map((m) => m.trim())
+        .filter(Boolean)
+    )
+  );
 
-  try {
-    response = await ai.models.generateContent({
-      model: options.defaultModel,
-      contents,
-      config: primaryConfig,
-    });
-  } catch (modelErr: unknown) {
-    const msg =
-      modelErr instanceof Error ? modelErr.message : String(modelErr || "");
-    const lowerMsg = msg.toLowerCase();
-    const isRetryableWithFallback =
-      msg.includes("404") ||
-      msg.includes("429") ||
-      msg.includes("503") ||
-      lowerMsg.includes("not found") ||
-      lowerMsg.includes("not supported") ||
-      lowerMsg.includes("resource_exhausted") ||
-      lowerMsg.includes("unavailable") ||
-      lowerMsg.includes("timeout") ||
-      lowerMsg.includes("aborted") ||
-      (modelErr instanceof Error &&
-        (modelErr.name === "TimeoutError" || modelErr.name === "AbortError"));
+  let lastError: unknown = null;
 
-    if (options.defaultModel !== options.fallbackModel && isRetryableWithFallback) {
-      modelUsed = options.fallbackModel;
-      response = await ai.models.generateContent({
-        model: options.fallbackModel,
+  for (let i = 0; i < candidateModels.length; i++) {
+    const model = candidateModels[i];
+    try {
+      const response = await ai.models.generateContent({
+        model,
         contents,
         config: {
           ...baseConfig,
-          abortSignal: AbortSignal.timeout(20000),
+          abortSignal: AbortSignal.timeout(resolvedTimeoutMs),
         },
       });
-    } else {
+      const text = response.text?.trim() || "";
+      if (!text && i < candidateModels.length - 1) {
+        lastError = new Error(`Empty response from ${model}`);
+        continue;
+      }
+      return {
+        text,
+        modelUsed: model,
+        response,
+      };
+    } catch (modelErr: unknown) {
+      lastError = modelErr;
+      const hasNext = i < candidateModels.length - 1;
+      if (hasNext && isRetryableModelError(modelErr)) {
+        continue;
+      }
       throw modelErr;
     }
   }
 
-  return {
-    text: response.text?.trim() || "",
-    modelUsed,
-    response,
-  };
+  throw lastError instanceof Error
+    ? lastError
+    : new Error("Gemini 모델 호출에 실패했습니다.");
 }
 
 /**

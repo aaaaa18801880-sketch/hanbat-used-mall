@@ -11,7 +11,6 @@ import {
   enhanceImageFile,
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
-  PRODUCT_CONDITION_GRADES,
   PRODUCT_IMAGE_TONE_PRESET,
   PRODUCT_STATUS,
   revokeObjectUrls,
@@ -44,9 +43,6 @@ export function GalleryAdminUploadController({
   const [productPrice, setProductPrice] = useState("");
   const [productStatus, setProductStatus] = useState<string>(
     PRODUCT_STATUS.SELLING
-  );
-  const [productGrade, setProductGrade] = useState<string>(
-    PRODUCT_CONDITION_GRADES[1]
   );
   const [productFiles, setProductFiles] = useState<File[]>([]);
   const productFilesRef = useRef<File[]>([]);
@@ -89,7 +85,6 @@ export function GalleryAdminUploadController({
     setProductDescription("");
     setProductPrice("");
     setProductCategory(PRODUCT_CATEGORIES[0]);
-    setProductGrade(PRODUCT_CONDITION_GRADES[1]);
     setProductStatus(PRODUCT_STATUS.SELLING);
     setProductFiles([]);
     setProductPreviews([]);
@@ -550,7 +545,7 @@ export function GalleryAdminUploadController({
         category: productCategory,
         status: productStatus,
         price: productPrice,
-        conditionGrade: productGrade,
+        conditionGrade: null,
         description: productDescription,
         modelName: productModel,
         files: productFiles,
@@ -600,8 +595,6 @@ export function GalleryAdminUploadController({
       setProductCategory={setProductCategory}
       productStatus={productStatus}
       setProductStatus={setProductStatus}
-      productGrade={productGrade}
-      setProductGrade={setProductGrade}
       productTitle={productTitle}
       setProductTitle={setProductTitle}
       productModel={productModel}

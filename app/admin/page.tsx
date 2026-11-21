@@ -20,7 +20,6 @@ import {
   STORE,
   PRODUCT_CATEGORIES,
   PRODUCT_STATUS,
-  PRODUCT_CONDITION_GRADES,
   normalizeProductStatus,
   normalizeProductCategory,
   splitImages,
@@ -110,7 +109,7 @@ export default function IntegratedAdminDashboard() {
   const [prodModel, setProdModel] = useState("");
   const [prodPrice, setProdPrice] = useState("");
   const [prodCategory, setProdCategory] = useState<string>(PRODUCT_CATEGORIES[0]);
-  const [prodGrade, setProdGrade] = useState<string>(PRODUCT_CONDITION_GRADES[1]);
+  const [prodGrade, setProdGrade] = useState<string>("");
   const [prodStatus, setProdStatus] = useState<string>(PRODUCT_STATUS.SELLING);
   const [prodDesc, setProdDesc] = useState("");
   const [prodFiles, setProdFiles] = useState<File[]>([]);
@@ -850,7 +849,7 @@ export default function IntegratedAdminDashboard() {
     setProdModel("");
     setProdPrice("");
     setProdCategory(PRODUCT_CATEGORIES[0]);
-    setProdGrade(PRODUCT_CONDITION_GRADES[1]);
+    setProdGrade("");
     setProdStatus(PRODUCT_STATUS.SELLING);
     setProdDesc("");
     setProdFiles([]);
@@ -874,7 +873,7 @@ export default function IntegratedAdminDashboard() {
       setProdPrice(
         product.price && product.price > 0 ? String(product.price) : ""
       );
-      setProdGrade(product.condition_grade || PRODUCT_CONDITION_GRADES[1]);
+      setProdGrade(product.condition_grade || "");
       setProdStatus(normalizeProductStatus(product.status));
       setProdDesc(product.description || "");
       setActiveTab("products");
@@ -1334,8 +1333,6 @@ export default function IntegratedAdminDashboard() {
               setProdPrice={setProdPrice}
               prodCategory={prodCategory}
               setProdCategory={setProdCategory}
-              prodGrade={prodGrade}
-              setProdGrade={setProdGrade}
               prodStatus={prodStatus}
               setProdStatus={setProdStatus}
               prodDesc={prodDesc}
