@@ -13,8 +13,8 @@ export const HOME_KITCHEN_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 4,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/fridge-warm-check.jpg",
-      alt: "가정 주방에서 냉동실은 정상인데 냉장실 온도가 떨어지지 않아 점검하는 모습 예시 일러스트",
+      src: "/images/guide/photos/fridge-warm-not-cooling-defrost.jpg",
+      alt: "가정용 양문형 냉장고 내부 냉기 토출구와 선반을 확인하는 실사 사진",
       caption:
         "냉동실 냉기 하나를 댐퍼와 송풍팬이 나눠 쓰는 구조이기 때문에 통로에 성에가 끼면 냉장실만 먼저 식습니다.",
     },
@@ -360,8 +360,8 @@ export const HOME_KITCHEN_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 4,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/cafe-icemaker-bar.jpg",
-      alt: "카페 바 아래 언더카운터 제빙기 전면 하단 통풍구 필터 먼지를 솔로 관리하는 모습 예시 일러스트",
+      src: "/images/guide/photos/commercial-icemaker-not-freezing-causes.jpg",
+      alt: "업소용 제빙기 얼음 생성 상태와 저장고를 확인하는 현장 실사 사진",
       caption:
         "언더카운터 제빙기는 하단 전면 루버(먼지 필터)가 막히면 방열 불량으로 얼음 생산 속도가 크게 떨어집니다.",
     },

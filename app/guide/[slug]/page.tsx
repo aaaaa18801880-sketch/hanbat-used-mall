@@ -319,8 +319,8 @@ export default async function GuideDetailPage({
               <Image
                 src={resolvedThumb.src}
                 alt={resolvedThumb.alt}
-                width={1376}
-                height={768}
+                width={1280}
+                height={720}
                 sizes="(max-width: 1024px) 100vw, 760px"
                 priority
                 loading="eager"
@@ -332,7 +332,7 @@ export default async function GuideDetailPage({
                   {article.heroImage?.caption || resolvedThumb.alt}
                 </span>
                 <span className="text-[#64748B] font-semibold shrink-0">
-                  ※ 이해를 돕기 위한 예시 일러스트입니다.
+                  ※ 이해를 돕기 위한 참고 사진입니다.
                 </span>
               </figcaption>
             </figure>
@@ -691,7 +691,7 @@ export default async function GuideDetailPage({
                   href="/guide"
                   className="text-hb-xs font-bold text-[#C84312] hover:underline underline-offset-2"
                 >
-                  전체 65편 보기
+                  전체 {INFO_GUIDE_ARTICLES.length}편 보기
                 </Link>
               </div>
               <ul className="divide-y divide-[#E2DDD3]">
@@ -778,8 +778,8 @@ export default async function GuideDetailPage({
                 </div>
                 <div className="relative aspect-[16/10] lg:aspect-auto lg:h-full lg:col-span-5 bg-[#141A23]">
                   <Image
-                    src="/images/guide/buyback-appraisal.jpg"
-                    alt="정면 사진과 명판 스티커 촬영으로 방문 매입 견적을 받는 예시 일러스트"
+                    src="/images/guide/photos/appliance-buyback-no-deduction-guide.jpg"
+                    alt="가전 정면과 명판을 촬영해 방문 매입 견적을 확인하는 현장 참고 사진"
                     fill
                     sizes="(max-width: 1024px) 100vw, 440px"
                     referrerPolicy="no-referrer"

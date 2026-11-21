@@ -2,6 +2,7 @@
 import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { STORE } from "../../lib/site";
 import {
   INFO_GUIDE_ARTICLES,
@@ -67,7 +68,16 @@ function GuideBoardStaticFallback() {
           href={`/guide/${article.slug}`}
           className="group flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-colors hover:border-[#141A23]"
         >
-          <div className="aspect-[16/9] w-full bg-[#141A23]/10" />
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
+            <Image
+              src={article.thumbnailSrc}
+              alt={article.thumbnailAlt}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
+              referrerPolicy="no-referrer"
+              className="object-cover object-center"
+            />
+          </div>
           <div className="p-4 sm:p-5">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs font-semibold text-[#475569]">
               <span className="font-bold text-[#141A23]">{article.category}</span>

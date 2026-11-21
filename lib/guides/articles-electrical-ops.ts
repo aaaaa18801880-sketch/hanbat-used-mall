@@ -107,10 +107,10 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 5,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/commercial-kitchen-setup.jpg",
-      alt: "업소용 45박스 스테인리스 냉장고와 테이블냉장고, 제빙기가 세팅된 상업용 주방 점검 예시 일러스트",
+      src: "/images/guide/photos/startup-closure-docs-and-power.jpg",
+      alt: "창업 준비 중인 카페·식당 주방의 업소용 스테인리스 냉장고와 바 설비 실사 사진",
       caption:
-        "45박스 업소용 냉장고·테이블냉장고·제빙기 등 주방 핵심 설비를 동시 배치해 점검하는 상업용 주방 예시",
+        "45박스 업소용 냉장고·테이블냉장고·제빙기 등 주방 핵심 설비를 동시 배치한 상업용 주방 현장",
     },
     keywords: [
       "식당 창업 서류",
@@ -312,8 +312,8 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 3,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/ladder-truck-delivery.jpg",
-      alt: "사다리차 리프트로 2층 상가 창문을 통해 대형 업소용 냉장고를 안전하게 반입하는 예시 일러스트",
+      src: "/images/guide/photos/ladder-truck-and-clearance.jpg",
+      alt: "아파트 베란다로 사다리차 리프트를 이용해 대형 냉장고를 반입하는 현장 실사 사진",
       caption:
         "좁은 계단·출입구 통과가 어려운 2층 이상 현장에서는 사다리차를 이용해 파손 없이 반입합니다.",
     },
@@ -644,8 +644,8 @@ export const ELECTRICAL_OPS_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 5,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/energy-label-compare.jpg",
-      alt: "가전 매장에서 돋보기로 에너지 소비효율 등급 라벨과 소비전력량을 꼼꼼히 비교하는 소비자 예시 일러스트",
+      src: "/images/guide/photos/energy-efficiency-rating-myth-and-kwh.jpg",
+      alt: "실제 소비전력량(kWh)을 측정하는 디지털 전력량계 실사 사진",
       caption:
         "라벨 앞면의 큰 등급 숫자(1~5등급)만 보지 말고, 기준 개정 시점(제조년월)과 하단의 실제 '연간/월간 소비전력량(kWh)' 수치를 함께 비교해야 정확합니다.",
     },

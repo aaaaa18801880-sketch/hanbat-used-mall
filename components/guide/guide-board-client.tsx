@@ -89,7 +89,7 @@ function GuideCard({
         href={`/guide/${article.slug}`}
         className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
-        {/* 16:9 비주얼 일러스트 썸네일 */}
+        {/* 16:9 게시글별 고유 실사 메인 이미지 */}
         <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
           <Image
             src={article.thumbnailSrc}
@@ -190,6 +190,7 @@ function FeaturedGuide({
           alt={article.thumbnailAlt}
           fill
           priority
+          loading="eager"
           sizes="(max-width: 640px) 100vw, 380px"
           quality={85}
           referrerPolicy="no-referrer"

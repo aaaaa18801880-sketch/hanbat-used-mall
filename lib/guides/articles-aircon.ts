@@ -14,8 +14,8 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 4,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/aircon-summer-wait.jpg",
-      alt: "한여름 매장에서 스탠드형 상업용 에어컨 고장으로 난감해하는 업주 모습 예시 일러스트",
+      src: "/images/guide/photos/new-aircon-repair-delay.jpg",
+      alt: "여름철 거실에 설치된 스탠드 에어컨과 점검 공구 가방 현장 실사 사진",
       caption:
         "성수기에 매장 에어컨이 멈추면 부품 발주와 재방문 대기 동안 영업에 지장이 생깁니다.",
     },
@@ -449,8 +449,8 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 4,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/outdoor-unit-defrost-ice.jpg",
-      alt: "추운 겨울 상가 보도 옆 낮게 설치된 실외기에서 제상 수증기와 물이 흘러 인도 바닥에 빙판이 생기고 행인이 주의 깊게 살피는 예시 일러스트",
+      src: "/images/guide/photos/why-no-outdoor-unit-on-walkway-defrost.jpg",
+      alt: "겨울철 눈과 성에가 쌓인 야외 에어컨 실외기 현장 실사 사진",
       caption:
         "겨울 난방 중 실외기가 제상 운전에 들어가면 다량의 물과 흰 수증기가 배출되어 저층 보행로가 순식간에 얼어붙을 수 있습니다.",
     },
@@ -883,8 +883,8 @@ export const AIRCON_GUIDE_ARTICLES: readonly InfoGuideArticle[] = [
     readMinutes: 4,
     updatedAt: "2026-11-14",
     heroImage: {
-      src: "/images/guide/aircon-water-leak.jpg",
-      alt: "실내기 하단에서 물방울이 떨어지는 상황을 수건을 들고 점검하는 사용자 예시 일러스트",
+      src: "/images/guide/photos/aircon-indoor-water-leak-causes.jpg",
+      alt: "벽걸이 에어컨 실내기 전면 송풍구와 드레인 점검 부위 실사 사진",
       caption:
         "실내기 냉각핀에 맺힌 응축수가 밖으로 원활히 빠져나가지 못하면 물받이에서 넘쳐 바닥이나 벽지로 흘러내립니다.",
     },

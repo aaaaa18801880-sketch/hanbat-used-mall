@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 import { isProductSold, toProductCardSummary } from "../lib/site";
 import { INFO_GUIDE_ARTICLES, sortGuidesByPriority } from "../lib/info-guides";
 import { hasGuideInteractiveTool } from "../lib/guides/tool-slugs";
+import { resolveGuideThumbnail } from "../lib/guides/thumbnails";
 import {
   fetchInitialPublicInquiries,
   fetchPublicInquiryTotalCount,
@@ -19,23 +20,22 @@ export const revalidate = 300;
 
 export default async function Page() {
   const sortedGuides = sortGuidesByPriority(INFO_GUIDE_ARTICLES);
-  const visualGuides = sortedGuides.filter((a) => Boolean(a.heroImage?.src));
-  const pickedGuides =
-    visualGuides.length >= 5
-      ? visualGuides.slice(0, 5)
-      : sortedGuides.slice(0, 5);
+  const pickedGuides = sortedGuides.slice(0, 5);
 
-  const latestGuides: GuidePreviewSummary[] = pickedGuides.map((article) => ({
-    slug: article.slug,
-    category: article.category,
-    title: article.title,
-    summary: article.summary,
-    readMinutes: article.readMinutes,
-    priorityRole: article.priorityRole,
-    heroImageSrc: article.heroImage?.src ?? null,
-    heroImageAlt: article.heroImage?.alt ?? article.title,
-    hasTool: hasGuideInteractiveTool(article.slug),
-  }));
+  const latestGuides: GuidePreviewSummary[] = pickedGuides.map((article) => {
+    const thumb = resolveGuideThumbnail(article);
+    return {
+      slug: article.slug,
+      category: article.category,
+      title: article.title,
+      summary: article.summary,
+      readMinutes: article.readMinutes,
+      priorityRole: article.priorityRole,
+      heroImageSrc: thumb.src,
+      heroImageAlt: thumb.alt,
+      hasTool: hasGuideInteractiveTool(article.slug),
+    };
+  });
   const guideTotalCount = INFO_GUIDE_ARTICLES.length;
 
   const [productsResult, reviewsResult, recentResult, totalInquiryCount] =
