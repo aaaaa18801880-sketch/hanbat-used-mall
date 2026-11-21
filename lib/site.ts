@@ -1855,16 +1855,19 @@ interface ImageEnhanceOptions {
   contrast?: number;
   saturate?: number;
   quality?: number;
+  adaptiveHighlightGuard?: boolean;
 }
 
 /**
  * 상품 사진 업로드 시 기본 자동 적용되는 '쇼룸 스튜디오 톤' 프리셋 (SSOT)
+ * - 백색 가전·야외 촬영 시 하이라이트 날림(과노출)을 막기 위해 adaptiveHighlightGuard 활성화
  */
 export const PRODUCT_IMAGE_TONE_PRESET = {
-  brightness: 1.2,
-  contrast: 1.09,
-  saturate: 1.06,
+  brightness: 1.06,
+  contrast: 1.04,
+  saturate: 1.04,
   quality: 0.93,
+  adaptiveHighlightGuard: true,
 } as const satisfies ImageEnhanceOptions;
 
 /**
@@ -1890,6 +1893,7 @@ export async function enhanceImageFile(
     contrast = 1.0,
     saturate = 1.0,
     quality = 0.92,
+    adaptiveHighlightGuard = false,
   } = options;
 
   const normalizedDeg = ((degrees % 360) + 360) % 360;
@@ -1898,6 +1902,46 @@ export async function enhanceImageFile(
   if (!needsRotate && !needsFilter) return file;
 
   const img = await loadImageFromFile(file);
+  let resolvedBrightness = brightness;
+  let resolvedContrast = contrast;
+  let resolvedSaturate = saturate;
+
+  if (adaptiveHighlightGuard && needsFilter) {
+    try {
+      const sampleCanvas = document.createElement("canvas");
+      sampleCanvas.width = 48;
+      sampleCanvas.height = 48;
+      const sampleCtx = sampleCanvas.getContext("2d");
+      if (sampleCtx) {
+        sampleCtx.drawImage(img, 0, 0, 48, 48);
+        const { data } = sampleCtx.getImageData(0, 0, 48, 48);
+        let sumLum = 0;
+        let brightCount = 0;
+        const pixelCount = data.length / 4;
+        for (let i = 0; i < data.length; i += 4) {
+          const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          sumLum += lum;
+          if (lum >= 220) brightCount++;
+        }
+        const avgLum = sumLum / pixelCount;
+        const brightRatio = brightCount / pixelCount;
+        if (avgLum >= 155 || brightRatio >= 0.22) {
+          // 이미 밝거나 흰색 가전 비중이 높은 사진: 밝기 증폭을 중단해 하이라이트 날림 방지
+          resolvedBrightness = 1.0;
+          resolvedContrast = Math.min(contrast, 1.03);
+          resolvedSaturate = Math.min(saturate, 1.02);
+        } else if (avgLum < 105) {
+          // 실내·어두운 창고 사진만 부드럽게 밝기 보정
+          resolvedBrightness = Math.max(brightness, 1.14);
+        }
+      }
+      sampleCanvas.width = 0;
+      sampleCanvas.height = 0;
+    } catch {
+      // 샘플링 실패 시 기본 프리셋 유지
+    }
+  }
+
   const isSwap = normalizedDeg === 90 || normalizedDeg === 270;
   const canvas = document.createElement("canvas");
   canvas.width = isSwap ? img.height : img.width;
@@ -1906,8 +1950,12 @@ export async function enhanceImageFile(
   const ctx = canvas.getContext("2d");
   if (!ctx) return file;
 
-  if (needsFilter) {
-    ctx.filter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturate})`;
+  if (
+    resolvedBrightness !== 1.0 ||
+    resolvedContrast !== 1.0 ||
+    resolvedSaturate !== 1.0
+  ) {
+    ctx.filter = `brightness(${resolvedBrightness}) contrast(${resolvedContrast}) saturate(${resolvedSaturate})`;
   }
 
   ctx.translate(canvas.width / 2, canvas.height / 2);
