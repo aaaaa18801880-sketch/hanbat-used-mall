@@ -481,6 +481,88 @@ export function pairInboxPhotosByFixedSize(
 }
 
 /**
+ * 선택한 사진 직전에서 묶음을 끊고, 그 사진부터 끝까지를 기본 2장 단위로 일괄 재정렬합니다.
+ * - 도미노처럼 뒤쪽 묶음이 1장씩 밀렸을 때 클릭 1번으로 뒤 전체를 즉시 맞춥니다.
+ */
+export function rePairInboxFromPhoto(
+  groups: readonly TelegramInboxGroup[],
+  targetPhotoId: string,
+  pairSize = TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
+  seed = String(Date.now()).slice(-7)
+): {
+  groups: TelegramInboxGroup[];
+  photos: TelegramInboxPhoto[];
+  changedUpdates: TelegramGroupKeyOnlyUpdate[];
+  repaintedGroupCount: number;
+  changed: boolean;
+} {
+  let targetGroupIdx = -1;
+  let targetPhotoIdx = -1;
+  for (let gi = 0; gi < groups.length; gi++) {
+    const pi = groups[gi].photos.findIndex((p) => p.id === targetPhotoId);
+    if (pi >= 0) {
+      targetGroupIdx = gi;
+      targetPhotoIdx = pi;
+      break;
+    }
+  }
+
+  if (targetGroupIdx < 0) {
+    return {
+      groups: [...groups],
+      photos: groups.flatMap((g) => g.photos),
+      changedUpdates: [],
+      repaintedGroupCount: 0,
+      changed: false,
+    };
+  }
+
+  const safeSize = Math.max(
+    1,
+    Math.min(TELEGRAM_MAX_PHOTOS_PER_PRODUCT, pairSize)
+  );
+  const changedUpdates: TelegramGroupKeyOnlyUpdate[] = [];
+  const nextGroups: TelegramInboxGroup[] = [...groups.slice(0, targetGroupIdx)];
+
+  const targetGroup = groups[targetGroupIdx];
+  if (targetPhotoIdx > 0) {
+    const headPhotos = targetGroup.photos.slice(0, targetPhotoIdx).map((p) => {
+      if ((p.group_key || "") !== targetGroup.groupKey) {
+        changedUpdates.push({ id: p.id, group_key: targetGroup.groupKey });
+      }
+      return { ...p, group_key: targetGroup.groupKey };
+    });
+    nextGroups.push(finalizeGroupFromPhotos(targetGroup.groupKey, headPhotos));
+  }
+
+  const tailPhotos: TelegramInboxPhoto[] = [
+    ...targetGroup.photos.slice(targetPhotoIdx),
+    ...groups.slice(targetGroupIdx + 1).flatMap((g) => g.photos),
+  ];
+
+  let repaintedGroupCount = 0;
+  for (let i = 0; i < tailPhotos.length; i += safeSize) {
+    repaintedGroupCount++;
+    const nextKey = `rp_${seed}_${repaintedGroupCount}`;
+    const slice = tailPhotos.slice(i, i + safeSize).map((p) => {
+      if ((p.group_key || "") !== nextKey) {
+        changedUpdates.push({ id: p.id, group_key: nextKey });
+      }
+      return { ...p, group_key: nextKey };
+    });
+    nextGroups.push(finalizeGroupFromPhotos(nextKey, slice));
+  }
+
+  return {
+    groups: nextGroups,
+    photos: nextGroups.flatMap((g) => g.photos),
+    changedUpdates,
+    repaintedGroupCount,
+    changed: true,
+  };
+}
+
+/**
  * 불필요한/흔들린 사진 1장을 그룹 목록에서 제거하고 빈 그룹을 정리합니다.
  */
 export function removePhotoFromInboxGroups(

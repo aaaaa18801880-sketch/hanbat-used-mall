@@ -12,6 +12,7 @@ import {
   parseTelegramWebhookUpdate,
   partitionIndicesForProductSize,
   removePhotoFromInboxGroups,
+  rePairInboxFromPhoto,
   sortTelegramPhotosChronologically,
   splitInboxGroupBeforePhoto,
   type TelegramInboxPhoto,
@@ -401,5 +402,28 @@ test("2-photo default partitioning, 3-photo commit guard, and exterior primary o
   assert.deepEqual(
     fixedPairs.updates.map((u) => u.group_key),
     ["pair_fix_1", "pair_fix_1", "pair_fix_2", "pair_fix_2", "pair_fix_3"]
+  );
+
+  // 도미노 밀림 1클릭 복구(rePairInboxFromPhoto) 검증:
+  // #1: [p1, p2, p3], #2: [p4, p5], #3: [p6, p7] -> p3부터 2장씩 재정렬 시
+  // #1: [p1, p2] (유지), #2: [p3, p4], #3: [p5, p6], #4: [p7]
+  const shifted = buildInboxGroups([
+    makePhoto("p1", { message_id: 1, group_key: "g1" }),
+    makePhoto("p2", { message_id: 2, group_key: "g1" }),
+    makePhoto("p3", { message_id: 3, group_key: "g1" }),
+    makePhoto("p4", { message_id: 4, group_key: "g2" }),
+    makePhoto("p5", { message_id: 5, group_key: "g2" }),
+    makePhoto("p6", { message_id: 6, group_key: "g3" }),
+    makePhoto("p7", { message_id: 7, group_key: "g3" }),
+  ]);
+  const repaired = rePairInboxFromPhoto(shifted, "p3", 2, "rep");
+  assert.equal(repaired.changed, true);
+  assert.deepEqual(
+    repaired.groups.map((g) => g.photos.map((p) => p.id)),
+    [["p1", "p2"], ["p3", "p4"], ["p5", "p6"], ["p7"]]
+  );
+  assert.deepEqual(
+    repaired.changedUpdates.map((u) => u.id),
+    ["p3", "p4", "p5", "p6", "p7"]
   );
 });

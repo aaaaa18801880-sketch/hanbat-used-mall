@@ -33,67 +33,161 @@ const enqueueThumbLoad = createConcurrencyLimiter(8);
 
 export interface TelegramThumbStore {
   getUrl: (photoId: string) => string | undefined;
+  hasFailed: (photoId: string) => boolean;
   setUrl: (photoId: string, url: string) => void;
   revoke: (photoId: string) => void;
   revokeAll: () => void;
+  prefetchIds: (photoIds: readonly string[]) => Promise<void>;
+  subscribe: (listener: () => void) => () => void;
   getAuthHeaders: () => Promise<Record<string, string>>;
 }
 
+function revokeIfBlob(url?: string | null) {
+  if (url && url.startsWith("blob:")) {
+    URL.revokeObjectURL(url);
+  }
+}
+
 /**
- * 수집함 탭 수명 동안 썸네일 Blob URL과 인증 헤더를 메모리 캐시로 유지합니다.
- * - 묶음 분할/합치기/페이지 이동으로 카드가 재마운트되어도 이미 받아둔 썸네일을 재다운로드하지 않습니다.
+ * 수집함 탭 수명 동안 썸네일 URL과 인증 헤더를 메모리 캐시로 유지하고 20장씩 배치 프리페치합니다.
+ * - 묶음 분할/합치기/페이지 이동 시 재다운로드 및 개별 Vercel 함수 호출 낭비를 원천 차단합니다.
  */
 export function createTelegramThumbStore(): TelegramThumbStore {
   const urlMap = new Map<string, string>();
+  const pendingSet = new Set<string>();
+  const failedSet = new Set<string>();
+  const listeners = new Set<() => void>();
   let cachedHeaders: Record<string, string> | null = null;
   let headersExpiresAt = 0;
   let inflightHeaders: Promise<Record<string, string>> | null = null;
   let disposed = false;
 
+  const notify = () => {
+    for (const listener of listeners) {
+      listener();
+    }
+  };
+
+  const getAuthHeadersCached = async (): Promise<Record<string, string>> => {
+    const now = Date.now();
+    if (cachedHeaders && now < headersExpiresAt) {
+      return cachedHeaders;
+    }
+    if (!inflightHeaders) {
+      inflightHeaders = getAdminAuthHeaders()
+        .then((h) => {
+          cachedHeaders = h;
+          headersExpiresAt = Date.now() + 25_000;
+          return h;
+        })
+        .finally(() => {
+          inflightHeaders = null;
+        });
+    }
+    return inflightHeaders;
+  };
+
   return {
     getUrl: (photoId) => urlMap.get(photoId),
+    hasFailed: (photoId) => failedSet.has(photoId),
     setUrl: (photoId, nextUrl) => {
       if (disposed) {
-        URL.revokeObjectURL(nextUrl);
+        revokeIfBlob(nextUrl);
         return;
       }
       const prev = urlMap.get(photoId);
       if (prev && prev !== nextUrl) {
-        URL.revokeObjectURL(prev);
+        revokeIfBlob(prev);
       }
+      failedSet.delete(photoId);
       urlMap.set(photoId, nextUrl);
+      notify();
     },
     revoke: (photoId) => {
       const prev = urlMap.get(photoId);
       if (prev) {
-        URL.revokeObjectURL(prev);
+        revokeIfBlob(prev);
         urlMap.delete(photoId);
       }
+      failedSet.delete(photoId);
     },
     revokeAll: () => {
       disposed = true;
       for (const url of urlMap.values()) {
-        URL.revokeObjectURL(url);
+        revokeIfBlob(url);
       }
       urlMap.clear();
+      pendingSet.clear();
+      failedSet.clear();
+      listeners.clear();
     },
-    getAuthHeaders: async () => {
-      const now = Date.now();
-      if (cachedHeaders && now < headersExpiresAt) {
-        return cachedHeaders;
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    getAuthHeaders: getAuthHeadersCached,
+    prefetchIds: async (photoIds) => {
+      const targets = photoIds.filter(
+        (id) => !urlMap.has(id) && !pendingSet.has(id) && !failedSet.has(id)
+      );
+      if (targets.length === 0 || disposed) return;
+
+      for (const id of targets) {
+        pendingSet.add(id);
       }
-      if (!inflightHeaders) {
-        inflightHeaders = getAdminAuthHeaders()
-          .then((h) => {
-            cachedHeaders = h;
-            headersExpiresAt = Date.now() + 25_000;
-            return h;
+
+      try {
+        const headers = await getAuthHeadersCached();
+        const chunks: string[][] = [];
+        for (let i = 0; i < targets.length; i += 20) {
+          chunks.push(targets.slice(i, i + 20));
+        }
+
+        await Promise.all(
+          chunks.map(async (chunk) => {
+            if (disposed) return;
+            try {
+              const res = await fetch("/api/admin/telegram-inbox/thumbs", {
+                method: "POST",
+                headers: {
+                  ...headers,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ ids: chunk }),
+              });
+              const json = (await res.json().catch(() => ({}))) as {
+                thumbs?: Record<string, string>;
+              };
+
+              if (!res.ok || !json.thumbs) {
+                for (const id of chunk) failedSet.add(id);
+                return;
+              }
+
+              for (const id of chunk) {
+                const dataUrl = json.thumbs[id];
+                if (dataUrl) {
+                  urlMap.set(id, dataUrl);
+                  failedSet.delete(id);
+                } else {
+                  failedSet.add(id);
+                }
+              }
+            } catch {
+              for (const id of chunk) failedSet.add(id);
+            } finally {
+              for (const id of chunk) pendingSet.delete(id);
+              if (!disposed) notify();
+            }
           })
-          .finally(() => {
-            inflightHeaders = null;
-          });
+        );
+      } finally {
+        for (const id of targets) {
+          pendingSet.delete(id);
+        }
       }
-      return inflightHeaders;
     },
   };
 }
@@ -115,12 +209,13 @@ interface TelegramThumbTileProps {
   thumbStore: TelegramThumbStore;
   onInspectFull: (photo: TelegramInboxPhoto) => void;
   onSplitBefore: (photoId: string) => void;
+  onRePairFromPhoto: (photoId: string) => void;
   onDiscard: (photoId: string) => void;
 }
 
 /**
  * 텔레그램 수집함 개별 사진 타일
- * - /_next/image를 거치지 않고 관리자 Bearer 인증 프록시(320px 썸네일)에서 Blob URL만 지연 로드·캐시합니다.
+ * - 배치 프록시(/thumbs)가 채운 캐시를 즉시 표시하고, 개별 재시도 시에만 단건 프록시를 호출합니다.
  */
 export function TelegramThumbTile({
   photo,
@@ -129,58 +224,26 @@ export function TelegramThumbTile({
   thumbStore,
   onInspectFull,
   onSplitBefore,
+  onRePairFromPhoto,
   onDiscard,
 }: TelegramThumbTileProps) {
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [thumbUrl, setThumbUrl] = useState<string | null>(
-    () => thumbStore.getUrl(photo.id) ?? null
-  );
-  const [inView, setInView] = useState(() =>
-    Boolean(thumbStore.getUrl(photo.id))
-  );
-  const [loadFailed, setLoadFailed] = useState(false);
+  const [, setStoreTick] = useState(0);
+  const [manualFailed, setManualFailed] = useState(false);
   const [reloadSeq, setReloadSeq] = useState(0);
 
   useEffect(() => {
-    if (inView || thumbUrl) return;
-    const node = containerRef.current;
-    if (!node) return;
-    if (typeof IntersectionObserver === "undefined") {
-      let active = true;
-      void Promise.resolve().then(() => {
-        if (active) setInView(true);
-      });
-      return () => {
-        active = false;
-      };
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: "120px" }
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [inView, thumbUrl]);
+    return thumbStore.subscribe(() => {
+      setStoreTick((t) => t + 1);
+    });
+  }, [thumbStore]);
 
   useEffect(() => {
-    if (!inView || thumbUrl) return;
+    if (reloadSeq === 0) return;
     let cancelled = false;
     const controller = new AbortController();
 
     void enqueueThumbLoad(async () => {
       if (cancelled) return;
-      const existing = thumbStore.getUrl(photo.id);
-      if (existing) {
-        setThumbUrl(existing);
-        return;
-      }
-
       const headers = await thumbStore.getAuthHeaders();
       const res = await fetch(
         `/api/admin/telegram-inbox/image?id=${encodeURIComponent(photo.id)}&variant=thumb`,
@@ -194,11 +257,10 @@ export function TelegramThumbTile({
 
       const nextUrl = URL.createObjectURL(blob);
       thumbStore.setUrl(photo.id, nextUrl);
-      setThumbUrl(nextUrl);
-      setLoadFailed(false);
+      setManualFailed(false);
     }).catch(() => {
       if (!cancelled) {
-        setLoadFailed(true);
+        setManualFailed(true);
       }
     });
 
@@ -206,14 +268,15 @@ export function TelegramThumbTile({
       cancelled = true;
       controller.abort();
     };
-  }, [inView, photo.id, reloadSeq, thumbStore, thumbUrl]);
+  }, [photo.id, reloadSeq, thumbStore]);
 
+  const thumbUrl = thumbStore.getUrl(photo.id) ?? null;
+  const loadFailed = manualFailed || (!thumbUrl && thumbStore.hasFailed(photo.id));
   const isOverLimit = indexInGroup >= TELEGRAM_MAX_PHOTOS_PER_PRODUCT;
 
   return (
     <div
-      ref={containerRef}
-      className={`rounded-lg border p-2 flex flex-col gap-2 bg-white transition-colors ${
+      className={`rounded-lg border p-2 flex flex-col gap-1.5 bg-white transition-colors ${
         photo.ai_note
           ? "border-red-300 bg-red-50/40"
           : isOverLimit
@@ -245,7 +308,7 @@ export function TelegramThumbTile({
             <button
               type="button"
               onClick={() => {
-                setLoadFailed(false);
+                setManualFailed(false);
                 setReloadSeq((n) => n + 1);
               }}
               className="rounded border border-[#D1D5DB] bg-white px-2 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
@@ -287,27 +350,39 @@ export function TelegramThumbTile({
         </p>
       )}
 
-      <div className="mt-auto flex flex-wrap gap-1.5">
+      <div className="mt-auto flex flex-wrap gap-1">
         {indexInGroup > 0 && (
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={() => onSplitBefore(photo.id)}
-            title="이 사진부터 다음 제품 묶음으로 분리합니다"
-            className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-[#CBD2DC] bg-[#F9FAFB] px-2 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white disabled:opacity-40 cursor-pointer"
-          >
-            <Icon d={ICON.scissors} className="w-3.5 h-3.5" />
-            <span>여기서 나누기</span>
-          </button>
+          <>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => onSplitBefore(photo.id)}
+              title="이 사진만 새 묶음으로 분리합니다"
+              className="flex-1 inline-flex items-center justify-center gap-1 rounded border border-[#CBD2DC] bg-[#F9FAFB] px-1.5 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white disabled:opacity-40 cursor-pointer whitespace-nowrap"
+            >
+              <Icon d={ICON.scissors} className="w-3 h-3" />
+              <span>나누기</span>
+            </button>
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => onRePairFromPhoto(photo.id)}
+              title="이 사진부터 끝까지 뒤의 모든 사진을 2장씩 일괄 재정렬합니다"
+              className="inline-flex items-center justify-center gap-1 rounded border border-sky-300 bg-sky-50 px-1.5 py-1 text-hb-xs font-bold text-sky-900 hover:bg-sky-600 hover:text-white disabled:opacity-40 cursor-pointer whitespace-nowrap"
+            >
+              <Icon d={ICON.bolt} className="w-3 h-3" />
+              <span>뒤 2장씩</span>
+            </button>
+          </>
         )}
         <button
           type="button"
           disabled={disabled}
           onClick={() => onDiscard(photo.id)}
           title="불필요한 사진 또는 흔들림 컷을 수집함에서 제외합니다"
-          className="inline-flex items-center justify-center gap-1 rounded border border-red-200 bg-red-50 px-2 py-1.5 text-hb-xs font-bold text-red-700 hover:bg-red-100 disabled:opacity-40 cursor-pointer"
+          className="inline-flex items-center justify-center gap-1 rounded border border-red-200 bg-red-50 px-1.5 py-1 text-hb-xs font-bold text-red-700 hover:bg-red-100 disabled:opacity-40 cursor-pointer whitespace-nowrap"
         >
-          <Icon d={ICON.trash} className="w-3.5 h-3.5" />
+          <Icon d={ICON.trash} className="w-3 h-3" />
           <span>제외</span>
         </button>
       </div>

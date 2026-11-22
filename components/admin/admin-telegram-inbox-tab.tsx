@@ -11,6 +11,7 @@ import {
   mergeInboxGroupWithPrevious,
   pairInboxPhotosByFixedSize,
   removePhotoFromInboxGroups,
+  rePairInboxFromPhoto,
   splitInboxGroupBeforePhoto,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
@@ -240,6 +241,17 @@ export function AdminTelegramInboxTab({
     [deselectedKeys, visibleGroups]
   );
 
+  const visiblePhotoIdsKey = useMemo(
+    () => visibleGroups.flatMap((g) => g.photos.map((p) => p.id)).join(","),
+    [visibleGroups]
+  );
+
+  useEffect(() => {
+    if (!visiblePhotoIdsKey) return;
+    const ids = visiblePhotoIdsKey.split(",").filter(Boolean);
+    void thumbStore.prefetchIds(ids);
+  }, [thumbStore, visiblePhotoIdsKey]);
+
   const isBusy =
     loading ||
     persistingOp ||
@@ -308,6 +320,36 @@ export function AdminTelegramInboxTab({
       setPhotos(prevPhotos);
       toast.error(
         err instanceof Error ? err.message : "묶음 분리에 실패했습니다."
+      );
+    } finally {
+      setPersistingOp(false);
+    }
+  };
+
+  const handleRePairFromPhoto = async (photoId: string) => {
+    if (isBusy) return;
+    const res = rePairInboxFromPhoto(
+      groups,
+      photoId,
+      TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT
+    );
+    if (!res.changed) return;
+
+    const prevPhotos = photos;
+    setPhotos(res.photos);
+    setDeselectedKeys(new Set());
+    setPersistingOp(true);
+    try {
+      await persistUpdates(res.changedUpdates);
+      toast.success(
+        `선택한 사진부터 뒤쪽 ${res.repaintedGroupCount}개 묶음을 2장씩 재정렬했습니다.`
+      );
+    } catch (err: unknown) {
+      setPhotos(prevPhotos);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "뒤쪽 2장씩 재정렬 저장에 실패했습니다."
       );
     } finally {
       setPersistingOp(false);
@@ -1181,119 +1223,132 @@ export function AdminTelegramInboxTab({
             </div>
           )}
 
-          {visibleGroups.map((group, localIdx) => {
-            const groupIdx = pageStartIdx + localIdx;
-            const checkboxId = `tg-group-select-${groupIdx}`;
-            const commitCheck = canCommitInboxGroup(group);
-            const isSelected =
-              commitCheck.allowed && !deselectedKeys.has(group.groupKey);
-            const groupFailure = failedByGroup[group.groupKey];
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {visibleGroups.map((group, localIdx) => {
+              const groupIdx = pageStartIdx + localIdx;
+              const checkboxId = `tg-group-select-${groupIdx}`;
+              const commitCheck = canCommitInboxGroup(group);
+              const isSelected =
+                commitCheck.allowed && !deselectedKeys.has(group.groupKey);
+              const groupFailure = failedByGroup[group.groupKey];
 
-            return (
-              <article
-                key={group.groupKey}
-                className={`rounded-xl border bg-white p-4 space-y-3 shadow-2xs transition-colors ${
-                  groupFailure
-                    ? "border-red-300"
-                    : !commitCheck.allowed
-                    ? "border-amber-300 bg-amber-50/20"
-                    : isSelected
-                    ? "border-[#141A23]/40"
-                    : "border-[#E2E6EC] opacity-85"
-                }`}
-              >
-                <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E6EC] pb-2.5">
-                  <div className="flex flex-wrap items-center gap-2.5">
-                    <input
-                      id={checkboxId}
-                      type="checkbox"
-                      checked={isSelected}
-                      disabled={isBusy || !commitCheck.allowed}
-                      onChange={(e) => {
-                        if (!commitCheck.allowed) return;
-                        setDeselectedKeys((prev) => {
-                          const next = new Set(prev);
-                          if (e.target.checked) next.delete(group.groupKey);
-                          else next.add(group.groupKey);
-                          return next;
-                        });
-                      }}
-                      className="h-4 w-4 accent-[#E8521A] cursor-pointer disabled:cursor-not-allowed"
-                    />
-                    <label
-                      htmlFor={checkboxId}
-                      className="cursor-pointer text-hb-sm font-bold text-[#141A23] flex flex-wrap items-center gap-2"
-                    >
-                      <span>묶음 #{groupIdx + 1}</span>
-                      <span className="rounded bg-[#F3F4F6] px-2 py-0.5 text-hb-xs font-bold text-[#374151] tabular-nums">
-                        {group.photos.length}장
-                      </span>
-                      <span className="text-hb-xs font-medium text-[#6B7280] tabular-nums">
-                        {formatGroupTimeRange(group)}
-                      </span>
-                    </label>
+              return (
+                <article
+                  key={group.groupKey}
+                  className={`rounded-xl border bg-white p-3.5 space-y-2.5 shadow-2xs transition-colors ${
+                    !commitCheck.allowed ? "md:col-span-2 xl:col-span-3" : ""
+                  } ${
+                    groupFailure
+                      ? "border-red-300"
+                      : !commitCheck.allowed
+                      ? "border-amber-300 bg-amber-50/20"
+                      : isSelected
+                      ? "border-[#141A23]/40"
+                      : "border-[#E2E6EC] opacity-85"
+                  }`}
+                >
+                  <header className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E6EC] pb-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <input
+                        id={checkboxId}
+                        type="checkbox"
+                        checked={isSelected}
+                        disabled={isBusy || !commitCheck.allowed}
+                        onChange={(e) => {
+                          if (!commitCheck.allowed) return;
+                          setDeselectedKeys((prev) => {
+                            const next = new Set(prev);
+                            if (e.target.checked) next.delete(group.groupKey);
+                            else next.add(group.groupKey);
+                            return next;
+                          });
+                        }}
+                        className="h-4 w-4 accent-[#E8521A] cursor-pointer disabled:cursor-not-allowed"
+                      />
+                      <label
+                        htmlFor={checkboxId}
+                        className="cursor-pointer text-hb-xs sm:text-hb-sm font-bold text-[#141A23] flex flex-wrap items-center gap-1.5"
+                      >
+                        <span>묶음 #{groupIdx + 1}</span>
+                        <span className="rounded bg-[#F3F4F6] px-1.5 py-0.5 text-hb-xs font-bold text-[#374151] tabular-nums">
+                          {group.photos.length}장
+                        </span>
+                        <span className="text-hb-xs font-medium text-[#6B7280] tabular-nums">
+                          {formatGroupTimeRange(group)}
+                        </span>
+                      </label>
 
-                    {!commitCheck.allowed && (
-                      <span className="rounded bg-amber-100 px-2 py-0.5 text-hb-xs font-bold text-amber-900">
-                        4장+ 묶음 등록 잠금 · [AI 자동 묶음] 또는 [여기서 나누기]로 {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 이하 분리 필수
-                      </span>
-                    )}
-                  </div>
+                      {!commitCheck.allowed && (
+                        <span className="rounded bg-amber-100 px-2 py-0.5 text-hb-xs font-bold text-amber-900">
+                          4장+ 묶음 등록 잠금 · [2장씩 즉시 묶기] 또는 [뒤 2장씩] 클릭
+                        </span>
+                      )}
+                    </div>
 
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {groupIdx > 0 && (
+                    <div className="flex flex-wrap items-center gap-1">
+                      {groupIdx > 0 && (
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() => handleMergeWithPrevious(groupIdx)}
+                          className="inline-flex items-center gap-1 rounded-lg border border-[#CBD2DC] bg-[#F9FAFB] px-2 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+                        >
+                          <Icon d={ICON.link} className="w-3 h-3" />
+                          <span>앞 묶음과 합치기</span>
+                        </button>
+                      )}
+
                       <button
                         type="button"
-                        disabled={isBusy}
-                        onClick={() => handleMergeWithPrevious(groupIdx)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-[#CBD2DC] bg-[#F9FAFB] px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+                        disabled={isBusy || !commitCheck.allowed}
+                        onClick={() => runCommitQueue([group])}
+                        className="inline-flex items-center gap-1 rounded-lg border border-[#FADCD0] bg-[#FFF4EE] px-2 py-1 text-hb-xs font-bold text-[#C84312] hover:bg-[#E8521A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                       >
-                        <Icon d={ICON.link} className="w-3.5 h-3.5" />
-                        <span>앞 묶음과 합치기</span>
+                        <Icon d={ICON.bolt} className="w-3 h-3" />
+                        <span>
+                          {groupFailure
+                            ? "재시도"
+                            : commitCheck.allowed
+                            ? "이 묶음만 등록"
+                            : `${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 이하만`}
+                        </span>
                       </button>
-                    )}
+                    </div>
+                  </header>
 
-                    <button
-                      type="button"
-                      disabled={isBusy || !commitCheck.allowed}
-                      onClick={() => runCommitQueue([group])}
-                      className="inline-flex items-center gap-1 rounded-lg border border-[#FADCD0] bg-[#FFF4EE] px-2.5 py-1.5 text-hb-xs font-bold text-[#C84312] hover:bg-[#E8521A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                    >
-                      <Icon d={ICON.bolt} className="w-3.5 h-3.5" />
-                      <span>
-                        {groupFailure
-                          ? "이 묶음 재시도"
-                          : commitCheck.allowed
-                          ? "이 묶음만 등록"
-                          : `${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 이하만 등록`}
-                      </span>
-                    </button>
+                  {groupFailure && (
+                    <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-hb-xs font-semibold text-red-700">
+                      등록 실패 사유: {groupFailure}
+                    </p>
+                  )}
+
+                  <div
+                    className={`grid gap-2 ${
+                      !commitCheck.allowed
+                        ? "grid-cols-2 sm:grid-cols-4 lg:grid-cols-6"
+                        : group.photos.length === 3
+                        ? "grid-cols-3"
+                        : "grid-cols-2"
+                    }`}
+                  >
+                    {group.photos.map((photo, photoIdx) => (
+                      <TelegramThumbTile
+                        key={photo.id}
+                        photo={photo}
+                        indexInGroup={photoIdx}
+                        disabled={isBusy}
+                        thumbStore={thumbStore}
+                        onInspectFull={setInspectingPhoto}
+                        onSplitBefore={handleSplitBefore}
+                        onRePairFromPhoto={handleRePairFromPhoto}
+                        onDiscard={(id) => handleDiscardPhotos([id])}
+                      />
+                    ))}
                   </div>
-                </header>
-
-                {groupFailure && (
-                  <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-hb-xs font-semibold text-red-700">
-                    등록 실패 사유: {groupFailure}
-                  </p>
-                )}
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-                  {group.photos.map((photo, photoIdx) => (
-                    <TelegramThumbTile
-                      key={photo.id}
-                      photo={photo}
-                      indexInGroup={photoIdx}
-                      disabled={isBusy}
-                      thumbStore={thumbStore}
-                      onInspectFull={setInspectingPhoto}
-                      onSplitBefore={handleSplitBefore}
-                      onDiscard={(id) => handleDiscardPhotos([id])}
-                    />
-                  ))}
-                </div>
-              </article>
-            );
-          })}
+                </article>
+              );
+            })}
+          </div>
 
           {groups.length > GROUPS_PER_PAGE && !showAllGroups && (
             <div className="flex items-center justify-between gap-2 rounded-xl border border-[#E2E6EC] bg-white px-4 py-2.5 text-hb-xs text-[#141A23] shadow-2xs">
