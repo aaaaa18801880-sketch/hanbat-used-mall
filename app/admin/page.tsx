@@ -39,6 +39,7 @@ import {
   updateProductRecord,
   updateProductStatus,
   publishPendingProductRecord,
+  rotateExistingProductImageRecord,
   bulkUpdateProductCategories,
   deleteProductRecord,
   createDeliveryCaseRecord,
@@ -1023,6 +1024,43 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
+  const handleRotateExistingProductImage = async (
+    product: AdminProductRow,
+    imageIndex: number
+  ) => {
+    if (busyActionId) return;
+    const originalUrls = splitImages(product.image_url);
+    if (!originalUrls[imageIndex]) return;
+
+    setBusyActionId(`prod-rotate-${product.id}-${imageIndex}`);
+    try {
+      const updated = await rotateExistingProductImageRecord({
+        id: product.id,
+        originalUrls,
+        imageIndex,
+        degrees: 90,
+      });
+
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === product.id ? { ...p, image_url: updated.imageUrl } : p
+        )
+      );
+      if (editingProductId === product.id) {
+        setEditingExistingImages(updated.nextUrls);
+      }
+      toast.success(`${imageIndex + 1}번 사진을 90° 회전 저장했습니다.`);
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "기존 사진 회전 저장에 실패했습니다."
+      );
+    } finally {
+      setBusyActionId(null);
+    }
+  };
+
   const handlePublishPendingProduct = async (
     productId: string,
     rawPrice: string
@@ -1487,6 +1525,29 @@ export default function IntegratedAdminDashboard() {
               onMoveProdFile={moveProdFile}
               onMakePrimaryProdFile={makePrimaryProdFile}
               onAppendSearchSpecs={appendSearchSpecsToAdminDesc}
+              rotatingExistingIdx={
+                editingProductId &&
+                busyActionId?.startsWith(`prod-rotate-${editingProductId}-`)
+                  ? Number(busyActionId.split("-").pop())
+                  : null
+              }
+              onRotateExistingImage={
+                editingProductId
+                  ? (idx) => {
+                      const target = products.find(
+                        (p) => p.id === editingProductId
+                      );
+                      if (!target) return;
+                      return handleRotateExistingProductImage(
+                        {
+                          ...target,
+                          image_url: editingExistingImages.join(","),
+                        },
+                        idx
+                      );
+                    }
+                  : undefined
+              }
             />
 
             <AdminProductList
@@ -1508,6 +1569,7 @@ export default function IntegratedAdminDashboard() {
               onRunSoldCleanup={handleRunSoldPhotoCleanup}
               onStartEdit={startEditProduct}
               onOpenSmartCrop={setSmartCropProduct}
+              onRotateProductImage={handleRotateExistingProductImage}
               onDeleteProduct={handleDeleteProduct}
             />
           </div>

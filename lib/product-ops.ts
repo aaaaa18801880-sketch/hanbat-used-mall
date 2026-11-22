@@ -3,6 +3,7 @@
 import { supabase, revalidateAdminCache } from "./supabase";
 import {
   compressImage,
+  enhanceImageFile,
   extractStorageFilesByBucket,
   normalizeProductCategory,
   normalizeProductStatus,
@@ -162,17 +163,22 @@ async function compressAndUploadProductImage(
     quality?: number;
     bucket?: string;
     prefix?: string;
+    format?: "jpeg" | "webp";
   }
 ): Promise<string> {
   const maxWidth = options?.maxWidth ?? 1600;
   const quality = options?.quality ?? 0.82;
   const bucket = options?.bucket ?? STORAGE_BUCKETS.inquiries;
   const prefix = options?.prefix ?? "product";
+  const targetMime = options?.format === "webp" ? "image/webp" : "image/jpeg";
 
-  const blob = await compressImage(file, maxWidth, quality);
+  const blob = await compressImage(file, maxWidth, quality, targetMime);
+  const actualMime =
+    blob.type === "image/webp" ? "image/webp" : "image/jpeg";
+  const ext = actualMime === "image/webp" ? "webp" : "jpg";
   const baseFileName = `${prefix}_${Date.now()}_${Math.random()
     .toString(36)
-    .slice(2, 8)}.jpg`;
+    .slice(2, 8)}.${ext}`;
   // [SEC-002] 고객 첨부 버킷(inquiry-attachments)은 RLS 폴더 정책(inquiries/*)과 일치하도록 경로 보장
   const fileName =
     bucket === STORAGE_BUCKETS.inquiryAttachments &&
@@ -182,7 +188,7 @@ async function compressAndUploadProductImage(
 
   const { error } = await supabase.storage
     .from(bucket)
-    .upload(fileName, blob, { contentType: "image/jpeg" });
+    .upload(fileName, blob, { contentType: actualMime });
 
   if (error) {
     throw error;
@@ -202,6 +208,7 @@ export async function compressAndUploadProductImages(
     quality?: number;
     bucket?: string;
     prefix?: string;
+    format?: "jpeg" | "webp";
   }
 ): Promise<string[]> {
   const urls: string[] = [];
@@ -377,6 +384,12 @@ export async function replaceProductImagesRecord(input: {
   id: string;
   originalUrls: readonly string[];
   replacements: ReadonlyArray<{ index: number; file: File }>;
+  uploadOptions?: {
+    maxWidth?: number;
+    quality?: number;
+    prefix?: string;
+    format?: "jpeg" | "webp";
+  };
 }): Promise<{ imageUrl: string; nextUrls: string[]; replacedCount: number }> {
   const validReplacements = input.replacements.filter(
     (r) =>
@@ -394,7 +407,8 @@ export async function replaceProductImagesRecord(input: {
   }
 
   const uploadedUrls = await compressAndUploadProductImages(
-    validReplacements.map((r) => r.file)
+    validReplacements.map((r) => r.file),
+    input.uploadOptions
   );
 
   const mappedReplacements: ProductImageIndexReplacement[] =
@@ -436,6 +450,55 @@ export async function replaceProductImagesRecord(input: {
     imageUrl: nextImageUrl,
     nextUrls,
     replacedCount: validReplacements.length,
+  };
+}
+
+/**
+ * 이미 Supabase Storage에 저장된 상품 사진 1장을 관리자 브라우저 캔버스에서 90도 회전한 뒤
+ * WebP로 재업로드·DB 교체·기존 파일 정리까지 원자적으로 처리합니다 (Vercel 서버 CPU 소모 0).
+ */
+export async function rotateExistingProductImageRecord(input: {
+  id: string;
+  originalUrls: readonly string[];
+  imageIndex: number;
+  degrees?: 90 | 180 | 270;
+}): Promise<{ imageUrl: string; nextUrls: string[] }> {
+  const { id, originalUrls, imageIndex, degrees = 90 } = input;
+  const targetUrl = originalUrls[imageIndex];
+  if (!targetUrl) {
+    throw new Error("회전할 상품 사진을 찾을 수 없습니다.");
+  }
+
+  const res = await fetch(targetUrl, { mode: "cors", cache: "no-cache" });
+  if (!res.ok) {
+    throw new Error(`기존 사진을 불러오지 못했습니다 (HTTP ${res.status}).`);
+  }
+
+  const rawBlob = await res.blob();
+  const rawFile = new File([rawBlob], `product_${imageIndex + 1}.webp`, {
+    type: rawBlob.type || "image/webp",
+  });
+
+  const rotatedFile = await enhanceImageFile(rawFile, {
+    degrees,
+    quality: 0.94,
+  });
+
+  const replaced = await replaceProductImagesRecord({
+    id,
+    originalUrls,
+    replacements: [{ index: imageIndex, file: rotatedFile }],
+    uploadOptions: {
+      maxWidth: 1440,
+      quality: 0.86,
+      prefix: "product_rot",
+      format: "webp",
+    },
+  });
+
+  return {
+    imageUrl: replaced.imageUrl,
+    nextUrls: replaced.nextUrls,
   };
 }
 

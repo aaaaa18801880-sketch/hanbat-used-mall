@@ -14,7 +14,7 @@ import {
   normalizeProductStatus,
   splitImages,
 } from "../../lib/site";
-import { SafeImg } from "../../lib/ui";
+import { ICON, Icon, SafeImg } from "../../lib/ui";
 import type { ProductCategoryMismatch } from "../../lib/product-category-audit";
 import type { AdminProductRow } from "./admin-types";
 
@@ -37,6 +37,10 @@ interface AdminProductListProps {
   onRunSoldCleanup?: () => Promise<void> | void;
   onStartEdit: (product: AdminProductRow) => void;
   onOpenSmartCrop: (product: AdminProductRow) => void;
+  onRotateProductImage?: (
+    product: AdminProductRow,
+    imageIndex: number
+  ) => Promise<void> | void;
   onDeleteProduct: (product: AdminProductRow) => void;
 }
 
@@ -60,6 +64,7 @@ export function AdminProductList({
   onRunSoldCleanup,
   onStartEdit,
   onOpenSmartCrop,
+  onRotateProductImage,
   onDeleteProduct,
 }: AdminProductListProps) {
   const [pendingPriceDrafts, setPendingPriceDrafts] = useState<
@@ -391,37 +396,82 @@ export function AdminProductList({
               </div>
 
               {isPending && (
-                <div className="flex flex-wrap items-center gap-2 rounded-md border border-sky-200 bg-white px-3 py-2">
-                  <label
-                    htmlFor={priceInputId}
-                    className="text-hb-xs font-bold text-[#141A23] whitespace-nowrap"
-                  >
-                    판매가(원)
-                  </label>
-                  <input
-                    id={priceInputId}
-                    type="text"
-                    inputMode="numeric"
-                    value={draftPrice}
-                    onChange={(e) =>
-                      setPendingPriceDrafts((prev) => ({
-                        ...prev,
-                        [product.id]: e.target.value,
-                      }))
-                    }
-                    placeholder="예: 450000 (비우면 가격 문의)"
-                    className="h-8 flex-1 min-w-[160px] rounded border border-[#CBD2DC] px-2.5 text-hb-xs text-[#141A23]"
-                  />
-                  <button
-                    type="button"
-                    disabled={busyActionId === `prod-publish-${product.id}`}
-                    onClick={() => onPublishPendingProduct(product.id, draftPrice)}
-                    className="h-8 rounded bg-[#141A23] px-3 text-hb-xs font-bold text-white hover:bg-[#E8521A] disabled:opacity-40 transition-colors cursor-pointer"
-                  >
-                    {busyActionId === `prod-publish-${product.id}`
-                      ? "공개 중..."
-                      : "판매중 공개"}
-                  </button>
+                <div className="space-y-2 rounded-md border border-sky-200 bg-white p-2.5">
+                  {imgs.length > 0 && onRotateProductImage && (
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between text-hb-xs text-[#5C6673]">
+                        <span className="font-bold text-[#141A23]">
+                          등록 사진 방향 검수 ({imgs.length}장)
+                        </span>
+                        <span>돌아간 사진은 버튼 1번으로 90° 회전</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {imgs.map((imgUrl, imgIdx) => {
+                          const rotatingThis =
+                            busyActionId === `prod-rotate-${product.id}-${imgIdx}`;
+                          return (
+                            <div
+                              key={`${product.id}-pending-img-${imgIdx}`}
+                              className="relative h-20 w-20 overflow-hidden rounded-md border border-[#E2E6EC] bg-[#F4F3F0]"
+                            >
+                              <SafeImg
+                                src={imgUrl}
+                                alt={`${product.title} 사진 ${imgIdx + 1}`}
+                                className="h-full w-full object-cover"
+                              />
+                              <span className="absolute left-1 top-1 rounded bg-[#141A23]/80 px-1 py-0.5 text-hb-xs font-bold text-white tabular-nums leading-none">
+                                {imgIdx === 0 ? "대표" : `#${imgIdx + 1}`}
+                              </span>
+                              <button
+                                type="button"
+                                disabled={Boolean(busyActionId)}
+                                onClick={() => onRotateProductImage(product, imgIdx)}
+                                title="시계방향 90도 회전 저장 (브라우저 처리 · 서버 CPU 0)"
+                                aria-label={`${product.title} ${imgIdx + 1}번 사진 시계방향 90도 회전`}
+                                className="absolute bottom-1 right-1 inline-flex items-center gap-0.5 rounded bg-[#141A23]/85 px-1.5 py-0.5 text-hb-xs font-bold text-white hover:bg-[#E8521A] disabled:opacity-40 transition-colors cursor-pointer"
+                              >
+                                <Icon d={ICON.rotate} className="w-3 h-3" />
+                                <span>{rotatingThis ? "..." : "90°"}</span>
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <label
+                      htmlFor={priceInputId}
+                      className="text-hb-xs font-bold text-[#141A23] whitespace-nowrap"
+                    >
+                      판매가(원)
+                    </label>
+                    <input
+                      id={priceInputId}
+                      type="text"
+                      inputMode="numeric"
+                      value={draftPrice}
+                      onChange={(e) =>
+                        setPendingPriceDrafts((prev) => ({
+                          ...prev,
+                          [product.id]: e.target.value,
+                        }))
+                      }
+                      placeholder="예: 450000 (비우면 가격 문의)"
+                      className="h-8 flex-1 min-w-[160px] rounded border border-[#CBD2DC] px-2.5 text-hb-xs text-[#141A23]"
+                    />
+                    <button
+                      type="button"
+                      disabled={busyActionId === `prod-publish-${product.id}`}
+                      onClick={() => onPublishPendingProduct(product.id, draftPrice)}
+                      className="h-8 rounded bg-[#141A23] px-3 text-hb-xs font-bold text-white hover:bg-[#E8521A] disabled:opacity-40 transition-colors cursor-pointer"
+                    >
+                      {busyActionId === `prod-publish-${product.id}`
+                        ? "공개 중..."
+                        : "판매중 공개"}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

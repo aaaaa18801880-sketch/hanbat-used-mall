@@ -1847,7 +1847,8 @@ function loadImageFromFile(file: File): Promise<HTMLImageElement> {
 export async function compressImage(
   file: File,
   maxDim = 1280,
-  quality = 0.78
+  quality = 0.78,
+  mimeType: "image/jpeg" | "image/webp" = "image/jpeg"
 ): Promise<Blob> {
   const img = await loadImageFromFile(file);
   let { width, height } = img;
@@ -1867,14 +1868,21 @@ export async function compressImage(
   if (!ctx) return file;
   ctx.drawImage(img, 0, 0, width, height);
   return new Promise((resolve, reject) => {
+    const finish = (blob: Blob | null) => {
+      canvas.width = 0;
+      canvas.height = 0;
+      if (blob) resolve(blob);
+      else reject(new Error("이미지 압축에 실패했습니다."));
+    };
     canvas.toBlob(
       (blob) => {
-        canvas.width = 0;
-        canvas.height = 0;
-        if (blob) resolve(blob);
-        else reject(new Error("이미지 압축에 실패했습니다."));
+        if (blob && (mimeType === "image/jpeg" || blob.type === mimeType)) {
+          finish(blob);
+          return;
+        }
+        canvas.toBlob(finish, "image/jpeg", quality);
       },
-      "image/jpeg",
+      mimeType,
       quality
     );
   });

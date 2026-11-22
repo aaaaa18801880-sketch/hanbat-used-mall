@@ -59,6 +59,8 @@ interface AdminProductFormProps {
   onMoveProdFile: (fromIdx: number, toIdx: number) => void;
   onMakePrimaryProdFile: (targetIdx: number) => void;
   onAppendSearchSpecs: () => void;
+  rotatingExistingIdx?: number | null;
+  onRotateExistingImage?: (index: number) => Promise<void> | void;
 }
 
 /** 관리자 대시보드 상품 등록·수정 폼 (AI 3계층 판독 및 스튜디오 톤업 지원) */
@@ -102,6 +104,8 @@ export function AdminProductForm({
   onMoveProdFile,
   onMakePrimaryProdFile,
   onAppendSearchSpecs,
+  rotatingExistingIdx = null,
+  onRotateExistingImage,
 }: AdminProductFormProps) {
   return (
     <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-5 space-y-4 shadow-2xs">
@@ -173,6 +177,19 @@ export function AdminProductForm({
                   >
                     <Icon d={ICON.close} className="h-3 w-3" />
                   </button>
+                  {onRotateExistingImage && (
+                    <button
+                      type="button"
+                      disabled={rotatingExistingIdx !== null}
+                      onClick={() => onRotateExistingImage(idx)}
+                      title="시계방향 90도 회전 저장 (브라우저 처리)"
+                      aria-label={`기존 사진 ${idx + 1} 시계방향 90도 회전`}
+                      className="absolute bottom-1 right-1 inline-flex items-center gap-0.5 rounded-full bg-black/75 px-1.5 py-1 text-hb-xs font-bold text-white hover:bg-[#E8521A] disabled:opacity-40 transition-colors cursor-pointer"
+                    >
+                      <Icon d={ICON.rotate} className="h-3 w-3" />
+                      <span>{rotatingExistingIdx === idx ? "..." : "90°"}</span>
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
