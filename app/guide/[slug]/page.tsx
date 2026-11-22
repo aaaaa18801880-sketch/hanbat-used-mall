@@ -7,7 +7,9 @@ import { notFound } from "next/navigation";
 import { supabase } from "../../../lib/supabase";
 import {
   STORE,
+  isProductPendingReview,
   isProductSold,
+  PRODUCT_STATUS,
   normalizeProductCategory,
   telHref,
   toProductCardSummary,
@@ -68,6 +70,7 @@ async function fetchGuideRecommendedProducts(
       )
       .neq("category", "배송인증")
       .neq("status", "판매완료")
+      .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
       .order("created_at", { ascending: false })
       .limit(24);
 
@@ -76,7 +79,7 @@ async function fetchGuideRecommendedProducts(
     }
 
     const activeItems = (data as ProductItem[]).filter(
-      (item) => !isProductSold(item.status)
+      (item) => !isProductSold(item.status) && !isProductPendingReview(item.status)
     );
 
     const picked: ProductItem[] = [];

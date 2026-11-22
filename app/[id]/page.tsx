@@ -13,7 +13,9 @@ import {
   STORE_MERCHANT_POLICY,
   STORE_SHIPPING_POLICY,
   splitImages,
+  isProductPendingReview,
   isProductSold,
+  PRODUCT_STATUS,
   getCategoryWarrantyInfo,
   buildProductInquiryHref,
   normalizeProductCategory,
@@ -76,7 +78,7 @@ export async function generateMetadata({
 
   const { product } = await getProductById(id);
 
-  if (!product || product.category === "배송인증") {
+  if (!product || product.category === "배송인증" || isProductPendingReview(product.status)) {
     return {
       title: "상품을 찾을 수 없습니다",
       robots: { index: false, follow: false },
@@ -159,7 +161,12 @@ export default async function ProductDetailPage({
 
   const { product, error } = await getProductById(id);
 
-  if (error || !product || product.category === "배송인증") {
+  if (
+    error ||
+    !product ||
+    product.category === "배송인증" ||
+    isProductPendingReview(product.status)
+  ) {
     notFound();
   }
 
@@ -198,6 +205,7 @@ export default async function ProductDetailPage({
       "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
     )
     .neq("category", "배송인증")
+    .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
     .neq("id", id)
     .eq("category", product.category)
     .order("created_at", { ascending: false })

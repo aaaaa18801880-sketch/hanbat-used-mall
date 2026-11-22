@@ -9,7 +9,9 @@ import {
   normalizeProductStatus,
   extractModelName,
   extractSpecCapsules,
+  isProductPendingReview,
   isProductSold,
+  PRODUCT_STATUS,
 } from "../../lib/site";
 import { INFO_GUIDE_ARTICLES } from "../../lib/info-guides";
 import { getGuideConversionContext } from "../../lib/guides/conversion";
@@ -30,10 +32,13 @@ export async function GET() {
       .select("id, title, category, price, status, condition_grade, description, created_at")
       .neq("category", "배송인증")
       .neq("status", "판매완료")
+      .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
       .order("created_at", { ascending: false })
       .limit(500);
 
-    const sellingItems = (products ?? []).filter((p) => !isProductSold(p.status));
+    const sellingItems = (products ?? []).filter(
+      (p) => !isProductSold(p.status) && !isProductPendingReview(p.status)
+    );
     totalSellingCount = sellingItems.length;
 
     for (const p of sellingItems) {

@@ -1,6 +1,11 @@
 // 파일 경로: app/gallery/layout.tsx
 import type { Metadata } from "next";
-import { STORE, getCategoryWarrantyInfo } from "../../lib/site";
+import {
+  STORE,
+  getCategoryWarrantyInfo,
+  isProductPendingReview,
+  PRODUCT_STATUS,
+} from "../../lib/site";
 import { supabase } from "../../lib/supabase";
 import { serializeJsonLd } from "../../lib/json-ld";
 import { buildBreadcrumbJsonLd } from "../../lib/seo-schema";
@@ -60,13 +65,16 @@ export default async function GalleryLayout({
         "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
       )
       .neq("category", "배송인증")
+      .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
       .order("created_at", { ascending: false })
       .limit(400);
 
     if (error) {
       console.error("[gallery/layout] SSR 상품 조회 실패:", error.message);
     } else {
-      initialProducts = (data ?? []) as ProductItem[];
+      initialProducts = ((data ?? []) as ProductItem[]).filter(
+        (p) => !isProductPendingReview(p.status)
+      );
     }
   } catch (err) {
     console.error("[gallery/layout] SSR 상품 조회 예외:", err);

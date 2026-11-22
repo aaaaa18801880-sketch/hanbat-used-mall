@@ -4,6 +4,7 @@ export type AdminTab =
   | "overview"
   | "inquiries"
   | "products"
+  | "telegram"
   | "delivery"
   | "notifications";
 

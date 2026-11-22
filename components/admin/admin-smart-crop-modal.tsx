@@ -13,6 +13,7 @@ import {
   normalizeProductCategory,
   revokeObjectUrls,
   splitImages,
+  type AnalyzeProductApiPayload,
 } from "../../lib/site";
 import {
   applySmartCropToImageFile,
@@ -185,9 +186,11 @@ export function AdminSmartCropModal({
         body: formData,
       });
       const rawText = await aiRes.text();
-      let data: Record<string, any> = {};
+      let data: AnalyzeProductApiPayload = {};
       try {
-        data = rawText ? JSON.parse(rawText) : {};
+        data = rawText
+          ? (JSON.parse(rawText) as AnalyzeProductApiPayload)
+          : {};
       } catch {
         throw new Error("서버 분석 시간이 초과되었거나 응답 형식이 올바르지 않습니다.");
       }

@@ -3,6 +3,7 @@ import {
   extractModelName,
   getDaysSinceCreated,
   isPriorityInquiryStatus,
+  isProductPendingReview,
   isProductSold,
   matchesSearchQuery,
   normalizeProductCategory,
@@ -19,6 +20,7 @@ export interface AdminMetrics {
   priorityCount: number;
   buybackCount: number;
   totalProducts: number;
+  pendingReviewProducts: number;
   sellingProducts: number;
   reservedProducts: number;
   soldProducts: number;
@@ -53,6 +55,9 @@ export function computeAdminMetrics(
       (i.inquiry_type || "").includes("팔기") ||
       (i.inquiry_type || "").includes("매입")
   ).length;
+  const pendingReviewProducts = products.filter((p) =>
+    isProductPendingReview(p.status)
+  ).length;
   const sellingProducts = products.filter(
     (p) => normalizeProductStatus(p.status) === "판매중"
   ).length;
@@ -71,6 +76,7 @@ export function computeAdminMetrics(
     priorityCount,
     buybackCount,
     totalProducts: products.length,
+    pendingReviewProducts,
     sellingProducts,
     reservedProducts,
     soldProducts,

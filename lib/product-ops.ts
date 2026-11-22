@@ -459,6 +459,32 @@ export async function updateProductStatus(
   return normalized;
 }
 
+export async function publishPendingProductRecord(input: {
+  id: string;
+  price: string | number | null | undefined;
+  status?: string;
+}): Promise<{ price: number; status: ProductStatus }> {
+  const parsedPrice = parseProductPriceInput(input.price);
+  if (parsedPrice === null) {
+    throw new Error("유효한 판매가(원)를 입력해 주세요. 비우면 '가격 문의'로 저장됩니다.");
+  }
+
+  const normalized = normalizeProductStatus(input.status || "판매중");
+  const { data: updatedRows, error } = await supabase
+    .from("products")
+    .update({ price: parsedPrice, status: normalized })
+    .eq("id", input.id)
+    .select("id");
+
+  if (error) throw error;
+  if (!updatedRows || updatedRows.length === 0) {
+    throw new Error("상품 공개 권한(RLS)이 없거나 대상 상품을 찾을 수 없습니다.");
+  }
+
+  void revalidateAdminCache(input.id);
+  return { price: parsedPrice, status: normalized };
+}
+
 export async function bulkUpdateProductStatus(
   ids: string[],
   nextStatus: string

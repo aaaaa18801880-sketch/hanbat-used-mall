@@ -1,6 +1,11 @@
 // 파일 경로: app/page.tsx
 import { supabase } from "../lib/supabase";
-import { isProductSold, toProductCardSummary } from "../lib/site";
+import {
+  isProductPendingReview,
+  isProductSold,
+  PRODUCT_STATUS,
+  toProductCardSummary,
+} from "../lib/site";
 import { INFO_GUIDE_ARTICLES, sortGuidesByPriority } from "../lib/info-guides";
 import { hasGuideInteractiveTool } from "../lib/guides/tool-slugs";
 import { resolveGuideThumbnail } from "../lib/guides/thumbnails";
@@ -46,6 +51,7 @@ export default async function Page() {
           "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
         )
         .neq("category", "배송인증")
+        .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
         .order("created_at", { ascending: false })
         .limit(300),
       supabase
@@ -60,7 +66,9 @@ export default async function Page() {
 
   let initialProducts: ProductItem[] | null = null;
   if (!productsResult.error) {
-    const rows = (productsResult.data ?? []) as ProductItem[];
+    const rows = ((productsResult.data ?? []) as ProductItem[]).filter(
+      (p) => !isProductPendingReview(p.status)
+    );
     rows.sort((a, b) => {
       const soldA = isProductSold(a.status) ? 1 : 0;
       const soldB = isProductSold(b.status) ? 1 : 0;

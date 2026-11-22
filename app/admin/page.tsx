@@ -31,12 +31,14 @@ import {
   MAX_PHOTOS,
   extractModelName,
   type NotificationDispatchResult,
+  type AnalyzeProductApiPayload,
   revokeObjectUrls,
 } from "../../lib/site";
 import {
   createProductRecord,
   updateProductRecord,
   updateProductStatus,
+  publishPendingProductRecord,
   bulkUpdateProductCategories,
   deleteProductRecord,
   createDeliveryCaseRecord,
@@ -71,6 +73,7 @@ import { AdminProductList } from "../../components/admin/admin-product-list";
 import { AdminSmartCropModal } from "../../components/admin/admin-smart-crop-modal";
 import { AdminDeliveryTab } from "../../components/admin/admin-delivery-tab";
 import { AdminNotificationsTab } from "../../components/admin/admin-notifications-tab";
+import { AdminTelegramInboxTab } from "../../components/admin/admin-telegram-inbox-tab";
 
 export default function IntegratedAdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
@@ -87,6 +90,11 @@ export default function IntegratedAdminDashboard() {
   const [products, setProducts] = useState<AdminProductRow[]>([]);
   const [deliveryCases, setDeliveryCases] = useState<AdminDeliveryRow[]>([]);
   const [inquiries, setInquiries] = useState<AdminInquiryRow[]>([]);
+  const [telegramPendingCount, setTelegramPendingCount] = useState(0);
+  const [cleanupSummary, setCleanupSummary] = useState({
+    productCount: 0,
+    photoCount: 0,
+  });
   const [loadingData, setLoadingData] = useState(false);
 
   /* 문의/매입 필터 상태 */
@@ -200,10 +208,25 @@ export default function IntegratedAdminDashboard() {
       }
 
       const headers = await getAdminAuthHeaders();
-      const res = await fetch("/api/inquiries", { headers });
-      if (res.ok) {
-        const json = await res.json();
+      const [inqRes, tgRes] = await Promise.all([
+        fetch("/api/inquiries", { headers }),
+        fetch("/api/admin/telegram-inbox", { headers, cache: "no-store" }),
+      ]);
+      if (inqRes.ok) {
+        const json = await inqRes.json();
         setInquiries(json.inquiries || []);
+      }
+      if (tgRes.ok) {
+        const tgJson = (await tgRes.json().catch(() => ({}))) as {
+          photos?: unknown[];
+          cleanupSummary?: { productCount: number; photoCount: number };
+        };
+        setTelegramPendingCount(
+          Array.isArray(tgJson.photos) ? tgJson.photos.length : 0
+        );
+        if (tgJson.cleanupSummary) {
+          setCleanupSummary(tgJson.cleanupSummary);
+        }
       }
     } catch (err) {
       console.error("관리자 데이터 조회 오류:", err);
@@ -661,9 +684,11 @@ export default function IntegratedAdminDashboard() {
         body: formData,
       });
       const rawText = await res.text();
-      let data: Record<string, any> = {};
+      let data: AnalyzeProductApiPayload = {};
       try {
-        data = rawText ? JSON.parse(rawText) : {};
+        data = rawText
+          ? (JSON.parse(rawText) as AnalyzeProductApiPayload)
+          : {};
       } catch {
         throw new Error(
           res.status === 504 || /error occurred|timeout/i.test(rawText)
@@ -998,6 +1023,82 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
+  const handlePublishPendingProduct = async (
+    productId: string,
+    rawPrice: string
+  ) => {
+    if (busyActionId) return;
+    setBusyActionId(`prod-publish-${productId}`);
+    try {
+      const updated = await publishPendingProductRecord({
+        id: productId,
+        price: rawPrice,
+        status: PRODUCT_STATUS.SELLING,
+      });
+      setProducts((prev) =>
+        prev.map((p) =>
+          p.id === productId
+            ? { ...p, price: updated.price, status: updated.status }
+            : p
+        )
+      );
+      toast.success("검수 완료! 상품이 '판매중'으로 공개되었습니다.");
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "검수대기 상품 공개에 실패했습니다."
+      );
+    } finally {
+      setBusyActionId(null);
+    }
+  };
+
+  const handleRunSoldPhotoCleanup = async () => {
+    if (busyActionId || cleanupSummary.photoCount === 0) return;
+    if (
+      !confirm(
+        `판매완료 후 90일이 지난 ${cleanupSummary.productCount}건 매물의 보조사진 ${cleanupSummary.photoCount}장을 정리할까요?\n(1번 대표 사진은 보존됩니다)`
+      )
+    ) {
+      return;
+    }
+
+    setBusyActionId("sold-photo-cleanup");
+    try {
+      const headers = await getAdminAuthHeaders();
+      const res = await fetch("/api/admin/cleanup-sold-photos", {
+        method: "POST",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ dryRun: false, minAgeDays: 90 }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        cleanedProductCount?: number;
+        deletedFileCount?: number;
+      };
+      if (!res.ok) {
+        throw new Error(json.error || "오래된 사진 정리에 실패했습니다.");
+      }
+
+      toast.success(
+        `${json.cleanedProductCount ?? 0}건의 보조사진(${json.deletedFileCount ?? 0}장)을 정리했습니다.`
+      );
+      await fetchAllAdminData();
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "오래된 판매완료 사진 정리에 실패했습니다."
+      );
+    } finally {
+      setBusyActionId(null);
+    }
+  };
+
   const handleFixCategoryMismatches = async (
     targets: readonly ProductCategoryMismatch[]
   ) => {
@@ -1229,7 +1330,11 @@ export default function IntegratedAdminDashboard() {
         </div>
 
         {/* 탭 내비게이션 */}
-        <div className="hb-container flex gap-1 overflow-x-auto scrollbar-none border-t border-white/10 pt-2">
+        <div
+          role="tablist"
+          aria-label="관리자 작업 섹션"
+          className="hb-container flex gap-1 overflow-x-auto scrollbar-none border-t border-white/10 pt-2"
+        >
           {(
             [
               {
@@ -1246,9 +1351,18 @@ export default function IntegratedAdminDashboard() {
               },
               {
                 id: "products",
-                label: "상품 등록 · 재고",
+                label:
+                  metrics.pendingReviewProducts > 0
+                    ? `상품 등록 · 검수(${metrics.pendingReviewProducts})`
+                    : "상품 등록 · 재고",
                 badge: metrics.totalProducts,
-                highlight: false,
+                highlight: metrics.pendingReviewProducts > 0,
+              },
+              {
+                id: "telegram",
+                label: "텔레그램 수집함",
+                badge: telegramPendingCount,
+                highlight: telegramPendingCount > 0,
               },
               {
                 id: "delivery",
@@ -1269,6 +1383,8 @@ export default function IntegratedAdminDashboard() {
               <button
                 key={t.id}
                 type="button"
+                role="tab"
+                aria-selected={active}
                 onClick={() => setActiveTab(t.id)}
                 className={`px-3.5 sm:px-4 py-2.5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap rounded-t transition-colors flex items-center gap-1.5 ${
                   active
@@ -1381,16 +1497,32 @@ export default function IntegratedAdminDashboard() {
               setProdStatusFilter={setProdStatusFilter}
               prodKeyword={prodKeyword}
               setProdKeyword={setProdKeyword}
+              pendingReviewProducts={metrics.pendingReviewProducts}
               staleSellingProducts={metrics.staleSellingProducts}
               categoryMismatches={categoryMismatches}
+              cleanupSummary={cleanupSummary}
               busyActionId={busyActionId}
               onFixCategoryMismatches={handleFixCategoryMismatches}
               onStatusChange={handleExplicitProductStatusChange}
+              onPublishPendingProduct={handlePublishPendingProduct}
+              onRunSoldCleanup={handleRunSoldPhotoCleanup}
               onStartEdit={startEditProduct}
               onOpenSmartCrop={setSmartCropProduct}
               onDeleteProduct={handleDeleteProduct}
             />
           </div>
+        )}
+
+        {activeTab === "telegram" && (
+          <AdminTelegramInboxTab
+            onPendingCountChange={setTelegramPendingCount}
+            onCleanupSummaryChange={setCleanupSummary}
+            onProductsChanged={fetchAllAdminData}
+            onJumpToPendingReview={() => {
+              setProdStatusFilter(PRODUCT_STATUS.PENDING_REVIEW);
+              setActiveTab("products");
+            }}
+          />
         )}
 
         {activeTab === "delivery" && (

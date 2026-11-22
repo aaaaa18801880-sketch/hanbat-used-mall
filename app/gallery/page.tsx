@@ -20,7 +20,9 @@ import {
   telHref,
   smsHref,
   splitImages,
+  isProductPendingReview,
   isProductSold,
+  PRODUCT_STATUS,
   normalizeProductStatus,
   normalizeProductCategory,
   hasProductPrice,
@@ -94,10 +96,13 @@ async function queryGalleryProducts(): Promise<ProductItem[]> {
       "id, title, category, description, image_url, price, status, condition_grade, views, created_at"
     )
     .neq("category", "배송인증")
+    .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
     .order("created_at", { ascending: false })
     .limit(400);
   if (error) throw error;
-  return (data ?? []) as ProductItem[];
+  return ((data ?? []) as ProductItem[]).filter(
+    (p) => !isProductPendingReview(p.status)
+  );
 }
 
 export default function GalleryPage() {

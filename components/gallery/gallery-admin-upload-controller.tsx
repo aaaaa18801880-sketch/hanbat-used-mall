@@ -16,6 +16,7 @@ import {
   revokeObjectUrls,
   sanitizeOldManufactureYear,
   validateImageFiles,
+  type AnalyzeProductApiPayload,
 } from "../../lib/site";
 import {
   applySmartCropToImageFile,
@@ -276,9 +277,11 @@ export function GalleryAdminUploadController({
       });
 
       const rawText = await res.text();
-      let data: Record<string, any> = {};
+      let data: AnalyzeProductApiPayload = {};
       try {
-        data = rawText ? JSON.parse(rawText) : {};
+        data = rawText
+          ? (JSON.parse(rawText) as AnalyzeProductApiPayload)
+          : {};
       } catch {
         throw new Error(
           res.status === 504 || /error occurred|timeout/i.test(rawText)

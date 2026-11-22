@@ -25,7 +25,9 @@ import {
   revokeObjectUrls,
   MAX_REVIEW_PHOTOS,
   MAX_FILE_MB,
+  isProductPendingReview,
   isProductSold,
+  PRODUCT_STATUS,
   getCategoryWarrantyInfo,
   trackEvent,
   type InquiryTypeValue,
@@ -174,11 +176,14 @@ export default function Home({
       .from("products")
       .select("*")
       .neq("category", "배송인증")
+      .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
       .order("created_at", { ascending: false })
       .limit(300);
 
     if (error) throw error;
-    const rows = (data ?? []) as ProductItem[];
+    const rows = ((data ?? []) as ProductItem[]).filter(
+      (p) => !isProductPendingReview(p.status)
+    );
     rows.sort((a, b) => {
       const soldA = isProductSold(a.status) ? 1 : 0;
       const soldB = isProductSold(b.status) ? 1 : 0;

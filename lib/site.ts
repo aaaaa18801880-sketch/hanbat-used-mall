@@ -96,12 +96,20 @@ export const PRODUCT_STATUS = {
   SELLING: "판매중",
   RESERVED: "예약중",
   SOLD: "판매완료",
+  PENDING_REVIEW: "검수대기",
 } as const;
 
 type ProductStatusValue =
   (typeof PRODUCT_STATUS)[keyof typeof PRODUCT_STATUS];
 
 export const PRODUCT_STATUS_LIST: readonly ProductStatusValue[] = [
+  PRODUCT_STATUS.SELLING,
+  PRODUCT_STATUS.RESERVED,
+  PRODUCT_STATUS.SOLD,
+] as const;
+
+export const ADMIN_PRODUCT_STATUS_LIST: readonly ProductStatusValue[] = [
+  PRODUCT_STATUS.PENDING_REVIEW,
   PRODUCT_STATUS.SELLING,
   PRODUCT_STATUS.RESERVED,
   PRODUCT_STATUS.SOLD,
@@ -136,9 +144,16 @@ export function isProductReserved(status?: string | null): boolean {
   return s === "예약중" || s === "reserved";
 }
 
+export function isProductPendingReview(status?: string | null): boolean {
+  if (!status) return false;
+  const s = status.trim().toLowerCase();
+  return s === "검수대기" || s === "pending_review" || s === "draft";
+}
+
 export function normalizeProductStatus(
   status?: string | null
 ): ProductStatusValue {
+  if (isProductPendingReview(status)) return PRODUCT_STATUS.PENDING_REVIEW;
   if (isProductSold(status)) return PRODUCT_STATUS.SOLD;
   if (isProductReserved(status)) return PRODUCT_STATUS.RESERVED;
   return PRODUCT_STATUS.SELLING;
@@ -539,6 +554,22 @@ export function parseProductDescription(description?: string | null): {
     rawRest,
     hasStructuredSections,
   };
+}
+
+export interface AnalyzeProductApiPayload {
+  error?: string;
+  category?: string;
+  title?: string;
+  modelNumber?: string;
+  specDetails?: string;
+  aiDraftSummary?: string;
+  photoObserved?: string[];
+  searchDerivedSpecs?: string[];
+  needsReview?: string[];
+  sourceVerificationNote?: string;
+  sourceUrls?: string[];
+  imageRotations?: Array<{ index?: unknown; rotate?: unknown }>;
+  imageCrops?: unknown;
 }
 
 /**

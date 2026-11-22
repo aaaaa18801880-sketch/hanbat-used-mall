@@ -4,6 +4,7 @@
 import {
   extractModelName,
   hasProductPrice,
+  isProductPendingReview,
   isProductReserved,
   isProductSold,
   matchesSearchQuery,
@@ -198,11 +199,12 @@ export function buildGalleryQueryUrl(
 /**
  * 카테고리별 매물 개수를 집계합니다.
  */
-export function computeCategoryCounts<T extends { category: string | null }>(
-  products: readonly T[]
-): Record<string, number> {
-  const counts: Record<string, number> = { 전체: products.length };
-  for (const product of products) {
+export function computeCategoryCounts<
+  T extends { category: string | null; status?: string | null },
+>(products: readonly T[]): Record<string, number> {
+  const visible = products.filter((p) => !isProductPendingReview(p.status));
+  const counts: Record<string, number> = { 전체: visible.length };
+  for (const product of visible) {
     const key = normalizeProductCategory(product.category);
     counts[key] = (counts[key] || 0) + 1;
   }
@@ -234,6 +236,8 @@ export function filterAndSortGalleryProducts<
   const q = search.trim().toLowerCase();
 
   const list = products.filter((p) => {
+    if (isProductPendingReview(p.status)) return false;
+
     const cat = normalizeProductCategory(p.category);
     if (activeCategory !== "전체" && cat !== activeCategory) return false;
 
