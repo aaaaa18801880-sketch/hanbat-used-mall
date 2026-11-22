@@ -107,10 +107,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 4개씩 동시 다운로드 + 320px JPEG 경량 변환
+    // 6개씩 동시 다운로드 (이미 텔레그램 320px 썸네일이면 Sharp 재인코딩 생략해 CPU 절감)
     const imageParts: GeminiInlineImagePart[] = [];
-    for (let start = 0; start < ordered.length; start += 4) {
-      const slice = ordered.slice(start, start + 4);
+    for (let start = 0; start < ordered.length; start += 6) {
+      const slice = ordered.slice(start, start + 6);
       const chunkParts = await Promise.all(
         slice.map(async (photo) => {
           const downloaded = await fetchTelegramFileBuffer({
@@ -118,6 +118,14 @@ export async function POST(req: NextRequest) {
             fileId: photo.thumb_file_id || photo.file_id,
             timeoutMs: 8000,
           });
+          if (photo.thumb_file_id) {
+            return {
+              inlineData: {
+                mimeType: downloaded.mimeType || "image/jpeg",
+                data: downloaded.buffer.toString("base64"),
+              },
+            } satisfies GeminiInlineImagePart;
+          }
           const smallJpeg = await createTelegramPreviewImage(downloaded.buffer, {
             maxEdge: 320,
             format: "jpeg",
@@ -191,17 +199,25 @@ ${timelineSummary}
         maxGroupSize: TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
       });
 
-    for (const u of updates) {
-      const note = badNotesById[u.id] ?? null;
-      await supabase
-        .from("telegram_inbox_photos")
-        .update({
-          group_key: u.group_key,
-          sort_order: u.sort_order,
-          ai_note: note,
+    for (let i = 0; i < updates.length; i += 10) {
+      const slice = updates.slice(i, i + 10);
+      const results = await Promise.all(
+        slice.map((u) => {
+          const note = badNotesById[u.id] ?? null;
+          return supabase
+            .from("telegram_inbox_photos")
+            .update({
+              group_key: u.group_key,
+              sort_order: u.sort_order,
+              ai_note: note,
+            })
+            .eq("id", u.id)
+            .eq("status", "pending");
         })
-        .eq("id", u.id)
-        .eq("status", "pending");
+      );
+      for (const r of results) {
+        if (r.error) throw r.error;
+      }
     }
 
     return NextResponse.json({

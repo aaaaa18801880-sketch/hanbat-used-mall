@@ -35,6 +35,8 @@ import {
 } from "../../../../../lib/server-image-sharp";
 import {
   orderCommitItemsWithPrimaryExterior,
+  resolvePhotoCommitRotations,
+  sanitizeManualRotationMap,
   sortTelegramPhotosChronologically,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   type TelegramInboxPhoto,
@@ -48,11 +50,11 @@ const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash-lite";
 
 /**
- * 단일 제품 묶음(1~4장)을 순차 커밋 처리:
- * 1) 텔레그램 고해상도 원본 다운로드
- * 2) AI 제목·카테고리·모델명·스펙·회전·스마트크롭 좌표 판독
- * 3) Sharp 고화질 WebP(1440px) 변환 + 회전·크롭·스튜디오 패딩·하이라이트 보호 보정
- * 4) Supabase Storage 업로드 -> products [검수대기] 비공개 저장 -> 수집함 committed 마킹
+ * 단일 제품 묶음(1~3장)을 순차 커밋 처리:
+ * 1) 텔레그램 고해상도 원본 병렬 다운로드
+ * 2) 수집함 수동 회전 선적용 -> AI 제목·카테고리·모델명·스펙·회전·스마트크롭 좌표 판독
+ * 3) 단일 패스 Sharp 고화질 WebP(1440px) 병렬 변환 + Supabase Storage 병렬 업로드
+ * 4) products [검수대기] 비공개 저장 -> 수집함 committed 마킹
  */
 export async function POST(req: NextRequest) {
   const adminCheck = await verifyAdminRequest(req);
@@ -85,7 +87,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { photoIds?: unknown; categoryHint?: unknown };
+  let body: {
+    photoIds?: unknown;
+    categoryHint?: unknown;
+    manualRotations?: unknown;
+  };
   try {
     body = await req.json();
   } catch {
@@ -115,6 +121,10 @@ export async function POST(req: NextRequest) {
   }
 
   const photoIds = rawPhotoIds;
+  const manualRotationMap = sanitizeManualRotationMap(
+    body.manualRotations,
+    photoIds
+  );
 
   const categoryHint =
     typeof body.categoryHint === "string"
@@ -154,19 +164,21 @@ export async function POST(req: NextRequest) {
       )
     );
 
-    // 2) AI 판독용 1080px JPEG 생성 (최대 3장 AI 전달)
-    const aiTargetBuffers = downloadedOriginals.slice(0, 3);
-    const imageParts: GeminiInlineImagePart[] = await Promise.all(
-      aiTargetBuffers.map(async (item) => {
-        const vision = await createAiVisionJpeg(item.buffer, 1080);
-        return {
-          inlineData: {
-            mimeType: vision.mimeType,
-            data: vision.buffer.toString("base64"),
-          },
-        };
+    // 2) AI 판독용 1080px JPEG 병렬 생성 (수동 회전 선적용 + 평균 휘도 동시 산출)
+    const aiTargetCount = Math.min(downloadedOriginals.length, 3);
+    const visionPrepared = await Promise.all(
+      downloadedOriginals.slice(0, aiTargetCount).map(async (item, idx) => {
+        const manualDeg = manualRotationMap[ordered[idx].id] ?? 0;
+        return createAiVisionJpeg(item.buffer, 1080, manualDeg);
       })
     );
+
+    const imageParts: GeminiInlineImagePart[] = visionPrepared.map((vision) => ({
+      inlineData: {
+        mimeType: vision.mimeType,
+        data: vision.buffer.toString("base64"),
+      },
+    }));
 
     const currentYear = new Date().getFullYear();
     const prompt = buildProductAnalysisPrompt({
@@ -207,7 +219,10 @@ export async function POST(req: NextRequest) {
     if (modelNumber === "미확인") modelNumber = "";
 
     const baseTitle =
-      rawTitle || (modelNumber ? `${finalCategory} (${modelNumber})` : "중고 가전 실매물 (검수필요)");
+      rawTitle ||
+      (modelNumber
+        ? `${finalCategory} (${modelNumber})`
+        : "중고 가전 실매물 (검수필요)");
 
     const rawSpecDetails =
       typeof rawParsed.specDetails === "string"
@@ -238,7 +253,7 @@ export async function POST(req: NextRequest) {
     const parsedCrops = parseAnalyzedImageCrops(rawParsed.imageCrops);
     const cropByIndex = new Map(parsedCrops.map((c) => [c.index - 1, c]));
 
-    const rotationByIndex = new Map<number, number>();
+    const aiRotationByIndex = new Map<number, number>();
     if (Array.isArray(rawParsed.imageRotations)) {
       for (const r of rawParsed.imageRotations as Array<{
         index?: unknown;
@@ -247,17 +262,23 @@ export async function POST(req: NextRequest) {
         const idx = typeof r.index === "number" ? r.index - 1 : -1;
         const deg = typeof r.rotate === "number" ? r.rotate : 0;
         if (idx >= 0 && [90, 180, 270].includes(deg)) {
-          rotationByIndex.set(idx, deg);
+          aiRotationByIndex.set(idx, deg);
         }
       }
     }
 
-    // 3) 제품 외관 사진이 대표 1번(0번 인덱스)에 오도록 정렬 후 WebP 1440px 변환 및 Storage 업로드
+    // 3) 제품 외관 사진이 대표 1번(0번 인덱스)에 오도록 정렬 후 단일 패스 WebP 1440px 병렬 변환 및 업로드
     const preparedOriginals = downloadedOriginals.map((orig, i) => {
       const crop = cropByIndex.get(i) ?? null;
+      const rot = resolvePhotoCommitRotations({
+        manualDeg: manualRotationMap[ordered[i].id] ?? 0,
+        aiDeg: aiRotationByIndex.get(i) ?? 0,
+      });
       return {
         original: orig,
-        rotateDegrees: rotationByIndex.get(i) ?? 0,
+        rotateDegrees: rot.totalDeg,
+        boxRotateDegrees: rot.postAiDeg,
+        precomputedMeanLum: visionPrepared[i]?.meanLum,
         crop,
         role: (crop?.role ?? "other") as "product" | "nameplate" | "other",
       };
@@ -267,32 +288,41 @@ export async function POST(req: NextRequest) {
       orderCommitItemsWithPrimaryExterior(preparedOriginals);
 
     const batchTs = Date.now();
-    for (let i = 0; i < orderedPrepared.length; i++) {
-      const item = orderedPrepared[i];
-      const processed = await processTelegramOriginalToProductWebp({
-        inputBuffer: item.original.buffer,
-        rotateDegrees: item.rotateDegrees,
-        crop: item.crop,
-        maxEdge: 1440,
-      });
+    const orderedPublicUrls = new Array<string>(orderedPrepared.length);
 
-      const fileName = `product_tg_${batchTs}_${i + 1}_${Math.random()
-        .toString(36)
-        .slice(2, 7)}.webp`;
-
-      const { error: upErr } = await supabase.storage
-        .from(STORAGE_BUCKETS.inquiries)
-        .upload(fileName, processed.buffer, {
-          contentType: "image/webp",
+    await Promise.all(
+      orderedPrepared.map(async (item, i) => {
+        const processed = await processTelegramOriginalToProductWebp({
+          inputBuffer: item.original.buffer,
+          rotateDegrees: item.rotateDegrees,
+          boxRotateDegrees: item.boxRotateDegrees,
+          precomputedMeanLum: item.precomputedMeanLum,
+          crop: item.crop,
+          maxEdge: 1440,
         });
 
-      if (upErr) throw upErr;
+        const fileName = `product_tg_${batchTs}_${i + 1}_${Math.random()
+          .toString(36)
+          .slice(2, 7)}.webp`;
 
-      const { data: pubUrlData } = supabase.storage
-        .from(STORAGE_BUCKETS.inquiries)
-        .getPublicUrl(fileName);
-      uploadedUrls.push(pubUrlData.publicUrl);
-    }
+        const { error: upErr } = await supabase.storage
+          .from(STORAGE_BUCKETS.inquiries)
+          .upload(fileName, processed.buffer, {
+            contentType: "image/webp",
+          });
+
+        if (upErr) throw upErr;
+
+        const { data: pubUrlData } = supabase.storage
+          .from(STORAGE_BUCKETS.inquiries)
+          .getPublicUrl(fileName);
+        uploadedUrls.push(pubUrlData.publicUrl);
+        orderedPublicUrls[i] = pubUrlData.publicUrl;
+      })
+    );
+
+    uploadedUrls.length = 0;
+    uploadedUrls.push(...orderedPublicUrls);
 
     // 4) products 테이블에 '검수대기'(비공개) 상태로 등록
     const productPayload = buildProductMutationPayload({

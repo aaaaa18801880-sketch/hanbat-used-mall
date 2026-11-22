@@ -12,9 +12,12 @@ import {
   pairInboxPhotosByFixedSize,
   removePhotoFromInboxGroups,
   rePairInboxFromPhoto,
+  sanitizeManualRotationMap,
   splitInboxGroupBeforePhoto,
+  stepQuarterTurnDegrees,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
+  type QuarterTurnDegrees,
   type TelegramGroupKeyOnlyUpdate,
   type TelegramInboxGroup,
   type TelegramInboxPhoto,
@@ -45,6 +48,36 @@ interface AdminTelegramInboxTabProps {
 
 const AI_GROUP_CHUNK_SIZE = 16;
 const GROUPS_PER_PAGE = 20;
+const MANUAL_ROTATIONS_STORAGE_KEY = "hanbat_tg_manual_rotations_v1";
+
+function loadStoredManualRotations(): Record<string, QuarterTurnDegrees> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(MANUAL_ROTATIONS_STORAGE_KEY);
+    if (!raw) return {};
+    return sanitizeManualRotationMap(JSON.parse(raw));
+  } catch {
+    return {};
+  }
+}
+
+function saveStoredManualRotations(
+  map: Record<string, QuarterTurnDegrees>
+): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (Object.keys(map).length === 0) {
+      window.localStorage.removeItem(MANUAL_ROTATIONS_STORAGE_KEY);
+    } else {
+      window.localStorage.setItem(
+        MANUAL_ROTATIONS_STORAGE_KEY,
+        JSON.stringify(map)
+      );
+    }
+  } catch {
+    // private mode 등 스토리지 제한 무시
+  }
+}
 
 function formatGroupTimeRange(group: TelegramInboxGroup): string {
   const formatOne = (iso: string) => {
@@ -99,9 +132,64 @@ export function AdminTelegramInboxTab({
   const [committedCount, setCommittedCount] = useState(0);
   const [inspectingPhoto, setInspectingPhoto] =
     useState<TelegramInboxPhoto | null>(null);
+  const [manualRotations, setManualRotations] = useState<
+    Record<string, QuarterTurnDegrees>
+  >(() => loadStoredManualRotations());
   const [currentPage, setCurrentPage] = useState(1);
   const [showAllGroups, setShowAllGroups] = useState(false);
   const [thumbStore] = useState(() => createTelegramThumbStore());
+
+  const handleRotatePhoto = useCallback(
+    (photoId: string, delta: 90 | -90) => {
+      setManualRotations((prev) => {
+        const nextDeg = stepQuarterTurnDegrees(prev[photoId] ?? 0, delta);
+        const next = { ...prev };
+        if (nextDeg === 0) {
+          delete next[photoId];
+        } else {
+          next[photoId] = nextDeg;
+        }
+        saveStoredManualRotations(next);
+        return next;
+      });
+    },
+    []
+  );
+
+  const handleResetPhotoRotation = useCallback((photoId: string) => {
+    setManualRotations((prev) => {
+      if (!prev[photoId]) return prev;
+      const next = { ...prev };
+      delete next[photoId];
+      saveStoredManualRotations(next);
+      return next;
+    });
+  }, []);
+
+  const pruneManualRotations = useCallback((removeIds: readonly string[]) => {
+    if (removeIds.length === 0) return;
+    setManualRotations((prev) => {
+      let changed = false;
+      const next = { ...prev };
+      for (const id of removeIds) {
+        if (id in next) {
+          delete next[id];
+          changed = true;
+        }
+      }
+      if (changed) {
+        saveStoredManualRotations(next);
+        return next;
+      }
+      return prev;
+    });
+  }, []);
+
+  const handleResetAllRotations = useCallback(() => {
+    setManualRotations({});
+    saveStoredManualRotations({});
+    toast.success("수동 회전 설정을 모두 초기화했습니다.");
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -218,6 +306,15 @@ export function AdminTelegramInboxTab({
   const badNotePhotos = useMemo(
     () => photos.filter((p) => Boolean(p.ai_note)),
     [photos]
+  );
+
+  const activeRotatedCount = useMemo(
+    () =>
+      photos.reduce(
+        (count, p) => count + (manualRotations[p.id] ? 1 : 0),
+        0
+      ),
+    [manualRotations, photos]
   );
 
   const totalPages = showAllGroups
@@ -469,6 +566,7 @@ export function AdminTelegramInboxTab({
       for (const id of ids) {
         thumbStore.revoke(id);
       }
+      pruneManualRotations(ids);
       toast.success(
         ids.length === 1
           ? "선택한 사진을 수집함에서 제외했습니다."
@@ -596,6 +694,12 @@ export function AdminTelegramInboxTab({
         currentLabel: `${i + 1}/${validTargets.length}번째 묶음 (${commitIds.length}장) 처리 중...`,
       });
 
+      const groupManualRotations: Record<string, QuarterTurnDegrees> = {};
+      for (const id of commitIds) {
+        const deg = manualRotations[id];
+        if (deg) groupManualRotations[id] = deg;
+      }
+
       try {
         const res = await fetch("/api/admin/telegram-inbox/commit", {
           method: "POST",
@@ -603,7 +707,10 @@ export function AdminTelegramInboxTab({
             ...headers,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ photoIds: commitIds }),
+          body: JSON.stringify({
+            photoIds: commitIds,
+            manualRotations: groupManualRotations,
+          }),
         });
 
         const json = (await res.json().catch(() => ({}))) as {
@@ -639,9 +746,11 @@ export function AdminTelegramInboxTab({
     setFailedByGroup(nextFailures);
 
     if (committedPhotoIdSet.size > 0) {
-      for (const cid of committedPhotoIdSet) {
+      const committedArr = Array.from(committedPhotoIdSet);
+      for (const cid of committedArr) {
         thumbStore.revoke(cid);
       }
+      pruneManualRotations(committedArr);
       const remaining = photos.filter((p) => !committedPhotoIdSet.has(p.id));
       setPhotos(remaining);
       onPendingCountChange?.(remaining.length);
@@ -1106,6 +1215,19 @@ export function AdminTelegramInboxTab({
               <span>AI 불량컷 일괄 제외 ({badNotePhotos.length}장)</span>
             </button>
           )}
+
+          {activeRotatedCount > 0 && (
+            <button
+              type="button"
+              disabled={isBusy}
+              onClick={handleResetAllRotations}
+              title="수집함에서 수동 지정한 90° 회전 값을 모두 0°로 되돌립니다"
+              className="inline-flex items-center gap-1 rounded-lg border border-[#FADCD0] bg-[#FFF4EE] px-3 py-2 text-hb-xs font-bold text-[#C84312] hover:bg-[#E8521A] hover:text-white disabled:opacity-40 cursor-pointer"
+            >
+              <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
+              <span>수동 회전 {activeRotatedCount}장 · 초기화</span>
+            </button>
+          )}
         </div>
 
         {oversizedGroups.length > 0 && (
@@ -1380,8 +1502,10 @@ export function AdminTelegramInboxTab({
                         photo={photo}
                         indexInGroup={photoIdx}
                         disabled={isBusy}
+                        rotationDeg={manualRotations[photo.id] ?? 0}
                         thumbStore={thumbStore}
                         onInspectFull={setInspectingPhoto}
+                        onRotatePhoto={handleRotatePhoto}
                         onSplitBefore={handleSplitBefore}
                         onRePairFromPhoto={handleRePairFromPhoto}
                         onDiscard={(id) => handleDiscardPhotos([id])}
@@ -1408,6 +1532,9 @@ export function AdminTelegramInboxTab({
 
       <TelegramFullPreviewModal
         photo={inspectingPhoto}
+        rotationDeg={inspectingPhoto ? manualRotations[inspectingPhoto.id] ?? 0 : 0}
+        onRotatePhoto={handleRotatePhoto}
+        onResetRotation={handleResetPhotoRotation}
         onClose={() => setInspectingPhoto(null)}
       />
     </section>

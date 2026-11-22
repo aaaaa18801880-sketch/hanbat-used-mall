@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
             const webp = await createTelegramPreviewImage(downloaded.buffer, {
               maxEdge: 320,
               format: "webp",
-              quality: 70,
+              quality: 68,
             });
             thumbs[row.id] = `data:image/webp;base64,${webp.toString("base64")}`;
           } catch {

@@ -7,16 +7,27 @@ import {
   detectOldSoldProductCleanupTargets,
   mergeInboxGroupWithPrevious,
   normalizeAiGroupingResult,
+  normalizeQuarterTurnDegrees,
   orderCommitItemsWithPrimaryExterior,
   pairInboxPhotosByFixedSize,
   parseTelegramWebhookUpdate,
   partitionIndicesForProductSize,
   removePhotoFromInboxGroups,
   rePairInboxFromPhoto,
+  resolvePhotoCommitRotations,
+  sanitizeManualRotationMap,
   sortTelegramPhotosChronologically,
   splitInboxGroupBeforePhoto,
+  stepQuarterTurnDegrees,
   type TelegramInboxPhoto,
 } from "../lib/telegram-inbox";
+import sharp from "sharp";
+import {
+  computeOrientedDimensions,
+  computeScaledCropAndPad,
+  createAiVisionJpeg,
+  processTelegramOriginalToProductWebp,
+} from "../lib/server-image-sharp";
 import {
   computeCategoryCounts,
   filterAndSortGalleryProducts,
@@ -427,3 +438,128 @@ test("2-photo default partitioning, 3-photo commit guard, and exterior primary o
     ["p3", "p4", "p5", "p6", "p7"]
   );
 });
+
+test("manual quarter-turn rotation helpers sanitize inputs and override AI rotation without double-flipping", () => {
+  assert.equal(normalizeQuarterTurnDegrees(0), 0);
+  assert.equal(normalizeQuarterTurnDegrees(90), 90);
+  assert.equal(normalizeQuarterTurnDegrees(-90), 270);
+  assert.equal(normalizeQuarterTurnDegrees(450), 90);
+  assert.equal(normalizeQuarterTurnDegrees("180"), 180);
+  assert.equal(normalizeQuarterTurnDegrees(Number.NaN), 0);
+
+  assert.equal(stepQuarterTurnDegrees(0, 90), 90);
+  assert.equal(stepQuarterTurnDegrees(270, 90), 0);
+  assert.equal(stepQuarterTurnDegrees(0, -90), 270);
+
+  assert.deepEqual(
+    sanitizeManualRotationMap(
+      { p1: 90, p2: 0, p3: -90, evil: 180 },
+      ["p1", "p2", "p3"]
+    ),
+    { p1: 90, p3: 270 }
+  );
+
+  // 수동 회전이 지정되면 AI 판독 전에 선적용(preAiDeg)하고 AI 추가 회전은 무시(postAiDeg=0)
+  assert.deepEqual(
+    resolvePhotoCommitRotations({ manualDeg: 180, aiDeg: 90 }),
+    { preAiDeg: 180, postAiDeg: 0, totalDeg: 180 }
+  );
+
+  // 수동 회전이 0도이면 AI 판정 회전만 사후 적용
+  assert.deepEqual(
+    resolvePhotoCommitRotations({ manualDeg: 0, aiDeg: 270 }),
+    { preAiDeg: 0, postAiDeg: 270, totalDeg: 270 }
+  );
+});
+
+test("single-pass Sharp pipeline preserves EXIF + manual rotation, smart crop box alignment, and studio square padding", async () => {
+  assert.deepEqual(
+    computeOrientedDimensions({
+      width: 4000,
+      height: 2000,
+      exifOrientation: 6,
+      extraRotateDegrees: 0,
+    }),
+    { width: 2000, height: 4000 }
+  );
+  assert.deepEqual(
+    computeOrientedDimensions({
+      width: 4000,
+      height: 2000,
+      exifOrientation: 6,
+      extraRotateDegrees: 90,
+    }),
+    { width: 4000, height: 2000 }
+  );
+
+  const scaledPad = computeScaledCropAndPad(
+    {
+      role: "product",
+      sx: 100,
+      sy: 50,
+      sw: 1000,
+      sh: 2000,
+      canvasWidth: 2174,
+      canvasHeight: 2174,
+      destX: 587,
+      destY: 87,
+      destW: 1000,
+      destH: 2000,
+      padBackground: "#F4F3F0",
+      enhanceLegibility: false,
+    },
+    1440
+  );
+  assert.equal(scaledPad.targetW + scaledPad.padLeft + scaledPad.padRight, 1440);
+  assert.equal(scaledPad.targetH + scaledPad.padTop + scaledPad.padBottom, 1440);
+
+  // 1600x800 가로 이미지(왼쪽 빨강, 오른쪽 파랑)에 EXIF 6(90도 CW -> 세로 800x1600, 위 빨강/아래 파랑) 부여
+  const leftRed = await sharp({
+    create: { width: 800, height: 800, channels: 3, background: { r: 220, g: 30, b: 30 } },
+  })
+    .png()
+    .toBuffer();
+  const exifVertical = await sharp({
+    create: { width: 1600, height: 800, channels: 3, background: { r: 30, g: 30, b: 220 } },
+  })
+    .composite([{ input: leftRed, left: 0, top: 0 }])
+    .withMetadata({ orientation: 6 })
+    .jpeg({ quality: 92 })
+    .toBuffer();
+
+  // 사용자가 수집함에서 180도 수동 회전한 경우 -> Vision JPEG는 위 파랑/아래 빨강으로 정방향 전송되어야 함
+  const vision = await createAiVisionJpeg(exifVertical, 1080, 180);
+  const visionMeta = await sharp(vision.buffer).metadata();
+  assert.equal(visionMeta.width, 540);
+  assert.equal(visionMeta.height, 1080);
+  assert.ok(vision.meanLum > 0 && vision.meanLum < 255);
+
+  const visionRaw = await sharp(vision.buffer).raw().toBuffer({ resolveWithObject: true });
+  const topMidIdx = (200 * visionRaw.info.width + Math.floor(visionRaw.info.width / 2)) * 3;
+  // 위쪽이 파랑(B > R)인지 검증
+  assert.ok(
+    visionRaw.data[topMidIdx + 2] > visionRaw.data[topMidIdx] + 100,
+    "180도 수동 회전이 Vision JPEG에 선적용되어 상단이 파랑이어야 함"
+  );
+
+  // 최종 WebP 단일 패스 변환 (수동 회전 180도, AI 추가 회전 0도 -> boxRotateDegrees=0)
+  const webpRes = await processTelegramOriginalToProductWebp({
+    inputBuffer: exifVertical,
+    rotateDegrees: 180,
+    boxRotateDegrees: 0,
+    precomputedMeanLum: vision.meanLum,
+    crop: {
+      index: 1,
+      role: "product",
+      box_2d: [100, 150, 900, 850],
+    },
+    maxEdge: 1440,
+  });
+
+  assert.equal(webpRes.mimeType, "image/webp");
+  assert.equal(webpRes.cropped, true);
+  const outMeta = await sharp(webpRes.buffer).metadata();
+  assert.ok((outMeta.width ?? 0) <= 1440 && (outMeta.height ?? 0) <= 1440);
+  assert.equal(outMeta.width, outMeta.height, "세로형 제품 크롭은 1:1 스튜디오 정사각 패딩 적용");
+});
+

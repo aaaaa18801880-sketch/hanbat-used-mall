@@ -69,6 +69,86 @@ const UNGROUPED_TIME_GAP_MS = 3 * 60 * 1000;
 export const TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT = 2;
 export const TELEGRAM_MAX_PHOTOS_PER_PRODUCT = 3;
 
+export type QuarterTurnDegrees = 0 | 90 | 180 | 270;
+
+/**
+ * 임의의 회전 각도 입력을 안전한 90도 단위(0 | 90 | 180 | 270)로 정규화합니다.
+ */
+export function normalizeQuarterTurnDegrees(raw: unknown): QuarterTurnDegrees {
+  const num = typeof raw === "number" ? raw : Number(raw);
+  if (!Number.isFinite(num)) return 0;
+  const snapped = ((Math.round(num / 90) * 90) % 360 + 360) % 360;
+  if (snapped === 90 || snapped === 180 || snapped === 270) {
+    return snapped;
+  }
+  return 0;
+}
+
+/**
+ * 현재 회전 각도에서 90/-90/180도만큼 회전한 다음 각도를 계산합니다.
+ */
+export function stepQuarterTurnDegrees(
+  current: unknown,
+  delta: 90 | -90 | 180 = 90
+): QuarterTurnDegrees {
+  return normalizeQuarterTurnDegrees(normalizeQuarterTurnDegrees(current) + delta);
+}
+
+/**
+ * 클라이언트/요청 바디에서 넘어온 photoId -> 회전 각도 맵을 화이트리스트 검증합니다.
+ */
+export function sanitizeManualRotationMap(
+  raw: unknown,
+  allowedIds?: readonly string[]
+): Record<string, QuarterTurnDegrees> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    return {};
+  }
+  const allowSet = allowedIds ? new Set(allowedIds) : null;
+  const result: Record<string, QuarterTurnDegrees> = {};
+
+  for (const [key, val] of Object.entries(raw as Record<string, unknown>)) {
+    const id = key.trim();
+    if (!id || id.length > 64) continue;
+    if (allowSet && !allowSet.has(id)) continue;
+    const deg = normalizeQuarterTurnDegrees(val);
+    if (deg !== 0) {
+      result[id] = deg;
+    }
+  }
+  return result;
+}
+
+/**
+ * 수집함 수동 회전과 AI 판정 회전을 안전하게 조합합니다.
+ * - 사용자가 수동 회전을 지정한 사진은 AI 판독 전에 미리 정방향으로 회전(preAiDeg)시키고,
+ *   이후 AI의 추가 회전 추측은 무시(postAiDeg = 0)해 이중 회전이나 오판을 원천 차단합니다.
+ * - 사용자가 회전하지 않은 사진(0도)은 AI가 감지한 회전 각도(postAiDeg)만 적용합니다.
+ */
+export function resolvePhotoCommitRotations(params: {
+  manualDeg?: unknown;
+  aiDeg?: unknown;
+}): {
+  preAiDeg: QuarterTurnDegrees;
+  postAiDeg: QuarterTurnDegrees;
+  totalDeg: QuarterTurnDegrees;
+} {
+  const preAiDeg = normalizeQuarterTurnDegrees(params.manualDeg);
+  if (preAiDeg !== 0) {
+    return {
+      preAiDeg,
+      postAiDeg: 0,
+      totalDeg: preAiDeg,
+    };
+  }
+  const postAiDeg = normalizeQuarterTurnDegrees(params.aiDeg);
+  return {
+    preAiDeg: 0,
+    postAiDeg,
+    totalDeg: postAiDeg,
+  };
+}
+
 function createSyntheticGroupKey(seed: string, idx: number): string {
   const safeSeed = seed.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 12) || "tg";
   return `grp_${safeSeed}_${idx}`;
