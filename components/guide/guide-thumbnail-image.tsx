@@ -1,7 +1,7 @@
 // 파일 경로: components/guide/guide-thumbnail-image.tsx
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import Image, { type ImageLoader } from "next/image";
 import {
   MAX_GUIDE_IMAGE_RETRY_STEP,
@@ -46,7 +46,7 @@ export function GuideThumbnailImage({
     src,
     step: 0,
   });
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const checkedNodeRef = useRef<HTMLImageElement | null>(null);
 
   const currentStep = retryState.src === src ? retryState.step : 0;
   const attempt = resolveGuideImageAttempt(currentStep, baseQuality);
@@ -61,18 +61,21 @@ export function GuideThumbnailImage({
     });
   }, [src]);
 
-  // SSR HTML 단계(하이드레이션 이전)에 이미 깨진 상태로 완료된 <img>를 마운트 직후 안전하게 감지·복구
-  useEffect(() => {
-    const node = imgRef.current;
-    if (
-      node &&
-      node.complete &&
-      node.naturalWidth === 0 &&
-      currentStep < MAX_GUIDE_IMAGE_RETRY_STEP
-    ) {
-      advanceRetry();
-    }
-  }, [advanceRetry, currentStep, src]);
+  // SSR HTML 단계(하이드레이션 이전)에 이미 깨진 상태로 완료된 <img>를 마운트 즉시 감지·복구
+  const handleImgRef = useCallback(
+    (node: HTMLImageElement | null) => {
+      if (!node || checkedNodeRef.current === node) return;
+      checkedNodeRef.current = node;
+      if (
+        node.complete &&
+        node.naturalWidth === 0 &&
+        currentStep < MAX_GUIDE_IMAGE_RETRY_STEP
+      ) {
+        advanceRetry();
+      }
+    },
+    [advanceRetry, currentStep],
+  );
 
   const sharedProps = {
     src,
@@ -83,7 +86,7 @@ export function GuideThumbnailImage({
     referrerPolicy: "no-referrer" as const,
     className,
     onError: advanceRetry,
-    ref: imgRef,
+    ref: handleImgRef,
     ...(attempt.mode === "direct" ? { loader: directStaticLoader } : {}),
   };
 

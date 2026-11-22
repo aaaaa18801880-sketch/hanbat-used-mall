@@ -316,7 +316,7 @@ export default async function GuideDetailPage({
         <div className="mx-auto w-full max-w-[1080px] px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_292px] gap-10 lg:gap-12 items-start">
           {/* 왼쪽 본문 컬럼 (가독성 높은 화이트 에디토리얼 시트) */}
           <article className="min-w-0 max-w-[68ch] space-y-9 rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-8 shadow-2xs">
-            <figure className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] overflow-hidden">
+            <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] overflow-hidden">
               <GuideThumbnailImage
                 src={resolvedThumb.src}
                 alt={resolvedThumb.alt}
@@ -328,15 +328,7 @@ export default async function GuideDetailPage({
                 loading="eager"
                 className="w-full aspect-video object-cover block"
               />
-              <figcaption className="px-4 py-2.5 text-hb-xs text-[#475569] border-t border-[#E2DDD3] flex flex-wrap items-center justify-between gap-2 leading-relaxed">
-                <span>
-                  {article.heroImage?.caption || resolvedThumb.alt}
-                </span>
-                <span className="text-[#64748B] font-semibold shrink-0">
-                  ※ 이해를 돕기 위한 참고 이미지입니다.
-                </span>
-              </figcaption>
-            </figure>
+            </div>
 
             {/* 핵심 기준 3가지 (Warm Editorial Stone 요약 카드) */}
             {article.keyPoints.length > 0 && (
