@@ -91,7 +91,7 @@ function GuideCard({
         href={`/guide/${article.slug}`}
         className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
-        {/* 16:9 게시글별 고유 실사 메인 이미지 */}
+        {/* 16:9 게시글별 고유 메인 이미지 */}
         <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
           <Image
             src={article.thumbnailSrc}
@@ -100,12 +100,12 @@ function GuideCard({
             priority={eager}
             loading={eager ? "eager" : undefined}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
-            quality={85}
+            quality={90}
             referrerPolicy="no-referrer"
             className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
           />
           <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/65 via-transparent to-transparent"
+            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/15 via-transparent to-transparent"
             aria-hidden="true"
           />
 
@@ -196,7 +196,7 @@ function FeaturedGuide({
           priority
           loading="eager"
           sizes="(max-width: 640px) 100vw, 380px"
-          quality={85}
+          quality={90}
           referrerPolicy="no-referrer"
           className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
         />
@@ -885,7 +885,7 @@ export function GuideBoardClient({
                         alt={article.thumbnailAlt}
                         fill
                         sizes="64px"
-                        quality={80}
+                        quality={85}
                         referrerPolicy="no-referrer"
                         className="object-cover object-center transition-transform duration-200 group-hover:scale-105"
                       />

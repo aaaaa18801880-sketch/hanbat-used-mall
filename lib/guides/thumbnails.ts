@@ -1,5 +1,5 @@
 // 파일 경로: lib/guides/thumbnails.ts
-// 정보 게시판 69편 전체에 게시글별 고유 실사 메인 이미지를 1:1 매핑하는 결정론적 헬퍼
+// 정보 게시판 69편 전체에 게시글 주제별 고유 메인 이미지를 1:1 매핑하는 결정론적 헬퍼
 
 import type { InfoGuideCategory, InfoGuideHeroImage } from "./types";
 
@@ -55,7 +55,7 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "why-no-outdoor-unit-on-walkway-defrost": {
     src: "/images/guide/photos/why-no-outdoor-unit-on-walkway-defrost.jpg",
-    alt: "겨울철 눈과 성에가 쌓인 야외 에어컨 실외기 현장 실사 사진",
+    alt: "겨울철 실외기 제상수 배출과 통행로 결빙 위험을 안내하는 현장 도해 이미지",
   },
   "fixed-speed-vs-inverter-aircon": {
     src: "/images/guide/photos/fixed-speed-vs-inverter-aircon.jpg",
@@ -79,19 +79,19 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "commercial-icemaker-not-freezing-causes": {
     src: "/images/guide/photos/commercial-icemaker-not-freezing-causes.jpg",
-    alt: "업소용 제빙기 얼음 생성 상태와 저장고를 확인하는 현장 실사 사진",
+    alt: "카페 바에 설치된 업소용 제빙기 급수·배수 및 방열 점검 안내 이미지",
   },
   "commercial-dishwasher-3-essentials": {
     src: "/images/guide/photos/commercial-dishwasher-3-essentials.jpg",
-    alt: "업소용 주방 스테인리스 식기세척기 설치 및 세척 공간 실사 사진",
+    alt: "업소용 주방 스테인리스 식기세척기와 주방 설비 매장 전시 실사 사진",
   },
   "aircon-refrigerant-annual-recharge-myth": {
     src: "/images/guide/photos/aircon-refrigerant-annual-recharge-myth.jpg",
-    alt: "에어컨 냉매 압력과 누설 여부를 계측기로 점검하는 현장 실사 사진",
+    alt: "에어컨 냉매 밀폐 순환 회로와 매니폴드 게이지 누설 점검 도해 이미지",
   },
   "aircon-pyeong-sizing-cafe-restaurant": {
     src: "/images/guide/photos/aircon-pyeong-sizing-cafe-restaurant.jpg",
-    alt: "넓은 창과 테이블이 배치된 국내 카페·음식점 매장 홀 실사 사진",
+    alt: "실평수 20평 기준 사무실·카페·음식점·고깃집별 권장 에어컨 평형 비교 도해 이미지",
   },
   "heat-pump-vs-heater-dryer-used-tips": {
     src: "/images/guide/photos/heat-pump-vs-heater-dryer-used-tips.jpg",
@@ -103,75 +103,75 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "inverter-aircon-24h-on-vs-off-electricity": {
     src: "/images/guide/photos/inverter-aircon-24h-on-vs-off-electricity.jpg",
-    alt: "에어컨 설정 온도와 운전 모드를 확인하는 벽면 컨트롤러 실사 사진",
+    alt: "인버터 에어컨 껐다 켰다 반복 운전과 연속 유지 운전의 소비전력 비교 그래프 도해 이미지",
   },
   "aircon-indoor-water-leak-causes": {
     src: "/images/guide/photos/aircon-indoor-water-leak-causes.jpg",
-    alt: "벽걸이 에어컨 실내기 전면 송풍구와 드레인 점검 부위 실사 사진",
+    alt: "에어컨 실내기 드레인 호스 막힘과 물 떨어짐 점검 부위 안내 이미지",
   },
   "aircon-pipe-reuse-aluminum-vs-copper": {
     src: "/images/guide/photos/aircon-pipe-reuse-aluminum-vs-copper.jpg",
-    alt: "에어컨 냉매 배관에 사용되는 동배관과 체결 부위 근접 실사 사진",
+    alt: "에어컨 동배관과 알루미늄 배관의 재사용 가능 여부를 비교한 안내 이미지",
   },
   "commercial-showcase-and-topping-fridge": {
     src: "/images/guide/photos/commercial-showcase-and-topping-fridge.jpg",
-    alt: "매장에 설치된 업소용 유리 도어 냉장 쇼케이스 진열 실사 사진",
+    alt: "매장에 진열된 업소용 유리 도어 냉장 쇼케이스 전시 실사 사진",
   },
   "resale-value-commercial-appliances": {
     src: "/images/guide/photos/resale-value-commercial-appliances.jpg",
-    alt: "스테인리스 주방 작업대와 업소용 조리 설비가 정돈된 식당 주방 실사 사진",
+    alt: "업소용 주방 가전의 중고 재판매 가치와 브랜드·규격 기준 안내 이미지",
   },
   "energy-efficiency-rating-myth-and-kwh": {
     src: "/images/guide/photos/energy-efficiency-rating-myth-and-kwh.jpg",
-    alt: "실제 소비전력량(kWh)을 측정하는 디지털 전력량계 실사 사진",
+    alt: "에너지소비효율등급 라벨과 실제 월간 소비전력량(kWh) 비교 안내 이미지",
   },
   "aircon-single-large-vs-multi-split": {
     src: "/images/guide/photos/aircon-single-large-vs-multi-split.jpg",
-    alt: "상가 외벽에 여러 대의 에어컨 실외기가 병렬 배치된 현장 실사 사진",
+    alt: "대형 에어컨 1대 단독 설치와 중형 2대 분산 배치의 기류·전압 비교 도해 이미지",
   },
   "commercial-induction-plug-vs-breaker": {
     src: "/images/guide/photos/commercial-induction-plug-vs-breaker.jpg",
-    alt: "고출력 인덕션 화구에서 조리가 진행 중인 주방 설비 실사 사진",
+    alt: "업소용 인덕션 일반 16A 콘센트 위험과 30A~40A 전용 차단기 직결 비교 도해 이미지",
   },
   "cafe-plumbing-drain-checklist": {
     src: "/images/guide/photos/cafe-plumbing-drain-checklist.jpg",
-    alt: "싱크대 하부에 연결된 직수 정수 필터와 급배수 배관 실사 사진",
+    alt: "카페 주방 직수 분기·정수필터·제빙기 배수 구배 사전 체크리스트 도해 이미지",
   },
   "commercial-fridge-repair-vs-replace": {
     src: "/images/guide/photos/commercial-fridge-repair-vs-replace.jpg",
-    alt: "냉장고 기계실 핵심 부품인 밀폐형 컴프레서 근접 실사 사진",
+    alt: "업소용 냉장고 소모품 수리 구간과 콤프레샤·누설 중고 교체 손익분기 비교 도해 이미지",
   },
   "aircon-relocation-cost-variables": {
     src: "/images/guide/photos/aircon-relocation-cost-variables.jpg",
-    alt: "건물 외벽에 설치된 다수의 에어컨 실외기와 배관 시공 현장 실사 사진",
+    alt: "에어컨 이전설치 시 배관 연장·앵글·매립배관 용접·냉매 충전 4대 추가비 변수 도해 이미지",
   },
   "neutral-wire-risk-and-licensed-electrician": {
     src: "/images/guide/photos/neutral-wire-risk-and-licensed-electrician.jpg",
-    alt: "전선관과 전력 배선이 분기되어 시공된 전기 설비 현장 실사 사진",
+    alt: "삼상 4선식 중성선(N선) 단선 시 220V 가전 380V 과전압 유입 경고 도해 이미지",
   },
   "elb-vs-mccb-breaker-trip-check": {
     src: "/images/guide/photos/elb-vs-mccb-breaker-trip-check.jpg",
-    alt: "누전차단기와 배선용차단기가 배열된 배전반 내부 실사 사진",
+    alt: "시험 버튼 유무로 구분하는 누전차단기(ELB)와 배선용차단기(MCCB) 비교 도해 이미지",
   },
   "oled-vs-qled-led-used-tv-guide": {
     src: "/images/guide/photos/oled-vs-qled-led-used-tv-guide.jpg",
-    alt: "선명한 화질과 얇은 베젤을 확인할 수 있는 대형 OLED TV 실사 사진",
+    alt: "중고 TV 구매 전 OLED 번인 잔상과 QLED·LED 백라이트 멍 확인법 비교 도해 이미지",
   },
   "commercial-fridge-condenser-cleaning": {
     src: "/images/guide/photos/commercial-fridge-condenser-cleaning.jpg",
-    alt: "방열핀과 응축기 코일 상태를 점검하는 냉동·공조 열교환기 실사 사진",
+    alt: "업소용 냉장고 하단 기계실 응축기(방열판) 먼지 막힘과 청소 전후 비교 도해 이미지",
   },
   "outdoor-unit-louver-ventilation-fire": {
     src: "/images/guide/photos/outdoor-unit-louver-ventilation-fire.jpg",
-    alt: "건물 발코니와 실외기 공간에 설치된 에어컨 실외기 통풍 현장 실사 사진",
+    alt: "아파트 실외기실 루버창 닫힘 시 열기 재흡입 위험과 수평 완전 개방 비교 도해 이미지",
   },
   "aircon-removal-pump-down-piping": {
     src: "/images/guide/photos/aircon-removal-pump-down-piping.jpg",
-    alt: "에어컨 철거·이전 시 점검하는 냉매 배관과 밸브 연결부 실사 사진",
+    alt: "에어컨 철거 시 펌프다운 냉매 회수와 동배관 끝단 밀폐 테이핑 2단계 도해 이미지",
   },
   "wash-tower-all-in-one-vs-separate-cleaning": {
     src: "/images/guide/photos/wash-tower-all-in-one-vs-separate-cleaning.jpg",
-    alt: "세탁기와 건조기가 나란히·상하로 배치된 세탁 공간 실사 사진",
+    alt: "워시타워 직렬 배치와 세탁기·건조기 단독 병렬 배치의 수리·내림비 비교 도해 이미지",
   },
   "free-waste-pickup-15990903-vs-used-buyback": {
     src: "/images/guide/photos/free-waste-pickup-15990903-vs-used-buyback.jpg",
@@ -179,111 +179,111 @@ const SLUG_THUMBNAIL_MAP: Record<string, ResolvedGuideThumbnail> = {
   },
   "store-takeover-appliances-power-checklist": {
     src: "/images/guide/photos/store-takeover-appliances-power-checklist.jpg",
-    alt: "에스프레소 머신과 바 카운터 설비가 갖춰진 카페 매장 실사 사진",
+    alt: "상가 인수 전 분전함 차단기 용량과 기존 주방 설비 점검 안내 이미지",
   },
   "winter-heating-heatpump-vs-electric-heater": {
     src: "/images/guide/photos/winter-heating-heatpump-vs-electric-heater.jpg",
-    alt: "겨울철 실내 난방용 세라믹 전기히터 작동 모습 실사 사진",
+    alt: "인버터 냉난방기(COP 300%+)와 전기온풍기(100%) 겨울 난방 효율·전기세 비교 도해 이미지",
   },
   "aircon-2in1-vs-two-singles-home": {
     src: "/images/guide/photos/aircon-2in1-vs-two-singles-home.jpg",
-    alt: "가정용 스탠드형과 벽걸이형 2in1 멀티 에어컨 구성 실사 사진",
+    alt: "가정용 스탠드·벽걸이 에어컨 전시장 진열 실사 사진",
   },
   "commercial-gas-vs-induction-kitchen-setup": {
     src: "/images/guide/photos/commercial-gas-vs-induction-kitchen-setup.jpg",
-    alt: "업소용 주방에 설치된 상업용 가스 레인지와 조리 화구 실사 사진",
+    alt: "업소용 가스 화구와 전기 인덕션의 화력·전기 승압·주방 열기 비교 도해 이미지",
   },
   "commercial-gas-grill-lpg-vs-lng-nozzle": {
     src: "/images/guide/photos/commercial-gas-grill-lpg-vs-lng-nozzle.jpg",
-    alt: "가스 버너 노즐에서 파란 불꽃이 균일하게 연소되는 실사 사진",
+    alt: "업소용 가스기구 도시가스(LNG)와 LPG 노즐 구경 차이 및 오연결 경고 도해 이미지",
   },
   "winter-freeze-icemaker-dishwasher-heater": {
     src: "/images/guide/photos/winter-freeze-icemaker-dishwasher-heater.jpg",
-    alt: "겨울 한파에 배관과 수전 주변으로 고드름과 결빙이 생긴 현장 실사 사진",
+    alt: "겨울 한파 대비 제빙기·식기세척기·온수기 잔수 제거 및 동파 예방 3단계 도해 이미지",
   },
   "freezer-defrost-knife-puncture-risk": {
     src: "/images/guide/photos/freezer-defrost-knife-puncture-risk.jpg",
-    alt: "냉동실 내부 선반에 성에와 얼음이 형성된 가정용 냉동고 실사 사진",
+    alt: "직냉식 냉동고 칼·송곳 성에 제거 시 매립 냉매관 천공 경고와 안전 제상법 도해 이미지",
   },
   "fridge-kitchen-fit-vs-freestanding-clearance": {
     src: "/images/guide/photos/fridge-kitchen-fit-vs-freestanding-clearance.jpg",
-    alt: "주방 수납장 라인에 맞춰 배치된 빌트인·스테인리스 냉장고 실사 사진",
+    alt: "키친핏(700mm)과 프리스탠딩(850mm+) 냉장고장 깊이·방열 여유 비교 도해 이미지",
   },
   "cable-reel-power-strip-tracking-fire": {
     src: "/images/guide/photos/cable-reel-power-strip-tracking-fire.jpg",
-    alt: "여러 가전 플러그가 연결되는 멀티탭과 전원 배선 실사 사진",
+    alt: "감긴 전선 릴 과열과 멀티탭 16A(2,800W) 초과·트래킹 화재 예방 도해 이미지",
   },
   "compressor-appliance-clearance-heat-dissipation": {
     src: "/images/guide/photos/compressor-appliance-clearance-heat-dissipation.jpg",
-    alt: "냉장고 후면 방열 코일과 컴프레서 통풍 공간 실사 사진",
+    alt: "냉장고·제빙기·실외기 등 컴프레서 가전의 벽면 최소 방열 이격 거리 도해 이미지",
   },
   "used-appliance-nameplate-lifespan-guide": {
     src: "/images/guide/photos/used-appliance-nameplate-lifespan-guide.jpg",
-    alt: "냉장고 본체에 부착된 제조년월·정격 사양 명판 라벨 근접 실사 사진",
+    alt: "중고 가전 본체 정격 명판 제조년월 읽는 법과 공정위 부품 보유기간 기준 도해 이미지",
   },
   "aircon-refrigerant-r22-r410a-r32-guide": {
     src: "/images/guide/photos/aircon-refrigerant-r22-r410a-r32-guide.jpg",
-    alt: "R-410A 등 공조 냉매가 적용된 공랭식 에어컨·냉동기 설비 실사 사진",
+    alt: "에어컨 냉매 R-22·R-410A·R-32 3세대 실린더와 규제·비용 비교 도해 이미지",
   },
   "commercial-fryer-gas-vs-electric-k-class": {
     src: "/images/guide/photos/commercial-fryer-gas-vs-electric-k-class.jpg",
-    alt: "식당 주방용 스테인리스 업소용 튀김기와 튀김 바스켓 실사 사진",
+    alt: "업소용 가스식·전기식 튀김기 비교와 주방 K급 소화기 비치 의무 도해 이미지",
   },
   "kitchen-hood-duct-sirocco-vs-inline-fan": {
     src: "/images/guide/photos/kitchen-hood-duct-sirocco-vs-inline-fan.jpg",
-    alt: "식당 주방 배기 후드 필터의 기름때 관리 상태를 보여주는 실사 사진",
+    alt: "식당 주방 배기 시로코팬과 인라인팬의 정압·덕트 길이별 선정 비교 도해 이미지",
   },
   "commercial-icemaker-air-vs-water-cooled": {
     src: "/images/guide/photos/commercial-icemaker-air-vs-water-cooled.jpg",
-    alt: "매장 주방용 스테인리스 업소용 제빙기와 전면 통풍구 실사 사진",
+    alt: "업소용 제빙기 공랭식 방열 관리와 내부 청소 점검 부위 안내 이미지",
   },
   "cooling-only-vs-heat-pump-nameplate": {
     src: "/images/guide/photos/cooling-only-vs-heat-pump-nameplate.jpg",
-    alt: "현장 점검 기사가 냉난방 겸용 시스템 에어컨 작동 상태와 사양을 확인하는 실사 사진",
+    alt: "냉방전용 에어컨과 냉난방기(히트펌프) 제품 명판의 난방능력 표기 5초 구분 도해 이미지",
   },
   "commercial-water-heater-instant-vs-storage": {
     src: "/images/guide/photos/commercial-water-heater-instant-vs-storage.jpg",
-    alt: "주방·매장 온수 공급용 저장식 전기온수기 탱크와 배관 실사 사진",
+    alt: "업소용 전기 순간온수기와 저장식 30~100L 온수기의 전력·밸브 관리 비교 도해 이미지",
   },
   "fridge-washer-gasket-mold-cleaning-safety": {
     src: "/images/guide/photos/fridge-washer-gasket-mold-cleaning-safety.jpg",
-    alt: "드럼 세탁기 투입구 고무패킹(가스켓)과 도어 밀착부 실사 사진",
+    alt: "냉장고 고무패킹 A4 용지 밀착 테스트와 드럼세탁기 곰팡이 안전 세척 도해 이미지",
   },
   "villa-old-house-drilling-angle-3kw": {
     src: "/images/guide/photos/villa-old-house-drilling-angle-3kw.jpg",
-    alt: "콘크리트 벽면 에어컨 배관 타공용 다이아몬드 코어 드릴 실사 사진",
+    alt: "빌라·구옥 에어컨 설치 전 외벽 코어 타공·실외기 앵글·주택 3kW 전기 한계 3대 점검 도해 이미지",
   },
   "store-lease-restoration-removal-dispute": {
     src: "/images/guide/photos/store-lease-restoration-removal-dispute.jpg",
-    alt: "설비 철거와 원상복구가 진행 중인 공실 상가 내부 실사 사진",
+    alt: "상가 퇴거 시 에어컨 타공·주방 덕트·전기 승압 원상복구 분쟁 예방 체크 도해 이미지",
   },
   "aircon-thin-copper-pipe-risks": {
     src: "/images/guide/photos/aircon-thin-copper-pipe-risks.jpg",
-    alt: "에어컨 시공용 동배관 코일과 두께 마감 상태를 보여주는 실사 사진",
+    alt: "에어컨 0.6mm 박육관과 0.8mm 이상 KS 정품 동배관의 단면 두께·내구성 비교 도해 이미지",
   },
   "aircon-pipe-length-and-refrigerant": {
     src: "/images/guide/photos/aircon-pipe-length-and-refrigerant.jpg",
-    alt: "기계실과 천장을 따라 길게 시공된 공조 배관 라인 실사 사진",
+    alt: "에어컨 배관 최소 3m·표준 5m·장배관 연장 시 정량 냉매 보충 구간 기준 도해 이미지",
   },
   "aircon-insulation-thickness-condensation": {
     src: "/images/guide/photos/aircon-insulation-thickness-condensation.jpg",
-    alt: "결로 방지를 위해 발포 보온재로 감싼 공조 배관 마감 실사 사진",
+    alt: "에어컨 배관 보온재 두께 부족으로 인한 결로 및 누수 예방 안내 이미지",
   },
   "aircon-refrigerant-r32-r410a-r454b-guide": {
     src: "/images/guide/photos/aircon-refrigerant-r32-r410a-r454b-guide.jpg",
-    alt: "에어컨 실외기 내부 컴프레서와 냉매 순환 계통 실사 사진",
+    alt: "차세대 에어컨 냉매 R-410A·R-32·R-454B 지구온난화지수(GWP) 비교 도해 이미지",
   },
   "aircon-refrigerant-recovery-and-leak-check": {
     src: "/images/guide/photos/aircon-refrigerant-recovery-and-leak-check.jpg",
-    alt: "공조 기사가 에어컨 실외기 배관과 냉매 회수를 점검하는 실사 사진",
+    alt: "에어컨 철거 시 펌프다운 냉매 회수부터 진공·기밀 점검까지 3단계 공정 도해 이미지",
   },
   "aircon-refrigerant-recharge-cost-and-leak-first": {
     src: "/images/guide/photos/aircon-refrigerant-recharge-cost-and-leak-first.jpg",
-    alt: "에어컨 실외기 냉매 누설 부위와 서비스 밸브를 확인하는 실사 사진",
+    alt: "에어컨 냉매 충전 전 플레어 너트·서비스밸브·열교환기 3대 누설 부위 우선 점검 도해 이미지",
   },
   "commercial-aircon-refrigerant-management-guide": {
     src: "/images/guide/photos/commercial-aircon-refrigerant-management-guide.jpg",
-    alt: "상업용 건물 옥상에 설치된 중대형 시스템 에어컨 실외기 실사 사진",
+    alt: "업소용·중대형 시스템 에어컨의 배관 정량 관리·R-32 환기·사전 시운전 4대 기준 도해 이미지",
   },
 };
 

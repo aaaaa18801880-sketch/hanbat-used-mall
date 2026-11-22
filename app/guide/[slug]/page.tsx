@@ -322,7 +322,7 @@ export default async function GuideDetailPage({
                 width={1280}
                 height={720}
                 sizes="(max-width: 1024px) 100vw, 760px"
-                quality={85}
+                quality={90}
                 priority
                 loading="eager"
                 referrerPolicy="no-referrer"
@@ -333,7 +333,7 @@ export default async function GuideDetailPage({
                   {article.heroImage?.caption || resolvedThumb.alt}
                 </span>
                 <span className="text-[#64748B] font-semibold shrink-0">
-                  ※ 이해를 돕기 위한 참고 사진입니다.
+                  ※ 이해를 돕기 위한 참고 이미지입니다.
                 </span>
               </figcaption>
             </figure>
