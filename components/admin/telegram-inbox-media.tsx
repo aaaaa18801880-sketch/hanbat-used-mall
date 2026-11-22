@@ -9,7 +9,7 @@ import {
   type TelegramInboxPhoto,
 } from "../../lib/telegram-inbox";
 
-/** 동시에 너무 많은 텔레그램 프록시 요청이 몰리지 않도록 최대 4개 동시 로드로 제한 */
+/** 동시에 너무 많은 텔레그램 프록시 요청이 몰리지 않도록 최대 8개 동시 로드로 병렬화 */
 function createConcurrencyLimiter(limit: number) {
   let active = 0;
   const waiters: Array<() => void> = [];
@@ -29,7 +29,74 @@ function createConcurrencyLimiter(limit: number) {
   };
 }
 
-const enqueueThumbLoad = createConcurrencyLimiter(4);
+const enqueueThumbLoad = createConcurrencyLimiter(8);
+
+export interface TelegramThumbStore {
+  getUrl: (photoId: string) => string | undefined;
+  setUrl: (photoId: string, url: string) => void;
+  revoke: (photoId: string) => void;
+  revokeAll: () => void;
+  getAuthHeaders: () => Promise<Record<string, string>>;
+}
+
+/**
+ * 수집함 탭 수명 동안 썸네일 Blob URL과 인증 헤더를 메모리 캐시로 유지합니다.
+ * - 묶음 분할/합치기/페이지 이동으로 카드가 재마운트되어도 이미 받아둔 썸네일을 재다운로드하지 않습니다.
+ */
+export function createTelegramThumbStore(): TelegramThumbStore {
+  const urlMap = new Map<string, string>();
+  let cachedHeaders: Record<string, string> | null = null;
+  let headersExpiresAt = 0;
+  let inflightHeaders: Promise<Record<string, string>> | null = null;
+  let disposed = false;
+
+  return {
+    getUrl: (photoId) => urlMap.get(photoId),
+    setUrl: (photoId, nextUrl) => {
+      if (disposed) {
+        URL.revokeObjectURL(nextUrl);
+        return;
+      }
+      const prev = urlMap.get(photoId);
+      if (prev && prev !== nextUrl) {
+        URL.revokeObjectURL(prev);
+      }
+      urlMap.set(photoId, nextUrl);
+    },
+    revoke: (photoId) => {
+      const prev = urlMap.get(photoId);
+      if (prev) {
+        URL.revokeObjectURL(prev);
+        urlMap.delete(photoId);
+      }
+    },
+    revokeAll: () => {
+      disposed = true;
+      for (const url of urlMap.values()) {
+        URL.revokeObjectURL(url);
+      }
+      urlMap.clear();
+    },
+    getAuthHeaders: async () => {
+      const now = Date.now();
+      if (cachedHeaders && now < headersExpiresAt) {
+        return cachedHeaders;
+      }
+      if (!inflightHeaders) {
+        inflightHeaders = getAdminAuthHeaders()
+          .then((h) => {
+            cachedHeaders = h;
+            headersExpiresAt = Date.now() + 25_000;
+            return h;
+          })
+          .finally(() => {
+            inflightHeaders = null;
+          });
+      }
+      return inflightHeaders;
+    },
+  };
+}
 
 function formatPhotoTime(iso: string): string {
   const date = new Date(iso);
@@ -45,6 +112,7 @@ interface TelegramThumbTileProps {
   photo: TelegramInboxPhoto;
   indexInGroup: number;
   disabled: boolean;
+  thumbStore: TelegramThumbStore;
   onInspectFull: (photo: TelegramInboxPhoto) => void;
   onSplitBefore: (photoId: string) => void;
   onDiscard: (photoId: string) => void;
@@ -52,25 +120,29 @@ interface TelegramThumbTileProps {
 
 /**
  * 텔레그램 수집함 개별 사진 타일
- * - /_next/image를 거치지 않고 관리자 Bearer 인증 프록시(320px WebP)에서 Blob URL만 지연 로드합니다.
+ * - /_next/image를 거치지 않고 관리자 Bearer 인증 프록시(320px 썸네일)에서 Blob URL만 지연 로드·캐시합니다.
  */
 export function TelegramThumbTile({
   photo,
   indexInGroup,
   disabled,
+  thumbStore,
   onInspectFull,
   onSplitBefore,
   onDiscard,
 }: TelegramThumbTileProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const blobUrlRef = useRef<string | null>(null);
-  const [inView, setInView] = useState(false);
-  const [thumbUrl, setThumbUrl] = useState<string | null>(null);
+  const [thumbUrl, setThumbUrl] = useState<string | null>(
+    () => thumbStore.getUrl(photo.id) ?? null
+  );
+  const [inView, setInView] = useState(() =>
+    Boolean(thumbStore.getUrl(photo.id))
+  );
   const [loadFailed, setLoadFailed] = useState(false);
   const [reloadSeq, setReloadSeq] = useState(0);
 
   useEffect(() => {
-    if (inView) return;
+    if (inView || thumbUrl) return;
     const node = containerRef.current;
     if (!node) return;
     if (typeof IntersectionObserver === "undefined") {
@@ -90,20 +162,26 @@ export function TelegramThumbTile({
           observer.disconnect();
         }
       },
-      { rootMargin: "280px" }
+      { rootMargin: "120px" }
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [inView]);
+  }, [inView, thumbUrl]);
 
   useEffect(() => {
-    if (!inView) return;
+    if (!inView || thumbUrl) return;
     let cancelled = false;
     const controller = new AbortController();
 
     void enqueueThumbLoad(async () => {
       if (cancelled) return;
-      const headers = await getAdminAuthHeaders();
+      const existing = thumbStore.getUrl(photo.id);
+      if (existing) {
+        setThumbUrl(existing);
+        return;
+      }
+
+      const headers = await thumbStore.getAuthHeaders();
       const res = await fetch(
         `/api/admin/telegram-inbox/image?id=${encodeURIComponent(photo.id)}&variant=thumb`,
         { headers, signal: controller.signal }
@@ -115,10 +193,7 @@ export function TelegramThumbTile({
       if (cancelled) return;
 
       const nextUrl = URL.createObjectURL(blob);
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current);
-      }
-      blobUrlRef.current = nextUrl;
+      thumbStore.setUrl(photo.id, nextUrl);
       setThumbUrl(nextUrl);
       setLoadFailed(false);
     }).catch(() => {
@@ -131,16 +206,7 @@ export function TelegramThumbTile({
       cancelled = true;
       controller.abort();
     };
-  }, [inView, photo.id, reloadSeq]);
-
-  useEffect(() => {
-    return () => {
-      if (blobUrlRef.current) {
-        URL.revokeObjectURL(blobUrlRef.current);
-        blobUrlRef.current = null;
-      }
-    };
-  }, []);
+  }, [inView, photo.id, reloadSeq, thumbStore, thumbUrl]);
 
   const isOverLimit = indexInGroup >= TELEGRAM_MAX_PHOTOS_PER_PRODUCT;
 

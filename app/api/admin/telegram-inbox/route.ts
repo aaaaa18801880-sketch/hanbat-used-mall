@@ -117,7 +117,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const updates = Array.isArray(body.updates) ? body.updates : [];
-  if (updates.length === 0 || updates.length > 350) {
+  if (updates.length === 0 || updates.length > 500) {
     return NextResponse.json(
       { error: "유효한 묶음 변경 내역이 필요합니다." },
       { status: 400 }
@@ -126,6 +126,13 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
+    const groupOnlyIdsByKey = new Map<string, string[]>();
+    const sortRowUpdates: Array<{
+      id: string;
+      group_key: string;
+      sort_order: number;
+    }> = [];
+
     for (const rawItem of updates) {
       if (!rawItem || typeof rawItem !== "object") continue;
       const item = rawItem as {
@@ -136,20 +143,56 @@ export async function PATCH(req: NextRequest) {
       const id = typeof item.id === "string" ? item.id.trim() : "";
       const groupKey =
         typeof item.group_key === "string" ? item.group_key.trim().slice(0, 80) : "";
-      const sortOrder =
-        typeof item.sort_order === "number" && Number.isFinite(item.sort_order)
-          ? Math.round(item.sort_order)
-          : 0;
       if (!id || !groupKey) continue;
 
-      const { error } = await supabase
-        .from("telegram_inbox_photos")
-        .update({ group_key: groupKey, sort_order: sortOrder })
-        .eq("id", id)
-        .eq("status", "pending");
+      if (
+        typeof item.sort_order === "number" &&
+        Number.isFinite(item.sort_order)
+      ) {
+        sortRowUpdates.push({
+          id,
+          group_key: groupKey,
+          sort_order: Math.round(item.sort_order),
+        });
+      } else {
+        const list = groupOnlyIdsByKey.get(groupKey) ?? [];
+        list.push(id);
+        groupOnlyIdsByKey.set(groupKey, list);
+      }
+    }
 
-      if (error) {
-        throw error;
+    // 1) group_key만 바뀐 변경(나누기/합치기/2장씩 묶기)은 그룹별 1회 `.in()` 쿼리로 병렬 일괄 반영
+    const groupEntries = Array.from(groupOnlyIdsByKey.entries());
+    for (let i = 0; i < groupEntries.length; i += 20) {
+      const slice = groupEntries.slice(i, i + 20);
+      const results = await Promise.all(
+        slice.map(([groupKey, ids]) =>
+          supabase
+            .from("telegram_inbox_photos")
+            .update({ group_key: groupKey })
+            .in("id", ids)
+            .eq("status", "pending")
+        )
+      );
+      for (const r of results) {
+        if (r.error) throw r.error;
+      }
+    }
+
+    // 2) sort_order까지 지정된 항목도 순차 루프 대신 병렬 배치 처리
+    for (let i = 0; i < sortRowUpdates.length; i += 20) {
+      const slice = sortRowUpdates.slice(i, i + 20);
+      const results = await Promise.all(
+        slice.map((row) =>
+          supabase
+            .from("telegram_inbox_photos")
+            .update({ group_key: row.group_key, sort_order: row.sort_order })
+            .eq("id", row.id)
+            .eq("status", "pending")
+        )
+      );
+      for (const r of results) {
+        if (r.error) throw r.error;
       }
     }
 

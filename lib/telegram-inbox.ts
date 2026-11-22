@@ -327,6 +327,11 @@ export function flattenGroupsToPersistenceUpdates(
   return updates;
 }
 
+export interface TelegramGroupKeyOnlyUpdate {
+  id: string;
+  group_key: string;
+}
+
 /**
  * 특정 사진 직전에서 그룹을 2개로 분할합니다.
  */
@@ -337,9 +342,11 @@ export function splitInboxGroupBeforePhoto(
 ): {
   groups: TelegramInboxGroup[];
   updates: TelegramGroupPersistenceUpdate[];
+  changedUpdates: TelegramGroupKeyOnlyUpdate[];
   changed: boolean;
 } {
   const nextGroups: TelegramInboxGroup[] = [];
+  const changedUpdates: TelegramGroupKeyOnlyUpdate[] = [];
   let changed = false;
 
   for (const group of groups) {
@@ -353,6 +360,15 @@ export function splitInboxGroupBeforePhoto(
     const headPhotos = group.photos.slice(0, idx);
     const tailPhotos = group.photos.slice(idx);
     const tailKey = `${group.groupKey.slice(0, 24)}_s${newKeySuffix}`;
+
+    for (const p of headPhotos) {
+      if ((p.group_key || "") !== group.groupKey) {
+        changedUpdates.push({ id: p.id, group_key: group.groupKey });
+      }
+    }
+    for (const p of tailPhotos) {
+      changedUpdates.push({ id: p.id, group_key: tailKey });
+    }
 
     nextGroups.push(
       finalizeGroupFromPhotos(
@@ -369,6 +385,7 @@ export function splitInboxGroupBeforePhoto(
   return {
     groups: nextGroups,
     updates: changed ? flattenGroupsToPersistenceUpdates(nextGroups) : [],
+    changedUpdates,
     changed,
   };
 }
@@ -382,14 +399,31 @@ export function mergeInboxGroupWithPrevious(
 ): {
   groups: TelegramInboxGroup[];
   updates: TelegramGroupPersistenceUpdate[];
+  changedUpdates: TelegramGroupKeyOnlyUpdate[];
   changed: boolean;
 } {
   if (groupIndex <= 0 || groupIndex >= groups.length) {
-    return { groups: [...groups], updates: [], changed: false };
+    return {
+      groups: [...groups],
+      updates: [],
+      changedUpdates: [],
+      changed: false,
+    };
   }
 
   const prev = groups[groupIndex - 1];
   const curr = groups[groupIndex];
+  const changedUpdates: TelegramGroupKeyOnlyUpdate[] = [];
+
+  for (const p of prev.photos) {
+    if ((p.group_key || "") !== prev.groupKey) {
+      changedUpdates.push({ id: p.id, group_key: prev.groupKey });
+    }
+  }
+  for (const p of curr.photos) {
+    changedUpdates.push({ id: p.id, group_key: prev.groupKey });
+  }
+
   const mergedPhotos = [...prev.photos, ...curr.photos].map((p) => ({
     ...p,
     group_key: prev.groupKey,
@@ -404,7 +438,45 @@ export function mergeInboxGroupWithPrevious(
   return {
     groups: nextGroups,
     updates: flattenGroupsToPersistenceUpdates(nextGroups),
+    changedUpdates,
     changed: true,
+  };
+}
+
+/**
+ * AI API 호출 없이 대기중인 사진을 시간순으로 N장(기본 2장)씩 즉시 묶습니다.
+ */
+export function pairInboxPhotosByFixedSize(
+  rawPhotos: readonly TelegramInboxPhoto[],
+  pairSize = TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
+  seed = String(Date.now()).slice(-7)
+): {
+  photos: TelegramInboxPhoto[];
+  updates: TelegramGroupKeyOnlyUpdate[];
+  groupCount: number;
+} {
+  const safeSize = Math.max(1, Math.min(TELEGRAM_MAX_PHOTOS_PER_PRODUCT, pairSize));
+  const ordered = sortTelegramPhotosChronologically(
+    rawPhotos.filter((p) => p.status === "pending")
+  );
+  const nextPhotos: TelegramInboxPhoto[] = [];
+  const updates: TelegramGroupKeyOnlyUpdate[] = [];
+  let groupIdx = 0;
+
+  for (let i = 0; i < ordered.length; i += safeSize) {
+    groupIdx++;
+    const groupKey = `pair_${seed}_${groupIdx}`;
+    const slice = ordered.slice(i, i + safeSize);
+    for (const photo of slice) {
+      nextPhotos.push({ ...photo, group_key: groupKey });
+      updates.push({ id: photo.id, group_key: groupKey });
+    }
+  }
+
+  return {
+    photos: nextPhotos,
+    updates,
+    groupCount: groupIdx,
   };
 }
 

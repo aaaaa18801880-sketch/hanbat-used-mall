@@ -58,6 +58,18 @@ export async function GET(req: NextRequest) {
       timeoutMs: 10000,
     });
 
+    // 텔레그램이 이미 생성한 320px 경량 썸네일(thumb_file_id)은 Sharp 재인코딩 없이 즉시 반환
+    if (variant === "thumb" && data.thumb_file_id) {
+      return new NextResponse(new Uint8Array(downloaded.buffer), {
+        status: 200,
+        headers: {
+          "Content-Type": downloaded.mimeType || "image/jpeg",
+          "Cache-Control": "private, max-age=86400",
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    }
+
     const previewWebp = await createTelegramPreviewImage(downloaded.buffer, {
       maxEdge: variant === "thumb" ? 320 : 1200,
       format: "webp",
@@ -68,7 +80,7 @@ export async function GET(req: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "image/webp",
-        "Cache-Control": "private, max-age=3600",
+        "Cache-Control": "private, max-age=86400",
         "X-Content-Type-Options": "nosniff",
       },
     });

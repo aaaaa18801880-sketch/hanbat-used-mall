@@ -9,15 +9,17 @@ import {
   buildInboxGroups,
   canCommitInboxGroup,
   mergeInboxGroupWithPrevious,
+  pairInboxPhotosByFixedSize,
   removePhotoFromInboxGroups,
   splitInboxGroupBeforePhoto,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
-  type TelegramGroupPersistenceUpdate,
+  type TelegramGroupKeyOnlyUpdate,
   type TelegramInboxGroup,
   type TelegramInboxPhoto,
 } from "../../lib/telegram-inbox";
 import {
+  createTelegramThumbStore,
   TelegramFullPreviewModal,
   TelegramThumbTile,
 } from "./telegram-inbox-media";
@@ -41,6 +43,7 @@ interface AdminTelegramInboxTabProps {
 }
 
 const AI_GROUP_CHUNK_SIZE = 16;
+const GROUPS_PER_PAGE = 20;
 
 function formatGroupTimeRange(group: TelegramInboxGroup): string {
   const formatOne = (iso: string) => {
@@ -55,21 +58,6 @@ function formatGroupTimeRange(group: TelegramInboxGroup): string {
   const from = formatOne(group.takenFrom);
   const to = formatOne(group.takenTo);
   return from === to ? from : `${from} ~ ${to}`;
-}
-
-function applyPersistenceUpdates(
-  nextGroups: readonly TelegramInboxGroup[],
-  updates: readonly TelegramGroupPersistenceUpdate[]
-): TelegramInboxPhoto[] {
-  const updMap = new Map(updates.map((u) => [u.id, u]));
-  return nextGroups.flatMap((grp) =>
-    grp.photos.map((photo) => {
-      const u = updMap.get(photo.id);
-      return u
-        ? { ...photo, group_key: u.group_key, sort_order: u.sort_order }
-        : photo;
-    })
-  );
 }
 
 /**
@@ -110,6 +98,15 @@ export function AdminTelegramInboxTab({
   const [committedCount, setCommittedCount] = useState(0);
   const [inspectingPhoto, setInspectingPhoto] =
     useState<TelegramInboxPhoto | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showAllGroups, setShowAllGroups] = useState(false);
+  const [thumbStore] = useState(() => createTelegramThumbStore());
+
+  useEffect(() => {
+    return () => {
+      thumbStore.revokeAll();
+    };
+  }, [thumbStore]);
 
   const [groupingProgress, setGroupingProgress] = useState({
     active: false,
@@ -222,6 +219,27 @@ export function AdminTelegramInboxTab({
     [photos]
   );
 
+  const totalPages = showAllGroups
+    ? 1
+    : Math.max(1, Math.ceil(groups.length / GROUPS_PER_PAGE));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStartIdx = showAllGroups ? 0 : (safePage - 1) * GROUPS_PER_PAGE;
+  const visibleGroups = useMemo(
+    () =>
+      showAllGroups
+        ? groups
+        : groups.slice(pageStartIdx, pageStartIdx + GROUPS_PER_PAGE),
+    [groups, pageStartIdx, showAllGroups]
+  );
+
+  const visibleSelectedGroups = useMemo(
+    () =>
+      visibleGroups.filter(
+        (g) => canCommitInboxGroup(g).allowed && !deselectedKeys.has(g.groupKey)
+      ),
+    [deselectedKeys, visibleGroups]
+  );
+
   const isBusy =
     loading ||
     persistingOp ||
@@ -229,10 +247,10 @@ export function AdminTelegramInboxTab({
     commitProgress.active;
 
   const persistUpdates = async (
-    updates: readonly TelegramGroupPersistenceUpdate[]
+    updates: readonly TelegramGroupKeyOnlyUpdate[]
   ) => {
     if (updates.length === 0) return;
-    const headers = await getAdminAuthHeaders();
+    const headers = await thumbStore.getAuthHeaders();
     const res = await fetch("/api/admin/telegram-inbox", {
       method: "PATCH",
       headers: {
@@ -247,16 +265,44 @@ export function AdminTelegramInboxTab({
     }
   };
 
+  const handlePairFixedTwo = async () => {
+    if (isBusy || photos.length === 0) return;
+    const prevPhotos = photos;
+    const paired = pairInboxPhotosByFixedSize(
+      photos,
+      TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT
+    );
+    setPhotos(paired.photos);
+    setDeselectedKeys(new Set());
+    setCurrentPage(1);
+    setPersistingOp(true);
+    try {
+      await persistUpdates(paired.updates);
+      toast.success(
+        `${photos.length}장을 2장씩 ${paired.groupCount}개 묶음으로 즉시 나눴습니다 (AI 비용 0원).`
+      );
+    } catch (err: unknown) {
+      setPhotos(prevPhotos);
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "2장씩 즉시 묶기 저장에 실패했습니다."
+      );
+    } finally {
+      setPersistingOp(false);
+    }
+  };
+
   const handleSplitBefore = async (photoId: string) => {
     if (isBusy) return;
     const res = splitInboxGroupBeforePhoto(groups, photoId);
     if (!res.changed) return;
 
     const prevPhotos = photos;
-    setPhotos(applyPersistenceUpdates(res.groups, res.updates));
+    setPhotos(res.groups.flatMap((g) => g.photos));
     setPersistingOp(true);
     try {
-      await persistUpdates(res.updates);
+      await persistUpdates(res.changedUpdates);
       toast.success("제품 묶음을 분리했습니다.");
     } catch (err: unknown) {
       setPhotos(prevPhotos);
@@ -274,10 +320,10 @@ export function AdminTelegramInboxTab({
     if (!res.changed) return;
 
     const prevPhotos = photos;
-    setPhotos(applyPersistenceUpdates(res.groups, res.updates));
+    setPhotos(res.groups.flatMap((g) => g.photos));
     setPersistingOp(true);
     try {
-      await persistUpdates(res.updates);
+      await persistUpdates(res.changedUpdates);
       toast.success("앞 묶음과 합쳤습니다.");
     } catch (err: unknown) {
       setPhotos(prevPhotos);
@@ -304,7 +350,7 @@ export function AdminTelegramInboxTab({
     setPersistingOp(true);
 
     try {
-      const headers = await getAdminAuthHeaders();
+      const headers = await thumbStore.getAuthHeaders();
       const res = await fetch("/api/admin/telegram-inbox", {
         method: "DELETE",
         headers: {
@@ -316,6 +362,9 @@ export function AdminTelegramInboxTab({
       const json = (await res.json().catch(() => ({}))) as { error?: string };
       if (!res.ok) {
         throw new Error(json.error || "사진 제외 처리에 실패했습니다.");
+      }
+      for (const id of ids) {
+        thumbStore.revoke(id);
       }
       toast.success(
         ids.length === 1
@@ -487,6 +536,9 @@ export function AdminTelegramInboxTab({
     setFailedByGroup(nextFailures);
 
     if (committedPhotoIdSet.size > 0) {
+      for (const cid of committedPhotoIdSet) {
+        thumbStore.revoke(cid);
+      }
       const remaining = photos.filter((p) => !committedPhotoIdSet.has(p.id));
       setPhotos(remaining);
       onPendingCountChange?.(remaining.length);
@@ -853,16 +905,29 @@ export function AdminTelegramInboxTab({
           <button
             type="button"
             disabled={isBusy || photos.length === 0}
-            onClick={handleRunAiGrouping}
+            onClick={handlePairFixedTwo}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-hb-xs font-bold disabled:opacity-40 transition-colors cursor-pointer ${
               oversizedGroups.length > 0
                 ? "bg-[#E8521A] text-white hover:bg-[#D9531E]"
                 : "border border-[#141A23] bg-white text-[#141A23] hover:bg-[#141A23] hover:text-white"
             }`}
+            title="AI API 호출 없이 시간순으로 2장씩 즉시 분리합니다 (비용 0원)"
+          >
+            <Icon d={ICON.scissors} className="w-4 h-4" />
+            <span>
+              2장씩 즉시 묶기 ({photos.length}장 · 0원)
+            </span>
+          </button>
+
+          <button
+            type="button"
+            disabled={isBusy || photos.length === 0}
+            onClick={handleRunAiGrouping}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#141A23] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:bg-[#141A23] hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
           >
             <Icon d={ICON.sparkles} className="w-4 h-4" />
             <span>
-              AI 자동 묶음 ({photos.length}장 · 기본 {TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장)
+              AI 자동 묶음 ({photos.length}장)
             </span>
           </button>
 
@@ -902,6 +967,20 @@ export function AdminTelegramInboxTab({
                   선택 묶음 일괄 등록 ({selectedGroups.length}개 제품)
                 </span>
               </button>
+
+              {totalPages > 1 && visibleSelectedGroups.length > 0 && (
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => runCommitQueue(visibleSelectedGroups)}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-[#E8521A] bg-[#FFF4EE] px-3 py-2 text-hb-xs font-bold text-[#C84312] hover:bg-[#E8521A] hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+                >
+                  <Icon d={ICON.bolt} className="w-4 h-4" />
+                  <span>
+                    이 페이지만 등록 ({visibleSelectedGroups.length}개)
+                  </span>
+                </button>
+              )}
             </>
           )}
 
@@ -1056,7 +1135,54 @@ export function AdminTelegramInboxTab({
         </div>
       ) : (
         <div className="space-y-4">
-          {groups.map((group, groupIdx) => {
+          {groups.length > GROUPS_PER_PAGE && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-[#E2E6EC] bg-white px-4 py-2.5 text-hb-xs text-[#141A23] shadow-2xs">
+              <span className="font-bold tabular-nums">
+                {showAllGroups
+                  ? `전체 ${groups.length}개 묶음 모두 표시 중`
+                  : `${pageStartIdx + 1}~${Math.min(
+                      pageStartIdx + GROUPS_PER_PAGE,
+                      groups.length
+                    )}번 묶음 표시 (${safePage} / ${totalPages}페이지 · 총 ${
+                      groups.length
+                    }개)`}
+              </span>
+              <div className="flex flex-wrap items-center gap-1.5">
+                {!showAllGroups && (
+                  <>
+                    <button
+                      type="button"
+                      disabled={safePage <= 1}
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+                    >
+                      이전 20개
+                    </button>
+                    <button
+                      type="button"
+                      disabled={safePage >= totalPages}
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+                    >
+                      다음 20개
+                    </button>
+                  </>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowAllGroups((v) => !v)}
+                  className="rounded border border-[#CBD2DC] bg-[#F9FAFB] px-2.5 py-1 font-bold hover:border-[#141A23] cursor-pointer"
+                >
+                  {showAllGroups ? "20개씩 나눠 보기" : "전체 한 번에 보기"}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {visibleGroups.map((group, localIdx) => {
+            const groupIdx = pageStartIdx + localIdx;
             const checkboxId = `tg-group-select-${groupIdx}`;
             const commitCheck = canCommitInboxGroup(group);
             const isSelected =
@@ -1158,6 +1284,7 @@ export function AdminTelegramInboxTab({
                       photo={photo}
                       indexInGroup={photoIdx}
                       disabled={isBusy}
+                      thumbStore={thumbStore}
                       onInspectFull={setInspectingPhoto}
                       onSplitBefore={handleSplitBefore}
                       onDiscard={(id) => handleDiscardPhotos([id])}
@@ -1167,6 +1294,34 @@ export function AdminTelegramInboxTab({
               </article>
             );
           })}
+
+          {groups.length > GROUPS_PER_PAGE && !showAllGroups && (
+            <div className="flex items-center justify-between gap-2 rounded-xl border border-[#E2E6EC] bg-white px-4 py-2.5 text-hb-xs text-[#141A23] shadow-2xs">
+              <span className="font-bold tabular-nums">
+                {safePage} / {totalPages}페이지
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  disabled={safePage <= 1}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+                >
+                  이전 20개
+                </button>
+                <button
+                  type="button"
+                  disabled={safePage >= totalPages}
+                  onClick={() =>
+                    setCurrentPage((p) => Math.min(totalPages, p + 1))
+                  }
+                  className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+                >
+                  다음 20개
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

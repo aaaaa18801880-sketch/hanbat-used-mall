@@ -8,6 +8,7 @@ import {
   mergeInboxGroupWithPrevious,
   normalizeAiGroupingResult,
   orderCommitItemsWithPrimaryExterior,
+  pairInboxPhotosByFixedSize,
   parseTelegramWebhookUpdate,
   partitionIndicesForProductSize,
   removePhotoFromInboxGroups,
@@ -376,5 +377,29 @@ test("2-photo default partitioning, 3-photo commit guard, and exterior primary o
   assert.deepEqual(
     ordered.map((x) => x.id),
     ["exterior-second", "label-first"]
+  );
+
+  // 최소 diff changedUpdates 및 비용 0원 2장씩 즉시 묶기 검증
+  const grouped4 = [1, 2, 3, 4].map((n) =>
+    makePhoto(`d${n}`, {
+      message_id: n,
+      group_key: n <= 2 ? "g1" : "g2",
+    })
+  );
+  const built = buildInboxGroups(grouped4);
+  const mergedMinimal = mergeInboxGroupWithPrevious(built, 1);
+  assert.deepEqual(mergedMinimal.changedUpdates, [
+    { id: "d3", group_key: "g1" },
+    { id: "d4", group_key: "g1" },
+  ]);
+
+  const fivePhotos = [1, 2, 3, 4, 5].map((n) =>
+    makePhoto(`f${n}`, { message_id: n })
+  );
+  const fixedPairs = pairInboxPhotosByFixedSize(fivePhotos, 2, "fix");
+  assert.equal(fixedPairs.groupCount, 3);
+  assert.deepEqual(
+    fixedPairs.updates.map((u) => u.group_key),
+    ["pair_fix_1", "pair_fix_1", "pair_fix_2", "pair_fix_2", "pair_fix_3"]
   );
 });
