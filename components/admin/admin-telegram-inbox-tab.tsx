@@ -703,14 +703,35 @@ export function AdminTelegramInboxTab({
             </button>
           </div>
 
-          <p>
-            현재 웹훅 URL:{" "}
-            <strong className="break-all">
-              {setupInfo.webhookUrl || "미등록"}
-            </strong>{" "}
-            {setupInfo.pendingUpdateCount > 0 &&
-              `(대기 업데이트 ${setupInfo.pendingUpdateCount}건)`}
-          </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p>
+              현재 웹훅 URL:{" "}
+              <strong className="break-all">
+                {setupInfo.webhookUrl || "미등록"}
+              </strong>{" "}
+              {setupInfo.pendingUpdateCount > 0 &&
+                `(대기 업데이트 ${setupInfo.pendingUpdateCount}건)`}
+            </p>
+            <button
+              type="button"
+              disabled={
+                registeringWebhook ||
+                !envStatus?.botConfigured ||
+                !envStatus?.webhookSecretConfigured
+              }
+              onClick={handleRegisterWebhook}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8521A] px-3 py-1.5 text-hb-xs font-bold text-white hover:bg-[#D9531E] disabled:opacity-40 cursor-pointer"
+            >
+              <Icon d={ICON.link} className="w-3.5 h-3.5" />
+              <span>
+                {registeringWebhook
+                  ? "등록 중..."
+                  : setupInfo.webhookUrl
+                  ? "웹훅 다시 등록"
+                  : "웹훅 원클릭 자동 등록"}
+              </span>
+            </button>
+          </div>
 
           {setupInfo.lastErrorMessage && (
             <p className="text-red-700 font-semibold">
