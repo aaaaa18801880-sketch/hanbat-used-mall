@@ -258,6 +258,67 @@ export function AdminTelegramInboxTab({
     groupingProgress.active ||
     commitProgress.active;
 
+  const toolbarTopRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollToInboxTop = useCallback(() => {
+    if (typeof window === "undefined") return;
+    const anchorEl = toolbarTopRef.current;
+    if (!anchorEl) {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      return;
+    }
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const stickyHeader = anchorEl
+      .closest("div.min-h-screen")
+      ?.querySelector("header");
+    const headerHeight = stickyHeader
+      ? stickyHeader.getBoundingClientRect().height
+      : 0;
+    const targetTop = Math.max(
+      0,
+      anchorEl.getBoundingClientRect().top + window.scrollY - headerHeight - 16
+    );
+    if (window.scrollY > targetTop) {
+      window.scrollTo({
+        top: targetTop,
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+      });
+    }
+  }, []);
+
+  const handleStepPage = useCallback(
+    (delta: -1 | 1) => {
+      setCurrentPage((prev) =>
+        Math.max(1, Math.min(totalPages, Math.min(prev, totalPages) + delta))
+      );
+      scrollToInboxTop();
+    },
+    [scrollToInboxTop, totalPages]
+  );
+
+  const renderPageNavButtons = () => (
+    <>
+      <button
+        type="button"
+        disabled={safePage <= 1}
+        onClick={() => handleStepPage(-1)}
+        className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+      >
+        이전 20개
+      </button>
+      <button
+        type="button"
+        disabled={safePage >= totalPages}
+        onClick={() => handleStepPage(1)}
+        className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
+      >
+        다음 20개
+      </button>
+    </>
+  );
+
   const persistUpdates = async (
     updates: readonly TelegramGroupKeyOnlyUpdate[]
   ) => {
@@ -908,7 +969,10 @@ export function AdminTelegramInboxTab({
       )}
 
       {/* 상단 액션 툴바 */}
-      <div className="rounded-xl border border-[#E2E6EC] bg-white p-4 sm:p-5 space-y-4 shadow-2xs">
+      <div
+        ref={toolbarTopRef}
+        className="rounded-xl border border-[#E2E6EC] bg-white p-4 sm:p-5 space-y-4 shadow-2xs scroll-mt-36"
+      >
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-hb-lg font-bold text-[#141A23]">
@@ -1190,28 +1254,7 @@ export function AdminTelegramInboxTab({
                     }개)`}
               </span>
               <div className="flex flex-wrap items-center gap-1.5">
-                {!showAllGroups && (
-                  <>
-                    <button
-                      type="button"
-                      disabled={safePage <= 1}
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
-                    >
-                      이전 20개
-                    </button>
-                    <button
-                      type="button"
-                      disabled={safePage >= totalPages}
-                      onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
-                      }
-                      className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
-                    >
-                      다음 20개
-                    </button>
-                  </>
-                )}
+                {!showAllGroups && renderPageNavButtons()}
                 <button
                   type="button"
                   onClick={() => setShowAllGroups((v) => !v)}
@@ -1356,24 +1399,7 @@ export function AdminTelegramInboxTab({
                 {safePage} / {totalPages}페이지
               </span>
               <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  disabled={safePage <= 1}
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
-                >
-                  이전 20개
-                </button>
-                <button
-                  type="button"
-                  disabled={safePage >= totalPages}
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  className="rounded border border-[#CBD2DC] bg-white px-2.5 py-1 font-bold hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
-                >
-                  다음 20개
-                </button>
+                {renderPageNavButtons()}
               </div>
             </div>
           )}
