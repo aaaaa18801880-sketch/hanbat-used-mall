@@ -3,10 +3,13 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {
   buildInboxGroups,
+  canCommitInboxGroup,
   detectOldSoldProductCleanupTargets,
   mergeInboxGroupWithPrevious,
   normalizeAiGroupingResult,
+  orderCommitItemsWithPrimaryExterior,
   parseTelegramWebhookUpdate,
+  partitionIndicesForProductSize,
   removePhotoFromInboxGroups,
   sortTelegramPhotosChronologically,
   splitInboxGroupBeforePhoto,
@@ -320,5 +323,58 @@ test("pending review status (검수대기) is counted in admin metrics and compl
   assert.deepEqual(
     adminPending.map((p) => p.id),
     ["draft-1"]
+  );
+});
+
+test("2-photo default partitioning, 3-photo commit guard, and exterior primary ordering protect multi-product batches", () => {
+  assert.deepEqual(partitionIndicesForProductSize([1, 2]), [[1, 2]]);
+  assert.deepEqual(partitionIndicesForProductSize([1, 2, 3]), [[1, 2, 3]]);
+  assert.deepEqual(partitionIndicesForProductSize([1, 2, 3, 4]), [
+    [1, 2],
+    [3, 4],
+  ]);
+  assert.deepEqual(partitionIndicesForProductSize([1, 2, 3, 4, 5]), [
+    [1, 2],
+    [3, 4, 5],
+  ]);
+
+  const oversizedPhotos = [1, 2, 3, 4, 5, 6].map((n) =>
+    makePhoto(`o${n}`, { message_id: n })
+  );
+  const aiRes = normalizeAiGroupingResult({
+    orderedPhotos: oversizedPhotos,
+    rawGroups: [[1, 2, 3, 4], [5, 6]],
+    rawBadPhotos: [],
+    batchSeed: "pair",
+  });
+  assert.equal(aiRes.groupCount, 3);
+  assert.deepEqual(aiRes.lastGroupPhotoIds, ["o5", "o6"]);
+
+  assert.equal(
+    canCommitInboxGroup({
+      groupKey: "g2",
+      photos: oversizedPhotos.slice(0, 2),
+      takenFrom: "",
+      takenTo: "",
+    }).allowed,
+    true
+  );
+  assert.deepEqual(
+    canCommitInboxGroup({
+      groupKey: "g4",
+      photos: oversizedPhotos.slice(0, 4),
+      takenFrom: "",
+      takenTo: "",
+    }),
+    { allowed: false, reason: "too_many_photos" }
+  );
+
+  const ordered = orderCommitItemsWithPrimaryExterior([
+    { id: "label-first", role: "nameplate" as const },
+    { id: "exterior-second", role: "product" as const },
+  ]);
+  assert.deepEqual(
+    ordered.map((x) => x.id),
+    ["exterior-second", "label-first"]
   );
 });

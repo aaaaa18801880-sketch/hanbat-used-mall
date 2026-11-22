@@ -34,14 +34,16 @@ import {
   processTelegramOriginalToProductWebp,
 } from "../../../../../lib/server-image-sharp";
 import {
+  orderCommitItemsWithPrimaryExterior,
   sortTelegramPhotosChronologically,
+  TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   type TelegramInboxPhoto,
 } from "../../../../../lib/telegram-inbox";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-const MAX_COMMIT_PHOTOS = 4;
+const MAX_COMMIT_PHOTOS = TELEGRAM_MAX_PHOTOS_PER_PRODUCT;
 const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
 const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash-lite";
 
@@ -90,19 +92,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "잘못된 요청 형식입니다." }, { status: 400 });
   }
 
-  const photoIds = Array.isArray(body.photoIds)
+  const rawPhotoIds = Array.isArray(body.photoIds)
     ? body.photoIds
         .map((id) => (typeof id === "string" ? id.trim() : ""))
         .filter(Boolean)
-        .slice(0, MAX_COMMIT_PHOTOS)
     : [];
 
-  if (photoIds.length === 0) {
+  if (rawPhotoIds.length === 0) {
     return NextResponse.json(
       { error: "등록할 제품 묶음 사진 ID가 필요합니다." },
       { status: 400 }
     );
   }
+
+  if (rawPhotoIds.length > MAX_COMMIT_PHOTOS) {
+    return NextResponse.json(
+      {
+        error: `한 상품당 최대 ${MAX_COMMIT_PHOTOS}장까지만 등록할 수 있습니다 (현재 ${rawPhotoIds.length}장). [여기서 나누기]로 2~3장씩 분리해 주세요.`,
+      },
+      { status: 400 }
+    );
+  }
+
+  const photoIds = rawPhotoIds;
 
   const categoryHint =
     typeof body.categoryHint === "string"
@@ -240,13 +252,27 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3) 고화질 원본 -> 회전·스마트크롭·WebP 1440px 변환 후 Storage 업로드
-    const batchTs = Date.now();
-    for (let i = 0; i < downloadedOriginals.length; i++) {
-      const processed = await processTelegramOriginalToProductWebp({
-        inputBuffer: downloadedOriginals[i].buffer,
+    // 3) 제품 외관 사진이 대표 1번(0번 인덱스)에 오도록 정렬 후 WebP 1440px 변환 및 Storage 업로드
+    const preparedOriginals = downloadedOriginals.map((orig, i) => {
+      const crop = cropByIndex.get(i) ?? null;
+      return {
+        original: orig,
         rotateDegrees: rotationByIndex.get(i) ?? 0,
-        crop: cropByIndex.get(i) ?? null,
+        crop,
+        role: (crop?.role ?? "other") as "product" | "nameplate" | "other",
+      };
+    });
+
+    const orderedPrepared =
+      orderCommitItemsWithPrimaryExterior(preparedOriginals);
+
+    const batchTs = Date.now();
+    for (let i = 0; i < orderedPrepared.length; i++) {
+      const item = orderedPrepared[i];
+      const processed = await processTelegramOriginalToProductWebp({
+        inputBuffer: item.original.buffer,
+        rotateDegrees: item.rotateDegrees,
+        crop: item.crop,
         maxEdge: 1440,
       });
 

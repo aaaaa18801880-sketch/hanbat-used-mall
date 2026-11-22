@@ -19,6 +19,8 @@ import { createTelegramPreviewImage } from "../../../../../lib/server-image-shar
 import {
   normalizeAiGroupingResult,
   sortTelegramPhotosChronologically,
+  TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
+  TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
   type TelegramInboxPhoto,
 } from "../../../../../lib/telegram-inbox";
 
@@ -133,23 +135,25 @@ export async function POST(req: NextRequest) {
     }
 
     const timelineSummary = ordered
-      .map(
-        (p, idx) =>
-          `${idx + 1}번: 촬영 ${p.taken_at}${p.media_group_id ? ` (앨범:${p.media_group_id.slice(-4)})` : ""}`
-      )
+      .map((p, idx) => `${idx + 1}번: 전송 ${p.taken_at}`)
       .join("\n");
 
     const prompt = `
-당신은 중고가전 매장 매입·전시 사진 분류 보조자입니다.
-전달된 ${ordered.length}장의 사진(1번~${ordered.length}번, 시간순)을 보고:
-1) **같은 가전제품 1대(또는 1세트)**에 속하는 사진 번호끼리 순서대로 묶어 주세요.
-   - 흔한 현장 패턴: [제품 외관 사진 1~2장] → 바로 뒤 [해당 제품의 명판 스티커·에너지라벨 1장] → 그 다음 [다른 제품 외관 사진]...
-   - 명판 스티커·에너지라벨이 나오면 보통 그 제품 묶음이 끝나고 다음 외관부터 새 제품이 시작됩니다.
-   - 에어컨 실내기 바로 뒤 실외기(또는 세트 라벨)는 같은 묶음으로 잡되, 명확히 다른 모델/품목이면 반드시 분리하세요.
-   - 모든 1..${ordered.length}번 사진이 빠짐없이 정확히 1개 묶음에 포함되어야 합니다.
-2) **손가림·초점 심한 흔들림·바닥 오촬영**으로 상품 등록에 쓸 수 없는 불량컷만 "badPhotos"에 표시하세요(정상 명판/외관은 절대 넣지 마세요).
+당신은 중고가전 매장 매입·전시 사진 분류 전문가입니다.
+전달된 ${ordered.length}장의 사진(1번~${ordered.length}번, 시간순)을 직접 눈으로 확인하여 **같은 제품 1대씩** 분리하세요.
 
-[사진 촬영 시각 순서]
+[가장 중요한 규칙 — 기본 ${TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장 구성 / 최대 ${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 엄수]
+1) 한밭중고전자는 **보통 1개 제품당 ${TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장**(예: 제품 외관 1장 + 명판·에너지효율라벨 1장, 또는 명판 1장 + 외관 1장)씩 순서대로 촬영해 올립니다.
+2) **1개 묶음은 기본 ${TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장**으로 잡되, 외관+내부+명판 3장이 명백히 동일 모델·동일 장소의 같은 제품일 때만 최대 ${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장까지 허용합니다. **절대 4장 이상을 한 묶음으로 합치지 마세요.**
+3) **전송 시각이 0~1초 차이로 같아도** 텔레그램에 여러 제품 사진을 한꺼번에 끌어다 올려서 시각이 같을 뿐입니다. 시각이나 순서만 보지 말고, 사진 속 가전의 **품목(냉장고/에어컨/세탁기/쇼케이스 등)·색상·배경**을 직접 비교해 다른 제품이 나오면 무조건 새 묶음으로 끊으세요.
+4) 서로 다른 브랜드/색상/품목의 외관 사진이 연속되면 절대 합치지 말고 각각 1장 또는 ${TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장 단위로 분리하세요.
+5) 에어컨 실내기 바로 뒤에 해당 실외기 또는 동일 제품 라벨이 온 경우에만 같은 묶음으로 잡습니다.
+6) 1번~${ordered.length}번 사진이 빠짐없이, 중복 없이 정확히 1개 묶음에 포함되어야 합니다.
+
+[불량컷 판별]
+- **손바닥 가림·초점이 심하게 흔들려 식별 불가·빈 바닥 오촬영** 사진만 "badPhotos"에 표시하세요. (정상 제품 외관이나 에너지효율표/명판 사진은 절대 넣지 마세요.)
+
+[사진 번호별 전송 시각]
 ${timelineSummary}
 
 반드시 다른 설명 없이 아래 JSON 형식으로만 응답하세요:
@@ -159,7 +163,7 @@ ${timelineSummary}
     { "indices": [3, 4] }
   ],
   "badPhotos": [
-    { "index": 5, "reason": "손가림/초점 흐림" }
+    { "index": 5, "reason": "초점 심한 흔들림/손가림" }
   ]
 }
 `.trim();
@@ -173,17 +177,19 @@ ${timelineSummary}
       config: {
         responseMimeType: "application/json",
         temperature: 0.1,
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
       },
       timeoutMs: 25000,
     });
 
     const { parsed } = parseGeminiJsonObject(text);
-    const { updates, badNotesById, groupCount } = normalizeAiGroupingResult({
-      orderedPhotos: ordered,
-      rawGroups: parsed?.groups,
-      rawBadPhotos: parsed?.badPhotos,
-    });
+    const { updates, badNotesById, groupCount, lastGroupPhotoIds } =
+      normalizeAiGroupingResult({
+        orderedPhotos: ordered,
+        rawGroups: parsed?.groups,
+        rawBadPhotos: parsed?.badPhotos,
+        maxGroupSize: TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
+      });
 
     for (const u of updates) {
       const note = badNotesById[u.id] ?? null;
@@ -204,6 +210,7 @@ ${timelineSummary}
       groupCount,
       updates,
       badNotesById,
+      lastGroupPhotoIds,
     });
   } catch (err: unknown) {
     return NextResponse.json(

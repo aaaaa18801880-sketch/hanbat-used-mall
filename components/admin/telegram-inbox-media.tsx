@@ -4,7 +4,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { getAdminAuthHeaders } from "../../lib/supabase";
 import { ICON, Icon } from "../../lib/icons";
-import type { TelegramInboxPhoto } from "../../lib/telegram-inbox";
+import {
+  TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
+  type TelegramInboxPhoto,
+} from "../../lib/telegram-inbox";
 
 /** 동시에 너무 많은 텔레그램 프록시 요청이 몰리지 않도록 최대 4개 동시 로드로 제한 */
 function createConcurrencyLimiter(limit: number) {
@@ -139,7 +142,7 @@ export function TelegramThumbTile({
     };
   }, []);
 
-  const isOverLimit = indexInGroup >= 4;
+  const isOverLimit = indexInGroup >= TELEGRAM_MAX_PHOTOS_PER_PRODUCT;
 
   return (
     <div
@@ -207,7 +210,7 @@ export function TelegramThumbTile({
         </span>
         {isOverLimit && (
           <span className="rounded bg-amber-100 px-1.5 py-0.5 font-bold text-amber-800">
-            5장+ 제외됨
+            3장 초과 분리 필요
           </span>
         )}
       </div>

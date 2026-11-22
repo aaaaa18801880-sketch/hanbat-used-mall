@@ -66,6 +66,9 @@ export interface SoldProductCleanupTarget {
 const MAX_RAW_CHUNK_SIZE = 12;
 const UNGROUPED_TIME_GAP_MS = 3 * 60 * 1000;
 
+export const TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT = 2;
+export const TELEGRAM_MAX_PHOTOS_PER_PRODUCT = 3;
+
 function createSyntheticGroupKey(seed: string, idx: number): string {
   const safeSeed = seed.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 12) || "tg";
   return `grp_${safeSeed}_${idx}`;
@@ -423,20 +426,55 @@ export function removePhotoFromInboxGroups(
 }
 
 /**
- * AI가 반환한 제품 묶음 인덱스(1-based)를 검증·정규화해 누락/중복 없는 연속 묶음 업데이트로 변환합니다.
+ * 3장을 초과하는 사진 인덱스 묶음을 기본 2장(끝자리 3장 허용) 단위로 안전 분할합니다.
+ */
+export function partitionIndicesForProductSize(
+  indices: readonly number[],
+  maxPerProduct = TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
+  preferredPerProduct = TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT
+): number[][] {
+  if (indices.length === 0) return [];
+  if (indices.length <= maxPerProduct) return [[...indices]];
+
+  const step = Math.max(1, Math.min(preferredPerProduct, maxPerProduct));
+  const result: number[][] = [];
+  let cursor = 0;
+
+  while (cursor < indices.length) {
+    const remaining = indices.length - cursor;
+    if (remaining <= maxPerProduct) {
+      result.push(indices.slice(cursor));
+      break;
+    }
+    if (remaining === step + 1 && maxPerProduct >= step + 1) {
+      result.push(indices.slice(cursor));
+      break;
+    }
+    result.push(indices.slice(cursor, cursor + step));
+    cursor += step;
+  }
+
+  return result;
+}
+
+/**
+ * AI가 반환한 제품 묶음 인덱스(1-based)를 검증·정규화해 누락/중복/과다묶음(3장 초과) 없는 연속 묶음 업데이트로 변환합니다.
  */
 export function normalizeAiGroupingResult(params: {
   orderedPhotos: readonly TelegramInboxPhoto[];
   rawGroups: unknown;
   rawBadPhotos: unknown;
   batchSeed?: string;
+  maxGroupSize?: number;
 }): {
   updates: TelegramGroupPersistenceUpdate[];
   badNotesById: Record<string, string>;
   groupCount: number;
+  lastGroupPhotoIds: string[];
 } {
   const { orderedPhotos, rawGroups, rawBadPhotos } = params;
   const seed = params.batchSeed || String(Date.now()).slice(-7);
+  const maxGroupSize = params.maxGroupSize ?? TELEGRAM_MAX_PHOTOS_PER_PRODUCT;
   const total = orderedPhotos.length;
 
   const badNotesById: Record<string, string> = {};
@@ -477,17 +515,33 @@ export function normalizeAiGroupingResult(params: {
       if (fresh.length > 0) {
         fresh.sort((a, b) => a - b);
         fresh.forEach((n) => assigned.add(n));
-        resolvedRanges.push(fresh);
+        resolvedRanges.push(
+          ...partitionIndicesForProductSize(
+            fresh,
+            maxGroupSize,
+            TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT
+          )
+        );
       }
     }
   }
 
-  // 누락된 사진이 있으면 순서대로 안전하게 마지막/단독 묶음에 편입
+  // 누락된 사진이 있으면 순서대로 안전하게 단독/2장 단위로 편입
+  const missing: number[] = [];
   for (let n = 1; n <= total; n++) {
     if (!assigned.has(n)) {
-      resolvedRanges.push([n]);
+      missing.push(n);
       assigned.add(n);
     }
+  }
+  if (missing.length > 0) {
+    resolvedRanges.push(
+      ...partitionIndicesForProductSize(
+        missing,
+        maxGroupSize,
+        TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT
+      )
+    );
   }
 
   // 각 그룹 첫 사진 순번 기준으로 시간순 재정렬
@@ -506,11 +560,50 @@ export function normalizeAiGroupingResult(params: {
     }
   });
 
+  const lastRange = resolvedRanges[resolvedRanges.length - 1] ?? [];
+  const lastGroupPhotoIds = lastRange.map(
+    (oneBasedIdx) => orderedPhotos[oneBasedIdx - 1].id
+  );
+
   return {
     updates,
     badNotesById,
     groupCount: resolvedRanges.length,
+    lastGroupPhotoIds,
   };
+}
+
+/**
+ * 단일 묶음이 상품 일괄 등록(최대 3장) 조건을 충족하는지 판별합니다.
+ */
+export function canCommitInboxGroup(
+  group: TelegramInboxGroup,
+  maxPerProduct = TELEGRAM_MAX_PHOTOS_PER_PRODUCT
+): { allowed: true } | { allowed: false; reason: "empty" | "too_many_photos" } {
+  if (group.photos.length === 0) {
+    return { allowed: false, reason: "empty" };
+  }
+  if (group.photos.length > maxPerProduct) {
+    return { allowed: false, reason: "too_many_photos" };
+  }
+  return { allowed: true };
+}
+
+/**
+ * 등록 사진 목록에서 제품 외관(role === 'product') 사진이 명판('nameplate')보다 앞(1번 대표 썸네일)에 오도록 안정 정렬합니다.
+ */
+export function orderCommitItemsWithPrimaryExterior<
+  T extends { role?: "product" | "nameplate" | "other" | null },
+>(items: readonly T[]): T[] {
+  const rank = (role?: string | null): number => {
+    if (role === "product") return 0;
+    if (role === "nameplate") return 2;
+    return 1;
+  };
+  return items
+    .map((item, idx) => ({ item, idx, priority: rank(item.role) }))
+    .sort((a, b) => a.priority - b.priority || a.idx - b.idx)
+    .map((entry) => entry.item);
 }
 
 /**

@@ -7,9 +7,12 @@ import { getAdminAuthHeaders } from "../../lib/supabase";
 import { ICON, Icon } from "../../lib/icons";
 import {
   buildInboxGroups,
+  canCommitInboxGroup,
   mergeInboxGroupWithPrevious,
   removePhotoFromInboxGroups,
   splitInboxGroupBeforePhoto,
+  TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
+  TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
   type TelegramGroupPersistenceUpdate,
   type TelegramInboxGroup,
   type TelegramInboxPhoto,
@@ -199,9 +202,19 @@ export function AdminTelegramInboxTab({
 
   const groups = useMemo(() => buildInboxGroups(photos), [photos]);
 
+  const eligibleGroups = useMemo(
+    () => groups.filter((g) => canCommitInboxGroup(g).allowed),
+    [groups]
+  );
+
+  const oversizedGroups = useMemo(
+    () => groups.filter((g) => !canCommitInboxGroup(g).allowed),
+    [groups]
+  );
+
   const selectedGroups = useMemo(
-    () => groups.filter((g) => !deselectedKeys.has(g.groupKey)),
-    [deselectedKeys, groups]
+    () => eligibleGroups.filter((g) => !deselectedKeys.has(g.groupKey)),
+    [deselectedKeys, eligibleGroups]
   );
 
   const badNotePhotos = useMemo(
@@ -322,54 +335,68 @@ export function AdminTelegramInboxTab({
 
   const handleRunAiGrouping = async () => {
     if (isBusy || photos.length === 0) return;
-    const chunks: TelegramInboxPhoto[][] = [];
-    for (let i = 0; i < photos.length; i += AI_GROUP_CHUNK_SIZE) {
-      chunks.push(photos.slice(i, i + AI_GROUP_CHUNK_SIZE));
-    }
+    const totalBatches = Math.max(1, Math.ceil(photos.length / AI_GROUP_CHUNK_SIZE));
 
     setGroupingProgress({
       active: true,
       done: 0,
-      total: chunks.length,
-      note: `총 ${photos.length}장을 ${chunks.length}개 배치로 분석 중입니다...`,
+      total: totalBatches,
+      note: `총 ${photos.length}장을 기본 ${TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장(최대 ${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장) 단위로 분석 중입니다...`,
     });
 
     try {
       const headers = await getAdminAuthHeaders();
-      let totalGroups = 0;
-      for (let i = 0; i < chunks.length; i++) {
+      let cursor = 0;
+      let carryIds: string[] = [];
+      let batchIdx = 0;
+
+      while (cursor < photos.length) {
+        const nextSlice = photos.slice(cursor, cursor + AI_GROUP_CHUNK_SIZE);
+        cursor += nextSlice.length;
+
+        const batchPhotoIds = Array.from(
+          new Set([...carryIds, ...nextSlice.map((p) => p.id)])
+        );
+
         const res = await fetch("/api/admin/telegram-inbox/group", {
           method: "POST",
           headers: {
             ...headers,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            photoIds: chunks[i].map((p) => p.id),
-          }),
+          body: JSON.stringify({ photoIds: batchPhotoIds }),
         });
         const json = (await res.json().catch(() => ({}))) as {
           error?: string;
-          groupCount?: number;
+          lastGroupPhotoIds?: string[];
         };
         if (!res.ok) {
           throw new Error(
-            json.error || `AI 자동 묶음 ${i + 1}번째 배치 실패`
+            json.error || `AI 자동 묶음 ${batchIdx + 1}번째 배치 실패`
           );
         }
-        totalGroups += json.groupCount ?? 0;
+
+        const tailIds = Array.isArray(json.lastGroupPhotoIds)
+          ? json.lastGroupPhotoIds
+          : [];
+        carryIds =
+          cursor < photos.length && tailIds.length >= 1 && tailIds.length <= 2
+            ? tailIds
+            : [];
+
+        batchIdx++;
         setGroupingProgress({
           active: true,
-          done: i + 1,
-          total: chunks.length,
-          note: `AI 묶음 배치 ${i + 1}/${chunks.length} 완료`,
+          done: Math.min(batchIdx, totalBatches),
+          total: totalBatches,
+          note: `AI 묶음 배치 ${batchIdx}/${totalBatches} 완료`,
         });
       }
 
       await fetchInbox();
       setDeselectedKeys(new Set());
       toast.success(
-        `AI 자동 묶음이 완료되었습니다 (${totalGroups}개 제품 후보 분류).`
+        `AI 자동 묶음이 완료되었습니다 (기본 ${TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장 · 최대 ${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 단위).`
       );
     } catch (err: unknown) {
       toast.error(
@@ -383,13 +410,14 @@ export function AdminTelegramInboxTab({
   };
 
   const runCommitQueue = async (targetGroups: readonly TelegramInboxGroup[]) => {
-    if (isBusy || targetGroups.length === 0) return;
+    const validTargets = targetGroups.filter((g) => canCommitInboxGroup(g).allowed);
+    if (isBusy || validTargets.length === 0) return;
 
     abortCommitRef.current = false;
     setCommitProgress({
       active: true,
       done: 0,
-      total: targetGroups.length,
+      total: validTargets.length,
       success: 0,
       currentLabel: "순차 등록을 준비 중입니다...",
     });
@@ -400,20 +428,20 @@ export function AdminTelegramInboxTab({
 
     const headers = await getAdminAuthHeaders();
 
-    for (let i = 0; i < targetGroups.length; i++) {
+    for (let i = 0; i < validTargets.length; i++) {
       if (abortCommitRef.current) {
         toast("나머지 일괄 등록이 중단되었습니다.");
         break;
       }
 
-      const grp = targetGroups[i];
-      const commitIds = grp.photos.slice(0, 4).map((p) => p.id);
+      const grp = validTargets[i];
+      const commitIds = grp.photos.map((p) => p.id);
       setCommitProgress({
         active: true,
         done: i,
-        total: targetGroups.length,
+        total: validTargets.length,
         success: successCount,
-        currentLabel: `${i + 1}/${targetGroups.length}번째 묶음 (${commitIds.length}장) 처리 중...`,
+        currentLabel: `${i + 1}/${validTargets.length}번째 묶음 (${commitIds.length}장) 처리 중...`,
       });
 
       try {
@@ -450,9 +478,9 @@ export function AdminTelegramInboxTab({
       setCommitProgress({
         active: true,
         done: i + 1,
-        total: targetGroups.length,
+        total: validTargets.length,
         success: successCount,
-        currentLabel: `${i + 1}/${targetGroups.length} 처리 완료`,
+        currentLabel: `${i + 1}/${validTargets.length} 처리 완료`,
       });
     }
 
@@ -466,7 +494,7 @@ export function AdminTelegramInboxTab({
       await onProductsChanged?.();
     }
 
-    const failedCount = targetGroups.filter(
+    const failedCount = validTargets.filter(
       (g) => Boolean(nextFailures[g.groupKey])
     ).length;
 
@@ -826,36 +854,48 @@ export function AdminTelegramInboxTab({
             type="button"
             disabled={isBusy || photos.length === 0}
             onClick={handleRunAiGrouping}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#141A23] bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] hover:bg-[#141A23] hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+            className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-hb-xs font-bold disabled:opacity-40 transition-colors cursor-pointer ${
+              oversizedGroups.length > 0
+                ? "bg-[#E8521A] text-white hover:bg-[#D9531E]"
+                : "border border-[#141A23] bg-white text-[#141A23] hover:bg-[#141A23] hover:text-white"
+            }`}
           >
             <Icon d={ICON.sparkles} className="w-4 h-4" />
-            <span>AI 자동 묶음 ({photos.length}장)</span>
+            <span>
+              AI 자동 묶음 ({photos.length}장 · 기본 {TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장)
+            </span>
           </button>
 
-          {groups.length > 0 && (
+          {eligibleGroups.length > 0 && (
             <>
               <button
                 type="button"
                 disabled={isBusy}
                 onClick={() => {
-                  if (selectedGroups.length === groups.length) {
-                    setDeselectedKeys(new Set(groups.map((g) => g.groupKey)));
+                  if (selectedGroups.length === eligibleGroups.length) {
+                    setDeselectedKeys(
+                      new Set(eligibleGroups.map((g) => g.groupKey))
+                    );
                   } else {
                     setDeselectedKeys(new Set());
                   }
                 }}
                 className="rounded-lg border border-[#CBD2DC] bg-[#F9FAFB] px-3 py-2 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] disabled:opacity-40 cursor-pointer"
               >
-                {selectedGroups.length === groups.length
+                {selectedGroups.length === eligibleGroups.length
                   ? "전체 선택 해제"
-                  : "전체 선택"}
+                  : `등록 가능 묶음 전체 선택 (${eligibleGroups.length})`}
               </button>
 
               <button
                 type="button"
                 disabled={isBusy || selectedGroups.length === 0}
                 onClick={() => runCommitQueue(selectedGroups)}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#E8521A] px-4 py-2 text-hb-xs font-bold text-white hover:bg-[#D9531E] disabled:opacity-40 transition-colors cursor-pointer"
+                className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-hb-xs font-bold text-white disabled:opacity-40 transition-colors cursor-pointer ${
+                  oversizedGroups.length > 0
+                    ? "bg-[#141A23] hover:bg-[#374151]"
+                    : "bg-[#E8521A] hover:bg-[#D9531E]"
+                }`}
               >
                 <Icon d={ICON.bolt} className="w-4 h-4" />
                 <span>
@@ -882,6 +922,18 @@ export function AdminTelegramInboxTab({
             </button>
           )}
         </div>
+
+        {oversizedGroups.length > 0 && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-hb-xs text-amber-950">
+            <strong>
+              {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장을 초과한 미분류 뭉치가{" "}
+              {oversizedGroups.length}개 있습니다.
+            </strong>{" "}
+            여러 제품이 섞여 등록되지 않도록 4장 이상 묶음은 일괄 등록이 잠겨 있습니다. 먼저{" "}
+            <strong>[AI 자동 묶음]</strong>을 눌러 기본 {TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장(최대{" "}
+            {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장) 단위로 나눈 뒤 등록해 주세요.
+          </div>
+        )}
 
         {/* AI 자동 묶음 진행률 바 */}
         {groupingProgress.active && (
@@ -1006,7 +1058,9 @@ export function AdminTelegramInboxTab({
         <div className="space-y-4">
           {groups.map((group, groupIdx) => {
             const checkboxId = `tg-group-select-${groupIdx}`;
-            const isSelected = !deselectedKeys.has(group.groupKey);
+            const commitCheck = canCommitInboxGroup(group);
+            const isSelected =
+              commitCheck.allowed && !deselectedKeys.has(group.groupKey);
             const groupFailure = failedByGroup[group.groupKey];
 
             return (
@@ -1015,6 +1069,8 @@ export function AdminTelegramInboxTab({
                 className={`rounded-xl border bg-white p-4 space-y-3 shadow-2xs transition-colors ${
                   groupFailure
                     ? "border-red-300"
+                    : !commitCheck.allowed
+                    ? "border-amber-300 bg-amber-50/20"
                     : isSelected
                     ? "border-[#141A23]/40"
                     : "border-[#E2E6EC] opacity-85"
@@ -1026,8 +1082,9 @@ export function AdminTelegramInboxTab({
                       id={checkboxId}
                       type="checkbox"
                       checked={isSelected}
-                      disabled={isBusy}
+                      disabled={isBusy || !commitCheck.allowed}
                       onChange={(e) => {
+                        if (!commitCheck.allowed) return;
                         setDeselectedKeys((prev) => {
                           const next = new Set(prev);
                           if (e.target.checked) next.delete(group.groupKey);
@@ -1035,7 +1092,7 @@ export function AdminTelegramInboxTab({
                           return next;
                         });
                       }}
-                      className="h-4 w-4 accent-[#E8521A] cursor-pointer"
+                      className="h-4 w-4 accent-[#E8521A] cursor-pointer disabled:cursor-not-allowed"
                     />
                     <label
                       htmlFor={checkboxId}
@@ -1050,9 +1107,9 @@ export function AdminTelegramInboxTab({
                       </span>
                     </label>
 
-                    {group.photos.length > 4 && (
+                    {!commitCheck.allowed && (
                       <span className="rounded bg-amber-100 px-2 py-0.5 text-hb-xs font-bold text-amber-900">
-                        최대 4장까지 상품 등록 · 초과분 [여기서 나누기] 또는 [제외] 권장
+                        4장+ 묶음 등록 잠금 · [AI 자동 묶음] 또는 [여기서 나누기]로 {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 이하 분리 필수
                       </span>
                     )}
                   </div>
@@ -1072,13 +1129,17 @@ export function AdminTelegramInboxTab({
 
                     <button
                       type="button"
-                      disabled={isBusy}
+                      disabled={isBusy || !commitCheck.allowed}
                       onClick={() => runCommitQueue([group])}
-                      className="inline-flex items-center gap-1 rounded-lg border border-[#FADCD0] bg-[#FFF4EE] px-2.5 py-1.5 text-hb-xs font-bold text-[#C84312] hover:bg-[#E8521A] hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[#FADCD0] bg-[#FFF4EE] px-2.5 py-1.5 text-hb-xs font-bold text-[#C84312] hover:bg-[#E8521A] hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                     >
                       <Icon d={ICON.bolt} className="w-3.5 h-3.5" />
                       <span>
-                        {groupFailure ? "이 묶음 재시도" : "이 묶음만 등록"}
+                        {groupFailure
+                          ? "이 묶음 재시도"
+                          : commitCheck.allowed
+                          ? "이 묶음만 등록"
+                          : `${TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장 이하만 등록`}
                       </span>
                     </button>
                   </div>
