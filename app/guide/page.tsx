@@ -2,7 +2,6 @@
 import React, { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { STORE } from "../../lib/site";
 import {
   INFO_GUIDE_ARTICLES,
@@ -19,6 +18,7 @@ import {
 } from "../../lib/ui";
 import { Icon, ICON } from "../../lib/icons";
 import { GuideBoardClient } from "../../components/guide/guide-board-client";
+import { GuideThumbnailImage } from "../../components/guide/guide-thumbnail-image";
 import { fetchGuideStatsMap } from "../../lib/guide-stats";
 
 export const revalidate = 60;
@@ -68,13 +68,13 @@ function GuideBoardStaticFallback() {
           href={`/guide/${article.slug}`}
           className="group flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-colors hover:border-[#141A23]"
         >
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
-            <Image
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EAE7E0]">
+            <GuideThumbnailImage
               src={article.thumbnailSrc}
               alt={article.thumbnailAlt}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
-              referrerPolicy="no-referrer"
+              baseQuality={85}
               className="object-cover object-center"
             />
           </div>

@@ -52,6 +52,7 @@ import {
 import { resolveGuideThumbnail } from "../../../lib/guides/thumbnails";
 import { getGuideConversionContext } from "../../../lib/guides/conversion";
 import { GuideShareButton } from "../../../components/guide/guide-share-button";
+import { GuideThumbnailImage } from "../../../components/guide/guide-thumbnail-image";
 
 export const revalidate = 1800; // 30분 ISR로 실시간 추천 매물 최신 유지
 
@@ -316,16 +317,15 @@ export default async function GuideDetailPage({
           {/* 왼쪽 본문 컬럼 (가독성 높은 화이트 에디토리얼 시트) */}
           <article className="min-w-0 max-w-[68ch] space-y-9 rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-8 shadow-2xs">
             <figure className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] overflow-hidden">
-              <Image
+              <GuideThumbnailImage
                 src={resolvedThumb.src}
                 alt={resolvedThumb.alt}
                 width={1280}
                 height={720}
                 sizes="(max-width: 1024px) 100vw, 760px"
-                quality={90}
+                baseQuality={85}
                 priority
                 loading="eager"
-                referrerPolicy="no-referrer"
                 className="w-full aspect-video object-cover block"
               />
               <figcaption className="px-4 py-2.5 text-hb-xs text-[#475569] border-t border-[#E2DDD3] flex flex-wrap items-center justify-between gap-2 leading-relaxed">
@@ -704,13 +704,13 @@ export default async function GuideDetailPage({
                         href={`/guide/${item.slug}`}
                         className="group flex items-start gap-3"
                       >
-                        <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#FAF9F6]">
-                          <Image
+                        <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#EAE7E0]">
+                          <GuideThumbnailImage
                             src={relThumb.src}
                             alt={relThumb.alt}
                             fill
                             sizes="64px"
-                            referrerPolicy="no-referrer"
+                            baseQuality={80}
                             className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         </div>

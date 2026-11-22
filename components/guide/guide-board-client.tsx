@@ -3,8 +3,8 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useSearchParams } from "next/navigation";
+import { GuideThumbnailImage } from "./guide-thumbnail-image";
 import {
   INFO_GUIDE_CATEGORY_LIST,
   LEGACY_GUIDE_CATEGORY_ALIASES,
@@ -92,16 +92,15 @@ function GuideCard({
         className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
         {/* 16:9 게시글별 고유 메인 이미지 */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
-          <Image
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EAE7E0]">
+          <GuideThumbnailImage
             src={article.thumbnailSrc}
             alt={article.thumbnailAlt}
             fill
             priority={eager}
             loading={eager ? "eager" : undefined}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
-            quality={90}
-            referrerPolicy="no-referrer"
+            baseQuality={85}
             className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
           />
           <div
@@ -188,16 +187,15 @@ function FeaturedGuide({
       className="group grid grid-cols-1 sm:grid-cols-12 overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
     >
       {/* 좌측 비주얼 썸네일 (5컬럼) */}
-      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[250px] sm:col-span-5 overflow-hidden bg-[#141A23]">
-        <Image
+      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[250px] sm:col-span-5 overflow-hidden bg-[#EAE7E0]">
+        <GuideThumbnailImage
           src={article.thumbnailSrc}
           alt={article.thumbnailAlt}
           fill
           priority
           loading="eager"
           sizes="(max-width: 640px) 100vw, 380px"
-          quality={90}
-          referrerPolicy="no-referrer"
+          baseQuality={85}
           className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
         />
         <div
@@ -879,14 +877,13 @@ export function GuideBoardClient({
                     href={`/guide/${article.slug}`}
                     className="group flex items-start gap-3 py-2.5"
                   >
-                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#141A23]">
-                      <Image
+                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#EAE7E0]">
+                      <GuideThumbnailImage
                         src={article.thumbnailSrc}
                         alt={article.thumbnailAlt}
                         fill
                         sizes="64px"
-                        quality={85}
-                        referrerPolicy="no-referrer"
+                        baseQuality={80}
                         className="object-cover object-center transition-transform duration-200 group-hover:scale-105"
                       />
                       <span className="absolute left-1 top-1 rounded bg-[#141A23]/85 px-1 font-mono text-hb-xs font-bold leading-tight text-white tabular-nums">

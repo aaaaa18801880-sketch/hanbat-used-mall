@@ -5,6 +5,11 @@ import path from "node:path";
 import { INFO_GUIDE_ARTICLES, getInfoGuideBySlug } from "../lib/info-guides";
 import { getGuideConversionContext } from "../lib/guides/conversion";
 import { resolveGuideThumbnail } from "../lib/guides/thumbnails";
+import {
+  MAX_GUIDE_IMAGE_RETRY_STEP,
+  buildDirectStaticImageUrl,
+  resolveGuideImageAttempt,
+} from "../lib/guides/image-retry";
 import { getCategoryWarrantyInfo } from "../lib/site";
 
 test("getGuideConversionContext routes buyback/closure guides to /purchase#purchase-form", () => {
@@ -60,4 +65,18 @@ test("all 69 guide articles have unique existing photorealistic main images with
   }
 
   assert.equal(seenSrcs.size, 69, "all 69 articles must have distinct main images");
+});
+
+test("guide image retry ladder escalates from Next.js optimizer retry to direct static recovery", () => {
+  assert.deepEqual(resolveGuideImageAttempt(0, 85), { mode: "optimized", quality: 85 });
+  assert.deepEqual(resolveGuideImageAttempt(1, 85), { mode: "optimized", quality: 80 });
+  assert.deepEqual(resolveGuideImageAttempt(MAX_GUIDE_IMAGE_RETRY_STEP, 85), {
+    mode: "direct",
+    quality: 85,
+  });
+  assert.deepEqual(resolveGuideImageAttempt(1, 80), { mode: "optimized", quality: 75 });
+  assert.equal(
+    buildDirectStaticImageUrl("/images/guide/photos/voltage-220v-vs-380v.jpg", 828),
+    "/images/guide/photos/voltage-220v-vs-380v.jpg?w=828",
+  );
 });
