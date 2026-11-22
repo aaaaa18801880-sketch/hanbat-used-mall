@@ -3,7 +3,7 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { GuideThumbnailImage } from "../guide/guide-thumbnail-image";
 import { Icon, ICON } from "../../lib/icons";
 import { INFO_GUIDE_CATEGORY_LIST } from "../../lib/guides/types";
 import { trackEvent } from "../../lib/site";
@@ -95,13 +95,12 @@ export function HomeGuideShowcase({
           >
             <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#141A23]">
               {featured.heroImageSrc && (
-                <Image
+                <GuideThumbnailImage
                   src={featured.heroImageSrc}
                   alt={featured.heroImageAlt || featured.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 42vw"
-                  quality={85}
-                  referrerPolicy="no-referrer"
+                  baseQuality={85}
                   className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
                 />
               )}
@@ -170,13 +169,12 @@ export function HomeGuideShowcase({
               >
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
                   {article.heroImageSrc && (
-                    <Image
+                    <GuideThumbnailImage
                       src={article.heroImageSrc}
                       alt={article.heroImageAlt || article.title}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 28vw"
-                      quality={80}
-                      referrerPolicy="no-referrer"
+                      baseQuality={80}
                       className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
                     />
                   )}
