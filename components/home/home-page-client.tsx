@@ -53,6 +53,11 @@ import {
   HomeLocationInquirySection,
   type HomeInquiryRow,
 } from "./home-location-inquiry-section";
+import { HomeBuybackStrip } from "./home-buyback-strip";
+import {
+  filterHomeShowroomProducts,
+  SERVICE_DELIVERY_REGIONS,
+} from "../../lib/home-showroom-filter";
 
 const AirconGuideModal = dynamic(
   () =>
@@ -135,9 +140,10 @@ export default function Home({
   );
   const [productsError, setProductsError] = useState(false);
 
-  /* 카테고리 탐색 선택 상태 */
+  /* 카테고리 탐색 및 빠른 검색 상태 */
   const [selectedCategory, setSelectedCategory] =
     useState<ShowroomCategoryItem>(SHOWROOM_CATEGORIES[0]);
+  const [showroomSearch, setShowroomSearch] = useState("");
 
   /* 배송·설치 사례 및 최근 문의 상태 */
   const [reviews, setReviews] = useState<Review[]>(initialReviews ?? []);
@@ -306,6 +312,15 @@ export default function Home({
     }
     return map;
   }, [activeProducts, featuredProducts]);
+
+  const filteredShowroomCount = useMemo(
+    () =>
+      filterHomeShowroomProducts(featuredProducts, {
+        selectedCategory,
+        searchQuery: showroomSearch,
+      }).length,
+    [featuredProducts, selectedCategory, showroomSearch]
+  );
 
   const getReviewBridgeMeta = (title?: string | null): {
     label: string;
@@ -531,7 +546,7 @@ export default function Home({
               {/* 좌측 (7열): 브리핑 아이브로우 배지 + H1 + 3대 출고 스펙 + 3대 목적 허브 */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
-                  <div className="flex flex-wrap items-center gap-2 text-hb-xs sm:text-hb-sm font-bold">
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-y-1 gap-x-2 text-hb-xs sm:text-hb-sm font-bold">
                     <span className="inline-flex items-center gap-1.5 font-mono text-[#C84312] tracking-tight">
                       <span
                         className="h-2 w-2 rounded-sm bg-[#E8521A]"
@@ -541,7 +556,7 @@ export default function Home({
                         SINCE {STORE.since} · {OPERATING_YEARS}년 직영
                       </span>
                     </span>
-                    <span className="text-[#CBD2DC]" aria-hidden="true">
+                    <span className="hidden sm:inline text-[#CBD2DC]" aria-hidden="true">
                       |
                     </span>
                     <span className="font-semibold text-[#475569]">
@@ -565,27 +580,28 @@ export default function Home({
 
                   {/* 스위스 벤토 2.0 3단 핵심 신뢰 지표 스트립 */}
                   <div className="mt-3.5 max-w-2xl grid grid-cols-3 divide-x divide-[#E2DDD3] rounded-xl border border-[#E2DDD3] bg-white/95 shadow-2xs">
-                    <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                      <span className="block text-hb-xs font-semibold text-[#475569] truncate">
+                    <div className="px-2.5 py-2 sm:px-4 sm:py-2.5 min-w-0">
+                      <span className="block text-hb-xs font-semibold text-[#475569] whitespace-nowrap">
                         에어컨 · 냉난방
                       </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#C84312] tabular-nums truncate">
+                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#C84312] tabular-nums whitespace-nowrap">
                         {getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel}
                       </strong>
                     </div>
-                    <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                      <span className="block text-hb-xs font-semibold text-[#475569] truncate">
-                        냉장 · 세탁 · 주요가전
+                    <div className="px-2.5 py-2 sm:px-4 sm:py-2.5 min-w-0">
+                      <span className="block text-hb-xs font-semibold text-[#475569] whitespace-nowrap">
+                        냉장 · 세탁
+                        <span className="hidden sm:inline"> · 주요가전</span>
                       </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#141A23] tabular-nums truncate">
+                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#141A23] tabular-nums whitespace-nowrap">
                         {getCategoryWarrantyInfo("냉장고").compactLabel}
                       </strong>
                     </div>
-                    <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                      <span className="block text-hb-xs font-semibold text-[#475569] truncate">
+                    <div className="px-2.5 py-2 sm:px-4 sm:py-2.5 min-w-0">
+                      <span className="block text-hb-xs font-semibold text-[#475569] whitespace-nowrap">
                         방문 매입 · 증빙
                       </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#141A23] tabular-nums truncate">
+                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-extrabold text-[#141A23] tabular-nums whitespace-nowrap">
                         당일 정산 · 계산서
                       </strong>
                     </div>
@@ -741,43 +757,49 @@ export default function Home({
         </section>
 
         {/* ════════════════════════════════════════════════════════════
-            [2/6] 품목별 쇼룸 탐색 바 → 실시간 쇼룸 전시 매물 (물건 먼저) → 4단계 현장 확인·세척·출고 신뢰
+            [2/6] 품목별 쇼룸 탐색 바 + 실시간 쇼룸 전시 매물 통합 카탈로그 섹션
             ════════════════════════════════════════════════════════════ */}
         <section
-          aria-label="품목별 쇼룸 카탈로그"
-          className="bg-white"
+          aria-labelledby="category-heading"
+          className="border-b border-[#E2DDD3] bg-white"
         >
           <CategoryPictogramBar
             embedded
             selectedKey={selectedCategory.key}
             categoryCounts={categoryCounts}
+            searchQuery={showroomSearch}
+            onSearchQueryChange={setShowroomSearch}
+            onQuickKeywordSelect={(keyword) => {
+              setSelectedCategory(SHOWROOM_CATEGORIES[0]);
+              setShowroomSearch(keyword);
+            }}
+            filteredCount={filteredShowroomCount}
             onSelectCategory={(item) => {
               setSelectedCategory(item);
             }}
           />
-        </section>
 
-        <FeaturedProductsSection
-          products={featuredProducts}
-          loading={productsLoading}
-          error={productsError}
-          onRetry={() => {
-            setProductsLoading(true);
-            setProductsError(false);
-            void loadFeaturedProducts();
-          }}
-          selectedCategory={selectedCategory}
-          onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
-        />
+          <FeaturedProductsSection
+            embedded
+            products={featuredProducts}
+            loading={productsLoading}
+            error={productsError}
+            onRetry={() => {
+              setProductsLoading(true);
+              setProductsError(false);
+              void loadFeaturedProducts();
+            }}
+            selectedCategory={selectedCategory}
+            onResetCategory={() => setSelectedCategory(SHOWROOM_CATEGORIES[0])}
+            searchQuery={showroomSearch}
+            onResetSearch={() => setShowroomSearch("")}
+          />
+        </section>
 
         <ShowroomTrustShowcase />
 
-        {/* [3/6] 오프라인 직영 쇼룸 오시는 길 및 실시간 1:1 문의 (#inquiry-section + #location-section) */}
-        <HomeLocationInquirySection
-          recent={recent}
-          totalInquiryCount={totalInquiryCount}
-          onOpenInquiry={openInquiry}
-        />
+        {/* [3/7] 가전 · 업소용 설비 방문 매입 3단계 요약 밴드 (#buyback-summary-section) */}
+        <HomeBuybackStrip />
 
         {/* ════════════════════════════════════════════════════════════
             [5/6] 배송 · 설치 현장 기록 (#reviews-section)
@@ -809,6 +831,59 @@ export default function Home({
                     <Icon d={ICON.plus} className="h-3.5 w-3.5" /> 인증사진 등록
                   </button>
                 )}
+              </div>
+            </div>
+
+            {/* 직영 배송·설치 권역 및 외부 실거래 후기 연결 스트립 (Zero-Pill) */}
+            <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between rounded-xl border border-[#E2DDD3] bg-white px-4 py-3 text-hb-xs sm:text-hb-sm">
+              <div className="flex items-start gap-2.5 min-w-0">
+                <Icon
+                  d={ICON.truck}
+                  className="w-4 h-4 text-[#C84312] shrink-0 mt-0.5"
+                />
+                <p className="text-[#475569] leading-relaxed break-keep">
+                  <strong className="font-bold text-[#141A23]">직영 배송·설치 권역</strong>{" "}
+                  <span className="text-[#CBD2DC]" aria-hidden="true">
+                    ·
+                  </span>{" "}
+                  {SERVICE_DELIVERY_REGIONS.join(" · ")}{" "}
+                  <span className="text-[#64748B]">(그 외 전국 화물 협의)</span>
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 shrink-0 border-t border-[#E2DDD3] pt-2.5 lg:border-t-0 lg:pt-0">
+                <a
+                  href={STORE.naverMap}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("click_external_review", {
+                      channel: "naver_map",
+                      location: "home_reviews_section",
+                    })
+                  }
+                  className="inline-flex items-center gap-1 font-bold text-[#141A23] hover:text-[#C84312] transition-colors whitespace-nowrap"
+                >
+                  <span>네이버 지도 방문자 리뷰</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E]" />
+                </a>
+                <span className="text-[#CBD2DC]" aria-hidden="true">
+                  |
+                </span>
+                <a
+                  href={STORE.daangnLocalProfile}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() =>
+                    trackEvent("click_external_review", {
+                      channel: "daangn_profile",
+                      location: "home_reviews_section",
+                    })
+                  }
+                  className="inline-flex items-center gap-1 font-bold text-[#141A23] hover:text-[#C84312] transition-colors whitespace-nowrap"
+                >
+                  <span>당근 비즈프로필 단골 후기</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#C84312]" />
+                </a>
               </div>
             </div>
 
@@ -994,14 +1069,21 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <AiRecommendationGuideSection />
 
-        {/* [6/7] 자주 묻는 질문 (#faq-section) */}
+        {/* [6/8] 자주 묻는 질문 (#faq-section) */}
         <HomeFaqSection
           onOpenInquiry={openInquiry}
           onOpenAirconGuide={() => setAirconModalOpen(true)}
         />
 
+        {/* [7/8] 오프라인 직영 쇼룸 오시는 길 및 실시간 1:1 문의 (#inquiry-section + #location-section) */}
+        <HomeLocationInquirySection
+          recent={recent}
+          totalInquiryCount={totalInquiryCount}
+          onOpenInquiry={openInquiry}
+        />
+
         {/* ════════════════════════════════════════════════════════════
-            [7/7] 가전 · 전기 · 설치 정보 게시판 비주얼 쇼케이스
+            [8/8] 가전 · 전기 · 설치 정보 게시판 비주얼 쇼케이스
             ════════════════════════════════════════════════════════════ */}
         <HomeGuideShowcase
           guides={[...latestGuides]}

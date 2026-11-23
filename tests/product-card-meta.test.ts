@@ -228,3 +228,41 @@ test("splitWarrantyHighlight splits SSOT compact warranty labels into accent + l
     "에어컨/냉난방기"
   );
 });
+
+test("buildProductCardDisplay preserves thousand-separator commas and compound units like kcal/h", () => {
+  const aircon = buildProductCardDisplay({
+    title:
+      "삼성 11평형 트라이앵글 인버터 벽걸이 에어컨 (정격냉방 4,200W, AR11K5170HV)",
+    categoryLabel: "에어컨/냉난방기",
+    modelName: "AR11K5170HV",
+    specCapsules: ["단상 220V", "11평형"],
+  });
+  assert.equal(
+    aircon.descriptiveTitle,
+    "11평형 트라이앵글 인버터 벽걸이 에어컨 (정격냉방 4,200W)"
+  );
+  assert.equal(aircon.modelCode, "AR11K5170HV");
+
+  const soupKettle = buildProductCardDisplay({
+    title:
+      "지에스케이 업소용 가스 자동점화 회전식 국솥 (도시가스 LNG · 28,000kcal/h, KSNRN-701)",
+    categoryLabel: "업소용기기",
+    modelName: "KSNRN-701",
+    specCapsules: [],
+  });
+  assert.equal(
+    soupKettle.descriptiveTitle,
+    "지에스케이 업소용 가스 자동점화 회전식 국솥 (도시가스 LNG · 28,000kcal/h)"
+  );
+  assert.equal(soupKettle.modelCode, "KSNRN-701");
+
+  const fridge = buildProductCardDisplay({
+    title: "우성 45박스 스텐 냉장고 (1,060L, CWS-1264RF)",
+    categoryLabel: "업소용기기",
+    modelName: "CWS-1264RF",
+    specCapsules: ["45박스", "1,060L"],
+  });
+  assert.equal(fridge.descriptiveTitle, "45박스 스텐 냉장고 (1,060L)");
+  assert.equal(fridge.modelCode, "CWS-1264RF");
+});
+

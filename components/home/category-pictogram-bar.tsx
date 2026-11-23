@@ -4,8 +4,13 @@
 import React, { useCallback, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { trackEvent } from "../../lib/site";
 import { Icon, ICON } from "../../lib/icons";
+import {
+  buildHomeGallerySearchHref,
+  HOME_QUICK_SEARCH_KEYWORDS,
+} from "../../lib/home-showroom-filter";
 import {
   SHOWROOM_CATEGORIES,
   SHOWROOM_GROUP_TABS,
@@ -30,13 +35,22 @@ export function CategoryPictogramBar({
   selectedKey = "all",
   onSelectCategory,
   categoryCounts,
+  searchQuery = "",
+  onSearchQueryChange,
+  onQuickKeywordSelect,
+  filteredCount,
   embedded = false,
 }: {
   selectedKey?: PictogramKey;
   onSelectCategory?: (item: ShowroomCategoryItem) => void;
   categoryCounts?: Partial<Record<PictogramKey, number>>;
+  searchQuery?: string;
+  onSearchQueryChange?: (value: string) => void;
+  onQuickKeywordSelect?: (keyword: string) => void;
+  filteredCount?: number;
   embedded?: boolean;
 }) {
+  const router = useRouter();
   const railRef = useRef<HTMLDivElement | null>(null);
   const [groupFilter, setGroupFilter] = useState<ShowroomGroupFilter>("all");
   const [scrollRatio, setScrollRatio] = useState(0);
@@ -73,16 +87,42 @@ export function CategoryPictogramBar({
     0,
     visibleItems.findIndex((c) => c.key === selectedItem.key)
   );
+  const trimmedSearch = searchQuery.trim();
   const selectedCount =
-    typeof categoryCounts?.[selectedItem.key] === "number"
+    trimmedSearch && typeof filteredCount === "number"
+      ? filteredCount
+      : typeof categoryCounts?.[selectedItem.key] === "number"
       ? categoryCounts[selectedItem.key]
       : categoryCounts?.all;
   const selectedWarranty = getShowroomCategoryWarrantyLabel(selectedItem);
 
-  const cardViewHref = selectedItem.href || "/gallery";
-  const tableViewHref = cardViewHref.includes("?")
-    ? `${cardViewHref}&view=table`
-    : `${cardViewHref}?view=table`;
+  const cardViewHref = buildHomeGallerySearchHref({
+    baseHref: selectedItem.href || "/gallery",
+    searchQuery: trimmedSearch,
+    view: "card",
+  });
+  const tableViewHref = buildHomeGallerySearchHref({
+    baseHref: selectedItem.href || "/gallery",
+    searchQuery: trimmedSearch,
+    view: "table",
+  });
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    trackEvent("search_products", {
+      query_length: q.length,
+      category: selectedItem.label,
+      location: "home_showroom_bar",
+    });
+    router.push(
+      buildHomeGallerySearchHref({
+        baseHref: selectedItem.href || "/gallery",
+        searchQuery: q,
+        view: "card",
+      })
+    );
+  };
 
   const syncScrollProgress = () => {
     const el = railRef.current;
@@ -270,7 +310,7 @@ export function CategoryPictogramBar({
       aria-label="취급 품목 및 쇼룸 카테고리"
       className={
         embedded
-          ? "bg-white pt-8 pb-5 sm:pt-11 sm:pb-6"
+          ? "bg-white pt-8 pb-3 sm:pt-10 sm:pb-4"
           : "bg-white pt-10 pb-6 sm:pt-12 sm:pb-8"
       }
     >
@@ -289,21 +329,25 @@ export function CategoryPictogramBar({
               </h2>
               {typeof selectedCount === "number" && (
                 <span className="font-mono text-hb-sm sm:text-hb-base font-bold text-[#475569] tabular-nums">
-                  {selectedCount}건 전시중
+                  {trimmedSearch
+                    ? `${selectedCount}건 검색됨`
+                    : `${selectedCount}건 전시중`}
                 </span>
               )}
-              {selectedItem.key !== "all" && onSelectCategory && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setGroupFilter("all");
-                    onSelectCategory(SHOWROOM_CATEGORIES[0]);
-                  }}
-                  className="text-hb-xs font-bold text-[#C84312] hover:underline underline-offset-4 cursor-pointer whitespace-nowrap"
-                >
-                  전체 보기
-                </button>
-              )}
+              {(selectedItem.key !== "all" || trimmedSearch) &&
+                onSelectCategory && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setGroupFilter("all");
+                      onSelectCategory(SHOWROOM_CATEGORIES[0]);
+                      onSearchQueryChange?.("");
+                    }}
+                    className="text-hb-xs font-bold text-[#C84312] hover:underline underline-offset-4 cursor-pointer whitespace-nowrap"
+                  >
+                    {trimmedSearch ? "검색 초기화" : "전체 보기"}
+                  </button>
+                )}
             </div>
             <p className="mt-1.5 text-hb-sm text-[#475569] leading-[1.55] break-keep">
               {selectedItem.tagline}
@@ -333,6 +377,95 @@ export function CategoryPictogramBar({
             </div>
           </div>
         </div>
+
+        {/* 1-B. 홈 쇼룸 빠른 검색창 & 인기 검색어 바로가기 */}
+        {onSearchQueryChange && (
+          <div className="mt-4 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] p-3 sm:p-3.5">
+            <form
+              role="search"
+              aria-label="홈 쇼룸 매물 빠른 검색"
+              onSubmit={handleSearchSubmit}
+              className="flex flex-col gap-2 sm:flex-row sm:items-center"
+            >
+              <div className="relative flex-1 min-w-0">
+                <Icon
+                  d={ICON.search}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]"
+                />
+                <input
+                  id="home-showroom-search"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => onSearchQueryChange(e.target.value)}
+                  placeholder="품목·브랜드·규격 빠른 검색 (예: 45박스, 벽걸이 에어컨, 삼성, 11평)"
+                  aria-label="품목, 브랜드, 규격 빠른 검색"
+                  className="w-full h-11 rounded-xl border border-[#CBD2DC] bg-white pl-10 pr-10 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none focus:ring-2 focus:ring-[#141A23]/15 transition-[border-color,box-shadow]"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => onSearchQueryChange("")}
+                    aria-label="검색어 지우기"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-lg text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#141A23] cursor-pointer"
+                  >
+                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="hb-btn-primary h-11 px-4 text-hb-xs sm:text-hb-sm font-bold shrink-0 whitespace-nowrap cursor-pointer active:scale-[0.97]"
+              >
+                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                <span>전체 갤러리 검색</span>
+              </button>
+            </form>
+
+            <div className="mt-2.5 flex items-center gap-2 overflow-x-auto scrollbar-none pt-0.5">
+              <span className="text-hb-xs font-bold text-[#64748B] shrink-0 whitespace-nowrap">
+                인기 검색어
+              </span>
+              <span className="text-[#CBD2DC] shrink-0" aria-hidden="true">
+                |
+              </span>
+              <div className="flex items-center gap-1.5">
+                {HOME_QUICK_SEARCH_KEYWORDS.map((keyword) => {
+                  const isActiveKeyword =
+                    trimmedSearch.toLowerCase() === keyword.toLowerCase();
+                  return (
+                    <button
+                      key={keyword}
+                      type="button"
+                      aria-pressed={isActiveKeyword}
+                      onClick={() => {
+                        const nextKeyword = isActiveKeyword ? "" : keyword;
+                        trackEvent("search_products", {
+                          query_length: nextKeyword.length,
+                          category: "인기검색어",
+                          location: "home_showroom_quick_keyword",
+                        });
+                        if (onQuickKeywordSelect) {
+                          setGroupFilter("all");
+                          onQuickKeywordSelect(nextKeyword);
+                        } else {
+                          onSearchQueryChange(nextKeyword);
+                        }
+                      }}
+                      className={`min-h-[32px] rounded-lg px-2.5 py-1 text-hb-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                        isActiveKeyword
+                          ? "bg-[#141A23] text-white"
+                          : "bg-white border border-[#E2DDD3] text-[#334155] hover:border-[#141A23] hover:text-[#141A23]"
+                      }`}
+                    >
+                      {keyword}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* 2. 가정용 · 업소용 빠른 구분 탭 (모바일·데스크톱 단일행 고정) */}
         <div className="mt-5 flex items-center justify-between gap-3 border-b border-[#E2DDD3] overflow-x-auto scrollbar-none">

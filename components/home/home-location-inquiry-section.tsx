@@ -20,6 +20,7 @@ import {
   isInquiryAnswered,
   summarizeInquiryActivity,
 } from "../../lib/inquiry-feed";
+import { SERVICE_DELIVERY_REGIONS } from "../../lib/home-showroom-filter";
 
 export type HomeInquiryRow = {
   id: string | number;
@@ -149,27 +150,44 @@ export function HomeLocationInquirySection({
                 </button>
               </div>
 
-              <p className="pt-2.5 border-t border-[#E2DDD3] text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed">
-                <strong className="font-semibold text-[#141A23]">전용 주차 8대</strong>(1톤 화물 진입 수월) ·{" "}
-                <strong className="font-semibold text-[#141A23]">현장 전원 확인</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
-              </p>
+              <div className="pt-2.5 border-t border-[#E2DDD3] space-y-1.5 text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed">
+                <p className="break-keep">
+                  <strong className="font-semibold text-[#141A23]">전용 주차 8대</strong>(1톤 화물 진입 수월) ·{" "}
+                  <strong className="font-semibold text-[#141A23]">현장 전원 확인</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
+                </p>
+                <p className="break-keep">
+                  <strong className="font-semibold text-[#141A23]">직영 배차 권역</strong> ·{" "}
+                  {SERVICE_DELIVERY_REGIONS.join(" · ")}
+                </p>
+              </div>
 
-              <div className="grid grid-cols-2 gap-2.5 pt-0.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5">
                 <a
                   href={STORE.naverMap}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold"
+                  className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
                 >
-                  <span>네이버 지도 길찾기</span>
+                  <span>네이버 지도</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
                 </a>
                 <a
                   href={STORE_NAVIGATION.kakaoTo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold"
+                  className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
                 >
-                  <span>카카오맵 길찾기</span>
+                  <span>카카오맵</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
+                </a>
+                <a
+                  href={STORE.daangnLocalProfile}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hb-btn-outline col-span-2 sm:col-span-1 h-10 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                >
+                  <span>당근 비즈프로필</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#C84312]" />
                 </a>
               </div>
             </div>

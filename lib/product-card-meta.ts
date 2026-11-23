@@ -317,11 +317,26 @@ export function sanitizeCardModelCode(
 function isModelCodeToken(token: string): boolean {
   const trimmed = token.trim();
   if (!trimmed || /[가-힣]/.test(trimmed)) return false;
-  // 순수 용량·전력·크기 단위(540W, 23L, 100kg, 220V 등)는 모델코드가 아닌 스펙으로 유지
-  if (/^\d+(?:\.\d+)?\s*(?:L|kg|kW|W|V|㎡|mm|cm|평|구|도어|박스)$/i.test(trimmed)) {
+  // 순수 용량·전력·열량·크기 단위(540W, 4,200W, 28,000kcal/h, 23L, 100kg, 220V 등)는 모델코드가 아닌 스펙으로 유지
+  if (
+    /^\d{1,3}(?:,\d{3})*(?:\.\d+)?\s*(?:L|kg|kW|kWh|W|V|Hz|dB|rpm|bar|RT|HP|kcal(?:\/h)?|btu(?:\/h)?|㎡|m[²³](?:\/(?:h|min))?|mm|cm|평|구|도어|박스)$/i.test(
+      trimmed
+    )
+  ) {
     return false;
   }
   return /[A-Za-z]/.test(trimmed) && /\d/.test(trimmed) && trimmed.length >= 4;
+}
+
+/**
+ * 괄호 안 문자열을 스펙/모델코드 토큰으로 안전하게 분리합니다.
+ * - 천 단위 쉼표(4,200W, 28,000kcal/h)와 복합 단위 슬래시(kcal/h, kg/일)는 절대 쪼개지 않습니다.
+ */
+function splitParentheticalChunks(inside: string): string[] {
+  return inside
+    .split(/(?:(?<!\d)\s*,\s*|\s*,(?!\d{3}(?!\d))\s*|\s+\/\s+)/)
+    .map((c) => c.trim())
+    .filter(Boolean);
 }
 
 export interface ProductCardDisplay {
@@ -421,10 +436,7 @@ export function buildProductCardDisplay({
     const candidateMain = mainTitle.slice(0, trailingParenMatch.index).trim();
     if (candidateMain.length >= 4) {
       mainTitle = candidateMain;
-      const chunks = inside
-        .split(/\s*[,/]\s*/)
-        .map((c) => c.trim())
-        .filter(Boolean);
+      const chunks = splitParentheticalChunks(inside);
 
       for (const chunk of chunks) {
         if (isModelCodeToken(chunk)) {

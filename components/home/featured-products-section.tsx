@@ -20,9 +20,12 @@ import {
   type ProductItem,
 } from "../products/product-card";
 import {
-  matchesShowroomCategory,
   type ShowroomCategoryItem,
 } from "./category-pictogram-bar";
+import {
+  buildHomeGallerySearchHref,
+  filterHomeShowroomProducts,
+} from "../../lib/home-showroom-filter";
 import {
   ModernApplianceIcon,
   type ModernIconType,
@@ -128,6 +131,8 @@ export function FeaturedProductsSection({
   onRetry,
   selectedCategory,
   onResetCategory,
+  searchQuery = "",
+  onResetSearch,
   embedded = false,
 }: {
   products: ProductItem[];
@@ -136,30 +141,33 @@ export function FeaturedProductsSection({
   onRetry: () => void;
   selectedCategory?: ShowroomCategoryItem;
   onResetCategory?: () => void;
+  searchQuery?: string;
+  onResetSearch?: () => void;
   embedded?: boolean;
 }) {
   const currentCategoryKey = selectedCategory?.key || "all";
-  const [prevCategoryKey, setPrevCategoryKey] = useState(currentCategoryKey);
+  const trimmedSearch = searchQuery.trim();
+  const filterSignature = `${currentCategoryKey}::${trimmedSearch}`;
+  const [prevFilterSignature, setPrevFilterSignature] =
+    useState(filterSignature);
   const [visibleCount, setVisibleCount] = useState(INITIAL_DISPLAY_LIMIT);
   const [compareOpen, setCompareOpen] = useState(false);
 
   const basketItems = useQuoteBasket();
 
-  if (prevCategoryKey !== currentCategoryKey) {
-    setPrevCategoryKey(currentCategoryKey);
+  if (prevFilterSignature !== filterSignature) {
+    setPrevFilterSignature(filterSignature);
     setVisibleCount(INITIAL_DISPLAY_LIMIT);
   }
 
-  const filteredProducts = useMemo(() => {
-    const active = products.filter((p) => !isProductSold(p.status));
-    const source = active.length > 0 ? active : products;
-
-    if (!selectedCategory || selectedCategory.key === "all") {
-      return source;
-    }
-
-    return source.filter((p) => matchesShowroomCategory(p, selectedCategory));
-  }, [products, selectedCategory]);
+  const filteredProducts = useMemo(
+    () =>
+      filterHomeShowroomProducts(products, {
+        selectedCategory,
+        searchQuery: trimmedSearch,
+      }),
+    [products, selectedCategory, trimmedSearch]
+  );
 
   const displayedProducts = useMemo(
     () => filteredProducts.slice(0, visibleCount),
@@ -176,10 +184,16 @@ export function FeaturedProductsSection({
       ? `${selectedCategory.label} 검수 완료 실매물`
       : "검수 완료 쇼룸 전시 매물";
 
-  const galleryHref = selectedCategory?.href || "/gallery";
-  const tableViewHref = galleryHref.includes("?")
-    ? `${galleryHref}&view=table`
-    : `${galleryHref}?view=table`;
+  const galleryHref = buildHomeGallerySearchHref({
+    baseHref: selectedCategory?.href || "/gallery",
+    searchQuery: trimmedSearch,
+    view: "card",
+  });
+  const tableViewHref = buildHomeGallerySearchHref({
+    baseHref: selectedCategory?.href || "/gallery",
+    searchQuery: trimmedSearch,
+    view: "table",
+  });
 
   const categoryFact =
     currentCategoryKey !== "all"
@@ -191,10 +205,10 @@ export function FeaturedProductsSection({
   return (
     <Wrapper
       id="featured-products-section"
-      aria-labelledby="featured-heading"
+      aria-labelledby={embedded ? "category-heading" : "featured-heading"}
       className={
         embedded
-          ? "bg-white pt-4 pb-10 sm:pt-6 sm:pb-14 border-t border-[#EAE5DC]"
+          ? "bg-white pt-1 pb-10 sm:pt-2 sm:pb-14"
           : "border-b border-[#E2DDD3] bg-white pt-8 pb-12 sm:pt-11 sm:pb-16"
       }
     >
@@ -255,7 +269,11 @@ export function FeaturedProductsSection({
 
         {/* 빠른 비교 · 묶음 견적 진입 도크 (담긴 매물이 있을 때 즉시 활성화) */}
         {!loading && !error && (
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-4 py-3">
+          <div
+            className={`${
+              embedded ? "mt-2" : "mt-4"
+            } flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-4 py-2.5 sm:py-3`}
+          >
             <div className="flex items-center gap-2.5 min-w-0">
               <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#141A23] text-[#FF8A50] shrink-0">
                 <Icon d={ICON.columns} className="w-4 h-4" />
@@ -344,8 +362,8 @@ export function FeaturedProductsSection({
           </div>
         )}
 
-        {/* 선택 카테고리 특화 검수 기준 스트립 (WCAG AA 대비 강화) */}
-        {!loading && !error && categoryFact && (
+        {/* 선택 카테고리 특화 검수 기준 스트립 (embedded 모드에서는 상단 쇼룸 바의 점검 기준 스트립과 중복되므로 생략) */}
+        {!embedded && !loading && !error && categoryFact && (
           <div className="mt-3.5 rounded-xl border border-[#CBD2DC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
@@ -415,31 +433,58 @@ export function FeaturedProductsSection({
         ) : displayedProducts.length === 0 ? (
           <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
-              <p className="text-hb-lg font-bold text-[#141A23]">
-                선택하신 분류의 온라인 등록 매물을 준비 중입니다.
+              <p className="text-hb-lg font-bold text-[#141A23] break-keep">
+                {trimmedSearch
+                  ? `'${trimmedSearch}' 검색 조건에 맞는 온라인 등록 매물이 없습니다.`
+                  : "선택하신 분류의 온라인 등록 매물을 준비 중입니다."}
               </p>
-              <p className="mt-1 text-hb-sm text-[#475569]">
+              <p className="mt-1 text-hb-sm text-[#475569] break-keep">
                 매장에는 온라인에 미처 올리지 못한 가전과 주방설비가 상시 준비되어 있습니다. 찾으시는 품목을 말씀해 주시면 즉시 재고를 확인해 드립니다.
               </p>
             </div>
             <div className="flex flex-wrap gap-2.5 shrink-0">
+              {trimmedSearch && onResetSearch && (
+                <button
+                  type="button"
+                  onClick={onResetSearch}
+                  className="hb-btn-outline h-11 px-4 text-hb-sm font-bold cursor-pointer active:scale-[0.96]"
+                >
+                  검색어 초기화
+                </button>
+              )}
               {selectedCategory &&
                 selectedCategory.key !== "all" &&
                 onResetCategory && (
                   <button
                     type="button"
                     onClick={onResetCategory}
-                    className="hb-btn-outline h-11 px-4 text-hb-sm active:scale-[0.96]"
+                    className="hb-btn-outline h-11 px-4 text-hb-sm font-bold cursor-pointer active:scale-[0.96]"
                   >
                     전체 매물 보기
                   </button>
                 )}
-              <a
-                href={telHref(STORE.tel)}
-                className="hb-btn-primary h-11 px-5 text-hb-sm active:scale-[0.96]"
-              >
-                <Icon d={ICON.phone} className="w-4 h-4" /> 전화로 재고 확인
-              </a>
+              {trimmedSearch ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    triggerQuickInquiry({
+                      type: "구매 문의",
+                      productTitle: `[재고 문의] ${trimmedSearch}`,
+                    })
+                  }
+                  className="hb-btn-primary h-11 px-5 text-hb-sm font-bold cursor-pointer active:scale-[0.96]"
+                >
+                  <Icon d={ICON.chat} className="w-4 h-4 text-[#FF8A50]" />
+                  <span>이 품목 매장 재고 문의</span>
+                </button>
+              ) : (
+                <a
+                  href={telHref(STORE.tel)}
+                  className="hb-btn-primary h-11 px-5 text-hb-sm active:scale-[0.96]"
+                >
+                  <Icon d={ICON.phone} className="w-4 h-4" /> 전화로 재고 확인
+                </a>
+              )}
             </div>
           </div>
         ) : (
