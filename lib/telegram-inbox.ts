@@ -320,19 +320,35 @@ export function parseTelegramWebhookUpdate(
   return { matched: false, reason: "not_image" };
 }
 
+function compareTelegramPhotosChronologically(
+  a: TelegramInboxPhoto,
+  b: TelegramInboxPhoto
+): number {
+  const ta = new Date(a.taken_at).getTime();
+  const tb = new Date(b.taken_at).getTime();
+  if (ta !== tb) return ta - tb;
+  if (a.message_id !== b.message_id) return a.message_id - b.message_id;
+  if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
+  return a.id.localeCompare(b.id);
+}
+
 /**
  * 수집함 사진을 촬영/전송 시간순 -> 메시지 ID -> 정렬 순번 순으로 안정 정렬합니다.
  */
 export function sortTelegramPhotosChronologically(
   photos: readonly TelegramInboxPhoto[]
 ): TelegramInboxPhoto[] {
+  return [...photos].sort(compareTelegramPhotosChronologically);
+}
+
+function sortPhotosWithinGroup(
+  photos: readonly TelegramInboxPhoto[]
+): TelegramInboxPhoto[] {
   return [...photos].sort((a, b) => {
-    const ta = new Date(a.taken_at).getTime();
-    const tb = new Date(b.taken_at).getTime();
-    if (ta !== tb) return ta - tb;
-    if (a.message_id !== b.message_id) return a.message_id - b.message_id;
-    if (a.sort_order !== b.sort_order) return a.sort_order - b.sort_order;
-    return a.id.localeCompare(b.id);
+    const sa = Number.isFinite(a.sort_order) ? a.sort_order : 0;
+    const sb = Number.isFinite(b.sort_order) ? b.sort_order : 0;
+    if (sa !== sb) return sa - sb;
+    return compareTelegramPhotosChronologically(a, b);
   });
 }
 
@@ -340,11 +356,12 @@ function finalizeGroupFromPhotos(
   groupKey: string,
   photos: TelegramInboxPhoto[]
 ): TelegramInboxGroup {
+  const orderedPhotos = sortPhotosWithinGroup(photos);
   return {
     groupKey,
-    photos,
-    takenFrom: photos[0]?.taken_at ?? "",
-    takenTo: photos[photos.length - 1]?.taken_at ?? "",
+    photos: orderedPhotos,
+    takenFrom: orderedPhotos[0]?.taken_at ?? "",
+    takenTo: orderedPhotos[orderedPhotos.length - 1]?.taken_at ?? "",
   };
 }
 
@@ -506,6 +523,10 @@ export function splitInboxGroupBeforePhoto(
   };
 }
 
+export type TelegramGroupUpdateItem =
+  | TelegramGroupKeyOnlyUpdate
+  | TelegramGroupPersistenceUpdate;
+
 /**
  * 선택한 묶음을 바로 앞 묶음과 하나로 합칩니다.
  */
@@ -515,7 +536,7 @@ export function mergeInboxGroupWithPrevious(
 ): {
   groups: TelegramInboxGroup[];
   updates: TelegramGroupPersistenceUpdate[];
-  changedUpdates: TelegramGroupKeyOnlyUpdate[];
+  changedUpdates: TelegramGroupUpdateItem[];
   changed: boolean;
 } {
   if (groupIndex <= 0 || groupIndex >= groups.length) {
@@ -529,21 +550,45 @@ export function mergeInboxGroupWithPrevious(
 
   const prev = groups[groupIndex - 1];
   const curr = groups[groupIndex];
-  const changedUpdates: TelegramGroupKeyOnlyUpdate[] = [];
+  const changedUpdates: TelegramGroupUpdateItem[] = [];
 
   for (const p of prev.photos) {
     if ((p.group_key || "") !== prev.groupKey) {
       changedUpdates.push({ id: p.id, group_key: prev.groupKey });
     }
   }
-  for (const p of curr.photos) {
-    changedUpdates.push({ id: p.id, group_key: prev.groupKey });
-  }
 
-  const mergedPhotos = [...prev.photos, ...curr.photos].map((p) => ({
-    ...p,
-    group_key: prev.groupKey,
-  }));
+  const prevMaxSort = Math.max(
+    ...prev.photos.map((p) => (Number.isFinite(p.sort_order) ? p.sort_order : 0))
+  );
+  const currMinSort = Math.min(
+    ...curr.photos.map((p) => (Number.isFinite(p.sort_order) ? p.sort_order : 0))
+  );
+  const needsRenumber =
+    (prevMaxSort !== 0 || currMinSort !== 0) && currMinSort <= prevMaxSort;
+
+  const adjustedCurrPhotos = curr.photos.map((p, idx) => {
+    const nextSort = needsRenumber ? prevMaxSort + idx + 1 : p.sort_order;
+    if (needsRenumber) {
+      changedUpdates.push({
+        id: p.id,
+        group_key: prev.groupKey,
+        sort_order: nextSort,
+      });
+    } else {
+      changedUpdates.push({ id: p.id, group_key: prev.groupKey });
+    }
+    return {
+      ...p,
+      group_key: prev.groupKey,
+      sort_order: nextSort,
+    };
+  });
+
+  const mergedPhotos = [
+    ...prev.photos.map((p) => ({ ...p, group_key: prev.groupKey })),
+    ...adjustedCurrPhotos,
+  ];
 
   const nextGroups = [
     ...groups.slice(0, groupIndex - 1),
@@ -857,6 +902,134 @@ export function canCommitInboxGroup(
     return { allowed: false, reason: "too_many_photos" };
   }
   return { allowed: true };
+}
+
+/**
+ * 같은 묶음 안의 두 사진 위치(기본 1번 <-> 2번)를 서로 교환하고 sort_order를 영구 저장용으로 갱신합니다.
+ * - 명판/모델명 사진이 제품 외관보다 먼저 찍혀 있을 때 대표 썸네일 순서를 즉시 바로잡습니다.
+ */
+export function swapInboxGroupPhotos(
+  groups: readonly TelegramInboxGroup[],
+  groupKey: string,
+  indexA = 0,
+  indexB = 1
+): {
+  groups: TelegramInboxGroup[];
+  photos: TelegramInboxPhoto[];
+  changedUpdates: TelegramGroupPersistenceUpdate[];
+  changed: boolean;
+} {
+  const groupIdx = groups.findIndex((g) => g.groupKey === groupKey);
+  if (groupIdx < 0) {
+    return {
+      groups: [...groups],
+      photos: groups.flatMap((g) => g.photos),
+      changedUpdates: [],
+      changed: false,
+    };
+  }
+
+  const targetGroup = groups[groupIdx];
+  const len = targetGroup.photos.length;
+  if (
+    indexA < 0 ||
+    indexB < 0 ||
+    indexA >= len ||
+    indexB >= len ||
+    indexA === indexB
+  ) {
+    return {
+      groups: [...groups],
+      photos: groups.flatMap((g) => g.photos),
+      changedUpdates: [],
+      changed: false,
+    };
+  }
+
+  const persistedKey =
+    targetGroup.photos.find((p) => p.group_key?.trim())?.group_key?.trim() ||
+    targetGroup.groupKey;
+
+  const reordered = [...targetGroup.photos];
+  const temp = reordered[indexA];
+  reordered[indexA] = reordered[indexB];
+  reordered[indexB] = temp;
+
+  const existingPool = targetGroup.photos
+    .map((p) => (Number.isFinite(p.sort_order) ? p.sort_order : 0))
+    .sort((a, b) => a - b);
+  const hasDistinctPool = existingPool.every(
+    (val, idx) => idx === 0 || val > existingPool[idx - 1]
+  );
+  const baseSort = Math.min(...existingPool, 0);
+  const nextSorts = hasDistinctPool
+    ? existingPool
+    : reordered.map((_, idx) => baseSort + idx);
+
+  const updatedPhotos = reordered.map((p, idx) => ({
+    ...p,
+    group_key: persistedKey,
+    sort_order: nextSorts[idx],
+  }));
+
+  const changedUpdates: TelegramGroupPersistenceUpdate[] = updatedPhotos.map(
+    (p) => ({
+      id: p.id,
+      group_key: persistedKey,
+      sort_order: p.sort_order,
+    })
+  );
+
+  const nextGroups = [
+    ...groups.slice(0, groupIdx),
+    finalizeGroupFromPhotos(persistedKey, updatedPhotos),
+    ...groups.slice(groupIdx + 1),
+  ];
+
+  return {
+    groups: nextGroups,
+    photos: nextGroups.flatMap((g) => g.photos),
+    changedUpdates,
+    changed: true,
+  };
+}
+
+/**
+ * 커밋 시 관리자가 지정한 사진 순서(requestedIds) -> 그룹 내 sort_order -> 시간순 순으로 정렬합니다.
+ */
+export function orderCommitInboxPhotos(
+  photos: readonly TelegramInboxPhoto[],
+  requestedIds?: readonly string[]
+): TelegramInboxPhoto[] {
+  const rankById = new Map<string, number>();
+  if (requestedIds) {
+    requestedIds.forEach((id, idx) => {
+      if (!rankById.has(id)) rankById.set(id, idx);
+    });
+  }
+
+  return [...photos].sort((a, b) => {
+    const ra = rankById.get(a.id);
+    const rb = rankById.get(b.id);
+    if (ra !== undefined && rb !== undefined && ra !== rb) {
+      return ra - rb;
+    }
+    const sa = Number.isFinite(a.sort_order) ? a.sort_order : 0;
+    const sb = Number.isFinite(b.sort_order) ? b.sort_order : 0;
+    if (sa !== sb) return sa - sb;
+    return compareTelegramPhotosChronologically(a, b);
+  });
+}
+
+/**
+ * 묶음 내 사진 순서가 원본 촬영/업로드 시간순과 다르면 사용자가 수동으로 순서를 조정한 것으로 판별합니다.
+ */
+export function isGroupOrderCustomized(
+  orderedPhotos: readonly TelegramInboxPhoto[]
+): boolean {
+  if (orderedPhotos.length <= 1) return false;
+  const chronological = sortTelegramPhotosChronologically(orderedPhotos);
+  return orderedPhotos.some((p, idx) => p.id !== chronological[idx]?.id);
 }
 
 /**

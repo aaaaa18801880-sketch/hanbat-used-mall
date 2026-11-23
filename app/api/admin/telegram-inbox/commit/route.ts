@@ -35,10 +35,11 @@ import {
   processTelegramOriginalToProductWebp,
 } from "../../../../../lib/server-image-sharp";
 import {
+  isGroupOrderCustomized,
+  orderCommitInboxPhotos,
   orderCommitItemsWithPrimaryExterior,
   resolvePhotoCommitRotations,
   sanitizeManualRotationMap,
-  sortTelegramPhotosChronologically,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   type TelegramInboxPhoto,
 } from "../../../../../lib/telegram-inbox";
@@ -92,6 +93,7 @@ export async function POST(req: NextRequest) {
     photoIds?: unknown;
     categoryHint?: unknown;
     manualRotations?: unknown;
+    preserveOrder?: unknown;
   };
   try {
     body = await req.json();
@@ -149,9 +151,12 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
-    const ordered = sortTelegramPhotosChronologically(
-      (data ?? []) as TelegramInboxPhoto[]
+    const ordered = orderCommitInboxPhotos(
+      (data ?? []) as TelegramInboxPhoto[],
+      photoIds
     );
+    const shouldPreserveOrder =
+      body.preserveOrder === true || isGroupOrderCustomized(ordered);
     if (ordered.length === 0) {
       return NextResponse.json(
         { error: "이미 등록되었거나 존재하지 않는 사진 묶음입니다." },
@@ -290,8 +295,9 @@ export async function POST(req: NextRequest) {
       };
     });
 
-    const orderedPrepared =
-      orderCommitItemsWithPrimaryExterior(preparedOriginals);
+    const orderedPrepared = shouldPreserveOrder
+      ? preparedOriginals
+      : orderCommitItemsWithPrimaryExterior(preparedOriginals);
 
     const batchTs = Date.now();
     const orderedPublicUrls = new Array<string>(orderedPrepared.length);

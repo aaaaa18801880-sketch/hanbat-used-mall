@@ -374,9 +374,11 @@ interface TelegramThumbTileProps {
   indexInGroup: number;
   disabled: boolean;
   rotationDeg: QuarterTurnDegrees;
+  canMakePrimary?: boolean;
   thumbStore: TelegramThumbStore;
   onInspectFull: (photo: TelegramInboxPhoto) => void;
   onRotatePhoto: (photoId: string, delta: 90 | -90) => void;
+  onMakePrimary?: (photoId: string) => void;
   onSplitBefore: (photoId: string) => void;
   onRePairFromPhoto: (photoId: string) => void;
   onDiscard: (photoId: string) => void;
@@ -392,9 +394,11 @@ export function TelegramThumbTile({
   indexInGroup,
   disabled,
   rotationDeg,
+  canMakePrimary,
   thumbStore,
   onInspectFull,
   onRotatePhoto,
+  onMakePrimary,
   onSplitBefore,
   onRePairFromPhoto,
   onDiscard,
@@ -550,6 +554,19 @@ export function TelegramThumbTile({
 
         {indexInGroup > 0 && (
           <>
+            {canMakePrimary && onMakePrimary && (
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={() => onMakePrimary(photo.id)}
+                title="이 사진을 1번 대표 사진 위치로 교환합니다"
+                aria-label={`${indexInGroup + 1}번 사진을 1번 대표 사진으로 교환`}
+                className="inline-flex items-center justify-center gap-1 rounded border border-[#141A23] bg-white px-1.5 py-1 text-hb-xs font-bold text-[#141A23] hover:bg-[#141A23] hover:text-white disabled:opacity-40 cursor-pointer whitespace-nowrap transition-colors"
+              >
+                <Icon d={ICON.swap} className="w-3 h-3" />
+                <span>#1 교환</span>
+              </button>
+            )}
             <button
               type="button"
               disabled={disabled}

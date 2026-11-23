@@ -7,9 +7,11 @@ import {
   chunkTelegramItems,
   detectOldSoldProductCleanupTargets,
   filterActiveRoomPendingPhotos,
+  isGroupOrderCustomized,
   mergeInboxGroupWithPrevious,
   normalizeAiGroupingResult,
   normalizeQuarterTurnDegrees,
+  orderCommitInboxPhotos,
   orderCommitItemsWithPrimaryExterior,
   pairInboxPhotosByFixedSize,
   parseTelegramWebhookUpdate,
@@ -21,6 +23,7 @@ import {
   sortTelegramPhotosChronologically,
   splitInboxGroupBeforePhoto,
   stepQuarterTurnDegrees,
+  swapInboxGroupPhotos,
   type TelegramInboxPhoto,
 } from "../lib/telegram-inbox";
 import sharp from "sharp";
@@ -585,4 +588,78 @@ test("filterActiveRoomPendingPhotos keeps only pending photos in target room and
   assert.equal(chunks.length, 2);
   assert.equal(chunks[0].length, 250);
   assert.equal(chunks[1].length, 173);
+});
+
+test("swapInboxGroupPhotos swaps photos persistently across reloads and protects manual commit order", () => {
+  const initialPhotos = [
+    makePhoto("label-first", {
+      message_id: 100,
+      sort_order: 100,
+      group_key: "g47",
+      taken_at: "2026-11-22T12:22:01.000Z",
+    }),
+    makePhoto("exterior-second", {
+      message_id: 101,
+      sort_order: 101,
+      group_key: "g47",
+      taken_at: "2026-11-22T12:22:02.000Z",
+    }),
+    makePhoto("next-prod", {
+      message_id: 102,
+      sort_order: 102,
+      group_key: "g48",
+      taken_at: "2026-11-22T12:22:03.000Z",
+    }),
+  ];
+
+  const groups = buildInboxGroups(initialPhotos);
+  assert.deepEqual(
+    groups[0].photos.map((p) => p.id),
+    ["label-first", "exterior-second"]
+  );
+  assert.equal(isGroupOrderCustomized(groups[0].photos), false);
+
+  const swapped = swapInboxGroupPhotos(groups, "g47", 0, 1);
+  assert.equal(swapped.changed, true);
+  assert.deepEqual(
+    swapped.groups[0].photos.map((p) => p.id),
+    ["exterior-second", "label-first"]
+  );
+  assert.equal(isGroupOrderCustomized(swapped.groups[0].photos), true);
+
+  // DB 재조회 시뮬레이션: buildInboxGroups가 묶음 경계와 교환된 sort_order 순서를 모두 보존해야 함
+  const reloadedGroups = buildInboxGroups(swapped.photos);
+  assert.equal(reloadedGroups.length, 2);
+  assert.deepEqual(
+    reloadedGroups[0].photos.map((p) => p.id),
+    ["exterior-second", "label-first"]
+  );
+  assert.deepEqual(
+    reloadedGroups[1].photos.map((p) => p.id),
+    ["next-prod"]
+  );
+
+  // 커밋 API 정렬: 역순으로 내려온 DB 행에서도 requestedIds + sort_order 기준 유지
+  const commitOrdered = orderCommitInboxPhotos(
+    [initialPhotos[0], swapped.photos[0]],
+    ["exterior-second", "label-first"]
+  );
+  assert.deepEqual(
+    commitOrdered.map((p) => p.id),
+    ["exterior-second", "label-first"]
+  );
+
+  // AI 배치 경계 간 sort_order 충돌(17,18 + 1,2) 병합 시에도 앞뒤 순서 보존
+  const batchBoundaryGroups = buildInboxGroups([
+    makePhoto("b1", { message_id: 1, sort_order: 17, group_key: "ai_1" }),
+    makePhoto("b2", { message_id: 2, sort_order: 18, group_key: "ai_1" }),
+    makePhoto("b3", { message_id: 3, sort_order: 1, group_key: "ai_2" }),
+    makePhoto("b4", { message_id: 4, sort_order: 2, group_key: "ai_2" }),
+  ]);
+  const mergedAcrossBatches = mergeInboxGroupWithPrevious(batchBoundaryGroups, 1);
+  assert.equal(mergedAcrossBatches.changed, true);
+  assert.deepEqual(
+    mergedAcrossBatches.groups[0].photos.map((p) => p.id),
+    ["b1", "b2", "b3", "b4"]
+  );
 });

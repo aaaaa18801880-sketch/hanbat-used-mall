@@ -9,6 +9,7 @@ import {
   buildInboxGroups,
   canCommitInboxGroup,
   chunkTelegramItems,
+  isGroupOrderCustomized,
   mergeInboxGroupWithPrevious,
   pairInboxPhotosByFixedSize,
   removePhotoFromInboxGroups,
@@ -16,10 +17,11 @@ import {
   sanitizeManualRotationMap,
   splitInboxGroupBeforePhoto,
   stepQuarterTurnDegrees,
+  swapInboxGroupPhotos,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT,
   type QuarterTurnDegrees,
-  type TelegramGroupKeyOnlyUpdate,
+  type TelegramGroupUpdateItem,
   type TelegramInboxGroup,
   type TelegramInboxPhoto,
 } from "../../lib/telegram-inbox";
@@ -138,6 +140,10 @@ export function AdminTelegramInboxTab({
   >(() => loadStoredManualRotations());
   const [currentPage, setCurrentPage] = useState(1);
   const [showAllGroups, setShowAllGroups] = useState(false);
+  const [reorderedGroupKeys, setReorderedGroupKeys] = useState<Set<string>>(
+    () => new Set()
+  );
+  const [reorderStatusText, setReorderStatusText] = useState("");
   const [thumbStore] = useState(() => createTelegramThumbStore());
 
   const handleRotatePhoto = useCallback(
@@ -419,7 +425,7 @@ export function AdminTelegramInboxTab({
   );
 
   const persistUpdates = async (
-    updates: readonly TelegramGroupKeyOnlyUpdate[]
+    updates: readonly TelegramGroupUpdateItem[]
   ) => {
     if (updates.length === 0) return;
     for (const slice of chunkTelegramItems(updates)) {
@@ -436,6 +442,49 @@ export function AdminTelegramInboxTab({
       if (!res.ok) {
         throw new Error(json.error || "묶음 변경 저장에 실패했습니다.");
       }
+    }
+  };
+
+  const handleSwapGroupPhotos = async (
+    groupKey: string,
+    indexA: number,
+    indexB: number,
+    groupNumberLabel?: string
+  ) => {
+    if (isBusy) return;
+    const res = swapInboxGroupPhotos(groups, groupKey, indexA, indexB);
+    if (!res.changed) return;
+
+    const prevPhotos = photos;
+    const prevReorderedKeys = reorderedGroupKeys;
+    const persistedKey = res.changedUpdates[0]?.group_key || groupKey;
+
+    setPhotos(res.photos);
+    setReorderedGroupKeys((prev) => {
+      const next = new Set(prev);
+      next.add(groupKey);
+      next.add(persistedKey);
+      return next;
+    });
+    setReorderStatusText(
+      `묶음 ${groupNumberLabel ? `#${groupNumberLabel}` : ""}의 ${
+        indexA + 1
+      }번과 ${indexB + 1}번 사진 순서를 서로 교환했습니다.`
+    );
+    setPersistingOp(true);
+    try {
+      await persistUpdates(res.changedUpdates);
+      toast.success(
+        `${indexA + 1}번 ↔ ${indexB + 1}번 사진 순서를 서로 교환했습니다.`
+      );
+    } catch (err: unknown) {
+      setPhotos(prevPhotos);
+      setReorderedGroupKeys(prevReorderedKeys);
+      toast.error(
+        err instanceof Error ? err.message : "사진 순서 교환 저장에 실패했습니다."
+      );
+    } finally {
+      setPersistingOp(false);
     }
   };
 
@@ -715,6 +764,9 @@ export function AdminTelegramInboxTab({
           body: JSON.stringify({
             photoIds: commitIds,
             manualRotations: groupManualRotations,
+            preserveOrder:
+              reorderedGroupKeys.has(grp.groupKey) ||
+              isGroupOrderCustomized(grp.photos),
           }),
         });
 
@@ -1396,6 +1448,10 @@ export function AdminTelegramInboxTab({
             </div>
           )}
 
+          <p role="status" className="sr-only">
+            {reorderStatusText}
+          </p>
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
             {visibleGroups.map((group, localIdx) => {
               const groupIdx = pageStartIdx + localIdx;
@@ -1459,6 +1515,27 @@ export function AdminTelegramInboxTab({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1">
+                      {group.photos.length >= 2 && (
+                        <button
+                          type="button"
+                          disabled={isBusy}
+                          onClick={() =>
+                            handleSwapGroupPhotos(
+                              group.groupKey,
+                              0,
+                              1,
+                              String(groupIdx + 1)
+                            )
+                          }
+                          title="1번 대표 사진과 2번 사진의 순서를 서로 교환합니다"
+                          aria-label={`묶음 #${groupIdx + 1} 1번과 2번 사진 순서 교환`}
+                          className="inline-flex items-center gap-1 rounded-lg border border-[#CBD2DC] bg-white px-2 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F9FAFB] disabled:opacity-40 cursor-pointer"
+                        >
+                          <Icon d={ICON.swap} className="w-3 h-3" />
+                          <span>순서교환</span>
+                        </button>
+                      )}
+
                       {groupIdx > 0 && (
                         <button
                           type="button"
@@ -1511,9 +1588,20 @@ export function AdminTelegramInboxTab({
                         indexInGroup={photoIdx}
                         disabled={isBusy}
                         rotationDeg={manualRotations[photo.id] ?? 0}
+                        canMakePrimary={
+                          group.photos.length >= 3 && photoIdx >= 2
+                        }
                         thumbStore={thumbStore}
                         onInspectFull={setInspectingPhoto}
                         onRotatePhoto={handleRotatePhoto}
+                        onMakePrimary={() =>
+                          handleSwapGroupPhotos(
+                            group.groupKey,
+                            0,
+                            photoIdx,
+                            String(groupIdx + 1)
+                          )
+                        }
                         onSplitBefore={handleSplitBefore}
                         onRePairFromPhoto={handleRePairFromPhoto}
                         onDiscard={(id) => handleDiscardPhotos([id])}
