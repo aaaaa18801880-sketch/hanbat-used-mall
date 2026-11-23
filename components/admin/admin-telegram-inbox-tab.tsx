@@ -12,7 +12,7 @@ import {
   isGroupOrderCustomized,
   mergeInboxGroupWithPrevious,
   pairInboxPhotosByFixedSize,
-  removePhotoFromInboxGroups,
+  removePhotosFromInboxGroups,
   rePairInboxFromPhoto,
   sanitizeManualRotationMap,
   splitInboxGroupBeforePhoto,
@@ -593,10 +593,7 @@ export function AdminTelegramInboxTab({
     if (confirmMsg && !confirm(confirmMsg)) return;
 
     const prevPhotos = photos;
-    let nextGroups = groups;
-    for (const id of ids) {
-      nextGroups = removePhotoFromInboxGroups(nextGroups, id);
-    }
+    const nextGroups = removePhotosFromInboxGroups(groups, ids);
     const nextPhotos = nextGroups.flatMap((g) => g.photos);
     setPhotos(nextPhotos);
     onPendingCountChange?.(nextPhotos.length);
@@ -632,6 +629,82 @@ export function AdminTelegramInboxTab({
       onPendingCountChange?.(prevPhotos.length);
       toast.error(
         err instanceof Error ? err.message : "사진 제외에 실패했습니다."
+      );
+    } finally {
+      setPersistingOp(false);
+    }
+  };
+
+  const handleDiscardSelectedGroups = async () => {
+    if (isBusy || selectedGroups.length === 0) return;
+    const targetIds = selectedGroups.flatMap((g) => g.photos.map((p) => p.id));
+    if (targetIds.length === 0) return;
+
+    const confirmMsg =
+      selectedGroups.length === eligibleGroups.length && eligibleGroups.length > 1
+        ? `현재 등록 가능 묶음 전체(${selectedGroups.length}개, 사진 ${targetIds.length}장)가 선택되어 있습니다.\n모두 수집함에서 제외할까요?\n\n일부만 제외하려면 [취소] 후 [전체 선택 해제]를 눌러 지울 묶음만 체크하세요.`
+        : `선택한 ${selectedGroups.length}개 묶음(사진 ${targetIds.length}장)을 수집함에서 제외할까요?`;
+
+    await handleDiscardPhotos(targetIds, confirmMsg);
+  };
+
+  const handleClearAllInbox = async () => {
+    if (isBusy || photos.length === 0) return;
+    const confirmed = confirm(
+      `수집함에 대기 중인 사진 ${photos.length}장(${groups.length}개 묶음)을 한 번에 모두 비울까요?\n\n- 쇼핑몰에 이미 등록된 상품과 사진은 안전하게 유지됩니다.\n- 다시 받으려면 텔레그램 방에 올릴 사진만 새로 전송해 주세요.`
+    );
+    if (!confirmed) return;
+
+    const prevPhotos = photos;
+    const prevRotations = manualRotations;
+    const prevDeselected = deselectedKeys;
+    const prevReordered = reorderedGroupKeys;
+    const prevFailed = failedByGroup;
+
+    setPhotos([]);
+    onPendingCountChange?.(0);
+    setDeselectedKeys(new Set());
+    setReorderedGroupKeys(new Set());
+    setFailedByGroup({});
+    setManualRotations({});
+    saveStoredManualRotations({});
+    setCurrentPage(1);
+    setPersistingOp(true);
+
+    try {
+      const headers = await thumbStore.getAuthHeaders();
+      const res = await fetch("/api/admin/telegram-inbox", {
+        method: "DELETE",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ clearAll: true }),
+      });
+      const json = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        discardedCount?: number;
+      };
+      if (!res.ok) {
+        throw new Error(json.error || "수집함 전체 비우기에 실패했습니다.");
+      }
+
+      for (const p of prevPhotos) {
+        thumbStore.revoke(p.id);
+      }
+      toast.success(
+        `수집함 대기 사진 ${json.discardedCount ?? prevPhotos.length}장을 모두 비웠습니다.`
+      );
+    } catch (err: unknown) {
+      setPhotos(prevPhotos);
+      onPendingCountChange?.(prevPhotos.length);
+      setManualRotations(prevRotations);
+      saveStoredManualRotations(prevRotations);
+      setDeselectedKeys(prevDeselected);
+      setReorderedGroupKeys(prevReordered);
+      setFailedByGroup(prevFailed);
+      toast.error(
+        err instanceof Error ? err.message : "수집함 비우기에 실패했습니다."
       );
     } finally {
       setPersistingOp(false);
@@ -1286,6 +1359,34 @@ export function AdminTelegramInboxTab({
               <Icon d={ICON.rotate} className="w-3.5 h-3.5" />
               <span>수동 회전 {activeRotatedCount}장 · 초기화</span>
             </button>
+          )}
+
+          {photos.length > 0 && (
+            <div className="sm:ml-auto flex flex-wrap items-center gap-2">
+              {eligibleGroups.length > 0 && (
+                <button
+                  type="button"
+                  disabled={isBusy || selectedGroups.length === 0}
+                  onClick={handleDiscardSelectedGroups}
+                  title="체크된 묶음들만 수집함에서 제외합니다 (일부만 지우려면 [전체 선택 해제] 후 원하는 묶음만 체크하세요)"
+                  className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-white px-3 py-2 text-hb-xs font-bold text-red-700 hover:bg-red-50 disabled:opacity-40 cursor-pointer"
+                >
+                  <Icon d={ICON.trash} className="w-3.5 h-3.5" />
+                  <span>선택 묶음 제외 ({selectedGroups.length}개)</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                disabled={isBusy}
+                onClick={handleClearAllInbox}
+                title="대기 중인 수집함 사진을 한 번에 모두 비웁니다 (기존 등록 상품 영향 없음)"
+                className="inline-flex items-center gap-1 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-hb-xs font-bold text-red-800 hover:bg-red-600 hover:text-white disabled:opacity-40 transition-colors cursor-pointer"
+              >
+                <Icon d={ICON.trash} className="w-3.5 h-3.5" />
+                <span>수집함 비우기 ({photos.length}장)</span>
+              </button>
+            </div>
           )}
         </div>
 

@@ -17,6 +17,7 @@ import {
   parseTelegramWebhookUpdate,
   partitionIndicesForProductSize,
   removePhotoFromInboxGroups,
+  removePhotosFromInboxGroups,
   rePairInboxFromPhoto,
   resolvePhotoCommitRotations,
   sanitizeManualRotationMap,
@@ -661,5 +662,23 @@ test("swapInboxGroupPhotos swaps photos persistently across reloads and protects
   assert.deepEqual(
     mergedAcrossBatches.groups[0].photos.map((p) => p.id),
     ["b1", "b2", "b3", "b4"]
+  );
+
+  // 선택 묶음 다건 제외 (O(N) 단일 패스) 검증
+  const multiGroups = buildInboxGroups([
+    makePhoto("m1", { message_id: 1, group_key: "g1" }),
+    makePhoto("m2", { message_id: 2, group_key: "g1" }),
+    makePhoto("m3", { message_id: 3, group_key: "g2" }),
+    makePhoto("m4", { message_id: 4, group_key: "g2" }),
+    makePhoto("m5", { message_id: 5, group_key: "g3" }),
+  ]);
+  const afterBulkDiscard = removePhotosFromInboxGroups(multiGroups, [
+    "m1",
+    "m2",
+    "m4",
+  ]);
+  assert.deepEqual(
+    afterBulkDiscard.map((g) => g.photos.map((p) => p.id)),
+    [["m3"], ["m5"]]
   );
 });

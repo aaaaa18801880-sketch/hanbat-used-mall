@@ -724,20 +724,32 @@ export function rePairInboxFromPhoto(
 }
 
 /**
+ * 지정한 사진 ID 목록을 O(N) 단일 패스로 그룹 목록에서 제거하고 빈 그룹을 정리합니다.
+ */
+export function removePhotosFromInboxGroups(
+  groups: readonly TelegramInboxGroup[],
+  targetPhotoIds: readonly string[]
+): TelegramInboxGroup[] {
+  const removeSet = new Set(targetPhotoIds);
+  if (removeSet.size === 0) return [...groups];
+  const nextGroups: TelegramInboxGroup[] = [];
+  for (const group of groups) {
+    const filtered = group.photos.filter((p) => !removeSet.has(p.id));
+    if (filtered.length > 0) {
+      nextGroups.push(finalizeGroupFromPhotos(group.groupKey, filtered));
+    }
+  }
+  return nextGroups;
+}
+
+/**
  * 불필요한/흔들린 사진 1장을 그룹 목록에서 제거하고 빈 그룹을 정리합니다.
  */
 export function removePhotoFromInboxGroups(
   groups: readonly TelegramInboxGroup[],
   targetPhotoId: string
 ): TelegramInboxGroup[] {
-  const nextGroups: TelegramInboxGroup[] = [];
-  for (const group of groups) {
-    const filtered = group.photos.filter((p) => p.id !== targetPhotoId);
-    if (filtered.length > 0) {
-      nextGroups.push(finalizeGroupFromPhotos(group.groupKey, filtered));
-    }
-  }
-  return nextGroups;
+  return removePhotosFromInboxGroups(groups, [targetPhotoId]);
 }
 
 /**

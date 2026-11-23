@@ -256,7 +256,7 @@ export async function PATCH(req: NextRequest) {
 }
 
 /**
- * 불필요한 사진 제외(discarded) 처리
+ * 불필요한 사진 제외(discarded) 또는 수집함 대기 사진 전체 비우기 처리
  */
 export async function DELETE(req: NextRequest) {
   const adminCheck = await verifyAdminRequest(req);
@@ -267,13 +267,14 @@ export async function DELETE(req: NextRequest) {
     );
   }
 
-  let body: { ids?: unknown };
+  let body: { ids?: unknown; clearAll?: unknown };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "잘못된 요청 형식입니다." }, { status: 400 });
   }
 
+  const clearAll = body.clearAll === true;
   const ids = Array.isArray(body.ids)
     ? body.ids
         .map((id) => (typeof id === "string" ? id.trim() : ""))
@@ -281,13 +282,31 @@ export async function DELETE(req: NextRequest) {
         .slice(0, 500)
     : [];
 
-  if (ids.length === 0) {
+  if (!clearAll && ids.length === 0) {
     return NextResponse.json({ error: "제외할 사진 ID가 없습니다." }, { status: 400 });
   }
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
     const ingestChatId = getTelegramIngestChatId();
+
+    if (clearAll) {
+      let clearQuery = supabase
+        .from("telegram_inbox_photos")
+        .update({ status: "discarded" }, { count: "exact" })
+        .eq("status", "pending");
+      if (ingestChatId) {
+        clearQuery = clearQuery.eq("chat_id", ingestChatId);
+      }
+      const { count, error } = await clearQuery;
+      if (error) throw error;
+      return NextResponse.json({
+        ok: true,
+        clearAll: true,
+        discardedCount: count ?? 0,
+      });
+    }
+
     let delQuery = supabase
       .from("telegram_inbox_photos")
       .update({ status: "discarded" })
