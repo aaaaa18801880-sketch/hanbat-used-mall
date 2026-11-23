@@ -152,6 +152,34 @@ export async function generateGeminiWithFallback(options: {
       };
     } catch (modelErr: unknown) {
       lastError = modelErr;
+      const errMsg = modelErr instanceof Error ? modelErr.message : String(modelErr || "");
+      if (
+        "thinkingConfig" in baseConfig &&
+        /thinking/i.test(errMsg)
+      ) {
+        const strippedConfig = { ...baseConfig };
+        delete strippedConfig.thinkingConfig;
+        try {
+          const retryRes = await ai.models.generateContent({
+            model,
+            contents,
+            config: {
+              ...strippedConfig,
+              abortSignal: AbortSignal.timeout(resolvedTimeoutMs),
+            },
+          });
+          const retryText = retryRes.text?.trim() || "";
+          if (retryText) {
+            return {
+              text: retryText,
+              modelUsed: model,
+              response: retryRes,
+            };
+          }
+        } catch (retryErr: unknown) {
+          lastError = retryErr;
+        }
+      }
       const hasNext = i < candidateModels.length - 1;
       if (hasNext && isRetryableModelError(modelErr)) {
         continue;

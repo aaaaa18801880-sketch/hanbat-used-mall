@@ -791,101 +791,118 @@ export function AdminTelegramInboxTab({
     const validTargets = targetGroups.filter((g) => canCommitInboxGroup(g).allowed);
     if (isBusy || validTargets.length === 0) return;
 
+    const COMMIT_CONCURRENCY = 4;
+    const workerCount = Math.min(COMMIT_CONCURRENCY, validTargets.length);
+
     abortCommitRef.current = false;
     setCommitProgress({
       active: true,
       done: 0,
       total: validTargets.length,
       success: 0,
-      currentLabel: "순차 등록을 준비 중입니다...",
+      currentLabel:
+        workerCount > 1
+          ? `동시 ${workerCount}건 병렬 등록을 준비 중입니다...`
+          : "등록을 준비 중입니다...",
     });
 
     const nextFailures: Record<string, string> = { ...failedByGroup };
     const committedPhotoIdSet = new Set<string>();
+    const initialPhotoCount = photos.length;
     let successCount = 0;
+    let completedCount = 0;
+    let nextIdx = 0;
+    let abortNotified = false;
 
-    for (let i = 0; i < validTargets.length; i++) {
-      if (abortCommitRef.current) {
-        toast("나머지 일괄 등록이 중단되었습니다.");
-        break;
-      }
+    const runWorker = async () => {
+      while (true) {
+        if (abortCommitRef.current) {
+          if (!abortNotified) {
+            abortNotified = true;
+            toast("나머지 일괄 등록이 중단되었습니다.");
+          }
+          return;
+        }
 
-      const grp = validTargets[i];
-      const commitIds = grp.photos.map((p) => p.id);
-      setCommitProgress({
-        active: true,
-        done: i,
-        total: validTargets.length,
-        success: successCount,
-        currentLabel: `${i + 1}/${validTargets.length}번째 묶음 (${commitIds.length}장) 처리 중...`,
-      });
+        const currentIdx = nextIdx++;
+        if (currentIdx >= validTargets.length) return;
 
-      const groupManualRotations: Record<string, QuarterTurnDegrees> = {};
-      for (const id of commitIds) {
-        const deg = manualRotations[id];
-        if (deg) groupManualRotations[id] = deg;
-      }
+        const grp = validTargets[currentIdx];
+        const commitIds = grp.photos.map((p) => p.id);
+        const groupManualRotations: Record<string, QuarterTurnDegrees> = {};
+        for (const id of commitIds) {
+          const deg = manualRotations[id];
+          if (deg) groupManualRotations[id] = deg;
+        }
 
-      try {
-        const headers = await thumbStore.getAuthHeaders();
-        const res = await fetch("/api/admin/telegram-inbox/commit", {
-          method: "POST",
-          headers: {
-            ...headers,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            photoIds: commitIds,
-            manualRotations: groupManualRotations,
-            preserveOrder:
-              reorderedGroupKeys.has(grp.groupKey) ||
-              isGroupOrderCustomized(grp.photos),
-          }),
+        try {
+          const headers = await thumbStore.getAuthHeaders();
+          const res = await fetch("/api/admin/telegram-inbox/commit", {
+            method: "POST",
+            headers: {
+              ...headers,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              photoIds: commitIds,
+              manualRotations: groupManualRotations,
+              preserveOrder:
+                reorderedGroupKeys.has(grp.groupKey) ||
+                isGroupOrderCustomized(grp.photos),
+            }),
+          });
+
+          const json = (await res.json().catch(() => ({}))) as {
+            error?: string;
+            committedPhotoIds?: string[];
+          };
+
+          if (!res.ok) {
+            throw new Error(json.error || `등록 실패 (${res.status})`);
+          }
+
+          delete nextFailures[grp.groupKey];
+          const committedArr = json.committedPhotoIds ?? commitIds;
+          const committedLocalSet = new Set<string>();
+          for (const cid of committedArr) {
+            committedPhotoIdSet.add(cid);
+            committedLocalSet.add(cid);
+            thumbStore.revoke(cid);
+          }
+          setPhotos((prev) => prev.filter((p) => !committedLocalSet.has(p.id)));
+          onPendingCountChange?.(
+            Math.max(0, initialPhotoCount - committedPhotoIdSet.size)
+          );
+          successCount++;
+        } catch (err: unknown) {
+          nextFailures[grp.groupKey] =
+            err instanceof Error
+              ? err.message
+              : "등록 처리 중 알 수 없는 오류";
+        }
+
+        completedCount++;
+        setCommitProgress({
+          active: true,
+          done: completedCount,
+          total: validTargets.length,
+          success: successCount,
+          currentLabel:
+            workerCount > 1
+              ? `동시 ${workerCount}건 병렬 등록 중 · ${completedCount}/${validTargets.length}건 완료`
+              : `${completedCount}/${validTargets.length}건 처리 완료`,
         });
-
-        const json = (await res.json().catch(() => ({}))) as {
-          error?: string;
-          committedPhotoIds?: string[];
-        };
-
-        if (!res.ok) {
-          throw new Error(json.error || `등록 실패 (${res.status})`);
-        }
-
-        delete nextFailures[grp.groupKey];
-        for (const cid of json.committedPhotoIds ?? commitIds) {
-          committedPhotoIdSet.add(cid);
-        }
-        successCount++;
-      } catch (err: unknown) {
-        nextFailures[grp.groupKey] =
-          err instanceof Error
-            ? err.message
-            : "등록 처리 중 알 수 없는 오류";
       }
+    };
 
-      setCommitProgress({
-        active: true,
-        done: i + 1,
-        total: validTargets.length,
-        success: successCount,
-        currentLabel: `${i + 1}/${validTargets.length} 처리 완료`,
-      });
-    }
+    await Promise.all(
+      Array.from({ length: workerCount }, () => runWorker())
+    );
 
     setFailedByGroup(nextFailures);
 
     if (committedPhotoIdSet.size > 0) {
-      const committedArr = Array.from(committedPhotoIdSet);
-      for (const cid of committedArr) {
-        thumbStore.revoke(cid);
-      }
-      pruneManualRotations(committedArr);
-      setPhotos((prev) => {
-        const next = prev.filter((p) => !committedPhotoIdSet.has(p.id));
-        onPendingCountChange?.(next.length);
-        return next;
-      });
+      pruneManualRotations(Array.from(committedPhotoIdSet));
       setCommittedCount((prev) => prev + successCount);
       await onProductsChanged?.();
     }

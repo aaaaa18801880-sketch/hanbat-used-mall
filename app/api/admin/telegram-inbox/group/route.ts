@@ -192,9 +192,10 @@ ${timelineSummary}
       config: {
         responseMimeType: "application/json",
         temperature: 0.1,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 2048,
+        thinkingConfig: { thinkingBudget: 0 },
       },
-      timeoutMs: 25000,
+      timeoutMs: 18000,
     });
 
     const { parsed } = parseGeminiJsonObject(text);

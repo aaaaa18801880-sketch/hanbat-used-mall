@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
 
   const rate = await checkRateLimit(
     `tg_commit:${adminCheck.email || getClientIp(req)}`,
-    30,
+    120,
     60 * 1000,
     { failureMode: "fail-closed" }
   );
@@ -175,12 +175,12 @@ export async function POST(req: NextRequest) {
       )
     );
 
-    // 2) AI 판독용 1080px JPEG 병렬 생성 (수동 회전 선적용 + 평균 휘도 동시 산출)
+    // 2) AI 판독용 960px JPEG 병렬 생성 (수동 회전 선적용 + 평균 휘도 동시 산출)
     const aiTargetCount = Math.min(downloadedOriginals.length, 3);
     const visionPrepared = await Promise.all(
       downloadedOriginals.slice(0, aiTargetCount).map(async (item, idx) => {
         const manualDeg = manualRotationMap[ordered[idx].id] ?? 0;
-        return createAiVisionJpeg(item.buffer, 1080, manualDeg);
+        return createAiVisionJpeg(item.buffer, 960, manualDeg);
       })
     );
 
@@ -206,9 +206,10 @@ export async function POST(req: NextRequest) {
       config: {
         responseMimeType: "application/json",
         temperature: 0.1,
-        maxOutputTokens: 4096,
+        maxOutputTokens: 2048,
+        thinkingConfig: { thinkingBudget: 0 },
       },
-      timeoutMs: 25000,
+      timeoutMs: 20000,
     });
 
     const { parsed } = parseGeminiJsonObject(aiText);
