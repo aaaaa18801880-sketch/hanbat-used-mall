@@ -4,7 +4,9 @@ import assert from "node:assert/strict";
 import {
   buildInboxGroups,
   canCommitInboxGroup,
+  chunkTelegramItems,
   detectOldSoldProductCleanupTargets,
+  filterActiveRoomPendingPhotos,
   mergeInboxGroupWithPrevious,
   normalizeAiGroupingResult,
   normalizeQuarterTurnDegrees,
@@ -563,3 +565,24 @@ test("single-pass Sharp pipeline preserves EXIF + manual rotation, smart crop bo
   assert.equal(outMeta.width, outMeta.height, "세로형 제품 크롭은 1:1 스튜디오 정사각 패딩 적용");
 });
 
+test("filterActiveRoomPendingPhotos keeps only pending photos in target room and chunks large updates", () => {
+  const mixed = [
+    makePhoto("room-ok-2", { chat_id: "-1004315003815", message_id: 20, status: "pending" }),
+    makePhoto("room-ok-1", { chat_id: "-1004315003815", message_id: 10, status: "pending" }),
+    makePhoto("room-discarded", { chat_id: "-1004315003815", message_id: 15, status: "discarded" }),
+    makePhoto("room-committed", { chat_id: "-1004315003815", message_id: 16, status: "committed" }),
+    makePhoto("other-room", { chat_id: "-1009999999999", message_id: 5, status: "pending" }),
+  ];
+
+  const active = filterActiveRoomPendingPhotos(mixed, "-1004315003815");
+  assert.deepEqual(
+    active.map((p) => p.id),
+    ["room-ok-1", "room-ok-2"]
+  );
+
+  const ids = Array.from({ length: 423 }, (_, i) => `id-${i}`);
+  const chunks = chunkTelegramItems(ids, 250);
+  assert.equal(chunks.length, 2);
+  assert.equal(chunks[0].length, 250);
+  assert.equal(chunks[1].length, 173);
+});

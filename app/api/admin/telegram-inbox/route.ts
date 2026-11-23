@@ -2,17 +2,24 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "../../../../lib/supabase";
 import { verifyAdminRequest } from "../../../../lib/server-security";
-import { getTelegramIngestEnvStatus } from "../../../../lib/telegram-server";
+import {
+  getTelegramIngestChatId,
+  getTelegramIngestEnvStatus,
+} from "../../../../lib/telegram-server";
 import {
   detectOldSoldProductCleanupTargets,
-  sortTelegramPhotosChronologically,
+  filterActiveRoomPendingPhotos,
   type TelegramInboxPhoto,
 } from "../../../../lib/telegram-inbox";
 
 export const runtime = "nodejs";
 
+const INBOX_FETCH_PAGE_SIZE = 1000;
+const MAX_PENDING_INBOX_PHOTOS = 3000;
+
 /**
- * 관리자 텔레그램 사진 수집함 조회 (대기중인 사진 + 환경상태 + 90일+ 정리 대상 요약)
+ * 관리자 텔레그램 사진 수집함 조회 (전용 방 대기중 사진 전체 + 환경상태 + 90일+ 정리 대상 요약)
+ * - 300장 상한으로 누락되던 문제를 해소하고, 지정 방(chat_id)과 pending 상태만 엄격 조회합니다.
  */
 export async function GET(req: NextRequest) {
   const adminCheck = await verifyAdminRequest(req);
@@ -25,14 +32,44 @@ export async function GET(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
+    const ingestChatId = getTelegramIngestChatId();
+
+    const fetchAllPendingInbox = async () => {
+      const collected: TelegramInboxPhoto[] = [];
+      for (
+        let offset = 0;
+        offset < MAX_PENDING_INBOX_PHOTOS;
+        offset += INBOX_FETCH_PAGE_SIZE
+      ) {
+        const end = Math.min(
+          offset + INBOX_FETCH_PAGE_SIZE - 1,
+          MAX_PENDING_INBOX_PHOTOS - 1
+        );
+        let query = supabase
+          .from("telegram_inbox_photos")
+          .select("*")
+          .eq("status", "pending")
+          .order("taken_at", { ascending: true })
+          .order("message_id", { ascending: true })
+          .range(offset, end);
+
+        if (ingestChatId) {
+          query = query.eq("chat_id", ingestChatId);
+        }
+
+        const res = await query;
+        if (res.error) {
+          return { data: null, error: res.error };
+        }
+        const batch = (res.data ?? []) as TelegramInboxPhoto[];
+        collected.push(...batch);
+        if (batch.length < INBOX_FETCH_PAGE_SIZE) break;
+      }
+      return { data: collected, error: null };
+    };
+
     const [inboxRes, soldRes] = await Promise.all([
-      supabase
-        .from("telegram_inbox_photos")
-        .select("*")
-        .eq("status", "pending")
-        .order("taken_at", { ascending: true })
-        .order("message_id", { ascending: true })
-        .limit(300),
+      fetchAllPendingInbox(),
       supabase
         .from("products")
         .select("id, title, category, status, image_url, created_at")
@@ -49,6 +86,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         {
           photos: [],
+          totalPendingCount: 0,
           envStatus: getTelegramIngestEnvStatus(),
           cleanupSummary: { productCount: 0, photoCount: 0 },
           migrationRequired: tableMissing,
@@ -60,8 +98,9 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const photos = sortTelegramPhotosChronologically(
-      (inboxRes.data ?? []) as TelegramInboxPhoto[]
+    const photos = filterActiveRoomPendingPhotos(
+      inboxRes.data ?? [],
+      ingestChatId
     );
 
     const cleanupTargets = soldRes.error
@@ -77,6 +116,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       photos,
+      totalPendingCount: photos.length,
       envStatus: getTelegramIngestEnvStatus(),
       cleanupSummary: {
         productCount: cleanupTargets.length,
@@ -117,7 +157,7 @@ export async function PATCH(req: NextRequest) {
   }
 
   const updates = Array.isArray(body.updates) ? body.updates : [];
-  if (updates.length === 0 || updates.length > 500) {
+  if (updates.length === 0 || updates.length > 1000) {
     return NextResponse.json(
       { error: "유효한 묶음 변경 내역이 필요합니다." },
       { status: 400 }
@@ -126,6 +166,7 @@ export async function PATCH(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
+    const ingestChatId = getTelegramIngestChatId();
     const groupOnlyIdsByKey = new Map<string, string[]>();
     const sortRowUpdates: Array<{
       id: string;
@@ -166,13 +207,15 @@ export async function PATCH(req: NextRequest) {
     for (let i = 0; i < groupEntries.length; i += 20) {
       const slice = groupEntries.slice(i, i + 20);
       const results = await Promise.all(
-        slice.map(([groupKey, ids]) =>
-          supabase
+        slice.map(([groupKey, ids]) => {
+          let q = supabase
             .from("telegram_inbox_photos")
             .update({ group_key: groupKey })
             .in("id", ids)
-            .eq("status", "pending")
-        )
+            .eq("status", "pending");
+          if (ingestChatId) q = q.eq("chat_id", ingestChatId);
+          return q;
+        })
       );
       for (const r of results) {
         if (r.error) throw r.error;
@@ -183,13 +226,15 @@ export async function PATCH(req: NextRequest) {
     for (let i = 0; i < sortRowUpdates.length; i += 20) {
       const slice = sortRowUpdates.slice(i, i + 20);
       const results = await Promise.all(
-        slice.map((row) =>
-          supabase
+        slice.map((row) => {
+          let q = supabase
             .from("telegram_inbox_photos")
             .update({ group_key: row.group_key, sort_order: row.sort_order })
             .eq("id", row.id)
-            .eq("status", "pending")
-        )
+            .eq("status", "pending");
+          if (ingestChatId) q = q.eq("chat_id", ingestChatId);
+          return q;
+        })
       );
       for (const r of results) {
         if (r.error) throw r.error;
@@ -233,7 +278,7 @@ export async function DELETE(req: NextRequest) {
     ? body.ids
         .map((id) => (typeof id === "string" ? id.trim() : ""))
         .filter(Boolean)
-        .slice(0, 100)
+        .slice(0, 500)
     : [];
 
   if (ids.length === 0) {
@@ -242,11 +287,16 @@ export async function DELETE(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
-    const { error } = await supabase
+    const ingestChatId = getTelegramIngestChatId();
+    let delQuery = supabase
       .from("telegram_inbox_photos")
       .update({ status: "discarded" })
       .in("id", ids)
       .eq("status", "pending");
+    if (ingestChatId) {
+      delQuery = delQuery.eq("chat_id", ingestChatId);
+    }
+    const { error } = await delQuery;
 
     if (error) throw error;
     return NextResponse.json({ ok: true, discardedCount: ids.length });

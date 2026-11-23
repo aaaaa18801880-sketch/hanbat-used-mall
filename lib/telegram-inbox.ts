@@ -68,6 +68,42 @@ const UNGROUPED_TIME_GAP_MS = 3 * 60 * 1000;
 
 export const TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT = 2;
 export const TELEGRAM_MAX_PHOTOS_PER_PRODUCT = 3;
+export const TELEGRAM_PATCH_CHUNK_SIZE = 250;
+
+/**
+ * 배열을 지정 크기 단위 청크로 분할합니다 (대량 PATCH · 병렬 DB 반영 공용 헬퍼).
+ */
+export function chunkTelegramItems<T>(
+  items: readonly T[],
+  chunkSize = TELEGRAM_PATCH_CHUNK_SIZE
+): T[][] {
+  const safeSize = Math.max(1, Math.floor(chunkSize));
+  const chunks: T[][] = [];
+  for (let i = 0; i < items.length; i += safeSize) {
+    chunks.push(items.slice(i, i + safeSize));
+  }
+  return chunks;
+}
+
+/**
+ * 지정된 텔레그램 수집 방(expectedChatId) 안에 남아 있는 대기중(pending) 사진만 걸러냅니다.
+ * - 제외(discarded)·등록완료(committed)·타 채팅방 사진을 조회 결과에서 완전히 배제합니다.
+ */
+export function filterActiveRoomPendingPhotos(
+  photos: readonly TelegramInboxPhoto[],
+  expectedChatId?: string | null
+): TelegramInboxPhoto[] {
+  const normalizedChatId = (expectedChatId || "").trim();
+  return sortTelegramPhotosChronologically(
+    photos.filter((photo) => {
+      if (photo.status !== "pending") return false;
+      if (normalizedChatId && String(photo.chat_id).trim() !== normalizedChatId) {
+        return false;
+      }
+      return true;
+    })
+  );
+}
 
 export type QuarterTurnDegrees = 0 | 90 | 180 | 270;
 

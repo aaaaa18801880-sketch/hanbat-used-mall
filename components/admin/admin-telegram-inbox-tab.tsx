@@ -8,6 +8,7 @@ import { ICON, Icon } from "../../lib/icons";
 import {
   buildInboxGroups,
   canCommitInboxGroup,
+  chunkTelegramItems,
   mergeInboxGroupWithPrevious,
   pairInboxPhotosByFixedSize,
   removePhotoFromInboxGroups,
@@ -192,6 +193,7 @@ export function AdminTelegramInboxTab({
   }, []);
 
   useEffect(() => {
+    thumbStore.revive();
     return () => {
       thumbStore.revokeAll();
     };
@@ -420,18 +422,20 @@ export function AdminTelegramInboxTab({
     updates: readonly TelegramGroupKeyOnlyUpdate[]
   ) => {
     if (updates.length === 0) return;
-    const headers = await thumbStore.getAuthHeaders();
-    const res = await fetch("/api/admin/telegram-inbox", {
-      method: "PATCH",
-      headers: {
-        ...headers,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ updates }),
-    });
-    const json = (await res.json().catch(() => ({}))) as { error?: string };
-    if (!res.ok) {
-      throw new Error(json.error || "묶음 변경 저장에 실패했습니다.");
+    for (const slice of chunkTelegramItems(updates)) {
+      const headers = await thumbStore.getAuthHeaders();
+      const res = await fetch("/api/admin/telegram-inbox", {
+        method: "PATCH",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ updates: slice }),
+      });
+      const json = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) {
+        throw new Error(json.error || "묶음 변경 저장에 실패했습니다.");
+      }
     }
   };
 
@@ -550,18 +554,20 @@ export function AdminTelegramInboxTab({
     setPersistingOp(true);
 
     try {
-      const headers = await thumbStore.getAuthHeaders();
-      const res = await fetch("/api/admin/telegram-inbox", {
-        method: "DELETE",
-        headers: {
-          ...headers,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ids }),
-      });
-      const json = (await res.json().catch(() => ({}))) as { error?: string };
-      if (!res.ok) {
-        throw new Error(json.error || "사진 제외 처리에 실패했습니다.");
+      for (const slice of chunkTelegramItems(ids)) {
+        const headers = await thumbStore.getAuthHeaders();
+        const res = await fetch("/api/admin/telegram-inbox", {
+          method: "DELETE",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ ids: slice }),
+        });
+        const json = (await res.json().catch(() => ({}))) as { error?: string };
+        if (!res.ok) {
+          throw new Error(json.error || "사진 제외 처리에 실패했습니다.");
+        }
       }
       for (const id of ids) {
         thumbStore.revoke(id);
@@ -595,7 +601,6 @@ export function AdminTelegramInboxTab({
     });
 
     try {
-      const headers = await getAdminAuthHeaders();
       let cursor = 0;
       let carryIds: string[] = [];
       let batchIdx = 0;
@@ -608,6 +613,7 @@ export function AdminTelegramInboxTab({
           new Set([...carryIds, ...nextSlice.map((p) => p.id)])
         );
 
+        const headers = await thumbStore.getAuthHeaders();
         const res = await fetch("/api/admin/telegram-inbox/group", {
           method: "POST",
           headers: {
@@ -676,8 +682,6 @@ export function AdminTelegramInboxTab({
     const committedPhotoIdSet = new Set<string>();
     let successCount = 0;
 
-    const headers = await getAdminAuthHeaders();
-
     for (let i = 0; i < validTargets.length; i++) {
       if (abortCommitRef.current) {
         toast("나머지 일괄 등록이 중단되었습니다.");
@@ -701,6 +705,7 @@ export function AdminTelegramInboxTab({
       }
 
       try {
+        const headers = await thumbStore.getAuthHeaders();
         const res = await fetch("/api/admin/telegram-inbox/commit", {
           method: "POST",
           headers: {
@@ -751,9 +756,11 @@ export function AdminTelegramInboxTab({
         thumbStore.revoke(cid);
       }
       pruneManualRotations(committedArr);
-      const remaining = photos.filter((p) => !committedPhotoIdSet.has(p.id));
-      setPhotos(remaining);
-      onPendingCountChange?.(remaining.length);
+      setPhotos((prev) => {
+        const next = prev.filter((p) => !committedPhotoIdSet.has(p.id));
+        onPendingCountChange?.(next.length);
+        return next;
+      });
       setCommittedCount((prev) => prev + successCount);
       await onProductsChanged?.();
     }
@@ -1236,9 +1243,10 @@ export function AdminTelegramInboxTab({
               {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장을 초과한 미분류 뭉치가{" "}
               {oversizedGroups.length}개 있습니다.
             </strong>{" "}
-            여러 제품이 섞여 등록되지 않도록 4장 이상 묶음은 일괄 등록이 잠겨 있습니다. 먼저{" "}
-            <strong>[AI 자동 묶음]</strong>을 눌러 기본 {TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장(최대{" "}
-            {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장) 단위로 나눈 뒤 등록해 주세요.
+            여러 제품이 섞여 등록되지 않도록 4장 이상 묶음은 일괄 등록이 잠겨 있습니다. 상단{" "}
+            <strong>[2장씩 즉시 묶기 (0원)]</strong> 또는{" "}
+            <strong>[AI 자동 묶음]</strong>·카드 내 <strong>[뒤 2장씩]</strong>으로 기본{" "}
+            {TELEGRAM_RECOMMENDED_PHOTOS_PER_PRODUCT}장(최대 {TELEGRAM_MAX_PHOTOS_PER_PRODUCT}장) 단위로 나눈 뒤 등록해 주세요.
           </div>
         )}
 

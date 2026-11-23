@@ -158,6 +158,7 @@ export interface TelegramThumbStore {
   setUrl: (photoId: string, url: string) => void;
   revoke: (photoId: string) => void;
   revokeAll: () => void;
+  revive: () => void;
   prefetchIds: (photoIds: readonly string[]) => Promise<void>;
   subscribe: (listener: () => void) => () => void;
   getAuthHeaders: () => Promise<Record<string, string>>;
@@ -254,6 +255,9 @@ export function createTelegramThumbStore(): TelegramThumbStore {
       pendingSet.clear();
       failedSet.clear();
       listeners.clear();
+    },
+    revive: () => {
+      disposed = false;
     },
     subscribe: (listener) => {
       listeners.add(listener);

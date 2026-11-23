@@ -14,9 +14,11 @@ import {
 import {
   fetchTelegramFileBuffer,
   getTelegramBotToken,
+  getTelegramIngestChatId,
 } from "../../../../../lib/telegram-server";
 import { createTelegramPreviewImage } from "../../../../../lib/server-image-sharp";
 import {
+  chunkTelegramItems,
   normalizeAiGroupingResult,
   sortTelegramPhotosChronologically,
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
@@ -89,11 +91,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
-    const { data, error } = await supabase
+    const ingestChatId = getTelegramIngestChatId();
+    let groupQuery = supabase
       .from("telegram_inbox_photos")
       .select("*")
       .in("id", requestedIds)
       .eq("status", "pending");
+    if (ingestChatId) {
+      groupQuery = groupQuery.eq("chat_id", ingestChatId);
+    }
+    const { data, error } = await groupQuery;
 
     if (error) throw error;
 
@@ -199,12 +206,11 @@ ${timelineSummary}
         maxGroupSize: TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
       });
 
-    for (let i = 0; i < updates.length; i += 10) {
-      const slice = updates.slice(i, i + 10);
+    for (const slice of chunkTelegramItems(updates, 10)) {
       const results = await Promise.all(
         slice.map((u) => {
           const note = badNotesById[u.id] ?? null;
-          return supabase
+          let upd = supabase
             .from("telegram_inbox_photos")
             .update({
               group_key: u.group_key,
@@ -213,6 +219,8 @@ ${timelineSummary}
             })
             .eq("id", u.id)
             .eq("status", "pending");
+          if (ingestChatId) upd = upd.eq("chat_id", ingestChatId);
+          return upd;
         })
       );
       for (const r of results) {

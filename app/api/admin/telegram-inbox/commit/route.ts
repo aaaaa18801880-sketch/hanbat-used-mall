@@ -28,6 +28,7 @@ import {
 import {
   fetchTelegramFileBuffer,
   getTelegramBotToken,
+  getTelegramIngestChatId,
 } from "../../../../../lib/telegram-server";
 import {
   createAiVisionJpeg,
@@ -132,14 +133,19 @@ export async function POST(req: NextRequest) {
       : "";
 
   const supabase = createAnonServerClient(adminCheck.accessToken);
+  const ingestChatId = getTelegramIngestChatId();
   const uploadedUrls: string[] = [];
 
   try {
-    const { data, error } = await supabase
+    let commitSelectQuery = supabase
       .from("telegram_inbox_photos")
       .select("*")
       .in("id", photoIds)
       .eq("status", "pending");
+    if (ingestChatId) {
+      commitSelectQuery = commitSelectQuery.eq("chat_id", ingestChatId);
+    }
+    const { data, error } = await commitSelectQuery;
 
     if (error) throw error;
 

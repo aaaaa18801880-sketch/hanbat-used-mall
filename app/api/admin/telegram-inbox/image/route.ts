@@ -9,6 +9,7 @@ import {
 import {
   fetchTelegramFileBuffer,
   getTelegramBotToken,
+  getTelegramIngestChatId,
 } from "../../../../../lib/telegram-server";
 import { createTelegramPreviewImage } from "../../../../../lib/server-image-sharp";
 
@@ -56,11 +57,16 @@ export async function GET(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
-    const { data, error } = await supabase
+    const ingestChatId = getTelegramIngestChatId();
+    let imageQuery = supabase
       .from("telegram_inbox_photos")
       .select("id, file_id, thumb_file_id")
       .eq("id", id)
-      .maybeSingle();
+      .eq("status", "pending");
+    if (ingestChatId) {
+      imageQuery = imageQuery.eq("chat_id", ingestChatId);
+    }
+    const { data, error } = await imageQuery.maybeSingle();
 
     if (error || !data) {
       return NextResponse.json({ error: "사진을 찾을 수 없습니다." }, { status: 404 });

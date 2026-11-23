@@ -9,6 +9,7 @@ import {
 import {
   fetchTelegramFileBuffer,
   getTelegramBotToken,
+  getTelegramIngestChatId,
 } from "../../../../../lib/telegram-server";
 import { createTelegramPreviewImage } from "../../../../../lib/server-image-sharp";
 
@@ -74,10 +75,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
-    const { data, error } = await supabase
+    const ingestChatId = getTelegramIngestChatId();
+    let thumbsQuery = supabase
       .from("telegram_inbox_photos")
       .select("id, file_id, thumb_file_id")
-      .in("id", ids);
+      .in("id", ids)
+      .eq("status", "pending");
+    if (ingestChatId) {
+      thumbsQuery = thumbsQuery.eq("chat_id", ingestChatId);
+    }
+    const { data, error } = await thumbsQuery;
 
     if (error) throw error;
 
