@@ -75,6 +75,7 @@ import { AdminSmartCropModal } from "../../components/admin/admin-smart-crop-mod
 import { AdminDeliveryTab } from "../../components/admin/admin-delivery-tab";
 import { AdminNotificationsTab } from "../../components/admin/admin-notifications-tab";
 import { AdminTelegramInboxTab } from "../../components/admin/admin-telegram-inbox-tab";
+import { AdminStorageGuardBar } from "../../components/admin/admin-storage-guard-bar";
 
 export default function IntegratedAdminDashboard() {
   const [authChecking, setAuthChecking] = useState(true);
@@ -1460,6 +1461,16 @@ export default function IntegratedAdminDashboard() {
           onSelectTab={setActiveTab}
           onSelectInqStatusFilter={setInqStatusFilter}
         />
+
+        {(activeTab === "overview" ||
+          activeTab === "products" ||
+          activeTab === "telegram") && (
+          <AdminStorageGuardBar
+            soldCleanupSummary={cleanupSummary}
+            busyActionId={busyActionId}
+            onRunSoldPhotoCleanup={handleRunSoldPhotoCleanup}
+          />
+        )}
 
         {(activeTab === "overview" || activeTab === "inquiries") && (
           <AdminInquiriesTab

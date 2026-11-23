@@ -445,7 +445,7 @@ export async function replaceProductImagesRecord(input: {
     await removeProductImagesFromStorage(removedOldUrls).catch(() => {});
   }
 
-  void revalidateAdminCache(input.id);
+  void revalidateAdminCache(input.id, "media");
   return {
     imageUrl: nextImageUrl,
     nextUrls,
@@ -660,7 +660,7 @@ export async function createDeliveryCaseRecord({
     throw error;
   }
 
-  void revalidateAdminCache();
+  void revalidateAdminCache(undefined, "media");
 }
 
 export async function deleteDeliveryCaseRecord(
@@ -675,5 +675,5 @@ export async function deleteDeliveryCaseRecord(
     await removeProductImagesFromStorage(imgs).catch(() => {});
   }
 
-  void revalidateAdminCache();
+  void revalidateAdminCache(undefined, "media");
 }

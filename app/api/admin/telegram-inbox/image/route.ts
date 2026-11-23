@@ -1,7 +1,11 @@
 // 파일 경로: app/api/admin/telegram-inbox/image/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "../../../../../lib/supabase";
-import { verifyAdminRequest } from "../../../../../lib/server-security";
+import {
+  checkRateLimit,
+  getClientIp,
+  verifyAdminRequest,
+} from "../../../../../lib/server-security";
 import {
   fetchTelegramFileBuffer,
   getTelegramBotToken,
@@ -20,6 +24,19 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(
       { error: adminCheck.error || "관리자 권한이 필요합니다." },
       { status: adminCheck.status }
+    );
+  }
+
+  const rate = await checkRateLimit(
+    `tg_image:${adminCheck.email || getClientIp(req)}`,
+    90,
+    60 * 1000,
+    { failureMode: "fail-open" }
+  );
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: `이미지 요청이 너무 많습니다. ${rate.retryAfterSec}초 후 다시 시도해 주세요.` },
+      { status: 429 }
     );
   }
 

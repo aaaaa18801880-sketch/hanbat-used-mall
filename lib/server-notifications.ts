@@ -1,3 +1,4 @@
+import { setTimeout as delay } from "node:timers/promises";
 import { NextResponse } from "next/server";
 import {
   maskPhone,
@@ -105,7 +106,7 @@ export async function postTelegramInquiryMessage(params: {
 
       const isTransientHttp = res.status === 429 || res.status >= 500;
       if (attempt < maxAttempts && isTransientHttp) {
-        await new Promise((r) => setTimeout(r, 300));
+        await delay(300);
         continue;
       }
 
@@ -116,7 +117,7 @@ export async function postTelegramInquiryMessage(params: {
       return { outcome: "http_error", statusCode: res.status, detail };
     } catch (err) {
       if (attempt < maxAttempts) {
-        await new Promise((r) => setTimeout(r, 300));
+        await delay(300);
         continue;
       }
       return {

@@ -34,6 +34,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const basketCount = useQuoteBasket().length;
   const drawerRef = useRef<HTMLDialogElement>(null);
+  const pressedOutsideRef = useRef(false);
 
   useEffect(() => {
     const drawer = drawerRef.current;
@@ -56,31 +57,37 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
     }
   }, [menuOpen]);
 
-  useEffect(() => {
-    const drawer = drawerRef.current;
-    if (!drawer || !menuOpen) return;
-    if ("closedBy" in HTMLDialogElement.prototype) return;
+  const handleDrawerPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => {
+    if (!menuOpen) return;
+    if (typeof HTMLDialogElement !== "undefined" && "closedBy" in HTMLDialogElement.prototype) {
+      return;
+    }
+    pressedOutsideRef.current = isOutsideDialogBounds(
+      e.clientX,
+      e.clientY,
+      e.currentTarget
+    );
+  };
 
-    let pressedOutside = false;
-    const onPointerDown = (e: PointerEvent) => {
-      pressedOutside = isOutsideDialogBounds(e.clientX, e.clientY, drawer);
-    };
-    const onPointerUp = (e: PointerEvent) => {
-      if (pressedOutside && isOutsideDialogBounds(e.clientX, e.clientY, drawer)) {
-        pressedOutside = false;
-        setMenuOpen(false);
-        return;
-      }
-      pressedOutside = false;
-    };
-
-    drawer.addEventListener("pointerdown", onPointerDown);
-    drawer.addEventListener("pointerup", onPointerUp);
-    return () => {
-      drawer.removeEventListener("pointerdown", onPointerDown);
-      drawer.removeEventListener("pointerup", onPointerUp);
-    };
-  }, [menuOpen]);
+  const handleDrawerPointerUp = (e: React.PointerEvent<HTMLDialogElement>) => {
+    if (!menuOpen) {
+      pressedOutsideRef.current = false;
+      return;
+    }
+    if (typeof HTMLDialogElement !== "undefined" && "closedBy" in HTMLDialogElement.prototype) {
+      pressedOutsideRef.current = false;
+      return;
+    }
+    if (
+      pressedOutsideRef.current &&
+      isOutsideDialogBounds(e.clientX, e.clientY, e.currentTarget)
+    ) {
+      pressedOutsideRef.current = false;
+      setMenuOpen(false);
+      return;
+    }
+    pressedOutsideRef.current = false;
+  };
 
   return (
     <>
@@ -194,6 +201,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         ref={drawerRef}
         aria-label="모바일 전체 메뉴"
         {...({ closedby: "any" } as Record<string, string>)}
+        onPointerDown={handleDrawerPointerDown}
+        onPointerUp={handleDrawerPointerUp}
         onCancel={(e) => {
           e.preventDefault();
           setMenuOpen(false);

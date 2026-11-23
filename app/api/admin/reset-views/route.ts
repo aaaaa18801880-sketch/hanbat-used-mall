@@ -2,7 +2,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createAnonServerClient } from "../../../../lib/supabase";
-import { verifyAdminRequest } from "../../../../lib/server-security";
+import {
+  checkRateLimit,
+  getClientIp,
+  verifyAdminRequest,
+} from "../../../../lib/server-security";
 
 export const runtime = "nodejs";
 
@@ -14,6 +18,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: adminCheck.error || "관리자 권한이 필요합니다." },
         { status: adminCheck.status }
+      );
+    }
+
+    const rate = await checkRateLimit(
+      `admin_reset_views:${adminCheck.email || getClientIp(req)}`,
+      6,
+      60 * 1000,
+      { failureMode: "fail-open" }
+    );
+    if (!rate.allowed) {
+      return NextResponse.json(
+        { error: `조회수 초기화 요청이 너무 많습니다. ${rate.retryAfterSec}초 후 다시 시도해 주세요.` },
+        { status: 429 }
       );
     }
 

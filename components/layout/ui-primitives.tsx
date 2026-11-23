@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
+import React, { useState, useEffect, useRef, useCallback, useSyncExternalStore } from "react";
 import toast from "react-hot-toast";
 import { ICON, Icon } from "../../lib/icons";
 import {
@@ -235,10 +235,23 @@ async function waitForTopLayerAnimations(el: HTMLDialogElement) {
       ? el.getAnimations({ subtree: true })
       : [];
   if (animations.length === 0) return;
-  await Promise.race([
-    Promise.allSettled(animations.map((a) => a.finished)),
-    new Promise((resolve) => setTimeout(resolve, 400)),
-  ]);
+
+  const allFinished = Promise.allSettled(animations.map((a) => a.finished));
+  if (typeof AbortSignal !== "undefined" && typeof AbortSignal.timeout === "function") {
+    const signal = AbortSignal.timeout(400);
+    await Promise.race([
+      allFinished,
+      new Promise<void>((resolve) => {
+        if (signal.aborted) {
+          resolve();
+          return;
+        }
+        signal.addEventListener("abort", () => resolve(), { once: true });
+      }),
+    ]);
+    return;
+  }
+  await allFinished;
 }
 
 export async function closeTopLayerElement(el: HTMLDialogElement) {
@@ -292,7 +305,6 @@ export function Modal({
   closeOnEsc?: boolean;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const onCloseRef = useRef(onClose);
   const pressedOutsideRef = useRef(false);
   const isDismissingRef = useRef(false);
   const [prevOpen, setPrevOpen] = useState(open);
@@ -310,11 +322,7 @@ export function Modal({
     }
   }
 
-  useEffect(() => {
-    onCloseRef.current = onClose;
-  }, [onClose]);
-
-  const dismissWithAnimation = useRef(async () => {
+  const dismissWithAnimation = useCallback(async () => {
     const dialog = dialogRef.current;
     if (!dialog || isDismissingRef.current) return;
     isDismissingRef.current = true;
@@ -326,8 +334,8 @@ export function Modal({
       setClosing(false);
     }
     setDismissedFromDialog(true);
-    onCloseRef.current();
-  });
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -357,38 +365,37 @@ export function Modal({
     }
   }, [open]);
 
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog || !open || !closeOnOverlayClick) return;
-    if ("closedBy" in HTMLDialogElement.prototype) return;
+  const handleDialogPointerDown = (e: React.PointerEvent<HTMLDialogElement>) => {
+    if (!open || !closeOnOverlayClick) return;
+    if (typeof HTMLDialogElement !== "undefined" && "closedBy" in HTMLDialogElement.prototype) {
+      return;
+    }
+    pressedOutsideRef.current = isOutsideDialogBounds(
+      e.clientX,
+      e.clientY,
+      e.currentTarget
+    );
+  };
 
-    const handlePointerDown = (e: PointerEvent) => {
-      pressedOutsideRef.current = isOutsideDialogBounds(
-        e.clientX,
-        e.clientY,
-        dialog
-      );
-    };
-
-    const handlePointerUp = (e: PointerEvent) => {
-      if (
-        pressedOutsideRef.current &&
-        isOutsideDialogBounds(e.clientX, e.clientY, dialog)
-      ) {
-        pressedOutsideRef.current = false;
-        void dismissWithAnimation.current();
-        return;
-      }
+  const handleDialogPointerUp = (e: React.PointerEvent<HTMLDialogElement>) => {
+    if (!open || !closeOnOverlayClick) {
       pressedOutsideRef.current = false;
-    };
-
-    dialog.addEventListener("pointerdown", handlePointerDown);
-    dialog.addEventListener("pointerup", handlePointerUp);
-    return () => {
-      dialog.removeEventListener("pointerdown", handlePointerDown);
-      dialog.removeEventListener("pointerup", handlePointerUp);
-    };
-  }, [open, closeOnOverlayClick]);
+      return;
+    }
+    if (typeof HTMLDialogElement !== "undefined" && "closedBy" in HTMLDialogElement.prototype) {
+      pressedOutsideRef.current = false;
+      return;
+    }
+    if (
+      pressedOutsideRef.current &&
+      isOutsideDialogBounds(e.clientX, e.clientY, e.currentTarget)
+    ) {
+      pressedOutsideRef.current = false;
+      void dismissWithAnimation();
+      return;
+    }
+    pressedOutsideRef.current = false;
+  };
 
   const closedByValue =
     closeOnOverlayClick && closeOnEsc
@@ -403,14 +410,16 @@ export function Modal({
       aria-label={label}
       {...({ closedby: closedByValue } as Record<string, string>)}
       data-variant={variant === "lightbox" ? "lightbox" : undefined}
+      onPointerDown={handleDialogPointerDown}
+      onPointerUp={handleDialogPointerUp}
       onCancel={(e) => {
         e.preventDefault();
         if (!closeOnEsc) return;
-        void dismissWithAnimation.current();
+        void dismissWithAnimation();
       }}
       onClose={() => {
         if (!isDismissingRef.current && open) {
-          onCloseRef.current();
+          onClose();
         }
       }}
       className={`hb-dialog m-auto w-[calc(100%-1.5rem)] sm:w-[calc(100%-3rem)] max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100dvh-3rem)] overflow-y-auto overscroll-contain bg-transparent p-0 border-0 rounded-2xl focus:outline-none ${

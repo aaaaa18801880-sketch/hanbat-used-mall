@@ -6,7 +6,7 @@
  * - 관리자 업로드(`GalleryAdminUploadController`)는 `compressAndUploadProductImages` 기반 등록을 지연 로딩합니다.
  * - 삭제·일괄 변경은 `lib/product-ops.ts` (`removeProductImagesFromStorage` 포함) 통합 CRUD를 사용합니다.
  */
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
@@ -117,18 +117,22 @@ export default function GalleryPage() {
   /* 검색·필터·정렬·페이지네이션 상태 */
   const [activeCategory, setActiveCategory] = useState<string>("전체");
   const [search, setSearch] = useState("");
+  const lastTrackedSearchRef = useRef("");
 
-  useEffect(() => {
-    const trimmed = search.trim();
-    if (trimmed.length < 2) return;
-    const timer = window.setTimeout(() => {
+  const commitSearchTracking = useCallback(
+    (rawQuery: string, category: string) => {
+      const trimmed = rawQuery.trim();
+      if (trimmed.length < 2) return;
+      const trackKey = `${category}::${trimmed}`;
+      if (lastTrackedSearchRef.current === trackKey) return;
+      lastTrackedSearchRef.current = trackKey;
       trackEvent("search_products", {
         query_length: trimmed.length,
-        category: activeCategory,
+        category,
       });
-    }, 650);
-    return () => window.clearTimeout(timer);
-  }, [search, activeCategory]);
+    },
+    []
+  );
   const [sort, setSort] = useState<SortOption>("latest");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");
@@ -550,6 +554,12 @@ export default function GalleryPage() {
                   onChange={(e) => {
                     setSearch(e.target.value);
                     setVisibleLimit(PAGE_STEP);
+                  }}
+                  onBlur={() => commitSearchTracking(search, activeCategory)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      commitSearchTracking(search, activeCategory);
+                    }
                   }}
                   placeholder="브랜드·제품명·모델명 검색"
                   aria-label="브랜드, 제품명 또는 모델명 검색"

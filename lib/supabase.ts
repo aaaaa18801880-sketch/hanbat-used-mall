@@ -105,13 +105,19 @@ export function createServiceRoleClient(): SupabaseClient {
   return createServerSupabaseClient(undefined, true);
 }
 
-export async function revalidateAdminCache(productId?: string | number): Promise<void> {
+export async function revalidateAdminCache(
+  productId?: string | number,
+  scope: "product" | "media" | "all" = "product"
+): Promise<void> {
   try {
     const headers = await getAdminAuthHeaders();
     await fetch("/api/admin/revalidate", {
       method: "POST",
       headers: { ...headers, "Content-Type": "application/json" },
-      body: JSON.stringify({ id: productId ? String(productId) : undefined }),
+      body: JSON.stringify({
+        id: productId ? String(productId) : undefined,
+        scope,
+      }),
     });
   } catch {
     // Non-blocking

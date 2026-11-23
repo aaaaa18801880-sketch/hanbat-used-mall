@@ -5,7 +5,11 @@ import {
   extractStorageFilesByBucket,
   STORAGE_BUCKETS,
 } from "../../../../lib/site";
-import { verifyAdminRequest } from "../../../../lib/server-security";
+import {
+  checkRateLimit,
+  getClientIp,
+  verifyAdminRequest,
+} from "../../../../lib/server-security";
 import { detectOldSoldProductCleanupTargets } from "../../../../lib/telegram-inbox";
 
 export const runtime = "nodejs";
@@ -20,6 +24,19 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { error: adminCheck.error || "관리자 권한이 필요합니다." },
       { status: adminCheck.status }
+    );
+  }
+
+  const rate = await checkRateLimit(
+    `admin_cleanup_sold:${adminCheck.email || getClientIp(req)}`,
+    10,
+    60 * 1000,
+    { failureMode: "fail-open" }
+  );
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: `사진 정리 요청이 너무 많습니다. ${rate.retryAfterSec}초 후 다시 시도해 주세요.` },
+      { status: 429 }
     );
   }
 

@@ -1,7 +1,7 @@
 // 파일 경로: components/inquiry/quick-inquiry-modal.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Modal, Icon, ICON } from "../../lib/ui";
 import {
@@ -34,22 +34,15 @@ export function QuickInquiryModal() {
   const [openSession, setOpenSession] = useState(0);
   const [inquiryType, setInquiryType] = useState<InquiryTypeValue>("구매 문의");
   const [linkedProduct, setLinkedProduct] = useState<LinkedProductContext | null>(null);
-  const autoCloseTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearAutoCloseTimer = useCallback(() => {
-    if (autoCloseTimerRef.current !== null) {
-      clearTimeout(autoCloseTimerRef.current);
-      autoCloseTimerRef.current = null;
-    }
-  }, []);
+  const [submittedDone, setSubmittedDone] = useState(false);
 
   const closeModal = useCallback(() => {
-    clearAutoCloseTimer();
+    setSubmittedDone(false);
     setIsOpen(false);
-  }, [clearAutoCloseTimer]);
+  }, []);
 
   const handleOpen = useCallback((e: Event) => {
-    clearAutoCloseTimer();
+    setSubmittedDone(false);
     const customEvent = e as CustomEvent<QuickInquiryDetail | undefined>;
     const detail = customEvent.detail;
     if (detail?.type) {
@@ -70,15 +63,14 @@ export function QuickInquiryModal() {
     }
     setOpenSession((prev) => prev + 1);
     setIsOpen(true);
-  }, [clearAutoCloseTimer]);
+  }, []);
 
   useEffect(() => {
     window.addEventListener(QUICK_INQUIRY_EVENT, handleOpen);
     return () => {
-      clearAutoCloseTimer();
       window.removeEventListener(QUICK_INQUIRY_EVENT, handleOpen);
     };
-  }, [handleOpen, clearAutoCloseTimer]);
+  }, [handleOpen]);
 
   return (
     <Modal
@@ -124,13 +116,20 @@ export function QuickInquiryModal() {
             defaultType={inquiryType}
             linkedProduct={linkedProduct}
             onSuccess={() => {
-              clearAutoCloseTimer();
-              autoCloseTimerRef.current = setTimeout(() => {
-                autoCloseTimerRef.current = null;
-                setIsOpen(false);
-              }, 2000);
+              setSubmittedDone(true);
             }}
           />
+          {submittedDone && (
+            <div className="mt-4 flex justify-end border-t border-[#E2DDD3] pt-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="rounded-lg bg-[#141A23] px-4 py-2 text-hb-sm font-bold text-white hover:bg-[#2A3342] transition-colors"
+              >
+                확인 · 창 닫기
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Modal>
