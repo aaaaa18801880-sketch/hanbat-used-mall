@@ -60,8 +60,9 @@ export function HomeBuybackStrip() {
             <Link
               href="/purchase"
               onClick={() =>
-                trackEvent("click_home_buyback_cta", {
+                trackEvent("begin_buyback_inquiry", {
                   action: "purchase_page",
+                  location: "home_buyback_strip",
                 })
               }
               className="hb-btn-accent min-h-[42px] h-10 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
@@ -74,8 +75,9 @@ export function HomeBuybackStrip() {
               target="_blank"
               rel="noopener noreferrer"
               onClick={() =>
-                trackEvent("click_home_buyback_cta", {
+                trackEvent("click_kakao_consult", {
                   action: "kakao_photo_quote",
+                  location: "home_buyback_strip",
                 })
               }
               className="hb-btn-kakao min-h-[42px] h-10 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
@@ -126,11 +128,12 @@ export function HomeBuybackStrip() {
             <button
               type="button"
               onClick={() => {
-                trackEvent("click_home_buyback_cta", {
+                trackEvent("begin_buyback_inquiry", {
                   action: "quick_sell_modal",
+                  location: "home_buyback_strip",
                 });
                 triggerQuickInquiry({
-                  type: "방문 매입 신청",
+                  type: "내 물건 팔기",
                 });
               }}
               className="inline-flex items-center gap-1 font-bold text-[#C84312] hover:underline underline-offset-4 cursor-pointer whitespace-nowrap"

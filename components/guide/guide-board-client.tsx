@@ -92,7 +92,7 @@ function GuideCard({
         className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
         {/* 16:9 게시글별 고유 메인 이미지 */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EAE7E0]">
+        <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EFECE4]">
           <GuideThumbnailImage
             src={article.thumbnailSrc}
             alt={article.thumbnailAlt}
@@ -103,30 +103,26 @@ function GuideCard({
             baseQuality={85}
             className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
           />
-          <div
-            className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/15 via-transparent to-transparent"
-            aria-hidden="true"
-          />
-
-          <div className="absolute top-2.5 left-2.5 z-10 flex flex-wrap items-center gap-1.5">
-            <span className="rounded-md bg-white/95 px-2 py-0.5 text-hb-xs font-bold text-[#141A23] shadow-2xs">
-              {article.category}
-            </span>
-            {hasTool && (
-              <span className="rounded-md bg-[#0F766E] px-2 py-0.5 text-hb-xs font-bold text-white shadow-2xs">
-                계산기
-              </span>
-            )}
-            {topRank && (
-              <span className="rounded-md bg-[#E8521A] px-2 py-0.5 text-hb-xs font-bold text-white shadow-2xs">
-                인기 {topRank}위
-              </span>
-            )}
-          </div>
         </div>
 
         <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
           <div>
+            <div className="mb-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-hb-xs font-semibold text-[#64748B]">
+              <span className="font-bold text-[#141A23]">{article.category}</span>
+              {hasTool && (
+                <>
+                  <span aria-hidden="true" className="text-[#CBD5E1]">·</span>
+                  <span className="font-bold text-[#0F766E]">계산기 포함</span>
+                </>
+              )}
+              {topRank && (
+                <>
+                  <span aria-hidden="true" className="text-[#CBD5E1]">·</span>
+                  <span className="font-bold text-[#C84312]">인기 {topRank}위</span>
+                </>
+              )}
+            </div>
+
             <h3 className="text-hb-base sm:text-hb-lg font-bold leading-[1.4] tracking-[-0.02em] text-[#141A23] break-keep [text-wrap:balance] transition-colors group-hover:text-[#C84312] line-clamp-2">
               {article.title}
             </h3>
@@ -136,7 +132,7 @@ function GuideCard({
             </p>
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#F1F3F6] pt-3">
+          <div className="mt-4 flex items-center justify-between gap-2 border-t border-[#EFECE4] pt-3">
             <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-0.5 text-hb-xs font-semibold text-[#64748B]">
               <span className="font-mono tabular-nums">
                 {article.readMinutes}분 읽기
@@ -187,7 +183,7 @@ function FeaturedGuide({
       className="group grid grid-cols-1 sm:grid-cols-12 overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
     >
       {/* 좌측 비주얼 썸네일 (5컬럼) */}
-      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[250px] sm:col-span-5 overflow-hidden bg-[#EAE7E0]">
+      <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[250px] sm:col-span-5 overflow-hidden bg-[#EFECE4]">
         <GuideThumbnailImage
           src={article.thumbnailSrc}
           alt={article.thumbnailAlt}
@@ -199,24 +195,11 @@ function FeaturedGuide({
           className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
         />
         <div
-          className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/85 via-[#141A23]/20 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#141A23]/75 via-[#141A23]/25 to-transparent"
           aria-hidden="true"
         />
-
-        <div className="absolute top-3.5 left-3.5 z-10 flex flex-wrap items-center gap-1.5">
-          <span className="rounded-md bg-[#E8521A] px-2.5 py-1 text-hb-xs font-bold text-white shadow-xs">
-            추천 필독
-          </span>
-          {hasTool && (
-            <span className="inline-flex items-center gap-1 rounded-md bg-[#141A23]/90 border border-white/20 px-2.5 py-1 text-hb-xs font-bold text-[#5EEAD4] backdrop-blur-md">
-              <Icon d={ICON.sparkles} className="h-3 w-3" />
-              <span>계산기 포함</span>
-            </span>
-          )}
-        </div>
-
-        <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-white">
-          <span className="text-hb-xs font-semibold text-white/85">
+        <div className="absolute inset-x-0 bottom-0 z-10 px-4 py-3 text-white">
+          <span className="text-hb-xs font-semibold text-white/90">
             {article.category} · {article.readMinutes}분 읽기
           </span>
         </div>
@@ -225,10 +208,17 @@ function FeaturedGuide({
       {/* 우측 본문 (7컬럼) */}
       <div className="flex flex-col justify-between p-5 sm:col-span-7 sm:p-6">
         <div>
-          <div className="flex flex-wrap items-center gap-2 text-hb-xs text-[#64748B]">
-            <span className="rounded-md bg-[#FAF9F6] border border-[#E2DDD3] px-2 py-0.5 font-bold text-[#475569]">
-              {article.priorityRole}
-            </span>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs text-[#64748B]">
+            <span className="font-bold text-[#C84312]">추천 필독</span>
+            <span aria-hidden="true" className="text-[#CBD5E1]">·</span>
+            <span className="font-bold text-[#141A23]">{article.priorityRole}</span>
+            {hasTool && (
+              <>
+                <span aria-hidden="true" className="text-[#CBD5E1]">·</span>
+                <span className="font-bold text-[#0F766E]">계산기 포함</span>
+              </>
+            )}
+            <span aria-hidden="true" className="text-[#CBD5E1]">·</span>
             <time dateTime={article.updatedAt} className="font-mono tabular-nums">
               {article.updatedAt} 업데이트
             </time>
@@ -287,7 +277,7 @@ function PaginationBar({
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
         aria-label="이전 페이지"
-        className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#141A23] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-[#E2DDD3] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#141A23] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
       >
         <Icon d={ICON.left} className="h-3.5 w-3.5" />
         <span>이전</span>
@@ -304,7 +294,7 @@ function PaginationBar({
             className={`inline-flex min-h-[40px] min-w-[40px] items-center justify-center rounded-lg border px-2.5 py-2 text-hb-xs sm:text-hb-sm font-bold tabular-nums transition-colors ${
               isCurrent
                 ? "border-[#141A23] bg-[#141A23] text-white"
-                : "border-[#E2E6EC] bg-white text-[#475569] hover:border-[#141A23] hover:text-[#141A23]"
+                : "border-[#E2DDD3] bg-white text-[#475569] hover:border-[#141A23] hover:text-[#141A23]"
             }`}
           >
             {page}
@@ -318,7 +308,7 @@ function PaginationBar({
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
         aria-label="다음 페이지"
-        className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#141A23] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex min-h-[40px] items-center gap-1 rounded-lg border border-[#E2DDD3] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-semibold text-[#334155] transition-colors hover:border-[#141A23] hover:text-[#141A23] disabled:cursor-not-allowed disabled:opacity-40"
       >
         <span>다음</span>
         <Icon d={ICON.right} className="h-3.5 w-3.5" />
@@ -643,7 +633,7 @@ export function GuideBoardClient({
             <div
               role="group"
               aria-label="정렬 방식"
-              className="inline-flex items-center gap-1 rounded-xl border border-[#E2E6EC] bg-white p-1"
+              className="inline-flex items-center gap-1 rounded-xl border border-[#E2DDD3] bg-white p-1"
             >
               <button
                 type="button"
@@ -652,7 +642,7 @@ export function GuideBoardClient({
                 className={`min-h-[34px] rounded-lg px-3 text-hb-xs font-bold transition-colors ${
                   sortMode === "recommended"
                     ? "bg-[#141A23] text-white"
-                    : "text-[#475569] hover:bg-[#F7F8FA] hover:text-[#141A23]"
+                    : "text-[#475569] hover:bg-[#FAF9F6] hover:text-[#141A23]"
                 }`}
               >
                 추천순
@@ -664,7 +654,7 @@ export function GuideBoardClient({
                 className={`min-h-[34px] rounded-lg px-3 text-hb-xs font-bold transition-colors ${
                   sortMode === "popular"
                     ? "bg-[#141A23] text-white"
-                    : "text-[#475569] hover:bg-[#F7F8FA] hover:text-[#141A23]"
+                    : "text-[#475569] hover:bg-[#FAF9F6] hover:text-[#141A23]"
                 }`}
               >
                 인기순
@@ -680,7 +670,7 @@ export function GuideBoardClient({
               key={query}
               type="button"
               onClick={() => handleSearchChange(query)}
-              className="rounded-md border border-[#E2E6EC] bg-white px-2 py-1 font-semibold text-[#475569] transition-colors hover:border-[#141A23] hover:text-[#141A23]"
+              className="rounded-lg border border-[#E2DDD3] bg-white px-2.5 py-1 font-semibold text-[#475569] transition-colors hover:border-[#141A23] hover:text-[#141A23]"
             >
               {query}
             </button>
@@ -822,7 +812,7 @@ export function GuideBoardClient({
           </section>
 
           {/* 하단 상담 연결 */}
-          <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[#E2E6EC] bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div className="space-y-1">
               <p className="text-hb-xs font-bold text-[#C84312]">
                 글로 판단하기 어려운 현장 조건이라면
@@ -847,9 +837,9 @@ export function GuideBoardClient({
               </a>
               <Link
                 href="/inquiry?write=1"
-                className="hb-btn-accent min-h-[44px] px-4 text-hb-sm"
+                className="hb-btn-outline min-h-[44px] px-4 text-hb-sm"
               >
-                <Icon d={ICON.chat} className="h-4 w-4" />
+                <Icon d={ICON.chat} className="h-4 w-4 text-[#C84312]" />
                 <span>사진으로 문의</span>
               </Link>
             </div>
@@ -870,14 +860,14 @@ export function GuideBoardClient({
                 인기순 전체
               </button>
             </div>
-            <ol className="mt-3 divide-y divide-[#F1F3F6]">
+            <ol className="mt-3 divide-y divide-[#EFECE4]">
               {popularGuideEntries.map(({ rank, article }) => (
                 <li key={article.slug}>
                   <Link
                     href={`/guide/${article.slug}`}
                     className="group flex items-start gap-3 py-2.5"
                   >
-                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#EAE7E0]">
+                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#EFECE4]">
                       <GuideThumbnailImage
                         src={article.thumbnailSrc}
                         alt={article.thumbnailAlt}
@@ -906,14 +896,14 @@ export function GuideBoardClient({
 
           <section className="rounded-2xl border border-[#E2DDD3] bg-white p-5 shadow-2xs">
             <h2 className="text-hb-sm font-bold text-[#141A23]">현장 도구</h2>
-            <div className="mt-2 divide-y divide-[#F1F3F6]">
+            <div className="mt-2 divide-y divide-[#EFECE4]">
               {GUIDE_TOOL_LINKS.map((tool) => (
                 <Link
                   key={tool.href}
                   href={tool.href}
                   className="group flex items-center gap-3 py-2.5"
                 >
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#F7F8FA] text-[#0F766E]">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#FAF9F6] text-[#0F766E]">
                     <Icon d={tool.icon} className="h-4 w-4" />
                   </span>
                   <span className="min-w-0">

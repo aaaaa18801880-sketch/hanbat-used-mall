@@ -261,10 +261,10 @@ export function HomeFaqSection({
                         className="flex w-full items-start justify-between gap-4 px-5 py-3.5 sm:px-6 sm:py-4 text-left cursor-pointer"
                       >
                         <div className="min-w-0">
-                          <span className="inline-block rounded-md bg-white border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#64748B]">
+                          <span className="block text-hb-xs font-semibold text-[#64748B]">
                             {f.tag}
                           </span>
-                          <span className="mt-1.5 flex items-start gap-2.5">
+                          <span className="mt-1 flex items-start gap-2.5">
                             <span className="font-mono text-hb-xs sm:text-hb-sm font-bold text-[#C84312] shrink-0 pt-0.5 tabular-nums">
                               Q{String(i + 1).padStart(2, "0")}.
                             </span>

@@ -68,7 +68,7 @@ function GuideBoardStaticFallback() {
           href={`/guide/${article.slug}`}
           className="group flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-colors hover:border-[#141A23]"
         >
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EAE7E0]">
+          <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EFECE4]">
             <GuideThumbnailImage
               src={article.thumbnailSrc}
               alt={article.thumbnailAlt}

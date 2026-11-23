@@ -142,7 +142,7 @@ export function ProductDetailGallery({
 
   return (
     <>
-      <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E2E6EC] bg-white shadow-card">
+      <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E2DDD3] bg-white shadow-card">
         {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (중복 블러 <img> 다운로드 제거) */}
         <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none ring-1 ring-inset ring-black/5">
           <div
@@ -248,17 +248,17 @@ export function ProductDetailGallery({
 
         {/* 썸네일 스트립 */}
         {displayImages.length > 1 && (
-          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#F1F3F6] overflow-x-auto">
+          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#EFECE4] overflow-x-auto">
             {displayImages.map((img, i) => (
               <button
                 key={img + i}
                 type="button"
                 onClick={() => setIdx(i)}
                 aria-label={`${i + 1}번 사진 선택`}
-                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#F1F3F6] border transition-[border-color,box-shadow,transform] ${
+                className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#EFECE4] border transition-[border-color,box-shadow,transform] ${
                   i === idx
                     ? "border-[#E8521A] ring-2 ring-[#E8521A]/35"
-                    : "border-[#E2E6EC] opacity-65 hover:opacity-100"
+                    : "border-[#E2DDD3] opacity-65 hover:opacity-100"
                 }`}
               >
                 <span className="absolute top-1 left-1 z-10 rounded bg-[#141A23]/75 px-1.5 py-0.5 text-hb-xs font-mono font-bold text-white tabular-nums leading-none pointer-events-none">
@@ -384,7 +384,7 @@ export function CopyProductLinkButton({
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#334155] hover:border-[#141A23] hover:text-[#141A23] transition-[border-color,color,transform] active:scale-[0.96] shadow-2xs"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2DDD3] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#334155] hover:border-[#141A23] hover:text-[#141A23] transition-[border-color,color,transform] active:scale-[0.96] shadow-2xs"
       title={`${productTitle} 링크 복사`}
     >
       <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
@@ -424,7 +424,7 @@ export function QuoteBasketButton({
   const defaultClasses = `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-[background-color,border-color,color,transform] active:scale-[0.96] w-full ${
     inBasket
       ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
-      : "border-[#CBD2DC] bg-[#F7F8FA] text-[#141A23] hover:border-[#141A23]"
+      : "border-[#D8D1C5] bg-[#FAF9F6] text-[#141A23] hover:border-[#141A23]"
   }`;
 
   return (
@@ -542,7 +542,7 @@ export function CopyPromoPostButton({
     <div className="inline-flex items-center gap-1.5">
       <Link
         href={`/admin?search=${encodeURIComponent(product.id)}`}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white transition-[border-color,background-color,color,transform] active:scale-[0.96] shadow-2xs"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white transition-[border-color,background-color,color,transform] active:scale-[0.96] shadow-2xs"
         title="관리자 페이지에서 이 상품 정보 수정하기"
       >
         <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#141A23]" />
@@ -553,7 +553,7 @@ export function CopyPromoPostButton({
         onClick={handleCopyPromo}
         className={
           className ||
-          "inline-flex items-center gap-1.5 rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white transition-[border-color,background-color,color,transform] active:scale-[0.96] shadow-2xs"
+          "inline-flex items-center gap-1.5 rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white transition-[border-color,background-color,color,transform] active:scale-[0.96] shadow-2xs"
         }
         title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
       >
@@ -610,7 +610,7 @@ export function InteractiveChecklistAndCta({
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   return (
-    <div className="mt-5 pt-4 border-t border-[#E2E6EC] space-y-3">
+    <div className="mt-5 pt-4 border-t border-[#E2DDD3] space-y-3">
       {sold && (
         <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3 text-hb-xs text-[#E8521A] font-semibold leading-snug flex items-center gap-2">
           <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#E8521A]" />
@@ -677,7 +677,7 @@ export function InteractiveChecklistAndCta({
       </a>
 
       {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (동심원 곡률 R_inner(8px) = R_outer(16px) - Padding(8px)) */}
-      <div className="rounded-2xl bg-[#F1F3F6] p-2 space-y-2">
+      <div className="rounded-2xl bg-[#F5F3EE] border border-[#E2DDD3] p-2 space-y-2">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}

@@ -108,7 +108,7 @@ export function HomeLocationInquirySection({
                     <Icon d={ICON.pin} className="h-5 w-5" />
                   </span>
                   <div className="relative z-10 space-y-1">
-                    <span className="inline-block rounded-md bg-white/90 border border-[#CBD2DC] px-2.5 py-0.5 text-hb-xs font-bold text-[#0F766E]">
+                    <span className="block text-hb-xs font-bold text-[#0F766E]">
                       전용 주차 8대 · 1톤 화물 진입 수월
                     </span>
                     <p className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
@@ -280,23 +280,29 @@ export function HomeLocationInquirySection({
                             r.created_at
                           );
 
-                          const typeBadgeClass =
+                          const typeTextClass =
                             tone === "sell"
-                              ? "bg-[#FFF4EE] text-[#C84312] border border-[#FED7AA]"
+                              ? "text-[#C84312]"
                               : tone === "bulk"
-                              ? "bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]"
-                              : "bg-[#F1F3F6] text-[#141A23] border border-[#E2E6EC]";
+                              ? "text-[#0F766E]"
+                              : "text-[#475569]";
 
                           return (
                             <li
                               key={r.id}
-                              className="flex items-center justify-between gap-2 py-2 text-hb-xs"
+                              className="flex items-center justify-between gap-2.5 py-2.5 text-hb-xs"
                             >
-                              <div className="flex min-w-0 flex-1 items-center gap-2">
+                              <div className="flex min-w-0 flex-1 items-center gap-1.5">
                                 <span
-                                  className={`shrink-0 rounded-md px-2 py-0.5 text-hb-xs font-bold leading-none ${typeBadgeClass}`}
+                                  className={`shrink-0 text-hb-xs font-bold whitespace-nowrap ${typeTextClass}`}
                                 >
                                   {getInquiryTypeLabel(r.inquiry_type)}
+                                </span>
+                                <span
+                                  className="text-[#CBD2DC] shrink-0"
+                                  aria-hidden="true"
+                                >
+                                  ·
                                 </span>
                                 <Link
                                   href="/inquiry"
@@ -315,10 +321,16 @@ export function HomeLocationInquirySection({
                                   </span>
                                 )}
                                 <span
-                                  className={`rounded-md px-1.5 py-0.5 text-hb-xs font-bold leading-none ${
+                                  className="text-[#CBD2DC]"
+                                  aria-hidden="true"
+                                >
+                                  ·
+                                </span>
+                                <span
+                                  className={`text-hb-xs font-bold whitespace-nowrap ${
                                     isDone
-                                      ? "bg-[#F0FDFA] text-[#0F766E] border border-[#0D9488]/25"
-                                      : "bg-[#FFF4EE] text-[#C84312] border border-[#C84312]/25"
+                                      ? "text-[#0F766E]"
+                                      : "text-[#C84312]"
                                   }`}
                                 >
                                   {r.status ?? INQUIRY_STATUS.RECEIVED}

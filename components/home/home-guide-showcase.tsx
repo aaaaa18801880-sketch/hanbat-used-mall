@@ -93,7 +93,7 @@ export function HomeGuideShowcase({
             href={`/guide/${featured.slug}`}
             className="group lg:col-span-5 flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs hover:border-[#141A23] hover:shadow-card transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5"
           >
-            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#141A23]">
+            <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#EFECE4]">
               {featured.heroImageSrc && (
                 <GuideThumbnailImage
                   src={featured.heroImageSrc}
@@ -151,7 +151,7 @@ export function HomeGuideShowcase({
                   />
                 </span>
                 {featured.priorityRole && (
-                  <span className="rounded-md bg-[#FAF9F6] border border-[#E2DDD3] px-2 py-0.5 text-hb-xs font-semibold text-[#475569]">
+                  <span className="text-hb-xs font-semibold text-[#64748B]">
                     {featured.priorityRole}
                   </span>
                 )}
@@ -167,7 +167,7 @@ export function HomeGuideShowcase({
                 href={`/guide/${article.slug}`}
                 className="group flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs hover:border-[#141A23] hover:shadow-card transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5"
               >
-                <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EFECE4]">
                   {article.heroImageSrc && (
                     <GuideThumbnailImage
                       src={article.heroImageSrc}
@@ -178,26 +178,24 @@ export function HomeGuideShowcase({
                       className="object-cover object-center transition-transform duration-300 group-hover:scale-[1.04]"
                     />
                   )}
-                  <div
-                    className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/65 via-transparent to-transparent"
-                    aria-hidden="true"
-                  />
-
-                  <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5">
-                    <span className="rounded-md bg-white/95 px-2 py-0.5 text-hb-xs font-bold text-[#141A23] shadow-2xs">
-                      {article.category}
-                    </span>
-                    {article.hasTool && (
-                      <span className="rounded-md bg-[#0F766E] px-2 py-0.5 text-hb-xs font-bold text-white shadow-2xs">
-                        계산기
-                      </span>
-                    )}
-                  </div>
                 </div>
 
-                <div className="flex flex-1 flex-col justify-between p-3.5">
+                <div className="flex flex-1 flex-col justify-between p-4">
                   <div>
-                    <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors leading-snug line-clamp-2 break-keep">
+                    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-hb-xs font-semibold text-[#64748B]">
+                      <span>{article.category}</span>
+                      {article.hasTool && (
+                        <>
+                          <span className="text-[#CBD2DC]" aria-hidden="true">
+                            ·
+                          </span>
+                          <span className="font-bold text-[#0F766E]">
+                            계산기 포함
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <h3 className="mt-1 text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors leading-snug line-clamp-2 break-keep">
                       {article.title}
                     </h3>
                     <p className="mt-1 text-hb-xs text-[#475569] leading-relaxed line-clamp-2 break-keep">
@@ -205,7 +203,7 @@ export function HomeGuideShowcase({
                     </p>
                   </div>
 
-                  <div className="mt-2.5 pt-2 border-t border-[#F1F3F6] flex items-center justify-between text-hb-xs">
+                  <div className="mt-3 pt-2.5 border-t border-[#E2DDD3] flex items-center justify-between text-hb-xs">
                     <span className="font-mono font-semibold text-[#64748B] tabular-nums">
                       {article.readMinutes}분 읽기
                     </span>

@@ -211,7 +211,7 @@ export function ShowroomTrustShowcase() {
           >
             {/* 좌측 5열: 실물 현장 사진 + 핵심 원칙 요약 */}
             <div className="lg:col-span-5 flex flex-col bg-white">
-              <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] lg:flex-1 w-full overflow-hidden bg-[#141A23]">
+              <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] lg:flex-1 w-full overflow-hidden bg-[#EFECE4]">
                 {REFURBISH_STEPS.map((step) => {
                   const isActiveImage = step.id === activeStep.id;
                   return (

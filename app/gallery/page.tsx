@@ -522,7 +522,20 @@ export default function GalleryPage() {
 
       {/* 상단 에디토리얼 쇼룸 헤더 (타이틀 + 전시 수량 + 검색창) */}
       <section className="bg-white">
-        <div className="hb-container pt-6 pb-4 sm:pt-9 sm:pb-5">
+        <div className="hb-container pt-6 pb-4 sm:pt-8 sm:pb-5">
+          <nav
+            aria-label="페이지 경로"
+            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-3.5"
+          >
+            <Link href="/" className="hover:text-[#141A23] transition-colors">
+              홈
+            </Link>
+            <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#94A3B8]" />
+            <span className="font-bold text-[#141A23]" aria-current="page">
+              판매 제품
+            </span>
+          </nav>
+
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -563,7 +576,7 @@ export default function GalleryPage() {
                   }}
                   placeholder="브랜드·제품명·모델명 검색"
                   aria-label="브랜드, 제품명 또는 모델명 검색"
-                  className="w-full h-10 pl-10 pr-8 rounded-full border border-[#D8D1C5] bg-[#FAF9F6] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
+                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-[#D8D1C5] bg-[#FAF9F6] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
                 />
                 {search.trim() !== "" && (
                   <button
@@ -584,7 +597,7 @@ export default function GalleryPage() {
                 type="button"
                 onClick={() => setMobileFilterOpen((v) => !v)}
                 aria-expanded={mobileFilterOpen}
-                className={`lg:hidden h-10 px-3.5 inline-flex items-center gap-1.5 rounded-full border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                className={`lg:hidden h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   mobileFilterOpen ||
                   statusFilter !== "all" ||
                   (hasPricedProducts && priceRange !== "all") ||
@@ -749,10 +762,10 @@ export default function GalleryPage() {
                             keyword: preset.keyword,
                           });
                         }}
-                        className={`h-8 inline-flex items-center gap-1.5 rounded-full px-3.5 font-semibold transition-[background-color,color] shrink-0 cursor-pointer ${
+                        className={`h-8 inline-flex items-center gap-1.5 rounded-lg border px-3 font-semibold transition-colors shrink-0 cursor-pointer ${
                           active
-                            ? "bg-[#141A23] text-white"
-                            : "bg-[#F4F1EA] text-[#334155] hover:bg-[#EAE5DC] hover:text-[#141A23]"
+                            ? "border-[#141A23] bg-[#141A23] text-white"
+                            : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155] hover:border-[#141A23] hover:bg-white hover:text-[#141A23]"
                         }`}
                         title={preset.desc}
                       >
@@ -778,7 +791,7 @@ export default function GalleryPage() {
                     setVisibleLimit(PAGE_STEP);
                   }}
                   aria-label="모바일 판매 상태 필터"
-                  className="h-10 px-2.5 rounded-lg border border-[#E2E6EC] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
+                  className="h-10 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                 >
                   <option value="all">전체 상태</option>
                   <option value="selling">판매중만</option>
@@ -797,7 +810,7 @@ export default function GalleryPage() {
                       setVisibleLimit(PAGE_STEP);
                     }}
                     aria-label="모바일 가격대 필터"
-                    className="h-10 px-2.5 rounded-lg border border-[#E2E6EC] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
+                    className="h-10 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                   >
                     {PRICE_RANGE_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>
@@ -813,7 +826,7 @@ export default function GalleryPage() {
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
                   aria-label="모바일 정렬 기준"
-                  className="h-10 px-2.5 rounded-lg border border-[#E2E6EC] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
+                  className="h-10 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                 >
                   <option value="latest">최신 등록순</option>
                   <option value="views">조회 많은순</option>
@@ -938,7 +951,7 @@ export default function GalleryPage() {
             ))}
           </div>
         ) : loadError ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E2E6EC]">
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E2DDD3]">
             <p className="text-[#141A23] text-hb-lg font-bold">
               상품 목록을 불러오지 못했습니다.
             </p>
@@ -954,7 +967,7 @@ export default function GalleryPage() {
             </button>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E2E6EC] shadow-2xs">
+          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E2DDD3] shadow-2xs">
             <p className="text-[#141A23] text-hb-lg font-bold">
               {search.trim()
                 ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`

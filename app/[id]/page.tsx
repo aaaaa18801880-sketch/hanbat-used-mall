@@ -438,10 +438,8 @@ export default async function ProductDetailPage({
               <div className="flex flex-wrap items-center gap-2">
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                  className={`rounded-md px-2.5 py-0.5 text-hb-xs font-bold transition-colors ${
-                    isB2B
-                      ? "bg-[#141A23] text-white hover:bg-[#1E2736]"
-                      : "border border-[#E2DDD3] bg-[#FAF9F6] text-[#141A23] hover:border-[#141A23]/40"
+                  className={`text-hb-xs font-bold hover:underline transition-colors ${
+                    isB2B ? "text-[#C84312]" : "text-[#0F766E]"
                   }`}
                 >
                   {categoryLabel}
@@ -611,7 +609,7 @@ export default async function ProductDetailPage({
 
         {/* 동일 카테고리 추천 매물 4선 */}
         {relatedProducts.length > 0 && (
-          <section className="mt-9 pt-7 border-t border-[#E2E6EC]">
+          <section className="mt-9 pt-7 border-t border-[#E2DDD3]">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
                 같은 카테고리의 다른 실매물
@@ -643,7 +641,7 @@ export default async function ProductDetailPage({
             {categoryFaqs.map((faq) => (
               <div
                 key={faq.q}
-                className="rounded-xl border border-[#E2E6EC] bg-white p-4 shadow-2xs"
+                className="rounded-xl border border-[#E2DDD3] bg-white p-4 shadow-2xs"
               >
                 <dt className="flex items-start gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
                   <span className="text-[#E8521A] font-bold">Q.</span>
@@ -695,7 +693,7 @@ export default async function ProductDetailPage({
                   href={`/guide/${guide.slug}`}
                   className="group overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs hover:border-[#141A23] transition-colors flex flex-col"
                 >
-                  <div className="relative aspect-video w-full overflow-hidden bg-[#141A23]">
+                  <div className="relative aspect-video w-full overflow-hidden bg-[#EFECE4]">
                     <Image
                       src={thumb.src}
                       alt={thumb.alt}
@@ -704,12 +702,12 @@ export default async function ProductDetailPage({
                       referrerPolicy="no-referrer"
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
                     />
-                    <span className="absolute left-3 top-3 rounded-md bg-white/95 backdrop-blur-xs px-2.5 py-0.5 text-hb-xs font-bold text-[#141A23]">
-                      {guide.category}
-                    </span>
                   </div>
                   <div className="flex flex-1 flex-col justify-between gap-2.5 p-4">
                     <div>
+                      <span className="mb-1 block text-hb-xs font-bold text-[#64748B]">
+                        {guide.category}
+                      </span>
                       <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep line-clamp-2">
                         {guide.title}
                       </h3>

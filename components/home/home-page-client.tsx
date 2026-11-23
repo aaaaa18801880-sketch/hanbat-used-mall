@@ -539,22 +539,16 @@ export default function Home({
         <section
           id="hero-section"
           aria-labelledby="hero-title"
-          className="relative w-full border-b border-[#E2E6EC] hb-ambient-hero"
+          className="relative w-full border-b border-[#E2DDD3] hb-ambient-hero"
         >
           <div className="hb-container py-5 sm:py-8 lg:py-11">
             <div className="grid items-center gap-5 sm:gap-7 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 브리핑 아이브로우 배지 + H1 + 3대 출고 스펙 + 3대 목적 허브 */}
+              {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 3대 출고 스펙 + 주/보조 CTA */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-y-1 gap-x-2 text-hb-xs sm:text-hb-sm font-bold">
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[#C84312] tracking-tight">
-                      <span
-                        className="h-2 w-2 rounded-sm bg-[#E8521A]"
-                        aria-hidden="true"
-                      />
-                      <span>
-                        SINCE {STORE.since} · {OPERATING_YEARS}년 직영
-                      </span>
+                    <span className="font-mono text-[#C84312] tracking-tight">
+                      SINCE {STORE.since} · {OPERATING_YEARS}년 직영
                     </span>
                     <span className="hidden sm:inline text-[#CBD2DC]" aria-hidden="true">
                       |
@@ -607,7 +601,7 @@ export default function Home({
                     </div>
                   </div>
 
-                  {/* 핵심 행동 2개 고도화: 구매(실매물 확인) + 매입(방문 매입·폐업 정리 통합 허브) */}
+                  {/* 핵심 행동 2개 위계 분리: 1차 주행동(실매물 확인 솔리드) + 2차 보조행동(방문 매입 아웃라인) */}
                   <div className="mt-4 max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <Link
                       href="/gallery"
@@ -617,7 +611,7 @@ export default function Home({
                         <span className="inline-flex items-center gap-2 text-hb-sm font-bold text-white">
                           <span>실매물 확인</span>
                           {sellingCount > 0 && (
-                            <span className="rounded-md bg-white/15 px-2 py-0.5 font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                            <span className="font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
                               {sellingCount}대
                             </span>
                           )}
@@ -634,19 +628,19 @@ export default function Home({
 
                     <Link
                       href="/purchase"
-                      className="group flex items-center justify-between gap-3 rounded-xl bg-[#C84312] px-4 py-3 text-left text-white shadow-sm hover:bg-[#B2390D] active:scale-[0.98] transition-[background-color,transform] duration-150"
+                      className="group flex items-center justify-between gap-3 rounded-xl border border-[#D8D1C5] bg-white px-4 py-3 text-left text-[#141A23] shadow-2xs hover:border-[#C84312] hover:bg-[#FFF8F4] active:scale-[0.98] transition-[background-color,border-color,transform] duration-150"
                     >
                       <div className="min-w-0">
-                        <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-white">
+                        <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
                           <span>가전 · 폐업 설비 팔기</span>
                         </span>
-                        <span className="mt-0.5 block text-hb-xs text-white/90 truncate">
+                        <span className="mt-0.5 block text-hb-xs text-[#475569] truncate">
                           당일 방문 수거 · 현장 즉시 입금
                         </span>
                       </div>
                       <Icon
                         d={ICON.arrow}
-                        className="w-4 h-4 shrink-0 text-white transition-transform group-hover:translate-x-0.5"
+                        className="w-4 h-4 shrink-0 text-[#C84312] transition-transform group-hover:translate-x-0.5"
                       />
                     </Link>
                   </div>
@@ -674,9 +668,9 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 대형 쇼룸 사진 + 상태 칩 + 단일 주소/영업시간/길찾기 도크 */}
+              {/* 우측 (5열): 대형 쇼룸 사진 + 현장 지표 + 단일 주소/영업시간/길찾기 도크 */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E2DDD3] bg-white hb-surface-card hover:translate-y-0">
-                <div className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden bg-[#141A23]">
+                <div className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden bg-[#EFECE4]">
                   <Image
                     src="/store-exterior.jpg"
                     alt={`${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
@@ -856,8 +850,8 @@ export default function Home({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
-                    trackEvent("click_external_review", {
-                      channel: "naver_map",
+                    trackEvent("click_nav_naver", {
+                      channel: "naver_map_review",
                       location: "home_reviews_section",
                     })
                   }
@@ -874,7 +868,7 @@ export default function Home({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() =>
-                    trackEvent("click_external_review", {
+                    trackEvent("click_guide_tool_action", {
                       channel: "daangn_profile",
                       location: "home_reviews_section",
                     })
@@ -1010,13 +1004,13 @@ export default function Home({
                             </span>
                           )}
                         </button>
-                        <div className="bg-white px-3 py-2.5 border-t border-[#E2E6EC] flex items-center justify-between gap-2">
+                        <div className="bg-white px-3 py-2.5 border-t border-[#E2DDD3] flex items-center justify-between gap-2">
                           <p className="line-clamp-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors min-w-0">
                             {r.title || "배송 및 설치 완료"}
                           </p>
                           <Link
                             href={bridge.href}
-                            className="shrink-0 inline-flex items-center gap-0.5 rounded-md bg-[#F7F8FA] border border-[#E2E6EC] px-2 py-0.5 text-hb-xs font-bold text-[#C84312] hover:border-[#C84312] hover:bg-[#FFF4EE] transition-colors"
+                            className="shrink-0 inline-flex items-center gap-0.5 text-hb-xs font-bold text-[#C84312] hover:underline underline-offset-4 whitespace-nowrap"
                           >
                             <span>{bridge.label}</span>
                             <Icon d={ICON.right} className="w-3 h-3" />
