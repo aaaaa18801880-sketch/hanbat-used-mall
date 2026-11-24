@@ -44,7 +44,7 @@ import {
   ProductCard,
   type ProductItem,
 } from "../../components/products/product-card";
-import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
+import { CategoryNoticeGuideBanner } from "../../components/products/notice-guide-banner";
 import { ProductStructuredDescription } from "../../components/products/product-structured-description";
 import { RecentViewedStrip } from "../../components/products/recent-viewed-strip";
 import { V2VisualInspectionViewer } from "../../components/products/v2-visual-inspection-viewer";
@@ -579,9 +579,10 @@ export default async function ProductDetailPage({
             {/* 상세 제원 및 검수 소견서 (좌측 하단 배치로 우측 상담 콘솔의 첫 화면 시인성 확보) */}
             <ProductStructuredDescription description={product.description} />
 
-            {categoryLabel === "에어컨/냉난방기" && (
-              <AirconSetGuideBanner variant="card" />
-            )}
+            <CategoryNoticeGuideBanner
+              category={categoryLabel}
+              variant="card"
+            />
           </div>
         </div>
 

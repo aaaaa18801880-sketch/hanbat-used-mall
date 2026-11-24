@@ -38,7 +38,7 @@ import {
   postInquirySubmission,
   prepareInquiryFileAdditions,
 } from "../../lib/inquiry-client";
-import { AirconSetGuideBanner } from "../products/aircon-set-guide-banner";
+import { CategoryNoticeGuideBanner } from "../products/notice-guide-banner";
 
 export type SubmissionPhase =
   | "idle"
@@ -1572,10 +1572,12 @@ export function UnifiedInquiryForm({
               </div>
             </div>
 
-            {/* 에어컨 선택 시 가이드 배너 */}
-            {applianceCategory === "에어컨/냉난방기" && (
-              <AirconSetGuideBanner variant="inline" className="mt-1" />
-            )}
+            {/* 품목별 필독 안내 바 */}
+            <CategoryNoticeGuideBanner
+              category={applianceCategory}
+              variant="inline"
+              className="mt-1"
+            />
 
             {/* 2. 방문 수거 지역 & 희망 일정/층수 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
@@ -1742,8 +1744,12 @@ export function UnifiedInquiryForm({
               </div>
             )}
 
-            {!isNotice && !isOther && applianceCategory === "에어컨/냉난방기" && (
-              <AirconSetGuideBanner variant="inline" className="mt-2" />
+            {!isNotice && !isOther && (
+              <CategoryNoticeGuideBanner
+                category={applianceCategory}
+                variant="inline"
+                className="mt-2"
+              />
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-4">

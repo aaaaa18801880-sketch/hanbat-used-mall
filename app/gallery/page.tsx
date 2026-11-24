@@ -58,7 +58,7 @@ import {
 } from "../../components/products/product-card";
 import { GallerySpecTable } from "../../components/products/gallery-spec-table";
 import { RecentViewedStrip } from "../../components/products/recent-viewed-strip";
-import { AirconSetGuideBanner } from "../../components/products/aircon-set-guide-banner";
+import { CategoryNoticeGuideBanner } from "../../components/products/notice-guide-banner";
 import { useGalleryInitialProducts } from "../../components/gallery/gallery-initial-data";
 
 const ProductDetailModal = dynamic(
@@ -930,9 +930,11 @@ export default function GalleryPage() {
           </div>
         </div>
 
-        {activeCategory === "에어컨/냉난방기" && (
-          <AirconSetGuideBanner variant="banner" className="mb-6" />
-        )}
+        <CategoryNoticeGuideBanner
+          category={activeCategory}
+          variant="banner"
+          className="mb-6"
+        />
 
         {/* [기능 4] 비로그인 최근 본 매물 상단 슬림 스트립 */}
         <RecentViewedStrip compact className="mb-5" />

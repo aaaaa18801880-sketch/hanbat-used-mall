@@ -36,7 +36,7 @@ import {
   CopyPromoPostButton,
   QuoteBasketButton,
 } from "../products/product-detail-gallery";
-import { AirconSetGuideBanner } from "../products/aircon-set-guide-banner";
+import { CategoryNoticeGuideBanner } from "../products/notice-guide-banner";
 import { ProductStructuredDescription } from "../products/product-structured-description";
 
 export function ProductDetailModal({
@@ -756,9 +756,11 @@ export function ProductDetailModal({
                   {/* 핵심 가치 아이콘 바 (Trust Micro-strip) */}
                   <ProductTrustMicroStrip category={categoryLabel} />
 
-                  {categoryLabel === "에어컨/냉난방기" && (
-                    <AirconSetGuideBanner variant="card" className="mt-4" />
-                  )}
+                  <CategoryNoticeGuideBanner
+                    category={categoryLabel}
+                    variant="card"
+                    className="mt-4"
+                  />
 
                   {/* 구조화된 제품 사양 및 상태 설명 */}
                   {product.description && (
