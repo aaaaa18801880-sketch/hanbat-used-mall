@@ -238,3 +238,58 @@ test("mergeReplacedProductImageUrls preserves original photo order and isolates 
   ]);
   assert.deepEqual(sharedPartial.removedOldUrls, []);
 });
+
+test("planBulkPendingPublish groups identical prices into minimal IN batches and rejects invalid prices", async () => {
+  const { planBulkPendingPublish } = await import("../lib/product-ops");
+
+  // 1) 101건(가격 미입력 98건 + 동일 가격 2건 + 개별 가격 1건)을 최소 배치(3회)로 압축
+  const items = [
+    ...Array.from({ length: 98 }, (_, idx) => ({
+      id: `p-${idx + 1}`,
+      price: "",
+    })),
+    { id: "p-99", price: "350,000원" },
+    { id: "p-100", price: "350000" },
+    { id: "p-101", price: "480,000" },
+  ];
+
+  const plan = planBulkPendingPublish(items);
+  assert.equal(plan.orderedItems.length, 101);
+  assert.equal(plan.pricedCount, 3);
+  assert.equal(plan.inquiryPriceCount, 98);
+  assert.equal(plan.priceBatches.length, 3);
+
+  const zeroBatch = plan.priceBatches.find((b) => b.price === 0);
+  const midBatch = plan.priceBatches.find((b) => b.price === 350000);
+  const highBatch = plan.priceBatches.find((b) => b.price === 480000);
+  assert.equal(zeroBatch?.ids.length, 98);
+  assert.deepEqual(midBatch?.ids, ["p-99", "p-100"]);
+  assert.deepEqual(highBatch?.ids, ["p-101"]);
+
+  // 2) 200건 초과 동일 가격 항목은 200건 청크로 안전 분할 + 중복 ID는 마지막 값으로 통합
+  const largeItems = [
+    ...Array.from({ length: 205 }, (_, idx) => ({
+      id: `bulk-${idx + 1}`,
+      price: 0,
+    })),
+    { id: "bulk-1", price: "120000" },
+  ];
+  const largePlan = planBulkPendingPublish(largeItems);
+  assert.equal(largePlan.orderedItems.length, 205);
+  assert.equal(largePlan.pricedCount, 1);
+  assert.equal(largePlan.inquiryPriceCount, 204);
+  const zeroChunks = largePlan.priceBatches.filter((b) => b.price === 0);
+  assert.deepEqual(
+    zeroChunks.map((c) => c.ids.length),
+    [200, 4]
+  );
+
+  // 3) 음수 등 잘못된 가격이 섞이면 DB 호출 전에 즉시 차단
+  assert.throws(() =>
+    planBulkPendingPublish([
+      { id: "ok-1", price: "100000" },
+      { id: "bad-1", price: "-5000" },
+    ])
+  );
+});
+

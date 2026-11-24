@@ -22,6 +22,7 @@ import {
 } from "../../../../../lib/server-security";
 import {
   generateGeminiWithFallback,
+  getGeminiErrorStatus,
   parseGeminiJsonObject,
   type GeminiInlineImagePart,
 } from "../../../../../lib/server-gemini";
@@ -402,7 +403,7 @@ export async function POST(req: NextRequest) {
             ? err.message
             : "상품 일괄 등록 처리 중 오류가 발생했습니다.",
       },
-      { status: 500 }
+      { status: getGeminiErrorStatus(err) }
     );
   }
 }

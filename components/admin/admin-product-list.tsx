@@ -15,6 +15,7 @@ import {
   splitImages,
 } from "../../lib/site";
 import { ICON, Icon, SafeImg } from "../../lib/ui";
+import { parseProductPriceInput } from "../../lib/product-ops";
 import type { ProductCategoryMismatch } from "../../lib/product-category-audit";
 import type { AdminProductRow } from "./admin-types";
 
@@ -34,6 +35,9 @@ interface AdminProductListProps {
   onFixCategoryMismatches: (targets: readonly ProductCategoryMismatch[]) => void;
   onStatusChange: (productId: string, nextStatus: string) => void;
   onPublishPendingProduct: (productId: string, price: string) => Promise<void> | void;
+  onBulkPublishPendingProducts?: (
+    items: ReadonlyArray<{ id: string; price: string }>
+  ) => Promise<boolean | void> | boolean | void;
   onRunSoldCleanup?: () => Promise<void> | void;
   onStartEdit: (product: AdminProductRow) => void;
   onOpenSmartCrop: (product: AdminProductRow) => void;
@@ -61,6 +65,7 @@ export function AdminProductList({
   onFixCategoryMismatches,
   onStatusChange,
   onPublishPendingProduct,
+  onBulkPublishPendingProducts,
   onRunSoldCleanup,
   onStartEdit,
   onOpenSmartCrop,
@@ -70,6 +75,102 @@ export function AdminProductList({
   const [pendingPriceDrafts, setPendingPriceDrafts] = useState<
     Record<string, string>
   >({});
+  const [deselectedPendingIds, setDeselectedPendingIds] = useState<Set<string>>(
+    () => new Set()
+  );
+
+  const visiblePendingProducts = products.filter(
+    (p) => normalizeProductStatus(p.status) === PRODUCT_STATUS.PENDING_REVIEW
+  );
+  const selectedPendingProducts = visiblePendingProducts.filter(
+    (p) => !deselectedPendingIds.has(p.id)
+  );
+  const allVisiblePendingSelected =
+    visiblePendingProducts.length > 0 &&
+    selectedPendingProducts.length === visiblePendingProducts.length;
+  const isBulkPublishing = busyActionId === "prod-bulk-publish";
+
+  const getPendingDraftPrice = (product: AdminProductRow): string =>
+    pendingPriceDrafts[product.id] ??
+    (typeof product.price === "number" && product.price > 0
+      ? String(product.price)
+      : "");
+
+  const togglePendingSelection = (productId: string) => {
+    setDeselectedPendingIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(productId)) {
+        next.delete(productId);
+      } else {
+        next.add(productId);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleAllVisiblePending = () => {
+    setDeselectedPendingIds((prev) => {
+      const next = new Set(prev);
+      if (allVisiblePendingSelected) {
+        for (const p of visiblePendingProducts) {
+          next.add(p.id);
+        }
+      } else {
+        for (const p of visiblePendingProducts) {
+          next.delete(p.id);
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleTriggerBulkPublish = async () => {
+    if (
+      !onBulkPublishPendingProducts ||
+      isBulkPublishing ||
+      Boolean(busyActionId) ||
+      selectedPendingProducts.length === 0
+    ) {
+      return;
+    }
+
+    const payload: Array<{ id: string; price: string }> = [];
+    let pricedCount = 0;
+    let inquiryCount = 0;
+
+    for (const prod of selectedPendingProducts) {
+      const rawPrice = getPendingDraftPrice(prod);
+      const parsed = parseProductPriceInput(rawPrice);
+      if (parsed === null) {
+        toast.error(
+          `'${prod.title}'의 판매가 형식이 올바르지 않습니다. 숫자만 입력하거나 비워 주세요.`
+        );
+        return;
+      }
+      if (parsed > 0) pricedCount += 1;
+      else inquiryCount += 1;
+      payload.push({ id: prod.id, price: rawPrice });
+    }
+
+    const confirmed = confirm(
+      `선택한 검수대기 상품 ${payload.length}건을 한 번에 [판매중]으로 공개할까요?\n\n` +
+        `- 판매가 입력됨: ${pricedCount}건\n` +
+        `- 가격 미입력(가격 문의로 공개): ${inquiryCount}건\n` +
+        `- 추가 AI(Gemini) API 호출: 0회 (비용 0원)`
+    );
+    if (!confirmed) return;
+
+    const ok = await onBulkPublishPendingProducts(payload);
+    if (ok !== false) {
+      setPendingPriceDrafts((prev) => {
+        const next = { ...prev };
+        for (const item of payload) {
+          delete next[item.id];
+        }
+        return next;
+      });
+    }
+  };
 
   return (
     <section className="rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 lg:col-span-7 space-y-4 shadow-2xs">
@@ -208,17 +309,60 @@ export function AdminProductList({
         )}
 
       {prodStatusFilter === PRODUCT_STATUS.PENDING_REVIEW && (
-        <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-sky-400 bg-sky-100 px-3.5 py-2 text-hb-xs text-sky-950">
-          <span className="font-bold">
-            검수대기(비공개) 검수 모드 ({products.length}건 표시 중 · 고객 페이지 비노출)
-          </span>
-          <button
-            type="button"
-            onClick={() => setProdStatusFilter("전체")}
-            className="text-hb-xs font-bold text-sky-900 underline hover:text-black cursor-pointer"
-          >
-            전체 상태 보기
-          </button>
+        <div className="space-y-2.5 rounded-lg border border-sky-400 bg-sky-100/90 px-3.5 py-2.5 text-hb-xs text-sky-950">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-bold">
+              검수대기(비공개) 검수 모드 ({products.length}건 표시 중 · 고객 페이지 비노출)
+            </span>
+            <button
+              type="button"
+              onClick={() => setProdStatusFilter("전체")}
+              className="text-hb-xs font-bold text-sky-900 underline hover:text-black cursor-pointer"
+            >
+              전체 상태 보기
+            </button>
+          </div>
+
+          {visiblePendingProducts.length > 0 && onBulkPublishPendingProducts && (
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-sky-300/80 pt-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <label className="inline-flex items-center gap-1.5 font-bold text-sky-950 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={allVisiblePendingSelected}
+                    disabled={isBulkPublishing}
+                    onChange={handleToggleAllVisiblePending}
+                    className="h-4 w-4 rounded border-sky-500 accent-[#141A23] cursor-pointer"
+                  />
+                  <span>
+                    {allVisiblePendingSelected
+                      ? "현재 목록 전체 해제"
+                      : `현재 목록 전체 선택 (${visiblePendingProducts.length}건)`}
+                  </span>
+                </label>
+                <span className="text-sky-900 tabular-nums">
+                  선택{" "}
+                  <strong>{selectedPendingProducts.length}</strong> /{" "}
+                  {visiblePendingProducts.length}건 · 가격 미입력 건은 &apos;가격 문의&apos;로 공개
+                </span>
+              </div>
+
+              <button
+                type="button"
+                disabled={
+                  isBulkPublishing ||
+                  Boolean(busyActionId) ||
+                  selectedPendingProducts.length === 0
+                }
+                onClick={() => void handleTriggerBulkPublish()}
+                className="h-8 rounded-lg bg-[#141A23] px-3 text-hb-xs font-bold text-white hover:bg-[#E8521A] disabled:opacity-40 transition-colors cursor-pointer shrink-0"
+              >
+                {isBulkPublishing
+                  ? "일괄 공개 중..."
+                  : `선택 ${selectedPendingProducts.length}건 일괄 판매중 공개 (AI 0원)`}
+              </button>
+            </div>
+          )}
         </div>
       )}
 
@@ -285,24 +429,35 @@ export function AdminProductList({
           const catLabel = normalizeProductCategory(product.category);
           const statValue = normalizeProductStatus(product.status);
           const isPending = statValue === PRODUCT_STATUS.PENDING_REVIEW;
+          const isPendingSelected = isPending && !deselectedPendingIds.has(product.id);
           const priceInputId = `pending-price-${product.id}`;
-          const draftPrice =
-            pendingPriceDrafts[product.id] ??
-            (typeof product.price === "number" && product.price > 0
-              ? String(product.price)
-              : "");
+          const draftPrice = getPendingDraftPrice(product);
 
           return (
             <div
               key={product.id}
               className={`rounded-lg border p-3 transition-colors space-y-2.5 ${
                 isPending
-                  ? "border-sky-300 bg-sky-50/40 hover:border-sky-500"
+                  ? isPendingSelected
+                    ? "border-sky-400 bg-sky-50/50 hover:border-sky-600"
+                    : "border-[#CBD2DC] bg-[#F9FAFB] opacity-80"
                   : "border-[#E2E6EC] hover:border-[#141A23]/40"
               }`}
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
+                  {isPending &&
+                    prodStatusFilter === PRODUCT_STATUS.PENDING_REVIEW &&
+                    onBulkPublishPendingProducts && (
+                      <input
+                        type="checkbox"
+                        checked={isPendingSelected}
+                        disabled={isBulkPublishing}
+                        onChange={() => togglePendingSelection(product.id)}
+                        aria-label={`${product.title} 일괄 공개 선택`}
+                        className="h-4 w-4 shrink-0 rounded border-sky-500 accent-[#141A23] cursor-pointer"
+                      />
+                    )}
                   <div className="h-14 w-14 shrink-0 overflow-hidden rounded bg-[#F9FAFB] border border-[#E2E6EC]">
                     <SafeImg
                       src={imgs[0]}

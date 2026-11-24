@@ -15,6 +15,7 @@ import {
 import {
   extractValidatedImageParts,
   generateGeminiWithFallback,
+  getGeminiErrorStatus,
   parseGeminiJsonObject,
 } from "../../../lib/server-gemini";
 
@@ -196,7 +197,8 @@ export async function POST(req: NextRequest) {
     const visionConfig: Record<string, unknown> = {
       responseMimeType: "application/json",
       temperature: 0.1,
-      maxOutputTokens: 4096,
+      maxOutputTokens: 2048,
+      thinkingConfig: { thinkingBudget: 0 },
     };
 
     const searchConfig: Record<string, unknown> = {
@@ -449,6 +451,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error: unknown) {
+    const status = getGeminiErrorStatus(error);
     console.error(
       "AI 상품 분석 에러:",
       error instanceof Error ? error.message : "Unknown error"
@@ -456,9 +459,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "상품 이미지 분석 중 오류가 발생했습니다. 직접 입력하거나 잠시 후 다시 시도해 주세요.",
+          status === 429 && error instanceof Error
+            ? error.message
+            : "상품 이미지 분석 중 오류가 발생했습니다. 직접 입력하거나 잠시 후 다시 시도해 주세요.",
       },
-      { status: 500 }
+      { status }
     );
   }
 }

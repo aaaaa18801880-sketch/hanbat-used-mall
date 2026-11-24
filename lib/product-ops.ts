@@ -548,6 +548,135 @@ export async function publishPendingProductRecord(input: {
   return { price: parsedPrice, status: normalized };
 }
 
+export interface BulkPendingPublishInputItem {
+  id: string;
+  price: string | number | null | undefined;
+}
+
+export interface BulkPendingPublishPlan {
+  orderedItems: Array<{ id: string; price: number }>;
+  priceBatches: Array<{ price: number; ids: string[] }>;
+  pricedCount: number;
+  inquiryPriceCount: number;
+}
+
+const BULK_PUBLISH_IN_CHUNK_SIZE = 200;
+
+/**
+ * 검수대기 다건 일괄 공개 실행 계획을 생성합니다.
+ * - 동일 판매가(특히 0원='가격 문의') 항목을 하나의 `.in()` 쿼리 묶음으로 합쳐 DB API 호출을 최소화합니다.
+ * - 잘못된 가격(음수·NaN)이 하나라도 있으면 DB 쓰기 전에 즉시 예외를 발생시킵니다.
+ */
+export function planBulkPendingPublish(
+  items: ReadonlyArray<BulkPendingPublishInputItem>
+): BulkPendingPublishPlan {
+  const deduped = new Map<string, number>();
+
+  for (const raw of items) {
+    const id = typeof raw.id === "string" ? raw.id.trim() : "";
+    if (!id) continue;
+    const parsedPrice = parseProductPriceInput(raw.price);
+    if (parsedPrice === null) {
+      throw new Error(
+        "유효하지 않은 판매가(원)가 포함되어 있습니다. 숫자만 입력하거나 비워 두면 '가격 문의'로 공개됩니다."
+      );
+    }
+    deduped.set(id, parsedPrice);
+  }
+
+  const orderedItems = Array.from(deduped.entries()).map(([id, price]) => ({
+    id,
+    price,
+  }));
+
+  const idsByPrice = new Map<number, string[]>();
+  let pricedCount = 0;
+  let inquiryPriceCount = 0;
+
+  for (const item of orderedItems) {
+    if (item.price > 0) {
+      pricedCount += 1;
+    } else {
+      inquiryPriceCount += 1;
+    }
+    const bucket = idsByPrice.get(item.price) ?? [];
+    bucket.push(item.id);
+    idsByPrice.set(item.price, bucket);
+  }
+
+  const priceBatches: Array<{ price: number; ids: string[] }> = [];
+  for (const [price, ids] of idsByPrice.entries()) {
+    for (let i = 0; i < ids.length; i += BULK_PUBLISH_IN_CHUNK_SIZE) {
+      priceBatches.push({
+        price,
+        ids: ids.slice(i, i + BULK_PUBLISH_IN_CHUNK_SIZE),
+      });
+    }
+  }
+
+  return {
+    orderedItems,
+    priceBatches,
+    pricedCount,
+    inquiryPriceCount,
+  };
+}
+
+/**
+ * 검수대기(비공개) 상품 여러 건을 가격 반영과 함께 한 번에 '판매중'으로 공개합니다.
+ * - Gemini API 호출 0회(비용 0원)
+ * - 동일 가격 항목은 단일 `.in()` UPDATE로 묶고, 마지막에 캐시 재검증을 1회만 수행합니다.
+ */
+export async function bulkPublishPendingProductRecords(
+  items: ReadonlyArray<BulkPendingPublishInputItem>,
+  status = "판매중"
+): Promise<{
+  status: ProductStatus;
+  updatedMap: Record<string, number>;
+  updatedCount: number;
+}> {
+  const plan = planBulkPendingPublish(items);
+  const normalized = normalizeProductStatus(status);
+  if (plan.orderedItems.length === 0) {
+    return { status: normalized, updatedMap: {}, updatedCount: 0 };
+  }
+
+  const updatedMap: Record<string, number> = {};
+  const CONCURRENCY = 6;
+
+  for (let i = 0; i < plan.priceBatches.length; i += CONCURRENCY) {
+    const slice = plan.priceBatches.slice(i, i + CONCURRENCY);
+    const results = await Promise.all(
+      slice.map((batch) =>
+        supabase
+          .from("products")
+          .update({ price: batch.price, status: normalized })
+          .in("id", batch.ids)
+          .select("id")
+          .then((res) => ({ batch, res }))
+      )
+    );
+
+    for (const { batch, res } of results) {
+      if (res.error) throw res.error;
+      const rows = res.data ?? [];
+      for (const row of rows) {
+        if (row && typeof row.id === "string") {
+          updatedMap[row.id] = batch.price;
+        }
+      }
+    }
+  }
+
+  const updatedCount = Object.keys(updatedMap).length;
+  if (updatedCount === 0) {
+    throw new Error("상품 일괄 공개 권한(RLS)이 없거나 반영된 상품이 없습니다.");
+  }
+
+  void revalidateAdminCache();
+  return { status: normalized, updatedMap, updatedCount };
+}
+
 export async function bulkUpdateProductStatus(
   ids: string[],
   nextStatus: string

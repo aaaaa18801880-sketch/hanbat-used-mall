@@ -8,6 +8,7 @@ import {
 } from "../../../../../lib/server-security";
 import {
   generateGeminiWithFallback,
+  getGeminiErrorStatus,
   parseGeminiJsonObject,
   type GeminiInlineImagePart,
 } from "../../../../../lib/server-gemini";
@@ -30,8 +31,10 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const MAX_BATCH_PHOTOS = 20;
-const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash-lite";
+const DEFAULT_GROUP_GEMINI_MODEL =
+  process.env.GEMINI_GROUP_MODEL || "gemini-3.5-flash-lite";
+const FALLBACK_GROUP_GEMINI_MODEL =
+  process.env.GEMINI_MODEL || "gemini-3.8-flash";
 
 /**
  * 15~20장 단위 시간순 사진을 경량 썸네일(320px)로 AI에 전달해
@@ -185,8 +188,8 @@ ${timelineSummary}
 
     const { text, modelUsed } = await generateGeminiWithFallback({
       apiKey,
-      defaultModel: DEFAULT_GEMINI_MODEL,
-      fallbackModel: FALLBACK_GEMINI_MODEL,
+      defaultModel: DEFAULT_GROUP_GEMINI_MODEL,
+      fallbackModel: FALLBACK_GROUP_GEMINI_MODEL,
       prompt,
       imageParts,
       config: {
@@ -245,7 +248,7 @@ ${timelineSummary}
             ? err.message
             : "AI 제품 자동 묶음 분석 중 오류가 발생했습니다.",
       },
-      { status: 500 }
+      { status: getGeminiErrorStatus(err) }
     );
   }
 }

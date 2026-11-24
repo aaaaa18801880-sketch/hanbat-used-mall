@@ -39,6 +39,7 @@ import {
   updateProductRecord,
   updateProductStatus,
   publishPendingProductRecord,
+  bulkPublishPendingProductRecords,
   rotateExistingProductImageRecord,
   bulkUpdateProductCategories,
   deleteProductRecord,
@@ -1093,6 +1094,42 @@ export default function IntegratedAdminDashboard() {
     }
   };
 
+  const handleBulkPublishPendingProducts = async (
+    items: ReadonlyArray<{ id: string; price: string }>
+  ): Promise<boolean> => {
+    if (busyActionId || items.length === 0) return false;
+    setBusyActionId("prod-bulk-publish");
+    try {
+      const result = await bulkPublishPendingProductRecords(
+        items,
+        PRODUCT_STATUS.SELLING
+      );
+      setProducts((prev) =>
+        prev.map((p) => {
+          if (!(p.id in result.updatedMap)) return p;
+          return {
+            ...p,
+            price: result.updatedMap[p.id],
+            status: result.status,
+          };
+        })
+      );
+      toast.success(
+        `${result.updatedCount}건이 '판매중'으로 일괄 공개되었습니다 (AI 호출 0회).`
+      );
+      return true;
+    } catch (err: unknown) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : "검수대기 상품 일괄 공개에 실패했습니다."
+      );
+      return false;
+    } finally {
+      setBusyActionId(null);
+    }
+  };
+
   const handleRunSoldPhotoCleanup = async () => {
     if (busyActionId || cleanupSummary.photoCount === 0) return;
     if (
@@ -1577,6 +1614,7 @@ export default function IntegratedAdminDashboard() {
               onFixCategoryMismatches={handleFixCategoryMismatches}
               onStatusChange={handleExplicitProductStatusChange}
               onPublishPendingProduct={handlePublishPendingProduct}
+              onBulkPublishPendingProducts={handleBulkPublishPendingProducts}
               onRunSoldCleanup={handleRunSoldPhotoCleanup}
               onStartEdit={startEditProduct}
               onOpenSmartCrop={setSmartCropProduct}

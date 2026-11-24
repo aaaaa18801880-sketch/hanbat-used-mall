@@ -791,7 +791,7 @@ export function AdminTelegramInboxTab({
     const validTargets = targetGroups.filter((g) => canCommitInboxGroup(g).allowed);
     if (isBusy || validTargets.length === 0) return;
 
-    const COMMIT_CONCURRENCY = 4;
+    const COMMIT_CONCURRENCY = 2;
     const workerCount = Math.min(COMMIT_CONCURRENCY, validTargets.length);
 
     abortCommitRef.current = false;
@@ -858,6 +858,16 @@ export function AdminTelegramInboxTab({
           };
 
           if (!res.ok) {
+            if (res.status === 429) {
+              abortCommitRef.current = true;
+              if (!abortNotified) {
+                abortNotified = true;
+                toast.error(
+                  json.error ||
+                    "Gemini 호출 한도(429)에 도달해 나머지 일괄 등록을 자동 중단했습니다."
+                );
+              }
+            }
             throw new Error(json.error || `등록 실패 (${res.status})`);
           }
 
