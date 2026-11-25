@@ -36,13 +36,13 @@ module.exports = {
         },
       },
       fontSize: {
-        "hb-xs": ["12px", { lineHeight: "1.45", letterSpacing: "-0.01em" }],
-        "hb-sm": ["14px", { lineHeight: "1.52", letterSpacing: "-0.014em" }],
-        "hb-base": ["16px", { lineHeight: "1.6", letterSpacing: "-0.018em" }],
-        "hb-lg": ["18px", { lineHeight: "1.44", letterSpacing: "-0.022em" }],
-        "hb-xl": ["21px", { lineHeight: "1.34", letterSpacing: "-0.026em" }],
-        "hb-2xl": ["26px", { lineHeight: "1.26", letterSpacing: "-0.03em" }],
-        "hb-3xl": ["32px", { lineHeight: "1.2", letterSpacing: "-0.034em" }],
+        "hb-xs": ["12px", { lineHeight: "1.48", letterSpacing: "-0.008em" }],
+        "hb-sm": ["14px", { lineHeight: "1.55", letterSpacing: "-0.01em" }],
+        "hb-base": ["16px", { lineHeight: "1.62", letterSpacing: "-0.012em" }],
+        "hb-lg": ["18px", { lineHeight: "1.46", letterSpacing: "-0.016em" }],
+        "hb-xl": ["21px", { lineHeight: "1.36", letterSpacing: "-0.018em" }],
+        "hb-2xl": ["26px", { lineHeight: "1.28", letterSpacing: "-0.022em" }],
+        "hb-3xl": ["32px", { lineHeight: "1.22", letterSpacing: "-0.024em" }],
       },
       fontFamily: {
         sans: [
@@ -72,14 +72,14 @@ module.exports = {
       },
       boxShadow: {
         "2xs": "0 1px 2px 0 rgba(20, 26, 35, 0.03)",
-        xs: "0 2px 6px -1px rgba(20, 26, 35, 0.05)",
-        card: "0 4px 20px -4px rgba(20, 26, 35, 0.06), 0 1px 3px 0 rgba(20, 26, 35, 0.03)",
+        xs: "0 2px 6px -2px rgba(20, 26, 35, 0.04)",
+        card: "0 1px 2px rgba(20, 26, 35, 0.03), 0 4px 12px -6px rgba(20, 26, 35, 0.05)",
         "card-hover":
-          "0 14px 32px -8px rgba(20, 26, 35, 0.12), 0 4px 12px -2px rgba(20, 26, 35, 0.05)",
+          "0 2px 6px rgba(20, 26, 35, 0.04), 0 10px 22px -10px rgba(20, 26, 35, 0.09)",
         floating:
-          "0 20px 44px -10px rgba(20, 26, 35, 0.24), 0 4px 14px -2px rgba(20, 26, 35, 0.1)",
+          "0 14px 32px -10px rgba(20, 26, 35, 0.18), 0 3px 10px -2px rgba(20, 26, 35, 0.08)",
         "glass-sm":
-          "0 4px 20px -4px rgba(20, 26, 35, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.8)",
+          "0 2px 10px -4px rgba(20, 26, 35, 0.04)",
       },
     },
   },

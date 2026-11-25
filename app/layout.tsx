@@ -2,12 +2,13 @@
 import type { Metadata } from "next";
 import { Toaster } from "react-hot-toast";
 import Script from "next/script";
-import {
-  STORE,
-  STORE_MERCHANT_POLICY,
-  getCategoryWarrantyInfo,
-} from "../lib/site";
+import { STORE, getCategoryWarrantyInfo } from "../lib/site";
 import { serializeJsonLd } from "../lib/json-ld";
+import {
+  buildWebsiteJsonLd,
+  buildOrganizationJsonLd,
+  buildLocalBusinessJsonLd,
+} from "../lib/seo-schema";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
@@ -116,216 +117,9 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // 1) 구글 공식 'Site Name(사이트 이름)' 표준 구조화 데이터
-  const websiteJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "@id": `${STORE.url}/#website`,
-    name: STORE.name,
-    alternateName: [
-      "한밭몰",
-      "hanbatmall.com",
-      "hanbatmall",
-      "대전한밭중고전자",
-      "한밭중고가전",
-      "대전중고가전매입판매",
-    ],
-    url: STORE.url,
-    inLanguage: "ko-KR",
-    image: `${STORE.url}/og-image.jpg`,
-    thumbnailUrl: `${STORE.url}/icon-512.png`,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${STORE.url}/gallery?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
-  };
-
-  // 2) 공식 Organization & Brand 로고 구조화 데이터 (구글 검색 로고 및 지식패널용)
-  const organizationJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "@id": `${STORE.url}/#organization`,
-    name: STORE.name,
-    legalName: STORE.legalName,
-    alternateName: ["한밭몰", "대전중고가전매입판매", "hanbatmall"],
-    url: STORE.url,
-    logo: {
-      "@type": "ImageObject",
-      url: `${STORE.url}/icon-512.png`,
-      width: 512,
-      height: 512,
-      caption: `${STORE.name} 공식 로고`,
-    },
-    image: `${STORE.url}/store-exterior.jpg`,
-    telephone: STORE.tel,
-    sameAs: [
-      STORE.cafe,
-      STORE.kakaoChannel,
-      STORE.naverMap,
-      STORE.daangnLocalProfile,
-    ],
-  };
-
-  // 3) AI 검색엔진(ChatGPT, Perplexity, Gemini) 및 로컬 비즈니스 지식 그래프용 상세 스키마
-  const localBusinessJsonLd = {
-    "@context": "https://schema.org",
-    "@type": ["ElectronicsStore", "HomeGoodsStore", "LocalBusiness"],
-    "@id": `${STORE.url}/#localbusiness`,
-    name: STORE.name,
-    legalName: STORE.legalName,
-    alternateName: ["한밭몰", "대전중고가전매입판매", "hanbatmall"],
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${STORE.url}/`,
-      url: `${STORE.url}/`,
-    },
-    slogan: "대전·세종·충청 직영 중고가전 & 업소용 주방설비 전시장",
-    description:
-      `${STORE.since}년 개업한 대전·세종·충청권 대표 중고가전 및 업소용 주방기기 직영 매장. 매입 현장에서 작동·가스 상태를 먼저 확인하고 고압세척과 배송 전 작동 점검을 마친 뒤 출고하며, 에어컨·냉난방기 ${AIRCON_WARRANTY.compactLabel}, 주요 가전 ${MAJOR_WARRANTY.compactLabel}과 전자세금계산서 100% 발행을 지원합니다. 가정용 가전 및 식당·카페 폐업 설비 방문 매입을 진행합니다.`,
-    image: [
-      `${STORE.url}/store-exterior.jpg`,
-      `${STORE.url}/og-image.jpg`,
-      `${STORE.url}/main-bg2.png`,
-    ],
-    photo: {
-      "@type": "ImageObject",
-      url: `${STORE.url}/store-exterior.jpg`,
-      caption: `${STORE.name} ${STORE.jibunAddress} 1·2층 직영 대형 전시장 실물 외관 및 전용 주차장 전경`,
-    },
-    primaryImageOfPage: {
-      "@type": "ImageObject",
-      url: `${STORE.url}/store-exterior.jpg`,
-      caption: `${STORE.name} 대전 본점 직영 쇼룸 실물 외관`,
-    },
-    logo: `${STORE.url}/icon-512.png`,
-    telephone: STORE.tel,
-    url: STORE.url,
-    foundingDate: String(STORE.since),
-    priceRange: "₩~₩₩₩",
-    paymentAccepted: "현금, 계좌이체, 신용카드, 전자세금계산서, 현금영수증",
-    currenciesAccepted: "KRW",
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: STORE.roadAddress,
-      addressLocality: "대전광역시 중구",
-      addressRegion: "대전광역시",
-      postalCode: "34809",
-      addressCountry: "KR",
-    },
-    geo: {
-      "@type": "GeoCoordinates",
-      latitude: STORE.geo.lat,
-      longitude: STORE.geo.lng,
-    },
-    areaServed: [
-      { "@type": "City", name: "대전광역시" },
-      { "@type": "AdministrativeArea", name: "대전 중구" },
-      { "@type": "AdministrativeArea", name: "대전 서구" },
-      { "@type": "AdministrativeArea", name: "대전 유성구" },
-      { "@type": "AdministrativeArea", name: "대전 동구" },
-      { "@type": "AdministrativeArea", name: "대전 대덕구" },
-      { "@type": "City", name: "세종특별자치시" },
-      { "@type": "City", name: "청주시" },
-      { "@type": "City", name: "천안시" },
-      { "@type": "City", name: "공주시" },
-      { "@type": "City", name: "계룡시" },
-      { "@type": "City", name: "논산시" },
-      { "@type": "Country", name: "대한민국" },
-    ],
-    knowsAbout: [
-      "대전 중고가전 판매 및 방문 매입",
-      "대전 중고가전 추천 및 실매물 전시장",
-      "중고 냉장고·양문형냉장고·김치냉장고",
-      "중고 세탁기·드럼세탁기·통돌이·건조기",
-      "중고 에어컨·벽걸이에어컨·스탠드에어컨·중대형 냉난방기",
-      "업소용 45박스 냉장고·테이블냉장고·음료 및 주류 쇼케이스",
-      "업소용 제빙기·업소용 식기세척기·스텐 작업대",
-      "식당·카페 창업 주방설비 패키지 및 폐업 일괄 정리",
-      "원룸·자취방 입주 알뜰 가전 3종 패키지",
-      "개인 직거래(당근마켓) 대비 고압세척·작동 점검 및 직영 사후 보증",
-    ],
-    hasMerchantReturnPolicy: {
-      "@type": "MerchantReturnPolicy",
-      applicableCountry: STORE_MERCHANT_POLICY.applicableCountry,
-      returnPolicyCategory: STORE_MERCHANT_POLICY.returnPolicyCategory,
-      merchantReturnDays: STORE_MERCHANT_POLICY.merchantReturnDays,
-      returnMethod: STORE_MERCHANT_POLICY.returnMethod,
-      returnFees: STORE_MERCHANT_POLICY.returnFees,
-    },
-    amenityFeature: [
-      {
-        "@type": "LocationFeatureSpecification",
-        name: "무료 전용 주차장 (승용차 및 대형 화물차 주차 가능)",
-        value: true,
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        name: "1·2층 실물 대형 전시 쇼룸 (200대 이상 실매물 전시)",
-        value: true,
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        name: "대전·세종·충청 전문 기사 직배송 및 수평·배관 원스톱 설치",
-        value: true,
-      },
-      {
-        "@type": "LocationFeatureSpecification",
-        name: "새 중고가전 구매 시 기존 가전 보상판매 및 동시 수거",
-        value: true,
-      },
-    ],
-    hasOfferCatalog: {
-      "@type": "OfferCatalog",
-      name: `${STORE.name} 가정용·업소용 취급 품목 카탈로그`,
-      itemListElement: [
-        {
-          "@type": "OfferCatalog",
-          name: `에어컨 · 냉난방기 (${AIRCON_WARRANTY.compactLabel})`,
-          url: `${STORE.url}/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0`,
-        },
-        {
-          "@type": "OfferCatalog",
-          name: `가정용 냉장고 · 김치냉장고 (${MAJOR_WARRANTY.compactLabel})`,
-          url: `${STORE.url}/gallery?category=%EB%83%89%EC%9E%A5%EA%B3%A0`,
-        },
-        {
-          "@type": "OfferCatalog",
-          name: `세탁기 · 의류건조기 (고압세척·작동 점검 완료 · ${MAJOR_WARRANTY.compactLabel})`,
-          url: `${STORE.url}/gallery?category=%EC%84%B8%ED%83%81%EA%B8%B0%2F%EA%B1%B4%EC%A1%B0%EA%B8%B0`,
-        },
-        {
-          "@type": "OfferCatalog",
-          name: "업소용 냉장고 · 쇼케이스 · 제빙기 · 주방설비",
-          url: `${STORE.url}/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0`,
-        },
-      ],
-    },
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ],
-        opens: "09:00",
-        closes: "19:00",
-      },
-    ],
-    sameAs: [
-      STORE.cafe,
-      STORE.kakaoChannel,
-      STORE.naverMap,
-      STORE.daangnLocalProfile,
-    ],
-  };
+  const websiteJsonLd = buildWebsiteJsonLd();
+  const organizationJsonLd = buildOrganizationJsonLd();
+  const localBusinessJsonLd = buildLocalBusinessJsonLd();
 
   return (
     <html lang="ko">

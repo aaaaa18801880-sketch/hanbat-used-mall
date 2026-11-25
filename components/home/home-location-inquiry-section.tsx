@@ -117,56 +117,48 @@ export function HomeLocationInquirySection({
               />
             )}
 
-            <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E2DDD3] bg-white space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
-                <div className="min-w-0">
-                  <h3
-                    id="location-title"
-                    className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] break-keep [text-wrap:balance]"
-                  >
-                    {STORE.roadAddress}
-                  </h3>
-                  <p className="mt-0.5 text-hb-xs sm:text-hb-sm text-[#475569]">
-                    지번: {STORE.jibunAddress} ({STORE.addressNote}) · {STORE.hours} ({STORE.closed})
+            <div className="px-4 sm:px-5 pb-4 pt-3 flex-1 flex flex-col justify-between border-t border-[#E6E8EC] bg-[#FAF9F6] space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-hb-xs sm:text-hb-sm text-[#475569]">
+                <div className="min-w-0 space-y-0.5">
+                  <p id="location-title" className="break-keep">
+                    <strong className="font-semibold text-[#141A23]">
+                      영업시간
+                    </strong>{" "}
+                    · {STORE.hours} ({STORE.closed}) · 지번 {STORE.jibunAddress}
+                  </p>
+                  <p className="break-keep">
+                    <strong className="font-semibold text-[#141A23]">
+                      직영 배차 권역
+                    </strong>{" "}
+                    · {SERVICE_DELIVERY_REGIONS.join(" · ")}
                   </p>
                 </div>
 
                 <button
                   type="button"
                   onClick={handleCopyAddress}
-                  className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold shrink-0 self-start active:scale-[0.96] cursor-pointer"
+                  className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold shrink-0 self-start sm:self-center active:scale-[0.96] cursor-pointer bg-white"
                 >
-                  <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#C84312]" />
+                  <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#1D4E89]" />
                   <span>주소 복사</span>
                 </button>
               </div>
 
-              <div className="pt-2.5 border-t border-[#E2DDD3] space-y-1.5 text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed">
-                <p className="break-keep">
-                  <strong className="font-semibold text-[#141A23]">전용 주차 8대</strong>(1톤 화물 진입 수월) ·{" "}
-                  <strong className="font-semibold text-[#141A23]">현장 전원 확인</strong> 후 당일 상차 · 중촌고가교 밑 도보 2분
-                </p>
-                <p className="break-keep">
-                  <strong className="font-semibold text-[#141A23]">직영 배차 권역</strong> ·{" "}
-                  {SERVICE_DELIVERY_REGIONS.join(" · ")}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-0.5">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 <a
                   href={STORE.naverMap}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                  className="hb-btn-outline h-10 bg-white text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
                 >
                   <span>네이버 지도</span>
-                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E]" />
                 </a>
                 <a
                   href={STORE_NAVIGATION.kakaoTo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline h-10 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                  className="hb-btn-outline h-10 bg-white text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
                 >
                   <span>카카오맵</span>
                   <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
@@ -175,7 +167,7 @@ export function HomeLocationInquirySection({
                   href={STORE.daangnLocalProfile}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline col-span-2 sm:col-span-1 h-10 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                  className="hb-btn-outline col-span-2 sm:col-span-1 h-10 bg-white text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
                 >
                   <span>당근 비즈프로필</span>
                   <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#C84312]" />
