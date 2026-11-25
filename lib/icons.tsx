@@ -65,6 +65,8 @@ export const ICON = {
     "M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4",
   trash:
     "M3 6h18 M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6 M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2",
+  download:
+    "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4 M7 10l5 5 5-5 M12 15V3",
 } as const;
 
 export function Icon({

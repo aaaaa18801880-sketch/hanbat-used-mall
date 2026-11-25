@@ -21,6 +21,7 @@ import {
   summarizeInquiryActivity,
 } from "../../lib/inquiry-feed";
 import { SERVICE_DELIVERY_REGIONS } from "../../lib/home-showroom-filter";
+import { StoreDirectionsMap } from "../showroom/store-directions-map";
 
 export type HomeInquiryRow = {
   id: string | number;
@@ -44,7 +45,7 @@ export function HomeLocationInquirySection({
   totalInquiryCount: number | null;
   onOpenInquiry: (type?: InquiryTypeValue, productTitle?: string) => void;
 }) {
-  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapMode, setMapMode] = useState<"schematic" | "google">("schematic");
   const [showAllRecent, setShowAllRecent] = useState(false);
 
   const inquiryActivity = useMemo(
@@ -78,55 +79,45 @@ export function HomeLocationInquirySection({
         />
 
         <div className="mt-5 grid gap-5 lg:grid-cols-12 items-stretch">
-          {/* 좌측 (7열): 오프라인 매장 지도 및 주소·편의시설 일체형 카드 (#location-section) */}
+          {/* 좌측 (7열): 오프라인 매장 약도·지도 및 주소·편의시설 일체형 카드 (#location-section) */}
           <div
             id="location-section"
             aria-labelledby="location-title"
-            className="scroll-mt-24 lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-2xl border border-[#E2E6EC] bg-white shadow-2xs"
+            className="scroll-mt-24 lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs"
           >
-            <div className="relative h-[240px] sm:h-[290px] lg:h-[310px] w-full bg-[#F1F3F6] overflow-hidden">
-              {mapLoaded ? (
-                <iframe
-                  title={`${STORE.name} 매장 위치 지도`}
-                  src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  className="absolute inset-0 h-full w-full border-0"
-                  allowFullScreen
-                />
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setMapLoaded(true)}
-                  className="group relative flex h-full w-full flex-col items-center justify-center gap-2.5 bg-[radial-gradient(circle_at_top,_rgba(232,82,26,0.10),_transparent_55%),linear-gradient(135deg,#F8FAFC_0%,#E9EEF4_100%)] px-6 text-center transition-colors hover:bg-[#E4EBF2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] cursor-pointer"
-                >
-                  <span
-                    className="pointer-events-none absolute inset-0 opacity-45 [background-image:linear-gradient(to_right,#CBD5E1_1px,transparent_1px),linear-gradient(to_bottom,#CBD5E1_1px,transparent_1px)] [background-size:32px_32px]"
-                    aria-hidden="true"
+            {mapMode === "google" ? (
+              <div className="flex flex-col">
+                <div className="flex items-center justify-between gap-2 border-b border-[#E2DDD3] bg-[#FAF9F6] px-4 py-2.5">
+                  <span className="text-hb-xs font-bold text-[#141A23]">
+                    위성 · 구글 지도 ({STORE.jibunAddress})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setMapMode("schematic")}
+                    className="inline-flex items-center gap-1 rounded-lg border border-[#D8D1C5] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors cursor-pointer"
+                  >
+                    <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#C84312]" />
+                    <span>오시는 길 약도로 돌아가기</span>
+                  </button>
+                </div>
+                <div className="relative h-[300px] sm:h-[360px] w-full bg-[#F1F3F6] overflow-hidden">
+                  <iframe
+                    title={`${STORE.name} 매장 위치 지도`}
+                    src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="absolute inset-0 h-full w-full border-0"
+                    allowFullScreen
                   />
-                  <span className="relative z-10 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-[#E2E6EC] bg-white text-[#C84312] shadow-sm transition-transform group-hover:scale-105">
-                    <Icon d={ICON.pin} className="h-5 w-5" />
-                  </span>
-                  <div className="relative z-10 space-y-1">
-                    <span className="block text-hb-xs font-bold text-[#0F766E]">
-                      전용 주차 8대 · 1톤 화물 진입 수월
-                    </span>
-                    <p className="text-hb-base sm:text-hb-lg font-bold text-[#141A23]">
-                      {STORE.name} 오프라인 매장 위치 지도
-                    </p>
-                    <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
-                      {STORE.roadAddress} ({STORE.addressNote})
-                    </p>
-                  </div>
-                  <span className="relative z-10 inline-flex items-center gap-1.5 rounded-xl bg-[#141A23] px-4 py-2 text-hb-xs sm:text-hb-sm font-bold text-white shadow-xs transition-colors group-hover:bg-[#C84312]">
-                    <span>크게 지도 펼치기</span>
-                    <Icon d={ICON.right} className="h-3.5 w-3.5" />
-                  </span>
-                </button>
-              )}
-            </div>
+                </div>
+              </div>
+            ) : (
+              <StoreDirectionsMap
+                onOpenGoogleMap={() => setMapMode("google")}
+              />
+            )}
 
-            <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E2E6EC] bg-white space-y-3">
+            <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between border-t border-[#E2DDD3] bg-white space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
                 <div className="min-w-0">
                   <h3

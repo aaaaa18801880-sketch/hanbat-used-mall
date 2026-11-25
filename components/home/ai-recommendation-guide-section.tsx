@@ -54,23 +54,15 @@ export function AiRecommendationGuideSection({
   embedded?: boolean;
 }) {
   const comparisonBoard = (
-    <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
-      {/* 중앙 VS 배지 (데스크톱 시각 앵커) */}
-      <div
-        aria-hidden="true"
-        className="hidden lg:grid absolute left-1/2 top-1/2 z-10 -translate-x-1/2 -translate-y-1/2 h-11 w-11 place-items-center rounded-full border-2 border-[#E2DDD3] bg-white font-mono text-hb-xs font-extrabold text-[#141A23] shadow-sm"
-      >
-        VS
-      </div>
-
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
       {/* 좌측 카드: 일반 개인 직거래 (중립·객관적 톤) */}
       <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA]">
         <div>
           <div className="border-b border-[#E2E6EC] bg-[#EEF1F5] px-5 py-4 sm:px-6">
-            <span className="inline-block rounded-md bg-white/80 border border-[#CBD2DC] px-2 py-0.5 text-hb-xs font-bold text-[#475569]">
+            <span className="block text-hb-xs font-bold text-[#475569]">
               일반 중고거래 앱 · 개인 간 거래
             </span>
-            <h3 className="mt-2 text-hb-lg font-bold text-[#334155] tracking-tight">
+            <h3 className="mt-1.5 text-hb-lg font-bold text-[#334155] tracking-tight">
               개인 직거래 시 자주 생기는 부담
             </h3>
             <p className="mt-0.5 text-hb-xs text-[#64748B]">
@@ -107,16 +99,15 @@ export function AiRecommendationGuideSection({
       <div className="flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-[#141A23] bg-white shadow-card">
         <div>
           <div className="border-b border-[#263040] bg-[#141A23] px-5 py-4 sm:px-6 text-white">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-[#E8521A] px-2.5 py-0.5 text-hb-xs font-bold text-white">
-                <Icon d={ICON.shieldCheck} className="h-3.5 w-3.5" />
-                <span>직영 책임 판매 · SINCE {STORE.since}</span>
+            <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs">
+              <span className="font-bold text-[#FF8A50]">
+                직영 책임 판매 · SINCE {STORE.since}
               </span>
-              <span className="font-mono text-hb-xs font-semibold text-[#5EEAD4] tabular-nums">
+              <span className="font-mono font-semibold text-white/75 tabular-nums">
                 {STORE.jibunAddress} 쇼룸
               </span>
             </div>
-            <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+            <h3 className="mt-1.5 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
               {STORE.name} 직영 매장이 편한 이유
             </h3>
             <p className="mt-0.5 text-hb-xs text-white/75">

@@ -18,7 +18,6 @@ import {
   triggerQuickInquiry,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/icons";
-import { HomeNoticeGuidesStrip } from "../products/notice-guide-banner";
 
 function getMetricValueToneClass(tone?: RefurbishMetric["tone"]): string {
   switch (tone) {
@@ -385,9 +384,6 @@ export function ShowroomTrustShowcase() {
             </div>
           </div>
         </div>
-
-        {/* 한눈에 보는 공식 구매·배송·A/S 안내문 6종 비주얼 보드 */}
-        <HomeNoticeGuidesStrip />
       </div>
     </section>
   );

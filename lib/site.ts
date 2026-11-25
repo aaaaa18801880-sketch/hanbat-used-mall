@@ -1406,6 +1406,7 @@ export type AnalyticsEventName =
   | "click_nav_kakao"
   | "click_nav_tmap"
   | "click_copy_address"
+  | "download_store_directions_map"
   | "send_showroom_visit_sms"
   | "send_showroom_visit_kakao";
 

@@ -13,6 +13,7 @@ import {
   trackEvent,
 } from "../../lib/site";
 import { Icon, ICON, Modal, SafeImg } from "../../lib/ui";
+import { StoreDirectionsMap } from "./store-directions-map";
 
 export interface ShowroomVisitProduct {
   id?: string;
@@ -211,7 +212,12 @@ export function ShowroomVisitModal({
             </button>
           </div>
 
-          {/* 4. 내비게이션 3사 원클릭 길찾기 */}
+          {/* 4. 한눈에 보는 오시는 길 약도 */}
+          <div className="overflow-hidden rounded-xl border border-[#E2DDD3] bg-white">
+            <StoreDirectionsMap compact />
+          </div>
+
+          {/* 5. 내비게이션 3사 원클릭 길찾기 */}
           <div className="rounded-xl border border-[#E2DDD3] bg-white p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-hb-xs font-bold text-[#E8521A]">
