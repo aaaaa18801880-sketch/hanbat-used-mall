@@ -673,28 +673,30 @@ export function ProductDetailModal({
                       {product.title}
                     </h2>
                     {specCapsules.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {specCapsules.map((tag) => (
-                          <span
-                            key={tag}
-                            className="rounded bg-[#FAF9F6] border border-[#E2DDD3] px-2 py-0.5 text-hb-xs font-semibold text-[#334155]"
-                          >
-                            {tag}
-                          </span>
+                      <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-hb-xs font-medium text-[#64748B]">
+                        {specCapsules.map((tag, idx) => (
+                          <React.Fragment key={tag}>
+                            {idx > 0 && (
+                              <span aria-hidden="true" className="text-[#CBD5E1]">
+                                ·
+                              </span>
+                            )}
+                            <span>{tag}</span>
+                          </React.Fragment>
                         ))}
-                      </div>
+                      </p>
                     )}
                     {modelName && (
-                      <p className="mt-1.5 text-hb-sm font-semibold text-[#334155]">
-                        모델명:{" "}
-                        <span className="font-mono text-[#141A23]">
+                      <p className="mt-1.5 text-hb-sm font-medium text-[#64748B]">
+                        모델명{" "}
+                        <span className="font-mono font-semibold text-[#141A23]">
                           {modelName}
                         </span>
                       </p>
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center justify-between gap-3 bg-[#FAF9F6] p-4 rounded-xl border border-[#E2DDD3]">
+                  <div className="flex flex-wrap items-end justify-between gap-3 border-y border-[#EAE8E2] py-3.5">
                     <div>
                       <span className="text-hb-xs font-semibold text-[#64748B] block mb-0.5">
                         판매 가격
@@ -720,16 +722,19 @@ export function ProductDetailModal({
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="text-hb-xs font-semibold text-[#64748B] tabular-nums">
+                      <span className="text-hb-xs font-medium text-[#64748B] tabular-nums">
                         조회{" "}
-                        <strong className="text-[#141A23]">
+                        <strong className="font-semibold text-[#141A23]">
                           {product.views || 0}
                         </strong>
                         회
                       </span>
+                      <span aria-hidden="true" className="text-[#D8D3C8]">
+                        |
+                      </span>
                       <Link
                         href={`/${product.id}`}
-                        className="rounded border border-[#E2DDD3] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
+                        className="text-hb-xs font-bold text-[#141A23] hover:text-[#C84312] underline underline-offset-4 transition-colors"
                       >
                         개별 상세페이지 →
                       </Link>

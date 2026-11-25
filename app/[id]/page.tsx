@@ -114,15 +114,22 @@ export async function generateMetadata({
     : `[${priceLabel} · ${warrantyLabel}]`;
 
   const metaDescription = [
-    `[${STORE.name} 실매물 · ${warrantyLabel} 보증]`,
+    `[${STORE.name} 실매물 · ${warrantyLabel}]`,
     `${product.title}${modelName ? ` (모델명: ${modelName})` : ""}`,
     capsules.length > 0 ? `핵심규격: ${capsules.join("/")}.` : "",
     cleanDesc ||
-      `분해 고압 세척 및 작동 검수 완료. ${STORE.name} 직영 매장 실물 확인 및 직배송·설치·세금계산서 발행 가능.`,
+      `고압세척 및 배송 전 작동 점검 완료. ${STORE.name} 대전 직영 매장 실물 확인 및 충청권 직배송·설치·세금계산서 발행 가능.`,
   ]
     .filter(Boolean)
     .join(" ")
     .slice(0, 160);
+
+  const ogImageUrl =
+    images.length > 0
+      ? images[0].startsWith("http")
+        ? images[0]
+        : `${STORE.url}${images[0].startsWith("/") ? "" : "/"}${images[0]}`
+      : `${STORE.url}/og-image.jpg`;
 
   return {
     title: `${product.title} ${ctrHook}`,
@@ -137,17 +144,18 @@ export async function generateMetadata({
       siteName: STORE.name,
       title: `${product.title} ${ctrHook} | ${STORE.name}`,
       description: metaDescription,
-      images:
-        images.length > 0
-          ? [
-              {
-                url: images[0].startsWith("http")
-                  ? images[0]
-                  : `${STORE.url}${images[0].startsWith("/") ? "" : "/"}${images[0]}`,
-                alt: product.title,
-              },
-            ]
-          : [{ url: `${STORE.url}/og-image.jpg`, alt: STORE.name }],
+      images: [
+        {
+          url: ogImageUrl,
+          alt: product.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} ${ctrHook} | ${STORE.name}`,
+      description: metaDescription,
+      images: [ogImageUrl],
     },
   };
 }
@@ -433,9 +441,9 @@ export default async function ProductDetailPage({
 
           {/* 블록 2: 구매·문의 콘솔 BuyBox (모바일에서 사진 바로 다음 2번째로 즉시 노출, 데스크톱에서는 우측 5컬럼 Sticky) */}
           <div className="lg:col-start-8 lg:col-span-5 lg:row-start-1 lg:row-span-2 min-w-0 self-start lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-7 shadow-2xs">
-              {/* 상단 카테고리 & 등록일 헤더 */}
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-2xl border border-[#E5E3DC] bg-white p-5 sm:p-7">
+              {/* 상단 카테고리 · 상태 · 등록일 헤더 (무박스 에디토리얼 메타) */}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <Link
                   href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
                   className={`text-hb-xs font-bold hover:underline transition-colors ${
@@ -444,6 +452,16 @@ export default async function ProductDetailPage({
                 >
                   {categoryLabel}
                 </Link>
+                <span className="text-[#CBD2DC]" aria-hidden="true">
+                  ·
+                </span>
+                <span
+                  className={`text-hb-xs font-semibold ${
+                    sold ? "text-[#64748B]" : "text-[#0F766E]"
+                  }`}
+                >
+                  {sold ? "판매완료" : product.status === "예약중" ? "예약중" : "판매중"}
+                </span>
                 <div className="ml-auto flex items-center gap-2.5 text-hb-xs text-[#64748B] tabular-nums">
                   {createdDate && <span>등록 {createdDate}</span>}
                   {typeof product.views === "number" && (
@@ -453,20 +471,20 @@ export default async function ProductDetailPage({
               </div>
 
               {/* 2. 상품명 */}
-              <h1 className="mt-3 text-hb-xl sm:text-hb-2xl font-bold leading-[1.3] tracking-[-0.025em] text-[#141A23] break-keep [text-wrap:balance]">
+              <h1 className="mt-2.5 text-hb-xl sm:text-hb-2xl font-bold leading-[1.3] tracking-[-0.025em] text-[#141A23] break-keep [text-wrap:balance]">
                 {product.title}
               </h1>
 
-              {/* 쇼룸 프라이스 콜아웃 박스 (가격, 세척·작동 점검 완료 배지, 결제 증빙 안내 일체화) */}
-              <div className="mt-4 rounded-xl bg-[#FAF9F6] border border-[#E2DDD3] p-4 space-y-3">
-                <div className="flex flex-wrap items-baseline justify-between gap-2.5">
+              {/* 가격 및 기본 보증·증빙 요약 (내부 중첩 박스 제거 → 여백과 헤어라인) */}
+              <div className="mt-4 pb-4 border-b border-[#EAE8E2]">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
                   <div>
                     {sold ? (
                       <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#475569]">
                         판매완료 · 유사 매물 상담 가능
                       </span>
                     ) : priced ? (
-                      <div className="flex items-baseline gap-2">
+                      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
                         <span className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tabular-nums tracking-[-0.03em]">
                           {priceDisplay}
                         </span>
@@ -475,7 +493,7 @@ export default async function ProductDetailPage({
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-baseline gap-2">
+                      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
                         <span className="text-hb-xl sm:text-hb-2xl font-bold text-[#C84312] tabular-nums">
                           {priceDisplay}
                         </span>
@@ -485,34 +503,32 @@ export default async function ProductDetailPage({
                       </div>
                     )}
                   </div>
-                  <span className="text-hb-xs font-semibold text-[#0F766E] shrink-0">
-                    고압세척·작동 점검 완료
-                  </span>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-[#E2DDD3] text-hb-xs text-[#64748B]">
-                  <span className="font-medium">
-                    세금계산서 · 현금영수증 · 카드결제 지원
+                <div className="mt-2.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-hb-xs text-[#64748B]">
+                  <span className="font-semibold text-[#0F766E]">
+                    고압세척·작동 점검 완료
                   </span>
-                  <span className="font-semibold text-[#141A23]">
-                    정식 증빙 발행
+                  <span className="text-[#CBD2DC]" aria-hidden="true">
+                    ·
                   </span>
+                  <span>세금계산서 · 현금영수증 · 카드결제 정식 발행</span>
                 </div>
               </div>
 
               {/* 3, 4, 5. 상태 및 모델명 · 외관 상태 및 검수 정보 · 핵심 스펙 요약 */}
-              <dl className="mt-4 border-y border-[#E2DDD3] divide-y divide-[#E2DDD3] text-hb-xs sm:text-hb-sm">
+              <dl className="border-b border-[#EAE8E2] divide-y divide-[#EAE8E2] text-hb-xs sm:text-hb-sm">
                 <div className="flex items-center justify-between gap-3 py-3">
-                  <dt className="font-semibold text-[#64748B] shrink-0">
+                  <dt className="font-medium text-[#64748B] shrink-0">
                     모델명 / 코드
                   </dt>
-                  <dd className="font-mono font-bold text-[#141A23] text-right truncate tabular-nums">
+                  <dd className="font-mono font-semibold text-[#141A23] text-right truncate tabular-nums">
                     {modelName || "매장 실물 확인 (상세 사진 참조)"}
                   </dd>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 py-3">
-                  <dt className="font-semibold text-[#64748B] shrink-0">
+                  <dt className="font-medium text-[#64748B] shrink-0">
                     외관 · 상태 등급
                   </dt>
                   <dd className="font-semibold text-[#141A23] text-right">
@@ -523,7 +539,7 @@ export default async function ProductDetailPage({
                 </div>
 
                 <div className="flex items-center justify-between gap-3 py-3">
-                  <dt className="font-semibold text-[#64748B] shrink-0">
+                  <dt className="font-medium text-[#64748B] shrink-0">
                     검수 · 보증 기준
                   </dt>
                   <dd className="font-semibold text-[#141A23] text-right tabular-nums">
@@ -533,7 +549,7 @@ export default async function ProductDetailPage({
 
                 {specCapsules.length > 0 && (
                   <div className="flex items-center justify-between gap-3 py-3">
-                    <dt className="font-semibold text-[#64748B] shrink-0">
+                    <dt className="font-medium text-[#64748B] shrink-0">
                       핵심 스펙 요약
                     </dt>
                     <dd className="text-right text-hb-xs font-semibold text-[#141A23] tabular-nums">

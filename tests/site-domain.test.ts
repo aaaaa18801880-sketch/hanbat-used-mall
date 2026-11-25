@@ -47,11 +47,17 @@ describe("lib/site 도메인 파서·검증·SSOT 테스트", () => {
     assert.equal(STORE.mobile, "010-6631-8179");
     assert.match(STORE_MERCHANT_POLICY.warrantyAircon, /8개월/);
     assert.match(STORE_MERCHANT_POLICY.warrantyMajor, /4개월/);
+    assert.doesNotMatch(
+      `${STORE_MERCHANT_POLICY.warrantyAircon} ${STORE_MERCHANT_POLICY.warrantyMajor} ${STORE_MERCHANT_POLICY.warrantyGeneral}`,
+      /계약조건별|계약별/
+    );
 
     const airconWarranty = getCategoryWarrantyInfo("에어컨/냉난방기");
     assert.match(airconWarranty.shortLabel, /8개월/);
+    assert.doesNotMatch(airconWarranty.shortLabel, /계약별/);
     const fridgeWarranty = getCategoryWarrantyInfo("냉장고");
     assert.match(fridgeWarranty.shortLabel, /4개월/);
+    assert.doesNotMatch(fridgeWarranty.shortLabel, /계약별/);
   });
 
   it("전화번호 포맷팅·검증·마스킹이 정상 동작한다", () => {

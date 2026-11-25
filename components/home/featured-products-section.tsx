@@ -267,17 +267,26 @@ export function FeaturedProductsSection({
           </div>
         )}
 
-        {/* 빠른 비교 · 묶음 견적 진입 도크 (담긴 매물이 있을 때 즉시 활성화) */}
+        {/* 빠른 비교 · 묶음 견적 진입 도크 (빈 상태는 경량 헤어라인 1줄, 담긴 매물이 있을 때만 소프트 바 활성화) */}
         {!loading && !error && (
           <div
-            className={`${
-              embedded ? "mt-2" : "mt-4"
-            } flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-4 py-2.5 sm:py-3`}
+            className={`${embedded ? "mt-1" : "mt-4"} flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between ${
+              basketItems.length > 0
+                ? "rounded-xl border border-[#E5E3DC] bg-[#FAFAF8] px-4 py-2.5"
+                : "border-b border-[#EAE8E2] py-2.5"
+            }`}
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[#141A23] text-[#FF8A50] shrink-0">
-                <Icon d={ICON.columns} className="w-4 h-4" />
-              </span>
+            <div className="flex items-center gap-2 min-w-0">
+              {basketItems.length > 0 ? (
+                <span className="grid h-7 w-7 place-items-center rounded-lg bg-[#141A23] text-[#FF8A50] shrink-0">
+                  <Icon d={ICON.columns} className="w-3.5 h-3.5" />
+                </span>
+              ) : (
+                <Icon
+                  d={ICON.columns}
+                  className="w-4 h-4 text-[#C84312] shrink-0"
+                />
+              )}
               <div className="min-w-0">
                 {basketItems.length > 0 ? (
                   <p className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] truncate">
@@ -288,10 +297,10 @@ export function FeaturedProductsSection({
                     가 비교·견적함에 담겼습니다
                   </p>
                 ) : (
-                  <p className="text-hb-xs sm:text-hb-sm font-semibold text-[#334155] break-keep">
-                    각 매물 사진 우측 하단의{" "}
-                    <strong className="font-bold text-[#141A23]">하트(비교 담기)</strong>를 누르면 최대{" "}
-                    <span className="font-mono font-bold tabular-nums text-[#C84312]">3대</span>{" "}
+                  <p className="text-hb-xs sm:text-hb-sm text-[#475569] break-keep">
+                    매물 사진의{" "}
+                    <strong className="font-semibold text-[#141A23]">하트(비교 담기)</strong>를 누르면 최대{" "}
+                    <span className="font-mono font-semibold tabular-nums text-[#C84312]">3대</span>{" "}
                     스펙·가로폭을 나란히 비교하고 한 번에 견적을 받을 수 있습니다.
                   </p>
                 )}
@@ -310,7 +319,7 @@ export function FeaturedProductsSection({
                       });
                       setCompareOpen(true);
                     }}
-                    className="hb-btn-primary min-h-[38px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                    className="hb-btn-primary min-h-[36px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
                   >
                     <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#FF8A50]" />
                     <span>
@@ -330,7 +339,7 @@ export function FeaturedProductsSection({
                         useBundle: true,
                       });
                     }}
-                    className="hb-btn-accent min-h-[38px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                    className="hb-btn-accent min-h-[36px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
                   >
                     <Icon d={ICON.chat} className="w-3.5 h-3.5" />
                     <span>묶음 견적 문의</span>
@@ -352,7 +361,7 @@ export function FeaturedProductsSection({
                           : undefined,
                     });
                   }}
-                  className="hb-btn-outline min-h-[38px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                  className="inline-flex min-h-[34px] items-center gap-1.5 rounded-lg border border-[#DFDCD4] bg-white px-3 py-1.5 text-hb-xs font-semibold text-[#141A23] hover:border-[#141A23] hover:bg-[#FAFAF8] transition-colors whitespace-nowrap cursor-pointer"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
                   <span>조건별 맞춤 매물 추천받기</span>

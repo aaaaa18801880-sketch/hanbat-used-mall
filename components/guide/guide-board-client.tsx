@@ -89,7 +89,7 @@ function GuideCard({
     <li className="h-full">
       <Link
         href={`/guide/${article.slug}`}
-        className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+        className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
       >
         {/* 16:9 게시글별 고유 메인 이미지 */}
         <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#EFECE4]">
@@ -180,7 +180,7 @@ function FeaturedGuide({
   return (
     <Link
       href={`/guide/${article.slug}`}
-      className="group grid grid-cols-1 sm:grid-cols-12 overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+      className="group grid grid-cols-1 sm:grid-cols-12 overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-[#141A23] hover:shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
     >
       {/* 좌측 비주얼 썸네일 (5컬럼) */}
       <div className="relative aspect-[16/10] sm:aspect-auto sm:min-h-[250px] sm:col-span-5 overflow-hidden bg-[#EFECE4]">
@@ -663,23 +663,29 @@ export function GuideBoardClient({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-1.5 text-hb-xs text-[#475569]">
-          <span className="font-semibold">추천 검색어</span>
-          {["380V", "제상", "사다리차", "매입"].map((query) => (
-            <button
-              key={query}
-              type="button"
-              onClick={() => handleSearchChange(query)}
-              className="rounded-lg border border-[#E2DDD3] bg-white px-2.5 py-1 font-semibold text-[#475569] transition-colors hover:border-[#141A23] hover:text-[#141A23]"
-            >
-              {query}
-            </button>
+        <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-hb-xs text-[#64748B]">
+          <span className="font-semibold text-[#475569]">추천 검색어</span>
+          {["380V", "제상", "사다리차", "매입"].map((query, idx) => (
+            <React.Fragment key={query}>
+              {idx > 0 && (
+                <span aria-hidden="true" className="text-[#D8D3C8]">
+                  ·
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => handleSearchChange(query)}
+                className="font-semibold text-[#475569] underline decoration-[#D8D3C8] underline-offset-4 transition-colors hover:text-[#141A23] hover:decoration-[#141A23] cursor-pointer"
+              >
+                {query}
+              </button>
+            </React.Fragment>
           ))}
         </div>
       </section>
 
       {/* 스티키 주제 분류 */}
-      <div className="sticky top-16 z-20 -mx-4 border-y border-[#E2DDD3] bg-[#FAF9F6]/95 px-4 backdrop-blur-md sm:-mx-6 sm:top-[72px] sm:px-6 lg:-mx-8 lg:px-8">
+      <div className="sticky top-16 z-20 -mx-4 border-y border-[#E5E3DC] bg-[#FAF9F6]/95 px-4 backdrop-blur-md sm:-mx-6 sm:top-[72px] sm:px-6 lg:-mx-8 lg:px-8">
         <div
           role="group"
           aria-label="주제별 분류"
@@ -812,7 +818,7 @@ export function GuideBoardClient({
           </section>
 
           {/* 하단 상담 연결 */}
-          <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[#E5E3DC] bg-white p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div className="space-y-1">
               <p className="text-hb-xs font-bold text-[#C84312]">
                 글로 판단하기 어려운 현장 조건이라면
@@ -847,7 +853,7 @@ export function GuideBoardClient({
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-24" aria-label="게시판 보조 정보">
-          <section className="rounded-2xl border border-[#E2DDD3] bg-white p-5 shadow-2xs">
+          <section className="rounded-2xl border border-[#E5E3DC] bg-white p-5">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-hb-sm font-bold text-[#141A23]">
                 많이 찾는 가이드
@@ -855,19 +861,19 @@ export function GuideBoardClient({
               <button
                 type="button"
                 onClick={() => handleSortChange("popular")}
-                className="text-hb-xs font-semibold text-[#475569] underline underline-offset-2 hover:text-[#141A23]"
+                className="text-hb-xs font-semibold text-[#475569] underline underline-offset-2 hover:text-[#141A23] cursor-pointer"
               >
                 인기순 전체
               </button>
             </div>
-            <ol className="mt-3 divide-y divide-[#EFECE4]">
+            <ol className="mt-3 divide-y divide-[#EAE8E2]">
               {popularGuideEntries.map(({ rank, article }) => (
                 <li key={article.slug}>
                   <Link
                     href={`/guide/${article.slug}`}
                     className="group flex items-start gap-3 py-2.5"
                   >
-                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#EFECE4]">
+                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-lg border border-[#EAE8E2] bg-[#EFECE4]">
                       <GuideThumbnailImage
                         src={article.thumbnailSrc}
                         alt={article.thumbnailAlt}
@@ -894,66 +900,78 @@ export function GuideBoardClient({
             </ol>
           </section>
 
-          <section className="rounded-2xl border border-[#E2DDD3] bg-white p-5 shadow-2xs">
+          <section className="rounded-2xl border border-[#E5E3DC] bg-white p-5">
             <h2 className="text-hb-sm font-bold text-[#141A23]">현장 도구</h2>
-            <div className="mt-2 divide-y divide-[#EFECE4]">
+            <div className="mt-2 divide-y divide-[#EAE8E2]">
               {GUIDE_TOOL_LINKS.map((tool) => (
                 <Link
                   key={tool.href}
                   href={tool.href}
                   className="group flex items-center gap-3 py-2.5"
                 >
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#FAF9F6] text-[#0F766E]">
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-[#FAFAF8] text-[#0F766E]">
                     <Icon d={tool.icon} className="h-4 w-4" />
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-hb-sm font-bold text-[#141A23]">
+                    <span className="block text-hb-sm font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
                       {tool.label}
                     </span>
-                    <span className="mt-0.5 block text-hb-xs text-[#475569]">
+                    <span className="mt-0.5 block text-hb-xs text-[#64748B]">
                       {tool.description}
                     </span>
                   </span>
                   <Icon
                     d={ICON.right}
-                    className="ml-auto h-3.5 w-3.5 shrink-0 text-[#475569] transition-colors group-hover:text-[#141A23]"
+                    className="ml-auto h-3.5 w-3.5 shrink-0 text-[#94A3B8] transition-colors group-hover:text-[#141A23]"
                   />
                 </Link>
               ))}
             </div>
           </section>
 
-          <section className="rounded-2xl bg-[#141A23] p-5 text-white">
-            <h2 className="text-hb-sm font-bold text-white">
-              사진 한 장으로 상담
+          <section className="rounded-2xl border border-[#E5E3DC] bg-white p-5">
+            <p className="text-hb-xs font-bold text-[#C84312]">직접 확인 상담</p>
+            <h2 className="mt-1 text-hb-base font-bold text-[#141A23]">
+              사진 한 장으로 현장 상담
             </h2>
-            <p className="mt-2 text-hb-xs leading-relaxed text-white/75">
+            <p className="mt-1.5 text-hb-xs leading-relaxed text-[#64748B] break-keep">
               모델명 명판이나 설치 현장 사진을 보내주시면 필요한 전압·배관·반입 조건을 함께 확인해 드립니다.
             </p>
-            <Link
-              href="/inquiry?write=1"
-              onClick={() =>
-                trackEvent("begin_buy_inquiry", {
-                  location: "guide_board_sidebar",
-                })
-              }
-              className="hb-btn-accent mt-4 min-h-[42px] w-full px-3 text-hb-xs font-bold"
-            >
-              <Icon d={ICON.chat} className="h-3.5 w-3.5" />
-              <span>사진으로 문의</span>
-            </Link>
-            <a
-              href={telHref(STORE.tel)}
-              onClick={() =>
-                trackEvent("click_tel_consult", {
-                  location: "guide_board_sidebar",
-                })
-              }
-              className="mt-2 inline-flex min-h-[42px] w-full items-center justify-center gap-1.5 rounded-xl border border-white/25 bg-white/5 px-3 text-hb-xs font-bold text-white transition-colors hover:bg-white/10"
-            >
-              <Icon d={ICON.phone} className="h-3.5 w-3.5" />
-              <span>{STORE.tel}</span>
-            </a>
+            <div className="mt-4 flex flex-col gap-2">
+              <Link
+                href="/inquiry?write=1"
+                onClick={() =>
+                  trackEvent("begin_buy_inquiry", {
+                    location: "guide_board_sidebar",
+                  })
+                }
+                className="hb-btn-primary min-h-[42px] w-full px-3 text-hb-xs font-bold"
+              >
+                <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#FF8A50]" />
+                <span>사진으로 문의하기</span>
+              </Link>
+              <a
+                href={STORE.kakaoChat}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hb-btn-kakao min-h-[42px] w-full px-3 text-hb-xs font-bold"
+              >
+                <Icon d={ICON.chat} className="h-3.5 w-3.5" />
+                <span>카톡으로 사진 보내기</span>
+              </a>
+              <a
+                href={telHref(STORE.tel)}
+                onClick={() =>
+                  trackEvent("click_tel_consult", {
+                    location: "guide_board_sidebar",
+                  })
+                }
+                className="inline-flex min-h-[40px] w-full items-center justify-center gap-1.5 rounded-xl border border-[#E5E3DC] bg-[#FAFAF8] px-3 text-hb-xs font-mono font-bold text-[#141A23] transition-colors hover:border-[#141A23] tabular-nums"
+              >
+                <Icon d={ICON.phone} className="h-3.5 w-3.5 text-[#C84312]" />
+                <span>{STORE.tel}</span>
+              </a>
+            </div>
           </section>
         </aside>
       </div>

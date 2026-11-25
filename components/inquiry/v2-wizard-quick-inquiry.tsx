@@ -211,6 +211,8 @@ export function V2InquirySectionWithWizard({
   };
 
   const goToPhotoStep = () => {
+    const targetStep: 2 | 3 =
+      inquiryType === "내 물건 팔기" && selectedFiles.length > 0 ? 3 : 2;
     if (selectedCategories.length === 0) {
       if (inquiryType === "내 물건 팔기") {
         if (
@@ -220,23 +222,23 @@ export function V2InquirySectionWithWizard({
           )
         ) {
           setSelectedCategories([aiResult.applianceCategory]);
-          setStep(2);
+          setStep(targetStep);
           return;
         }
         if (selectedFiles.length > 0) {
           setSelectedCategories(["기타"]);
-          setStep(2);
+          setStep(targetStep);
           return;
         }
       }
       toast.error(
         inquiryType === "내 물건 팔기"
-          ? "사진을 첨부해 AI 판독을 실행하시거나 처분할 품목을 1개 이상 선택해 주세요."
+          ? "사진을 첨부하시거나 처분할 품목을 1개 이상 선택해 주세요."
           : "상담하실 품목을 1개 이상 선택해 주세요."
       );
       return;
     }
-    setStep(2);
+    setStep(targetStep);
   };
 
   const toggleChip = (chip: string) => {
@@ -567,12 +569,12 @@ export function V2InquirySectionWithWizard({
             : "rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
         }
       >
-        {/* 3단계 인디케이터 */}
-        <ol className="grid grid-cols-3 gap-2 pb-3 border-b border-[#E2E6EC]">
+        {/* 3단계 경량 헤어라인 인디케이터 (완료 단계 클릭 이동 지원) */}
+        <ol className="grid grid-cols-3 border-b border-[#EAE8E2]">
           {[
-            { num: 1, label: "상담 유형·품목" },
-            { num: 2, label: "사진·가이드" },
-            { num: 3, label: "현장조건·접수" },
+            { num: 1 as const, label: isSell ? "사진·품목" : "상담 유형·품목" },
+            { num: 2 as const, label: "사진·가이드" },
+            { num: 3 as const, label: "현장조건·접수" },
           ].map((s) => {
             const isPast = step > s.num;
             const isCurrent = step === s.num;
@@ -580,30 +582,51 @@ export function V2InquirySectionWithWizard({
               <li
                 key={s.num}
                 aria-current={isCurrent ? "step" : undefined}
-                className={`flex items-center gap-2 rounded-lg p-2 transition-colors ${
+                className={`relative pb-3 transition-colors ${
                   isCurrent
-                    ? "bg-[#141A23] text-white"
+                    ? "text-[#141A23]"
                     : isPast
-                    ? "bg-[#FFF4EE] text-[#E8521A] border border-[#E8521A]/30"
-                    : "bg-[#F1F3F6] text-[#64748B]"
+                    ? "text-[#C84312]"
+                    : "text-[#94A3B8]"
                 }`}
               >
-                <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-hb-xs font-bold tabular-nums ${
-                    isCurrent
-                      ? "bg-[#FB923C] text-[#141A23]"
-                      : isPast
-                      ? "bg-[#E8521A] text-white"
-                      : "bg-[#E2E6EC] text-[#64748B]"
+                <button
+                  type="button"
+                  disabled={!isPast}
+                  onClick={() => {
+                    if (isPast) setStep(s.num);
+                  }}
+                  className={`flex w-full items-center gap-1.5 sm:gap-2 text-left text-hb-xs font-bold ${
+                    isPast ? "cursor-pointer hover:opacity-80" : "cursor-default"
                   }`}
                 >
-                  {isPast ? (
-                    <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                  ) : (
-                    s.num
-                  )}
-                </span>
-                <span className="truncate text-hb-xs font-bold">{s.label}</span>
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-hb-xs font-bold tabular-nums ${
+                      isCurrent
+                        ? "bg-[#141A23] text-white"
+                        : isPast
+                        ? "bg-[#C84312] text-white"
+                        : "bg-[#EFECE6] text-[#64748B]"
+                    }`}
+                  >
+                    {isPast ? (
+                      <Icon d={ICON.check} className="w-3 h-3" />
+                    ) : (
+                      s.num
+                    )}
+                  </span>
+                  <span className="truncate">{s.label}</span>
+                </button>
+                <span
+                  aria-hidden="true"
+                  className={`absolute inset-x-0 bottom-0 h-[2px] transition-colors ${
+                    isCurrent
+                      ? "bg-[#141A23]"
+                      : isPast
+                      ? "bg-[#C84312]/40"
+                      : "bg-transparent"
+                  }`}
+                />
               </li>
             );
           })}
@@ -674,18 +697,17 @@ export function V2InquirySectionWithWizard({
             )}
 
             {isSell && (
-              <div className="rounded-xl border border-[#BAE6FD] bg-[#F0F9FF]/60 p-3.5 sm:p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="rounded-xl border border-[#EAE8E2] bg-[#FAFAF8] p-3.5 sm:p-4 space-y-3">
+                <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <span className="inline-flex items-center gap-1 rounded-md bg-[#0284C7] px-2 py-0.5 text-hb-xs font-bold text-white">
-                      <Icon d={ICON.sparkles} className="w-3 h-3" />
-                      <span>Photo-First AI 자동입력</span>
-                    </span>
-                    <p className="mt-1 text-hb-xs sm:text-hb-sm font-bold text-[#141A23]">
-                      제품 사진이나 명판 스티커를 먼저 올리면 AI가 품목·모델명을 자동으로 채워드립니다
+                    <p className="text-hb-xs font-semibold text-[#C84312]">
+                      사진 먼저 올리기 (선택)
+                    </p>
+                    <p className="mt-0.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
+                      제품 사진이나 명판 스티커를 올리면 품목·모델명을 자동으로 채워드리고 바로 연락처 단계로 넘어갑니다
                     </p>
                   </div>
-                  <span className="font-mono text-hb-xs font-bold text-[#0369A1] tabular-nums">
+                  <span className="font-mono text-hb-xs font-semibold text-[#64748B] tabular-nums shrink-0">
                     {selectedFiles.length} / {MAX_PHOTOS}장
                   </span>
                 </div>
@@ -694,7 +716,7 @@ export function V2InquirySectionWithWizard({
                   {filePreviews.map((src, i) => (
                     <div
                       key={src}
-                      className="relative aspect-square w-16 sm:w-20 overflow-hidden rounded-xl border border-[#CBD2DC] bg-white shrink-0"
+                      className="relative aspect-square w-16 sm:w-20 overflow-hidden rounded-xl border border-[#DFDCD4] bg-white shrink-0"
                     >
                       <SafeImg
                         src={src}
@@ -713,7 +735,7 @@ export function V2InquirySectionWithWizard({
                   ))}
 
                   {selectedFiles.length < MAX_PHOTOS && (
-                    <label className="flex aspect-square w-16 sm:w-20 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#0284C7]/50 bg-white text-hb-xs font-bold text-[#0369A1] hover:border-[#0284C7] hover:bg-[#F0F9FF] transition-colors shrink-0">
+                    <label className="flex aspect-square w-16 sm:w-20 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[#CBD2DC] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#C84312] hover:text-[#C84312] transition-colors shrink-0">
                       <Icon d={ICON.camera} className="w-4 h-4" />
                       <span className="mt-1">+ 사진</span>
                       <input
@@ -731,27 +753,27 @@ export function V2InquirySectionWithWizard({
                       type="button"
                       onClick={handleAiPhotoAnalyze}
                       disabled={analyzingAi}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl bg-[#0369A1] px-3.5 py-2 text-hb-xs font-bold text-white hover:bg-[#0284C7] transition-[background-color,transform] active:scale-[0.96] disabled:opacity-50 cursor-pointer shadow-2xs"
+                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-[#141A23] px-3.5 py-2 text-hb-xs font-bold text-white hover:bg-[#1E2736] transition-[background-color,transform] active:scale-[0.97] disabled:opacity-50 cursor-pointer"
                     >
-                      <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0" />
+                      <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0 text-[#FF8A50]" />
                       <span>
                         {analyzingAi
-                          ? "AI 사진 판독 중..."
-                          : "AI 사진 판독으로 품목·모델명 자동입력"}
+                          ? "사진 분석 중..."
+                          : "사진에서 품목·모델명 자동 채우기"}
                       </span>
                     </button>
                   )}
                 </div>
 
                 {aiResult && (
-                  <div className="rounded-xl border border-[#CCFBF1] bg-white p-2.5 text-hb-xs text-[#0F766E] flex items-start gap-2">
+                  <div className="rounded-lg border border-[#CCFBF1] bg-white p-2.5 text-hb-xs text-[#0F766E] flex items-start gap-2">
                     <Icon
                       d={ICON.check}
                       className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5"
                     />
                     <div className="leading-relaxed">
                       <strong className="font-bold text-[#141A23]">
-                        AI 판독 자동 반영됨:
+                        자동 입력 완료:
                       </strong>{" "}
                       {[
                         aiResult.applianceCategory,
@@ -769,7 +791,7 @@ export function V2InquirySectionWithWizard({
             <div>
               <span className="hb-label mb-2">
                 {hideTypeSelector || fixedType
-                  ? "1. 처분하실 품목을 선택해 주세요 (사진 첨부 시 생략 가능 · 복수 선택)"
+                  ? "처분하실 품목을 선택해 주세요 (사진 첨부 시 생략 가능 · 복수 선택)"
                   : "2. 해당되는 품목을 모두 선택해 주세요 (복수 선택)"}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -780,10 +802,10 @@ export function V2InquirySectionWithWizard({
                       key={cat}
                       type="button"
                       onClick={() => toggleCategory(cat)}
-                      className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
+                      className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-semibold transition-[color,background-color,border-color] duration-150 cursor-pointer ${
                         active
-                          ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]"
-                          : "border-[#E2E6EC] bg-white text-[#334155] hover:border-[#CBD2DC]"
+                          ? "border-[#C84312] bg-[#FFF8F4] text-[#C84312] font-bold"
+                          : "border-[#E5E3DC] bg-white text-[#334155] hover:border-[#141A23]"
                       }`}
                     >
                       <span>{cat}</span>
@@ -797,13 +819,17 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end border-t border-[#E2E6EC]">
+            <div className="pt-3 flex justify-end border-t border-[#EAE8E2]">
               <button
                 type="button"
                 onClick={goToPhotoStep}
                 className="hb-btn-primary h-11 px-7 text-hb-sm w-full sm:w-auto"
               >
-                <span>다음 단계 (사진 첨부)</span>
+                <span>
+                  {isSell && selectedFiles.length > 0
+                    ? "다음 단계 (수거 지역·연락처 입력)"
+                    : "다음 단계 (사진 첨부)"}
+                </span>
                 <Icon d={ICON.arrow} className="w-4 h-4" />
               </button>
             </div>
@@ -1149,16 +1175,16 @@ export function V2InquirySectionWithWizard({
               <span>상담 안내를 위한 개인정보 수집·이용에 동의합니다.</span>
             </label>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E2E6EC]">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-3 border-t border-[#EAE8E2]">
               <button
                 type="button"
-                onClick={() => setStep(2)}
-                className="hb-btn-outline h-11 px-4 text-hb-sm"
+                onClick={() => setStep(isSell && selectedFiles.length > 0 ? 1 : 2)}
+                className="hb-btn-outline h-11 px-4 text-hb-sm w-full sm:w-auto"
               >
-                ← 이전 (사진)
+                ← 이전 단계
               </button>
 
-              <div className="flex flex-wrap items-center gap-2 ml-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:ml-auto">
                 <a
                   href={smsHref(
                     STORE.mobile,
@@ -1172,15 +1198,15 @@ export function V2InquirySectionWithWizard({
                       inquiry_type: inquiryType,
                     })
                   }
-                  className="hb-btn-outline h-11 px-4 text-hb-sm"
+                  className="hb-btn-outline h-11 px-4 text-hb-sm w-full sm:w-auto"
                 >
-                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#E8521A]" />
+                  <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
                   <span>문자로 바로 전송</span>
                 </a>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="hb-btn-accent h-11 px-7 text-hb-sm font-bold"
+                  className="hb-btn-accent h-11 px-7 text-hb-sm font-bold w-full sm:w-auto"
                 >
                   {submitting
                     ? "접수 중..."

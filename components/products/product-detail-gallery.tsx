@@ -6,7 +6,6 @@ import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
-import { ProductStatusBadge } from "./product-status-badge";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 import {
   getOptionalAdminAuthHeaders,
@@ -37,7 +36,6 @@ export function ProductDetailGallery({
   conditionGrade,
   images,
   status,
-  createdAt,
 }: {
   id?: string;
   title: string;
@@ -142,11 +140,11 @@ export function ProductDetailGallery({
 
   return (
     <>
-      <div className="flex flex-col rounded-3xl overflow-hidden border border-[#E2DDD3] bg-white shadow-card">
-        {/* 메인 프리뷰 영역: 애플 스토어식 풀블리드 스튜디오 뷰 (중복 블러 <img> 다운로드 제거) */}
-        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none ring-1 ring-inset ring-black/5">
+      <div className="flex flex-col rounded-2xl overflow-hidden border border-[#E5E3DC] bg-white">
+        {/* 메인 프리뷰 영역: 스튜디오 뷰 */}
+        <div className="relative w-full aspect-[4/3] sm:aspect-[16/11] hb-studio-backdrop flex items-center justify-center p-2 sm:p-4 overflow-hidden group select-none">
           <div
-            className="absolute inset-0 bg-gradient-to-b from-white/45 via-transparent to-black/[0.06] pointer-events-none select-none"
+            className="absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-black/[0.04] pointer-events-none select-none"
             aria-hidden="true"
           />
 
@@ -160,6 +158,7 @@ export function ProductDetailGallery({
                 fill
                 sizes="(max-width: 1024px) 100vw, 58vw"
                 priority={idx === 0}
+                loading={idx === 0 ? "eager" : undefined}
                 quality={85}
                 onError={() => markFailedUrl(displayImages[idx])}
                 className={`object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-[1.02] ${
@@ -192,28 +191,32 @@ export function ProductDetailGallery({
             </button>
           )}
 
-          <div className="absolute top-4 left-4 z-20 pointer-events-none">
-            <ProductStatusBadge status={status} createdAt={createdAt} />
-          </div>
+          {status === "예약중" && (
+            <div className="absolute top-3.5 left-3.5 z-20 pointer-events-none">
+              <span className="inline-flex items-center rounded-md bg-[#C84312] px-2.5 py-1 text-hb-xs font-bold text-white">
+                예약중
+              </span>
+            </div>
+          )}
 
           {sold && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#141A23]/55 pointer-events-none">
-              <span className="px-5 py-2 rounded-full bg-[#141A23]/90 text-white text-hb-sm font-bold tracking-[0.15em] border border-white/20">
+              <span className="px-5 py-2 rounded-lg bg-[#141A23]/90 text-white text-hb-sm font-bold tracking-[0.15em] border border-white/20">
                 판매완료
               </span>
             </div>
           )}
 
           {displayImages[idx] && (
-            <div className="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-md text-[#141A23] shadow-xs text-hb-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 pointer-events-none">
-              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#E8521A]" />
+            <div className="absolute top-3.5 right-3.5 z-20 bg-white/90 backdrop-blur-sm border border-[#E5E3DC] text-[#141A23] text-hb-xs font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1.5 pointer-events-none">
+              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#C84312]" />
               <span>크게 보기</span>
             </div>
           )}
 
-          {/* 우하단 애플/당근 스타일 반투명 사진 순서 캡슐 */}
+          {/* 우하단 사진 순서 표시 */}
           {displayImages.length > 0 && (
-            <div className="absolute bottom-3.5 right-4 z-20 rounded-full bg-[#141A23]/75 backdrop-blur-md px-3 py-1 text-hb-xs font-bold text-white tabular-nums pointer-events-none">
+            <div className="absolute bottom-3.5 right-3.5 z-20 rounded-md bg-[#141A23]/75 backdrop-blur-sm px-2.5 py-1 text-hb-xs font-semibold text-white tabular-nums pointer-events-none">
               {idx + 1} / {displayImages.length}
             </div>
           )}
@@ -227,7 +230,7 @@ export function ProductDetailGallery({
                   go(-1);
                 }}
                 aria-label="이전 사진"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-30"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-sm border border-[#E5E3DC] flex items-center justify-center hover:bg-white transition-colors z-30"
               >
                 <Icon d={ICON.left} className="w-5 h-5" />
               </button>
@@ -238,7 +241,7 @@ export function ProductDetailGallery({
                   go(1);
                 }}
                 aria-label="다음 사진"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-md flex items-center justify-center hover:bg-white transition-colors z-30"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 text-[#141A23] shadow-sm border border-[#E5E3DC] flex items-center justify-center hover:bg-white transition-colors z-30"
               >
                 <Icon d={ICON.right} className="w-5 h-5" />
               </button>
@@ -248,7 +251,7 @@ export function ProductDetailGallery({
 
         {/* 썸네일 스트립 */}
         {displayImages.length > 1 && (
-          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#EFECE4] overflow-x-auto">
+          <div className="flex gap-2.5 p-3.5 sm:px-5 bg-white border-t border-[#EAE8E2] overflow-x-auto">
             {displayImages.map((img, i) => (
               <button
                 key={img + i}
@@ -610,7 +613,7 @@ export function InteractiveChecklistAndCta({
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   return (
-    <div className="mt-5 pt-4 border-t border-[#E2DDD3] space-y-3">
+    <div className="mt-5 space-y-2.5">
       {sold && (
         <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3 text-hb-xs text-[#E8521A] font-semibold leading-snug flex items-center gap-2">
           <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#E8521A]" />
@@ -621,14 +624,14 @@ export function InteractiveChecklistAndCta({
         </div>
       )}
 
-      {/* 1순위: 직영 매장 전화 문의 버튼 (h-14, WCAG AA 고대비 다크 네이비 + 오렌지 포인트) */}
+      {/* 1순위: 직영 매장 전화 문의 버튼 */}
       <a
         href={telHref(STORE.tel)}
         aria-label={`${STORE.name} 직영 매장 전화 문의 연결 (${STORE.tel})`}
-        className="w-full h-14 rounded-2xl bg-[#141A23] hover:bg-[#1E2736] text-white shadow-card flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
+        className="w-full h-14 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-[#E8521A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-lg bg-[#E8521A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Icon d={ICON.phone} className="w-5 h-5 text-white" />
           </div>
           <div className="text-left min-w-0">
@@ -638,7 +641,7 @@ export function InteractiveChecklistAndCta({
                 ({STORE.tel})
               </span>
             </div>
-            <p className="text-hb-xs text-white/85 font-medium leading-none mt-1 truncate">
+            <p className="text-hb-xs text-white/80 font-medium leading-none mt-1 truncate">
               재고 확인 · 방문 및 배송 상담
             </p>
           </div>
@@ -649,16 +652,16 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 2순위: 카카오톡 1:1 상담 버튼 (h-14) */}
+      {/* 2순위: 카카오톡 1:1 상담 버튼 */}
       <a
         href={STORE.kakaoChat}
         target="_blank"
         rel="noopener noreferrer"
         aria-label={`${STORE.name} 카카오톡 1:1 상담창 열기 (새 창)`}
-        className="w-full h-14 rounded-2xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] shadow-2xs flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform,box-shadow] duration-200 active:scale-[0.96] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
+        className="w-full h-14 rounded-xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-xl bg-black/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-lg bg-black/10 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Icon d={ICON.chat} className="w-5 h-5 text-[#191600]" />
           </div>
           <div className="text-left min-w-0">
@@ -676,12 +679,12 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 3순위: 토스 TDS 스타일 원카드 소프트 액션 독 (동심원 곡률 R_inner(8px) = R_outer(16px) - Padding(8px)) */}
-      <div className="rounded-2xl bg-[#F5F3EE] border border-[#E2DDD3] p-2 space-y-2">
+      {/* 3순위: 무중첩 보조 유틸리티 액션 행 + 매장 방문 길찾기 */}
+      <div className="pt-3 border-t border-[#EAE8E2] space-y-2.5">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
           >
             <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#E8521A] shrink-0" />
             <span className="truncate">문자 문의</span>
@@ -689,14 +692,14 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={inquiryHref}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
           >
             <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#0284C7] shrink-0" />
             <span className="truncate">온라인 견적</span>
           </Link>
 
           <QuoteBasketButton
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97] cursor-pointer"
             compact
             item={{
               id: String(product.id),
@@ -714,7 +717,7 @@ export function InteractiveChecklistAndCta({
 
           <Link
             href={galleryCategoryHref}
-            className="flex items-center justify-center gap-1.5 rounded-lg bg-white hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.96] shadow-2xs"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
           >
             <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#0D9488] shrink-0" />
             <span className="truncate">유사 매물</span>
@@ -731,13 +734,13 @@ export function InteractiveChecklistAndCta({
             });
             setVisitModalOpen(true);
           }}
-          className="w-full h-10 rounded-lg bg-white/85 hover:bg-white text-[#141A23] flex items-center justify-between px-3.5 transition-[background-color,color,transform] duration-150 active:scale-[0.96] font-bold text-hb-xs cursor-pointer"
+          className="w-full pt-2.5 border-t border-[#EAE8E2] text-[#334155] hover:text-[#141A23] flex items-center justify-between gap-2 transition-colors text-hb-xs cursor-pointer"
         >
-          <div className="flex items-center gap-2 min-w-0">
-            <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
+          <div className="flex items-center gap-1.5 min-w-0 font-medium">
+            <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
             <span className="truncate">{STORE.jibunAddress} 직영 매장 방문 · 길찾기</span>
           </div>
-          <span className="text-hb-xs font-bold text-[#E8521A] shrink-0 ml-1">
+          <span className="text-hb-xs font-bold text-[#C84312] shrink-0">
             예약 · 길찾기 →
           </span>
         </button>

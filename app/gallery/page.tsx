@@ -576,7 +576,7 @@ export default function GalleryPage() {
                   }}
                   placeholder="브랜드·제품명·모델명 검색"
                   aria-label="브랜드, 제품명 또는 모델명 검색"
-                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-[#D8D1C5] bg-[#FAF9F6] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
+                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-[#EAE8E2] bg-[#FAFAF8] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
                 />
                 {search.trim() !== "" && (
                   <button
@@ -603,7 +603,7 @@ export default function GalleryPage() {
                   (hasPricedProducts && priceRange !== "all") ||
                   sort !== "latest"
                     ? "border-[#141A23] bg-[#141A23] text-white"
-                    : "border-[#D8D1C5] bg-white text-[#141A23] hover:border-[#141A23]"
+                    : "border-[#E5E3DC] bg-white text-[#141A23] hover:border-[#141A23]"
                 }`}
               >
                 <span>필터</span>
@@ -620,10 +620,10 @@ export default function GalleryPage() {
       </section>
 
       {/* 스티키 언더라인 카테고리 탭 및 미니멀 필터 바 */}
-      <div className="sticky top-16 sm:top-[72px] z-30 border-b border-[#E2DDD3] bg-white/95 backdrop-blur-md">
+      <div className="sticky top-16 sm:top-[72px] z-30 border-b border-[#E5E3DC] bg-white/95 backdrop-blur-md">
         <div className="hb-container pt-1 pb-2.5 flex flex-col gap-2.5">
           {/* 1행: 좌측 언더라인 품목 탭 + 우측 데스크톱 인라인 셀렉트 */}
-          <div className="flex items-center justify-between gap-4 border-b border-[#F1EFEA]">
+          <div className="flex items-center justify-between gap-4 border-b border-[#EAE8E2]">
             <div className="relative min-w-0 flex-1">
               <div
                 className="flex items-center gap-5 sm:gap-7 overflow-x-auto scrollbar-none pr-8 sm:pr-2"
@@ -762,10 +762,10 @@ export default function GalleryPage() {
                             keyword: preset.keyword,
                           });
                         }}
-                        className={`h-8 inline-flex items-center gap-1.5 rounded-lg border px-3 font-semibold transition-colors shrink-0 cursor-pointer ${
+                        className={`h-8 inline-flex items-center gap-1.5 rounded-lg px-2.5 font-semibold transition-colors shrink-0 cursor-pointer ${
                           active
-                            ? "border-[#141A23] bg-[#141A23] text-white"
-                            : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155] hover:border-[#141A23] hover:bg-white hover:text-[#141A23]"
+                            ? "bg-[#141A23] text-white"
+                            : "bg-[#F5F3EE] text-[#475569] hover:bg-[#EAE7E0] hover:text-[#141A23]"
                         }`}
                         title={preset.desc}
                       >
@@ -1071,13 +1071,13 @@ export default function GalleryPage() {
         )}
 
         {/* 미등록 매장 재고 및 맞춤 사양 문의 배너 */}
-        <div className="mt-12 rounded-xl border border-[#E2E6EC] bg-white p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-card">
+        <div className="mt-12 rounded-2xl border border-[#E5E3DC] bg-[#FAFAF8] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <span className="hb-eyebrow">미등록 매장 재고 문의</span>
             <h2 className="mt-1.5 text-hb-lg font-bold text-[#141A23]">
               찾으시는 모델이나 용량·수량이 목록에 없으신가요?
             </h2>
-            <p className="mt-1 text-hb-sm text-[#334155] leading-relaxed break-keep">
+            <p className="mt-1 text-hb-sm text-[#475569] leading-relaxed break-keep">
               중촌동 매장에는 세척·점검을 마치고 아직 홈페이지에 업로드되지 않은 가전과 업소용 주방설비가 상시 대기 중입니다.
             </p>
           </div>

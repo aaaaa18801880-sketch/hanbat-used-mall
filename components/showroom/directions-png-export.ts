@@ -137,7 +137,7 @@ export async function downloadBrandedDirectionsPng(
     ctx.fillStyle = "#475569";
     ctx.font = "600 18px Pretendard, -apple-system, sans-serif";
     ctx.fillText(
-      `대전 중구 중촌동 144 · 1·2층 직영 전시장 · ${route.shortLabel} 기준`,
+      `${STORE.jibunAddress} · 1·2층 직영 전시장 · ${route.shortLabel} 기준`,
       pad,
       pad + 50
     );
@@ -244,28 +244,49 @@ export async function downloadBrandedDirectionsPng(
     const colGap = 40;
     const colW = (contentW - colGap) / 2;
 
-    // 좌측: 오시는 길
+    const wrapTextLines = (
+      text: string,
+      maxWidth: number,
+      maxLines: number
+    ): string[] => {
+      const words = text.split(/\s+/);
+      const lines: string[] = [];
+      let current = "";
+      for (const word of words) {
+        const candidate = current ? `${current} ${word}` : word;
+        if (ctx.measureText(candidate).width <= maxWidth) {
+          current = candidate;
+        } else {
+          if (current) lines.push(current);
+          if (lines.length >= maxLines) {
+            current = "";
+            break;
+          }
+          current = word;
+        }
+      }
+      if (current && lines.length < maxLines) {
+        lines.push(current);
+      }
+      return lines;
+    };
+
+    // 좌측: 선택 방면 오시는 길 핵심
     ctx.textAlign = "left";
     ctx.fillStyle = "#C84312";
     ctx.font = "800 16px Pretendard, -apple-system, sans-serif";
-    ctx.fillText("오시는 길 핵심", pad, infoTop + 36);
+    ctx.fillText(`오시는 길 핵심 · ${route.shortLabel}`, pad, infoTop + 36);
 
     ctx.fillStyle = "#141A23";
     ctx.font = "700 20px Pretendard, -apple-system, sans-serif";
-    ctx.fillText("주공하나마트 옆 골목 진입 → 끝까지 직진(약 2분)", pad, infoTop + 68);
+    ctx.fillText(route.entryCaution, pad, infoTop + 68);
 
     ctx.fillStyle = "#475569";
     ctx.font = "500 17px Pretendard, -apple-system, sans-serif";
-    ctx.fillText(
-      "철교(4.5m) 바로 앞 횡단보도 옆 골목으로 들어오면 초록색 중촌고가교 밑에",
-      pad,
-      infoTop + 100
-    );
-    ctx.fillText(
-      "한밭중고전자 1·2층 직영 전시장과 파란색 간판이 바로 보입니다.",
-      pad,
-      infoTop + 126
-    );
+    const summaryLines = wrapTextLines(route.summary, colW, 4);
+    summaryLines.forEach((line, idx) => {
+      ctx.fillText(line, pad, infoTop + 100 + idx * 25);
+    });
 
     // 우측: 주차 · 문의
     const rightX = pad + colW + colGap;

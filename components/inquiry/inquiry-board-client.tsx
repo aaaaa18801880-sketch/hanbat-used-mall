@@ -343,17 +343,21 @@ export function InquiryBoardClient({
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleOpenWrite = () => {
+  const handleOpenWriteWithType = (type: InquiryTypeValue) => {
     setLinkedProduct(null);
+    setWriteDefaultType(type);
+    setIsWriteOpen(true);
+  };
+
+  const handleOpenWrite = () => {
     const nextDefaultType: InquiryTypeValue =
       activeTab === "구매 문의" ||
       activeTab === "내 물건 팔기" ||
       activeTab === "대량·업소용 상담" ||
       activeTab === "기타 문의"
         ? activeTab
-        : "내 물건 팔기";
-    setWriteDefaultType(nextDefaultType);
-    setIsWriteOpen(true);
+        : "구매 문의";
+    handleOpenWriteWithType(nextDefaultType);
   };
 
   const handleItemClick = async (item: Inquiry) => {
@@ -580,12 +584,12 @@ export function InquiryBoardClient({
         )}
       </SiteHeader>
 
-      {/* 상단 게시판 헤더 */}
-      <section className="bg-white border-b border-[#E2DDD3]">
-        <div className="hb-container py-7 sm:py-10">
+      {/* 상단 게시판 헤더 + 목적별 1클릭 바로 작성 스트립 */}
+      <section className="bg-white border-b border-[#E5E3DC]">
+        <div className="hb-container py-6 sm:py-9">
           <nav
             aria-label="페이지 경로"
-            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-4"
+            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-3.5"
           >
             <Link href="/" className="hover:text-[#141A23] transition-colors">
               홈
@@ -599,45 +603,114 @@ export function InquiryBoardClient({
               <div className="inline-flex items-center gap-2 mb-2">
                 <span className="hb-eyebrow">구매 · 매입 · 업소용 상담 게시판</span>
                 <span className="text-hb-xs text-[#CBD2DC]" aria-hidden="true">·</span>
-                <span className="text-hb-xs font-semibold text-[#64748B]">
+                <span className="text-hb-xs font-medium text-[#64748B]">
                   비밀번호 보호 안전 열람
                 </span>
               </div>
               <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2]">
                 고객 문의 · 매입 신청 게시판
               </h1>
-              <p className="mt-2.5 text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
-                남겨주신 구매 상담과 매입 신청은 비밀번호로 안전하게 열람하실 수 있습니다.
-                <br className="hidden sm:inline" /> 빠른 상담이 필요하신 경우 직통 대표전화로 연락해 주세요.
+              <p className="mt-2 text-hb-sm sm:text-hb-base text-[#4E5968] leading-relaxed max-w-2xl break-keep [text-wrap:pretty]">
+                아래에서 원하시는 상담 유형을 바로 선택해 접수하실 수 있습니다. 남겨주신 글은 비밀번호로 보호됩니다.
               </p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={handleOpenWrite}
-                className="hb-btn-primary h-11 px-5 text-hb-sm"
+              <a
+                href={STORE.kakaoChat}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hb-btn-kakao h-10 px-4 text-hb-xs sm:text-hb-sm"
               >
-                <Icon d={ICON.plus} className="w-4 h-4" />
-                <span>문의 · 매입 신청 작성</span>
-              </button>
+                <Icon d={ICON.chat} className="w-4 h-4" />
+                <span>카톡 1:1 상담</span>
+              </a>
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-outline h-11 px-4 text-hb-sm font-mono tabular-nums"
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl border border-[#DFDCD4] bg-white px-4 text-hb-xs sm:text-hb-sm font-mono font-bold text-[#141A23] hover:border-[#141A23] transition-colors tabular-nums"
               >
-                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A]" />
-                <span>전화 {STORE.tel}</span>
+                <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#C84312]" />
+                <span>{STORE.tel}</span>
               </a>
             </div>
+          </div>
+
+          {/* 3갈래 목적별 1클릭 문의 작성 진입 바 (무박스 헤어라인 분할) */}
+          <div className="mt-6 pt-5 border-t border-[#EAE8E2] grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[#EAE8E2]">
+            <button
+              type="button"
+              onClick={() => handleOpenWriteWithType("구매 문의")}
+              className="group flex items-center justify-between gap-3 py-3 md:py-1 md:pr-5 text-left cursor-pointer"
+            >
+              <div className="min-w-0">
+                <span className="block font-mono text-hb-xs font-bold text-[#0F766E]">
+                  01. 구매 · 재고 상담
+                </span>
+                <strong className="mt-0.5 block text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
+                  실매물 재고 · 배송 견적 문의
+                </strong>
+                <span className="mt-0.5 block text-hb-xs text-[#64748B] truncate">
+                  원하는 평형·크기·배송 일정 확인
+                </span>
+              </div>
+              <Icon
+                d={ICON.arrow}
+                className="w-4 h-4 text-[#94A3B8] group-hover:text-[#C84312] group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
+              />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleOpenWriteWithType("내 물건 팔기")}
+              className="group flex items-center justify-between gap-3 py-3 md:py-1 md:px-5 text-left cursor-pointer"
+            >
+              <div className="min-w-0">
+                <span className="block font-mono text-hb-xs font-bold text-[#C84312]">
+                  02. 방문 매입 신청
+                </span>
+                <strong className="mt-0.5 block text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
+                  중고 가전 · 폐업 설비 팔기
+                </strong>
+                <span className="mt-0.5 block text-hb-xs text-[#64748B] truncate">
+                  사진 첨부 시 당일 견적 · 현장 즉시 정산
+                </span>
+              </div>
+              <Icon
+                d={ICON.arrow}
+                className="w-4 h-4 text-[#94A3B8] group-hover:text-[#C84312] group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
+              />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleOpenWriteWithType("대량·업소용 상담")}
+              className="group flex items-center justify-between gap-3 py-3 md:py-1 md:pl-5 text-left cursor-pointer"
+            >
+              <div className="min-w-0">
+                <span className="block font-mono text-hb-xs font-bold text-[#92400E]">
+                  03. 창업 · 업소용 일괄
+                </span>
+                <strong className="mt-0.5 block text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
+                  식당 · 카페 주방설비 묶음 견적
+                </strong>
+                <span className="mt-0.5 block text-hb-xs text-[#64748B] truncate">
+                  45박스·쇼케이스·제빙기 일괄 납품·계산서
+                </span>
+              </div>
+              <Icon
+                d={ICON.arrow}
+                className="w-4 h-4 text-[#94A3B8] group-hover:text-[#C84312] group-hover:translate-x-0.5 transition-[color,transform] shrink-0"
+              />
+            </button>
           </div>
         </div>
       </section>
 
-      <main id="main-content" tabIndex={-1} className="hb-container py-7 sm:py-11 flex-1 w-full focus:outline-none">
-        {/* 필터 탭 및 제목 검색 바 */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-5">
+      <main id="main-content" tabIndex={-1} className="hb-container py-6 sm:py-9 flex-1 w-full focus:outline-none">
+        {/* 필터 탭 및 제목 검색 바 (경량 에디토리얼 언더라인 탭 + 작성 CTA) */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 mb-5 border-b border-[#E5E3DC] pb-3">
           <div
-            className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5 md:pb-0"
+            className="flex items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-none"
             role="tablist"
             aria-label="문의 구분 필터"
           >
@@ -653,20 +726,26 @@ export function InquiryBoardClient({
                     setActiveTab(tab);
                     setCurrentPage(1);
                   }}
-                  className={`px-3 sm:px-3.5 py-2 rounded-lg text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap border transition-colors shrink-0 ${
+                  className={`relative pb-2 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap transition-colors shrink-0 cursor-pointer ${
                     active
-                      ? "bg-[#141A23] text-white border-[#141A23] shadow-2xs"
-                      : "bg-white text-[#334155] border-[#E2DDD3] hover:border-[#141A23]/40 hover:bg-[#FAF9F6]"
+                      ? "text-[#141A23]"
+                      : "text-[#64748B] hover:text-[#141A23]"
                   }`}
                 >
                   {tab}
                   <span
                     className={`ml-1.5 font-mono text-hb-xs tabular-nums ${
-                      active ? "text-[#FF8A50]" : "text-[#64748B]"
+                      active ? "text-[#C84312]" : "text-[#94A3B8]"
                     }`}
                   >
                     {tabCounts[tab] || 0}
                   </span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-x-0 bottom-0 h-[2px] bg-[#141A23] transition-opacity ${
+                      active ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
                 </button>
               );
             })}
@@ -683,7 +762,7 @@ export function InquiryBoardClient({
                 }}
                 placeholder="제목·품목 검색"
                 aria-label="제목 검색"
-                className="h-10 w-full md:w-[230px] rounded-lg border border-[#D8D1C5] bg-white px-3 pl-9 pr-8 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none"
+                className="h-10 w-full md:w-[210px] rounded-lg border border-[#DFDCD4] bg-white px-3 pl-9 pr-8 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none"
               />
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none">
                 <Icon d={ICON.search} className="w-4 h-4" />
@@ -702,13 +781,22 @@ export function InquiryBoardClient({
                 </button>
               )}
             </div>
+
+            <button
+              type="button"
+              onClick={handleOpenWrite}
+              className="hb-btn-primary h-10 px-4 text-hb-xs sm:text-hb-sm shrink-0 whitespace-nowrap"
+            >
+              <Icon d={ICON.plus} className="w-3.5 h-3.5" />
+              <span>문의 작성</span>
+            </button>
           </div>
         </div>
 
         {/* 데스크톱 테이블 */}
-        <div className="hidden md:block overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs">
+        <div className="hidden md:block overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white">
           <table className="w-full text-hb-sm text-center text-[#141A23]">
-            <thead className="bg-[#FAF9F6] text-[#64748B] text-hb-xs font-bold border-b border-[#E2DDD3]">
+            <thead className="bg-[#FAFAF8] text-[#64748B] text-hb-xs font-bold border-b border-[#EAE8E2]">
               <tr className="h-12">
                 <th className="w-20">번호</th>
                 <th className="w-32">구분</th>

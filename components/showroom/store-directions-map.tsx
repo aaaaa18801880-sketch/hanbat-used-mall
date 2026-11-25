@@ -16,6 +16,8 @@ import {
 import { DirectionsVectorSvg } from "./directions-vector-svg";
 import { downloadBrandedDirectionsPng } from "./directions-png-export";
 
+const MOBILE_STEP_SHORT_LABELS = ["01. 진입", "02. 직진", "03. 도착"] as const;
+
 function AlleyPhotoGuideStrip({
   highlightedStep,
   onHoverStep,
@@ -26,22 +28,22 @@ function AlleyPhotoGuideStrip({
   onSelectPhoto: (index: number) => void;
 }) {
   return (
-    <div className="pt-4">
-      <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-2">
-        <div className="flex flex-wrap items-baseline gap-2">
+    <div className="pt-3.5 sm:pt-4">
+      <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
           <span className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23]">
             실제 골목 진입 사진 안내
           </span>
           <span className="text-hb-xs text-[#64748B]">
-            지도의 01 · 02 · 03 핀과 같은 순서입니다
+            지도 01 · 02 · 03 핀과 같은 순서
           </span>
         </div>
         <span className="text-hb-xs text-[#64748B]">
-          사진 클릭 시 크게 보기
+          터치 시 크게 보기
         </span>
       </div>
 
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-2.5">
         {STORE_DIRECTION_PHOTO_STEPS.map((step, index) => {
           const isArrival = index === STORE_DIRECTION_PHOTO_STEPS.length - 1;
           const isHighlighted = highlightedStep === index;
@@ -55,7 +57,7 @@ function AlleyPhotoGuideStrip({
               onBlur={() => onHoverStep(null)}
               onClick={() => onSelectPhoto(index)}
               aria-label={`STEP ${step.stepNumber} 실제 사진 크게 보기: ${step.title}`}
-              className={`group flex flex-col overflow-hidden rounded-xl border bg-white text-left transition-[border-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
+              className={`group flex flex-row sm:flex-col overflow-hidden rounded-xl border bg-white text-left transition-[border-color,transform] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] cursor-pointer ${
                 isHighlighted
                   ? isArrival
                     ? "border-[#C84312]"
@@ -63,17 +65,17 @@ function AlleyPhotoGuideStrip({
                   : "border-[#E5E3DC] hover:border-[#141A23]"
               }`}
             >
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#ECEBE6]">
+              <div className="relative w-[124px] shrink-0 aspect-[16/10] sm:w-full overflow-hidden bg-[#ECEBE6]">
                 <NextImage
                   src={step.imageSrc}
                   alt={step.imageAlt}
                   fill
-                  sizes="(max-width: 640px) 100vw, 240px"
+                  sizes="(max-width: 640px) 124px, 240px"
                   referrerPolicy="no-referrer"
                   className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                 />
                 <span
-                  className={`absolute left-2 top-2 rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-extrabold text-white tabular-nums ${
+                  className={`absolute left-1.5 top-1.5 sm:left-2 sm:top-2 rounded-md px-1.5 py-0.5 font-mono text-hb-xs font-extrabold text-white tabular-nums ${
                     isArrival ? "bg-[#C84312]" : "bg-[#2563EB]"
                   }`}
                 >
@@ -81,16 +83,16 @@ function AlleyPhotoGuideStrip({
                 </span>
                 <span
                   aria-hidden="true"
-                  className="absolute bottom-2 right-2 grid h-6 w-6 place-items-center rounded-md bg-[#141A23]/70 text-white opacity-85 transition-opacity group-hover:opacity-100"
+                  className="hidden sm:grid absolute bottom-2 right-2 h-6 w-6 place-items-center rounded-md bg-[#141A23]/70 text-white opacity-85 transition-opacity group-hover:opacity-100"
                 >
                   <Icon d={ICON.search} className="w-3.5 h-3.5" />
                 </span>
               </div>
-              <div className="flex flex-1 flex-col gap-0.5 px-2.5 py-2">
+              <div className="flex flex-1 min-w-0 flex-col justify-center sm:justify-start gap-0.5 px-3 py-2 sm:px-2.5 sm:py-2">
                 <span className="text-hb-xs font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors break-keep">
                   {step.title}
                 </span>
-                <span className="text-hb-xs text-[#64748B] leading-snug break-keep">
+                <span className="text-hb-xs text-[#64748B] leading-snug break-keep line-clamp-2">
                   {step.shortCaption}
                 </span>
               </div>
@@ -126,11 +128,22 @@ function AlleyPhotoLightboxModal({
       label={`실제 골목 진입 사진 ${step.stepNumber}단계: ${step.title}`}
       panelClassName="max-w-2xl"
     >
-      <div className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white shadow-2xl">
+      <div
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") {
+            e.preventDefault();
+            handlePrev();
+          } else if (e.key === "ArrowRight") {
+            e.preventDefault();
+            handleNext();
+          }
+        }}
+        className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white shadow-2xl"
+      >
         <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#243041] bg-[#141A23] px-4 py-3 text-white sm:px-5">
           <div className="flex items-center gap-2.5 min-w-0">
             <span
-              className={`rounded-md px-2 py-0.5 font-mono text-hb-xs font-extrabold tabular-nums ${
+              className={`rounded-md px-2 py-0.5 font-mono text-hb-xs font-extrabold tabular-nums shrink-0 ${
                 isArrival ? "bg-[#C84312]" : "bg-[#2563EB]"
               }`}
             >
@@ -144,13 +157,13 @@ function AlleyPhotoLightboxModal({
             type="button"
             onClick={onClose}
             aria-label="사진 닫기"
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors cursor-pointer"
           >
             <Icon d={ICON.close} className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="relative h-[min(54vh,440px)] w-full shrink-0 bg-[#141A23]">
+        <div className="relative aspect-[16/10] w-full sm:aspect-auto sm:h-[min(54vh,440px)] shrink-0 bg-[#141A23]">
           <NextImage
             src={step.imageSrc}
             alt={step.imageAlt}
@@ -164,7 +177,7 @@ function AlleyPhotoLightboxModal({
             type="button"
             onClick={handlePrev}
             aria-label="이전 진입 사진 보기"
-            className="absolute left-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-[#141A23]/75 text-white hover:bg-[#141A23] transition-colors cursor-pointer"
+            className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-[#141A23]/80 text-white hover:bg-[#141A23] transition-colors cursor-pointer"
           >
             <Icon d={ICON.left} className="w-5 h-5" />
           </button>
@@ -172,7 +185,7 @@ function AlleyPhotoLightboxModal({
             type="button"
             onClick={handleNext}
             aria-label="다음 진입 사진 보기"
-            className="absolute right-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-[#141A23]/75 text-white hover:bg-[#141A23] transition-colors cursor-pointer"
+            className="absolute right-2.5 sm:right-3 top-1/2 -translate-y-1/2 grid h-10 w-10 place-items-center rounded-full bg-[#141A23]/80 text-white hover:bg-[#141A23] transition-colors cursor-pointer"
           >
             <Icon d={ICON.right} className="w-5 h-5" />
           </button>
@@ -182,27 +195,32 @@ function AlleyPhotoLightboxModal({
           <p className="text-hb-xs sm:text-hb-sm text-[#1E293B] leading-relaxed break-keep">
             {step.detailCaption}
           </p>
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-2.5 border-t border-[#ECEBE6]">
-            <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pt-2.5 border-t border-[#ECEBE6]">
+            <div className="grid grid-cols-3 gap-1.5 sm:flex sm:flex-wrap sm:items-center">
               {STORE_DIRECTION_PHOTO_STEPS.map((item, idx) => (
                 <button
                   key={item.stepNumber}
                   type="button"
                   onClick={() => onSelectIndex(idx)}
-                  className={`rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-colors cursor-pointer whitespace-nowrap ${
+                  className={`min-h-[38px] sm:min-h-0 rounded-lg px-2.5 py-1.5 text-hb-xs font-bold transition-colors cursor-pointer whitespace-nowrap text-center ${
                     idx === selectedIndex
                       ? "bg-[#141A23] text-white"
                       : "bg-[#F4F4F1] text-[#475569] hover:text-[#141A23]"
                   }`}
                 >
-                  {item.stepNumber}. {item.title}
+                  <span className="sm:hidden">
+                    {MOBILE_STEP_SHORT_LABELS[idx] ?? item.stepNumber}
+                  </span>
+                  <span className="hidden sm:inline">
+                    {item.stepNumber}. {item.title}
+                  </span>
                 </button>
               ))}
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="hb-btn-outline h-8 px-3.5 text-hb-xs font-bold cursor-pointer"
+              className="hb-btn-outline h-9 sm:h-8 px-3.5 text-hb-xs font-bold cursor-pointer w-full sm:w-auto"
             >
               닫기
             </button>
@@ -243,11 +261,11 @@ export function StoreDirectionsMap({
     <>
       <div className="flex flex-col bg-white">
         {/* 상단 방면 선택 세그먼트 + 유틸리티 툴바 */}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E3DC] bg-[#FAFAF8] px-3.5 py-2.5 sm:px-4">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2 border-b border-[#E5E3DC] bg-[#FAFAF8] px-3.5 py-2.5 sm:px-4">
           <div
             role="tablist"
             aria-label="방면별 진입 동선 선택"
-            className="inline-flex flex-wrap items-center gap-0.5 rounded-xl border border-[#E5E3DC] bg-[#F4F4F1] p-0.5"
+            className="grid w-full grid-cols-3 sm:inline-flex sm:w-auto items-center gap-0.5 rounded-xl border border-[#E5E3DC] bg-[#F4F4F1] p-0.5"
           >
             {STORE_DIRECTION_ROUTES.map((route) => {
               const selected = activeRoute === route.id;
@@ -258,7 +276,7 @@ export function StoreDirectionsMap({
                   role="tab"
                   aria-selected={selected}
                   onClick={() => setActiveRoute(route.id)}
-                  className={`rounded-lg px-2.5 py-1.5 text-hb-xs font-bold whitespace-nowrap transition-colors duration-150 cursor-pointer ${
+                  className={`min-h-[36px] sm:min-h-0 rounded-lg px-2 sm:px-2.5 py-1.5 text-hb-xs font-bold whitespace-nowrap transition-colors duration-150 cursor-pointer text-center ${
                     selected
                       ? "bg-[#141A23] text-white"
                       : "text-[#475569] hover:text-[#141A23]"
@@ -270,34 +288,38 @@ export function StoreDirectionsMap({
             })}
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            {onOpenGoogleMap && (
+          <div className="flex w-full sm:w-auto items-center justify-between sm:justify-end gap-2 shrink-0">
+            {onOpenGoogleMap ? (
               <button
                 type="button"
                 onClick={onOpenGoogleMap}
-                className="text-hb-xs font-semibold text-[#475569] hover:text-[#141A23] underline underline-offset-4 whitespace-nowrap cursor-pointer"
+                className="min-h-[36px] sm:min-h-0 px-1 text-hb-xs font-semibold text-[#475569] hover:text-[#141A23] underline underline-offset-4 whitespace-nowrap cursor-pointer"
               >
                 위성·구글지도
               </button>
+            ) : (
+              <span />
             )}
-            <button
-              type="button"
-              onClick={() =>
-                downloadBrandedDirectionsPng(svgRef.current, activeRoute)
-              }
-              className="inline-flex items-center gap-1 rounded-lg border border-[#D4D1C7] bg-white px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors whitespace-nowrap cursor-pointer"
-            >
-              <Icon d={ICON.download} className="w-3.5 h-3.5 text-[#141A23]" />
-              <span>약도 저장</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setModalOpen(true)}
-              className="inline-flex items-center gap-1 rounded-lg border border-[#D4D1C7] bg-white px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors whitespace-nowrap cursor-pointer"
-            >
-              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#141A23]" />
-              <span>크게 보기</span>
-            </button>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  downloadBrandedDirectionsPng(svgRef.current, activeRoute)
+                }
+                className="inline-flex min-h-[36px] sm:min-h-0 items-center gap-1 rounded-lg border border-[#D4D1C7] bg-white px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Icon d={ICON.download} className="w-3.5 h-3.5 text-[#141A23]" />
+                <span>약도 저장</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalOpen(true)}
+                className="inline-flex min-h-[36px] sm:min-h-0 items-center gap-1 rounded-lg border border-[#D4D1C7] bg-white px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors whitespace-nowrap cursor-pointer"
+              >
+                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#141A23]" />
+                <span>크게 보기</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -319,7 +341,7 @@ export function StoreDirectionsMap({
               />
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 bg-[#141A23] px-4 py-2.5 text-white">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 bg-[#141A23] px-3.5 sm:px-4 py-2.5 text-white">
               <p className="text-hb-xs sm:text-hb-sm font-bold tracking-tight break-keep">
                 {STORE.roadAddress}
               </p>
@@ -338,7 +360,7 @@ export function StoreDirectionsMap({
           )}
         </div>
 
-        {/* 에디토리얼 2단 핵심 안내 (불필요한 중첩 박스·아이콘 원형 제거, 여백과 헤어라인 중심) */}
+        {/* 에디토리얼 2단 핵심 안내 */}
         {!compact ? (
           <div className="mt-4 border-t border-[#ECEBE6] px-4 sm:px-5 py-4 bg-white space-y-3.5">
             <div className="space-y-1">
@@ -424,6 +446,7 @@ export function StoreDirectionsModal({
     useState<DirectionRouteId>(initialRoute);
   const [highlightedStep, setHighlightedStep] = useState<number | null>(null);
   const [selectedPhotoIdx, setSelectedPhotoIdx] = useState<number | null>(null);
+  const [mobileZoomed, setMobileZoomed] = useState(false);
   const modalSvgRef = useRef<SVGSVGElement | null>(null);
 
   if (!open) return null;
@@ -450,7 +473,7 @@ export function StoreDirectionsModal({
     >
       <div className="flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white shadow-2xl">
         {/* 모달 헤더 */}
-        <div className="flex items-center justify-between gap-3 border-b border-[#E5E3DC] bg-[#FAFAF8] px-5 py-3.5">
+        <div className="flex items-center justify-between gap-3 border-b border-[#E5E3DC] bg-[#FAFAF8] px-4 py-3 sm:px-5 sm:py-3.5">
           <div className="min-w-0">
             <h2 className="text-hb-base sm:text-hb-lg font-extrabold text-[#141A23] truncate">
               {STORE.name} 오시는 길 약도
@@ -463,20 +486,20 @@ export function StoreDirectionsModal({
             type="button"
             onClick={onClose}
             aria-label="약도 크게 보기 닫기"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-[#E5E3DC] bg-white text-[#475569] hover:border-[#141A23] hover:text-[#141A23] transition-colors cursor-pointer"
+            className="grid h-10 w-10 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-xl border border-[#E5E3DC] bg-white text-[#475569] hover:border-[#141A23] hover:text-[#141A23] transition-colors cursor-pointer"
           >
             <Icon d={ICON.close} className="w-5 h-5" />
           </button>
         </div>
 
         {/* 모달 본문 */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+        <div className="flex-1 overflow-y-auto px-4 py-3.5 sm:px-5 sm:py-4 space-y-4">
           {/* 방면 선택 + 공유/PNG 저장 */}
-          <div className="flex flex-wrap items-center justify-between gap-2.5">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2.5">
             <div
               role="tablist"
               aria-label="방면별 진입 동선 선택"
-              className="inline-flex flex-wrap items-center gap-0.5 rounded-xl border border-[#E5E3DC] bg-[#F4F4F1] p-1"
+              className="grid w-full grid-cols-3 sm:inline-flex sm:w-auto items-center gap-0.5 rounded-xl border border-[#E5E3DC] bg-[#F4F4F1] p-1"
             >
               {STORE_DIRECTION_ROUTES.map((route) => {
                 const selected = activeRoute === route.id;
@@ -487,7 +510,7 @@ export function StoreDirectionsModal({
                     role="tab"
                     aria-selected={selected}
                     onClick={() => setActiveRoute(route.id)}
-                    className={`rounded-lg px-3 py-1.5 text-hb-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+                    className={`min-h-[36px] sm:min-h-0 rounded-lg px-2 sm:px-3 py-1.5 text-hb-xs font-bold whitespace-nowrap transition-colors cursor-pointer text-center ${
                       selected
                         ? "bg-[#141A23] text-white"
                         : "text-[#475569] hover:text-[#141A23]"
@@ -499,11 +522,11 @@ export function StoreDirectionsModal({
               })}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 sm:flex items-center gap-2">
               <button
                 type="button"
                 onClick={handleCopyDirections}
-                className="hb-btn-outline h-9 px-3 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                className="hb-btn-outline h-10 sm:h-9 px-3 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
               >
                 <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#141A23]" />
                 <span>안내 문구 복사</span>
@@ -513,24 +536,42 @@ export function StoreDirectionsModal({
                 onClick={() =>
                   downloadBrandedDirectionsPng(modalSvgRef.current, activeRoute)
                 }
-                className="hb-btn-primary h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                className="hb-btn-primary h-10 sm:h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
               >
                 <Icon d={ICON.download} className="w-3.5 h-3.5" />
-                <span>약도 이미지 저장 (PNG)</span>
+                <span>약도 저장 (PNG)</span>
               </button>
             </div>
           </div>
 
-          {/* 대형 일체형 약도 */}
+          {/* 대형 일체형 약도 (모바일 좌우 확대·스크롤 지원) */}
           <div className="mx-auto w-full max-w-[820px] overflow-hidden rounded-xl border border-[#D4D1C7] bg-[#F3F1EC]">
-            <DirectionsVectorSvg
-              activeRoute={activeRoute}
-              highlightedStep={highlightedStep}
-              onSelectStep={(idx) => setSelectedPhotoIdx(idx)}
-              svgRef={modalSvgRef}
-              className="w-full h-auto block"
-            />
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-[#141A23] px-4 py-2.5 text-white">
+            <div className="flex sm:hidden items-center justify-between gap-2 border-b border-[#E2DDD3] bg-[#FAFAF8] px-3 py-1.5">
+              <span className="text-hb-xs text-[#64748B]">
+                {mobileZoomed
+                  ? "좌우로 밀어서 도로명을 확인하세요"
+                  : "01·02·03 핀을 누르면 현장 사진이 열립니다"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileZoomed((v) => !v)}
+                className="rounded-md border border-[#D4D1C7] bg-white px-2.5 py-1 text-hb-xs font-bold text-[#141A23] whitespace-nowrap cursor-pointer"
+              >
+                {mobileZoomed ? "전체 맞춤" : "지도 확대"}
+              </button>
+            </div>
+            <div className={mobileZoomed ? "overflow-x-auto" : "overflow-hidden"}>
+              <div className={mobileZoomed ? "min-w-[680px]" : "w-full"}>
+                <DirectionsVectorSvg
+                  activeRoute={activeRoute}
+                  highlightedStep={highlightedStep}
+                  onSelectStep={(idx) => setSelectedPhotoIdx(idx)}
+                  svgRef={modalSvgRef}
+                  className="w-full h-auto block"
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-0.5 bg-[#141A23] px-3.5 sm:px-4 py-2.5 text-white">
               <p className="text-hb-xs sm:text-hb-sm font-bold tracking-tight break-keep">
                 {STORE.roadAddress}
               </p>
@@ -593,40 +634,40 @@ export function StoreDirectionsModal({
         </div>
 
         {/* 모달 푸터: 내비게이션 3사 연결 */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 border-t border-[#E5E3DC] bg-[#FAFAF8] px-5 py-3.5">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center justify-between gap-2 border-t border-[#E5E3DC] bg-[#FAFAF8] px-4 py-3 sm:px-5 sm:py-3.5">
+          <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center gap-1.5 sm:gap-2">
             <a
               href={STORE_NAVIGATION.naverMap}
               target="_blank"
               rel="noopener noreferrer"
-              className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap"
+              className="hb-btn-outline h-10 sm:h-9 px-2.5 sm:px-3.5 text-hb-xs font-bold whitespace-nowrap"
             >
               <span>네이버 지도</span>
-              <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E]" />
+              <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E] shrink-0" />
             </a>
             <a
               href={STORE_NAVIGATION.kakaoTo}
               target="_blank"
               rel="noopener noreferrer"
-              className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap"
+              className="hb-btn-outline h-10 sm:h-9 px-2.5 sm:px-3.5 text-hb-xs font-bold whitespace-nowrap"
             >
-              <span>카카오맵 길찾기</span>
-              <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
+              <span>카카오맵</span>
+              <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
             </a>
             <a
               href={STORE_NAVIGATION.tmapUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap"
+              className="hb-btn-outline h-10 sm:h-9 px-2.5 sm:px-3.5 text-hb-xs font-bold whitespace-nowrap"
             >
-              <span>티맵 길안내</span>
-              <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
+              <span>티맵</span>
+              <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
             </a>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="hb-btn-outline h-9 px-4 text-hb-xs font-bold cursor-pointer"
+            className="hb-btn-outline h-10 sm:h-9 px-4 text-hb-xs font-bold cursor-pointer w-full sm:w-auto"
           >
             닫기
           </button>

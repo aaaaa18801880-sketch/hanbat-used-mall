@@ -159,6 +159,12 @@ export async function generateMetadata({
         },
       ],
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${article.title} | ${STORE.name}`,
+      description: article.summary,
+      images: [`${STORE.url}${resolvedThumb.src}`],
+    },
   };
 }
 
@@ -318,8 +324,8 @@ export default async function GuideDetailPage({
         {/* 본문(66ch 리딩 컬럼) + 우측 보조 레일 */}
         <div className="mx-auto w-full max-w-[1080px] px-4 sm:px-6 lg:px-8 pt-8 sm:pt-10 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_292px] gap-10 lg:gap-12 items-start">
           {/* 왼쪽 본문 컬럼 (가독성 높은 화이트 에디토리얼 시트) */}
-          <article className="min-w-0 max-w-[68ch] space-y-9 rounded-2xl border border-[#E2DDD3] bg-white p-5 sm:p-8 shadow-2xs">
-            <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] overflow-hidden">
+          <article className="min-w-0 max-w-[68ch] space-y-9 rounded-2xl border border-[#E5E3DC] bg-white p-5 sm:p-8">
+            <div className="rounded-xl bg-[#FAFAF8] overflow-hidden">
               <GuideThumbnailImage
                 src={resolvedThumb.src}
                 alt={resolvedThumb.alt}
@@ -333,9 +339,9 @@ export default async function GuideDetailPage({
               />
             </div>
 
-            {/* 핵심 기준 3가지 (Warm Editorial Stone 요약 카드) */}
+            {/* 핵심 기준 3가지 (무박스 서피스 대비 요약 블록) */}
             {article.keyPoints.length > 0 && (
-              <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-5 py-4 sm:px-6 sm:py-5 space-y-2.5">
+              <div className="rounded-xl bg-[#FAFAF8] px-5 py-4 sm:px-6 sm:py-5 space-y-2.5">
                 <p className="text-hb-xs font-bold text-[#C84312]">
                   핵심 요약 3가지
                 </p>
@@ -477,7 +483,7 @@ export default async function GuideDetailPage({
                   )}
 
                   {section.tip && (
-                    <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-5 py-4 sm:px-6 sm:py-5 space-y-2.5">
+                    <div className="rounded-xl bg-[#FAFAF8] px-5 py-4 sm:px-6 sm:py-5 space-y-2.5">
                       <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
                         {section.tip.title}
                       </p>
@@ -540,7 +546,7 @@ export default async function GuideDetailPage({
 
             {/* 하단 참고 출처 및 정보 검증 안내 (접힘형 세부 안내로 본문 끝 시선 피로 완화) */}
             {article.verification && (
-              <details className="rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] px-4 py-3.5 text-hb-xs text-[#475569]">
+              <details className="rounded-xl bg-[#FAFAF8] px-4 py-3.5 text-hb-xs text-[#475569]">
                 <summary className="cursor-pointer font-semibold text-[#334155] select-none flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5">
                     <Icon
@@ -553,7 +559,7 @@ export default async function GuideDetailPage({
                     {article.verification.riskLevel} · 자세히 보기
                   </span>
                 </summary>
-                <div className="mt-3 pt-3 border-t border-[#E2E6EC] space-y-3">
+                <div className="mt-3 pt-3 border-t border-[#EAE8E2] space-y-3">
                   <ul className="space-y-2.5">
                     {article.verification.primarySources.map((src, sIdx) => (
                       <li key={sIdx} className="space-y-0.5">
@@ -567,7 +573,7 @@ export default async function GuideDetailPage({
                               href={src.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 font-semibold text-[#1D4ED8] hover:underline shrink-0"
+                              className="inline-flex items-center gap-1 font-semibold text-[#0F766E] hover:underline shrink-0"
                             >
                               <span>공식 사이트</span>
                               <Icon d={ICON.external} className="w-3 h-3" />
@@ -581,7 +587,7 @@ export default async function GuideDetailPage({
                       </li>
                     ))}
                   </ul>
-                  <div className="border-t border-[#E2E6EC] pt-2.5 space-y-1 leading-[1.6]">
+                  <div className="border-t border-[#EAE8E2] pt-2.5 space-y-1 leading-[1.6]">
                     <p>
                       <strong className="text-[#141A23]">기준 · 현장 구분:</strong>{" "}
                       {article.verification.fieldNote}
@@ -596,12 +602,12 @@ export default async function GuideDetailPage({
             {(prev || next) && (
               <nav
                 aria-label="이전 글 및 다음 글"
-                className="pt-6 border-t border-[#E2E6EC] grid grid-cols-1 sm:grid-cols-2 gap-4"
+                className="pt-6 border-t border-[#EAE8E2] grid grid-cols-1 sm:grid-cols-2 gap-4"
               >
                 {prev ? (
                   <Link
                     href={`/guide/${prev.slug}`}
-                    className="group rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] p-4 hover:border-[#141A23] transition-colors"
+                    className="group rounded-xl bg-[#FAFAF8] p-4 hover:bg-[#F3F1EB] transition-colors"
                   >
                     <p className="text-hb-xs font-bold text-[#64748B] flex items-center gap-1">
                       <Icon d={ICON.left} className="w-3.5 h-3.5" />
@@ -618,7 +624,7 @@ export default async function GuideDetailPage({
                 {next && (
                   <Link
                     href={`/guide/${next.slug}`}
-                    className="group rounded-xl border border-[#E2E6EC] bg-[#FAFBFD] p-4 hover:border-[#141A23] transition-colors sm:text-right"
+                    className="group rounded-xl bg-[#FAFAF8] p-4 hover:bg-[#F3F1EB] transition-colors sm:text-right"
                   >
                     <p className="text-hb-xs font-bold text-[#64748B] flex items-center sm:justify-end gap-1">
                       <span>다음 글</span>
@@ -635,34 +641,27 @@ export default async function GuideDetailPage({
 
           {/* 오른쪽 사이드바: 주제 맞춤 전환 데스크 + 연관 글 */}
           <aside className="space-y-6 lg:sticky lg:top-24">
-            <div className="rounded-2xl border border-[#263040] bg-[#141A23] p-5 text-white space-y-3">
-              <p className="text-hb-xs font-bold text-[#FF8A50]">
+            <div className="rounded-2xl border border-[#E5E3DC] bg-white p-5 space-y-3">
+              <p className="text-hb-xs font-bold text-[#C84312]">
                 {conversion.eyebrow}
               </p>
-              <h2 className="text-hb-base sm:text-hb-lg font-bold leading-snug break-keep [text-wrap:balance]">
+              <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] leading-snug break-keep [text-wrap:balance]">
                 {conversion.sidebarTitle}
               </h2>
-              <p className="text-hb-xs sm:text-hb-sm text-white/75 leading-[1.6] break-keep [text-wrap:pretty]">
+              <p className="text-hb-xs sm:text-hb-sm text-[#475569] leading-[1.6] break-keep [text-wrap:pretty]">
                 {conversion.sidebarDesc}
               </p>
               <div className="flex flex-col gap-2 pt-1">
                 <Link
                   href={conversion.primaryCta.href}
-                  className="hb-btn-accent min-h-[42px] px-4 py-2 text-hb-sm"
+                  className="hb-btn-primary min-h-[42px] px-4 py-2 text-hb-sm"
                 >
                   <Icon
                     d={conversion.intent === "sell" ? ICON.pen : ICON.bag}
-                    className="w-4 h-4"
+                    className="w-4 h-4 text-[#FF8A50]"
                   />
                   <span>{conversion.primaryCta.label}</span>
                 </Link>
-                <a
-                  href={telHref(STORE.tel)}
-                  className="hb-btn bg-white text-[#141A23] hover:bg-[#F1F3F6] min-h-[42px] px-4 py-2 text-hb-sm font-mono tabular-nums"
-                >
-                  <Icon d={ICON.phone} className="w-4 h-4 text-[#E8521A]" />
-                  <span>{STORE.tel}</span>
-                </a>
                 <a
                   href={STORE.kakaoChat}
                   target="_blank"
@@ -672,13 +671,20 @@ export default async function GuideDetailPage({
                   <Icon d={ICON.chat} className="w-4 h-4" />
                   <span>{conversion.mobileKakaoLabel}</span>
                 </a>
+                <a
+                  href={telHref(STORE.tel)}
+                  className="inline-flex min-h-[40px] items-center justify-center gap-1.5 rounded-xl border border-[#E5E3DC] bg-[#FAFAF8] px-4 py-2 text-hb-sm font-mono font-bold text-[#141A23] hover:border-[#141A23] transition-colors tabular-nums"
+                >
+                  <Icon d={ICON.phone} className="w-4 h-4 text-[#C84312]" />
+                  <span>{STORE.tel}</span>
+                </a>
               </div>
-              <p className="pt-2 border-t border-white/10 text-hb-xs text-white/65 leading-relaxed break-keep">
+              <p className="pt-2.5 border-t border-[#EAE8E2] text-hb-xs text-[#64748B] leading-relaxed break-keep">
                 {conversion.kakaoTip}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#E2DDD3] bg-white p-5 space-y-3">
+            <div className="rounded-2xl border border-[#E5E3DC] bg-white p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h2 className="text-hb-sm font-bold text-[#141A23]">
                   함께 보면 좋은 글
@@ -690,7 +696,7 @@ export default async function GuideDetailPage({
                   전체 {INFO_GUIDE_ARTICLES.length}편 보기
                 </Link>
               </div>
-              <ul className="divide-y divide-[#E2DDD3]">
+              <ul className="divide-y divide-[#EAE8E2]">
                 {relatedArticles.map((item) => {
                   const relThumb = resolveGuideThumbnail(item);
                   return (

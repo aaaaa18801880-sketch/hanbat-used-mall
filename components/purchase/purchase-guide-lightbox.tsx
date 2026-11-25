@@ -9,7 +9,7 @@ export function PurchaseGuideLightbox() {
 
   return (
     <>
-      <div className="rounded-2xl border border-[#E2E6EC] bg-white p-5 shadow-2xs">
+      <div className="rounded-2xl border border-[#E5E3DC] bg-white p-5">
         <div className="flex items-center justify-between gap-2 mb-3">
           <h3 className="text-hb-sm font-bold text-[#141A23]">
             {STORE.name} 매입 기준 안내문
@@ -17,7 +17,7 @@ export function PurchaseGuideLightbox() {
           <button
             type="button"
             onClick={() => setGuideOpen(true)}
-            className="rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] px-2.5 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] cursor-pointer"
+            className="rounded-lg border border-[#DFDCD4] bg-[#FAFAF8] px-2.5 py-1 text-hb-xs font-semibold text-[#141A23] hover:border-[#141A23] transition-colors cursor-pointer"
           >
             크게 보기
           </button>
@@ -26,7 +26,7 @@ export function PurchaseGuideLightbox() {
           type="button"
           onClick={() => setGuideOpen(true)}
           aria-label={`${STORE.name} 매입 기준 안내문 크게 보기`}
-          className="group relative block w-full overflow-hidden rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-2.5 text-left cursor-pointer"
+          className="group relative block w-full overflow-hidden rounded-xl border border-[#EAE8E2] bg-[#FAFAF8] p-2 text-left cursor-pointer"
         >
           <div className="aspect-[4/3] w-full overflow-hidden flex items-center justify-center bg-white rounded-lg">
             <SafeImg

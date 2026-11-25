@@ -29,7 +29,8 @@ export const metadata: Metadata = {
     "에어컨 설치·고장 원인, 220V·380V 전기 구분, 창·폐업 준비와 사다리차·가전 관리 기준을 매장 현장 경험으로 정리한 게시판입니다.",
   keywords: [
     "한밭중고전자 정보 게시판",
-    "에어컨 설치 고장 정보",
+    "대전 중고가전 가이드",
+    "대전 에어컨 설치 고장 정보",
     "220V 380V 차이",
     "사다리차 출입구 실측",
     "업소용 냉장고 제빙기 관리",
@@ -53,6 +54,13 @@ export const metadata: Metadata = {
         alt: `${STORE.name} 가전·전기 정보 게시판`,
       },
     ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `가전 · 전기 · 설치 정보 게시판 | ${STORE.name}`,
+    description:
+      "에어컨·냉장고·세탁기·업소용 주방설비 설치·전기·고장 현장 실전 가이드를 모았습니다.",
+    images: [`${STORE.url}/og-image.jpg`],
   },
 };
 
@@ -151,9 +159,9 @@ export default async function GuideBoardPage() {
           dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
 
-        {/* 상단 에디토리얼 헤더 밴드 (메인 정보 게시판 쇼케이스와 동일한 톤) */}
-        <section className="border-b border-[#E2DDD3] bg-white">
-          <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8 py-8 sm:py-11">
+        {/* 상단 에디토리얼 헤더 밴드 (메인·매입 페이지와 동일한 경량 스톤 톤) */}
+        <section className="border-b border-[#E5E3DC] bg-white">
+          <div className="mx-auto w-full max-w-[1200px] px-4 sm:px-6 lg:px-8 py-7 sm:py-10">
             <nav
               aria-label="페이지 경로"
               className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-3.5"
@@ -170,7 +178,7 @@ export default async function GuideBoardPage() {
             <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
               <div className="space-y-2">
                 <p className="text-hb-xs font-bold text-[#C84312]">
-                  가전 · 전기 · 설치 현장 백과 ({INFO_GUIDE_ARTICLES.length}편)
+                  가전 · 전기 · 설치 현장 백과
                 </p>
                 <h1 className="hb-fluid-h1 text-[#141A23] break-keep [text-wrap:balance]">
                   모르고 진행하면 손해 보는 설치·전기·고장 실전 가이드
@@ -180,33 +188,33 @@ export default async function GuideBoardPage() {
                 </p>
               </div>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end lg:flex-col lg:items-end">
-                <div className="grid w-full grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#E2DDD3] shadow-2xs sm:w-auto">
-                  <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
-                    <strong className="block font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
-                      {INFO_GUIDE_ARTICLES.length}
-                    </strong>
-                    <span className="block text-hb-xs font-semibold text-[#475569]">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end lg:flex-col lg:items-end">
+                <dl className="grid w-full grid-cols-3 divide-x divide-[#EAE8E2] border-y border-[#EAE8E2] py-2.5 sm:w-auto sm:border-y-0 sm:py-0">
+                  <div className="pr-4 sm:px-4 first:pl-0 text-center sm:text-left">
+                    <dt className="text-hb-xs font-medium text-[#64748B]">
                       전체 글
-                    </span>
+                    </dt>
+                    <dd className="mt-0.5 font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
+                      {INFO_GUIDE_ARTICLES.length}편
+                    </dd>
                   </div>
-                  <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
-                    <strong className="block font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
-                      {INFO_GUIDE_CATEGORY_LIST.filter((c) => c !== "전체").length}
-                    </strong>
-                    <span className="block text-hb-xs font-semibold text-[#475569]">
+                  <div className="px-4 text-center sm:text-left">
+                    <dt className="text-hb-xs font-medium text-[#64748B]">
                       주제 분류
-                    </span>
+                    </dt>
+                    <dd className="mt-0.5 font-mono text-hb-lg font-bold text-[#141A23] tabular-nums">
+                      {INFO_GUIDE_CATEGORY_LIST.filter((c) => c !== "전체").length}개
+                    </dd>
                   </div>
-                  <div className="bg-[#FAF9F6] px-4 py-3 text-center sm:text-left">
-                    <strong className="block font-mono text-hb-lg font-bold text-[#0F766E] tabular-nums">
-                      {GUIDE_TOOL_KIND_COUNT}
-                    </strong>
-                    <span className="block text-hb-xs font-semibold text-[#475569]">
+                  <div className="pl-4 text-center sm:text-left">
+                    <dt className="text-hb-xs font-medium text-[#64748B]">
                       현장 계산기
-                    </span>
+                    </dt>
+                    <dd className="mt-0.5 font-mono text-hb-lg font-bold text-[#0F766E] tabular-nums">
+                      {GUIDE_TOOL_KIND_COUNT}종
+                    </dd>
                   </div>
-                </div>
+                </dl>
 
                 <div className="flex flex-wrap items-center gap-2 shrink-0">
                   <Link

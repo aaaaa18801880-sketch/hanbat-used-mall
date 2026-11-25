@@ -22,7 +22,6 @@ import {
   splitWarrantyHighlight,
 } from "../../lib/product-card-meta";
 import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
-import { ModernApplianceIcon } from "../ui/modern-icons";
 
 export interface ProductItem {
   id: string;
@@ -56,56 +55,48 @@ export function ProductTrustMicroStrip({
 
   const items = [
     {
-      step: "01",
+      step: "01.",
       title: "고압세척·작동 점검",
       desc:
         isHvac || isMajorAppliance
           ? "입고 확인, 고압세척 및 배송 전 작동 점검 완료"
           : "입고 확인, 내·외부 세척 및 배송 전 작동 점검 완료",
-      icon: "sparkle" as const,
-      badge: "bg-[#F0FDFA] border border-[#CCFBF1] text-[#0F766E]",
+      accent: "text-[#0F766E]",
     },
     {
-      step: "02",
+      step: "02.",
       title: "사후 무상 A/S 보증",
       desc: warrantyHighlight,
-      icon: "shield" as const,
-      badge: "bg-[#FFF4EE] border border-[#FADCD0] text-[#C84312]",
+      accent: "text-[#C84312]",
     },
     {
-      step: "03",
+      step: "03.",
       title: "세금계산서·직배송",
       desc: "사업자 계산서 100% 정식 발행 및 충청권 직배송",
-      icon: "tax" as const,
-      badge: "bg-[#F0F9FF] border border-[#BAE6FD] text-[#0369A1]",
+      accent: "text-[#141A23]",
     },
   ] as const;
 
   return (
     <section
       aria-label={`${STORE.name} 핵심 거래 보증 안내`}
-      className={`rounded-2xl border border-[#E2DDD3] bg-white overflow-hidden shadow-2xs ${className}`}
+      className={`border-y border-[#EAE8E2] ${className}`}
     >
-      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2DDD3]">
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#EAE8E2]">
         {items.map((item) => (
-          <div key={item.title} className="flex items-start gap-3 p-4">
-            <ModernApplianceIcon
-              name={item.icon}
-              className="w-8 h-8 shrink-0 mt-0.5"
-            />
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23]">
-                <span
-                  className={`inline-flex items-center rounded px-1.5 py-0.5 font-mono text-hb-xs font-bold ${item.badge}`}
-                >
-                  {item.step}
-                </span>
-                <span className="truncate">{item.title}</span>
-              </div>
-              <p className="mt-1 text-hb-xs leading-relaxed text-[#475569] break-keep">
-                {item.desc}
-              </p>
+          <div
+            key={item.title}
+            className="py-3 sm:py-3.5 sm:px-3.5 first:sm:pl-0 last:sm:pr-0"
+          >
+            <div className="flex items-baseline gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23]">
+              <span className={`font-mono text-hb-xs font-bold tabular-nums ${item.accent}`}>
+                {item.step}
+              </span>
+              <span className="truncate">{item.title}</span>
             </div>
+            <p className="mt-1 text-hb-xs leading-relaxed text-[#64748B] break-keep">
+              {item.desc}
+            </p>
           </div>
         ))}
       </div>

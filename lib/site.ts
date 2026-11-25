@@ -38,11 +38,11 @@ export const STORE_MERCHANT_POLICY = {
   returnMethod: "https://schema.org/ReturnInStore",
   returnFees: "https://schema.org/FreeReturn",
   warrantyAircon:
-    "에어컨류 계약조건별 최대 8개월 무상 보증 (사전 협의 및 계약서 명시 기준)",
+    "에어컨·냉난방기 최대 8개월 무상 보증 (출고 확인 기준)",
   warrantyMajor:
-    "주요 가전 계약조건별 최대 4개월 무상 보증 (사전 협의 및 계약서 명시 기준)",
+    "냉장고·세탁기 등 주요 가전 최대 4개월 무상 보증 (출고 확인 기준)",
   warrantyGeneral:
-    "품목 및 거래 계약 조건에 따른 협의 보증 (사전 협의 및 계약서 명시 기준)",
+    "품목별 A/S 보증 안내 (출고 확인 및 상담 기준)",
 } as const;
 
 export function getCategoryWarrantyInfo(category?: string | null): {
@@ -53,14 +53,14 @@ export function getCategoryWarrantyInfo(category?: string | null): {
   const cat = normalizeProductCategory(category);
   if (cat === "에어컨/냉난방기") {
     return {
-      shortLabel: "최대 8개월 보증(계약별)",
+      shortLabel: "최대 8개월 무상보증",
       compactLabel: "최대 8개월 무상보증",
       detailLabel: STORE_MERCHANT_POLICY.warrantyAircon,
     };
   }
   if (cat === "냉장고" || cat === "세탁기/건조기") {
     return {
-      shortLabel: "최대 4개월 보증(계약별)",
+      shortLabel: "최대 4개월 무상보증",
       compactLabel: "최대 4개월 무상보증",
       detailLabel: STORE_MERCHANT_POLICY.warrantyMajor,
     };

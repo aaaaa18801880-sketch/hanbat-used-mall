@@ -118,7 +118,7 @@ export function HomeLocationInquirySection({
             )}
 
             <div className="px-4 sm:px-5 pb-4 pt-3 flex-1 flex flex-col justify-between border-t border-[#E6E8EC] bg-[#FAF9F6] space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-hb-xs sm:text-hb-sm text-[#475569]">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-hb-xs sm:text-hb-sm text-[#475569]">
                 <div className="min-w-0 space-y-0.5">
                   <p id="location-title" className="break-keep">
                     <strong className="font-semibold text-[#141A23]">
@@ -137,40 +137,49 @@ export function HomeLocationInquirySection({
                 <button
                   type="button"
                   onClick={handleCopyAddress}
-                  className="hb-btn-outline h-9 px-3.5 text-hb-xs font-bold shrink-0 self-start sm:self-center active:scale-[0.96] cursor-pointer bg-white"
+                  className="hb-btn-outline h-10 sm:h-9 px-3.5 text-hb-xs font-bold shrink-0 w-full sm:w-auto active:scale-[0.96] cursor-pointer bg-white"
                 >
                   <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#1D4E89]" />
-                  <span>주소 복사</span>
+                  <span>도로명 주소 복사</span>
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <a
                   href={STORE.naverMap}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline h-10 bg-white text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                  className="hb-btn-outline h-10 bg-white text-hb-xs font-bold whitespace-nowrap"
                 >
                   <span>네이버 지도</span>
-                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E]" />
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E] shrink-0" />
                 </a>
                 <a
                   href={STORE_NAVIGATION.kakaoTo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline h-10 bg-white text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                  className="hb-btn-outline h-10 bg-white text-hb-xs font-bold whitespace-nowrap"
                 >
                   <span>카카오맵</span>
-                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B]" />
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
+                </a>
+                <a
+                  href={STORE_NAVIGATION.tmapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hb-btn-outline h-10 bg-white text-hb-xs font-bold whitespace-nowrap"
+                >
+                  <span>티맵 길안내</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#64748B] shrink-0" />
                 </a>
                 <a
                   href={STORE.daangnLocalProfile}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-outline col-span-2 sm:col-span-1 h-10 bg-white text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+                  className="hb-btn-outline h-10 bg-white text-hb-xs font-bold whitespace-nowrap"
                 >
-                  <span>당근 비즈프로필</span>
-                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#C84312]" />
+                  <span>당근 비즈</span>
+                  <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
                 </a>
               </div>
             </div>

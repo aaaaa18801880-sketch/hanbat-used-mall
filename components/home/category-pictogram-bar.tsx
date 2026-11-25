@@ -380,7 +380,7 @@ export function CategoryPictogramBar({
 
         {/* 1-B. 홈 쇼룸 빠른 검색창 & 인기 검색어 바로가기 */}
         {onSearchQueryChange && (
-          <div className="mt-4 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] p-3 sm:p-3.5">
+          <div className="mt-4 rounded-xl border border-[#EAE8E2] bg-[#FAFAF8] p-2.5 sm:p-3">
             <form
               role="search"
               aria-label="홈 쇼룸 매물 빠른 검색"
@@ -399,7 +399,7 @@ export function CategoryPictogramBar({
                   onChange={(e) => onSearchQueryChange(e.target.value)}
                   placeholder="품목·브랜드·규격 빠른 검색 (예: 45박스, 벽걸이 에어컨, 삼성, 11평)"
                   aria-label="품목, 브랜드, 규격 빠른 검색"
-                  className="w-full h-11 rounded-xl border border-[#CBD2DC] bg-white pl-10 pr-10 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none focus:ring-2 focus:ring-[#141A23]/15 transition-[border-color,box-shadow]"
+                  className="w-full h-11 rounded-xl border border-[#DFDCD4] bg-white pl-10 pr-10 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 transition-[border-color,box-shadow]"
                 />
                 {searchQuery && (
                   <button
@@ -422,14 +422,14 @@ export function CategoryPictogramBar({
               </button>
             </form>
 
-            <div className="mt-2.5 flex items-center gap-2 overflow-x-auto scrollbar-none pt-0.5">
-              <span className="text-hb-xs font-bold text-[#64748B] shrink-0 whitespace-nowrap">
+            <div className="mt-2 flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-0.5">
+              <span className="text-hb-xs font-semibold text-[#64748B] shrink-0 whitespace-nowrap pr-1">
                 인기 검색어
               </span>
               <span className="text-[#CBD2DC] shrink-0" aria-hidden="true">
-                |
+                ·
               </span>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 {HOME_QUICK_SEARCH_KEYWORDS.map((keyword) => {
                   const isActiveKeyword =
                     trimmedSearch.toLowerCase() === keyword.toLowerCase();
@@ -452,10 +452,10 @@ export function CategoryPictogramBar({
                           onSearchQueryChange(nextKeyword);
                         }
                       }}
-                      className={`min-h-[32px] rounded-lg px-2.5 py-1 text-hb-xs font-semibold transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                      className={`min-h-[30px] rounded-lg px-2.5 py-1 text-hb-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                         isActiveKeyword
-                          ? "bg-[#141A23] text-white"
-                          : "bg-white border border-[#E2DDD3] text-[#334155] hover:border-[#141A23] hover:text-[#141A23]"
+                          ? "bg-[#141A23] text-white font-semibold"
+                          : "bg-transparent text-[#475569] hover:bg-white hover:text-[#141A23]"
                       }`}
                     >
                       {keyword}
@@ -468,7 +468,7 @@ export function CategoryPictogramBar({
         )}
 
         {/* 2. 가정용 · 업소용 빠른 구분 탭 (모바일·데스크톱 단일행 고정) */}
-        <div className="mt-5 flex items-center justify-between gap-3 border-b border-[#E2DDD3] overflow-x-auto scrollbar-none">
+        <div className="mt-5 flex items-center justify-between gap-3 border-b border-[#E5E3DC] overflow-x-auto scrollbar-none">
           <div
             className="flex items-center gap-5 sm:gap-7 shrink-0"
             role="tablist"
