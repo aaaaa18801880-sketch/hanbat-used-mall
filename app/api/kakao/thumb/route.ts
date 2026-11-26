@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "../../../../lib/supabase";
 import { PRODUCT_STATUS, splitImages } from "../../../../lib/site";
+import { checkRateLimit, getClientIp } from "../../../../lib/server-security";
 
 export const runtime = "nodejs";
 
@@ -52,9 +53,34 @@ async function serveFallbackOgJpeg(): Promise<NextResponse> {
  * - Supabase Storage 내 검증된 상품 대표 사진만 ID로 조회·변환하여 SSRF를 원천 차단합니다.
  */
 export async function GET(req: NextRequest) {
+  const rate = await checkRateLimit(
+    `kakao_thumb:${getClientIp(req)}`,
+    60,
+    60 * 1000,
+    { failureMode: "fail-open" }
+  );
+  if (!rate.allowed) {
+    return NextResponse.json(
+      { error: "Too many thumbnail requests" },
+      {
+        status: 429,
+        headers: { "Retry-After": String(rate.retryAfterSec) },
+      }
+    );
+  }
+
   const productId = (req.nextUrl.searchParams.get("id") || "").trim();
   if (!VALID_PRODUCT_ID_REGEX.test(productId)) {
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  }
+
+  const hasExtraQueryParams = Array.from(
+    req.nextUrl.searchParams.keys()
+  ).some((key) => key !== "id");
+  if (hasExtraQueryParams) {
+    const canonicalUrl = new URL(req.nextUrl.pathname, req.url);
+    canonicalUrl.searchParams.set("id", productId);
+    return NextResponse.redirect(canonicalUrl, 308);
   }
 
   try {
@@ -62,6 +88,7 @@ export async function GET(req: NextRequest) {
       .from("products")
       .select("id, image_url, status")
       .eq("id", productId)
+      .neq("category", "배송인증")
       .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
       .maybeSingle();
 

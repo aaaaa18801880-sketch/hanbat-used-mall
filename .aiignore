@@ -1,7 +1,6 @@
 # AI Context Ignore List
-# Prevents giant bundles and archives from blowing up AI token contexts and grep searches
-아르곤_디자인.xml
-아르곤_디자인.md
-한밭중고전자_전체코드.md
-pdf-compressor-guide.md
+# Prevents generated bundles, photos, and giant logs from blowing up AI context
+audit-ais-*.txt
+AIS/
+photos/
 docs/evolution/CHANGELOG.md

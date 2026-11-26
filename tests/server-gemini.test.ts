@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {
+  checkGeminiDailyBudget,
   classifyGeminiError,
   GeminiBudgetExceededError,
   GeminiRateLimitError,
@@ -8,6 +9,7 @@ import {
   getGeminiErrorStatus,
   resetGeminiRuntimeCachesForTest,
   resolveGeminiDailyLimit,
+  resolvePublicGeminiDailyLimit,
 } from "../lib/server-gemini";
 
 function makeMockResponse(text: string) {
@@ -26,6 +28,40 @@ test("resolveGeminiDailyLimit은 기본값 500과 0(비활성) 및 상한 10000�
   assert.equal(resolveGeminiDailyLimit("-10"), 0);
   assert.equal(resolveGeminiDailyLimit("300"), 300);
   assert.equal(resolveGeminiDailyLimit("99999"), 10000);
+});
+
+test("공개(public)와 관리자(admin) 일일 Gemini 예산 버킷이 독립 키로 분리된다", async () => {
+  assert.equal(resolvePublicGeminiDailyLimit(undefined), 80);
+  assert.equal(resolvePublicGeminiDailyLimit("9999"), 500);
+
+  const seenKeys: Array<{ key: string; max: number }> = [];
+  const fixedNow = Date.parse("2026-11-26T03:00:00Z");
+
+  const pubBudget = await checkGeminiDailyBudget({
+    budgetScope: "public",
+    dailyLimit: 2,
+    nowMs: fixedNow,
+    rateLimitRunner: async (key, max) => {
+      seenKeys.push({ key, max });
+      return { allowed: false, retryAfterSec: 3600 };
+    },
+  });
+  const adminBudget = await checkGeminiDailyBudget({
+    budgetScope: "admin",
+    dailyLimit: 500,
+    nowMs: fixedNow,
+    rateLimitRunner: async (key, max) => {
+      seenKeys.push({ key, max });
+      return { allowed: true, retryAfterSec: 0 };
+    },
+  });
+
+  assert.equal(pubBudget.allowed, false);
+  assert.equal(adminBudget.allowed, true);
+  assert.equal(seenKeys.length, 2);
+  assert.notEqual(seenKeys[0].key, seenKeys[1].key);
+  assert.match(seenKeys[0].key, /^gemini_daily:public:/);
+  assert.match(seenKeys[1].key, /^gemini_daily:admin:/);
 });
 
 test("classifyGeminiError는 429·404·thinking·503 에러를 정확히 구분한다", () => {

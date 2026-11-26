@@ -501,7 +501,7 @@ export function buildKakaoProductCard(
   );
 
   const priceLabel = hasProductPrice(product.price)
-    ? `${formatProductPrice(product.price)}원`
+    ? formatProductPrice(product.price)
     : "가격 전화문의";
   const warrantyLabel = getCategoryWarrantyInfo(normalizedCategory).shortLabel;
   const specChunk = display.subMetaLine || display.specSummary;

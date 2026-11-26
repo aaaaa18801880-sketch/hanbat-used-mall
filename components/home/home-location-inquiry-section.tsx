@@ -165,8 +165,6 @@ export function HomeLocationInquirySection({
                 </a>
                 <a
                   href={STORE_NAVIGATION.tmapUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="hb-btn-outline h-10 bg-white text-hb-xs font-bold whitespace-nowrap"
                 >
                   <span>티맵 길안내</span>

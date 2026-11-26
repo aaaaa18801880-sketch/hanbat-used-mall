@@ -10,6 +10,7 @@ import {
   formatProductPrice,
   getRecentViewedProducts,
   isProductSold,
+  MAX_QUOTE_BASKET_ITEMS,
   removeRecentViewedProduct,
   subscribeRecentViewed,
   toggleQuoteBasketItem,
@@ -115,7 +116,9 @@ export function RecentViewedStrip({
                         imageUrl: item.imageUrl,
                       });
                       if (res.limitReached) {
-                        toast.error("견적함은 최대 10건까지 담을 수 있습니다.");
+                        toast.error(
+                          `견적함에는 최대 ${MAX_QUOTE_BASKET_ITEMS}개까지 담을 수 있습니다.`
+                        );
                       } else if (res.added) {
                         toast.success("비교·견적함에 담았습니다.");
                       } else {

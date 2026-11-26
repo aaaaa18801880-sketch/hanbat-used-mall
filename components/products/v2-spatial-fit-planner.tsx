@@ -202,10 +202,16 @@ export function V2SpatialFitPlanner({
   const isCompactAppliance = catLabel === "기타";
   const clearanceCm = isCompactAppliance ? 0 : 10;
   const requiredSpaceCm = productWidthCm + clearanceCm;
-
-  const [mySpaceCm, setMySpaceCm] = useState<number>(
-    Math.max(120, requiredSpaceCm + 30)
+  const spaceSliderMaxCm = Math.max(
+    280,
+    Math.ceil((requiredSpaceCm + 120) / 5) * 5
   );
+
+  const [userSpaceCm, setUserSpaceCm] = useState<number | null>(null);
+  const mySpaceCm =
+    userSpaceCm !== null
+      ? Math.min(spaceSliderMaxCm, userSpaceCm)
+      : Math.max(120, requiredSpaceCm + 30);
   const [myDoorCm, setMyDoorCm] = useState<number>(90);
   const [carryFloor, setCarryFloor] = useState<"1f_elev" | "stairs">("1f_elev");
 
@@ -653,7 +659,7 @@ export function V2SpatialFitPlanner({
                 <button
                   key={p.label}
                   type="button"
-                  onClick={() => setMySpaceCm(p.cm)}
+                  onClick={() => setUserSpaceCm(p.cm)}
                   className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                     mySpaceCm === p.cm
                       ? "border-[#141A23] bg-[#141A23] text-white"
@@ -668,10 +674,10 @@ export function V2SpatialFitPlanner({
               id="space-slider"
               type="range"
               min={60}
-              max={280}
+              max={spaceSliderMaxCm}
               step={5}
               value={mySpaceCm}
-              onChange={(e) => setMySpaceCm(Number(e.target.value))}
+              onChange={(e) => setUserSpaceCm(Number(e.target.value))}
               className="w-full accent-[#141A23] cursor-pointer"
             />
           </div>

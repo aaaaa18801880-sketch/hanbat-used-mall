@@ -314,9 +314,13 @@ export default function IntegratedAdminDashboard() {
       if (error) throw error;
       if (!isAuthorizedAdminUser(data.user)) {
         await supabase.auth.signOut();
+        const { notifyAdminAuthChanged } = await import("../../lib/admin-auth");
+        notifyAdminAuthChanged();
         toast.error("관리자 권한이 허용되지 않은 계정입니다.");
         return;
       }
+      const { notifyAdminAuthChanged } = await import("../../lib/admin-auth");
+      notifyAdminAuthChanged();
       toast.success("관리자 대시보드에 로그인되었습니다.");
       setLoginPw("");
     } catch {
@@ -329,6 +333,8 @@ export default function IntegratedAdminDashboard() {
   const handleLogout = async () => {
     if (!confirm("관리자 세션에서 로그아웃하시겠습니까?")) return;
     await supabase.auth.signOut();
+    const { notifyAdminAuthChanged } = await import("../../lib/admin-auth");
+    notifyAdminAuthChanged();
     setIsAdmin(false);
     toast.success("로그아웃되었습니다.");
   };

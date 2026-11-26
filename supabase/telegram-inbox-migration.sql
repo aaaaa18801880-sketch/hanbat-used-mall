@@ -39,12 +39,18 @@ CREATE TABLE IF NOT EXISTS public.telegram_inbox_photos (
   group_key text,
   sort_order integer NOT NULL DEFAULT 0,
   status text NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending', 'committed', 'discarded')),
+    CHECK (status IN ('pending', 'processing', 'committed', 'discarded')),
   committed_product_id uuid REFERENCES public.products(id) ON DELETE SET NULL,
   ai_note text,
   taken_at timestamptz NOT NULL DEFAULT now(),
   created_at timestamptz NOT NULL DEFAULT now()
 );
+
+-- 기존 배포 테이블에도 'processing' 원자적 선점 상태를 안전하게 허용
+ALTER TABLE public.telegram_inbox_photos
+  DROP CONSTRAINT IF EXISTS telegram_inbox_photos_status_check,
+  ADD CONSTRAINT telegram_inbox_photos_status_check
+    CHECK (status IN ('pending', 'processing', 'committed', 'discarded'));
 
 -- 중복 웹훅 수신 방지 (chat_id + message_id + file_unique_id)
 CREATE UNIQUE INDEX IF NOT EXISTS uq_telegram_inbox_msg_file

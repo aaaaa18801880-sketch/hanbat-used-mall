@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { getAdminAuthHeaders } from "../../lib/supabase";
-import { ICON, Icon } from "../../lib/icons";
+import { ICON, Icon, Modal } from "../../lib/ui";
 import {
   TELEGRAM_MAX_PHOTOS_PER_PRODUCT,
   type QuarterTurnDegrees,
@@ -702,17 +702,13 @@ function TelegramFullPreviewContent({
   const rotateClass = getRotationTailwindClass(rotationDeg);
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label="수집함 사진 크게 보기"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4"
-      onClick={onClose}
+    <Modal
+      open
+      onClose={onClose}
+      label="수집함 사진 크게 보기"
+      panelClassName="max-w-3xl"
     >
-      <div
-        className="relative max-h-[90vh] max-w-3xl w-full rounded-xl bg-white p-4 shadow-2xl space-y-3"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="relative max-h-[90vh] w-full rounded-xl bg-white p-4 shadow-2xl space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2E6EC] pb-2">
           <div className="text-hb-sm font-bold text-[#141A23]">
             촬영 시각 {new Date(photo.taken_at).toLocaleString("ko-KR")} (
@@ -777,6 +773,6 @@ function TelegramFullPreviewContent({
           ) : null}
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

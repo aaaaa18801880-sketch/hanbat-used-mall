@@ -46,3 +46,7 @@ next-env.d.ts
 
 # temporary chat upload assets (not used by app code)
 public/assets/aistudio/
+
+# AI Studio audit bundles (local generated uploads)
+audit-ais-*.txt
+AIS/

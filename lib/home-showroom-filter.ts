@@ -15,6 +15,8 @@ export interface HomeShowroomProductLike {
   title?: string | null;
   category?: string | null;
   description?: string | null;
+  model_name?: string | null;
+  spec_capsules?: readonly string[] | null;
   status?: string | null;
 }
 
@@ -66,7 +68,14 @@ export function filterHomeShowroomProducts<T extends HomeShowroomProductLike>(
   }
 
   return categoryFiltered.filter((p) =>
-    matchesSearchQuery(trimmedQuery, p.title, p.category, p.description)
+    matchesSearchQuery(
+      trimmedQuery,
+      p.title,
+      p.category,
+      p.description,
+      p.model_name,
+      p.spec_capsules ? p.spec_capsules.join(" ") : null
+    )
   );
 }
 

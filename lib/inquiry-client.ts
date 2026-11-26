@@ -1,10 +1,12 @@
 import {
   compressImage,
   MAX_PHOTOS,
+  STORAGE_BUCKETS,
   validateImageFiles,
   type AnalyzeInquiryResponse,
   type InquiryTypeValue,
 } from "./site";
+import { supabase } from "./supabase";
 
 export interface InquiryPhotoGuide {
   subtitle: string;
@@ -246,4 +248,72 @@ export async function postInquirySubmission(params: {
     telegramNotified: Boolean(resJson.telegramNotified),
     createdAt: resJson.createdAt,
   };
+}
+
+/**
+ * Compress attached customer inquiry photos and upload them via server-issued signed upload URLs.
+ */
+export async function uploadInquiryAttachmentsViaSignedUrl(
+  files: File[],
+  _options?: { prefix?: string }
+): Promise<string[]> {
+  const targetFiles = files.slice(0, MAX_PHOTOS);
+  if (targetFiles.length === 0) return [];
+
+  const compressedBlobs = await Promise.all(
+    targetFiles.map((file) => compressImage(file, 1400, 0.8))
+  );
+
+  const slotRes = await fetch("/api/inquiries/upload-url", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      files: compressedBlobs.map((blob) => ({
+        mimeType: "image/jpeg",
+        sizeBytes: blob.size,
+      })),
+    }),
+  });
+
+  const slotJson = (await slotRes.json().catch(() => ({}))) as {
+    success?: boolean;
+    error?: string;
+    uploads?: Array<{
+      path: string;
+      token: string;
+      signedUrl: string;
+      publicUrl: string;
+    }>;
+  };
+
+  if (
+    !slotRes.ok ||
+    !slotJson.success ||
+    !Array.isArray(slotJson.uploads) ||
+    slotJson.uploads.length !== compressedBlobs.length
+  ) {
+    throw new Error(
+      slotJson.error ||
+        "첨부 사진 업로드 준비에 실패했습니다. 네트워크 상태를 확인 후 다시 시도해 주세요."
+    );
+  }
+
+  const uploadedUrls: string[] = [];
+  for (let i = 0; i < compressedBlobs.length; i++) {
+    const slot = slotJson.uploads[i];
+    const { error: uploadErr } = await supabase.storage
+      .from(STORAGE_BUCKETS.inquiryAttachments)
+      .uploadToSignedUrl(slot.path, slot.token, compressedBlobs[i], {
+        contentType: "image/jpeg",
+      });
+
+    if (uploadErr) {
+      throw new Error(
+        "첨부 사진 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."
+      );
+    }
+    uploadedUrls.push(slot.publicUrl);
+  }
+
+  return uploadedUrls;
 }

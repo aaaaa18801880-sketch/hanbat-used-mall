@@ -103,6 +103,7 @@ export interface AnalyzeInquiryResponse {
   extractedFacts: ExtractedFactItem[];
   missingInfo: string[];
   followUpQuestions: string[];
+  fallbackDraft?: boolean;
   purchaseAnalysis?: PurchaseAnalysisData;
   sellAnalysis?: SellAnalysisData;
   bulkAnalysis?: BulkAnalysisData;

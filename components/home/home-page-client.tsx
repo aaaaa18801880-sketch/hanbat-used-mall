@@ -58,11 +58,12 @@ import {
   filterHomeShowroomProducts,
   SERVICE_DELIVERY_REGIONS,
 } from "../../lib/home-showroom-filter";
+import { getCategoryNoticeGuide } from "../../lib/notice-guides";
 
-const AirconGuideModal = dynamic(
+const NoticeGuideModal = dynamic(
   () =>
-    import("../products/aircon-set-guide-banner").then(
-      (m) => m.AirconGuideModal
+    import("../products/notice-guide-banner").then(
+      (m) => m.NoticeGuideModal
     ),
   { ssr: false }
 );
@@ -163,6 +164,7 @@ export default function Home({
     index: number;
   } | null>(null);
   const [airconModalOpen, setAirconModalOpen] = useState(false);
+  const airconNoticeGuide = getCategoryNoticeGuide("에어컨/냉난방기");
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
   /* 관리자 모달 상태 */
@@ -1088,9 +1090,10 @@ export default function Home({
       <MobileCtaBar onInquiryClick={() => openInquiry("구매 문의")} />
 
       {/* ── 에어컨/냉난방기 세트 구성 안내문 모달 ── */}
-      {airconModalOpen && (
-        <AirconGuideModal
+      {airconModalOpen && airconNoticeGuide && (
+        <NoticeGuideModal
           open={airconModalOpen}
+          guide={airconNoticeGuide}
           onClose={() => setAirconModalOpen(false)}
         />
       )}

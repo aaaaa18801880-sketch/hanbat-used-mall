@@ -290,25 +290,46 @@ export function getClientIp(req: NextRequest | Request): string {
 /**
  * [SEC-006] 상태 변경(POST/PATCH/DELETE) API에 대한 Cross-Origin(CSRF) 요청 검증
  */
-export function verifySameOriginRequest(req: NextRequest | Request): boolean {
+export function verifySameOriginRequest(
+  req: NextRequest | Request,
+  options?: { requireOriginHeader?: boolean }
+): boolean {
   if (req.headers.get("sec-fetch-site") === "cross-site") return false;
   const origin = req.headers.get("origin");
   const referer = req.headers.get("referer");
+  if (options?.requireOriginHeader && !origin && !referer) {
+    return false;
+  }
   try {
     const reqOrigin = new URL(req.url).origin;
     const directHost = req.headers.get("host");
+    const allowedVercelHosts = [
+      process.env.VERCEL_URL,
+      process.env.VERCEL_BRANCH_URL,
+      process.env.VERCEL_PROJECT_PRODUCTION_URL,
+    ]
+      .map((v) =>
+        (v || "")
+          .trim()
+          .replace(/^https?:\/\//i, "")
+          .replace(/\/+$/, "")
+          .toLowerCase()
+      )
+      .filter(Boolean);
+
     const isAllowedCandidate = (rawUrl: string): boolean => {
       const parsed = new URL(rawUrl);
       if (parsed.origin === reqOrigin) return true;
       if (directHost && parsed.host === directHost) return true;
       const forwardedHost = req.headers.get("x-forwarded-host");
+      const normalizedForwarded = (forwardedHost || "").trim().toLowerCase();
       if (
         forwardedHost &&
         forwardedHost === parsed.host &&
         (forwardedHost === directHost ||
-          forwardedHost === "hanbatmall.com" ||
-          forwardedHost === "www.hanbatmall.com" ||
-          forwardedHost.endsWith(".vercel.app"))
+          normalizedForwarded === "hanbatmall.com" ||
+          normalizedForwarded === "www.hanbatmall.com" ||
+          allowedVercelHosts.includes(normalizedForwarded))
       ) {
         return true;
       }
@@ -482,19 +503,23 @@ export async function checkRateLimit(
 
 /**
  * 문의 게시글 비밀번호 검증 전용 3중 브루트포스 방어 (분산 RPC + Fail-Closed + TOCTOU 차단)
- * 1) 전역 IP 버킷(pw_ip_global:{ip}): 15분 최대 20회, scrypt 이전 원자적 선차감
+ * 1) 전역 IP 버킷(pw_ip_global:{ip}): 15분 최대 30회, scrypt 이전 원자적 선차감
  * 2) 게시글 전역 Lockout(pw_lockout:{inquiryId}): 15분 최대 10회 실패 잠금 확인(increment=false)
- * 3) IP + 게시글 ID 버킷(pw_verify:{ip}:{inquiryId}): 5분 최대 5회, scrypt 이전 원자적 선차감
+ * 3) IP + 게시글 ID 버킷(pw_verify:{ip}:{inquiryId}): 5분 최대 5회 실패 잠금 확인(increment=false, 실패 시에만 차감)
  * - 모든 버킷은 fail-closed로 동작하여 DB RPC 장애 시에도 브루트포스 우회를 차단합니다.
  */
 export async function checkInquiryPasswordRateLimit(
   ip: string,
   inquiryId: string,
   options?: Pick<RateLimitOptions, "rpcRunner">
-): Promise<{ allowed: boolean; retryAfterSec: number }> {
+): Promise<{
+  allowed: boolean;
+  retryAfterSec: number;
+  reason?: "ip_global" | "lockout";
+}> {
   const globalIpRate = await checkRateLimit(
     `pw_ip_global:${ip}`,
-    20,
+    30,
     15 * 60 * 1000,
     {
       failureMode: "fail-closed",
@@ -503,7 +528,7 @@ export async function checkInquiryPasswordRateLimit(
     }
   );
   if (!globalIpRate.allowed) {
-    return globalIpRate;
+    return { ...globalIpRate, reason: "ip_global" };
   }
 
   const lockout = await checkRateLimit(
@@ -517,14 +542,23 @@ export async function checkInquiryPasswordRateLimit(
     }
   );
   if (!lockout.allowed) {
-    return lockout;
+    return { ...lockout, reason: "lockout" };
   }
 
-  return checkRateLimit(`pw_verify:${ip}:${inquiryId}`, 5, 5 * 60 * 1000, {
-    failureMode: "fail-closed",
-    increment: true,
-    rpcRunner: options?.rpcRunner,
-  });
+  const ipVerifyRate = await checkRateLimit(
+    `pw_verify:${ip}:${inquiryId}`,
+    5,
+    5 * 60 * 1000,
+    {
+      failureMode: "fail-closed",
+      increment: false,
+      rpcRunner: options?.rpcRunner,
+    }
+  );
+  if (!ipVerifyRate.allowed) {
+    return { ...ipVerifyRate, reason: "lockout" };
+  }
+  return ipVerifyRate;
 }
 
 export async function recordInquiryPasswordFailure(
@@ -548,6 +582,74 @@ export async function recordInquiryPasswordIpFailure(
     increment: true,
     rpcRunner: options?.rpcRunner,
   });
+}
+
+export interface InquiryUploadSlotSpec {
+  mimeType: "image/jpeg" | "image/png" | "image/webp";
+  sizeBytes: number;
+  ext: "jpg" | "png" | "webp";
+}
+
+const ALLOWED_SIGNED_UPLOAD_MIMES: Record<
+  string,
+  InquiryUploadSlotSpec["ext"]
+> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const MAX_SIGNED_UPLOAD_FILES = 5;
+const MAX_SIGNED_UPLOAD_FILE_BYTES = 6 * 1024 * 1024;
+
+export function validateInquiryUploadSlotRequest(rawFiles: unknown): {
+  ok: boolean;
+  error?: string;
+  slots?: InquiryUploadSlotSpec[];
+} {
+  if (!Array.isArray(rawFiles) || rawFiles.length === 0) {
+    return { ok: false, error: "업로드할 사진 정보가 없습니다." };
+  }
+  if (rawFiles.length > MAX_SIGNED_UPLOAD_FILES) {
+    return {
+      ok: false,
+      error: `사진은 최대 ${MAX_SIGNED_UPLOAD_FILES}장까지만 첨부할 수 있습니다.`,
+    };
+  }
+
+  const slots: InquiryUploadSlotSpec[] = [];
+  for (const item of rawFiles) {
+    if (!item || typeof item !== "object") {
+      return { ok: false, error: "잘못된 파일 메타데이터 형식입니다." };
+    }
+    const rawMime = String((item as { mimeType?: unknown }).mimeType || "")
+      .trim()
+      .toLowerCase();
+    const ext = ALLOWED_SIGNED_UPLOAD_MIMES[rawMime];
+    if (!ext) {
+      return {
+        ok: false,
+        error: "허용되지 않는 이미지 형식입니다. (JPG, PNG, WEBP만 가능)",
+      };
+    }
+    const sizeBytes = Number((item as { sizeBytes?: unknown }).sizeBytes);
+    if (
+      !Number.isFinite(sizeBytes) ||
+      sizeBytes <= 0 ||
+      sizeBytes > MAX_SIGNED_UPLOAD_FILE_BYTES
+    ) {
+      return {
+        ok: false,
+        error: "파일 크기는 0B 초과 6MB 이하여야 합니다.",
+      };
+    }
+    slots.push({
+      mimeType: rawMime as InquiryUploadSlotSpec["mimeType"],
+      sizeBytes: Math.floor(sizeBytes),
+      ext,
+    });
+  }
+
+  return { ok: true, slots };
 }
 
 function pruneNotificationDedupCache(now: number): void {

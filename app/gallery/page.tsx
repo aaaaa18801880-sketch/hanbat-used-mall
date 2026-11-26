@@ -6,8 +6,16 @@
  * - 관리자 업로드(`GalleryAdminUploadController`)는 `compressAndUploadProductImages` 기반 등록을 지연 로딩합니다.
  * - 삭제·일괄 변경은 `lib/product-ops.ts` (`removeProductImagesFromStorage` 포함) 통합 CRUD를 사용합니다.
  */
-import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import React, {
+  Suspense,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import {
@@ -105,7 +113,14 @@ async function queryGalleryProducts(): Promise<ProductItem[]> {
   );
 }
 
-export default function GalleryPage() {
+function GalleryPageContent() {
+  const searchParams = useSearchParams();
+  const rawQueryKey = searchParams.toString();
+  const initialParsed = useMemo(
+    () => parseGalleryQueryParams(new URLSearchParams(rawQueryKey)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
   const initialProducts = useGalleryInitialProducts();
   const [products, setProducts] = useState<ProductItem[]>(
     () => initialProducts ?? []
@@ -115,8 +130,10 @@ export default function GalleryPage() {
   const isAdmin = useIsAdminSession();
 
   /* 검색·필터·정렬·페이지네이션 상태 */
-  const [activeCategory, setActiveCategory] = useState<string>("전체");
-  const [search, setSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState<string>(
+    () => initialParsed.activeCategory ?? "전체"
+  );
+  const [search, setSearch] = useState(() => initialParsed.search ?? "");
   const lastTrackedSearchRef = useRef("");
 
   const commitSearchTracking = useCallback(
@@ -133,11 +150,32 @@ export default function GalleryPage() {
     },
     []
   );
-  const [sort, setSort] = useState<SortOption>("latest");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [priceRange, setPriceRange] = useState<PriceRangeOption>("all");
-  const [viewMode, setViewMode] = useState<GalleryViewMode>("card");
-  const [urlParamsHydrated, setUrlParamsHydrated] = useState(false);
+  const [sort, setSort] = useState<SortOption>(
+    () => initialParsed.sort ?? "latest"
+  );
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(
+    () => initialParsed.statusFilter ?? "all"
+  );
+  const [priceRange, setPriceRange] = useState<PriceRangeOption>(
+    () => initialParsed.priceRange ?? "all"
+  );
+  const [viewMode, setViewMode] = useState<GalleryViewMode>(
+    () => initialParsed.viewMode ?? "card"
+  );
+  const [prevRawQueryKey, setPrevRawQueryKey] = useState(rawQueryKey);
+  if (prevRawQueryKey !== rawQueryKey) {
+    setPrevRawQueryKey(rawQueryKey);
+    const nextParsed = parseGalleryQueryParams(
+      new URLSearchParams(rawQueryKey)
+    );
+    setActiveCategory(nextParsed.activeCategory ?? "전체");
+    const nextSearch = nextParsed.search ?? "";
+    setSearch((prev) => (prev.trim() === nextSearch.trim() ? prev : nextSearch));
+    setSort(nextParsed.sort ?? "latest");
+    setStatusFilter(nextParsed.statusFilter ?? "all");
+    setPriceRange(nextParsed.priceRange ?? "all");
+    setViewMode(nextParsed.viewMode ?? "card");
+  }
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [visibleLimit, setVisibleLimit] = useState(PAGE_STEP);
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(
@@ -171,21 +209,8 @@ export default function GalleryPage() {
     }
   }, []);
 
-  /* 초기 URL 쿼리 파싱 및 최초 데이터 조회 */
+  /* 최초 데이터 조회 */
   useEffect(() => {
-    const parsed = parseGalleryQueryParams(
-      new URLSearchParams(window.location.search)
-    );
-    queueMicrotask(() => {
-      if (parsed.activeCategory) setActiveCategory(parsed.activeCategory);
-      if (parsed.search) setSearch(parsed.search);
-      if (parsed.sort) setSort(parsed.sort);
-      if (parsed.statusFilter) setStatusFilter(parsed.statusFilter);
-      if (parsed.priceRange) setPriceRange(parsed.priceRange);
-      if (parsed.viewMode) setViewMode(parsed.viewMode);
-      setUrlParamsHydrated(true);
-    });
-
     if (initialProducts !== null) return;
     let active = true;
     void (async () => {
@@ -212,25 +237,29 @@ export default function GalleryPage() {
     [products]
   );
   const effectivePriceRange = hasPricedProducts ? priceRange : "all";
+  const effectiveSort: SortOption =
+    !hasPricedProducts && (sort === "priceAsc" || sort === "priceDesc")
+      ? "latest"
+      : sort;
 
   /* 필터 상태 변경 시 URL 쿼리 파라미터 동기화 (새로고침 시 유지) */
   useEffect(() => {
-    if (!urlParamsHydrated) return;
     const nextUrl = buildGalleryQueryUrl(window.location.href, {
       activeCategory,
       search,
-      sort,
+      sort: effectiveSort,
       statusFilter,
       priceRange,
       viewMode,
       hasPricedProducts,
     });
-    window.history.replaceState(null, "", nextUrl);
+    if (nextUrl !== `${window.location.pathname}${window.location.search}`) {
+      window.history.replaceState(null, "", nextUrl);
+    }
   }, [
-    urlParamsHydrated,
     activeCategory,
     search,
-    sort,
+    effectiveSort,
     statusFilter,
     priceRange,
     hasPricedProducts,
@@ -256,9 +285,16 @@ export default function GalleryPage() {
         statusFilter,
         effectivePriceRange,
         search,
-        sort,
+        sort: effectiveSort,
       }),
-    [products, activeCategory, statusFilter, effectivePriceRange, search, sort]
+    [
+      products,
+      activeCategory,
+      statusFilter,
+      effectivePriceRange,
+      search,
+      effectiveSort,
+    ]
   );
 
   const displayedProducts = useMemo(
@@ -720,15 +756,19 @@ export default function GalleryPage() {
               <select
                 id="gallery-sort-desktop"
                 name="gallery-sort-desktop"
-                value={sort}
+                value={effectiveSort}
                 onChange={(e) => setSort(e.target.value as SortOption)}
                 aria-label="정렬 기준"
                 className="h-8 px-3 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
               >
                 <option value="latest">최신 등록순</option>
                 <option value="views">조회 많은순</option>
-                <option value="priceAsc">낮은 가격순</option>
-                <option value="priceDesc">높은 가격순</option>
+                {hasPricedProducts && (
+                  <>
+                    <option value="priceAsc">낮은 가격순</option>
+                    <option value="priceDesc">높은 가격순</option>
+                  </>
+                )}
               </select>
             </div>
           </div>
@@ -823,15 +863,19 @@ export default function GalleryPage() {
                 <select
                   id="gallery-sort-mobile"
                   name="gallery-sort-mobile"
-                  value={sort}
+                  value={effectiveSort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
                   aria-label="모바일 정렬 기준"
                   className="h-10 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-base sm:text-hb-xs font-bold text-[#141A23] focus:border-[#141A23] focus:outline-none"
                 >
                   <option value="latest">최신 등록순</option>
                   <option value="views">조회 많은순</option>
-                  <option value="priceAsc">낮은 가격순</option>
-                  <option value="priceDesc">높은 가격순</option>
+                  {hasPricedProducts && (
+                    <>
+                      <option value="priceAsc">낮은 가격순</option>
+                      <option value="priceDesc">높은 가격순</option>
+                    </>
+                  )}
                 </select>
               </div>
             </div>
@@ -1155,5 +1199,13 @@ export default function GalleryPage() {
         onClose={() => setIsAdminAuthModalOpen(false)}
       />
     </div>
+  );
+}
+
+export default function GalleryPage() {
+  return (
+    <Suspense fallback={null}>
+      <GalleryPageContent />
+    </Suspense>
   );
 }

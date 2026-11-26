@@ -169,7 +169,7 @@ function AirconSizingTool() {
           ? "전용 면적이 작더라도 벽으로 완전히 막힌 방이면 6평+10평 벽걸이 분리가 더 쾌적합니다."
           : "단독 1대로 커버 가능하며 설치비 부담이 가장 적습니다.";
     } else if (requiredPyeong <= 25) {
-      modelSpec = "23~25평형 인버터 스탠드 또는 3평급 4Way";
+      modelSpec = "23~25평형 인버터 스탠드 또는 23~25평급 4Way";
       breaker = "단상 220V · 20~30A 단독 차단기";
       wireSpec = "2.5SQ ~ 4SQ 권장";
       splitAdvice =

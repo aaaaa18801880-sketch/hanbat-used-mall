@@ -19,7 +19,7 @@ export interface TelegramInboxPhoto {
   height?: number | null;
   group_key?: string | null;
   sort_order: number;
-  status: "pending" | "committed" | "discarded";
+  status: "pending" | "processing" | "committed" | "discarded";
   committed_product_id?: string | null;
   ai_note?: string | null;
   taken_at: string;

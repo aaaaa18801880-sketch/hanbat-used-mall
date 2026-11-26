@@ -16,6 +16,7 @@ import {
   getClientIp,
   hashInquiryPasswordAsync,
   recordInquiryPasswordFailure,
+  recordInquiryPasswordIpFailure,
   verifyAdminRequest,
   verifyInquiryPasswordWithMeta,
   verifySameOriginRequest,
@@ -133,6 +134,15 @@ async function filterUnreferencedStorageFiles(
 
 const ALLOWED_STATUS_VALUES = new Set<string>(Object.values(INQUIRY_STATUS));
 
+function formatPasswordRateLimitMessage(rate: {
+  retryAfterSec: number;
+  reason?: "ip_global" | "lockout";
+}): string {
+  return rate.reason === "ip_global"
+    ? `요청이 너무 많습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`
+    : `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`;
+}
+
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -162,7 +172,7 @@ export async function POST(
       if (!rate.allowed) {
         return NextResponse.json(
           {
-            error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+            error: formatPasswordRateLimitMessage(rate),
           },
           { status: 429 }
         );
@@ -208,6 +218,7 @@ export async function POST(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
+        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않습니다." },
           { status: 401 }
@@ -298,7 +309,7 @@ export async function PATCH(
       if (!rate.allowed) {
         return NextResponse.json(
           {
-            error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+            error: formatPasswordRateLimitMessage(rate),
           },
           { status: 429 }
         );
@@ -340,6 +351,7 @@ export async function PATCH(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
+        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           {
             error: "작성 시 설정한 비밀번호가 일치하지 않아 수정할 수 없습니다.",
@@ -463,7 +475,7 @@ export async function DELETE(
       if (!rate.allowed) {
         return NextResponse.json(
           {
-            error: `비밀번호 입력 실패 횟수가 초과되었습니다. ${rate.retryAfterSec}초 후에 다시 시도해 주세요.`,
+            error: formatPasswordRateLimitMessage(rate),
           },
           { status: 429 }
         );
@@ -506,6 +518,7 @@ export async function DELETE(
       );
       if (!pwResult.valid) {
         await recordInquiryPasswordFailure(id);
+        await recordInquiryPasswordIpFailure(ip, id);
         return NextResponse.json(
           { error: "비밀번호가 일치하지 않아 삭제할 수 없습니다." },
           { status: 401 }

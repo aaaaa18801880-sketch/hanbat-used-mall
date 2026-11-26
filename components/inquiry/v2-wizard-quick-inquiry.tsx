@@ -17,7 +17,6 @@ import {
   MAX_PHOTOS,
   PRODUCT_CATEGORIES,
   smsHref,
-  STORAGE_BUCKETS,
   STORE,
   telHref,
   trackEvent,
@@ -31,6 +30,7 @@ import {
   INQUIRY_PHOTO_GUIDES,
   postInquirySubmission,
   prepareInquiryFileAdditions,
+  uploadInquiryAttachmentsViaSignedUrl,
 } from "../../lib/inquiry-client";
 import { InquiryPhotoGuideModal } from "./inquiry-photo-guide-modal";
 import { type LinkedProductContext } from "./unified-inquiry-form";
@@ -108,6 +108,10 @@ export function V2InquirySectionWithWizard({
   );
   const [analyzingAi, setAnalyzingAi] = useState(false);
   const basketItems = useQuoteBasket();
+  const [bundleApplied, setBundleApplied] = useState(false);
+  const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
+    null
+  );
   const [aiResult, setAiResult] = useState<{
     applianceCategory?: string;
     title?: string;
@@ -148,6 +152,7 @@ export function V2InquirySectionWithWizard({
           if (cats.length > 0) {
             setSelectedCategories(cats);
           }
+          setBundleApplied(true);
         }
       } else if (linkedProduct.productTitle) {
         const text = linkedProduct.modelName
@@ -202,6 +207,7 @@ export function V2InquirySectionWithWizard({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
@@ -277,6 +283,7 @@ export function V2InquirySectionWithWizard({
     setStep1Hint(null);
     setSelectedFiles((prev) => [...prev, ...ok]);
     updateFilePreviews((prev) => [...prev, ...previews]);
+    setCachedUploadedUrls(null);
   };
 
   const handleRemoveFile = (index: number) => {
@@ -286,6 +293,7 @@ export function V2InquirySectionWithWizard({
     }
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
     updateFilePreviews((prev) => prev.filter((_, i) => i !== index));
+    setCachedUploadedUrls(null);
   };
 
   const handleAiPhotoAnalyze = async () => {
@@ -352,6 +360,10 @@ export function V2InquirySectionWithWizard({
   const handleWizardSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
+    if (inquiryType === "내 물건 팔기" && !region.trim()) {
+      toast.error("방문 수거 지역(구·동)을 선택하거나 입력해 주세요.");
+      return;
+    }
     if (!name.trim()) {
       toast.error("성함 또는 상호명을 입력해 주세요.");
       return;
@@ -360,8 +372,9 @@ export function V2InquirySectionWithWizard({
       toast.error("올바른 연락처를 입력해 주세요.");
       return;
     }
-    if (password.trim().length > 0 && password.trim().length < 4) {
-      toast.error("조회용 비밀번호는 4자리 이상 입력하시거나 비워두세요.");
+    const pwTrimmed = password.trim();
+    if (pwTrimmed.length < 4 || pwTrimmed.length > 32) {
+      toast.error("글 확인·수정용 비밀번호(4~32자)를 입력해 주세요.");
       return;
     }
     if (!agreed) {
@@ -371,18 +384,14 @@ export function V2InquirySectionWithWizard({
 
     setSubmitting(true);
     try {
-      // 1. 사진 업로드 처리 (선택 첨부된 파일이 있는 경우에만 Supabase 스토리지 모듈 지연 로드)
-      let uploadedUrls: string[] = [];
-      if (selectedFiles.length > 0) {
-        const { compressAndUploadProductImages } = await import(
-          "../../lib/product-ops"
+      // 1. 사진 업로드 처리 (서버 서명 업로드 URL 발급 및 재시도 캐시 유지)
+      let uploadedUrls = cachedUploadedUrls ?? [];
+      if (!cachedUploadedUrls && selectedFiles.length > 0) {
+        uploadedUrls = await uploadInquiryAttachmentsViaSignedUrl(
+          selectedFiles,
+          { prefix: "inquiries/inq" }
         );
-        uploadedUrls = await compressAndUploadProductImages(selectedFiles, {
-          maxWidth: 1400,
-          quality: 0.8,
-          bucket: STORAGE_BUCKETS.inquiryAttachments,
-          prefix: "inquiries/inq",
-        });
+        setCachedUploadedUrls(uploadedUrls);
       }
 
       // 2. 구조화 본문 생성
@@ -392,10 +401,7 @@ export function V2InquirySectionWithWizard({
           : aiResult?.applianceCategory ||
             (inquiryType === "내 물건 팔기" ? "방문매입 가전" : "상담 품목");
       const autoTitle = `[${inquiryType}] ${catSummary} 견적 신청`;
-      const effectivePassword =
-        password.trim().length >= 4
-          ? password.trim()
-          : phone.replace(/\D/g, "").slice(-4) || "0000";
+      const effectivePassword = pwTrimmed;
       const chipLine =
         selectedChips.length > 0
           ? `• 선택 조건: ${selectedChips.join(", ")}`
@@ -451,9 +457,10 @@ export function V2InquirySectionWithWizard({
         has_photos: uploadedUrls.length > 0,
       });
 
-      // 구매/설치/대량 상담 접수 시에만 구매용 묶음 견적함 비우기 (매입 신청 시 유지)
-      if (inquiryType !== "내 물건 팔기") {
+      // 견적함 묶음 불러오기가 실제로 적용된 접수에서만 견적함 비우기
+      if (bundleApplied) {
         clearQuoteBasket();
+        setBundleApplied(false);
       }
 
       // 텔레그램 알림 클라이언트 폴백 (서버 즉시 알림 미도달 시)
@@ -476,8 +483,10 @@ export function V2InquirySectionWithWizard({
           : "견적 상담 접수가 정상 완료되었습니다!"
       );
       setMemo("");
+      setPassword("");
       setSelectedFiles([]);
       updateFilePreviews([]);
+      setCachedUploadedUrls(null);
       setAgreed(false);
       setCreatedInquiryId(newId ? String(newId) : null);
       setSubmittedTitle(autoTitle);
@@ -510,6 +519,8 @@ export function V2InquirySectionWithWizard({
     phone,
     password,
     agreed,
+    requireRegion: isSell,
+    region,
   });
 
   if (submittedSuccess) {
@@ -726,6 +737,7 @@ export function V2InquirySectionWithWizard({
                     if (cats.length > 0) {
                       setSelectedCategories(cats);
                     }
+                    setBundleApplied(true);
                     toast.success("견적함 매물이 문의 내용에 자동 반영되었습니다.");
                   }}
                   className="rounded-xl bg-white px-3.5 py-2 text-hb-xs font-bold text-[#0369A1] hover:bg-[#E0F2FE] transition-colors cursor-pointer shrink-0"
@@ -1239,7 +1251,7 @@ export function V2InquirySectionWithWizard({
                 htmlFor={`${uid}-region`}
                 className="block text-hb-xs font-bold text-[#64748B]"
               >
-                {isSell ? "방문 수거 지역" : "배송 · 설치 지역"}
+                {isSell ? "방문 수거 지역 (필수)" : "배송 · 설치 지역"}
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {WIZARD_QUICK_REGIONS.map((preset) => {
@@ -1381,22 +1393,32 @@ export function V2InquirySectionWithWizard({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label
-                    htmlFor={`${uid}-password`}
-                    className="block text-hb-xs font-semibold text-[#64748B]"
-                  >
-                    답변 조회 비밀번호 (선택)
-                  </label>
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor={`${uid}-password`}
+                      className="block text-hb-xs font-semibold text-[#334155]"
+                    >
+                      글 확인·수정 비밀번호 (4자 이상 필수)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      className="text-hb-xs font-bold text-[#64748B] hover:text-[#141A23] cursor-pointer"
+                    >
+                      {showPassword ? "숨기기" : "표시"}
+                    </button>
+                  </div>
                   <input
                     id={`${uid}-password`}
                     name="new_password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
+                    required
                     minLength={4}
                     maxLength={32}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="비워두면 연락처 뒷 4자리로 설정돼요"
+                    placeholder="숫자·영문 4자리 이상 설정해 주세요"
                     className="w-full h-12 rounded-2xl border border-transparent bg-[#F6F5F1] px-4 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-colors focus:border-[#141A23] focus:bg-white focus:outline-none"
                   />
                 </div>

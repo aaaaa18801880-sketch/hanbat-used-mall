@@ -65,6 +65,29 @@ test("filterHomeShowroomProducts excludes sold items and supports multi-token se
     searchQuery: "45박스",
   });
   assert.equal(combinedMismatch.length, 0);
+
+  const summaryItems: HomeShowroomProductLike[] = [
+    {
+      id: "uuid-1",
+      title: "삼성 벽걸이 에어컨",
+      category: "에어컨/냉난방기",
+      model_name: "AR11T9170HZT",
+      spec_capsules: ["단상 220V", "11평형", "인버터"],
+      status: "판매중",
+    },
+  ];
+  assert.equal(
+    filterHomeShowroomProducts(summaryItems, {
+      searchQuery: "AR11T9170HZT",
+    }).length,
+    1
+  );
+  assert.equal(
+    filterHomeShowroomProducts(summaryItems, {
+      searchQuery: "단상 11평형",
+    }).length,
+    1
+  );
 });
 
 test("buildHomeGallerySearchHref preserves category, q, and table view params cleanly", () => {

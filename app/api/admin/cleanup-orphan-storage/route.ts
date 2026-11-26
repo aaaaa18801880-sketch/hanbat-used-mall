@@ -24,14 +24,18 @@ const STORAGE_MAX_OBJECTS_PER_BUCKET = 5000;
 const STORAGE_MAX_DEPTH = 2;
 const REMOVE_BATCH_SIZE = 50;
 
-async function fetchAllProductImageUrls(supabase: SupabaseClient): Promise<string[]> {
+async function fetchAllProductImageUrls(
+  supabase: SupabaseClient
+): Promise<{ urls: string[]; truncated: boolean }> {
   const urls: string[] = [];
+  let truncated = false;
   for (let page = 0; page < DB_MAX_PAGES; page++) {
     const from = page * DB_PAGE_SIZE;
     const to = from + DB_PAGE_SIZE - 1;
     const { data, error } = await supabase
       .from("products")
-      .select("image_url")
+      .select("id, image_url")
+      .order("id", { ascending: true })
       .range(from, to);
     if (error) {
       throw new Error(`products 참조 목록 조회 실패: ${error.message}`);
@@ -43,20 +47,28 @@ async function fetchAllProductImageUrls(supabase: SupabaseClient): Promise<strin
       }
     }
     if (rows.length < DB_PAGE_SIZE) break;
+    if (page === DB_MAX_PAGES - 1) {
+      truncated = true;
+    }
   }
-  return urls;
+  return { urls, truncated };
 }
 
 async function fetchAllInquiryImageRows(
   supabase: SupabaseClient
-): Promise<Array<{ images?: unknown; image_url?: unknown }>> {
+): Promise<{
+  rows: Array<{ images?: unknown; image_url?: unknown }>;
+  truncated: boolean;
+}> {
   const result: Array<{ images?: unknown; image_url?: unknown }> = [];
+  let truncated = false;
   for (let page = 0; page < DB_MAX_PAGES; page++) {
     const from = page * DB_PAGE_SIZE;
     const to = from + DB_PAGE_SIZE - 1;
     const { data, error } = await supabase
       .from("purchase_requests")
-      .select("images, image_url")
+      .select("id, images, image_url")
+      .order("id", { ascending: true })
       .range(from, to);
     if (error) {
       throw new Error(`purchase_requests 참조 목록 조회 실패: ${error.message}`);
@@ -69,8 +81,11 @@ async function fetchAllInquiryImageRows(
       });
     }
     if (rows.length < DB_PAGE_SIZE) break;
+    if (page === DB_MAX_PAGES - 1) {
+      truncated = true;
+    }
   }
-  return result;
+  return { rows: result, truncated };
 }
 
 async function listBucketObjectsRecursive(
@@ -189,14 +204,28 @@ export async function POST(req: NextRequest) {
     // 관리자 인증이 완료된 뒤, 비공개 문의 첨부 포함 전체 DB 참조를 누락 없이 대조하기 위해 Service Role 사용
     const supabase = createServiceRoleClient();
 
-    const [productImageUrls, inquiryRows] = await Promise.all([
+    const [productRefResult, inquiryRefResult] = await Promise.all([
       fetchAllProductImageUrls(supabase),
       fetchAllInquiryImageRows(supabase),
     ]);
+    const truncated =
+      productRefResult.truncated || inquiryRefResult.truncated;
+
+    if (!dryRun && truncated) {
+      return NextResponse.json(
+        {
+          ok: false,
+          truncated: true,
+          error:
+            "DB 참조 목록이 조회 상한(20,000행)에 도달해 누락 참조 보호(Fail-Closed)를 위해 실제 삭제를 중단했습니다.",
+        },
+        { status: 409 }
+      );
+    }
 
     const referencedByBucket = collectReferencedStoragePathsByBucket({
-      productImageUrls,
-      inquiryRows,
+      productImageUrls: productRefResult.urls,
+      inquiryRows: inquiryRefResult.rows,
     });
 
     const listedArrays = await Promise.all(
@@ -214,6 +243,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({
         ok: true,
         dryRun: true,
+        truncated,
         minAgeHours,
         scannedCount: allListed.length,
         orphanCount: detection.orphans.length,

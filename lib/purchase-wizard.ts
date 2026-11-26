@@ -114,6 +114,8 @@ export function getStep3Readiness(params: {
   phone: string;
   password: string;
   agreed: boolean;
+  requireRegion?: boolean;
+  region?: string;
 }): {
   ready: boolean;
   phoneValid: boolean;
@@ -122,8 +124,17 @@ export function getStep3Readiness(params: {
   const nameOk = params.name.trim().length > 0;
   const phoneValid = isValidPhone(params.phone);
   const pwLen = params.password.trim().length;
-  const passwordValid = pwLen === 0 || pwLen >= 4;
+  const passwordValid = pwLen >= 4 && pwLen <= 32;
+  const regionOk =
+    !params.requireRegion || (params.region || "").trim().length > 0;
 
+  if (params.requireRegion && !regionOk) {
+    return {
+      ready: false,
+      phoneValid,
+      missingHint: "방문 수거 지역(구·동)을 선택하거나 입력해 주세요",
+    };
+  }
   if (!nameOk) {
     return { ready: false, phoneValid, missingHint: "성함 또는 상호명을 입력해 주세요" };
   }
@@ -134,7 +145,7 @@ export function getStep3Readiness(params: {
     return {
       ready: false,
       phoneValid,
-      missingHint: "비밀번호는 4자리 이상 입력하거나 비워두세요",
+      missingHint: "글 확인·수정용 비밀번호(4~32자)를 입력해 주세요",
     };
   }
   if (!params.agreed) {

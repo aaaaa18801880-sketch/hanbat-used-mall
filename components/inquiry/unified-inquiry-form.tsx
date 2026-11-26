@@ -37,6 +37,7 @@ import {
   INQUIRY_PHOTO_GUIDES,
   postInquirySubmission,
   prepareInquiryFileAdditions,
+  uploadInquiryAttachmentsViaSignedUrl,
 } from "../../lib/inquiry-client";
 import { CategoryNoticeGuideBanner } from "../products/notice-guide-banner";
 
@@ -428,6 +429,11 @@ export function UnifiedInquiryForm({
           "기존에 입력하신 내용을 유지했습니다. 아래 검토 창에서 AI 제안값 반영 여부를 선택해 주세요.",
           { id: toastId, duration: 4500 }
         );
+      } else if (data.fallbackDraft) {
+        toast(
+          "사진 글자 판독이 불분명하여 기본 양식 초안을 채웠습니다. 모델명·상태를 직접 확인해 주세요.",
+          { id: toastId, duration: 4500 }
+        );
       } else {
         toast.success(
           "AI 분석 초안이 반영되었습니다! 미확인 항목을 확인·수정해 주세요.",
@@ -541,30 +547,30 @@ export function UnifiedInquiryForm({
     try {
       let uploadedUrls = cachedUploadedUrls ?? [];
       if (!cachedUploadedUrls && selectedFiles.length > 0) {
-        const { supabase } = await import("../../lib/supabase");
-        const freshUrls: string[] = [];
-        const uploadBucket = isNotice
-          ? STORAGE_BUCKETS.inquiries
-          : STORAGE_BUCKETS.inquiryAttachments;
-        for (const file of selectedFiles) {
-          const blob = await compressImage(file, 1400, 0.8);
-          const baseFileName = `inq_${Date.now()}_${Math.random()
-            .toString(36)
-            .slice(2, 8)}.jpg`;
-          // [SEC-002] 고객 첨부 버킷(inquiry-attachments)은 RLS 폴더 정책(inquiries/*)과 일치하도록 경로 지정
-          const fileName = isNotice ? baseFileName : `inquiries/${baseFileName}`;
-          const { error: uploadErr } = await supabase.storage
-            .from(uploadBucket)
-            .upload(fileName, blob, { contentType: "image/jpeg" });
-          if (uploadErr) {
-            throw new Error(
-              "사진 업로드 중 네트워크 오류가 발생했습니다. 다시 시도해 주세요."
-            );
+        let freshUrls: string[] = [];
+        if (isNotice) {
+          const { supabase } = await import("../../lib/supabase");
+          for (const file of selectedFiles) {
+            const blob = await compressImage(file, 1400, 0.8);
+            const fileName = `inq_${Date.now()}_${Math.random()
+              .toString(36)
+              .slice(2, 8)}.jpg`;
+            const { error: uploadErr } = await supabase.storage
+              .from(STORAGE_BUCKETS.inquiries)
+              .upload(fileName, blob, { contentType: "image/jpeg" });
+            if (uploadErr) {
+              throw new Error(
+                "사진 업로드 중 네트워크 오류가 발생했습니다. 다시 시도해 주세요."
+              );
+            }
+            const { data: pubData } = supabase.storage
+              .from(STORAGE_BUCKETS.inquiries)
+              .getPublicUrl(fileName);
+            if (pubData?.publicUrl) freshUrls.push(pubData.publicUrl);
           }
-          const { data: pubData } = supabase.storage
-            .from(uploadBucket)
-            .getPublicUrl(fileName);
-          if (pubData?.publicUrl) freshUrls.push(pubData.publicUrl);
+        } else {
+          // [SEC-002] 서버 서명 업로드 URL(/api/inquiries/upload-url)이 `inquiries/${baseFileName}` 표준 경로로 발급합니다.
+          freshUrls = await uploadInquiryAttachmentsViaSignedUrl(selectedFiles);
         }
         uploadedUrls = freshUrls;
         setCachedUploadedUrls(freshUrls);
@@ -986,6 +992,8 @@ export function UnifiedInquiryForm({
               type="text"
               autoComplete="name"
               value={name}
+              aria-invalid={Boolean(fieldErrors.name) || undefined}
+              aria-describedby={fieldErrors.name ? "uf-name-error" : undefined}
               onChange={(e) => {
                 setName(e.target.value);
                 if (fieldErrors.name)
@@ -996,6 +1004,15 @@ export function UnifiedInquiryForm({
                 fieldErrors.name ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
+            {fieldErrors.name && (
+              <p
+                id="uf-name-error"
+                role="alert"
+                className="mt-1 text-hb-xs font-semibold text-red-600"
+              >
+                {fieldErrors.name}
+              </p>
+            )}
           </div>
 
           <div>
@@ -1008,6 +1025,8 @@ export function UnifiedInquiryForm({
               inputMode="numeric"
               autoComplete="tel"
               value={phone}
+              aria-invalid={Boolean(fieldErrors.phone) || undefined}
+              aria-describedby={fieldErrors.phone ? "uf-phone-error" : undefined}
               onChange={(e) => {
                 setPhone(formatPhone(e.target.value));
                 if (fieldErrors.phone)
@@ -1018,6 +1037,15 @@ export function UnifiedInquiryForm({
                 fieldErrors.phone ? "border-red-500 ring-1 ring-red-500" : ""
               }`}
             />
+            {fieldErrors.phone && (
+              <p
+                id="uf-phone-error"
+                role="alert"
+                className="mt-1 text-hb-xs font-semibold text-red-600"
+              >
+                {fieldErrors.phone}
+              </p>
+            )}
           </div>
 
           <div>
@@ -1038,6 +1066,10 @@ export function UnifiedInquiryForm({
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               value={password}
+              aria-invalid={Boolean(fieldErrors.password) || undefined}
+              aria-describedby={
+                fieldErrors.password ? "uf-pw-error" : undefined
+              }
               onChange={(e) => {
                 setPassword(e.target.value);
                 if (fieldErrors.password)
@@ -1050,6 +1082,15 @@ export function UnifiedInquiryForm({
                   : ""
               }`}
             />
+            {fieldErrors.password && (
+              <p
+                id="uf-pw-error"
+                role="alert"
+                className="mt-1 text-hb-xs font-semibold text-red-600"
+              >
+                {fieldErrors.password}
+              </p>
+            )}
           </div>
         </div>
       ) : (
@@ -1559,6 +1600,10 @@ export function UnifiedInquiryForm({
                   id="uf-title"
                   type="text"
                   value={title}
+                  aria-invalid={Boolean(fieldErrors.title) || undefined}
+                  aria-describedby={
+                    fieldErrors.title ? "uf-title-error" : undefined
+                  }
                   onChange={(e) => {
                     setTitle(e.target.value);
                     if (fieldErrors.title)
@@ -1569,6 +1614,15 @@ export function UnifiedInquiryForm({
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
+                {fieldErrors.title && (
+                  <p
+                    id="uf-title-error"
+                    role="alert"
+                    className="mt-1 text-hb-xs font-semibold text-red-600"
+                  >
+                    {fieldErrors.title}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1589,6 +1643,10 @@ export function UnifiedInquiryForm({
                   id="uf-region"
                   type="text"
                   value={region}
+                  aria-invalid={Boolean(fieldErrors.region) || undefined}
+                  aria-describedby={
+                    fieldErrors.region ? "uf-region-error" : undefined
+                  }
                   onChange={(e) => {
                     setRegion(e.target.value);
                     if (fieldErrors.region)
@@ -1599,6 +1657,15 @@ export function UnifiedInquiryForm({
                     fieldErrors.region ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
+                {fieldErrors.region && (
+                  <p
+                    id="uf-region-error"
+                    role="alert"
+                    className="mt-1 text-hb-xs font-semibold text-red-600"
+                  >
+                    {fieldErrors.region}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -1769,6 +1836,10 @@ export function UnifiedInquiryForm({
                   id="uf-title"
                   type="text"
                   value={title}
+                  aria-invalid={Boolean(fieldErrors.title) || undefined}
+                  aria-describedby={
+                    fieldErrors.title ? "uf-title-error" : undefined
+                  }
                   onChange={(e) => {
                     setTitle(e.target.value);
                     if (fieldErrors.title)
@@ -1785,6 +1856,15 @@ export function UnifiedInquiryForm({
                     fieldErrors.title ? "border-red-500 ring-1 ring-red-500" : ""
                   }`}
                 />
+                {fieldErrors.title && (
+                  <p
+                    id="uf-title-error"
+                    role="alert"
+                    className="mt-1 text-hb-xs font-semibold text-red-600"
+                  >
+                    {fieldErrors.title}
+                  </p>
+                )}
               </div>
 
               {!isNotice && !isOther && (
@@ -1813,6 +1893,10 @@ export function UnifiedInquiryForm({
                 id="uf-desc"
                 rows={bundleApplied || isBulk ? 5 : 4}
                 value={description}
+                aria-invalid={Boolean(fieldErrors.description) || undefined}
+                aria-describedby={
+                  fieldErrors.description ? "uf-desc-error" : undefined
+                }
                 onChange={(e) => {
                   setDescription(e.target.value);
                   if (fieldErrors.description)
@@ -1829,6 +1913,15 @@ export function UnifiedInquiryForm({
                     : ""
                 }`}
               />
+              {fieldErrors.description && (
+                <p
+                  id="uf-desc-error"
+                  role="alert"
+                  className="mt-1 text-hb-xs font-semibold text-red-600"
+                >
+                  {fieldErrors.description}
+                </p>
+              )}
             </div>
           </div>
         )}
@@ -1837,29 +1930,44 @@ export function UnifiedInquiryForm({
       {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}
       <div className="pt-4 border-t border-[#E2E6EC] space-y-4">
         {!isNotice && (
-          <label className="flex cursor-pointer items-center gap-2.5 text-hb-base text-[#334155]">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(e) => {
-                setAgreed(e.target.checked);
-                if (fieldErrors.agreed)
-                  setFieldErrors((p) => ({ ...p, agreed: "" }));
-              }}
-              className="h-5 w-5 shrink-0 accent-[#141A23]"
-            />
-            <span>
-              상담·견적 안내를 위한{" "}
-              <Link
-                href="/privacy"
-                target="_blank"
-                className="font-bold text-[#141A23] underline underline-offset-2"
+          <div>
+            <label className="flex cursor-pointer items-center gap-2.5 text-hb-base text-[#334155]">
+              <input
+                type="checkbox"
+                checked={agreed}
+                aria-invalid={Boolean(fieldErrors.agreed) || undefined}
+                aria-describedby={
+                  fieldErrors.agreed ? "uf-agreed-error" : undefined
+                }
+                onChange={(e) => {
+                  setAgreed(e.target.checked);
+                  if (fieldErrors.agreed)
+                    setFieldErrors((p) => ({ ...p, agreed: "" }));
+                }}
+                className="h-5 w-5 shrink-0 accent-[#141A23]"
+              />
+              <span>
+                상담·견적 안내를 위한{" "}
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  className="font-bold text-[#141A23] underline underline-offset-2"
+                >
+                  개인정보 수집·이용
+                </Link>
+                에 동의합니다. <span className="text-[#E8521A]">*</span>
+              </span>
+            </label>
+            {fieldErrors.agreed && (
+              <p
+                id="uf-agreed-error"
+                role="alert"
+                className="mt-1 text-hb-xs font-semibold text-red-600"
               >
-                개인정보 수집·이용
-              </Link>
-              에 동의합니다. <span className="text-[#E8521A]">*</span>
-            </span>
-          </label>
+                {fieldErrors.agreed}
+              </p>
+            )}
+          </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">

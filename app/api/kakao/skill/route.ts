@@ -28,14 +28,27 @@ function verifyOptionalSkillSecret(req: NextRequest): boolean {
   return crypto.timingSafeEqual(a, b);
 }
 
+const ALLOWED_SITE_HOSTS = new Set(["hanbatmall.com", "www.hanbatmall.com"]);
+
 function resolveSiteOrigin(req: NextRequest): string {
   const configured = (process.env.NEXT_PUBLIC_SITE_URL || "").trim();
   if (configured.startsWith("https://")) {
-    return configured.replace(/\/+$/, "");
+    try {
+      return new URL(configured).origin;
+    } catch {
+      // fall through to validated host check
+    }
   }
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host");
-  if (host && !host.includes("localhost") && !host.startsWith("127.0.0.1")) {
-    return `https://${host}`;
+  const rawHost = (
+    req.headers.get("x-forwarded-host") ||
+    req.headers.get("host") ||
+    ""
+  )
+    .split(",")[0]
+    .trim()
+    .toLowerCase();
+  if (rawHost && ALLOWED_SITE_HOSTS.has(rawHost)) {
+    return `https://${rawHost}`;
   }
   return STORE.url;
 }

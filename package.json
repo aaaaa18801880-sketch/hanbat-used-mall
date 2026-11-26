@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "node --import ./tests/register-ts.mjs --test tests/*.test.ts"
+    "test": "node --import ./tests/register-ts.mjs --test tests/*.test.ts",
+    "pack:ais": "node scripts/pack-ais-bundle.mjs",
+    "pack:ais:ui": "node scripts/pack-ais-bundle.mjs --ui-only"
   },
   "dependencies": {
     "@google/genai": "^2.28.0",

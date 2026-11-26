@@ -63,7 +63,11 @@ const LIVE_FLASH_FALLBACK_CHAIN = [
 
 const DEFAULT_DAILY_GEMINI_LIMIT = 500;
 const MAX_DAILY_GEMINI_LIMIT = 10000;
+const DEFAULT_PUBLIC_DAILY_GEMINI_LIMIT = 80;
+const MAX_PUBLIC_DAILY_GEMINI_LIMIT = 500;
 const DAY_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+export type GeminiBudgetScope = "admin" | "public";
 const UNAVAILABLE_MODEL_TTL_MS = 30 * 60 * 1000;
 const RATE_LIMIT_BACKOFF_MS = 1500;
 const DEFAULT_MAX_MODEL_ATTEMPTS = 2;
@@ -173,6 +177,20 @@ export function resolveGeminiDailyLimit(raw?: string): number {
   return Math.min(MAX_DAILY_GEMINI_LIMIT, Math.floor(parsed));
 }
 
+export function resolvePublicGeminiDailyLimit(raw?: string): number {
+  if (raw === undefined || raw === null || raw.trim() === "") {
+    return DEFAULT_PUBLIC_DAILY_GEMINI_LIMIT;
+  }
+  const parsed = Number(raw.trim());
+  if (!Number.isFinite(parsed)) {
+    return DEFAULT_PUBLIC_DAILY_GEMINI_LIMIT;
+  }
+  if (parsed <= 0) {
+    return 0;
+  }
+  return Math.min(MAX_PUBLIC_DAILY_GEMINI_LIMIT, Math.floor(parsed));
+}
+
 function getKstDateKey(nowMs = Date.now()): string {
   const kstMs = nowMs + 9 * 60 * 60 * 1000;
   return new Date(kstMs).toISOString().slice(0, 10);
@@ -180,6 +198,7 @@ function getKstDateKey(nowMs = Date.now()): string {
 
 export async function checkGeminiDailyBudget(
   options?: {
+    budgetScope?: GeminiBudgetScope;
     dailyLimit?: number;
     nowMs?: number;
     rateLimitRunner?: (
@@ -189,9 +208,12 @@ export async function checkGeminiDailyBudget(
     ) => Promise<{ allowed: boolean; retryAfterSec: number }>;
   }
 ): Promise<{ allowed: boolean; dailyLimit: number; retryAfterSec: number }> {
+  const scope: GeminiBudgetScope = options?.budgetScope ?? "admin";
   const dailyLimit =
     typeof options?.dailyLimit === "number"
       ? options.dailyLimit
+      : scope === "public"
+      ? resolvePublicGeminiDailyLimit(process.env.GEMINI_PUBLIC_DAILY_LIMIT)
       : resolveGeminiDailyLimit(process.env.GEMINI_DAILY_LIMIT);
 
   if (dailyLimit <= 0) {
@@ -199,11 +221,13 @@ export async function checkGeminiDailyBudget(
   }
 
   const dateKey = getKstDateKey(options?.nowMs);
-  const rateKey = `gemini_daily:${dateKey}`;
+  const rateKey = `gemini_daily:${scope}:${dateKey}`;
   const runner =
     options?.rateLimitRunner ??
     ((key, max, win) =>
-      checkRateLimit(key, max, win, { failureMode: "fail-open" }));
+      checkRateLimit(key, max, win, {
+        failureMode: scope === "public" ? "fail-closed" : "fail-open",
+      }));
 
   const res = await runner(rateKey, dailyLimit, DAY_WINDOW_MS);
   return {
@@ -262,6 +286,7 @@ export async function generateGeminiWithFallback(options: {
   config?: Record<string, unknown>;
   timeoutMs?: number;
   maxAttempts?: number;
+  budgetScope?: GeminiBudgetScope;
   skipDailyBudget?: boolean;
   rateLimitBackoffMs?: number;
   budgetChecker?: () => Promise<{
@@ -283,7 +308,7 @@ export async function generateGeminiWithFallback(options: {
   if (!options.skipDailyBudget) {
     const budget = options.budgetChecker
       ? await options.budgetChecker()
-      : await checkGeminiDailyBudget();
+      : await checkGeminiDailyBudget({ budgetScope: options.budgetScope });
     if (!budget.allowed) {
       throw new GeminiBudgetExceededError(
         budget.dailyLimit,

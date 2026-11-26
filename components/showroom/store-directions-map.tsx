@@ -656,8 +656,6 @@ export function StoreDirectionsModal({
             </a>
             <a
               href={STORE_NAVIGATION.tmapUrl}
-              target="_blank"
-              rel="noopener noreferrer"
               className="hb-btn-outline h-10 sm:h-9 px-2.5 sm:px-3.5 text-hb-xs font-bold whitespace-nowrap"
             >
               <span>티맵</span>

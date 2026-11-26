@@ -13,12 +13,14 @@ import {
   STORE_MERCHANT_POLICY,
   STORE_SHIPPING_POLICY,
   splitImages,
+  isValidProductRouteId,
   isProductPendingReview,
   isProductSold,
   PRODUCT_STATUS,
   getCategoryWarrantyInfo,
   buildProductInquiryHref,
   normalizeProductCategory,
+  formatOfferPriceValidUntil,
   formatProductPrice,
   hasProductPrice,
   extractManufacturerBrand,
@@ -75,6 +77,13 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
+
+  if (!isValidProductRouteId(id)) {
+    return {
+      title: "상품을 찾을 수 없습니다",
+      robots: { index: false, follow: false },
+    };
+  }
 
   const { product } = await getProductById(id);
 
@@ -167,6 +176,10 @@ export default async function ProductDetailPage({
 }) {
   const { id } = await params;
 
+  if (!isValidProductRouteId(id)) {
+    notFound();
+  }
+
   const { product, error } = await getProductById(id);
 
   if (
@@ -214,6 +227,7 @@ export default async function ProductDetailPage({
     )
     .neq("category", "배송인증")
     .neq("status", PRODUCT_STATUS.PENDING_REVIEW)
+    .neq("status", PRODUCT_STATUS.SOLD)
     .neq("id", id)
     .eq("category", product.category)
     .order("created_at", { ascending: false })
@@ -226,12 +240,7 @@ export default async function ProductDetailPage({
   const warrantySummary = getCategoryWarrantyInfo(categoryLabel).detailLabel;
 
   const categoryFaqs = getCategoryFaqs(categoryLabel, sold);
-  const createdTimestamp = product.created_at
-    ? new Date(product.created_at).getTime()
-    : 1767225600000;
-  const priceValidUntil = new Date(createdTimestamp + 90 * 86400000)
-    .toISOString()
-    .split("T")[0];
+  const priceValidUntil = formatOfferPriceValidUntil(product.created_at);
 
   const productJsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
@@ -301,8 +310,7 @@ export default async function ProductDetailPage({
           "@type": "Offer",
           url: `${STORE.url}/${product.id}`,
           priceCurrency: "KRW",
-          ...(priced ? { price: Number(product.price) } : {}),
-          priceValidUntil,
+          ...(priced ? { price: Number(product.price), priceValidUntil } : {}),
           availability: sold
             ? "https://schema.org/OutOfStock"
             : "https://schema.org/InStock",

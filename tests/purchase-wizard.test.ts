@@ -67,7 +67,22 @@ test("Step 3 제출 준비 검사가 필수 항목과 비밀번호 조건을 순
     false
   );
   assert.equal(
-    getStep3Readiness({ name: "홍길동", phone: "010-123", password: "", agreed: true }).phoneValid,
+    getStep3Readiness({
+      name: "홍길동",
+      phone: "010-1234-5678",
+      password: "1234",
+      agreed: true,
+      requireRegion: true,
+      region: "",
+    }).ready,
+    false
+  );
+  assert.equal(
+    getStep3Readiness({ name: "홍길동", phone: "010-123", password: "1234", agreed: true }).phoneValid,
+    false
+  );
+  assert.equal(
+    getStep3Readiness({ name: "홍길동", phone: "010-1234-5678", password: "", agreed: true }).ready,
     false
   );
   assert.equal(
@@ -75,11 +90,18 @@ test("Step 3 제출 준비 검사가 필수 항목과 비밀번호 조건을 순
     false
   );
   assert.equal(
-    getStep3Readiness({ name: "홍길동", phone: "010-1234-5678", password: "", agreed: false }).ready,
+    getStep3Readiness({ name: "홍길동", phone: "010-1234-5678", password: "1234", agreed: false }).ready,
     false
   );
   assert.deepEqual(
-    getStep3Readiness({ name: "홍길동", phone: "010-1234-5678", password: "", agreed: true }),
+    getStep3Readiness({
+      name: "홍길동",
+      phone: "010-1234-5678",
+      password: "1234",
+      agreed: true,
+      requireRegion: true,
+      region: "대전 중구",
+    }),
     { ready: true, phoneValid: true, missingHint: null }
   );
 });

@@ -8,10 +8,14 @@ import {
   isValidPhone,
   maskName,
   maskPhone,
+  formatOfferPriceValidUntil,
   formatProductPrice,
   extractModelName,
+  extractManufacturerBrand,
   extractWidthMmFromText,
   extractSpecCapsules,
+  getCategoryFaqs,
+  isValidProductRouteId,
   matchesSearchQuery,
   sanitizeOldManufactureYear,
   normalizeProductCategory,
@@ -291,8 +295,32 @@ describe("정보 가이드 데이터 및 계산기 브릿지 무결성 테스트
     const summary = toProductCardSummary(rawProduct);
     assert.equal("description" in summary, false);
     assert.equal(summary.model_name, "LS-1140R");
+    assert.equal(summary.width_mm, 1260);
     assert.equal(summary.commercial_hint, "bizFridge");
     assert.ok(Array.isArray(summary.spec_capsules) && summary.spec_capsules.length > 0);
+
+    assert.equal(
+      isValidProductRouteId("550e8400-e29b-41d4-a716-446655440000"),
+      true
+    );
+    assert.equal(isValidProductRouteId("12345"), false);
+    assert.equal(isValidProductRouteId("favicon.ico"), false);
+
+    assert.equal(extractManufacturerBrand("스타리온 45박스 냉장고"), "스타리온");
+    assert.equal(extractManufacturerBrand("아이스트로 제빙기 50kg"), "아이스트로");
+    assert.equal(
+      getCategoryFaqs("에어컨/냉난방기").some((f) =>
+        f.a.includes("판매 계약 조건에 따라")
+      ),
+      false
+    );
+    assert.equal(
+      formatOfferPriceValidUntil(
+        "2024-01-01T00:00:00Z",
+        Date.parse("2026-11-26T00:00:00Z")
+      ),
+      "2027-02-24"
+    );
 
     assert.equal(
       mightHaveRefrigeratorDiagram(rawProduct.title, rawProduct.description, rawProduct.category),

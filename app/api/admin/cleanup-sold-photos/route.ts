@@ -1,4 +1,5 @@
 // 파일 경로: app/api/admin/cleanup-sold-photos/route.ts
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { createAnonServerClient } from "../../../../lib/supabase";
 import {
@@ -57,11 +58,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const supabase = createAnonServerClient(adminCheck.accessToken);
+    const cutoffIso = new Date(
+      Date.now() - minAgeDays * 24 * 60 * 60 * 1000
+    ).toISOString();
     const { data, error } = await supabase
       .from("products")
       .select("id, title, category, status, image_url, created_at")
       .eq("status", "판매완료")
       .neq("category", "배송인증")
+      .lt("created_at", cutoffIso)
+      .order("created_at", { ascending: true })
       .limit(500);
 
     if (error) throw error;
@@ -88,6 +94,7 @@ export async function POST(req: NextRequest) {
 
     let cleanedProductCount = 0;
     let deletedFileCount = 0;
+    const cleanedProductIds: string[] = [];
 
     for (const target of targets) {
       const { error: updErr } = await supabase
@@ -97,6 +104,7 @@ export async function POST(req: NextRequest) {
 
       if (updErr) continue;
       cleanedProductCount++;
+      cleanedProductIds.push(target.productId);
 
       const { inquiries, productImages, attachments } =
         extractStorageFilesByBucket(target.removableUrls);
@@ -114,6 +122,14 @@ export async function POST(req: NextRequest) {
           .remove(paths);
         if (delData) deletedFileCount += delData.length;
       }
+    }
+
+    if (cleanedProductIds.length > 0) {
+      for (const productId of cleanedProductIds) {
+        revalidatePath(`/${productId}`);
+      }
+      revalidatePath("/gallery");
+      revalidatePath("/");
     }
 
     return NextResponse.json({

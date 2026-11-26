@@ -8,6 +8,9 @@ import {
   getClientIp,
   verifySameOriginRequest,
   checkRateLimit,
+  checkInquiryPasswordRateLimit,
+  recordInquiryPasswordIpFailure,
+  validateInquiryUploadSlotRequest,
   checkNotificationIdempotency,
   markNotificationSent,
   markNotificationFailed,
@@ -65,6 +68,112 @@ describe("lib/server-security 보안 모듈 단위 테스트", () => {
       },
     });
     assert.equal(verifySameOriginRequest(crossSiteReq), false);
+
+    const headerlessBotReq = new Request(
+      "https://hanbatmall.com/api/analyze-inquiry",
+      { method: "POST" }
+    );
+    assert.equal(verifySameOriginRequest(headerlessBotReq), true);
+    assert.equal(
+      verifySameOriginRequest(headerlessBotReq, { requireOriginHeader: true }),
+      false
+    );
+
+    const spoofedVercelHostReq = new Request(
+      "https://internal.local/api/inquiries",
+      {
+        method: "POST",
+        headers: {
+          origin: "https://attacker-app.vercel.app",
+          "x-forwarded-host": "attacker-app.vercel.app",
+        },
+      }
+    );
+    assert.equal(verifySameOriginRequest(spoofedVercelHostReq), false);
+  });
+
+  it("비밀번호 Rate Limit이 정상 열람은 잠그지 않고 오입력 시에만 IP·게시글 잠금을 차감한다", async () => {
+    const counts = new Map<string, number>();
+    const rpcRunner = async (
+      _fn: string,
+      args: Record<string, unknown>
+    ) => {
+      const key = String(args.p_key);
+      const max = Number(args.p_max_attempts);
+      const inc = Boolean(args.p_increment);
+      const prev = counts.get(key) ?? 0;
+      const next = inc ? prev + 1 : prev;
+      if (inc && prev < max) {
+        counts.set(key, next);
+      }
+      const allowed = inc ? prev < max : prev < max;
+      return {
+        data: [
+          {
+            allowed,
+            retry_after_sec: allowed ? 0 : 120,
+            current_count: counts.get(key) ?? 0,
+          },
+        ],
+        error: null,
+      };
+    };
+
+    // 동일 문의글 정상 조회 6회 연속 시에도 pw_verify 잠금이 걸리지 않음
+    for (let i = 0; i < 6; i++) {
+      const res = await checkInquiryPasswordRateLimit("203.0.113.9", "inq-ok", {
+        rpcRunner,
+      });
+      assert.equal(res.allowed, true);
+    }
+
+    // 오입력 5회 기록 후에는 차단됨
+    for (let i = 0; i < 5; i++) {
+      await recordInquiryPasswordIpFailure("203.0.113.9", "inq-fail", {
+        rpcRunner,
+      });
+    }
+    const blocked = await checkInquiryPasswordRateLimit(
+      "203.0.113.9",
+      "inq-fail",
+      { rpcRunner }
+    );
+    assert.equal(blocked.allowed, false);
+    assert.equal(blocked.reason, "lockout");
+  });
+
+  it("서명 업로드 슬롯 요청 검증(validateInquiryUploadSlotRequest)이 개수·형식·용량을 차단한다", () => {
+    assert.equal(validateInquiryUploadSlotRequest([]).ok, false);
+    assert.equal(
+      validateInquiryUploadSlotRequest(
+        Array.from({ length: 6 }, () => ({
+          mimeType: "image/jpeg",
+          sizeBytes: 1024,
+        }))
+      ).ok,
+      false
+    );
+    assert.equal(
+      validateInquiryUploadSlotRequest([
+        { mimeType: "image/svg+xml", sizeBytes: 1024 },
+      ]).ok,
+      false
+    );
+    assert.equal(
+      validateInquiryUploadSlotRequest([
+        { mimeType: "image/jpeg", sizeBytes: 7 * 1024 * 1024 },
+      ]).ok,
+      false
+    );
+
+    const valid = validateInquiryUploadSlotRequest([
+      { mimeType: "image/jpeg", sizeBytes: 420_000 },
+      { mimeType: "image/webp", sizeBytes: 310_000 },
+    ]);
+    assert.equal(valid.ok, true);
+    assert.equal(valid.slots?.length, 2);
+    assert.equal(valid.slots?.[0].ext, "jpg");
+    assert.equal(valid.slots?.[1].ext, "webp");
   });
 
   it("checkRateLimit fail-closed 모드가 RPC 오류 시 요청을 거부한다", async () => {

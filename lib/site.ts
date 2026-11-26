@@ -1,5 +1,6 @@
 // 파일 경로: lib/site.ts
 // 사이트 공통 상수, 데이터 표준 코드 및 유틸리티 단일 출처 (Single Source of Truth)
+import { matchProductBrandLabel } from "./product-card-meta";
 
 export const STORE = {
   name: "한밭중고전자",
@@ -132,6 +133,13 @@ export const PRODUCT_CONDITION_GRADES = [
   "C급 (노후/점검필요)",
 ] as const;
 
+const VALID_PRODUCT_ROUTE_UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isValidProductRouteId(id?: string | null): boolean {
+  return Boolean(id && VALID_PRODUCT_ROUTE_UUID_RE.test(id.trim()));
+}
+
 export function isProductSold(status?: string | null): boolean {
   if (!status) return false;
   const s = status.trim().toLowerCase();
@@ -221,36 +229,20 @@ export function formatProductPrice(
     : getInquiryLabel(category);
 }
 
+export function formatOfferPriceValidUntil(
+  createdAt?: string | null,
+  nowMs: number = Date.now()
+): string {
+  const parsedMs = createdAt ? Date.parse(createdAt) : 0;
+  const baseMs = Math.max(Number.isFinite(parsedMs) ? parsedMs : 0, nowMs);
+  return new Date(baseMs + 90 * 86400000).toISOString().split("T")[0];
+}
+
 export function extractManufacturerBrand(
   title?: string | null,
   description?: string | null
 ): string | null {
-  const combined = `${title ?? ""}\n${description ?? ""}`;
-  if (!combined.trim()) return null;
-
-  const BRAND_RULES: ReadonlyArray<[RegExp, string]> = [
-    [/삼성(?:전자)?|samsung|비스포크|bespoke|셰프컬렉션|그랑데|무풍|q9000/i, "삼성전자"],
-    [/\blg\b|엘지(?:전자)?|오브제|objet|트롬|tromm|디오스|dios|휘센|whisen|퓨리케어|스타일러/i, "LG전자"],
-    [/캐리어|carrier/i, "캐리어"],
-    [/위니아|딤채|winia|dimchae/i, "위니아"],
-    [/대우(?:전자)?|클라쎄|klasse|daewoo/i, "클라쎄(대우전자)"],
-    [/sk\s*매직|skmagic/i, "SK매직"],
-    [/하이얼|haier/i, "하이얼"],
-    [/라셀르|lasselle/i, "라셀르"],
-    [/우성(?:기업|냉동)?|woosung/i, "우성"],
-    [/부성|busung/i, "부성"],
-    [/한일(?:전기|전자)?|hanil/i, "한일"],
-    [/파세코|paseco/i, "파세코"],
-    [/신일|shinil/i, "신일"],
-    [/쿠쿠|cuckoo/i, "쿠쿠"],
-    [/코웨이|coway/i, "코웨이"],
-    [/아이콘|icevan|브레마|brema|호시자키|hoshizaki/i, "호시자키"],
-  ];
-
-  for (const [pattern, brand] of BRAND_RULES) {
-    if (pattern.test(combined)) return brand;
-  }
-  return null;
+  return matchProductBrandLabel(`${title ?? ""}\n${description ?? ""}`);
 }
 
 export function extractModelName(
@@ -759,7 +751,7 @@ export function triggerQuickInquiry(detail?: QuickInquiryDetail): void {
    ════════════════════════════════════════════════════════════ */
 const QUOTE_BASKET_STORAGE_KEY = "hb_quote_basket_v1";
 export const QUOTE_BASKET_EVENT = "hb-quote-basket-updated";
-const MAX_QUOTE_BASKET_ITEMS = 8;
+export const MAX_QUOTE_BASKET_ITEMS = 8;
 
 export interface QuoteBasketItem {
   id: string;
@@ -771,6 +763,8 @@ export interface QuoteBasketItem {
   conditionGrade?: string | null;
   description?: string | null;
   modelName?: string | null;
+  specCapsules?: string[] | null;
+  widthMm?: number | null;
   imageUrl?: string | null;
 }
 
@@ -1139,7 +1133,7 @@ export function getCategoryFaqs(
       },
       {
         q: "설치 비용은 어떻게 산정되며 보증 기간은 얼마인가요?",
-        a: "설치비(배관 길이, 타공 여부, 앵글 거치, 단상/삼상 전기 작업 등)는 현장 여건을 사진이나 전화로 알려주시면 사전 안내해 드리며, 에어컨·냉난방기는 판매 계약 조건에 따라 최대 8개월 무상 A/S 보증이 적용됩니다.",
+        a: `설치비(배관 길이, 타공 여부, 앵글 거치, 단상/삼상 전기 작업 등)는 현장 여건을 사진이나 전화로 알려주시면 사전 안내해 드리며, 에어컨·냉난방기는 ${getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel}(출고 확인 기준)이 적용됩니다.`,
       }
     );
   } else if (cat === "업소용기기") {
@@ -1616,9 +1610,7 @@ export const STORE_NAVIGATION = {
   naverMap: STORE.naverMap,
   kakaoMap: `https://map.kakao.com/link/search/${encodeURIComponent(STORE.name)}`,
   kakaoTo: `https://map.kakao.com/link/to/${encodeURIComponent(STORE.name)},${STORE.geo.lat},${STORE.geo.lng}`,
-  tmapUrl: `https://m.map.naver.com/search2/search.naver?query=${encodeURIComponent(
-    STORE.name + " " + STORE.roadAddress
-  )}`,
+  tmapUrl: `tmap://route?rGoName=${encodeURIComponent(STORE.name)}&rGoX=${STORE.geo.lng}&rGoY=${STORE.geo.lat}`,
   roadAddress: STORE.roadAddress,
   jibunAddress: STORE.jibunAddress,
   addressNote: STORE.addressNote,
@@ -1708,12 +1700,13 @@ export interface ProductCardSummarySource {
 export interface ProductCardSummaryItem extends Omit<ProductCardSummarySource, "description"> {
   model_name: string | null;
   spec_capsules: string[];
+  width_mm: number | null;
   commercial_hint: "showcase" | "bizFridge" | "kitchen" | null;
 }
 
 /**
  * 목록/추천 카드 렌더링용 경량 상품 DTO 변환기
- * - 긴 description 원문 대신 카드에 필요한 모델명·스펙 캡슐(2개)·업소용 분류 힌트만 추출해
+ * - 긴 description 원문 대신 카드·비교함에 필요한 모델명·스펙 캡슐·가로폭·업소용 분류 힌트만 추출해
  *   RSC 페이로드와 초기 HTML 크기를 크게 줄입니다.
  */
 export function toProductCardSummary(
@@ -1746,8 +1739,11 @@ export function toProductCardSummary(
     spec_capsules: extractSpecCapsules(
       item.title,
       item.description,
-      2,
+      4,
       item.category
+    ),
+    width_mm: extractWidthMmFromText(
+      `${item.title || ""}\n${item.description || ""}`
     ),
     commercial_hint: commercialHint,
   };

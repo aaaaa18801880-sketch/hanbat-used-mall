@@ -325,6 +325,7 @@ export function GuideBoardClient({
   initialStats?: GuideStatsMap;
 }) {
   const searchParams = useSearchParams();
+  const rawQueryKey = searchParams.toString();
   const [liveStats, setLiveStats] = useState<GuideStatsMap>(initialStats);
   const [sortMode, setSortMode] = useState<GuideSortMode>(() =>
     parseInitialSort(searchParams.get("sort")),
@@ -339,6 +340,15 @@ export function GuideBoardClient({
   const [currentPage, setCurrentPage] = useState(() =>
     parseInitialPage(searchParams.get("page")),
   );
+  const [prevRawQueryKey, setPrevRawQueryKey] = useState(rawQueryKey);
+  if (prevRawQueryKey !== rawQueryKey) {
+    setPrevRawQueryKey(rawQueryKey);
+    setSortMode(parseInitialSort(searchParams.get("sort")));
+    setSelectedCategory(parseInitialCategory(searchParams.get("category")));
+    const nextQ = searchParams.get("q")?.trim() ?? "";
+    setSearchQuery((prev) => (prev.trim() === nextQ ? prev : nextQ));
+    setCurrentPage(parseInitialPage(searchParams.get("page")));
+  }
 
   const listTopRef = useRef<HTMLElement | null>(null);
   const lastRefreshAtRef = useRef<number>(0);

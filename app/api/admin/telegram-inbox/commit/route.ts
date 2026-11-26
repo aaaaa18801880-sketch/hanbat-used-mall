@@ -138,32 +138,50 @@ export async function POST(req: NextRequest) {
   const supabase = createAnonServerClient(adminCheck.accessToken);
   const ingestChatId = getTelegramIngestChatId();
   const uploadedUrls: string[] = [];
+  let claimedIds: string[] = [];
 
   try {
-    let commitSelectQuery = supabase
+    let claimQuery = supabase
       .from("telegram_inbox_photos")
-      .select("*")
+      .update({ status: "processing" })
       .in("id", photoIds)
       .eq("status", "pending");
     if (ingestChatId) {
-      commitSelectQuery = commitSelectQuery.eq("chat_id", ingestChatId);
+      claimQuery = claimQuery.eq("chat_id", ingestChatId);
     }
-    const { data, error } = await commitSelectQuery;
+    const { data, error } = await claimQuery.select("*");
 
     if (error) throw error;
 
-    const ordered = orderCommitInboxPhotos(
-      (data ?? []) as TelegramInboxPhoto[],
-      photoIds
-    );
-    const shouldPreserveOrder =
-      body.preserveOrder === true || isGroupOrderCustomized(ordered);
-    if (ordered.length === 0) {
+    const claimedRows = (data ?? []) as TelegramInboxPhoto[];
+    claimedIds = claimedRows.map((p) => p.id);
+
+    if (claimedRows.length === 0) {
       return NextResponse.json(
-        { error: "이미 등록되었거나 존재하지 않는 사진 묶음입니다." },
-        { status: 404 }
+        { error: "이미 등록되었거나 다른 탭에서 처리 중인 사진 묶음입니다." },
+        { status: 409 }
       );
     }
+
+    if (claimedRows.length !== photoIds.length) {
+      await supabase
+        .from("telegram_inbox_photos")
+        .update({ status: "pending" })
+        .in("id", claimedIds)
+        .eq("status", "processing");
+      claimedIds = [];
+      return NextResponse.json(
+        {
+          error:
+            "선택한 사진 중 일부가 이미 처리 중이거나 등록 완료되었습니다. 수집함을 새로고침한 뒤 다시 시도해 주세요.",
+        },
+        { status: 409 }
+      );
+    }
+
+    const ordered = orderCommitInboxPhotos(claimedRows, photoIds);
+    const shouldPreserveOrder =
+      body.preserveOrder === true || isGroupOrderCustomized(ordered);
 
     // 1) 텔레그램 원본 병렬 다운로드
     const downloadedOriginals = await Promise.all(
@@ -376,6 +394,7 @@ export async function POST(req: NextRequest) {
     if (markErr) {
       console.error("[telegram-inbox/commit] 상태 업데이트 경고:", markErr.message);
     }
+    claimedIds = [];
 
     return NextResponse.json({
       ok: true,
@@ -384,6 +403,18 @@ export async function POST(req: NextRequest) {
       committedPhotoIds: committedIds,
     });
   } catch (err: unknown) {
+    if (claimedIds.length > 0) {
+      try {
+        await supabase
+          .from("telegram_inbox_photos")
+          .update({ status: "pending" })
+          .in("id", claimedIds)
+          .eq("status", "processing");
+      } catch {
+        // ignore status rollback failure
+      }
+    }
+
     // 업로드된 Storage 파일이 있다면 고아 파일 롤백 정리
     if (uploadedUrls.length > 0) {
       try {

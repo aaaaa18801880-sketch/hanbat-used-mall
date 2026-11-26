@@ -265,8 +265,6 @@ export function ShowroomVisitModal({
               </a>
               <a
                 href={STORE_NAVIGATION.tmapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
                 onClick={() => trackEvent("click_nav_tmap")}
                 className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] hover:bg-[#F3EFE8] px-2 py-2.5 text-hb-xs font-bold text-[#141A23] transition-[background-color,transform] duration-150 active:scale-[0.96]"
               >

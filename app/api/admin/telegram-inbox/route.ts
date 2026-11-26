@@ -68,6 +68,10 @@ export async function GET(req: NextRequest) {
       return { data: collected, error: null };
     };
 
+    const soldCutoffIso = new Date(
+      Date.now() - 90 * 24 * 60 * 60 * 1000
+    ).toISOString();
+
     const [inboxRes, soldRes] = await Promise.all([
       fetchAllPendingInbox(),
       supabase
@@ -75,6 +79,8 @@ export async function GET(req: NextRequest) {
         .select("id, title, category, status, image_url, created_at")
         .eq("status", "판매완료")
         .neq("category", "배송인증")
+        .lt("created_at", soldCutoffIso)
+        .order("created_at", { ascending: true })
         .limit(500),
     ]);
 

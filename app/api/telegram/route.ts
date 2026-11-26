@@ -12,6 +12,7 @@ import {
   markNotificationFailed,
   markNotificationSent,
   verifyAdminRequest,
+  verifySameOriginRequest,
 } from "../../../lib/server-security";
 import {
   notificationJson,
@@ -69,16 +70,28 @@ export async function POST(req: NextRequest) {
         });
       }
       adminAccessToken = adminCheck.accessToken;
-    } else if (!inquiryId) {
-      // forceRetry가 없는 일반 호출은 반드시 유효한 inquiryId가 있어야 함 (외부 스팸 알림 차단)
-      return notificationJson("telegram", 400, {
-        success: false,
-        status: "EXTERNAL_ERROR",
-        sent: false,
-        retryable: false,
-        message: "유효한 접수 번호(inquiryId)가 필요합니다.",
-        timestamp: nowIso,
-      });
+    } else {
+      if (!verifySameOriginRequest(req, { requireOriginHeader: true })) {
+        return notificationJson("telegram", 403, {
+          success: false,
+          status: "EXTERNAL_ERROR",
+          sent: false,
+          retryable: false,
+          message: "허용되지 않은 요청 출처입니다.",
+          timestamp: nowIso,
+        });
+      }
+      if (!inquiryId) {
+        // forceRetry가 없는 일반 호출은 반드시 유효한 inquiryId가 있어야 함 (외부 스팸 알림 차단)
+        return notificationJson("telegram", 400, {
+          success: false,
+          status: "EXTERNAL_ERROR",
+          sent: false,
+          retryable: false,
+          message: "유효한 접수 번호(inquiryId)가 필요합니다.",
+          timestamp: nowIso,
+        });
+      }
     }
 
     // [SEC-005] 관리자 수동 재발송 시에는 관리자 JWT(Anon Client)를, 일반 고객 폴백 대조 시에만 Service Role 사용

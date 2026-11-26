@@ -38,6 +38,10 @@ test("buildStoreDirectionsShareText uses SSOT store address, alley tip, phone, a
   assert.ok(shareText.includes("중촌고가교"));
   assert.ok(shareText.includes(STORE.tel));
   assert.ok(shareText.includes(STORE_NAVIGATION.naverMap));
+  assert.ok(STORE_NAVIGATION.tmapUrl.startsWith("tmap://route?"));
+  assert.equal(STORE_NAVIGATION.tmapUrl.includes("naver.com"), false);
+  assert.ok(STORE_NAVIGATION.tmapUrl.includes(String(STORE.geo.lng)));
+  assert.ok(STORE_NAVIGATION.tmapUrl.includes(String(STORE.geo.lat)));
   assert.equal(STORE_DIRECTION_LANDMARKS.length, 3);
 });
 

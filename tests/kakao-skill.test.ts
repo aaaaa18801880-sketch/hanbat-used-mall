@@ -126,6 +126,7 @@ test("buildKakaoSkillSearchResponse formats valid Kakao v2.0 carousel with webLi
   const card = carouselOut.carousel.items[0];
   assert.ok(card.title.length <= 45);
   assert.ok(card.description.includes("420,000원"));
+  assert.equal(card.description.includes("원원"), false);
   assert.equal(card.thumbnail.fixedRatio, true);
   assert.deepEqual(card.buttons, [
     {

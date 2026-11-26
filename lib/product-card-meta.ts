@@ -16,12 +16,13 @@ const BRAND_RULES: readonly BrandRule[] = [
     stripPrefix: /^(?:\[?\s*그랜드\s*우성\s*\]?\s*)+/i,
   },
   {
-    pattern: /삼성전자|삼성|SAMSUNG|비스포크|그랑데|무풍/i,
+    pattern: /삼성전자|삼성|SAMSUNG|비스포크|BESPOKE|셰프컬렉션|그랑데|무풍|Q9000/i,
     label: "삼성전자",
     stripPrefix: /^(?:\[?\s*(?:삼성전자|삼성|SAMSUNG)\s*\]?\s*)+/i,
   },
   {
-    pattern: /LG전자|\bLG\b|엘지|휘센|디오스|DIOS|트롬|TROMM|오브제컬렉션|퓨리케어/i,
+    pattern:
+      /LG전자|\bLG\b|엘지|휘센|WHISEN|디오스|DIOS|트롬|TROMM|오브제(?:컬렉션)?|OBJET|퓨리케어|스타일러/i,
     label: "LG전자",
     stripPrefix: /^(?:\[?\s*(?:LG전자|LG|엘지전자|엘지)\s*\]?\s*)+/i,
   },
@@ -71,7 +72,7 @@ const BRAND_RULES: readonly BrandRule[] = [
     stripPrefix: /^(?:\[?\s*(?:아이스트로|ICETRO)\s*\]?\s*)+/i,
   },
   {
-    pattern: /호시자키|HOSHIZAKI/i,
+    pattern: /아이콘|ICEVAN|브레마|BREMA|호시자키|HOSHIZAKI/i,
     label: "호시자키",
     stripPrefix: /^(?:\[?\s*(?:호시자키|HOSHIZAKI)\s*\]?\s*)+/i,
   },
@@ -161,9 +162,9 @@ const BRAND_RULES: readonly BrandRule[] = [
     stripPrefix: /^(?:\[?\s*에이스침대\s*\]?\s*)+/i,
   },
   {
-    pattern: /SK매직|동양매직/i,
+    pattern: /SK\s*매직|SKMAGIC|동양매직/i,
     label: "SK매직",
-    stripPrefix: /^(?:\[?\s*(?:SK매직|동양매직)\s*\]?\s*)+/i,
+    stripPrefix: /^(?:\[?\s*(?:SK\s*매직|SKMAGIC|동양매직)\s*\]?\s*)+/i,
   },
   {
     pattern: /쿠쿠|CUCKOO/i,
@@ -269,6 +270,13 @@ function findBrandRule(title: string | null | undefined): BrandRule | null {
     }
   }
   return null;
+}
+
+export function matchProductBrandLabel(
+  text?: string | null
+): string | null {
+  const matched = findBrandRule(text);
+  return matched ? matched.label : null;
 }
 
 /**

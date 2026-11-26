@@ -220,7 +220,7 @@ export function ShowroomTrustShowcase() {
                       src={step.imageSrc}
                       alt={step.imageAlt}
                       fill
-                      loading="eager"
+                      loading="lazy"
                       sizes="(max-width: 1024px) 100vw, 42vw"
                       quality={85}
                       referrerPolicy="no-referrer"

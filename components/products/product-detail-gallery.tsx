@@ -7,11 +7,8 @@ import Image from "next/image";
 import toast from "react-hot-toast";
 import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
-import {
-  getOptionalAdminAuthHeaders,
-  hasSupabaseSessionToken,
-  subscribeAdminAuthSignal,
-} from "../../lib/admin-auth";
+import { getOptionalAdminAuthHeaders } from "../../lib/admin-auth";
+import { useIsAdminSession } from "../../lib/use-admin-session";
 import {
   addRecentViewedProduct,
   buildProductInquiryHref,
@@ -19,6 +16,7 @@ import {
   canUseNextImageUrl,
   generatePromoPostText,
   isProductSold,
+  MAX_QUOTE_BASKET_ITEMS,
   smsHref,
   STORE,
   telHref,
@@ -410,7 +408,9 @@ export function QuoteBasketButton({
   const handleToggle = () => {
     const res = toggleQuoteBasketItem(item);
     if (res.limitReached) {
-      toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
+      toast.error(
+        `견적함에는 최대 ${MAX_QUOTE_BASKET_ITEMS}개까지 담을 수 있습니다.`
+      );
       return;
     }
     if (res.added) {
@@ -458,6 +458,7 @@ export function QuoteBasketButton({
 
 /**
  * [신규 기능] 네이버 블로그 / 당근마켓 / 중고나라 홍보글 원클릭 복사 버튼
+ * - useIsAdminSession 내부의 isAuthorizedAdminUser 검증을 통과한 관리자에게만 노출됩니다.
  */
 export function CopyPromoPostButton({
   product,
@@ -474,58 +475,7 @@ export function CopyPromoPostButton({
   };
   className?: string;
 }) {
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    let unsubscribeAuth: (() => void) | null = null;
-    let attachPromise: Promise<void> | null = null;
-
-    const attachSupabaseAuth = () => {
-      if (attachPromise || !active) return;
-      attachPromise = import("../../lib/supabase")
-        .then(async ({ isAuthorizedAdminUser, supabase }) => {
-          if (!active) return;
-          const { data } = await supabase.auth.getSession();
-          if (active) {
-            setIsAdmin(isAuthorizedAdminUser(data.session?.user));
-          }
-          const { data: sub } = supabase.auth.onAuthStateChange(
-            (_e, session) => {
-              if (active) {
-                setIsAdmin(isAuthorizedAdminUser(session?.user));
-              }
-            }
-          );
-          if (!active) {
-            sub.subscription.unsubscribe();
-          } else {
-            unsubscribeAuth = () => sub.subscription.unsubscribe();
-          }
-        })
-        .catch(() => {
-          attachPromise = null;
-        });
-    };
-
-    if (hasSupabaseSessionToken()) {
-      attachSupabaseAuth();
-    }
-
-    const unsubscribeSignal = subscribeAdminAuthSignal(() => {
-      if (hasSupabaseSessionToken()) {
-        attachSupabaseAuth();
-      } else if (active) {
-        setIsAdmin(false);
-      }
-    });
-
-    return () => {
-      active = false;
-      unsubscribeSignal();
-      unsubscribeAuth?.();
-    };
-  }, []);
+  const isAdmin = useIsAdminSession();
 
   if (!isAdmin) return null;
 

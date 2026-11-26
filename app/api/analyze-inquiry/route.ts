@@ -704,7 +704,7 @@ function sanitizeAnalysisResponse(
 
 export async function POST(req: NextRequest) {
   try {
-    if (!verifySameOriginRequest(req)) {
+    if (!verifySameOriginRequest(req, { requireOriginHeader: true })) {
       return NextResponse.json(
         { error: "허용되지 않은 요청 출처입니다." },
         { status: 403 }
@@ -774,12 +774,14 @@ export async function POST(req: NextRequest) {
       apiKey,
       defaultModel: DEFAULT_GEMINI_MODEL,
       fallbackModel: FALLBACK_GEMINI_MODEL,
+      budgetScope: "public",
       prompt,
       imageParts: imgResult.imageParts,
       config: {
         responseMimeType: "application/json",
         temperature: 0.1,
         maxOutputTokens: 2048,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
@@ -787,6 +789,9 @@ export async function POST(req: NextRequest) {
     const rawParsed: Record<string, unknown> = parsed ?? {};
 
     const sanitized = sanitizeAnalysisResponse(rawParsed, ctx);
+    if (parsed === null) {
+      sanitized.fallbackDraft = true;
+    }
     return NextResponse.json(sanitized);
   } catch (err: unknown) {
     console.error(

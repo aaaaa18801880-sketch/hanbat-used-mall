@@ -31,7 +31,14 @@ import {
 import { V2SpatialFitPlanner } from "./v2-spatial-fit-planner";
 
 function extractWidthMmFromItem(item: QuoteBasketItem): number | null {
-  return extractWidthMmFromText(`${item.title || ""}\n${item.description || ""}`);
+  if (typeof item.widthMm === "number" && item.widthMm > 0) {
+    return item.widthMm;
+  }
+  return extractWidthMmFromText(
+    `${item.title || ""}\n${item.description || ""}\n${(
+      item.specCapsules ?? []
+    ).join(" ")}`
+  );
 }
 
 export function ProductCompareModal({
@@ -341,12 +348,15 @@ export function ProductCompareModal({
                       주요 규격
                     </th>
                     {compareItems.map((item) => {
-                      const tags = extractSpecCapsules(
-                        item.title,
-                        item.description,
-                        4,
-                        item.category
-                      );
+                      const tags =
+                        item.specCapsules && item.specCapsules.length > 0
+                          ? item.specCapsules.slice(0, 4)
+                          : extractSpecCapsules(
+                              item.title,
+                              item.description,
+                              4,
+                              item.category
+                            );
                       return (
                         <td
                           key={item.id}

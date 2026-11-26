@@ -489,6 +489,8 @@ export function InquiryBoardClient({
     if (confirm("관리자 모드를 종료하시겠습니까?")) {
       const { supabase } = await import("../../lib/supabase");
       await supabase.auth.signOut();
+      const { notifyAdminAuthChanged } = await import("../../lib/admin-auth");
+      notifyAdminAuthChanged();
       toast.success("관리자 모드가 종료되었습니다.");
     }
   };

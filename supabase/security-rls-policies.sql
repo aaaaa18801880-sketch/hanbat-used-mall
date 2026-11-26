@@ -45,7 +45,7 @@ ON CONFLICT (id) DO UPDATE
       file_size_limit = excluded.file_size_limit,
       allowed_mime_types = excluded.allowed_mime_types;
 
--- 1-3. 고객 첨부 사진 업로드 (inquiries/ 하위 폴더 + 허용 이미지 확장자 + 파일명 길이로 엄격 제한)
+-- 1-3. 고객 첨부 사진 업로드 (1단계 과도기 호환 — 서명 URL 배포 완료 후 supabase/signed-upload-hardening-migration.sql 로 익명 정책 제거)
 DROP POLICY IF EXISTS "Public Upload Inquiry Attachments" ON storage.objects;
 DROP POLICY IF EXISTS "storage_insert_inquiry_attachments_public" ON storage.objects;
 CREATE POLICY "storage_insert_inquiry_attachments_public"
@@ -159,7 +159,11 @@ CREATE POLICY "products_select_public"
 ON public.products
 FOR SELECT
 TO public
-USING (true);
+USING (
+  status IS DISTINCT FROM '검수대기'
+  OR (SELECT auth.role()) = 'service_role'
+  OR (SELECT public.is_hanbat_admin())
+);
 
 CREATE POLICY "products_insert_staff"
 ON public.products
@@ -196,7 +200,7 @@ BEGIN
       AND policyname NOT IN (
         'storage_insert_staff_product_photos',
         'storage_delete_staff',
-        'storage_insert_inquiry_attachments_public',
+        'storage_insert_inquiry_attachments_staff',
         'storage_select_inquiry_attachments_staff'
       )
   LOOP

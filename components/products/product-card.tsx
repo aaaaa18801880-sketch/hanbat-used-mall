@@ -8,8 +8,12 @@ import {
   canUseNextImageUrl,
   extractModelName,
   extractSpecCapsules,
+  extractWidthMmFromText,
+  formatProductPrice,
   getCategoryWarrantyInfo,
+  hasProductPrice,
   isProductSold,
+  MAX_QUOTE_BASKET_ITEMS,
   normalizeProductCategory,
   splitImages,
   STORE,
@@ -30,6 +34,7 @@ export interface ProductItem {
   description?: string | null;
   model_name?: string | null;
   spec_capsules?: string[] | null;
+  width_mm?: number | null;
   commercial_hint?: "showcase" | "bizFridge" | "kitchen" | null;
   image_url: string | null;
   price: number | null;
@@ -167,6 +172,12 @@ export function ProductCard({
   const handleToggleBasket = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+    const resolvedWidthMm =
+      product.width_mm !== undefined
+        ? product.width_mm
+        : extractWidthMmFromText(
+            `${product.title || ""}\n${product.description || ""}`
+          );
     const res = toggleQuoteBasketItem({
       id: product.id,
       title: product.title,
@@ -176,11 +187,15 @@ export function ProductCard({
       conditionGrade: product.condition_grade,
       description: product.description,
       modelName,
+      specCapsules,
+      widthMm: resolvedWidthMm,
       imageUrl: images[0] || null,
       quantity: 1,
     });
     if (res.limitReached) {
-      toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
+      toast.error(
+        `견적함에는 최대 ${MAX_QUOTE_BASKET_ITEMS}개까지 담을 수 있습니다.`
+      );
     } else if (res.added) {
       trackEvent("add_to_quote_basket", {
         category: categoryLabel,
@@ -347,6 +362,12 @@ export function ProductCard({
             </Link>
           )}
         </h3>
+
+        {!sold && hasProductPrice(product.price) && (
+          <p className="mt-1 text-hb-sm font-bold text-[#141A23] tabular-nums">
+            {formatProductPrice(product.price, categoryLabel)}
+          </p>
+        )}
 
         {/* 3행: 품목별 무상보증 안내 — 제목보다 작고 차분한 보조 강조 (본말전도 방지) */}
         {sold ? (
