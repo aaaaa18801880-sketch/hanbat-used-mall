@@ -415,6 +415,16 @@ body {
     contain-intrinsic-size: auto 132px;
   }
 
+  .hb-section-deferred {
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 520px;
+  }
+
+  .hb-section-deferred-compact {
+    content-visibility: auto;
+    contain-intrinsic-size: auto none auto 320px;
+  }
+
   .hb-product-card {
     container-type: inline-size;
   }

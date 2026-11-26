@@ -3,6 +3,7 @@
 
 import {
   extractModelName,
+  extractWidthMmFromText,
   hasProductPrice,
   isProductPendingReview,
   isProductReserved,
@@ -18,12 +19,39 @@ export type PriceRangeOption =
   | "30to70"
   | "70to150"
   | "over150";
-export type SortOption = "latest" | "views" | "priceAsc" | "priceDesc";
+export type SortOption =
+  | "latest"
+  | "yearDesc"
+  | "capacityDesc"
+  | "capacityAsc"
+  | "views"
+  | "priceAsc"
+  | "priceDesc";
 export type StatusFilter = "all" | "selling" | "reserved" | "sold";
+export type VoltageFilter = "all" | "220v" | "380v";
 export type GalleryViewMode = "card" | "table";
 
 export const CATEGORIES_WITH_ALL = ["전체", ...PRODUCT_CATEGORIES] as const;
 export const PAGE_STEP = 25;
+
+export const VOLTAGE_FILTER_OPTIONS: ReadonlyArray<{
+  value: VoltageFilter;
+  label: string;
+}> = [
+  { value: "all", label: "전체 전압" },
+  { value: "220v", label: "단상 220V" },
+  { value: "380v", label: "삼상 380V" },
+] as const;
+
+export const SORT_OPTION_LABELS: Record<SortOption, string> = {
+  latest: "최신 등록순",
+  yearDesc: "최신 제조년월순",
+  capacityDesc: "평형·용량 큰순",
+  capacityAsc: "평형·용량 작은순",
+  views: "조회 많은순",
+  priceAsc: "낮은 가격순",
+  priceDesc: "높은 가격순",
+};
 
 export const PRICE_RANGE_OPTIONS: ReadonlyArray<{
   value: PriceRangeOption;
@@ -80,12 +108,16 @@ export interface GalleryFilterState {
   search: string;
   sort: SortOption;
   statusFilter: StatusFilter;
+  voltageFilter?: VoltageFilter;
   priceRange: PriceRangeOption;
   viewMode: GalleryViewMode;
 }
 
 const VALID_SORTS = new Set<SortOption>([
   "latest",
+  "yearDesc",
+  "capacityDesc",
+  "capacityAsc",
   "views",
   "priceAsc",
   "priceDesc",
@@ -96,6 +128,7 @@ const VALID_STATUSES = new Set<StatusFilter>([
   "reserved",
   "sold",
 ]);
+const VALID_VOLTAGES = new Set<VoltageFilter>(["all", "220v", "380v"]);
 const VALID_PRICE_RANGES = new Set<PriceRangeOption>([
   "all",
   "under30",
@@ -103,6 +136,151 @@ const VALID_PRICE_RANGES = new Set<PriceRangeOption>([
   "70to150",
   "over150",
 ]);
+
+export interface ProductCapacityMetric {
+  value: number;
+  unit: "평" | "L" | "kg" | "박스" | "mm";
+  normalizedScore: number;
+}
+
+/**
+ * 제목과 상세 설명에서 제조년월을 YYYYMM 정수(월 미표기 시 YYYY00)로 추출합니다.
+ */
+export function extractProductManufactureDateValue(
+  title?: string | null,
+  description?: string | null
+): number | null {
+  const combined = `${title ?? ""}\n${description ?? ""}`;
+  if (!combined.trim()) return null;
+
+  const isValidYear = (year: number) => year >= 2010 && year <= 2035;
+
+  // 1순위: 월까지 표기된 제조년월 우선 추출 (예: "2024년 4월", "2019-06")
+  const korMonthMatch = combined.match(
+    /(?:^|[^\d])(20[12]\d)\s*년\s*(0?[1-9]|1[0-2])\s*월/
+  );
+  if (korMonthMatch) {
+    const year = Number(korMonthMatch[1]);
+    if (isValidYear(year)) {
+      return year * 100 + Number(korMonthMatch[2]);
+    }
+  }
+
+  const dashMonthMatch = combined.match(
+    /(?:^|[^\d])(20[12]\d)[-.](0?[1-9]|1[0-2])(?=$|[^\d])/
+  );
+  if (dashMonthMatch) {
+    const year = Number(dashMonthMatch[1]);
+    if (isValidYear(year)) {
+      return year * 100 + Number(dashMonthMatch[2]);
+    }
+  }
+
+  // 2순위: 연도만 표기된 경우 (예: "2024년 제조", "2022년식", "'23년식")
+  const korYearMatch = combined.match(/(?:^|[^\d])(20[12]\d)\s*년/);
+  if (korYearMatch) {
+    const year = Number(korYearMatch[1]);
+    if (isValidYear(year)) {
+      return year * 100;
+    }
+  }
+
+  const shortMatch = combined.match(/(?:'|\b)([12]\d)\s*년(?:식|형)/);
+  if (shortMatch) {
+    const year = 2000 + Number(shortMatch[1]);
+    if (isValidYear(year)) {
+      return year * 100;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * 제목·상세 설명·카테고리에서 평형/용량 크기 지표를 추출합니다.
+ */
+export function extractProductCapacityMetric(
+  title?: string | null,
+  description?: string | null,
+  category?: string | null
+): ProductCapacityMetric | null {
+  const combined = `${title ?? ""}\n${description ?? ""}`;
+  if (!combined.trim()) return null;
+
+  const normalizedCategory = normalizeProductCategory(category);
+
+  const pyeongMatch = combined.match(
+    /(?<![A-Za-z0-9])(\d{1,3}(?:\.\d+)?)\s*평형?/
+  );
+  if (pyeongMatch) {
+    const val = Number(pyeongMatch[1]);
+    if (Number.isFinite(val) && val > 0 && val <= 300) {
+      return { value: val, unit: "평", normalizedScore: val * 30 };
+    }
+  }
+
+  if (normalizedCategory === "에어컨/냉난방기") {
+    const kwMatch = combined.match(
+      /(?<![A-Za-z0-9])(\d{1,2}(?:\.\d+)?)\s*kW\b/i
+    );
+    if (kwMatch) {
+      const kw = Number(kwMatch[1]);
+      if (Number.isFinite(kw) && kw > 0 && kw <= 100) {
+        const pyeong = Math.round((kw / 0.4) * 10) / 10;
+        return { value: pyeong, unit: "평", normalizedScore: pyeong * 30 };
+      }
+    }
+  }
+
+  const boxMatch = combined.match(/(?<![A-Za-z0-9])(\d{2,3})\s*박스/);
+  if (boxMatch) {
+    const val = Number(boxMatch[1]);
+    if (Number.isFinite(val) && val > 0) {
+      return { value: val, unit: "박스", normalizedScore: val * 26 };
+    }
+  }
+
+  const literMatch = combined.match(
+    /(?<![A-Za-z0-9-])(\d{2,4}(?:,\d{3})*)\s*(?:L|리터)(?![A-Za-z0-9])/i
+  );
+  if (literMatch) {
+    const val = Number(literMatch[1].replace(/,/g, ""));
+    if (Number.isFinite(val) && val >= 10 && val <= 9999) {
+      return { value: val, unit: "L", normalizedScore: val };
+    }
+  }
+
+  const kgMatch = combined.match(
+    /(?<![A-Za-z0-9-])(\d{1,3}(?:\.\d+)?)\s*kg(?![A-Za-z0-9])/i
+  );
+  if (kgMatch) {
+    const val = Number(kgMatch[1]);
+    if (Number.isFinite(val) && val > 0) {
+      return { value: val, unit: "kg", normalizedScore: val * 20 };
+    }
+  }
+
+  const widthMm = extractWidthMmFromText(combined);
+  if (widthMm) {
+    return { value: widthMm, unit: "mm", normalizedScore: widthMm * 0.4 };
+  }
+
+  return null;
+}
+
+/**
+ * 제목과 상세 설명에서 전원 규격(단상 220V / 삼상 380V)을 추출합니다.
+ */
+export function extractProductVoltage(
+  title?: string | null,
+  description?: string | null
+): "220v" | "380v" | null {
+  const combined = `${title ?? ""}\n${description ?? ""}`;
+  if (!combined.trim()) return null;
+  if (/(?:삼상|3상|380\s*V)/i.test(combined)) return "380v";
+  if (/(?:단상|220\s*V)/i.test(combined)) return "220v";
+  return null;
+}
 
 /**
  * URLSearchParams에서 유효한 갤러리 필터 초기 상태를 파싱합니다.
@@ -134,6 +312,11 @@ export function parseGalleryQueryParams(
   const statusParam = params.get("status") as StatusFilter | null;
   if (statusParam && VALID_STATUSES.has(statusParam)) {
     next.statusFilter = statusParam;
+  }
+
+  const voltageParam = params.get("voltage") as VoltageFilter | null;
+  if (voltageParam && VALID_VOLTAGES.has(voltageParam)) {
+    next.voltageFilter = voltageParam;
   }
 
   const priceParam = params.get("price") as PriceRangeOption | null;
@@ -181,6 +364,12 @@ export function buildGalleryQueryUrl(
     url.searchParams.delete("status");
   }
 
+  if (state.voltageFilter && state.voltageFilter !== "all") {
+    url.searchParams.set("voltage", state.voltageFilter);
+  } else {
+    url.searchParams.delete("voltage");
+  }
+
   if (state.hasPricedProducts && state.priceRange !== "all") {
     url.searchParams.set("price", state.priceRange);
   } else {
@@ -211,8 +400,143 @@ export function computeCategoryCounts<
   return counts;
 }
 
+interface ProductMatchCriteria {
+  activeCategory: string;
+  statusFilter: StatusFilter;
+  voltageFilter?: VoltageFilter;
+  effectivePriceRange: PriceRangeOption;
+  search: string;
+}
+
+function matchesProductCriteria<T extends FilterableGalleryProduct>(
+  p: T,
+  {
+    activeCategory,
+    statusFilter,
+    voltageFilter = "all",
+    effectivePriceRange,
+    search,
+  }: ProductMatchCriteria
+): boolean {
+  if (isProductPendingReview(p.status)) return false;
+
+  const cat = normalizeProductCategory(p.category);
+  if (activeCategory !== "전체" && cat !== activeCategory) return false;
+
+  const sold = isProductSold(p.status);
+  const reserved = isProductReserved(p.status);
+  if (statusFilter === "selling" && (sold || reserved)) return false;
+  if (statusFilter === "reserved" && !reserved) return false;
+  if (statusFilter === "sold" && !sold) return false;
+
+  if (voltageFilter !== "all") {
+    const voltage = extractProductVoltage(p.title, p.description);
+    if (voltage !== voltageFilter) return false;
+  }
+
+  if (effectivePriceRange !== "all") {
+    if (!hasProductPrice(p.price)) return false;
+    const priceVal = Number(p.price);
+    if (effectivePriceRange === "under30" && priceVal > 300000) return false;
+    if (
+      effectivePriceRange === "30to70" &&
+      (priceVal < 300000 || priceVal > 700000)
+    ) {
+      return false;
+    }
+    if (
+      effectivePriceRange === "70to150" &&
+      (priceVal < 700000 || priceVal > 1500000)
+    ) {
+      return false;
+    }
+    if (effectivePriceRange === "over150" && priceVal < 1500000) return false;
+  }
+
+  const q = search.trim().toLowerCase();
+  if (q) {
+    const modelText = extractModelName(p.description, p.title) || "";
+    if (!matchesSearchQuery(q, p.title, modelText, p.description)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 /**
- * 갤러리 상품 목록을 카테고리·상태·가격대·검색어로 필터링하고 정렬합니다.
+ * 판매 상태 필터별 일치 매물 수를 교차 집계합니다.
+ */
+export function computeStatusFacetCounts<T extends FilterableGalleryProduct>(
+  products: readonly T[],
+  criteria: Omit<ProductMatchCriteria, "statusFilter">
+): Record<StatusFilter, number> {
+  const base = products.filter((p) =>
+    matchesProductCriteria(p, { ...criteria, statusFilter: "all" })
+  );
+  let selling = 0;
+  let reserved = 0;
+  let sold = 0;
+  for (const p of base) {
+    if (isProductSold(p.status)) sold += 1;
+    else if (isProductReserved(p.status)) reserved += 1;
+    else selling += 1;
+  }
+  return {
+    all: base.length,
+    selling,
+    reserved,
+    sold,
+  };
+}
+
+/**
+ * 전원 규격(단상 220V / 삼상 380V) 필터별 일치 매물 수를 교차 집계합니다.
+ */
+export function computeVoltageFacetCounts<T extends FilterableGalleryProduct>(
+  products: readonly T[],
+  criteria: Omit<ProductMatchCriteria, "voltageFilter">
+): Record<VoltageFilter, number> {
+  const base = products.filter((p) =>
+    matchesProductCriteria(p, { ...criteria, voltageFilter: "all" })
+  );
+  let v220 = 0;
+  let v380 = 0;
+  for (const p of base) {
+    const v = extractProductVoltage(p.title, p.description);
+    if (v === "220v") v220 += 1;
+    else if (v === "380v") v380 += 1;
+  }
+  return {
+    all: base.length,
+    "220v": v220,
+    "380v": v380,
+  };
+}
+
+/**
+ * 상황별 맞춤 프리셋별 일치 매물 수를 집계합니다.
+ */
+export function computeSituationPresetCounts<
+  T extends FilterableGalleryProduct,
+>(products: readonly T[]): Record<string, number> {
+  const counts: Record<string, number> = {};
+  for (const preset of SITUATION_PRESETS) {
+    counts[preset.label] = products.filter((p) =>
+      matchesProductCriteria(p, {
+        activeCategory: preset.category,
+        statusFilter: "all",
+        voltageFilter: "all",
+        effectivePriceRange: "all",
+        search: preset.keyword,
+      })
+    ).length;
+  }
+  return counts;
+}
+
+/**
+ * 갤러리 상품 목록을 카테고리·상태·전압·가격대·검색어로 필터링하고 정렬합니다.
  * - 판매완료 매물은 정렬 기준과 무관하게 항상 하단으로 배치됩니다.
  */
 export function filterAndSortGalleryProducts<
@@ -222,65 +546,51 @@ export function filterAndSortGalleryProducts<
   {
     activeCategory,
     statusFilter,
+    voltageFilter = "all",
     effectivePriceRange,
     search,
     sort,
-  }: {
-    activeCategory: string;
-    statusFilter: StatusFilter;
-    effectivePriceRange: PriceRangeOption;
-    search: string;
+  }: ProductMatchCriteria & {
     sort: SortOption;
   }
 ): T[] {
-  const q = search.trim().toLowerCase();
-
-  const list = products.filter((p) => {
-    if (isProductPendingReview(p.status)) return false;
-
-    const cat = normalizeProductCategory(p.category);
-    if (activeCategory !== "전체" && cat !== activeCategory) return false;
-
-    const sold = isProductSold(p.status);
-    const reserved = isProductReserved(p.status);
-    if (statusFilter === "selling" && (sold || reserved)) return false;
-    if (statusFilter === "reserved" && !reserved) return false;
-    if (statusFilter === "sold" && !sold) return false;
-
-    if (effectivePriceRange !== "all") {
-      if (!hasProductPrice(p.price)) return false;
-      const priceVal = Number(p.price);
-      if (effectivePriceRange === "under30" && priceVal > 300000) return false;
-      if (
-        effectivePriceRange === "30to70" &&
-        (priceVal < 300000 || priceVal > 700000)
-      ) {
-        return false;
-      }
-      if (
-        effectivePriceRange === "70to150" &&
-        (priceVal < 700000 || priceVal > 1500000)
-      ) {
-        return false;
-      }
-      if (effectivePriceRange === "over150" && priceVal < 1500000) return false;
-    }
-
-    if (q) {
-      const modelText = extractModelName(p.description, p.title) || "";
-      if (!matchesSearchQuery(q, p.title, modelText, p.description)) {
-        return false;
-      }
-    }
-
-    return true;
-  });
+  const list = products.filter((p) =>
+    matchesProductCriteria(p, {
+      activeCategory,
+      statusFilter,
+      voltageFilter,
+      effectivePriceRange,
+      search,
+    })
+  );
 
   const MAX = Number.MAX_SAFE_INTEGER;
   return [...list].sort((a, b) => {
     const soldA = isProductSold(a.status) ? 1 : 0;
     const soldB = isProductSold(b.status) ? 1 : 0;
     if (soldA !== soldB) return soldA - soldB;
+
+    if (sort === "yearDesc") {
+      const ya = extractProductManufactureDateValue(a.title, a.description);
+      const yb = extractProductManufactureDateValue(b.title, b.description);
+      if (ya !== null && yb !== null && ya !== yb) return yb - ya;
+      if (ya !== null && yb === null) return -1;
+      if (ya === null && yb !== null) return 1;
+    }
+
+    if (sort === "capacityDesc" || sort === "capacityAsc") {
+      const ca = extractProductCapacityMetric(a.title, a.description, a.category);
+      const cb = extractProductCapacityMetric(b.title, b.description, b.category);
+      if (ca !== null && cb !== null) {
+        const diff =
+          ca.unit === cb.unit
+            ? ca.value - cb.value
+            : ca.normalizedScore - cb.normalizedScore;
+        if (diff !== 0) return sort === "capacityDesc" ? -diff : diff;
+      }
+      if (ca !== null && cb === null) return -1;
+      if (ca === null && cb !== null) return 1;
+    }
 
     if (sort === "priceAsc") {
       return (

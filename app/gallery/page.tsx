@@ -42,15 +42,21 @@ import {
   buildGalleryQueryUrl,
   CATEGORIES_WITH_ALL,
   computeCategoryCounts,
+  computeSituationPresetCounts,
+  computeStatusFacetCounts,
+  computeVoltageFacetCounts,
   filterAndSortGalleryProducts,
   PAGE_STEP,
   parseGalleryQueryParams,
   PRICE_RANGE_OPTIONS,
   SITUATION_PRESETS,
+  SORT_OPTION_LABELS,
+  VOLTAGE_FILTER_OPTIONS,
   type GalleryViewMode,
   type PriceRangeOption,
   type SortOption,
   type StatusFilter,
+  type VoltageFilter,
 } from "../../lib/gallery-filter";
 import {
   Icon,
@@ -157,12 +163,16 @@ function GalleryPageContent() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(
     () => initialParsed.statusFilter ?? "all"
   );
+  const [voltageFilter, setVoltageFilter] = useState<VoltageFilter>(
+    () => initialParsed.voltageFilter ?? "all"
+  );
   const [priceRange, setPriceRange] = useState<PriceRangeOption>(
     () => initialParsed.priceRange ?? "all"
   );
   const [viewMode, setViewMode] = useState<GalleryViewMode>(
     () => initialParsed.viewMode ?? "card"
   );
+  const [sortStatusMessage, setSortStatusMessage] = useState("");
   const [prevRawQueryKey, setPrevRawQueryKey] = useState(rawQueryKey);
   if (prevRawQueryKey !== rawQueryKey) {
     setPrevRawQueryKey(rawQueryKey);
@@ -174,6 +184,7 @@ function GalleryPageContent() {
     setSearch((prev) => (prev.trim() === nextSearch.trim() ? prev : nextSearch));
     setSort(nextParsed.sort ?? "latest");
     setStatusFilter(nextParsed.statusFilter ?? "all");
+    setVoltageFilter(nextParsed.voltageFilter ?? "all");
     setPriceRange(nextParsed.priceRange ?? "all");
     setViewMode(nextParsed.viewMode ?? "card");
   }
@@ -250,6 +261,7 @@ function GalleryPageContent() {
       search,
       sort: effectiveSort,
       statusFilter,
+      voltageFilter,
       priceRange,
       viewMode,
       hasPricedProducts,
@@ -262,14 +274,42 @@ function GalleryPageContent() {
     search,
     effectiveSort,
     statusFilter,
+    voltageFilter,
     priceRange,
     hasPricedProducts,
     viewMode,
   ]);
 
-  /* 카테고리별 개수 및 상태별 개수 계산 */
+  /* 카테고리별 개수 및 교차 패싯 개수 계산 */
   const categoryCounts = useMemo(
     () => computeCategoryCounts(products),
+    [products]
+  );
+
+  const statusCounts = useMemo(
+    () =>
+      computeStatusFacetCounts(products, {
+        activeCategory,
+        voltageFilter,
+        effectivePriceRange,
+        search,
+      }),
+    [products, activeCategory, voltageFilter, effectivePriceRange, search]
+  );
+
+  const voltageCounts = useMemo(
+    () =>
+      computeVoltageFacetCounts(products, {
+        activeCategory,
+        statusFilter,
+        effectivePriceRange,
+        search,
+      }),
+    [products, activeCategory, statusFilter, effectivePriceRange, search]
+  );
+
+  const presetCounts = useMemo(
+    () => computeSituationPresetCounts(products),
     [products]
   );
 
@@ -284,6 +324,7 @@ function GalleryPageContent() {
       filterAndSortGalleryProducts(products, {
         activeCategory,
         statusFilter,
+        voltageFilter,
         effectivePriceRange,
         search,
         sort: effectiveSort,
@@ -292,6 +333,7 @@ function GalleryPageContent() {
       products,
       activeCategory,
       statusFilter,
+      voltageFilter,
       effectivePriceRange,
       search,
       effectiveSort,
@@ -303,13 +345,51 @@ function GalleryPageContent() {
     [filteredProducts, visibleLimit]
   );
 
+  const activeFilterCount =
+    (statusFilter !== "all" ? 1 : 0) +
+    (voltageFilter !== "all" ? 1 : 0) +
+    (hasPricedProducts && priceRange !== "all" ? 1 : 0) +
+    (effectiveSort !== "latest" ? 1 : 0);
+
+  const announceGalleryUpdate = (override: {
+    activeCategory?: string;
+    statusFilter?: StatusFilter;
+    voltageFilter?: VoltageFilter;
+    effectivePriceRange?: PriceRangeOption;
+    search?: string;
+    sort?: SortOption;
+    prefix?: string;
+  }) => {
+    const nextSort = override.sort ?? effectiveSort;
+    const count = filterAndSortGalleryProducts(products, {
+      activeCategory: override.activeCategory ?? activeCategory,
+      statusFilter: override.statusFilter ?? statusFilter,
+      voltageFilter: override.voltageFilter ?? voltageFilter,
+      effectivePriceRange: override.effectivePriceRange ?? effectivePriceRange,
+      search: override.search ?? search,
+      sort: nextSort,
+    }).length;
+    const prefix = override.prefix ?? `정렬 기준: ${SORT_OPTION_LABELS[nextSort]}`;
+    setSortStatusMessage(`${prefix}, ${count}건 표시됨`);
+  };
+
   const resetFilters = () => {
     setActiveCategory("전체");
     setSearch("");
     setStatusFilter("all");
+    setVoltageFilter("all");
     setPriceRange("all");
     setSort("latest");
     setVisibleLimit(PAGE_STEP);
+    announceGalleryUpdate({
+      activeCategory: "전체",
+      statusFilter: "all",
+      voltageFilter: "all",
+      effectivePriceRange: "all",
+      search: "",
+      sort: "latest",
+      prefix: "필터 및 정렬 초기화",
+    });
   };
 
   /* 카드 클릭 시 상세 모달 오픈 및 조회수 증가 (DB 실패 시 정확히 롤백) */
@@ -636,14 +716,12 @@ function GalleryPageContent() {
                 aria-expanded={mobileFilterOpen}
                 aria-haspopup="dialog"
                 className={`lg:hidden h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
-                  statusFilter !== "all" ||
-                  (hasPricedProducts && priceRange !== "all") ||
-                  effectiveSort !== "latest"
+                  activeFilterCount > 0
                     ? "border-[#141A23] bg-[#141A23] text-white"
                     : "border-[#E2DDD3] bg-white text-[#141A23] hover:border-[#141A23]"
                 }`}
               >
-                <span>필터</span>
+                <span>{activeFilterCount > 0 ? `필터 (${activeFilterCount})` : "필터"}</span>
                 <Icon d={ICON.down} className="w-3.5 h-3.5" />
               </button>
             </div>
@@ -672,6 +750,10 @@ function GalleryPageContent() {
                       onClick={() => {
                         setActiveCategory(cat);
                         setVisibleLimit(PAGE_STEP);
+                        announceGalleryUpdate({
+                          activeCategory: cat,
+                          prefix: `카테고리: ${cat}`,
+                        });
                       }}
                       className={`relative pb-3 pt-1.5 inline-flex items-center text-hb-sm font-bold whitespace-nowrap transition-colors duration-150 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] rounded-t ${
                         active
@@ -707,16 +789,51 @@ function GalleryPageContent() {
                 name="gallery-status-desktop"
                 value={statusFilter}
                 onChange={(e) => {
-                  setStatusFilter(e.target.value as StatusFilter);
+                  const nextStatus = e.target.value as StatusFilter;
+                  setStatusFilter(nextStatus);
                   setVisibleLimit(PAGE_STEP);
+                  announceGalleryUpdate({
+                    statusFilter: nextStatus,
+                    prefix: `판매 상태 필터 적용`,
+                  });
                 }}
                 aria-label="판매 상태 필터"
-                className="h-8 px-3 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer tabular-nums"
               >
-                <option value="all">전체 상태</option>
-                <option value="selling">판매중만</option>
-                <option value="reserved">예약중</option>
-                <option value="sold">판매완료</option>
+                <option value="all">전체 상태 ({statusCounts.all})</option>
+                <option value="selling">판매중만 ({statusCounts.selling})</option>
+                <option value="reserved">예약중 ({statusCounts.reserved})</option>
+                <option value="sold">판매완료 ({statusCounts.sold})</option>
+              </select>
+
+              <select
+                id="gallery-voltage-desktop"
+                name="gallery-voltage-desktop"
+                value={voltageFilter}
+                onChange={(e) => {
+                  const nextVoltage = e.target.value as VoltageFilter;
+                  setVoltageFilter(nextVoltage);
+                  setVisibleLimit(PAGE_STEP);
+                  const voltageLabel =
+                    VOLTAGE_FILTER_OPTIONS.find((v) => v.value === nextVoltage)
+                      ?.label || "전체 전압";
+                  announceGalleryUpdate({
+                    voltageFilter: nextVoltage,
+                    prefix: `전원 규격: ${voltageLabel}`,
+                  });
+                }}
+                aria-label="전원 규격 필터"
+                className={`h-8 px-2.5 rounded-lg border text-hb-xs font-semibold focus:border-[#141A23] focus:outline-none cursor-pointer tabular-nums ${
+                  voltageFilter !== "all"
+                    ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
+                    : "border-[#E2DDD3] bg-white text-[#334155] hover:border-[#141A23]"
+                }`}
+              >
+                {VOLTAGE_FILTER_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label} ({voltageCounts[opt.value]})
+                  </option>
+                ))}
               </select>
 
               {hasPricedProducts && (
@@ -752,16 +869,23 @@ function GalleryPageContent() {
                 id="gallery-sort-desktop"
                 name="gallery-sort-desktop"
                 value={effectiveSort}
-                onChange={(e) => setSort(e.target.value as SortOption)}
+                onChange={(e) => {
+                  const nextSort = e.target.value as SortOption;
+                  setSort(nextSort);
+                  announceGalleryUpdate({ sort: nextSort });
+                }}
                 aria-label="정렬 기준"
-                className="h-8 px-3 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
+                className="h-8 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
               >
-                <option value="latest">최신 등록순</option>
-                <option value="views">조회 많은순</option>
+                <option value="latest">{SORT_OPTION_LABELS.latest}</option>
+                <option value="yearDesc">{SORT_OPTION_LABELS.yearDesc}</option>
+                <option value="capacityDesc">{SORT_OPTION_LABELS.capacityDesc}</option>
+                <option value="capacityAsc">{SORT_OPTION_LABELS.capacityAsc}</option>
+                <option value="views">{SORT_OPTION_LABELS.views}</option>
                 {hasPricedProducts && (
                   <>
-                    <option value="priceAsc">낮은 가격순</option>
-                    <option value="priceDesc">높은 가격순</option>
+                    <option value="priceAsc">{SORT_OPTION_LABELS.priceAsc}</option>
+                    <option value="priceDesc">{SORT_OPTION_LABELS.priceDesc}</option>
                   </>
                 )}
               </select>
@@ -782,6 +906,7 @@ function GalleryPageContent() {
                 const active =
                   activeCategory === preset.category &&
                   (!preset.keyword || search === preset.keyword);
+                const count = presetCounts[preset.label] ?? 0;
                 return (
                   <button
                     key={preset.label}
@@ -790,6 +915,11 @@ function GalleryPageContent() {
                       setActiveCategory(preset.category);
                       setSearch(preset.keyword);
                       setVisibleLimit(PAGE_STEP);
+                      announceGalleryUpdate({
+                        activeCategory: preset.category,
+                        search: preset.keyword,
+                        prefix: `맞춤 탐색: ${preset.label}`,
+                      });
                       trackEvent("click_situation_preset", {
                         preset: preset.label,
                         category: preset.category,
@@ -804,6 +934,13 @@ function GalleryPageContent() {
                     title={preset.desc}
                   >
                     <span>{preset.label}</span>
+                    <span
+                      className={`font-mono text-hb-xs tabular-nums ${
+                        active ? "text-white/80" : "text-[#64748B]"
+                      }`}
+                    >
+                      {count}
+                    </span>
                   </button>
                 );
               })}
@@ -836,6 +973,7 @@ function GalleryPageContent() {
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
+              voltageFilter !== "all" ||
               (hasPricedProducts && priceRange !== "all") ||
               sort !== "latest") && (
               <button
@@ -916,6 +1054,10 @@ function GalleryPageContent() {
 
         {/* [기능 4] 비로그인 최근 본 매물 상단 슬림 스트립 */}
         <RecentViewedStrip compact className="mb-5" />
+
+        <p role="status" className="sr-only">
+          {sortStatusMessage}
+        </p>
 
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
@@ -1169,15 +1311,53 @@ function GalleryPageContent() {
                 name="gallery-status-mobile"
                 value={statusFilter}
                 onChange={(e) => {
-                  setStatusFilter(e.target.value as StatusFilter);
+                  const nextStatus = e.target.value as StatusFilter;
+                  setStatusFilter(nextStatus);
                   setVisibleLimit(PAGE_STEP);
+                  announceGalleryUpdate({
+                    statusFilter: nextStatus,
+                    prefix: `판매 상태 필터 적용`,
+                  });
                 }}
-                className="w-full h-11 px-3.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-hb-base font-bold text-[#141A23] focus:border-[#141A23] focus:bg-white focus:outline-none"
+                className="w-full h-11 px-3.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-hb-base font-bold text-[#141A23] focus:border-[#141A23] focus:bg-white focus:outline-none tabular-nums"
               >
-                <option value="all">전체 상태</option>
-                <option value="selling">판매중만</option>
-                <option value="reserved">예약중</option>
-                <option value="sold">판매완료</option>
+                <option value="all">전체 상태 ({statusCounts.all})</option>
+                <option value="selling">판매중만 ({statusCounts.selling})</option>
+                <option value="reserved">예약중 ({statusCounts.reserved})</option>
+                <option value="sold">판매완료 ({statusCounts.sold})</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="gallery-voltage-mobile"
+                className="block text-hb-xs font-bold text-[#64748B]"
+              >
+                전원 규격
+              </label>
+              <select
+                id="gallery-voltage-mobile"
+                name="gallery-voltage-mobile"
+                value={voltageFilter}
+                onChange={(e) => {
+                  const nextVoltage = e.target.value as VoltageFilter;
+                  setVoltageFilter(nextVoltage);
+                  setVisibleLimit(PAGE_STEP);
+                  const voltageLabel =
+                    VOLTAGE_FILTER_OPTIONS.find((v) => v.value === nextVoltage)
+                      ?.label || "전체 전압";
+                  announceGalleryUpdate({
+                    voltageFilter: nextVoltage,
+                    prefix: `전원 규격: ${voltageLabel}`,
+                  });
+                }}
+                className="w-full h-11 px-3.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-hb-base font-bold text-[#141A23] focus:border-[#141A23] focus:bg-white focus:outline-none tabular-nums"
+              >
+                {VOLTAGE_FILTER_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label} ({voltageCounts[opt.value]})
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1220,15 +1400,22 @@ function GalleryPageContent() {
                 id="gallery-sort-mobile"
                 name="gallery-sort-mobile"
                 value={effectiveSort}
-                onChange={(e) => setSort(e.target.value as SortOption)}
+                onChange={(e) => {
+                  const nextSort = e.target.value as SortOption;
+                  setSort(nextSort);
+                  announceGalleryUpdate({ sort: nextSort });
+                }}
                 className="w-full h-11 px-3.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-hb-base font-bold text-[#141A23] focus:border-[#141A23] focus:bg-white focus:outline-none"
               >
-                <option value="latest">최신 등록순</option>
-                <option value="views">조회 많은순</option>
+                <option value="latest">{SORT_OPTION_LABELS.latest}</option>
+                <option value="yearDesc">{SORT_OPTION_LABELS.yearDesc}</option>
+                <option value="capacityDesc">{SORT_OPTION_LABELS.capacityDesc}</option>
+                <option value="capacityAsc">{SORT_OPTION_LABELS.capacityAsc}</option>
+                <option value="views">{SORT_OPTION_LABELS.views}</option>
                 {hasPricedProducts && (
                   <>
-                    <option value="priceAsc">낮은 가격순</option>
-                    <option value="priceDesc">높은 가격순</option>
+                    <option value="priceAsc">{SORT_OPTION_LABELS.priceAsc}</option>
+                    <option value="priceDesc">{SORT_OPTION_LABELS.priceDesc}</option>
                   </>
                 )}
               </select>

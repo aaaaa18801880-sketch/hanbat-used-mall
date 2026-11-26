@@ -32,7 +32,11 @@ function getMetricValueToneClass(tone?: RefurbishMetric["tone"]): string {
   }
 }
 
-export function ShowroomTrustShowcase() {
+export function ShowroomTrustShowcase({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
   const [activeId, setActiveId] = useState<RefurbishStepId>(
     REFURBISH_STEPS[0].id
   );
@@ -72,73 +76,8 @@ export function ShowroomTrustShowcase() {
     }
   };
 
-  return (
-    <section
-      id="refurbish-process-section"
-      aria-labelledby="refurbish-process-heading"
-      className="border-y border-hb-border hb-theme-band py-8 sm:py-11"
-    >
-      <div className="hb-container">
-        {/* 상단 헤더: 섹션 타이틀 + 현재 단계 카운터 및 좌우 이동 컨트롤 */}
-        <div className="flex flex-col gap-3.5 lg:flex-row lg:items-end lg:justify-between mb-4 sm:mb-5">
-          <div className="min-w-0">
-            <span className="inline-block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text">
-              {STORE.name} 현장 확인 · 세척 · 출고 절차 안내
-            </span>
-            <h2
-              id="refurbish-process-heading"
-              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-hb-text-primary break-keep [text-wrap:balance]"
-            >
-              매입 현장 확인부터 고압세척·배송 전 작동 점검까지, 4단계로 준비합니다
-            </h2>
-            <p className="mt-1.5 max-w-2xl text-hb-sm text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
-              매입 현장에서 직접 작동 상태를 확인해 정상 제품만 들여오고, 고압세척과 배송 전 작동 점검을 거쳐 직영 기사가 설치·보증합니다.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-            <div className="text-left sm:text-right">
-              <span className="block text-hb-xs font-semibold text-[#475569]">
-                현재 확인 중인 단계
-              </span>
-              <strong className="font-mono text-hb-sm font-bold text-[#141A23] tabular-nums">
-                {String(activeIndex + 1).padStart(2, "0")} /{" "}
-                {String(REFURBISH_STEPS.length).padStart(2, "0")} ·{" "}
-                {activeStep.shortTitle}
-              </strong>
-            </div>
-
-            <div className="inline-flex items-center overflow-hidden rounded-xl border border-[#CBD2DC] bg-white shadow-2xs">
-              <button
-                type="button"
-                onClick={() =>
-                  selectStep(getAdjacentRefurbishStepId(activeId, -1))
-                }
-                aria-label="이전 단계 보기"
-                className="grid h-10 w-10 place-items-center text-[#141A23] hover:bg-[#F7F8FA] active:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors cursor-pointer"
-              >
-                <Icon d={ICON.left} className="w-4 h-4" />
-              </button>
-              <span
-                className="h-5 w-px bg-[#E2DDD3]"
-                aria-hidden="true"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  selectStep(getAdjacentRefurbishStepId(activeId, 1))
-                }
-                aria-label="다음 단계 보기"
-                className="grid h-10 w-10 place-items-center text-[#141A23] hover:bg-[#F7F8FA] active:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors cursor-pointer"
-              >
-                <Icon d={ICON.right} className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 스위스 벤토 1px 헤어라인 프레임 */}
-        <div className="overflow-hidden rounded-2xl border border-hb-border bg-hb-border shadow-2xs">
+  const bentoBoard = (
+    <div className="overflow-hidden rounded-2xl border border-hb-border bg-hb-border shadow-2xs">
           {/* 1) 4단계 인터랙티브 탭 바 */}
           <div
             role="tablist"
@@ -384,6 +323,78 @@ export function ShowroomTrustShowcase() {
             </div>
           </div>
         </div>
+  );
+
+  if (embedded) {
+    return bentoBoard;
+  }
+
+  return (
+    <section
+      id="refurbish-process-section"
+      aria-labelledby="refurbish-process-heading"
+      className="border-y border-hb-border hb-theme-band py-8 sm:py-11"
+    >
+      <div className="hb-container">
+        {/* 상단 헤더: 섹션 타이틀 + 현재 단계 카운터 및 좌우 이동 컨트롤 */}
+        <div className="flex flex-col gap-3.5 lg:flex-row lg:items-end lg:justify-between mb-4 sm:mb-5">
+          <div className="min-w-0">
+            <span className="inline-block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text">
+              {STORE.name} 현장 확인 · 세척 · 출고 절차 안내
+            </span>
+            <h2
+              id="refurbish-process-heading"
+              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-hb-text-primary break-keep [text-wrap:balance]"
+            >
+              매입 현장 확인부터 고압세척·배송 전 작동 점검까지, 4단계로 준비합니다
+            </h2>
+            <p className="mt-1.5 max-w-2xl text-hb-sm text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
+              매입 현장에서 직접 작동 상태를 확인해 정상 제품만 들여오고, 고압세척과 배송 전 작동 점검을 거쳐 직영 기사가 설치·보증합니다.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+            <div className="text-left sm:text-right">
+              <span className="block text-hb-xs font-semibold text-[#475569]">
+                현재 확인 중인 단계
+              </span>
+              <strong className="font-mono text-hb-sm font-bold text-[#141A23] tabular-nums">
+                {String(activeIndex + 1).padStart(2, "0")} /{" "}
+                {String(REFURBISH_STEPS.length).padStart(2, "0")} ·{" "}
+                {activeStep.shortTitle}
+              </strong>
+            </div>
+
+            <div className="inline-flex items-center overflow-hidden rounded-xl border border-[#CBD2DC] bg-white shadow-2xs">
+              <button
+                type="button"
+                onClick={() =>
+                  selectStep(getAdjacentRefurbishStepId(activeId, -1))
+                }
+                aria-label="이전 단계 보기"
+                className="grid h-10 w-10 place-items-center text-[#141A23] hover:bg-[#F7F8FA] active:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors cursor-pointer"
+              >
+                <Icon d={ICON.left} className="w-4 h-4" />
+              </button>
+              <span
+                className="h-5 w-px bg-[#E2DDD3]"
+                aria-hidden="true"
+              />
+              <button
+                type="button"
+                onClick={() =>
+                  selectStep(getAdjacentRefurbishStepId(activeId, 1))
+                }
+                aria-label="다음 단계 보기"
+                className="grid h-10 w-10 place-items-center text-[#141A23] hover:bg-[#F7F8FA] active:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors cursor-pointer"
+              >
+                <Icon d={ICON.right} className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {bentoBoard}
       </div>
     </section>
   );

@@ -65,7 +65,7 @@ export function HomeLocationInquirySection({
   return (
     <section
       id="inquiry-section"
-      className="border-b border-[#E2DDD3] bg-white py-7 sm:py-9"
+      className="hb-section-deferred border-b border-[#E2DDD3] bg-white py-6 sm:py-8"
       aria-labelledby="cta-title"
     >
       <div className="hb-container">
