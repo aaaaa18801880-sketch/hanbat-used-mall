@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ICON, Icon } from "../../lib/icons";
-import { STORE, telHref, trackEvent } from "../../lib/site";
+import { STORE, telHref, trackEvent, triggerQuickInquiry } from "../../lib/site";
 import {
   HanbatBrandLogo,
   useQuoteBasket,
@@ -181,7 +181,39 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               <span>카톡 상담</span>
             </a>
 
+            <button
+              type="button"
+              onClick={() => {
+                const isPurchase = Boolean(pathname?.startsWith("/purchase"));
+                trackEvent(
+                  isPurchase ? "begin_buyback_inquiry" : "begin_buy_inquiry",
+                  { location: "site_header" }
+                );
+                triggerQuickInquiry({
+                  type: isPurchase ? "내 물건 팔기" : "구매 문의",
+                });
+              }}
+              className="hidden lg:inline-flex min-[1520px]:hidden hb-btn-accent h-10 px-3.5 text-hb-sm whitespace-nowrap cursor-pointer"
+            >
+              <Icon d={ICON.pen} className="w-3.5 h-3.5" />
+              <span>간편 견적</span>
+            </button>
+
             {children}
+
+            <a
+              href={telHref(STORE.tel)}
+              onClick={() =>
+                trackEvent("click_tel_consult", {
+                  location: "site_header_mobile",
+                })
+              }
+              aria-label="대표전화 상담 연결"
+              className="inline-flex md:hidden items-center gap-1 h-10 px-2.5 rounded-xl border border-hb-border bg-hb-surface-muted text-hb-xs font-bold text-hb-text-primary hover:bg-hb-warm active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap"
+            >
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text shrink-0" />
+              <span>전화</span>
+            </a>
 
             <button
               type="button"
@@ -212,7 +244,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         }}
         className="hb-drawer lg:hidden h-dvh w-full max-w-full bg-white p-0 border-0 overscroll-contain flex-col open:flex"
       >
-        <div className="flex h-[66px] items-center justify-between border-b border-[#E2E6EC] px-4 sm:px-6 bg-white">
+        <div className="flex h-[66px] items-center justify-between border-b border-[#E2DDD3] px-4 sm:px-6 bg-white">
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
@@ -223,7 +255,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           <button
             type="button"
             onClick={() => setMenuOpen(false)}
-            className="grid h-10 w-10 place-items-center rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] active:scale-[0.96] transition-transform"
+            className="grid h-10 w-10 place-items-center rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] text-[#141A23] active:scale-[0.96] transition-transform"
             aria-label="메뉴 닫기"
           >
             <Icon d={ICON.close} className="w-5 h-5" />
@@ -238,7 +270,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <p className="text-hb-xs font-bold text-[#64748B] mb-2">
               주요 메뉴
             </p>
-            <ul className="divide-y divide-[#E2E6EC] border-y border-[#E2E6EC]">
+            <ul className="divide-y divide-[#E2DDD3] border-y border-[#E2DDD3]">
               {HEADER_NAV.map((item) => {
                 const isActive =
                   item.matchPrefix && pathname?.startsWith(item.matchPrefix);
@@ -249,8 +281,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                       onClick={() => setMenuOpen(false)}
                       className={`flex items-center justify-between py-3.5 text-hb-base font-bold transition-colors ${
                         isActive
-                          ? "text-[#E8521A]"
-                          : "text-[#141A23] hover:text-[#E8521A]"
+                          ? "text-[#C84312]"
+                          : "text-[#141A23] hover:text-[#C84312]"
                       }`}
                     >
                       <span>{item.label}</span>
@@ -275,19 +307,19 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={cat.label}
                   href={cat.href}
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center justify-between rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-3 text-hb-sm font-semibold text-[#141A23] hover:border-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
+                  className="flex items-center justify-between rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 py-3 text-hb-sm font-semibold text-[#141A23] hover:border-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
                 >
                   <span className="truncate">{cat.label}</span>
                   <Icon
                     d={ICON.right}
-                    className="w-3.5 h-3.5 text-[#E8521A] shrink-0"
+                    className="w-3.5 h-3.5 text-[#C84312] shrink-0"
                   />
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="rounded-lg border border-[#E2E6EC] bg-[#F1F3F6] p-4 text-hb-sm text-[#334155] space-y-1.5">
+          <div className="rounded-lg border border-[#E2DDD3] bg-[#F2EEE7] p-4 text-hb-sm text-[#334155] space-y-1.5">
             <div className="flex items-center justify-between">
               <p className="font-bold text-[#141A23]">
                 {STORE.name} 직영 매장
@@ -310,7 +342,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
           </div>
         </nav>
 
-        <div className="grid grid-cols-2 gap-2.5 border-t border-[#E2E6EC] bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+        <div className="grid grid-cols-2 gap-2.5 border-t border-[#E2DDD3] bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
           <a
             href={telHref(STORE.tel)}
             onClick={() =>

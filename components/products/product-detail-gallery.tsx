@@ -5,13 +5,19 @@ import React, { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import toast from "react-hot-toast";
-import { Icon, ICON, Modal, SafeImg, useQuoteBasket } from "../../lib/ui";
+import {
+  Icon,
+  ICON,
+  Modal,
+  SafeImg,
+  copyTextAndOpenKakao,
+  useQuoteBasket,
+} from "../../lib/ui";
 import { ShowroomVisitModal } from "../showroom/showroom-visit-modal";
 import { getOptionalAdminAuthHeaders } from "../../lib/admin-auth";
 import { useIsAdminSession } from "../../lib/use-admin-session";
 import {
   addRecentViewedProduct,
-  buildProductInquiryHref,
   buildProductInquirySmsBody,
   canUseNextImageUrl,
   generatePromoPostText,
@@ -22,6 +28,7 @@ import {
   telHref,
   toggleQuoteBasketItem,
   trackEvent,
+  triggerQuickInquiry,
   type QuoteBasketItem,
 } from "../../lib/site";
 
@@ -183,7 +190,7 @@ export function ProductDetailGallery({
               aria-label="상품 사진 크게 보기"
               aria-haspopup="dialog"
               title="클릭하여 원본 비율 전체화면으로 확대"
-              className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#E8521A]"
+              className="absolute inset-0 z-10 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#C84312]"
             >
               <span className="sr-only">상품 사진 크게 보기</span>
             </button>
@@ -258,7 +265,7 @@ export function ProductDetailGallery({
                 aria-label={`${i + 1}번 사진 선택`}
                 className={`relative w-16 h-16 shrink-0 rounded-xl overflow-hidden bg-[#EFECE4] border transition-[border-color,box-shadow,transform] ${
                   i === idx
-                    ? "border-[#E8521A] ring-2 ring-[#E8521A]/35"
+                    ? "border-[#C84312] ring-2 ring-[#C84312]/35"
                     : "border-[#E2DDD3] opacity-65 hover:opacity-100"
                 }`}
               >
@@ -388,7 +395,7 @@ export function CopyProductLinkButton({
       className="inline-flex items-center gap-1.5 rounded-lg border border-[#E2DDD3] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#334155] hover:border-[#141A23] hover:text-[#141A23] transition-[border-color,color,transform] active:scale-[0.96] shadow-2xs"
       title={`${productTitle} 링크 복사`}
     >
-      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
+      <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#C84312]" />
       <span>상품 링크 복사</span>
     </button>
   );
@@ -426,7 +433,7 @@ export function QuoteBasketButton({
 
   const defaultClasses = `inline-flex items-center justify-center gap-1.5 rounded-lg border px-4 h-10 text-hb-xs sm:text-hb-sm font-bold transition-[background-color,border-color,color,transform] active:scale-[0.96] w-full ${
     inBasket
-      ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
+      ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
       : "border-[#D8D1C5] bg-[#FAF9F6] text-[#141A23] hover:border-[#141A23]"
   }`;
 
@@ -440,7 +447,7 @@ export function QuoteBasketButton({
       <Icon
         d={inBasket ? ICON.check : ICON.plus}
         className={`w-4 h-4 shrink-0 ${
-          inBasket ? "text-[#E8521A]" : "text-[#141A23]"
+          inBasket ? "text-[#C84312]" : "text-[#141A23]"
         }`}
       />
       <span className="truncate">
@@ -510,7 +517,7 @@ export function CopyPromoPostButton({
         }
         title="네이버 블로그·당근마켓·카페 게시글 양식으로 상품 요약 복사 (관리자 전용)"
       >
-        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#E8521A]" />
+        <Icon d={ICON.copy} className="w-3.5 h-3.5 text-[#C84312]" />
         <span>홍보글 양식 복사 (관리자)</span>
       </button>
     </div>
@@ -542,14 +549,6 @@ export function InteractiveChecklistAndCta({
   modelName: string | null;
   firstImageUrl: string | null;
 }) {
-  const inquiryHref = buildProductInquiryHref({
-    productId: product.id,
-    title: product.title,
-    category: categoryLabel,
-    sold,
-    modelName,
-  });
-
   const smsBody = buildProductInquirySmsBody({
     id: product.id,
     title: product.title,
@@ -562,11 +561,35 @@ export function InteractiveChecklistAndCta({
   const galleryCategoryHref = `/gallery?category=${encodeURIComponent(categoryLabel)}`;
   const [visitModalOpen, setVisitModalOpen] = useState(false);
 
+  const handleOpenQuickInquiry = () => {
+    trackEvent("begin_buy_inquiry", {
+      location: "product_detail_cta",
+      product_id: product.id,
+    });
+    triggerQuickInquiry({
+      type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
+      productId: product.id,
+      productTitle: product.title,
+      modelName: modelName || undefined,
+      category: categoryLabel,
+    });
+  };
+
+  const handleScrollToSpatialCheck = () => {
+    const section = document.getElementById("spatial-check-section");
+    if (!section) return;
+    const details = section.querySelector("details");
+    if (details && !details.open) {
+      details.open = true;
+    }
+    section.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className="mt-5 space-y-2.5">
       {sold && (
-        <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3 text-hb-xs text-[#E8521A] font-semibold leading-snug flex items-center gap-2">
-          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#E8521A]" />
+        <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3 text-hb-xs text-[#C84312] font-semibold leading-snug flex items-center gap-2">
+          <Icon d={ICON.bell} className="w-4 h-4 shrink-0 text-[#C84312]" />
           <span>
             이 매물은 판매 완료되었으나 직영 매장에{" "}
             <strong className="underline">동일·유사 스펙 대기 매물</strong>이 있습니다.
@@ -581,7 +604,7 @@ export function InteractiveChecklistAndCta({
         className="w-full h-14 rounded-xl bg-[#141A23] hover:bg-[#1E2736] text-white flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 rounded-lg bg-[#E8521A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-9 h-9 rounded-lg bg-[#C84312] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Icon d={ICON.phone} className="w-5 h-5 text-white" />
           </div>
           <div className="text-left min-w-0">
@@ -602,12 +625,16 @@ export function InteractiveChecklistAndCta({
         />
       </a>
 
-      {/* 2순위: 카카오톡 1:1 상담 버튼 */}
-      <a
-        href={STORE.kakaoChat}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`${STORE.name} 카카오톡 1:1 상담창 열기 (새 창)`}
+      {/* 2순위: 카카오톡 1:1 상담 버튼 (상품 정보 클립보드 자동 복사 후 이동) */}
+      <button
+        type="button"
+        onClick={() =>
+          void copyTextAndOpenKakao(smsBody, "click_kakao_consult", {
+            location: "product_detail_cta",
+            product_id: product.id,
+          })
+        }
+        aria-label={`${STORE.name} 카카오톡 1:1 상담창 열기 (상품 정보 자동 복사)`}
         className="w-full h-14 rounded-xl bg-[#FEE500] hover:bg-[#F2D900] text-[#191600] flex items-center justify-between px-4 sm:px-5 transition-[background-color,transform] duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 group cursor-pointer"
       >
         <div className="flex items-center gap-3 min-w-0">
@@ -619,7 +646,7 @@ export function InteractiveChecklistAndCta({
               {sold ? "카톡으로 유사 매물 찾기" : "카카오톡 1:1 상담하기"}
             </div>
             <p className="text-hb-xs text-[#191600]/80 font-medium leading-none mt-1 truncate">
-              실물 사진 전송 · 견적서 파일 즉시 수신
+              상품명·링크 자동 복사 → 카톡방 바로 붙여넣기
             </p>
           </div>
         </div>
@@ -627,29 +654,30 @@ export function InteractiveChecklistAndCta({
           d={ICON.right}
           className="w-5 h-5 text-[#191600]/60 group-hover:translate-x-1 transition-transform shrink-0 ml-2"
         />
-      </a>
+      </button>
 
-      {/* 3순위: 무중첩 보조 유틸리티 액션 행 + 매장 방문 길찾기 */}
-      <div className="pt-3 border-t border-[#EAE8E2] space-y-2.5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      {/* 3순위: 무중첩 보조 유틸리티 액션 행 + 공간·전원 체크 + 매장 방문 길찾기 */}
+      <div className="pt-3 border-t border-[#E2DDD3] space-y-2.5">
+        <div className={`grid gap-2 ${sold ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
+          <button
+            type="button"
+            onClick={handleOpenQuickInquiry}
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97] cursor-pointer"
+          >
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#0284C7] shrink-0" />
+            <span className="truncate">{sold ? "유사매물 문의" : "온라인 견적"}</span>
+          </button>
+
           <a
             href={smsHref(STORE.mobile, smsBody)}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
           >
-            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#E8521A] shrink-0" />
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#C84312] shrink-0" />
             <span className="truncate">문자 문의</span>
           </a>
 
-          <Link
-            href={inquiryHref}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
-          >
-            <Icon d={ICON.pen} className="h-3.5 w-3.5 text-[#0284C7] shrink-0" />
-            <span className="truncate">온라인 견적</span>
-          </Link>
-
           <QuoteBasketButton
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97] cursor-pointer"
+            className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97] cursor-pointer"
             compact
             item={{
               id: String(product.id),
@@ -665,14 +693,29 @@ export function InteractiveChecklistAndCta({
             }}
           />
 
-          <Link
-            href={galleryCategoryHref}
-            className="flex items-center justify-center gap-1.5 rounded-lg border border-[#E5E3DC] bg-[#FAFAF8] hover:border-[#141A23] hover:bg-[#141A23] text-[#141A23] hover:text-white h-10 px-2.5 text-hb-xs font-semibold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
-          >
-            <Icon d={ICON.grid} className="h-3.5 w-3.5 text-[#0D9488] shrink-0" />
-            <span className="truncate">유사 매물</span>
-          </Link>
+          {sold && (
+            <Link
+              href={galleryCategoryHref}
+              className="flex items-center justify-center gap-1.5 rounded-xl border border-[#C84312]/40 bg-[#FFF4EE] hover:bg-[#C84312] text-[#C84312] hover:text-white h-10 px-2.5 text-hb-xs font-bold transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.97]"
+            >
+              <Icon d={ICON.grid} className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">유사 매물 찾기</span>
+            </Link>
+          )}
         </div>
+
+        {/* 우리 집 문폭·전기 10초 체크 빠른 이동 */}
+        <button
+          type="button"
+          onClick={handleScrollToSpatialCheck}
+          className="w-full pt-2.5 border-t border-[#E2DDD3] text-[#0F766E] hover:text-[#141A23] flex items-center justify-between gap-2 transition-colors text-hb-xs font-semibold cursor-pointer"
+        >
+          <span className="inline-flex items-center gap-1.5 min-w-0">
+            <Icon d={ICON.ruler} className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">우리 집 문폭·전기(220V/380V) 10초 체크</span>
+          </span>
+          <span className="font-bold shrink-0">바로 확인 ↓</span>
+        </button>
 
         {/* 4순위: 직영 매장 방문 확인 · 길찾기 */}
         <button
@@ -684,7 +727,7 @@ export function InteractiveChecklistAndCta({
             });
             setVisitModalOpen(true);
           }}
-          className="w-full pt-2.5 border-t border-[#EAE8E2] text-[#334155] hover:text-[#141A23] flex items-center justify-between gap-2 transition-colors text-hb-xs cursor-pointer"
+          className="w-full pt-2.5 border-t border-[#E2DDD3] text-[#334155] hover:text-[#141A23] flex items-center justify-between gap-2 transition-colors text-hb-xs cursor-pointer"
         >
           <div className="flex items-center gap-1.5 min-w-0 font-medium">
             <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />

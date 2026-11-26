@@ -5,11 +5,11 @@ import { SiteHeader, SiteFooter, MobileCtaBar } from "../lib/ui";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
       <main id="main-content" tabIndex={-1} className="hb-container py-16 sm:py-24 flex-1 flex items-center justify-center focus:outline-none">
-        <div className="max-w-md w-full rounded-2xl border border-[#E2E6EC] bg-white p-8 sm:p-10 text-center shadow-2xs">
+        <div className="max-w-md w-full rounded-2xl border border-[#E2DDD3] bg-white p-8 sm:p-10 text-center shadow-2xs">
           <p className="hb-eyebrow justify-center">페이지 안내</p>
           <h1 className="mt-2 text-hb-xl sm:text-hb-2xl font-bold text-[#141A23]">
             찾으시는 페이지를 찾을 수 없습니다.
@@ -30,11 +30,11 @@ export default function NotFoundPage() {
             </Link>
           </div>
 
-          <div className="mt-6 pt-5 border-t border-[#E2E6EC] text-hb-xs text-[#64748B] tabular-nums">
+          <div className="mt-6 pt-5 border-t border-[#E2DDD3] text-hb-xs text-[#64748B] tabular-nums">
             빠른 재고 문의:{" "}
             <a
               href={telHref(STORE.tel)}
-              className="font-bold text-[#141A23] underline underline-offset-4 hover:text-[#E8521A]"
+              className="font-bold text-[#141A23] underline underline-offset-4 hover:text-[#C84312]"
             >
               {STORE.tel}
             </a>

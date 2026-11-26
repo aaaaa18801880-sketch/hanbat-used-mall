@@ -25,8 +25,11 @@ import {
   formatProductPrice,
   extractModelName,
   extractSpecCapsules,
+  buildProductInquirySmsBody,
+  triggerQuickInquiry,
+  trackEvent,
 } from "../../lib/site";
-import { Icon, ICON, SafeImg, Modal } from "../../lib/ui";
+import { Icon, ICON, SafeImg, Modal, copyTextAndOpenKakao } from "../../lib/ui";
 import {
   ProductTrustMicroStrip,
   type ProductItem,
@@ -294,19 +297,14 @@ export function ProductDetailModal({
     onClose();
   };
 
-  const inquiryParams = new URLSearchParams({
-    write: "1",
-    type: categoryLabel === "업소용기기" ? "대량·업소용 상담" : "구매 문의",
-    productId: String(product.id),
-    title: sold
-      ? `[유사매물 재고문의] ${product.title}`
-      : `[상품문의] ${product.title}`,
+  const modalSmsBody = buildProductInquirySmsBody({
+    id: String(product.id),
+    title: product.title,
     category: categoryLabel,
+    price: product.price,
+    status: product.status,
+    modelName,
   });
-  if (modelName) {
-    inquiryParams.set("model", modelName);
-  }
-  const inquiryHref = `/inquiry?${inquiryParams.toString()}`;
 
   return (
     <>
@@ -809,37 +807,49 @@ export function ProductDetailModal({
                   <span>전화 문의</span>
                 </a>
                 <a
-                  href={smsHref(
-                    STORE.mobile,
-                    sold
-                      ? `[${STORE.name} 유사매물문의] 판매완료된 '${product.title}'${
-                          modelName ? ` (${modelName})` : ""
-                        }와 비슷한 스펙의 현재 재고 문의드립니다.`
-                      : `[${STORE.name} 상품문의] ${product.title}${
-                          modelName ? ` (${modelName})` : ""
-                        } 재고 및 배송·설치 견적 문의드립니다.`
-                  )}
+                  href={smsHref(STORE.mobile, modalSmsBody)}
                   className="hb-btn-outline h-11 text-hb-sm"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
                   <span>문자 문의</span>
                 </a>
-                <a
-                  href={STORE.kakaoChat}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 text-hb-sm"
+                <button
+                  type="button"
+                  onClick={() =>
+                    void copyTextAndOpenKakao(modalSmsBody, "click_kakao_consult", {
+                      location: "gallery_detail_modal",
+                      product_id: String(product.id),
+                    })
+                  }
+                  className="hb-btn-kakao h-11 text-hb-sm cursor-pointer"
                 >
                   <Icon d={ICON.chat} className="w-4 h-4" />
                   <span>카톡 상담</span>
-                </a>
-                <Link
-                  href={inquiryHref}
-                  className="hb-btn-outline h-11 text-hb-sm"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    trackEvent("begin_buy_inquiry", {
+                      location: "gallery_detail_modal",
+                      product_id: String(product.id),
+                    });
+                    triggerQuickInquiry({
+                      type:
+                        categoryLabel === "업소용기기"
+                          ? "대량·업소용 상담"
+                          : "구매 문의",
+                      productId: String(product.id),
+                      productTitle: product.title,
+                      modelName: modelName || undefined,
+                      category: categoryLabel,
+                    });
+                  }}
+                  className="hb-btn-outline h-11 text-hb-sm cursor-pointer"
                 >
                   <Icon d={ICON.pen} className="w-3.5 h-3.5 text-[#C84312]" />
                   <span>{sold ? "유사매물 문의" : "온라인 문의"}</span>
-                </Link>
+                </button>
               </div>
             )}
           </div>

@@ -3,6 +3,7 @@
 export { ICON, Icon } from "./icons";
 export {
   useQuoteBasket,
+  copyTextAndOpenKakao,
   copyQuoteAndOpenKakao,
   HanbatBrandLogo,
   SafeImg,

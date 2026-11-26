@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import { ICON, Icon } from "../../lib/icons";
 import {
   STORE,
@@ -10,13 +9,11 @@ import {
   smsHref,
   buildProductInquirySmsBody,
   trackEvent,
-  toggleQuoteBasketItem,
-  formatProductPrice,
   isProductSold,
   triggerQuickInquiry,
   type InquiryTypeValue,
 } from "../../lib/site";
-import { useQuoteBasket } from "./ui-primitives";
+import { copyTextAndOpenKakao } from "./ui-primitives";
 
 export interface MobileProductCtaContext {
   id: string;
@@ -28,7 +25,7 @@ export interface MobileProductCtaContext {
   description?: string | null;
   modelName?: string | null;
   imageUrl?: string | null;
-  inquiryHref: string;
+  inquiryHref?: string;
 }
 
 export function MobileCtaBar({
@@ -52,16 +49,8 @@ export function MobileCtaBar({
   phoneLabel?: string;
   accentPrimary?: boolean;
 }) {
-  const basketItems = useQuoteBasket();
-  const inBasket = productContext
-    ? basketItems.some((x) => x.id === productContext.id)
-    : false;
-
   if (productContext) {
     const sold = isProductSold(productContext.status);
-    const priceLabel = sold
-      ? "판매완료"
-      : formatProductPrice(productContext.price, productContext.category);
     const productSmsBody = buildProductInquirySmsBody({
       id: productContext.id,
       title: productContext.title,
@@ -77,108 +66,71 @@ export function MobileCtaBar({
         aria-label="상품 상세 모바일 구매·문의 바"
         className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E2DDD3] bg-[#FAF9F6]/95 backdrop-blur-md pb-[env(safe-area-inset-bottom)] shadow-[0_-6px_20px_rgba(20,26,35,0.10)] lg:hidden"
       >
-        <div className="flex h-[64px] items-center justify-between gap-2 px-3">
-          <div className="min-w-0 flex-1 flex items-center gap-2">
-            {!sold && (
-              <button
-                type="button"
-                onClick={() => {
-                  const res = toggleQuoteBasketItem({
-                    id: productContext.id,
-                    title: productContext.title,
-                    category: productContext.category,
-                    price: productContext.price,
-                    status: productContext.status,
-                    conditionGrade: productContext.conditionGrade,
-                    description: productContext.description,
-                    modelName: productContext.modelName,
-                    imageUrl: productContext.imageUrl,
-                    quantity: 1,
-                  });
-                  if (res.limitReached) {
-                    toast.error("견적함에는 최대 8개까지 담을 수 있습니다.");
-                  } else if (res.added) {
-                    toast.success("견적함에 상품을 담았습니다.");
-                  } else {
-                    toast("견적함에서 제외했습니다.");
-                  }
-                }}
-                aria-pressed={inBasket}
-                className={`flex h-11 shrink-0 items-center gap-1 rounded-xl border px-2.5 text-hb-xs font-bold transition-[background-color,border-color,transform] duration-150 active:scale-[0.96] cursor-pointer ${
-                  inBasket
-                    ? "border-[#141A23] bg-[#141A23] text-white"
-                    : "border-[#E2DDD3] bg-white text-[#141A23]"
-                }`}
-              >
-                <Icon
-                  d={inBasket ? ICON.check : ICON.plus}
-                  className={`h-3.5 w-3.5 ${
-                    inBasket ? "text-[#FF8A50]" : "text-[#E8521A]"
-                  }`}
-                />
-                <span>{inBasket ? "담김" : "견적함"}</span>
-              </button>
-            )}
-            <div className="min-w-0 flex-1">
-              <span className="block truncate text-hb-xs font-semibold text-[#5C6673]">
-                {productContext.category}
-              </span>
-              <strong
-                className={`block truncate text-hb-sm font-bold leading-tight tabular-nums ${
-                  sold ? "text-[#5C6673]" : "text-[#141A23]"
-                }`}
-              >
-                {priceLabel}
-              </strong>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            <a
-              href={telHref(STORE.tel)}
-              onClick={() =>
-                trackEvent("click_tel_consult", {
+        <div className="grid h-[64px] grid-cols-[1fr_1fr_1fr_1.45fr] gap-1.5 px-2.5 py-2">
+          <a
+            href={telHref(STORE.tel)}
+            onClick={() =>
+              trackEvent("click_tel_consult", {
+                location: "product_mobile_bar",
+              })
+            }
+            className="flex min-h-[44px] items-center justify-center gap-1 rounded-xl border border-[#E2DDD3] bg-white px-2 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap"
+          >
+            <Icon d={ICON.phone} className="h-3.5 w-3.5 text-[#C84312] shrink-0" />
+            <span>전화</span>
+          </a>
+          <button
+            type="button"
+            onClick={() =>
+              void copyTextAndOpenKakao(
+                productSmsBody,
+                "click_kakao_consult",
+                {
                   location: "product_mobile_bar",
-                })
-              }
-              aria-label="전화 상담"
-              className="grid h-11 w-11 place-items-center rounded-xl border border-[#E2DDD3] bg-white text-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150"
-            >
-              <Icon d={ICON.phone} className="h-4 w-4 text-[#E8521A]" />
-            </a>
-            <a
-              href={smsHref(STORE.mobile, productSmsBody)}
-              onClick={() =>
-                trackEvent("click_sms_consult", {
-                  location: "product_mobile_bar",
-                })
-              }
-              aria-label="문자 문의"
-              className="hidden sm:inline-flex h-11 items-center justify-center rounded-xl border border-[#E2DDD3] bg-white px-3 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,transform] duration-150"
-            >
-              <span>문자</span>
-            </a>
-            <a
-              href={STORE.kakaoChat}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() =>
-                trackEvent("click_kakao_consult", {
-                  location: "product_mobile_bar",
-                })
-              }
-              aria-label="카카오톡 문의"
-              className="grid h-11 w-11 place-items-center rounded-xl bg-[#FEE500] text-[#191600] active:scale-[0.96] transition-transform duration-150"
-            >
-              <Icon d={ICON.chat} className="h-4 w-4" />
-            </a>
-            <Link
-              href={productContext.inquiryHref}
-              className="hb-btn-accent h-11 px-3.5 text-hb-xs whitespace-nowrap rounded-xl active:scale-[0.96] transition-transform duration-150"
-            >
-              <span>이 매물 문의</span>
-            </Link>
-          </div>
+                  product_id: productContext.id,
+                }
+              )
+            }
+            className="flex min-h-[44px] items-center justify-center gap-1 rounded-xl bg-[#FEE500] px-2 text-hb-xs font-bold text-[#191600] active:scale-[0.96] active:bg-[#F2D900] transition-[background-color,transform] duration-150 whitespace-nowrap cursor-pointer"
+          >
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 shrink-0" />
+            <span>카톡</span>
+          </button>
+          <a
+            href={smsHref(STORE.mobile, productSmsBody)}
+            onClick={() =>
+              trackEvent("click_sms_consult", {
+                location: "product_mobile_bar",
+              })
+            }
+            className="flex min-h-[44px] items-center justify-center gap-1 rounded-xl border border-[#E2DDD3] bg-white px-2 text-hb-xs font-bold text-[#141A23] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+          >
+            <Icon d={ICON.chat} className="h-3.5 w-3.5 text-[#0F766E] shrink-0" />
+            <span>문자</span>
+          </a>
+          <button
+            type="button"
+            onClick={() => {
+              trackEvent("begin_buy_inquiry", {
+                location: "product_mobile_bar",
+                product_id: productContext.id,
+              });
+              triggerQuickInquiry({
+                type:
+                  productContext.category === "업소용기기"
+                    ? "대량·업소용 상담"
+                    : "구매 문의",
+                productId: productContext.id,
+                productTitle: productContext.title,
+                modelName: productContext.modelName || undefined,
+                category: productContext.category,
+              });
+            }}
+            className="flex min-h-[44px] items-center justify-center gap-1 rounded-xl bg-[#C84312] hover:bg-[#AE380D] px-2.5 text-hb-xs font-bold text-white whitespace-nowrap active:scale-[0.96] transition-[background-color,transform] duration-150 cursor-pointer shadow-xs"
+          >
+            <Icon d={ICON.pen} className="h-3.5 w-3.5 shrink-0" />
+            <span>{sold ? "유사매물 문의" : "이 매물 문의"}</span>
+          </button>
         </div>
       </div>
     );
@@ -186,7 +138,7 @@ export function MobileCtaBar({
 
   const resolvedPrimaryLabel = primaryActionLabel || "견적·매입문의";
   const primaryBtnClass = accentPrimary
-    ? "flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-[#E8521A] text-hb-xs font-bold text-white transition-[transform,background-color] duration-150 active:scale-[0.96] active:bg-[#C84312] whitespace-nowrap cursor-pointer shadow-xs"
+    ? "flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-[#C84312] hover:bg-[#AE380D] text-hb-xs font-bold text-white transition-[transform,background-color] duration-150 active:scale-[0.96] whitespace-nowrap cursor-pointer shadow-xs"
     : "flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl bg-[#141A23] text-hb-xs font-bold text-white transition-[transform,background-color] duration-150 active:scale-[0.96] active:bg-[#1E2736] whitespace-nowrap cursor-pointer";
 
   return (
@@ -203,7 +155,7 @@ export function MobileCtaBar({
           }
           className="flex min-h-[44px] items-center justify-center gap-1.5 rounded-xl border border-[#E2DDD3] bg-white text-hb-xs font-bold text-[#141A23] transition-[transform,background-color] duration-150 active:scale-[0.96] active:bg-[#F3EFE8] whitespace-nowrap"
         >
-          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
+          <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
           <span>{phoneLabel}</span>
         </a>
         <a

@@ -65,7 +65,7 @@ export function HomeLocationInquirySection({
   return (
     <section
       id="inquiry-section"
-      className="border-b border-[#E2E6EC] bg-white py-7 sm:py-9"
+      className="border-b border-[#E2DDD3] bg-white py-7 sm:py-9"
       aria-labelledby="cta-title"
     >
       <div className="hb-container">
@@ -256,7 +256,7 @@ export function HomeLocationInquirySection({
                     </div>
                   ) : (
                     <>
-                      <ul className="divide-y divide-[#F1F3F6]">
+                      <ul className="divide-y divide-[#EFECE4]">
                         {(showAllRecent
                           ? recent
                           : recent.slice(0, INITIAL_RECENT_COUNT)
@@ -289,17 +289,14 @@ export function HomeLocationInquirySection({
                                   {getInquiryTypeLabel(r.inquiry_type)}
                                 </span>
                                 <span
-                                  className="text-[#CBD2DC] shrink-0"
+                                  className="text-[#CFC7BA] shrink-0"
                                   aria-hidden="true"
                                 >
                                   ·
                                 </span>
-                                <Link
-                                  href="/inquiry"
-                                  className="min-w-0 flex-1 truncate text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] hover:text-[#C84312] transition-colors"
-                                >
+                                <span className="min-w-0 flex-1 truncate text-hb-xs sm:text-hb-sm font-semibold text-[#141A23]">
                                   {cleanCategory || "상담 문의"}
-                                </Link>
+                                </span>
                               </div>
                               <div className="flex shrink-0 items-center gap-1.5 text-hb-xs">
                                 <span className="text-[#475569] font-medium">
@@ -311,7 +308,7 @@ export function HomeLocationInquirySection({
                                   </span>
                                 )}
                                 <span
-                                  className="text-[#CBD2DC]"
+                                  className="text-[#CFC7BA]"
                                   aria-hidden="true"
                                 >
                                   ·

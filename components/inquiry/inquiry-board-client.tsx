@@ -34,6 +34,7 @@ import {
   UnifiedInquiryForm,
   type LinkedProductContext,
 } from "./unified-inquiry-form";
+import { V2InquirySectionWithWizard } from "./v2-wizard-quick-inquiry";
 
 export interface Inquiry {
   id: string;
@@ -1140,17 +1141,28 @@ export function InquiryBoardClient({
                 <Icon d={ICON.close} className="h-5 w-5" />
               </button>
             </div>
-            <div className="p-6">
-              <UnifiedInquiryForm
-                defaultType={writeDefaultType}
-                linkedProduct={linkedProduct}
-                isAdmin={isAdmin}
-                allowNoticeToggle={isAdmin}
-                onSuccess={() => {
-                  loadData();
-                }}
-                onCancel={() => setIsWriteOpen(false)}
-              />
+            <div className="p-5 sm:p-6">
+              {!isAdmin && writeDefaultType !== "대량·업소용 상담" ? (
+                <V2InquirySectionWithWizard
+                  defaultType={writeDefaultType}
+                  linkedProduct={linkedProduct}
+                  variant="embedded"
+                  onSuccess={() => {
+                    void loadData();
+                  }}
+                />
+              ) : (
+                <UnifiedInquiryForm
+                  defaultType={writeDefaultType}
+                  linkedProduct={linkedProduct}
+                  isAdmin={isAdmin}
+                  allowNoticeToggle={isAdmin}
+                  onSuccess={() => {
+                    loadData();
+                  }}
+                  onCancel={() => setIsWriteOpen(false)}
+                />
+              )}
             </div>
           </div>
         </Modal>

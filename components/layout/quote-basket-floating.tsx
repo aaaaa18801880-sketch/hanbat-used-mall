@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import { ICON, Icon } from "../../lib/icons";
@@ -192,13 +193,35 @@ export function QuoteBasketFloatingBar() {
         )}
 
         <div className="flex items-center justify-between gap-2 px-3 py-1.5">
+          {/* 모바일(<sm): 1개 컴팩트 트리거만 표시해 하단 2중 바 혼잡 방지 */}
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="flex min-w-0 items-center gap-2 text-left text-hb-xs sm:text-hb-sm font-semibold text-white hover:text-[#FF8A50] cursor-pointer"
+            aria-expanded={expanded}
+            className="flex sm:hidden min-h-[40px] w-full items-center justify-between gap-2 text-left text-hb-xs font-bold text-white hover:text-[#FF8A50] cursor-pointer"
+          >
+            <span className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#C84312] px-1.5 text-hb-xs font-bold text-white tabular-nums">
+                {items.length}
+              </span>
+              <span className="truncate">
+                견적함 {totalUnits}대 · {expanded ? "접기" : "비교/문의 열기"}
+              </span>
+            </span>
+            <Icon
+              d={expanded ? ICON.down : ICON.up}
+              className="w-4 h-4 text-[#FF8A50] shrink-0"
+            />
+          </button>
+
+          {/* 태블릿/데스크톱(sm+): 기존 인라인 요약 + 빠른 비교/카톡/문의 */}
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="hidden sm:flex min-w-0 items-center gap-2 text-left text-hb-sm font-semibold text-white hover:text-[#FF8A50] cursor-pointer"
           >
             {!expanded && (
-              <div className="hidden sm:flex items-center -space-x-1.5 shrink-0" aria-hidden="true">
+              <div className="flex items-center -space-x-1.5 shrink-0" aria-hidden="true">
                 {items.slice(0, 3).map((item) => (
                   <span
                     key={item.id}
@@ -218,13 +241,13 @@ export function QuoteBasketFloatingBar() {
             </span>
             <span className="truncate">
               견적함 {totalUnits}대{" "}
-              <span className="hidden sm:inline text-hb-xs font-normal text-white/75">
+              <span className="text-hb-xs font-normal text-white/75">
                 {expanded ? "접기" : "목록 · 수량"}
               </span>
             </span>
           </button>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -298,6 +321,8 @@ export function QuoteBasketFloatingBar() {
    우측 슬림 아이콘 독 (FloatingQuickWing — 1520px+ 퀵 독)
    ════════════════════════════════════════════════════════════ */
 export function FloatingQuickWing() {
+  const pathname = usePathname();
+  const isPurchasePage = Boolean(pathname?.startsWith("/purchase"));
   const basketCount = useQuoteBasket().length;
 
   const handleInquiryClick = (
@@ -336,9 +361,9 @@ export function FloatingQuickWing() {
             })
           }
           title={`대표전화 ${STORE.tel}`}
-          className="group w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#FFF4EE] hover:text-[#E8521A] transition-[background-color,color,transform] duration-150 active:scale-95"
+          className="group w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#FFF4EE] hover:text-[#C84312] transition-[background-color,color,transform] duration-150 active:scale-95"
         >
-          <span className="grid h-9 w-9 place-items-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE] text-[#E8521A] group-hover:bg-[#E8521A] group-hover:text-white transition-colors">
+          <span className="grid h-9 w-9 place-items-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE] text-[#C84312] group-hover:bg-[#C84312] group-hover:text-white transition-colors">
             <Icon d={ICON.phone} className="w-5 h-5" />
           </span>
           <span className="text-hb-xs font-bold leading-none">전화</span>
@@ -364,32 +389,39 @@ export function FloatingQuickWing() {
 
         <button
           type="button"
-          onClick={() => handleInquiryClick("구매 문의", basketCount > 0)}
+          onClick={() =>
+            handleInquiryClick(
+              isPurchasePage ? "내 물건 팔기" : "구매 문의",
+              !isPurchasePage && basketCount > 0
+            )
+          }
           title={
-            basketCount > 0
+            isPurchasePage
+              ? "가전 방문 매입 간편 견적"
+              : basketCount > 0
               ? `담아둔 매물 ${basketCount}종 묶음 견적 문의`
               : "견적 문의"
           }
-          className="group relative w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#F1F3F6] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
+          className="group relative w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#F2EEE7] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#141A23] text-white group-hover:bg-[#E8521A] transition-colors">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#141A23] text-white group-hover:bg-[#C84312] transition-colors">
             <Icon d={ICON.pen} className="w-4 h-4" />
           </span>
           <span className="text-hb-xs font-bold leading-none">견적</span>
           {basketCount > 0 && (
-            <span className="absolute right-1.5 top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#E8521A] px-1 text-hb-xs font-bold text-white tabular-nums shadow-xs">
+            <span className="absolute right-1.5 top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#C84312] px-1 text-hb-xs font-bold text-white tabular-nums shadow-xs">
               {basketCount}
             </span>
           )}
         </button>
 
-        <div className="w-10 h-[1px] bg-[#E2E6EC] my-0.5" aria-hidden="true" />
+        <div className="w-10 h-[1px] bg-[#E2DDD3] my-0.5" aria-hidden="true" />
 
         <button
           type="button"
           onClick={scrollToTop}
           title="맨 위로 이동"
-          className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#141A23] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
+          className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#64748B] hover:bg-[#F2EEE7] hover:text-[#141A23] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
         >
           <Icon d={ICON.up} className="w-4 h-4" />
           <span className="text-hb-xs font-bold leading-none">위로</span>

@@ -20,6 +20,7 @@ import {
 import { Icon, ICON } from "../../lib/icons";
 import {
   STORE,
+  telHref,
   splitImages,
   compressImage,
   revokeObjectUrls,
@@ -527,7 +528,7 @@ export default function Home({
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden md:inline-flex items-center rounded-lg border border-[#CBD2DC] bg-[#F7F8FA] px-3.5 h-10 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+            className="hidden md:inline-flex items-center rounded-lg border border-[#CFC7BA] bg-[#FAF9F6] px-3.5 h-10 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
           >
             관리자
           </Link>
@@ -648,6 +649,21 @@ export default function Home({
                   </div>
 
                   <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-hb-xs text-hb-text-muted">
+                    <a
+                      href={telHref(STORE.tel)}
+                      onClick={() =>
+                        trackEvent("click_tel_consult", {
+                          location: "home_hero",
+                        })
+                      }
+                      className="inline-flex items-center gap-1 font-semibold text-hb-text-primary underline underline-offset-4 hover:text-hb-brand-text tabular-nums"
+                    >
+                      <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text" />
+                      <span>전화 바로 문의 {STORE.tel}</span>
+                    </a>
+                    <span className="text-hb-border-strong" aria-hidden="true">
+                      ·
+                    </span>
                     <a
                       href={STORE.kakaoChat}
                       target="_blank"
@@ -801,7 +817,7 @@ export default function Home({
           aria-labelledby="review-title"
         >
           <div className="hb-container">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#E2E6EC]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#E2DDD3]">
               <SectionHeading
                 title={<span id="review-title" className="[text-wrap:balance]">직영 배송 · 설치 현장 기록</span>}
                 desc={`가정집부터 식당·카페·사무실까지 ${STORE.name}가 직접 배송·설치한 현장 사진입니다.`}
@@ -834,7 +850,7 @@ export default function Home({
                 />
                 <p className="text-[#475569] leading-relaxed break-keep">
                   <strong className="font-bold text-[#141A23]">직영 배송·설치 권역</strong>{" "}
-                  <span className="text-[#CBD2DC]" aria-hidden="true">
+                  <span className="text-[#CFC7BA]" aria-hidden="true">
                     ·
                   </span>{" "}
                   {SERVICE_DELIVERY_REGIONS.join(" · ")}{" "}
@@ -857,7 +873,7 @@ export default function Home({
                   <span>네이버 지도 방문자 리뷰</span>
                   <Icon d={ICON.external} className="w-3.5 h-3.5 text-[#0F766E]" />
                 </a>
-                <span className="text-[#CBD2DC]" aria-hidden="true">
+                <span className="text-[#CFC7BA]" aria-hidden="true">
                   |
                 </span>
                 <a
@@ -892,7 +908,7 @@ export default function Home({
                       setReviewFilter
                     )
                   }
-                  className="inline-flex rounded-xl border border-[#E2E6EC] bg-white p-1"
+                  className="inline-flex rounded-xl border border-[#E2DDD3] bg-white p-1"
                 >
                   <button
                     type="button"
@@ -939,7 +955,7 @@ export default function Home({
                 </div>
 
                 <span className="hidden sm:inline-flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B]">
-                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#E8521A]" />
+                  <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#C84312]" />
                   직영 기사 직접 운반 · 수평설치 및 작동 확인
                 </span>
               </div>
@@ -955,7 +971,7 @@ export default function Home({
                 ))}
               </div>
             ) : reviews.length === 0 ? (
-              <div className="mt-6 flex flex-col items-start gap-4 border-y border-[#E2E6EC] bg-white px-5 py-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="mt-6 flex flex-col items-start gap-4 border-y border-[#E2DDD3] bg-white px-5 py-6 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <p className="text-hb-base font-bold text-[#141A23]">
                     현장 사진을 정리하고 있습니다.
@@ -982,7 +998,7 @@ export default function Home({
                     return (
                       <li
                         key={r.id}
-                        className="group relative flex w-[68vw] max-w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-[#E2E6EC] bg-white shadow-2xs hover:border-[#CBD2DC] hover:shadow-card hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-150 sm:w-auto sm:max-w-none sm:shrink"
+                        className="group relative flex w-[68vw] max-w-[260px] shrink-0 snap-start flex-col overflow-hidden rounded-xl border border-[#E2DDD3] bg-white shadow-2xs hover:border-[#CFC7BA] hover:shadow-card hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-150 sm:w-auto sm:max-w-none sm:shrink"
                       >
                         <button
                           type="button"
@@ -1060,17 +1076,17 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <AiRecommendationGuideSection />
 
-        {/* [6/8] 자주 묻는 질문 (#faq-section) */}
-        <HomeFaqSection
-          onOpenInquiry={openInquiry}
-          onOpenAirconGuide={() => setAirconModalOpen(true)}
-        />
-
-        {/* [7/8] 오프라인 직영 쇼룸 오시는 길 및 실시간 1:1 문의 (#inquiry-section + #location-section) */}
+        {/* [6/8] 오프라인 직영 쇼룸 오시는 길 및 실시간 1:1 문의 (#inquiry-section + #location-section) */}
         <HomeLocationInquirySection
           recent={recent}
           totalInquiryCount={totalInquiryCount}
           onOpenInquiry={openInquiry}
+        />
+
+        {/* [7/8] 자주 묻는 질문 (#faq-section) */}
+        <HomeFaqSection
+          onOpenInquiry={openInquiry}
+          onOpenAirconGuide={() => setAirconModalOpen(true)}
         />
 
         {/* ════════════════════════════════════════════════════════════
@@ -1235,7 +1251,7 @@ export default function Home({
         >
           <form
             onSubmit={handleReviewUpload}
-            className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2E6EC]"
+            className="w-full rounded-2xl bg-white p-6 sm:p-8 shadow-2xl border border-[#E2DDD3]"
           >
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-hb-lg font-bold text-[#141A23]">
@@ -1245,7 +1261,7 @@ export default function Home({
                 type="button"
                 onClick={closeReviewModal}
                 aria-label="닫기"
-                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F1F3F6] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
+                className="grid h-8 w-8 place-items-center rounded-full hover:bg-[#F2EEE7] text-[#334155] active:scale-[0.96] transition-[background-color,transform]"
               >
                 <Icon d={ICON.close} />
               </button>
@@ -1255,7 +1271,7 @@ export default function Home({
                 제목
               </label>
               {isAnalyzingReview && (
-                <span className="text-hb-xs font-semibold text-[#E8521A]">
+                <span className="text-hb-xs font-semibold text-[#C84312]">
                   AI 제목 초안 생성 중...
                 </span>
               )}
@@ -1274,7 +1290,7 @@ export default function Home({
               {reviewPreviews.map((src, i) => (
                 <div
                   key={src}
-                  className="relative aspect-square overflow-hidden rounded-lg bg-[#F1F3F6]"
+                  className="relative aspect-square overflow-hidden rounded-lg bg-[#F2EEE7]"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -1300,7 +1316,7 @@ export default function Home({
                 </div>
               ))}
               {reviewFiles.length < MAX_REVIEW_PHOTOS && (
-                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#CBD2DC] bg-[#F7F8FA] text-hb-xs font-semibold text-[#64748B] hover:border-[#E8521A] hover:text-[#E8521A] active:scale-[0.96] transition-[border-color,color,transform] duration-150">
+                <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#CFC7BA] bg-[#FAF9F6] text-hb-xs font-semibold text-[#64748B] hover:border-[#C84312] hover:text-[#C84312] active:scale-[0.96] transition-[border-color,color,transform] duration-150">
                   <Icon d={ICON.plus} className="w-5 h-5" />
                   <span className="mt-1">추가</span>
                   <input

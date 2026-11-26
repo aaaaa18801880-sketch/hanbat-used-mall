@@ -97,7 +97,7 @@ function ContextualGuideBox({
   if (guides.length === 0) return null;
 
   return (
-    <div className="pt-3 border-t border-[#E2E6EC] space-y-2">
+    <div className="pt-3 border-t border-[#E2DDD3] space-y-2">
       <div className="flex items-center justify-between gap-2">
         <span className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#0F766E]">
           <Icon d={ICON.sparkles} className="w-3.5 h-3.5 text-[#0F766E] shrink-0" />
@@ -126,7 +126,7 @@ function ContextualGuideBox({
                 source,
               })
             }
-            className="group flex items-center justify-between gap-2 rounded-xl border border-[#E2E6EC] bg-white px-3 py-2 shadow-2xs hover:border-[#0F766E] hover:bg-[#F0FDFA]/50 transition-[border-color,background-color] duration-150"
+            className="group flex items-center justify-between gap-2 rounded-xl border border-[#E2DDD3] bg-white px-3 py-2 shadow-2xs hover:border-[#0F766E] hover:bg-[#F0FDFA]/50 transition-[border-color,background-color] duration-150"
           >
             <div className="flex items-center gap-2 min-w-0">
               <span className="shrink-0 rounded-md border border-[#CCFBF1] bg-[#F0FDFA] px-2 py-0.5 text-hb-xs font-bold text-[#0F766E]">
@@ -326,7 +326,7 @@ export function V2SpatialFitPlanner({
     return (
       <div className={`hb-surface-card flex h-full flex-col justify-between overflow-hidden ${className}`}>
         {/* 상단 헤더 */}
-        <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
+        <div className="border-b border-[#E2DDD3] bg-[#FAF9F6] px-5 py-5 sm:px-6">
           <span className="inline-flex items-center gap-1.5 rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2.5 py-1 text-hb-xs font-bold text-[#0369A1] whitespace-nowrap">
             <Icon d={ICON.snowflake} className="w-3.5 h-3.5 text-[#0369A1] shrink-0" />
             <span>설치 환경 · 전원 호환 확인</span>
@@ -341,7 +341,7 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 중앙 조작 및 결과 영역 (중첩 박스 없이 divide-y로 깔끔하게 분리) */}
-        <div className="divide-y divide-[#E2E6EC] flex-1">
+        <div className="divide-y divide-[#E2DDD3] flex-1">
           {/* 1. 3가지 핵심 조건 터치 선택 */}
           <div className="p-5 sm:p-6 space-y-4">
             <div>
@@ -363,7 +363,7 @@ export function V2SpatialFitPlanner({
                     className={`h-10 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                       outdoorSpot === opt.id
                         ? "border-[#141A23] bg-[#141A23] text-white shadow-2xs"
-                        : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
+                        : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155] hover:border-[#141A23]"
                     }`}
                   >
                     {opt.label}
@@ -390,8 +390,8 @@ export function V2SpatialFitPlanner({
                       }
                       className={`h-10 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                         pipeDistance === opt.id
-                          ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
-                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155]"
+                          ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
+                          : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155]"
                       }`}
                     >
                       {opt.label}
@@ -419,7 +419,7 @@ export function V2SpatialFitPlanner({
                       className={`h-10 rounded-lg border px-1.5 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                         powerType === opt.id
                           ? "border-[#0284C7] bg-[#F0F9FF] text-[#0369A1]"
-                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155]"
+                          : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155]"
                       }`}
                     >
                       {opt.label}
@@ -460,7 +460,7 @@ export function V2SpatialFitPlanner({
           </div>
 
           {/* 2. 기본 포함 vs 추가 비용 확인 항목 구분 */}
-          <div className="p-5 sm:p-6 space-y-3.5 bg-[#F7F8FA]/60 text-hb-xs sm:text-hb-sm">
+          <div className="p-5 sm:p-6 space-y-3.5 bg-[#FAF9F6]/60 text-hb-xs sm:text-hb-sm">
             <div>
               <strong className="flex items-center gap-1.5 text-[#0F766E] font-bold">
                 <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#0F766E] shrink-0" />
@@ -473,9 +473,9 @@ export function V2SpatialFitPlanner({
               </ul>
             </div>
 
-            <div className="pt-2 border-t border-[#E2E6EC]">
-              <strong className="flex items-center gap-1.5 text-[#E8521A] font-bold">
-                <Icon d={ICON.wrench} className="w-3.5 h-3.5 text-[#E8521A] shrink-0" />
+            <div className="pt-2 border-t border-[#E2DDD3]">
+              <strong className="flex items-center gap-1.5 text-[#C84312] font-bold">
+                <Icon d={ICON.wrench} className="w-3.5 h-3.5 text-[#C84312] shrink-0" />
                 <span>선택하신 여건에서 현장 산정이 필요한 항목</span>
               </strong>
               <ul className="mt-1.5 space-y-1 pl-4 text-[#334155] list-disc">
@@ -495,7 +495,7 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 하단 원클릭 문의 연결 바 */}
-        <div className="border-t border-[#E2E6EC] bg-white p-5 sm:px-6 space-y-2">
+        <div className="border-t border-[#E2DDD3] bg-white p-5 sm:px-6 space-y-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <a
               href={smsHref(STORE.mobile, smsBody)}
@@ -618,13 +618,13 @@ export function V2SpatialFitPlanner({
   return (
     <div className={`hb-surface-card flex h-full flex-col justify-between overflow-hidden ${className}`}>
       {/* 상단 헤더 */}
-      <div className="border-b border-[#E2E6EC] bg-[#F7F8FA] px-5 py-5 sm:px-6">
+      <div className="border-b border-[#E2DDD3] bg-[#FAF9F6] px-5 py-5 sm:px-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-md border border-[#BAE6FD] bg-[#F0F9FF] px-2.5 py-1 text-hb-xs font-bold text-[#0369A1] whitespace-nowrap">
             <Icon d={ICON.ruler} className="w-3.5 h-3.5 text-[#0369A1] shrink-0" />
             <span>설치 공간 · 운반 여건 확인</span>
           </span>
-          <span className="rounded-full border border-[#E2E6EC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] whitespace-nowrap tabular-nums">
+          <span className="rounded-full border border-[#E2DDD3] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] whitespace-nowrap tabular-nums">
             {detected.isExact ? "실측 규격" : "표준 참고치"}: 가로 {productWidthCm}cm × 깊이 {productDepthCm}cm
           </span>
         </div>
@@ -638,7 +638,7 @@ export function V2SpatialFitPlanner({
       </div>
 
       {/* 본문 영역 (No Card-in-Card: divide-y 구분선으로 깔끔하게 분리) */}
-      <div className="divide-y divide-[#E2E6EC] flex-1">
+      <div className="divide-y divide-[#E2DDD3] flex-1">
         {/* 1. 조작 컨트롤 영역 */}
         <div className="p-5 sm:p-6 space-y-5">
           {/* 놓을 자리 가로폭 */}
@@ -650,7 +650,7 @@ export function V2SpatialFitPlanner({
               >
                 1. 제품 놓을 자리(벽면) 가로폭
               </label>
-              <strong className="text-hb-sm sm:text-hb-base font-bold text-[#E8521A] tabular-nums">
+              <strong className="text-hb-sm sm:text-hb-base font-bold text-[#C84312] tabular-nums">
                 {mySpaceCm}cm
               </strong>
             </div>
@@ -663,7 +663,7 @@ export function V2SpatialFitPlanner({
                   className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                     mySpaceCm === p.cm
                       ? "border-[#141A23] bg-[#141A23] text-white"
-                      : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
+                      : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   {p.label}
@@ -704,7 +704,7 @@ export function V2SpatialFitPlanner({
                   className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                     myDoorCm === d.cm
                       ? "border-[#0284C7] bg-[#F0F9FF] text-[#0369A1]"
-                      : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
+                      : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   {d.label}
@@ -728,7 +728,7 @@ export function V2SpatialFitPlanner({
                 className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                   carryFloor === "1f_elev"
                     ? "border-[#0D9488] bg-[#F0FDFA] text-[#0F766E]"
-                    : "border-[#E2E6EC] bg-[#F7F8FA] text-[#64748B]"
+                    : "border-[#E2DDD3] bg-[#FAF9F6] text-[#64748B]"
                 }`}
               >
                 1층 또는 엘리베이터 있음
@@ -738,8 +738,8 @@ export function V2SpatialFitPlanner({
                 onClick={() => setCarryFloor("stairs")}
                 className={`h-9 rounded-lg border px-2 text-hb-xs font-bold whitespace-nowrap transition-[transform,background-color,border-color,color] active:scale-[0.96] cursor-pointer ${
                   carryFloor === "stairs"
-                    ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A]"
-                    : "border-[#E2E6EC] bg-[#F7F8FA] text-[#64748B]"
+                    ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
+                    : "border-[#E2DDD3] bg-[#FAF9F6] text-[#64748B]"
                 }`}
               >
                 2층 이상 계단 운반
@@ -749,7 +749,7 @@ export function V2SpatialFitPlanner({
         </div>
 
         {/* 2. 공간 점유 바 & 2줄 핵심 판정 결과 */}
-        <div className="p-5 sm:p-6 bg-[#F7F8FA]/60 space-y-3.5">
+        <div className="p-5 sm:p-6 bg-[#FAF9F6]/60 space-y-3.5">
           <div className="space-y-1.5">
             <div className="flex items-center justify-between text-hb-xs tabular-nums">
               <span className="font-bold text-[#141A23]">
@@ -768,7 +768,7 @@ export function V2SpatialFitPlanner({
               </strong>
             </div>
 
-            <div className="flex h-10 w-full items-center justify-center overflow-hidden rounded-lg border border-[#CBD2DC] bg-white px-2">
+            <div className="flex h-10 w-full items-center justify-center overflow-hidden rounded-lg border border-[#CFC7BA] bg-white px-2">
               {!isCompactAppliance && (
                 <span className="flex h-7 shrink-0 items-center rounded-l bg-[#F0FDFA] border border-r-0 border-[#CCFBF1] px-1.5 sm:px-2 text-hb-xs font-bold text-[#0F766E] whitespace-nowrap">
                   방열 5cm
@@ -790,7 +790,7 @@ export function V2SpatialFitPlanner({
             </div>
           </div>
 
-          <dl className="divide-y divide-[#E2E6EC] text-hb-xs sm:text-hb-sm pt-1">
+          <dl className="divide-y divide-[#E2DDD3] text-hb-xs sm:text-hb-sm pt-1">
             <div className="py-2 flex items-start justify-between gap-3">
               <dt className="font-bold text-[#64748B] shrink-0">출입문 통과</dt>
               <dd className="font-bold text-[#141A23] text-right break-keep">
@@ -821,7 +821,7 @@ export function V2SpatialFitPlanner({
       </div>
 
       {/* 하단 원클릭 문의 연결 바 */}
-      <div className="border-t border-[#E2E6EC] bg-white p-5 sm:px-6 space-y-2">
+      <div className="border-t border-[#E2DDD3] bg-white p-5 sm:px-6 space-y-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           <a
             href={smsHref(STORE.mobile, applianceSmsBody)}

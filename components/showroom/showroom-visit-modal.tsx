@@ -128,15 +128,15 @@ export function ShowroomVisitModal({
           {/* 1. 실물 찜 대상 상품 요약 (선택된 상품이 있는 경우) */}
           {product && (
             <div className="rounded-xl border border-[#FADCD0] bg-[#FFF4EE] p-3.5 sm:p-4">
-              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#FADCD0]/60 text-hb-xs font-bold text-[#E8521A]">
+              <div className="flex items-center justify-between gap-2 pb-2 border-b border-[#FADCD0]/60 text-hb-xs font-bold text-[#C84312]">
                 <span>실물 확인 예약 대상 매물</span>
-                <span className="rounded bg-[#E8521A] px-1.5 py-0.5 text-white">
+                <span className="rounded bg-[#C84312] px-1.5 py-0.5 text-white">
                   방문 전 실물 찜
                 </span>
               </div>
               <div className="mt-3 flex items-center gap-3">
                 {product.imageUrl && (
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2E6EC] bg-white">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-white">
                     <SafeImg
                       src={product.imageUrl}
                       alt={product.title}
@@ -151,7 +151,7 @@ export function ShowroomVisitModal({
                   <h3 className="truncate text-hb-sm font-bold text-[#141A23]">
                     {product.title}
                   </h3>
-                  <span className="text-hb-sm font-bold text-[#E8521A] tabular-nums">
+                  <span className="text-hb-sm font-bold text-[#C84312] tabular-nums">
                     {priceDisplay}
                   </span>
                 </div>
@@ -175,13 +175,13 @@ export function ShowroomVisitModal({
                   onClick={() => setSelectedTime(opt)}
                   className={`flex items-center justify-between rounded-lg border p-2.5 text-hb-xs sm:text-hb-sm font-bold transition-[border-color,background-color,color,box-shadow,transform] duration-150 active:scale-[0.96] text-left cursor-pointer ${
                     selectedTime === opt
-                      ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] shadow-2xs"
-                      : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#141A23]"
+                      ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312] shadow-2xs"
+                      : "border-[#E2DDD3] bg-[#FAF9F6] text-[#334155] hover:border-[#141A23]"
                   }`}
                 >
                   <span className="truncate">{opt}</span>
                   {selectedTime === opt && (
-                    <Icon d={ICON.check} className="w-4 h-4 shrink-0 text-[#E8521A]" />
+                    <Icon d={ICON.check} className="w-4 h-4 shrink-0 text-[#C84312]" />
                   )}
                 </button>
               ))}
@@ -220,13 +220,13 @@ export function ShowroomVisitModal({
           {/* 5. 내비게이션 3사 원클릭 길찾기 */}
           <div className="rounded-xl border border-[#E2DDD3] bg-white p-4 space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-hb-xs font-bold text-[#E8521A]">
+              <span className="text-hb-xs font-bold text-[#C84312]">
                 내비게이션 바로 길찾기
               </span>
               <button
                 type="button"
                 onClick={handleCopyAddress}
-                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#E8521A] hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#C84312] hover:underline cursor-pointer"
               >
                 <Icon d={ICON.copy} className="w-3.5 h-3.5" />
                 <span>도로명 주소 복사</span>
@@ -277,7 +277,7 @@ export function ShowroomVisitModal({
           {/* 5. 매장 방문 편의 & 주차 안내 */}
           <div className="rounded-2xl border border-[#E2DDD3] bg-white p-4 flex flex-wrap items-center justify-between gap-2.5 text-hb-xs text-[#334155]">
             <div className="flex items-center gap-1.5 font-bold text-[#141A23]">
-              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#E8521A]" />
+              <Icon d={ICON.check} className="w-3.5 h-3.5 text-[#C84312]" />
               <span>{STORE_NAVIGATION.parking}</span>
             </div>
             <div className="text-[#64748B]">

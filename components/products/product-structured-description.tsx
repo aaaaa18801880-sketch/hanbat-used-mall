@@ -17,7 +17,7 @@ export function ProductStructuredDescription({
   if (!description || !description.trim()) {
     return (
       <div
-        className={`rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-5 ${className}`.trim()}
+        className={`rounded-2xl bg-[#FAF9F6] border border-[#E2DDD3] p-5 ${className}`.trim()}
       >
         <h3 className="text-hb-base font-bold text-[#141A23] mb-1.5">
           상세 제원 및 검수 소견
@@ -34,7 +34,7 @@ export function ProductStructuredDescription({
   if (!parsed.hasStructuredSections) {
     return (
       <div
-        className={`rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-5 sm:p-6 ${className}`.trim()}
+        className={`rounded-2xl bg-[#FAF9F6] border border-[#E2DDD3] p-5 sm:p-6 ${className}`.trim()}
       >
         <h3 className="text-hb-base font-bold text-[#141A23] mb-2.5">
           상세 제원 및 검수 소견
@@ -53,7 +53,7 @@ export function ProductStructuredDescription({
       className={`bg-white ${
         isCompact
           ? "pt-3 space-y-4"
-          : "p-5 sm:p-7 rounded-2xl border border-[#E2E6EC] shadow-2xs divide-y divide-[#E2E6EC]"
+          : "p-5 sm:p-7 rounded-2xl border border-[#E2DDD3] shadow-2xs divide-y divide-[#E2DDD3]"
       } ${className}`.trim()}
     >
       {/* 상단 섹션 타이틀 (full 모드 전용) */}
@@ -72,7 +72,7 @@ export function ProductStructuredDescription({
       {parsed.summary.length > 0 && (
         <div className={isCompact ? "space-y-1.5" : "py-4 sm:py-5 space-y-2"}>
           <h3 className="text-hb-sm font-bold text-[#141A23] flex items-center gap-2">
-            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FFF4EE] text-[#E8521A]">
+            <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#FFF4EE] text-[#C84312]">
               <Icon d={ICON.check} className="h-3.5 w-3.5" />
             </span>
             <span>한눈에 보는 제품 요약</span>
@@ -134,7 +134,7 @@ export function ProductStructuredDescription({
               <ul className="space-y-2 text-hb-sm leading-relaxed text-[#334155]">
                 {parsed.features.map((f, i) => (
                   <li key={i} className="flex items-start gap-2">
-                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#E8521A] shrink-0" />
+                    <span className="mt-2 h-1.5 w-1.5 rounded-full bg-[#C84312] shrink-0" />
                     <span>{f}</span>
                   </li>
                 ))}
@@ -168,7 +168,7 @@ export function ProductStructuredDescription({
         <div className={isCompact ? "space-y-3" : "py-4 sm:py-5 space-y-3"}>
           {parsed.checkPoints.length > 0 && (
             <div className="rounded-xl bg-[#FFF4EE] border border-[#FADCD0] p-4 text-hb-sm text-[#334155]">
-              <strong className="block font-bold text-[#E8521A] mb-1">
+              <strong className="block font-bold text-[#C84312] mb-1">
                 구매 및 설치 전 확인사항
               </strong>
               <div className="space-y-1">
@@ -185,7 +185,7 @@ export function ProductStructuredDescription({
                 <p key={i} className="flex items-start gap-2">
                   <Icon
                     d={ICON.chat}
-                    className="w-4 h-4 text-[#E8521A] shrink-0 mt-0.5"
+                    className="w-4 h-4 text-[#C84312] shrink-0 mt-0.5"
                   />
                   <span>{cg}</span>
                 </p>

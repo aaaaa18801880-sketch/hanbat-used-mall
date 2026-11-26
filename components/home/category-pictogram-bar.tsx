@@ -380,7 +380,7 @@ export function CategoryPictogramBar({
 
         {/* 1-B. 홈 쇼룸 빠른 검색창 & 인기 검색어 바로가기 */}
         {onSearchQueryChange && (
-          <div className="mt-4 rounded-xl border border-[#EAE8E2] bg-[#FAFAF8] p-2.5 sm:p-3">
+          <div className="mt-4 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] p-2.5 sm:p-3">
             <form
               role="search"
               aria-label="홈 쇼룸 매물 빠른 검색"
@@ -399,14 +399,14 @@ export function CategoryPictogramBar({
                   onChange={(e) => onSearchQueryChange(e.target.value)}
                   placeholder="품목·브랜드·규격 빠른 검색 (예: 45박스, 벽걸이 에어컨, 삼성, 11평)"
                   aria-label="품목, 브랜드, 규격 빠른 검색"
-                  className="w-full h-11 rounded-xl border border-[#DFDCD4] bg-white pl-10 pr-10 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 transition-[border-color,box-shadow]"
+                  className="w-full h-11 rounded-xl border border-[#CFC7BA] bg-white pl-10 pr-10 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 transition-[border-color,box-shadow]"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => onSearchQueryChange("")}
                     aria-label="검색어 지우기"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-lg text-[#64748B] hover:bg-[#F1F3F6] hover:text-[#141A23] cursor-pointer"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-lg text-[#64748B] hover:bg-[#F2EEE7] hover:text-[#141A23] cursor-pointer"
                   >
                     <Icon d={ICON.close} className="w-3.5 h-3.5" />
                   </button>
@@ -415,10 +415,25 @@ export function CategoryPictogramBar({
 
               <button
                 type="submit"
-                className="hb-btn-primary h-11 px-4 text-hb-xs sm:text-hb-sm font-bold shrink-0 whitespace-nowrap cursor-pointer active:scale-[0.97]"
+                className={`${
+                  trimmedSearch
+                    ? "hb-btn-primary font-bold"
+                    : "hb-btn-outline font-semibold"
+                } h-11 px-4 text-hb-xs sm:text-hb-sm shrink-0 whitespace-nowrap cursor-pointer active:scale-[0.97]`}
               >
-                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                <span>전체 갤러리 검색</span>
+                <Icon
+                  d={ICON.search}
+                  className={`w-3.5 h-3.5 ${
+                    trimmedSearch ? "text-[#FF8A50]" : "text-[#64748B]"
+                  }`}
+                />
+                <span>
+                  {trimmedSearch
+                    ? typeof selectedCount === "number"
+                      ? `전체 갤러리에서 ${selectedCount}건 보기 →`
+                      : "전체 갤러리에서 보기 →"
+                    : "전체 갤러리 보기"}
+                </span>
               </button>
             </form>
 
@@ -426,7 +441,7 @@ export function CategoryPictogramBar({
               <span className="text-hb-xs font-semibold text-[#64748B] shrink-0 whitespace-nowrap pr-1">
                 인기 검색어
               </span>
-              <span className="text-[#CBD2DC] shrink-0" aria-hidden="true">
+              <span className="text-[#CFC7BA] shrink-0" aria-hidden="true">
                 ·
               </span>
               <div className="flex items-center gap-1">

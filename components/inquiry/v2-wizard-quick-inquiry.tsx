@@ -230,8 +230,7 @@ export function V2InquirySectionWithWizard({
   };
 
   const goToPhotoStep = () => {
-    const targetStep: 2 | 3 =
-      inquiryType === "내 물건 팔기" && selectedFiles.length > 0 ? 3 : 2;
+    const targetStep: 2 | 3 = inquiryType === "내 물건 팔기" ? 3 : 2;
     if (selectedCategories.length === 0) {
       if (inquiryType === "내 물건 팔기") {
         if (
@@ -246,7 +245,6 @@ export function V2InquirySectionWithWizard({
           return;
         }
         if (selectedFiles.length > 0) {
-          setSelectedCategories(["기타"]);
           setStep1Hint(null);
           setStep(targetStep);
           return;
@@ -399,7 +397,11 @@ export function V2InquirySectionWithWizard({
         selectedCategories.length > 0
           ? selectedCategories.join(" · ")
           : aiResult?.applianceCategory ||
-            (inquiryType === "내 물건 팔기" ? "방문매입 가전" : "상담 품목");
+            (inquiryType === "내 물건 팔기"
+              ? selectedFiles.length > 0
+                ? "사진 참고(미선택)"
+                : "방문매입 가전"
+              : "상담 품목");
       const autoTitle = `[${inquiryType}] ${catSummary} 견적 신청`;
       const effectivePassword = pwTrimmed;
       const chipLine =
@@ -545,6 +547,9 @@ export function V2InquirySectionWithWizard({
                 ? "남겨주신 사진과 지역을 매장 담당자가 확인한 뒤 빠른 매입 견적과 방문 수거 일정을 안내해 드릴게요."
                 : "요청하신 품목의 작동 점검 상태와 배송 일정을 확인한 뒤 순차적으로 연락드릴게요."}
             </p>
+            <p className="mx-auto max-w-md text-hb-xs font-semibold text-[#0F766E] break-keep">
+              영업시간(월~토 09:00~19:00) 기준 매장 담당자 확인 후 순차 연락드립니다
+            </p>
           </div>
         </div>
 
@@ -645,7 +650,7 @@ export function V2InquirySectionWithWizard({
                 type="button"
                 onClick={() =>
                   setStep(
-                    step === 3 && isSell && selectedFiles.length > 0
+                    step === 3 && isSell
                       ? 1
                       : step === 3
                       ? 2
@@ -709,6 +714,11 @@ export function V2InquirySectionWithWizard({
                   ? "사진만 먼저 올려주셔도 되고, 아래에서 품목을 여러 개 골라도 돼요."
                   : "상담 유형과 품목을 골라주시면 확인 후 안내해 드릴게요."}
               </p>
+              {isSell && (
+                <p className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 py-2 text-hb-xs font-semibold text-[#334155] break-keep">
+                  제조 10년 이내 정상 작동 가전 · 업소용 일괄 매입 · 당일 현금 정산 (고장·폐기물 제외)
+                </p>
+              )}
             </div>
 
             {!isSell && fixedType !== "내 물건 팔기" && basketItems.length > 0 && (
@@ -1225,7 +1235,8 @@ export function V2InquirySectionWithWizard({
             <div className="rounded-2xl bg-[#F6F5F1] px-4 py-3 text-hb-xs sm:text-hb-sm text-[#334155] flex flex-wrap items-center justify-between gap-2">
               <div className="min-w-0">
                 <span className="font-bold text-[#141A23]">
-                  {selectedCategories.join(" · ") || "품목 미지정"}
+                  {selectedCategories.join(" · ") ||
+                    (selectedFiles.length > 0 ? "사진 참고(미선택)" : "품목 미지정")}
                 </span>
                 <span className="mx-1.5 text-[#94A3B8]" aria-hidden="true">
                   ·
@@ -1238,7 +1249,7 @@ export function V2InquirySectionWithWizard({
               </div>
               <button
                 type="button"
-                onClick={() => setStep(isSell && selectedFiles.length > 0 ? 1 : 2)}
+                onClick={() => setStep(isSell ? 1 : 2)}
                 className="text-hb-xs font-bold text-[#C84312] hover:underline shrink-0 cursor-pointer"
               >
                 수정하기
@@ -1425,39 +1436,53 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            {/* 토스 스타일 전체 행 터치형 개인정보 동의 */}
-            <label
-              className={`flex items-center justify-between gap-3 rounded-2xl p-4 cursor-pointer select-none transition-colors ${
+            {/* 토스 스타일 전체 행 터치형 개인정보 동의 (링크와 체크박스 라벨 분리로 접근성 준수) */}
+            <div
+              className={`flex items-center justify-between gap-3 rounded-2xl p-4 transition-colors ${
                 agreed
                   ? "bg-[#F0FDFA] ring-1 ring-[#0F766E]/40"
                   : "bg-[#F6F5F1] hover:bg-[#EFECE4]"
               }`}
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <input
-                  type="checkbox"
-                  checked={agreed}
-                  onChange={(e) => setAgreed(e.target.checked)}
-                  className="sr-only"
-                />
-                <span
-                  aria-hidden="true"
-                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${
-                    agreed
-                      ? "bg-[#0F766E] text-white"
-                      : "bg-white ring-1 ring-[#CBD2DC] text-transparent"
-                  }`}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0 flex-1">
+                <label
+                  htmlFor={`${uid}-agreed`}
+                  className="inline-flex items-center gap-3 cursor-pointer select-none min-w-0"
                 >
-                  <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                </span>
-                <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] break-keep">
-                  상담 안내를 위한 개인정보 수집·이용에 동의해요
-                </span>
+                  <input
+                    id={`${uid}-agreed`}
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={(e) => setAgreed(e.target.checked)}
+                    className="sr-only"
+                  />
+                  <span
+                    aria-hidden="true"
+                    className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${
+                      agreed
+                        ? "bg-[#0F766E] text-white"
+                        : "bg-white ring-1 ring-[#CFC7BA] text-transparent"
+                    }`}
+                  >
+                    <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                  </span>
+                  <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] break-keep">
+                    상담 안내를 위한 동의
+                  </span>
+                </label>
+                <Link
+                  href="/privacy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-hb-xs font-bold text-[#0F766E] underline underline-offset-2 hover:text-[#141A23] shrink-0"
+                >
+                  개인정보 수집·이용 안내
+                </Link>
               </div>
               <span className="text-hb-xs font-bold text-[#64748B] shrink-0">
                 필수
               </span>
-            </label>
+            </div>
 
             {/* 최종 제출 CTA + 문자 전송 대안 */}
             <div className="space-y-2.5 pt-1">
@@ -1475,6 +1500,10 @@ export function V2InquirySectionWithWizard({
                 </span>
               </button>
 
+              <p className="px-1 text-center text-hb-xs font-medium text-[#475569] break-keep">
+                영업시간(월~토 09:00~19:00) 기준 매장 담당자 확인 후 순차 연락드립니다
+              </p>
+
               <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-hb-xs text-[#64748B]">
                 <span>
                   {step3Readiness.missingHint ||
@@ -1485,7 +1514,7 @@ export function V2InquirySectionWithWizard({
                     STORE.mobile,
                     `[${STORE.name} ${inquiryType}] 품목: ${selectedCategories.join(
                       ", "
-                    )} / 조건: ${selectedChips.join(", ")} 문의드립니다.`
+                    ) || (selectedFiles.length > 0 ? "사진 참고" : "상담")} / 조건: ${selectedChips.join(", ")} 문의드립니다.`
                   )}
                   onClick={() =>
                     trackEvent("click_sms_consult", {

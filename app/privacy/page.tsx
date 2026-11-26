@@ -20,13 +20,13 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
       <main id="main-content" tabIndex={-1} className="hb-container py-10 sm:py-14 flex-1 focus:outline-none">
-        <div className="mx-auto max-w-3xl rounded-2xl border border-[#E2E6EC] bg-white p-6 sm:p-10 shadow-2xs">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-[#E2DDD3] bg-white p-6 sm:p-10 shadow-2xs">
           <p className="hb-eyebrow">개인정보 보호 정책</p>
-          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] pb-5 border-b border-[#E2E6EC]">
+          <h1 className="mt-2 text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] pb-5 border-b border-[#E2DDD3]">
             개인정보처리방침
           </h1>
 
@@ -108,7 +108,7 @@ export default function PrivacyPage() {
               <h2 className="text-hb-base font-bold text-[#141A23]">
                 5. 개인정보 보호책임자 안내
               </h2>
-              <div className="rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] p-4 text-hb-xs space-y-1">
+              <div className="rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] p-4 text-hb-xs space-y-1">
                 <p>
                   • <strong className="text-[#141A23]">상호:</strong> {STORE.name}{" "}
                   (대표: {STORE.ceo})
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
               </div>
             </section>
 
-            <div className="pt-5 border-t border-[#E2E6EC] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#64748B]">
+            <div className="pt-5 border-t border-[#E2DDD3] flex flex-wrap items-center justify-between gap-4 text-hb-xs text-[#64748B]">
               <span>시행일자: 2026년 1월 1일</span>
               <Link href="/" className="hb-btn-primary h-10 px-5 text-hb-xs">
                 홈으로 돌아가기

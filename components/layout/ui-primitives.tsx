@@ -5,11 +5,12 @@ import toast from "react-hot-toast";
 import { ICON, Icon } from "../../lib/icons";
 import {
   STORE,
-  copyQuoteBasketText,
+  buildQuoteBasketSmsBody,
   trackEvent,
   getQuoteBasket,
   EMPTY_QUOTE_BASKET,
   subscribeQuoteBasket,
+  type AnalyticsEventName,
   type QuoteBasketItem,
 } from "../../lib/site";
 
@@ -23,16 +24,38 @@ export function useQuoteBasket(): QuoteBasketItem[] {
   );
 }
 
+export async function copyTextAndOpenKakao(
+  text: string,
+  eventName: AnalyticsEventName,
+  eventParams?: Record<string, string | number | boolean | null | undefined>,
+  toastMessage = "상품 정보가 복사되었습니다! 카톡 대화창에 붙여넣기(Ctrl+V) 해주세요.",
+  duration = 4000
+): Promise<void> {
+  trackEvent(eventName, eventParams);
+  if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(toastMessage, { duration });
+    } catch {
+      toast("카카오톡 1:1 상담창을 엽니다.");
+    }
+  }
+  window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+}
+
 export async function copyQuoteAndOpenKakao(
   items: QuoteBasketItem[],
   eventName: "click_quote_basket_kakao" | "click_quote_compare_kakao",
   toastMessage: string,
   duration = 4000
 ): Promise<void> {
-  trackEvent(eventName, { count: items.length });
-  await copyQuoteBasketText(items);
-  toast.success(toastMessage, { duration });
-  window.open(STORE.kakaoChat, "_blank", "noopener,noreferrer");
+  await copyTextAndOpenKakao(
+    buildQuoteBasketSmsBody(items),
+    eventName,
+    { count: items.length },
+    toastMessage,
+    duration
+  );
 }
 
 /* ════════════════════════════════════════════════════════════

@@ -18,11 +18,11 @@ export default function GlobalErrorPage({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA] font-sans text-[#141A23] flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] font-sans text-[#141A23] flex flex-col">
       <SiteHeader />
 
       <main id="main-content" tabIndex={-1} className="hb-container py-16 sm:py-24 flex-1 flex items-center justify-center focus:outline-none">
-        <div className="max-w-md w-full rounded-2xl border border-[#E2E6EC] bg-white p-8 sm:p-10 text-center shadow-2xs">
+        <div className="max-w-md w-full rounded-2xl border border-[#E2DDD3] bg-white p-8 sm:p-10 text-center shadow-2xs">
           <p className="hb-eyebrow justify-center">일시적 오류 안내</p>
           <h1 className="mt-2 text-hb-xl font-bold text-[#141A23]">
             화면을 불러오는 중 일시적인 문제가 발생했습니다.
@@ -44,11 +44,11 @@ export default function GlobalErrorPage({
             </Link>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-[#E2E6EC] text-hb-xs text-[#64748B] tabular-nums">
+          <div className="mt-6 pt-4 border-t border-[#E2DDD3] text-hb-xs text-[#64748B] tabular-nums">
             전화 상담 연결:{" "}
             <a
               href={telHref(STORE.tel)}
-              className="font-bold text-[#E8521A] underline underline-offset-4"
+              className="font-bold text-[#C84312] underline underline-offset-4"
             >
               {STORE.tel}
             </a>

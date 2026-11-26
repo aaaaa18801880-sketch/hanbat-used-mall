@@ -22,10 +22,11 @@ test("모든 PRODUCT_CATEGORIES 항목에 친절한 메타 라벨과 예시 힌�
   }
 });
 
-test("매입 모드에서 사진 첨부 시 2단계 흐름으로 단축되고 진행률이 정확히 계산된다", () => {
-  assert.equal(getWizardStepCount(true, 0), 3);
-  assert.equal(getWizardProgressPercent(1, true, 0), 33);
-  assert.equal(getWizardProgressPercent(2, true, 0), 67);
+test("매입 모드에서는 사진 유무와 무관하게 2단계 흐름으로 압축되고 진행률이 정확히 계산된다", () => {
+  assert.equal(getWizardStepCount(true, 0), 2);
+  assert.equal(getWizardDisplayStep(1, true, 0), 1);
+  assert.equal(getWizardDisplayStep(3, true, 0), 2);
+  assert.equal(getWizardProgressPercent(1, true, 0), 50);
   assert.equal(getWizardProgressPercent(3, true, 0), 100);
 
   assert.equal(getWizardStepCount(true, 1), 2);
@@ -44,7 +45,7 @@ test("Step 1 CTA 라벨과 준비 상태가 선택 품목·사진 여부에 따�
   );
   assert.deepEqual(
     getStep1PrimaryCta({ isSell: true, selectedCategoriesCount: 2, selectedFilesCount: 0 }),
-    { label: "2개 품목 선택됨 · 다음으로", ready: true }
+    { label: "2개 품목 선택됨 · 연락처 입력하기", ready: true }
   );
   assert.deepEqual(
     getStep1PrimaryCta({ isSell: true, selectedCategoriesCount: 0, selectedFilesCount: 1 }),

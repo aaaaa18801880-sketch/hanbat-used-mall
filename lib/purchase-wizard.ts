@@ -39,16 +39,18 @@ export const WIZARD_QUICK_REGIONS = [
   "충청 인근",
 ] as const;
 
-export function getWizardStepCount(isSell: boolean, selectedFilesCount: number): 2 | 3 {
-  return isSell && selectedFilesCount > 0 ? 2 : 3;
+export function getWizardStepCount(isSell: boolean, selectedFilesCount = 0): 2 | 3 {
+  void selectedFilesCount;
+  return isSell ? 2 : 3;
 }
 
 export function getWizardDisplayStep(
   step: 1 | 2 | 3,
   isSell: boolean,
-  selectedFilesCount: number
+  selectedFilesCount = 0
 ): number {
-  if (isSell && selectedFilesCount > 0 && step === 3) {
+  void selectedFilesCount;
+  if (isSell && step === 3) {
     return 2;
   }
   return step;
@@ -57,7 +59,7 @@ export function getWizardDisplayStep(
 export function getWizardProgressPercent(
   step: 1 | 2 | 3,
   isSell: boolean,
-  selectedFilesCount: number
+  selectedFilesCount = 0
 ): number {
   const total = getWizardStepCount(isSell, selectedFilesCount);
   const current = getWizardDisplayStep(step, isSell, selectedFilesCount);
@@ -79,7 +81,7 @@ export function getStep1PrimaryCta(params: {
   if (selectedCategoriesCount > 0) {
     return {
       label: isSell
-        ? `${selectedCategoriesCount}개 품목 선택됨 · 다음으로`
+        ? `${selectedCategoriesCount}개 품목 선택됨 · 연락처 입력하기`
         : `${selectedCategoriesCount}개 품목으로 다음 단계`,
       ready: true,
     };

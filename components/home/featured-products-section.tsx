@@ -215,7 +215,7 @@ export function FeaturedProductsSection({
       <div className="hb-container">
         {/* 상단 실매물 쇼케이스 헤더 및 빠른 비교/일람표 액션 바 */}
         {!embedded && (
-          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#E2E6EC]">
+          <div className="flex flex-col gap-3.5 sm:flex-row sm:items-end sm:justify-between pb-4 border-b border-[#E2DDD3]">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 text-hb-xs font-bold text-[#0F766E]">
                 <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 shrink-0" />
@@ -228,7 +228,7 @@ export function FeaturedProductsSection({
                 >
                   {activeCategoryTitle}
                 </h2>
-                <span className="rounded-md bg-[#F1F3F6] px-2.5 py-0.5 font-mono text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums">
+                <span className="rounded-md bg-[#F2EEE7] px-2.5 py-0.5 font-mono text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums">
                   {filteredProducts.length}건
                 </span>
                 {selectedCategory &&
@@ -240,7 +240,7 @@ export function FeaturedProductsSection({
                         setVisibleCount(INITIAL_DISPLAY_LIMIT);
                         onResetCategory();
                       }}
-                      className="min-h-[34px] rounded-xl border border-[#CBD2DC] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
+                      className="min-h-[34px] rounded-xl border border-[#CFC7BA] bg-white px-3 py-1 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#FAF9F6] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
                     >
                       전체 품목 보기
                     </button>
@@ -251,7 +251,7 @@ export function FeaturedProductsSection({
             <div className="flex flex-wrap items-center gap-2 shrink-0">
               <Link
                 href={tableViewHref}
-                className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+                className="inline-flex min-h-[40px] items-center gap-1.5 rounded-xl border border-[#CFC7BA] bg-white px-3.5 py-2 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#FAF9F6] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
               >
                 <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
                 <span>스펙 일람표</span>
@@ -299,7 +299,7 @@ export function FeaturedProductsSection({
                 ) : (
                   <p className="text-hb-xs sm:text-hb-sm text-[#475569] break-keep">
                     매물 사진의{" "}
-                    <strong className="font-semibold text-[#141A23]">하트(비교 담기)</strong>를 누르면 최대{" "}
+                    <strong className="font-semibold text-[#141A23]">[비교] 버튼</strong>을 누르면 최대{" "}
                     <span className="font-mono font-semibold tabular-nums text-[#C84312]">3대</span>{" "}
                     스펙·가로폭을 나란히 비교하고 한 번에 견적을 받을 수 있습니다.
                   </p>
@@ -373,7 +373,7 @@ export function FeaturedProductsSection({
 
         {/* 선택 카테고리 특화 검수 기준 스트립 (embedded 모드에서는 상단 쇼룸 바의 점검 기준 스트립과 중복되므로 생략) */}
         {!embedded && !loading && !error && categoryFact && (
-          <div className="mt-3.5 rounded-xl border border-[#CBD2DC] bg-[#F7F8FA] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2E6EC] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+          <div className="mt-3.5 rounded-xl border border-[#CFC7BA] bg-[#FAF9F6] p-4 divide-y lg:divide-y-0 lg:divide-x divide-[#E2DDD3] flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
             <div className="flex items-center gap-3 min-w-0">
               <ModernApplianceIcon
                 name={categoryFact.icon}
@@ -424,7 +424,7 @@ export function FeaturedProductsSection({
             ))}
           </div>
         ) : error ? (
-          <div className="mt-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-8 sm:p-10 text-center">
+          <div className="mt-6 rounded-2xl bg-[#FAF9F6] border border-[#E2DDD3] p-8 sm:p-10 text-center">
             <p className="text-hb-base font-bold text-[#141A23]">
               상품 목록을 불러오지 못했습니다.
             </p>
@@ -440,7 +440,7 @@ export function FeaturedProductsSection({
             </button>
           </div>
         ) : displayedProducts.length === 0 ? (
-          <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#F7F8FA] border border-[#E2E6EC] p-6 sm:p-8 sm:flex-row sm:items-center">
+          <div className="mt-6 flex flex-col items-start justify-between gap-6 rounded-2xl bg-[#FAF9F6] border border-[#E2DDD3] p-6 sm:p-8 sm:flex-row sm:items-center">
             <div>
               <p className="text-hb-lg font-bold text-[#141A23] break-keep">
                 {trimmedSearch
@@ -505,7 +505,7 @@ export function FeaturedProductsSection({
             </div>
 
             {/* 하단 더보기 및 전체 갤러리 이동 바 */}
-            <div className="mt-12 pt-6 border-t border-[#E2E6EC] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="mt-12 pt-6 border-t border-[#E2DDD3] flex flex-col sm:flex-row items-center justify-between gap-4">
               <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
                 표시 중:{" "}
                 <strong className="font-mono font-bold text-[#141A23] tabular-nums">

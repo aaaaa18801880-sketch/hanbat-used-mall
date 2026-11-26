@@ -54,15 +54,15 @@ export function AiRecommendationGuideSection({
   embedded?: boolean;
 }) {
   const comparisonBoard = (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5 items-stretch">
       {/* 좌측 카드: 일반 개인 직거래 (중립·객관적 톤) */}
-      <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E2E6EC] bg-[#F7F8FA]">
+      <div className="flex flex-col justify-between overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6]">
         <div>
-          <div className="border-b border-[#E2E6EC] bg-[#EEF1F5] px-5 py-4 sm:px-6">
+          <div className="border-b border-[#E2DDD3] bg-[#F2EEE7] px-5 py-3.5 sm:px-6">
             <span className="block text-hb-xs font-bold text-[#475569]">
               일반 중고거래 앱 · 개인 간 거래
             </span>
-            <h3 className="mt-1.5 text-hb-lg font-bold text-[#334155] tracking-tight">
+            <h3 className="mt-1 text-hb-base sm:text-hb-lg font-bold text-[#334155] tracking-tight">
               개인 직거래 시 자주 생기는 부담
             </h3>
             <p className="mt-0.5 text-hb-xs text-[#64748B]">
@@ -70,13 +70,13 @@ export function AiRecommendationGuideSection({
             </p>
           </div>
 
-          <ul className="divide-y divide-[#E2E6EC] px-5 sm:px-6">
+          <ul className="divide-y divide-[#E2DDD3] px-5 sm:px-6">
             {COMPARISON_ROWS.map((row) => (
-              <li key={row.criteria} className="py-2.5 sm:py-3">
+              <li key={row.criteria} className="py-2 sm:py-2.5">
                 <span className="block text-hb-xs font-bold text-[#64748B]">
                   {row.criteria}
                 </span>
-                <div className="mt-1 flex items-start gap-2 text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed break-keep">
+                <div className="mt-0.5 flex items-start gap-2 text-hb-xs sm:text-hb-sm text-[#475569] leading-snug break-keep">
                   <Icon
                     d={ICON.close}
                     className="mt-0.5 h-4 w-4 shrink-0 text-[#94A3B8]"
@@ -88,7 +88,7 @@ export function AiRecommendationGuideSection({
           </ul>
         </div>
 
-        <div className="border-t border-[#E2E6EC] bg-[#F1F3F6]/70 px-5 py-3.5 sm:px-6">
+        <div className="border-t border-[#E2DDD3] bg-[#F2EEE7]/70 px-5 py-3 sm:px-6">
           <p className="text-hb-xs font-medium text-[#64748B]">
             소형 단품이나 직접 차량 운반이 가능한 경우에만 유리할 수 있습니다.
           </p>
@@ -98,7 +98,7 @@ export function AiRecommendationGuideSection({
       {/* 우측 카드: 한밭중고전자 직영 매장 (시각적 앵커링 강조 카드) */}
       <div className="flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-[#141A23] bg-white shadow-card">
         <div>
-          <div className="border-b border-[#263040] bg-[#141A23] px-5 py-4 sm:px-6 text-white">
+          <div className="border-b border-[#263040] bg-[#141A23] px-5 py-3.5 sm:px-6 text-white">
             <div className="flex flex-wrap items-center justify-between gap-2 text-hb-xs">
               <span className="font-bold text-[#FF8A50]">
                 직영 책임 판매 · SINCE {STORE.since}
@@ -107,7 +107,7 @@ export function AiRecommendationGuideSection({
                 {STORE.jibunAddress} 쇼룸
               </span>
             </div>
-            <h3 className="mt-1.5 text-hb-lg sm:text-hb-xl font-bold text-white tracking-tight">
+            <h3 className="mt-1 text-hb-base sm:text-hb-lg font-bold text-white tracking-tight">
               {STORE.name} 직영 매장이 편한 이유
             </h3>
             <p className="mt-0.5 text-hb-xs text-white/75">
@@ -119,14 +119,14 @@ export function AiRecommendationGuideSection({
             {COMPARISON_ROWS.map((row) => (
               <li
                 key={row.criteria}
-                className={`py-2.5 sm:py-3 ${
+                className={`py-2 sm:py-2.5 ${
                   row.highlight ? "-mx-5 px-5 sm:-mx-6 sm:px-6 bg-[#FFF9F5]" : ""
                 }`}
               >
                 <span className="block text-hb-xs font-bold text-[#C84312]">
                   {row.criteria}
                 </span>
-                <div className="mt-1 flex items-start gap-2 text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] leading-relaxed break-keep">
+                <div className="mt-0.5 flex items-start gap-2 text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] leading-snug break-keep">
                   <Icon
                     d={ICON.check}
                     className="mt-0.5 h-4 w-4 shrink-0 text-[#0F766E]"
@@ -139,7 +139,7 @@ export function AiRecommendationGuideSection({
         </div>
 
         {/* 카드 하단 즉시 전환 액션 바 */}
-        <div className="border-t border-[#E2DDD3] bg-[#FAF9F6] px-5 py-3.5 sm:px-6 flex flex-wrap items-center justify-between gap-2.5">
+        <div className="border-t border-[#E2DDD3] bg-[#FAF9F6] px-5 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/gallery"
@@ -183,7 +183,7 @@ export function AiRecommendationGuideSection({
     <section
       id="buying-guide-section"
       aria-labelledby="buying-guide-title"
-      className="border-b border-[#E2E6EC] bg-white py-7 sm:py-9"
+      className="border-b border-[#E2DDD3] bg-white py-6 sm:py-8"
     >
       <div className="hb-container">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-5">

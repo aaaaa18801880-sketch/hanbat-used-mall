@@ -396,7 +396,7 @@ export default async function ProductDetailPage({
           <div className="flex flex-wrap items-center gap-2 text-hb-sm font-bold text-[#334155] min-w-0">
             <Link
               href="/gallery"
-              className="inline-flex items-center gap-1.5 text-[#141A23] hover:text-[#E8521A] transition-colors shrink-0"
+              className="inline-flex items-center gap-1.5 text-[#141A23] hover:text-[#C84312] transition-colors shrink-0"
             >
               <Icon d={ICON.left} className="h-4 w-4" />
               <span>전체 제품 갤러리</span>
@@ -460,7 +460,7 @@ export default async function ProductDetailPage({
                 >
                   {categoryLabel}
                 </Link>
-                <span className="text-[#CBD2DC]" aria-hidden="true">
+                <span className="text-[#CFC7BA]" aria-hidden="true">
                   ·
                 </span>
                 <span
@@ -506,7 +506,7 @@ export default async function ProductDetailPage({
                           {priceDisplay}
                         </span>
                         <span className="text-hb-xs font-semibold text-[#0F766E]">
-                          수량별·세트 할인 문의
+                          설치 환경·배송 거리에 따라 맞춤 안내 · 전화/카톡 1분 확인
                         </span>
                       </div>
                     )}
@@ -517,7 +517,7 @@ export default async function ProductDetailPage({
                   <span className="font-semibold text-[#0F766E]">
                     고압세척·작동 점검 완료
                   </span>
-                  <span className="text-[#CBD2DC]" aria-hidden="true">
+                  <span className="text-[#CFC7BA]" aria-hidden="true">
                     ·
                   </span>
                   <span>세금계산서 · 현금영수증 · 카드결제 정식 발행</span>
@@ -610,13 +610,15 @@ export default async function ProductDetailPage({
           </div>
         </div>
 
-        {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 (기본 접힘으로 모바일·데스크톱 스크롤 압박 해소) */}
+        {/* 부가 참고 가이드: 품목별 공통 검수 기준 안내 & 설치 공간 시뮬레이터 */}
         <DetailCollapsibleSection
+          id="spatial-check-section"
           ariaLabel="출고 전 점검 안내 및 우리 집 설치 환경 체크"
-          badge="선택 도구"
+          badge="설치 전 10초 체크"
           title="출고 전 점검 안내 & 우리 집 설치 환경 체크"
           subtitle={`${STORE.name} 직영 매장의 출고 전 점검 기준과 출입문·설치 공간 통과 가능 여부를 미리 확인하세요.`}
-          className="mt-8"
+          defaultOpen={isB2B || categoryLabel === "냉장고"}
+          className="mt-8 scroll-mt-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
             <V2VisualInspectionViewer
@@ -641,7 +643,7 @@ export default async function ProductDetailPage({
               </h2>
               <Link
                 href={`/gallery?category=${encodeURIComponent(categoryLabel)}`}
-                className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4"
+                className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#C84312] underline underline-offset-4"
               >
                 {categoryLabel} 전체 보기 →
               </Link>
@@ -669,7 +671,7 @@ export default async function ProductDetailPage({
                 className="rounded-xl border border-[#E2DDD3] bg-white p-4 shadow-2xs"
               >
                 <dt className="flex items-start gap-2 text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
-                  <span className="text-[#E8521A] font-bold">Q.</span>
+                  <span className="text-[#C84312] font-bold">Q.</span>
                   <span>{faq.q}</span>
                 </dt>
                 <dd className="mt-1.5 pl-6 text-hb-xs sm:text-hb-sm leading-relaxed text-[#334155] break-keep">
@@ -704,7 +706,7 @@ export default async function ProductDetailPage({
             </div>
             <Link
               href="/guide"
-              className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#E8521A] underline underline-offset-4 shrink-0"
+              className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#C84312] underline underline-offset-4 shrink-0"
             >
               정보 게시판 전체 보기 →
             </Link>
@@ -733,14 +735,14 @@ export default async function ProductDetailPage({
                       <span className="mb-1 block text-hb-xs font-bold text-[#64748B]">
                         {guide.category}
                       </span>
-                      <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#E8521A] transition-colors leading-snug break-keep line-clamp-2">
+                      <h3 className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors leading-snug break-keep line-clamp-2">
                         {guide.title}
                       </h3>
                       <p className="mt-1.5 text-hb-xs text-[#475569] leading-[1.55] line-clamp-2">
                         {guide.summary}
                       </p>
                     </div>
-                    <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#E8521A]">
+                    <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#141A23] group-hover:text-[#C84312]">
                       <span>가이드 읽기</span>
                       <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
                     </span>

@@ -164,8 +164,8 @@ export default function PurchasePage() {
               </div>
             </div>
 
-            <div className="lg:col-span-5">
-              <div className="overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white">
+            <div className="hidden lg:block lg:col-span-5">
+              <div className="overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white">
                 <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F3F1EB]">
                   <Image
                     src="/images/guide/buyback-appraisal.jpg"
@@ -192,12 +192,14 @@ export default function PurchasePage() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-2 px-4 py-3 text-hb-xs bg-[#FAFAF8] border-t border-[#EAE8E2]">
+                <div className="flex items-center justify-between gap-2 px-4 py-3 text-hb-xs bg-[#FAF9F6] border-t border-[#E2DDD3]">
                   <span className="font-medium text-[#475569]">
                     현장 감가 막는 사전 체크 방법
                   </span>
                   <Link
                     href="/guide/appliance-buyback-no-deduction-guide"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 font-bold text-[#C84312] hover:text-[#141A23] transition-colors shrink-0"
                   >
                     <span>요령 보기</span>

@@ -52,6 +52,7 @@ export function QuickInquiryModal() {
     }
     if (detail) {
       setLinkedProduct({
+        productId: detail.productId,
         productTitle: detail.productTitle,
         modelName: detail.modelName,
         category: detail.category,

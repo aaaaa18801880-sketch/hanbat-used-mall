@@ -732,6 +732,7 @@ export const QUICK_INQUIRY_EVENT = "hb-quick-inquiry-open";
 
 export interface QuickInquiryDetail {
   type?: InquiryTypeValue;
+  productId?: string;
   productTitle?: string;
   modelName?: string;
   category?: string;

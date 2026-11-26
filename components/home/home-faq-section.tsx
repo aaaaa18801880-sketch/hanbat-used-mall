@@ -226,7 +226,7 @@ export function HomeFaqSection({
                 </button>
                 <a
                   href={telHref(STORE.tel)}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#CBD2DC] bg-white px-3.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors tabular-nums"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-[#CFC7BA] bg-white px-3.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors tabular-nums"
                 >
                   <Icon d={ICON.phone} className="h-3.5 w-3.5 text-[#C84312]" />
                   <span>{STORE.tel}</span>
@@ -277,7 +277,7 @@ export function HomeFaqSection({
                           className={`mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-transform duration-200 ${
                             open
                               ? "rotate-45 bg-[#141A23] text-white border-[#141A23]"
-                              : "bg-white border-[#CBD2DC] text-[#141A23]"
+                              : "bg-white border-[#CFC7BA] text-[#141A23]"
                           }`}
                         >
                           <Icon d={ICON.plus} className="h-3.5 w-3.5" />
@@ -302,7 +302,7 @@ export function HomeFaqSection({
                                 {pIdx < arr.length - 1 && (
                                   <a
                                     href={telHref(STORE.tel)}
-                                    className="font-bold text-[#E8521A] hover:underline underline-offset-2 tabular-nums"
+                                    className="font-bold text-[#C84312] hover:underline underline-offset-2 tabular-nums"
                                   >
                                     {STORE.tel}
                                   </a>
@@ -319,9 +319,9 @@ export function HomeFaqSection({
                             <button
                               type="button"
                               onClick={onOpenAirconGuide}
-                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#CBD2DC] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#F7F8FA] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-[#CFC7BA] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#FAF9F6] active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 cursor-pointer"
                             >
-                              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#E8521A]" />
+                              <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#C84312]" />
                               <span>에어컨 세트 구성 안내문 크게 보기</span>
                             </button>
                             <Link

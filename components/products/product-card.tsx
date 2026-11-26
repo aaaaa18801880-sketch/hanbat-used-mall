@@ -251,25 +251,27 @@ export function ProductCard({
           </div>
         )}
 
-        {/* 우측 하단 미니멀 찜/비교 담기 하트 아이콘 (배경 원 없이 선명한 아이콘만 배치) */}
+        {/* 우측 하단 비교·견적함 담기 캡슐 버튼 (단독 하트 아이콘 → 텍스트 결합 캡슐 통일) */}
         {!isSelectMode && !sold && (
           <button
             type="button"
             onClick={handleToggleBasket}
             aria-pressed={inBasket}
             title={inBasket ? "비교·견적함에서 제외" : "관심 매물 비교·견적함에 담기"}
-            aria-label={`${inBasket ? "담김" : "비교 담기"} - ${
+            aria-label={`${inBasket ? "담김" : "비교"} - ${
               product.title
-            } ${inBasket ? "견적함에서 제외" : "견적함에 담기"}`}
-            className="absolute bottom-1.5 right-1.5 z-20 flex h-9 w-9 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-1 focus-visible:ring-offset-[#141A23]"
+            } ${inBasket ? "비교함 제외" : "비교·견적함에 담기"}`}
+            className={`absolute bottom-2 right-2 z-20 inline-flex min-h-[32px] items-center gap-1 rounded-full border px-2.5 text-hb-xs font-bold shadow-xs transition-[background-color,border-color,color,transform] duration-150 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-1 ${
+              inBasket
+                ? "border-[#C84312] bg-[#C84312] text-white hover:bg-[#AE380D]"
+                : "border-[#CFC7BA] bg-white/95 text-[#141A23] hover:border-[#141A23] hover:bg-[#141A23] hover:text-white"
+            }`}
           >
             <Icon
-              d={ICON.heart}
-              strokeWidth={1.7}
-              fill={inBasket ? "#E8521A" : "rgba(255, 255, 255, 0.88)"}
-              stroke={inBasket ? "#E8521A" : "rgba(30, 35, 42, 0.42)"}
-              className="h-[22px] w-[22px] drop-shadow-[0_1px_2px_rgba(0,0,0,0.22)] transition-colors duration-150"
+              d={inBasket ? ICON.check : ICON.plus}
+              className="h-3.5 w-3.5 shrink-0"
             />
+            <span>{inBasket ? "담김" : "비교"}</span>
           </button>
         )}
 
@@ -279,7 +281,7 @@ export function ProductCard({
             className={`absolute left-2.5 top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
               isSelected
                 ? "border-[#C84312] bg-[#C84312] text-white"
-                : "border-[#CBD2DC] bg-white/95 text-transparent"
+                : "border-[#CFC7BA] bg-white/95 text-transparent"
             }`}
           >
             <Icon d={ICON.check} className="h-3.5 w-3.5" />
@@ -363,10 +365,16 @@ export function ProductCard({
           )}
         </h3>
 
-        {!sold && hasProductPrice(product.price) && (
-          <p className="mt-1 text-hb-sm font-bold text-[#141A23] tabular-nums">
-            {formatProductPrice(product.price, categoryLabel)}
-          </p>
+        {!sold && (
+          hasProductPrice(product.price) ? (
+            <p className="mt-1 text-hb-base font-bold text-[#141A23] tabular-nums">
+              {formatProductPrice(product.price, categoryLabel)}
+            </p>
+          ) : (
+            <p className="mt-1 text-hb-sm font-bold text-[#C84312]">
+              가격 상담
+            </p>
+          )
         )}
 
         {/* 3행: 품목별 무상보증 안내 — 제목보다 작고 차분한 보조 강조 (본말전도 방지) */}

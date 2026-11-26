@@ -1391,7 +1391,7 @@ export function UnifiedInquiryForm({
       <div className="space-y-4">
         {/* [대량·업소용 상담] 전용 구조화 입력 블록 (중첩 테두리 박스 해체) */}
         {!isNotice && isBulk && (
-          <div className="rounded-2xl bg-[#F7F8FA] p-4 sm:p-6 space-y-4">
+          <div className="rounded-2xl bg-[#FAF9F6] border border-[#E2DDD3] p-4 sm:p-6 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-1">
               <strong className="text-hb-base font-bold text-[#141A23]">
                 업소용 · 창업 설비 체크 사항 (선택 입력)
@@ -1451,7 +1451,7 @@ export function UnifiedInquiryForm({
                 <button
                   type="button"
                   onClick={() => addBulkEquipmentRow("")}
-                  className="text-hb-sm font-bold text-[#E8521A] underline"
+                  className="text-hb-sm font-bold text-[#C84312] underline"
                 >
                   + 장비 줄 추가
                 </button>
@@ -1576,7 +1576,7 @@ export function UnifiedInquiryForm({
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-3.5">
               <div className="sm:col-span-4">
                 <label htmlFor="uf-cat" className="hb-label">
-                  제품 종류 <span className="text-[#E8521A]">*</span>
+                  제품 종류 <span className="text-[#C84312]">*</span>
                 </label>
                 <select
                   id="uf-cat"
@@ -1594,7 +1594,7 @@ export function UnifiedInquiryForm({
 
               <div className="sm:col-span-8">
                 <label htmlFor="uf-title" className="hb-label">
-                  처분 품목 / 대략적인 모델명 <span className="text-[#E8521A]">*</span>
+                  처분 품목 / 대략적인 모델명 <span className="text-[#C84312]">*</span>
                 </label>
                 <input
                   id="uf-title"
@@ -1637,7 +1637,7 @@ export function UnifiedInquiryForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
                 <label htmlFor="uf-region" className="hb-label">
-                  방문 수거 지역 (구/동 단위) <span className="text-[#E8521A]">*</span>
+                  방문 수거 지역 (구/동 단위) <span className="text-[#C84312]">*</span>
                 </label>
                 <input
                   id="uf-region"
@@ -1684,7 +1684,7 @@ export function UnifiedInquiryForm({
             </div>
 
             {/* 3. 상태 및 연식 (중첩 보더 제거 + 모바일 iOS 16px 자동 줌 방지) */}
-            <div className="rounded-2xl bg-[#F7F8FA] p-4">
+            <div className="rounded-2xl bg-[#FAF9F6] border border-[#E2DDD3] p-4">
               <span className="text-hb-sm font-bold text-[#141A23] block mb-2.5">
                 제품 상태 및 연식 <span className="font-normal text-[#64748B]">(선택 사항 · 잘 모르시면 비워두셔도 됩니다)</span>
               </span>
@@ -1928,7 +1928,7 @@ export function UnifiedInquiryForm({
       </div>
 
       {/* 6. 하단 개인정보 동의 및 대형 제출 버튼 (높이 56px~60px, 글자 17px~18px) */}
-      <div className="pt-4 border-t border-[#E2E6EC] space-y-4">
+      <div className="pt-4 border-t border-[#E2DDD3] space-y-4">
         {!isNotice && (
           <div>
             <label className="flex cursor-pointer items-center gap-2.5 text-hb-base text-[#334155]">
@@ -1955,7 +1955,7 @@ export function UnifiedInquiryForm({
                 >
                   개인정보 수집·이용
                 </Link>
-                에 동의합니다. <span className="text-[#E8521A]">*</span>
+                에 동의합니다. <span className="text-[#C84312]">*</span>
               </span>
             </label>
             {fieldErrors.agreed && (
@@ -1982,7 +1982,7 @@ export function UnifiedInquiryForm({
               }
               className="hb-btn-outline h-12 sm:h-[52px] px-5 text-hb-base font-bold sm:col-span-5 whitespace-nowrap"
             >
-              <Icon d={ICON.chat} className="h-4 w-4 text-[#E8521A]" />
+              <Icon d={ICON.chat} className="h-4 w-4 text-[#C84312]" />
               <span>문자로 사진 보내기</span>
             </a>
           )}

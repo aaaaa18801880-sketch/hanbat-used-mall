@@ -21,8 +21,19 @@ export function DetailCollapsibleSection({
   className?: string;
   children: React.ReactNode;
 }) {
+  const headingId = id ? `${id}-heading` : undefined;
   return (
-    <section id={id} aria-label={ariaLabel || title} className={className}>
+    <section
+      id={id}
+      aria-labelledby={headingId}
+      aria-label={headingId ? undefined : ariaLabel || title}
+      className={className}
+    >
+      {headingId && (
+        <h2 id={headingId} className="sr-only">
+          {title}
+        </h2>
+      )}
       <details
         open={defaultOpen}
         className="group overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs"
@@ -35,9 +46,9 @@ export function DetailCollapsibleSection({
                   {badge}
                 </span>
               )}
-              <h2 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] break-keep">
+              <span className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] break-keep">
                 {title}
-              </h2>
+              </span>
             </div>
             {subtitle && (
               <p className="mt-1 text-hb-xs text-[#64748B] break-keep">

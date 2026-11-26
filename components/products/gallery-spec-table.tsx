@@ -86,14 +86,14 @@ export function GallerySpecTable({
       tabIndex={0}
       role="region"
       aria-labelledby="gallery-spec-table-caption"
-      className="hb-spec-table-wrap rounded-xl border border-[#CBD2DC] bg-white shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+      className="hb-spec-table-wrap rounded-xl border border-[#CFC7BA] bg-white shadow-2xs focus:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
     >
       <table className="hb-spec-table text-left text-hb-xs sm:text-hb-sm">
         <caption id="gallery-spec-table-caption" className="sr-only">
           판매 매물 모델명, 핵심 규격, 보증 조건 및 가격 일람표
         </caption>
         <thead>
-          <tr className="border-b border-[#CBD2DC] bg-[#F7F8FA] text-hb-xs font-bold text-[#334155]">
+          <tr className="border-b border-[#CFC7BA] bg-[#FAF9F6] text-hb-xs font-bold text-[#334155]">
             <th scope="col" className="py-3 pl-4 pr-3 min-w-[260px]">
               매물명 / 분류
             </th>
@@ -114,7 +114,7 @@ export function GallerySpecTable({
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-[#E2E6EC]">
+        <tbody className="divide-y divide-[#E2DDD3]">
           {products.map((product) => {
             const images = splitImages(product.image_url);
             const sold = isProductSold(product.status);
@@ -153,8 +153,8 @@ export function GallerySpecTable({
                   isSelected
                     ? "bg-[#FFF4EE]"
                     : sold
-                    ? "bg-[#FAFBFD]"
-                    : "hover:bg-[#FAFBFD]"
+                    ? "bg-[#FAF9F6]"
+                    : "hover:bg-[#FAF9F6]"
                 } ${isSelectMode ? "cursor-pointer" : ""}`}
               >
                 <th
@@ -167,14 +167,14 @@ export function GallerySpecTable({
                         className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
                           isSelected
                             ? "border-[#C84312] bg-[#C84312] text-white"
-                            : "border-[#CBD2DC] bg-white text-transparent"
+                            : "border-[#CFC7BA] bg-white text-transparent"
                         }`}
                       >
                         <Icon d={ICON.check} className="h-3.5 w-3.5" />
                       </span>
                     )}
 
-                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-[#E2E6EC] bg-[#F7F8FA]">
+                    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border border-[#E2DDD3] bg-[#FAF9F6]">
                       <SafeImg
                         src={images[0]}
                         alt={product.title}
@@ -245,7 +245,7 @@ export function GallerySpecTable({
                       specCapsules.map((cap) => (
                         <span
                           key={cap}
-                          className="inline-flex items-center rounded border border-[#E2E6EC] bg-[#F7F8FA] px-2 py-0.5 text-hb-xs font-semibold text-[#334155] tabular-nums"
+                          className="inline-flex items-center rounded border border-[#E2DDD3] bg-[#FAF9F6] px-2 py-0.5 text-hb-xs font-semibold text-[#334155] tabular-nums"
                         >
                           {cap}
                         </span>
@@ -300,7 +300,7 @@ export function GallerySpecTable({
                         type="button"
                         onClick={() => onQuickView(product)}
                         aria-label={`${product.title} ${isAdmin ? "수정" : "미리보기"}`}
-                        className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-[#E2E6EC] bg-white px-2.5 text-hb-xs font-bold text-[#334155] hover:border-[#141A23] hover:text-[#141A23] transition-colors cursor-pointer"
+                        className="inline-flex min-h-[36px] items-center gap-1 rounded-lg border border-[#E2DDD3] bg-white px-2.5 text-hb-xs font-bold text-[#334155] hover:border-[#141A23] hover:text-[#141A23] transition-colors cursor-pointer"
                       >
                         <Icon
                           d={isAdmin ? ICON.pen : ICON.search}
@@ -323,7 +323,7 @@ export function GallerySpecTable({
                         className={`inline-flex min-h-[36px] items-center gap-1 rounded-lg border px-2.5 text-hb-xs font-bold transition-colors cursor-pointer ${
                           inBasket
                             ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
-                            : "border-[#CBD2DC] bg-[#F7F8FA] text-[#141A23] hover:bg-[#141A23] hover:text-white hover:border-[#141A23]"
+                            : "border-[#CFC7BA] bg-[#FAF9F6] text-[#141A23] hover:bg-[#141A23] hover:text-white hover:border-[#141A23]"
                         }`}
                       >
                         <Icon
