@@ -30,9 +30,9 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "aircon-special",
     eyebrowBrands: ["SAMSUNG", "LG", "CARRIER", "WINIA"],
     headlineTop: "고압세척 · 작동 점검 완료",
-    headlineBottom: "에어컨 · 냉난방기 실매물",
+    headlineBottom: "중고 에어컨 · 냉난방기 실매물",
     subtitle: `벽걸이·스탠드·천장형까지 ${AIRCON_WARRANTY.compactLabel}으로 안심 설치`,
-    ctaLabel: "에어컨 인기 실매물 보기",
+    ctaLabel: "중고 에어컨 실매물 보기",
     action: {
       kind: "link",
       href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
@@ -46,9 +46,9 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "home-appliances",
     eyebrowBrands: ["삼성전자", "LG전자", "위니아", "대유"],
     headlineTop: "이사 · 입주 준비 끝!",
-    headlineBottom: "우리 집 검증 가전 모음",
-    subtitle: `냉장고·세탁기·건조기까지 배송 전 작동 점검 · ${MAJOR_WARRANTY.compactLabel}`,
-    ctaLabel: "가정용 인기 가전 모음",
+    headlineBottom: "우리 집 중고 가전 모음",
+    subtitle: `중고 냉장고·세탁기·건조기 배송 전 작동 점검 · ${MAJOR_WARRANTY.compactLabel}`,
+    ctaLabel: "중고 가정용 가전 모음",
     action: {
       kind: "link",
       href: "/gallery",
@@ -62,9 +62,9 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "commercial-buyback",
     eyebrowBrands: ["대전 · 세종 · 충청권 직영 방문", "당일 현금 정산"],
     headlineTop: "식당·카페 창업부터 폐업까지",
-    headlineBottom: "업소용 설비 · 방문 매입",
+    headlineBottom: "중고 업소용 설비 · 방문 매입",
     subtitle:
-      "45박스 냉장고·쇼케이스·제빙기 실매물 판매 및 사진 1장 즉시 매입 견적",
+      "중고 45박스 냉장고·쇼케이스·제빙기 실매물 판매 및 사진 1장 즉시 매입 견적",
     ctaLabel: "방문 매입 · 창업 견적 신청",
     action: {
       kind: "link",
