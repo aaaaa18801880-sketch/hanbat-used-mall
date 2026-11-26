@@ -122,7 +122,7 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
   },
 };
 
-const INITIAL_DISPLAY_LIMIT = 10;
+const INITIAL_DISPLAY_LIMIT = 12;
 
 export function FeaturedProductsSection({
   products,
@@ -409,16 +409,16 @@ export function FeaturedProductsSection({
         {/* 로딩 스켈레톤 상태 */}
         {loading ? (
           <div
-            className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-6 sm:gap-y-7 lg:gap-y-8"
+            className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-5 lg:gap-x-6 gap-y-6 sm:gap-y-8"
             aria-hidden="true"
           >
-            {Array.from({ length: 10 }).map((_, idx) => (
-              <div key={idx} className="animate-pulse">
-                <div className="aspect-square rounded-lg bg-[#F4F3F0]" />
-                <div className="pt-2.5 sm:pt-3 space-y-1.5">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div key={idx} className="animate-pulse rounded-xl border border-[#EAE6DD] bg-white overflow-hidden">
+                <div className="aspect-square bg-[#F4F3F0]" />
+                <div className="p-3.5 sm:p-4 space-y-2">
                   <div className="h-3.5 w-1/3 rounded bg-[#F4F3F0]" />
-                  <div className="h-3.5 w-11/12 rounded bg-[#F4F3F0]" />
-                  <div className="h-3 w-2/3 rounded bg-[#F4F3F0]" />
+                  <div className="h-4 w-11/12 rounded bg-[#F4F3F0]" />
+                  <div className="h-3.5 w-2/3 rounded bg-[#F4F3F0]" />
                 </div>
               </div>
             ))}
@@ -498,7 +498,7 @@ export function FeaturedProductsSection({
           </div>
         ) : (
           <>
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-6 sm:gap-y-7 lg:gap-y-8">
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-5 lg:gap-x-6 gap-y-6 sm:gap-y-8">
               {displayedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

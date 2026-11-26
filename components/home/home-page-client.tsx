@@ -592,7 +592,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="reviews-section"
-          className="hb-section-deferred border-b border-hb-border bg-white py-6 sm:py-8"
+          className="hb-section-deferred border-b border-hb-border bg-white py-10 sm:py-14"
           aria-labelledby="review-title"
         >
           <div className="hb-container">

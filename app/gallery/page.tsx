@@ -1060,14 +1060,14 @@ function GalleryPageContent() {
         </p>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-7 sm:gap-y-9 lg:gap-y-11">
-            {Array.from({ length: 10 }).map((_, idx) => (
-              <div key={`sk-${idx}`} className="animate-pulse">
-                <div className="aspect-square rounded-lg bg-[#F4F3F0]" />
-                <div className="pt-2.5 sm:pt-3 space-y-1.5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-5 lg:gap-x-6 gap-y-7 sm:gap-y-9">
+            {Array.from({ length: 8 }).map((_, idx) => (
+              <div key={`sk-${idx}`} className="animate-pulse rounded-xl border border-[#EAE6DD] bg-white overflow-hidden">
+                <div className="aspect-square bg-[#F4F3F0]" />
+                <div className="p-3.5 sm:p-4 space-y-2">
                   <div className="h-3.5 bg-[#F4F3F0] rounded w-1/3" />
-                  <div className="h-3.5 bg-[#F4F3F0] rounded w-11/12" />
-                  <div className="h-3 bg-[#F4F3F0] rounded w-2/3" />
+                  <div className="h-4 bg-[#F4F3F0] rounded w-11/12" />
+                  <div className="h-3.5 bg-[#F4F3F0] rounded w-2/3" />
                 </div>
               </div>
             ))}
@@ -1156,12 +1156,12 @@ function GalleryPageContent() {
                 onQuickView={handleProductClick}
               />
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 sm:gap-x-4 lg:gap-x-5 gap-y-6 sm:gap-y-7 lg:gap-y-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-5 lg:gap-x-6 gap-y-7 sm:gap-y-9">
                 {displayedProducts.map((product, idx) => (
                   <ProductCard
                     key={product.id}
                     product={product}
-                    eager={idx < 5}
+                    eager={idx < 4}
                     onSelect={effectiveSelectMode ? handleProductClick : undefined}
                     onQuickView={handleProductClick}
                     isSelectMode={effectiveSelectMode}

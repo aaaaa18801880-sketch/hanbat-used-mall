@@ -134,7 +134,7 @@ export function HomeFaqSection({
   return (
     <section
       id="faq-section"
-      className="hb-section-deferred border-b border-hb-border bg-hb-surface-muted py-6 sm:py-8"
+      className="hb-section-deferred border-b border-hb-border bg-hb-surface-muted py-10 sm:py-14"
       aria-labelledby="faq-title"
     >
       <div className="hb-container">

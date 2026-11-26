@@ -193,7 +193,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   type: isPurchase ? "내 물건 팔기" : "구매 문의",
                 });
               }}
-              className="hidden lg:inline-flex min-[1520px]:hidden hb-btn-accent h-10 px-3.5 text-hb-sm whitespace-nowrap cursor-pointer"
+              className="hidden lg:inline-flex hb-btn-accent h-10 px-3.5 text-hb-sm whitespace-nowrap cursor-pointer"
             >
               <Icon d={ICON.pen} className="w-3.5 h-3.5" />
               <span>간편 견적</span>

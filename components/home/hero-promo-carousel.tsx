@@ -79,16 +79,31 @@ export function HeroPromoCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [liveStatus, setLiveStatus] = useState("");
 
   const total = HERO_BANNER_SLIDES.length;
   const activeSlide = HERO_BANNER_SLIDES[activeIndex];
   const scrims = getSlideScrims(activeSlide.theme);
 
-  const goStep = useCallback(
-    (delta: number) => {
-      setActiveIndex((prev) => getWrappedBannerIndex(prev, delta, total));
+  const selectSlide = useCallback(
+    (nextIndex: number, announce = true) => {
+      setActiveIndex(nextIndex);
+      if (announce) {
+        const target = HERO_BANNER_SLIDES[nextIndex];
+        setLiveStatus(
+          `${total}개 중 ${nextIndex + 1}번째 배너: ${target.headlineTop} ${target.headlineBottom}`
+        );
+      }
     },
     [total]
+  );
+
+  const goStep = useCallback(
+    (delta: number) => {
+      const next = getWrappedBannerIndex(activeIndex, delta, total);
+      selectSlide(next, true);
+    },
+    [activeIndex, selectSlide, total]
   );
 
   useEffect(() => {
@@ -106,6 +121,8 @@ export function HeroPromoCarousel({
   }, [isPaused, isHovered, total]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
+    const tag = (e.target as HTMLElement | null)?.tagName;
+    if (tag === "A" || tag === "BUTTON" || tag === "INPUT") return;
     if (e.key === "ArrowLeft") {
       e.preventDefault();
       goStep(-1);
@@ -121,66 +138,69 @@ export function HeroPromoCarousel({
       aria-labelledby="hero-title"
       className="w-full border-b border-hb-border bg-white"
     >
-      <div className="hb-container py-4 sm:py-6">
-        {/* 대형 기획전 비주얼 배너 캐러셀 (쿠팡·하이마트·오늘의집형 프로모션 쇼케이스) */}
-        <div
-          role="region"
-          aria-roledescription="carousel"
-          aria-label="한밭중고전자 주요 기획전 배너"
-          tabIndex={0}
-          data-theme={activeSlide.theme}
-          onKeyDown={handleKeyDown}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-          onFocus={() => setIsHovered(true)}
-          onBlur={() => setIsHovered(false)}
-          className="hb-banner-theme group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-black/5 shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 transition-colors duration-300"
-        >
-          {/* 배경 비주얼 레이어 (크로스페이드) */}
-          <div className="relative min-h-[400px] sm:min-h-[440px] lg:min-h-[500px] w-full flex flex-col justify-between">
-            {HERO_BANNER_SLIDES.map((slide, idx) => {
-              const isCurrent = idx === activeIndex;
-              return (
-                <div
-                  key={slide.id}
-                  aria-hidden={!isCurrent}
-                  className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
-                    isCurrent ? "opacity-100" : "opacity-0"
-                  }`}
-                >
-                  <Image
-                    src={slide.imageSrc}
-                    alt={slide.imageAlt}
-                    fill
-                    sizes="(max-width: 1280px) 100vw, 1320px"
-                    priority={idx === 0}
-                    loading="eager"
-                    quality={85}
-                    className={
-                      slide.theme === "store-photo"
-                        ? "object-cover object-center"
-                        : "object-cover object-right"
-                    }
-                  />
-                </div>
-              );
-            })}
+      {/* 100vw 풀블리드 배너 캐러셀 (배경/사진은 끝에서 끝까지, 텍스트는 .hb-container 정렬) */}
+      <div
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="한밭중고전자 주요 기획전 배너"
+        tabIndex={0}
+        data-theme={activeSlide.theme}
+        onKeyDown={handleKeyDown}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        onFocus={() => setIsHovered(true)}
+        onBlur={() => setIsHovered(false)}
+        className="hb-banner-theme group relative w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors duration-300"
+      >
+        <div className="relative min-h-[420px] sm:min-h-[470px] lg:min-h-[520px] w-full flex flex-col justify-center">
+          {/* 배경 비주얼 레이어 (100vw 풀블리드 크로스페이드) */}
+          {HERO_BANNER_SLIDES.map((slide, idx) => {
+            const isCurrent = idx === activeIndex;
+            return (
+              <div
+                key={slide.id}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${total}개 중 ${idx + 1}번째: ${slide.headlineBottom}`}
+                aria-hidden={!isCurrent}
+                className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
+                  isCurrent ? "opacity-100" : "opacity-0"
+                }`}
+              >
+                <Image
+                  src={slide.imageSrc}
+                  alt={slide.imageAlt}
+                  fill
+                  sizes="100vw"
+                  priority={idx === 0}
+                  loading="eager"
+                  quality={85}
+                  className={
+                    slide.theme === "store-photo"
+                      ? "object-cover object-center"
+                      : "object-cover object-right"
+                  }
+                />
+              </div>
+            );
+          })}
 
-            {/* 모바일 상단 텍스트 보호 그라데이션 */}
-            <div
-              className="pointer-events-none absolute inset-0 sm:hidden"
-              style={scrims.mobileBackdropStyle}
-              aria-hidden="true"
-            />
-            {/* 태블릿·데스크톱 좌측 텍스트 보호 그라데이션 */}
-            <div
-              className="pointer-events-none hidden sm:block absolute inset-0"
-              style={scrims.desktopScrimStyle}
-              aria-hidden="true"
-            />
+          {/* 모바일 상단 텍스트 보호 그라데이션 */}
+          <div
+            className="pointer-events-none absolute inset-0 sm:hidden"
+            style={scrims.mobileBackdropStyle}
+            aria-hidden="true"
+          />
+          {/* 태블릿·데스크톱 좌측 텍스트 보호 그라데이션 */}
+          <div
+            className="pointer-events-none hidden sm:block absolute inset-0"
+            style={scrims.desktopScrimStyle}
+            aria-hidden="true"
+          />
 
-            {/* 좌측 콘텐츠 레이어 */}
-            <div className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-7 pb-16 sm:px-16 sm:py-12 lg:px-20 lg:py-14 max-w-full sm:max-w-[60%] lg:max-w-[56%]">
+          {/* 중앙 컨테이너 정렬 콘텐츠 레이어 (하단 본문 1200px 그리드와 정확히 일렬 정렬) */}
+          <div className="hb-container relative z-10 py-10 pb-16 sm:py-14 sm:pb-16">
+            <div className="max-w-full sm:max-w-[56%] lg:max-w-[50%]">
               {/* 상단 브랜드/신뢰 바 */}
               <div className="hb-banner-eyebrow flex flex-wrap items-center gap-x-2.5 gap-y-1 text-hb-xs sm:text-hb-sm font-extrabold tracking-tight">
                 {activeSlide.eyebrowBrands.map((brand, i) => (
@@ -196,25 +216,22 @@ export function HeroPromoCarousel({
               </div>
 
               {/* 메인 헤드라인 (접근성·SEO H1 유지) */}
-              <h1
-                id="hero-title"
-                className="mt-2.5 sm:mt-3 hb-banner-h1"
-              >
+              <h1 id="hero-title" className="mt-2.5 sm:mt-3 hb-banner-h1">
                 <span className="hb-banner-h1-top block">
                   {activeSlide.headlineTop}
                 </span>
-                <span className="hb-banner-h1-bottom block mt-0.5">
+                <span className="hb-banner-h1-bottom block mt-1">
                   {activeSlide.headlineBottom}
                 </span>
               </h1>
 
               {/* 서브 설명 */}
-              <p className="hb-banner-sub mt-2.5 sm:mt-3.5 max-w-md text-hb-sm sm:text-hb-base font-medium leading-relaxed break-keep [text-wrap:pretty]">
+              <p className="hb-banner-sub mt-3 sm:mt-4 max-w-md text-hb-sm sm:text-hb-base font-medium leading-relaxed break-keep [text-wrap:pretty]">
                 {activeSlide.subtitle}
               </p>
 
               {/* 단일 핵심 CTA 캡슐 버튼 */}
-              <div className="mt-5 sm:mt-6 flex items-center gap-2.5">
+              <div className="mt-6 sm:mt-7 flex items-center gap-2.5">
                 {activeSlide.action.kind === "link" ? (
                   <Link
                     href={activeSlide.action.href}
@@ -229,7 +246,7 @@ export function HeroPromoCarousel({
                         }
                       )
                     }
-                    className="hb-banner-cta inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97]"
+                    className="hb-banner-cta inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#141A23] [touch-action:manipulation]"
                   >
                     <span>{activeSlide.ctaLabel}</span>
                     <Icon d={ICON.arrow} className="w-4 h-4 shrink-0" />
@@ -243,7 +260,7 @@ export function HeroPromoCarousel({
                       });
                       onOpenVisitModal();
                     }}
-                    className="hb-banner-cta inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97] cursor-pointer"
+                    className="hb-banner-cta inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#141A23] [touch-action:manipulation]"
                   >
                     <span>{activeSlide.ctaLabel}</span>
                     <Icon d={ICON.arrow} className="w-4 h-4 shrink-0" />
@@ -251,66 +268,103 @@ export function HeroPromoCarousel({
                 )}
               </div>
             </div>
+          </div>
 
-            {/* 좌우 이전/다음 슬라이드 버튼 (데스크톱 호버/포커스 시 선명하게 표시) */}
-            <button
-              type="button"
-              onClick={() => goStep(-1)}
-              aria-label="이전 기획전 배너 보기"
-              className="hidden sm:grid absolute left-3.5 top-1/2 -translate-y-1/2 z-20 h-10 w-10 place-items-center rounded-full bg-white/80 text-[#141A23] backdrop-blur-sm border border-black/10 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white transition-opacity duration-150 cursor-pointer"
-            >
-              <Icon d={ICON.left} className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => goStep(1)}
-              aria-label="다음 기획전 배너 보기"
-              className="hidden sm:grid absolute right-3.5 top-1/2 -translate-y-1/2 z-20 h-10 w-10 place-items-center rounded-full bg-white/80 text-[#141A23] backdrop-blur-sm border border-black/10 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white transition-opacity duration-150 cursor-pointer"
-            >
-              <Icon d={ICON.right} className="w-5 h-5" />
-            </button>
+          {/* 좌우 이전/다음 슬라이드 버튼 (데스크톱 호버/포커스 시 노출) */}
+          <button
+            type="button"
+            onClick={() => goStep(-1)}
+            aria-label="이전 기획전 배너 보기"
+            className="hidden sm:grid absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 z-20 h-11 w-11 place-items-center rounded-full bg-white/85 text-[#141A23] backdrop-blur-sm border border-black/10 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] transition-opacity duration-150 cursor-pointer [touch-action:manipulation]"
+          >
+            <Icon d={ICON.left} className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => goStep(1)}
+            aria-label="다음 기획전 배너 보기"
+            className="hidden sm:grid absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 z-20 h-11 w-11 place-items-center rounded-full bg-white/85 text-[#141A23] backdrop-blur-sm border border-black/10 shadow-sm opacity-0 group-hover:opacity-100 focus-visible:opacity-100 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] transition-opacity duration-150 cursor-pointer [touch-action:manipulation]"
+          >
+            <Icon d={ICON.right} className="w-5 h-5" />
+          </button>
 
-            {/* 하단 중앙 페이지네이션 인디케이터 (레퍼런스 스타일 길쭉한 활성 캡슐) */}
-            <div
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5"
-              role="tablist"
-              aria-label="배너 슬라이드 선택"
-            >
-              {HERO_BANNER_SLIDES.map((slide, idx) => {
-                const isCurrent = idx === activeIndex;
-                return (
-                  <button
-                    key={slide.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={isCurrent}
-                    aria-label={`${idx + 1}번 배너: ${slide.headlineBottom}`}
-                    onClick={() => setActiveIndex(idx)}
-                    className={`hb-banner-dot h-2 rounded-full transition-[width,background-color] duration-200 cursor-pointer ${
-                      isCurrent ? "w-7" : "w-2"
-                    }`}
-                  />
-                );
-              })}
-            </div>
-
-            {/* 하단 우측 카운터 + 자동재생 토글 캡슐 (예: 1 / 4) */}
-            <div className="absolute bottom-3.5 right-4 z-20 inline-flex items-center gap-1.5 rounded-full bg-[#141A23]/65 px-3 py-1 text-hb-xs font-bold text-white backdrop-blur-md tabular-nums">
-              <span>
-                {activeIndex + 1} / {total}
-              </span>
-              <span className="h-2.5 w-px bg-white/30" aria-hidden="true" />
-              <button
-                type="button"
-                onClick={() => setIsPaused((prev) => !prev)}
-                aria-label={isPaused ? "배너 자동 재생" : "배너 자동 재생 일시정지"}
-                className="text-white/90 hover:text-white cursor-pointer"
+          {/* 하단 컨트롤 바 (컨테이너 라인 우측 + 중앙 마커 정렬, 24px+ 터치 타깃) */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-3.5 sm:bottom-5 z-20">
+            <div className="hb-container flex items-center justify-between gap-4">
+              {/* 좌측 하단 페이지네이션 마커 (WCAG 2.5.8 24x24px 타깃 확보) */}
+              <div
+                className="pointer-events-auto flex items-center gap-0.5"
+                role="tablist"
+                aria-label="배너 슬라이드 선택"
               >
-                {isPaused ? "재생" : "정지"}
-              </button>
+                {HERO_BANNER_SLIDES.map((slide, idx) => {
+                  const isCurrent = idx === activeIndex;
+                  return (
+                    <button
+                      key={slide.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isCurrent}
+                      aria-label={`${idx + 1}번 배너: ${slide.headlineBottom}`}
+                      onClick={() => selectSlide(idx, true)}
+                      className="inline-flex min-h-[28px] min-w-[24px] items-center justify-center px-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-full [touch-action:manipulation]"
+                    >
+                      <span
+                        className={`hb-banner-dot block h-2 rounded-full transition-[width,background-color] duration-200 ${
+                          isCurrent ? "w-7" : "w-2"
+                        }`}
+                        aria-selected={isCurrent}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* 우측 하단 불스원몰식 미니멀 컨트롤 캡슐 (카운터 + 일시정지 + 이전/다음) */}
+              <div className="pointer-events-auto inline-flex items-center gap-1.5">
+                <div className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[#141A23]/70 px-3 text-hb-xs font-bold text-white backdrop-blur-md tabular-nums">
+                  <span>
+                    {activeIndex + 1} / {total}
+                  </span>
+                  <span className="h-2.5 w-px bg-white/30" aria-hidden="true" />
+                  <button
+                    type="button"
+                    onClick={() => setIsPaused((prev) => !prev)}
+                    aria-label={isPaused ? "배너 자동 재생" : "배너 자동 재생 일시정지"}
+                    className="px-1 text-white/90 hover:text-white cursor-pointer [touch-action:manipulation]"
+                  >
+                    {isPaused ? "재생" : "정지"}
+                  </button>
+                </div>
+
+                <div className="inline-flex h-8 items-center overflow-hidden rounded-full bg-[#141A23]/70 text-white backdrop-blur-md">
+                  <button
+                    type="button"
+                    onClick={() => goStep(-1)}
+                    aria-label="이전 배너"
+                    className="grid h-8 w-8 place-items-center hover:bg-white/15 cursor-pointer [touch-action:manipulation]"
+                  >
+                    <Icon d={ICON.left} className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="h-3 w-px bg-white/25" aria-hidden="true" />
+                  <button
+                    type="button"
+                    onClick={() => goStep(1)}
+                    aria-label="다음 배너"
+                    className="grid h-8 w-8 place-items-center hover:bg-white/15 cursor-pointer [touch-action:manipulation]"
+                  >
+                    <Icon d={ICON.right} className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        {/* 스크린리더용 슬라이드 변경 라이브 안내 */}
+        <p role="status" aria-live="polite" className="sr-only">
+          {liveStatus}
+        </p>
       </div>
     </section>
   );

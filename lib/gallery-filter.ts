@@ -32,7 +32,7 @@ export type VoltageFilter = "all" | "220v" | "380v";
 export type GalleryViewMode = "card" | "table";
 
 export const CATEGORIES_WITH_ALL = ["전체", ...PRODUCT_CATEGORIES] as const;
-export const PAGE_STEP = 25;
+export const PAGE_STEP = 24;
 
 export const VOLTAGE_FILTER_OPTIONS: ReadonlyArray<{
   value: VoltageFilter;

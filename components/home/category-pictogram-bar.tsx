@@ -53,7 +53,6 @@ export function CategoryPictogramBar({
   const router = useRouter();
   const railRef = useRef<HTMLDivElement | null>(null);
   const [groupFilter, setGroupFilter] = useState<ShowroomGroupFilter>("all");
-  const [scrollRatio, setScrollRatio] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
 
   const suppressClickRef = useRef(false);
@@ -83,10 +82,6 @@ export function CategoryPictogramBar({
   const selectedItem =
     SHOWROOM_CATEGORIES.find((c) => c.key === selectedKey) ||
     SHOWROOM_CATEGORIES[0];
-  const selectedIndex = Math.max(
-    0,
-    visibleItems.findIndex((c) => c.key === selectedItem.key)
-  );
   const trimmedSearch = searchQuery.trim();
   const selectedCount =
     trimmedSearch && typeof filteredCount === "number"
@@ -122,26 +117,6 @@ export function CategoryPictogramBar({
         view: "card",
       })
     );
-  };
-
-  const syncScrollProgress = () => {
-    const el = railRef.current;
-    if (!el) return;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 4) {
-      setScrollRatio(0);
-      return;
-    }
-    setScrollRatio(Math.min(1, Math.max(0, el.scrollLeft / maxScroll)));
-  };
-
-  const scrollRailBy = (direction: -1 | 1) => {
-    const el = railRef.current;
-    if (!el) return;
-    cancelMomentum();
-    el.style.scrollBehavior = "";
-    const step = Math.max(260, Math.round(el.clientWidth * 0.55));
-    el.scrollBy({ left: direction * step, behavior: "smooth" });
   };
 
   const handleRailMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -187,7 +162,6 @@ export function CategoryPictogramBar({
 
       moveEv.preventDefault();
       el.scrollLeft = result.nextScrollLeft;
-      syncScrollProgress();
     };
 
     const finishDrag = () => {
@@ -200,7 +174,6 @@ export function CategoryPictogramBar({
 
       setIsDragging(false);
 
-      /* 드래그 직후 발생하는 click 1회만 차단하고, 레일 밖에서 놓은 경우 다음 프레임에 자동 해제 */
       window.requestAnimationFrame(() => {
         suppressClickRef.current = false;
       });
@@ -214,7 +187,6 @@ export function CategoryPictogramBar({
             Math.max(0, el.scrollLeft + frameVelocity)
           );
           el.scrollLeft = next;
-          syncScrollProgress();
           frameVelocity *= 0.91;
 
           const hitEdge = next <= 0 || next >= maxScroll;
@@ -260,11 +232,14 @@ export function CategoryPictogramBar({
     });
 
     if (buttonEl && railRef.current) {
-      buttonEl.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
+      const container = railRef.current;
+      if (container.scrollWidth > container.clientWidth + 4) {
+        buttonEl.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+          inline: "center",
+        });
+      }
     }
 
     if (onSelectCategory) {
@@ -274,7 +249,6 @@ export function CategoryPictogramBar({
 
   const handleGroupTabClick = (nextGroup: ShowroomGroupFilter) => {
     setGroupFilter(nextGroup);
-    setScrollRatio(0);
     if (railRef.current) {
       railRef.current.scrollTo({ left: 0, behavior: "smooth" });
     }
@@ -287,21 +261,6 @@ export function CategoryPictogramBar({
     }
   };
 
-  /* 스크롤바가 없는 넓은 뷰포트에서는 선택 카드 위치를 진행 바로 표시 */
-  const trackSegmentWidthPct = Math.max(
-    18,
-    Math.round(100 / Math.max(visibleItems.length, 1))
-  );
-  const derivedOffsetPct =
-    scrollRatio > 0.01
-      ? Math.round(scrollRatio * (100 - trackSegmentWidthPct))
-      : visibleItems.length > 1
-      ? Math.round(
-          (selectedIndex / (visibleItems.length - 1)) *
-            (100 - trackSegmentWidthPct)
-        )
-      : 0;
-
   const Wrapper = embedded ? "div" : "section";
 
   return (
@@ -310,25 +269,25 @@ export function CategoryPictogramBar({
       aria-label="취급 품목 및 쇼룸 카테고리"
       className={
         embedded
-          ? "bg-white pt-8 pb-3 sm:pt-10 sm:pb-4"
-          : "bg-white pt-10 pb-6 sm:pt-12 sm:pb-8"
+          ? "bg-white pt-10 pb-4 sm:pt-14 sm:pb-5"
+          : "bg-white pt-10 pb-6 sm:pt-14 sm:pb-8"
       }
     >
       <div className="hb-container">
-        {/* 1. 상단 에디토리얼 타이틀 & 뷰 스위처 */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        {/* 1. 간결한 쇼룸 헤더 & 갤러리/일람표 바로가기 */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
               <h2
                 id={embedded ? "category-heading" : "featured-heading"}
-                className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2] break-keep"
+                className="text-hb-xl sm:text-hb-2xl font-bold text-[#141A23] tracking-[-0.028em] leading-tight break-keep"
               >
                 {selectedItem.key === "all"
-                  ? "품목별 쇼룸"
+                  ? "찾으시는 품목을 선택해 보세요"
                   : selectedItem.label}
               </h2>
               {typeof selectedCount === "number" && (
-                <span className="font-mono text-hb-sm sm:text-hb-base font-bold text-[#475569] tabular-nums">
+                <span className="font-mono text-hb-xs sm:text-hb-sm font-bold text-[#64748B] tabular-nums">
                   {trimmedSearch
                     ? `${selectedCount}건 검색됨`
                     : `${selectedCount}건 전시중`}
@@ -349,143 +308,108 @@ export function CategoryPictogramBar({
                   </button>
                 )}
             </div>
-            <p className="mt-1.5 text-hb-sm text-[#475569] leading-[1.55] break-keep">
-              {selectedItem.tagline}
-            </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <div
-              className="hb-segmented-control"
-              role="group"
-              aria-label="갤러리 보기 방식"
+          <div className="flex items-center gap-3 shrink-0 text-hb-xs sm:text-hb-sm">
+            <Link
+              href={tableViewHref}
+              className="inline-flex items-center gap-1 font-semibold text-[#526071] hover:text-[#141A23] transition-colors whitespace-nowrap"
             >
-              <Link
-                href={cardViewHref}
-                className="hb-segmented-item bg-[#141A23] text-white shadow-2xs hover:bg-[#1E2736]"
-              >
-                <Icon d={ICON.grid} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                <span>카드형 갤러리</span>
-              </Link>
-              <Link
-                href={tableViewHref}
-                className="hb-segmented-item text-[#334155] hover:bg-white hover:text-[#141A23]"
-              >
-                <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
-                <span>스펙 일람표</span>
-              </Link>
-            </div>
+              <Icon d={ICON.list} className="w-3.5 h-3.5 text-[#C84312]" />
+              <span>스펙 일람표</span>
+            </Link>
+            <span className="text-[#CFC7BA]" aria-hidden="true">
+              ·
+            </span>
+            <Link
+              href={cardViewHref}
+              className="inline-flex items-center gap-1 font-bold text-[#141A23] hover:text-[#C84312] transition-colors whitespace-nowrap"
+            >
+              <span>전체 갤러리 보기</span>
+              <Icon d={ICON.right} className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
-        {/* 1-B. 홈 쇼룸 빠른 검색창 & 인기 검색어 바로가기 */}
-        {onSearchQueryChange && (
-          <div className="mt-4 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] p-2.5 sm:p-3">
-            <form
-              role="search"
-              aria-label="홈 쇼룸 매물 빠른 검색"
-              onSubmit={handleSearchSubmit}
-              className="flex flex-col gap-2 sm:flex-row sm:items-center"
-            >
-              <div className="relative flex-1 min-w-0">
-                <Icon
-                  d={ICON.search}
-                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]"
-                />
-                <input
-                  id="home-showroom-search"
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => onSearchQueryChange(e.target.value)}
-                  placeholder="품목·브랜드·규격 빠른 검색 (예: 45박스, 벽걸이 에어컨, 삼성, 11평)"
-                  aria-label="품목, 브랜드, 규격 빠른 검색"
-                  className="w-full h-11 rounded-xl border border-[#CFC7BA] bg-white pl-10 pr-10 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 transition-[border-color,box-shadow]"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => onSearchQueryChange("")}
-                    aria-label="검색어 지우기"
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-7 w-7 place-items-center rounded-lg text-[#64748B] hover:bg-[#F2EEE7] hover:text-[#141A23] cursor-pointer"
-                  >
-                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                className={`${
-                  trimmedSearch
-                    ? "hb-btn-primary font-bold"
-                    : "hb-btn-outline font-semibold"
-                } h-11 px-4 text-hb-xs sm:text-hb-sm shrink-0 whitespace-nowrap cursor-pointer active:scale-[0.97]`}
-              >
-                <Icon
-                  d={ICON.search}
-                  className={`w-3.5 h-3.5 ${
-                    trimmedSearch ? "text-[#FF8A50]" : "text-[#64748B]"
-                  }`}
-                />
-                <span>
-                  {trimmedSearch
-                    ? typeof selectedCount === "number"
-                      ? `전체 갤러리에서 ${selectedCount}건 보기 →`
-                      : "전체 갤러리에서 보기 →"
-                    : "전체 갤러리 보기"}
-                </span>
-              </button>
-            </form>
-
-            <div className="mt-2 flex items-center gap-1.5 overflow-x-auto scrollbar-none pt-0.5">
-              <span className="text-hb-xs font-semibold text-[#64748B] shrink-0 whitespace-nowrap pr-1">
-                인기 검색어
-              </span>
-              <span className="text-[#CFC7BA] shrink-0" aria-hidden="true">
-                ·
-              </span>
-              <div className="flex items-center gap-1">
-                {HOME_QUICK_SEARCH_KEYWORDS.map((keyword) => {
-                  const isActiveKeyword =
-                    trimmedSearch.toLowerCase() === keyword.toLowerCase();
-                  return (
-                    <button
-                      key={keyword}
-                      type="button"
-                      aria-pressed={isActiveKeyword}
-                      onClick={() => {
-                        const nextKeyword = isActiveKeyword ? "" : keyword;
-                        trackEvent("search_products", {
-                          query_length: nextKeyword.length,
-                          category: "인기검색어",
-                          location: "home_showroom_quick_keyword",
-                        });
-                        if (onQuickKeywordSelect) {
-                          setGroupFilter("all");
-                          onQuickKeywordSelect(nextKeyword);
-                        } else {
-                          onSearchQueryChange(nextKeyword);
-                        }
-                      }}
-                      className={`min-h-[30px] rounded-lg px-2.5 py-1 text-hb-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                        isActiveKeyword
-                          ? "bg-[#141A23] text-white font-semibold"
-                          : "bg-transparent text-[#475569] hover:bg-white hover:text-[#141A23]"
-                      }`}
-                    >
-                      {keyword}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 2. 가정용 · 업소용 빠른 구분 탭 (모바일·데스크톱 단일행 고정) */}
-        <div className="mt-5 flex items-center justify-between gap-3 border-b border-[#E5E3DC] overflow-x-auto scrollbar-none">
+        {/* 2. 원형 카테고리 레일 (불스원몰 스타일 경량 스튜디오 원형 썸네일) */}
+        <div className="mt-6 sm:mt-8">
           <div
-            className="flex items-center gap-5 sm:gap-7 shrink-0"
+            ref={setRailRef}
+            onMouseDown={handleRailMouseDown}
+            onClickCapture={handleRailClickCapture}
+            onDragStart={(e) => e.preventDefault()}
+            data-dragging={isDragging ? "true" : "false"}
+            className={`flex items-start gap-3 sm:gap-5 lg:gap-4 overflow-x-auto lg:overflow-visible [overscroll-behavior-x:contain] snap-x snap-mandatory scrollbar-none py-2 px-1 -mx-1 select-none ${
+              groupFilter === "all" ? "lg:justify-between" : "lg:justify-start"
+            } ${
+              isDragging
+                ? "scroll-auto cursor-grabbing"
+                : "scroll-smooth cursor-pointer"
+            }`}
+          >
+            {visibleItems.map((item) => {
+              const isSelected = selectedItem.key === item.key;
+              const count = categoryCounts?.[item.key];
+              return (
+                <button
+                  key={item.key}
+                  type="button"
+                  aria-pressed={isSelected}
+                  data-active={isSelected ? "true" : "false"}
+                  onClick={(e) => handleCategoryClick(item, e.currentTarget)}
+                  className={`group snap-start shrink-0 w-[84px] sm:w-[104px] ${
+                    groupFilter === "all"
+                      ? "lg:w-auto lg:flex-1 lg:max-w-[132px]"
+                      : "lg:w-[120px]"
+                  } flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-4 rounded-2xl py-1 [touch-action:manipulation] ${
+                    isDragging ? "cursor-grabbing" : "cursor-pointer"
+                  }`}
+                >
+                  {/* 정원 스튜디오 썸네일: layout 점프 없이 ring-shadow만으로 활성 강조 */}
+                  <span
+                    className={`relative grid h-[74px] w-[74px] sm:h-[92px] sm:w-[92px] rounded-full overflow-hidden bg-[#F5F4F0] transition-[transform,box-shadow] duration-200 ${
+                      isSelected
+                        ? "ring-2 ring-[#C84312] ring-offset-2 shadow-sm scale-[1.03]"
+                        : "ring-1 ring-[#E6E1D6] group-hover:ring-[#CFC7BA] group-hover:-translate-y-0.5"
+                    }`}
+                  >
+                    <Image
+                      src={item.imageSrc}
+                      alt={item.imageAlt}
+                      fill
+                      draggable={false}
+                      sizes="(max-width: 640px) 74px, 92px"
+                      referrerPolicy="no-referrer"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.06]"
+                    />
+                  </span>
+
+                  <span
+                    className={`mt-2.5 block w-full text-hb-xs sm:text-hb-sm leading-snug tracking-tight truncate transition-colors ${
+                      isSelected
+                        ? "text-[#C84312]"
+                        : "text-[#141A23] group-hover:text-[#C84312]"
+                    }`}
+                  >
+                    <strong className="font-bold">{item.label}</strong>
+                  </span>
+                  <span className="mt-0.5 block font-mono text-hb-xs text-[#64748B] tabular-nums">
+                    {typeof count === "number"
+                      ? `${count}건`
+                      : item.group === "biz"
+                      ? "업소"
+                      : "전체"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 3. 가정용 · 업소용 구분 탭 + 슬림 검색바 통합 1줄 도크 */}
+        <div className="mt-6 pt-5 border-t border-[#ECE7DE] flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div
+            className="flex items-center gap-5 shrink-0 overflow-x-auto scrollbar-none"
             role="tablist"
             aria-label="품목 그룹 선택"
           >
@@ -499,7 +423,7 @@ export function CategoryPictogramBar({
                   role="tab"
                   aria-selected={active}
                   onClick={() => handleGroupTabClick(tab.key)}
-                  className={`relative pb-3 text-hb-sm font-bold transition-colors duration-150 whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] rounded-t ${
+                  className={`relative pb-2 text-hb-sm font-bold transition-colors duration-150 whitespace-nowrap cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] rounded-t [touch-action:manipulation] ${
                     active
                       ? "text-[#141A23]"
                       : "text-[#64748B] hover:text-[#141A23]"
@@ -519,213 +443,104 @@ export function CategoryPictogramBar({
               );
             })}
           </div>
+
+          {onSearchQueryChange && (
+            <form
+              role="search"
+              aria-label="홈 쇼룸 매물 빠른 검색"
+              onSubmit={handleSearchSubmit}
+              className="flex flex-1 max-w-xl items-center gap-2"
+            >
+              <div className="relative flex-1 min-w-0">
+                <Icon
+                  d={ICON.search}
+                  className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]"
+                />
+                <input
+                  id="home-showroom-search"
+                  type="search"
+                  value={searchQuery}
+                  onChange={(e) => onSearchQueryChange(e.target.value)}
+                  placeholder="품목·브랜드·규격 검색 (예: 45박스, 벽걸이 에어컨, 삼성)"
+                  aria-label="품목, 브랜드, 규격 빠른 검색"
+                  className="w-full h-10 rounded-full border border-[#DFD9CE] bg-[#F7F6F3] pl-10 pr-9 text-hb-sm text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 transition-[border-color,background-color,box-shadow]"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => onSearchQueryChange("")}
+                    aria-label="검색어 지우기"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 grid h-6 w-6 place-items-center rounded-full text-[#64748B] hover:bg-[#E7E2D8] hover:text-[#141A23] cursor-pointer"
+                  >
+                    <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="hb-btn-outline h-10 rounded-full px-4 text-hb-xs font-bold shrink-0 whitespace-nowrap cursor-pointer bg-white"
+              >
+                <span>
+                  {trimmedSearch && typeof selectedCount === "number"
+                    ? `${selectedCount}건 결과 →`
+                    : "전체 검색"}
+                </span>
+              </button>
+            </form>
+          )}
         </div>
 
-        {/* 3. 삼성·LG 쇼룸 스타일 스튜디오 품목 레일 (마우스 클릭·드래그 가로 이동 지원) */}
-        <div className="mt-5">
-          <div className="relative">
-            <div
-              ref={setRailRef}
-              onScroll={syncScrollProgress}
-              onMouseDown={handleRailMouseDown}
-              onClickCapture={handleRailClickCapture}
-              onDragStart={(e) => e.preventDefault()}
-              data-dragging={isDragging ? "true" : "false"}
-              className={`flex items-stretch gap-3 sm:gap-3.5 overflow-x-auto scrollbar-none py-1.5 px-0.5 -mx-0.5 pr-8 select-none ${
-                isDragging
-                  ? "scroll-auto cursor-grabbing"
-                  : "scroll-smooth cursor-grab"
-              }`}
-            >
-              {visibleItems.map((item) => {
-                const isSelected = selectedItem.key === item.key;
-                const count = categoryCounts?.[item.key];
-                const warrantyLabel = getShowroomCategoryWarrantyLabel(item);
-
-                if (isSelected) {
-                  return (
-                    <button
-                      key={item.key}
-                      type="button"
-                      aria-pressed={true}
-                      data-active="true"
-                      onClick={(e) => handleCategoryClick(item, e.currentTarget)}
-                      className={`hb-showroom-card group snap-start shrink-0 w-[308px] sm:w-[364px] lg:w-[392px] min-h-[172px] sm:min-h-[188px] border-2 border-[#141A23] grid grid-cols-[1.06fr_0.94fr] items-stretch text-left ${
-                        isDragging ? "cursor-grabbing" : "cursor-grab"
-                      }`}
-                    >
-                      {/* 좌측: 에디토리얼 품목 정보 */}
-                      <div className="flex flex-col justify-between p-4 sm:p-5 pr-3 min-w-0">
-                        <div>
-                          <strong className="block text-hb-base sm:text-hb-lg font-bold tracking-[-0.025em] text-[#141A23] leading-snug">
-                            {item.label}
-                          </strong>
-                          <p className="mt-1 text-hb-xs font-semibold text-[#334155] leading-snug">
-                            {item.subLabel}
-                          </p>
-                          <p className="mt-1.5 text-hb-xs text-[#64748B] leading-[1.45] line-clamp-2 break-keep">
-                            {item.tagline}
-                          </p>
-                        </div>
-
-                        <div className="mt-3 pt-2.5 border-t border-[#E2DDD3] flex flex-wrap items-center gap-x-2 gap-y-0.5 text-hb-xs">
-                          <span className="font-bold text-[#141A23] tabular-nums">
-                            {typeof count === "number"
-                              ? `${count}건`
-                              : item.group === "biz"
-                              ? "업소"
-                              : "전체"}
-                          </span>
-                          <span className="text-[#CBD2DC]" aria-hidden="true">
-                            ·
-                          </span>
-                          <span className="font-semibold text-[#C84312] truncate">
-                            {warrantyLabel}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* 우측: 풀블리드 스튜디오 가전 오브젝트 */}
-                      <div className="relative overflow-hidden bg-[#F2EFE7] border-l border-[#E7E2D8]">
-                        <Image
-                          src={item.imageSrc}
-                          alt={item.imageAlt}
-                          fill
-                          draggable={false}
-                          sizes="(max-width: 640px) 160px, 200px"
-                          referrerPolicy="no-referrer"
-                          className="object-cover transition-transform duration-300 group-hover:scale-[1.05]"
-                        />
-                      </div>
-                    </button>
-                  );
-                }
-
+        {/* 4. 인기 검색어 + 선택 품목 출고 기준 1줄 스트립 */}
+        {onSearchQueryChange && (
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-hb-xs text-[#64748B]">
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5">
+              <span className="font-semibold text-[#64748B] shrink-0 whitespace-nowrap pr-1">
+                인기
+              </span>
+              {HOME_QUICK_SEARCH_KEYWORDS.map((keyword) => {
+                const isActiveKeyword =
+                  trimmedSearch.toLowerCase() === keyword.toLowerCase();
                 return (
                   <button
-                    key={item.key}
+                    key={keyword}
                     type="button"
-                    aria-pressed={false}
-                    data-active="false"
-                    onClick={(e) => handleCategoryClick(item, e.currentTarget)}
-                    className={`hb-showroom-card group snap-start shrink-0 w-[146px] sm:w-[166px] lg:w-[176px] min-h-[172px] sm:min-h-[188px] border border-[#EAE6DD] hover:border-[#CFC8BA] flex flex-col items-center justify-between pt-3.5 pb-2 px-2 text-center ${
-                      isDragging ? "cursor-grabbing" : "cursor-grab"
+                    aria-pressed={isActiveKeyword}
+                    onClick={() => {
+                      const nextKeyword = isActiveKeyword ? "" : keyword;
+                      trackEvent("search_products", {
+                        query_length: nextKeyword.length,
+                        category: "인기검색어",
+                        location: "home_showroom_quick_keyword",
+                      });
+                      if (onQuickKeywordSelect) {
+                        setGroupFilter("all");
+                        onQuickKeywordSelect(nextKeyword);
+                      } else {
+                        onSearchQueryChange(nextKeyword);
+                      }
+                    }}
+                    className={`min-h-[28px] rounded-full px-2.5 py-0.5 text-hb-xs font-medium transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                      isActiveKeyword
+                        ? "bg-[#141A23] text-white font-semibold"
+                        : "bg-[#F5F4F0] text-[#475569] hover:bg-[#EAE6DD] hover:text-[#141A23]"
                     }`}
                   >
-                    {/* 상단: 정갈한 중앙 타이틀 + 무박스 수량 텍스트 */}
-                    <div className="w-full px-1">
-                      <strong className="block text-hb-sm font-bold tracking-[-0.02em] text-[#141A23] group-hover:text-[#C84312] transition-colors duration-150 truncate">
-                        {item.label}
-                      </strong>
-                      <span className="mt-0.5 block font-mono text-hb-xs font-medium text-[#64748B] tabular-nums">
-                        {typeof count === "number"
-                          ? `${count}건`
-                          : item.group === "biz"
-                          ? "업소용"
-                          : "전체"}
-                      </span>
-                    </div>
-
-                    {/* 하단: 라운드 스튜디오 프레임 */}
-                    <div className="relative mt-2 w-full h-[108px] sm:h-[120px] rounded-xl overflow-hidden bg-[#F2EFE7]">
-                      <Image
-                        src={item.imageSrc}
-                        alt={item.imageAlt}
-                        fill
-                        draggable={false}
-                        sizes="(max-width: 640px) 146px, 176px"
-                        referrerPolicy="no-referrer"
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.06]"
-                      />
-                    </div>
+                    {keyword}
                   </button>
                 );
               })}
             </div>
 
-            {/* 좌측 수평 스크롤 힌트 페이드 */}
-            <div
-              className={`pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-white via-white/80 to-transparent transition-opacity duration-200 ${
-                scrollRatio > 0.03 ? "opacity-100" : "opacity-0"
-              }`}
-              aria-hidden="true"
-            />
-
-            {/* 우측 수평 스크롤 힌트 페이드 */}
-            <div
-              className={`pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-white via-white/80 to-transparent transition-opacity duration-200 ${
-                scrollRatio > 0.92 ? "opacity-0" : "opacity-100"
-              }`}
-              aria-hidden="true"
-            />
-          </div>
-
-          {/* 4. 하단 삼성·LG 스타일 진행 트랙 & 원형 좌우 네비게이션 */}
-          <div className="mt-4 flex items-center justify-between gap-4">
-            <div className="flex-1 max-w-md flex items-center gap-3">
-              <div
-                className="relative h-[2px] flex-1 overflow-hidden rounded-full bg-[#E2DDD3]"
-                aria-hidden="true"
-              >
-                <div
-                  className="absolute inset-y-0 rounded-full bg-[#141A23] transition-[left,width] duration-200"
-                  style={{
-                    left: `${derivedOffsetPct}%`,
-                    width: `${trackSegmentWidthPct}%`,
-                  }}
-                />
-              </div>
-              <span className="font-mono text-hb-xs font-semibold text-[#64748B] tabular-nums shrink-0">
-                {String(selectedIndex + 1).padStart(2, "0")} /{" "}
-                {String(visibleItems.length).padStart(2, "0")}
+            <div className="flex items-center gap-2 shrink-0 text-hb-xs">
+              <span className="text-[#526071]">{selectedItem.specPoint}</span>
+              <span className="text-[#CFC7BA]" aria-hidden="true">
+                ·
               </span>
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <button
-                type="button"
-                onClick={() => scrollRailBy(-1)}
-                aria-label="이전 품목 보기"
-                className="hb-nav-circle"
-              >
-                <Icon d={ICON.left} className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollRailBy(1)}
-                aria-label="다음 품목 보기"
-                className="hb-nav-circle"
-              >
-                <Icon d={ICON.right} className="w-4 h-4" />
-              </button>
+              <span className="font-bold text-[#C84312]">{selectedWarranty}</span>
             </div>
           </div>
-        </div>
-
-        {/* 5. 선택 품목 핵심 점검·보증 요약 스트립 (헤어라인 1줄, Zero-Pill) */}
-        <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-y border-[#E2DDD3] py-3 text-hb-xs sm:text-hb-sm">
-          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[#334155]">
-            <span className="font-bold text-[#141A23]">
-              {selectedItem.label} 점검 기준
-            </span>
-            <span className="text-[#CBD2DC]" aria-hidden="true">
-              ·
-            </span>
-            <span>{selectedItem.specPoint}</span>
-            <span className="text-[#CBD2DC]" aria-hidden="true">
-              ·
-            </span>
-            <span className="font-bold text-[#C84312]">{selectedWarranty}</span>
-          </div>
-
-          <Link
-            href={cardViewHref}
-            className="inline-flex items-center gap-1 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#C84312] transition-colors whitespace-nowrap"
-          >
-            <span>{selectedItem.label} 전체 보기</span>
-            <Icon d={ICON.right} className="w-3.5 h-3.5" />
-          </Link>
-        </div>
+        )}
       </div>
     </Wrapper>
   );

@@ -333,7 +333,7 @@ export function ShowroomTrustShowcase({
     <section
       id="refurbish-process-section"
       aria-labelledby="refurbish-process-heading"
-      className="border-y border-hb-border hb-theme-band py-8 sm:py-11"
+      className="border-y border-hb-border hb-theme-band py-10 sm:py-14"
     >
       <div className="hb-container">
         {/* 상단 헤더: 섹션 타이틀 + 현재 단계 카운터 및 좌우 이동 컨트롤 */}

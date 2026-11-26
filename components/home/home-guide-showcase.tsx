@@ -36,7 +36,7 @@ export function HomeGuideShowcase({
     <section
       id="home-guide-section"
       aria-labelledby="home-guide-heading"
-      className="hb-section-deferred-compact border-b border-[#E2DDD3] bg-[#FAF9F6] py-6 sm:py-8"
+      className="hb-section-deferred-compact border-b border-[#E2DDD3] bg-[#FAF9F6] py-10 sm:py-14"
     >
       <div className="hb-container">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">

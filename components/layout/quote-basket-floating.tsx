@@ -1,14 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import { ICON, Icon } from "../../lib/icons";
 import {
   STORE,
-  telHref,
   smsHref,
   buildQuoteBasketSmsBody,
   trackEvent,
@@ -18,7 +16,6 @@ import {
   formatProductPrice,
   isProductSold,
   triggerQuickInquiry,
-  type InquiryTypeValue,
 } from "../../lib/site";
 import {
   SafeImg,
@@ -318,30 +315,37 @@ export function QuoteBasketFloatingBar() {
 }
 
 /* ════════════════════════════════════════════════════════════
-   우측 슬림 아이콘 독 (FloatingQuickWing — 1520px+ 퀵 독)
+   우측 하단 미니멀 플로팅 (FloatingQuickWing — 카톡 + 맨위로 2버튼)
    ════════════════════════════════════════════════════════════ */
-export function FloatingQuickWing() {
-  const pathname = usePathname();
-  const isPurchasePage = Boolean(pathname?.startsWith("/purchase"));
-  const basketCount = useQuoteBasket().length;
+const getScrollThresholdServerSnapshot = () => false;
+const getScrollThresholdSnapshot = () =>
+  typeof window !== "undefined" && window.scrollY > 220;
 
-  const handleInquiryClick = (
-    type: InquiryTypeValue = "구매 문의",
-    useBundle = false
-  ) => {
-    const eventName =
-      type === "내 물건 팔기"
-        ? "begin_buyback_inquiry"
-        : type === "대량·업소용 상담"
-          ? "begin_bulk_inquiry"
-          : "begin_buy_inquiry";
-    trackEvent(eventName, {
-      category: type,
-      use_bundle: useBundle,
-      location: "floating_quick_wing",
-    });
-    triggerQuickInquiry({ type, useBundle });
+export function FloatingQuickWing() {
+  const containerRef = useRef<HTMLElement | null>(null);
+
+  const subscribeScroll = (onStoreChange: () => void) => {
+    if (typeof window === "undefined") return () => {};
+    let wasScrolled = getScrollThresholdSnapshot();
+    const onScroll = () => {
+      const next = getScrollThresholdSnapshot();
+      if (wasScrolled && !next && containerRef.current?.contains(document.activeElement)) {
+        document.getElementById("main-content")?.focus();
+      }
+      if (next !== wasScrolled) {
+        wasScrolled = next;
+        onStoreChange();
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   };
+
+  const isScrolled = useSyncExternalStore(
+    subscribeScroll,
+    getScrollThresholdSnapshot,
+    getScrollThresholdServerSnapshot
+  );
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -349,84 +353,41 @@ export function FloatingQuickWing() {
 
   return (
     <aside
-      aria-label="빠른 상담 바로가기"
-      className="fixed left-[calc(50%+672px)] top-1/2 -translate-y-1/2 z-40 hidden min-[1520px]:flex flex-col items-center select-none"
+      ref={containerRef}
+      aria-label="빠른 상담 및 상단 이동"
+      aria-hidden={!isScrolled}
+      inert={!isScrolled}
+      className={`fixed bottom-6 right-5 z-40 hidden lg:flex flex-col items-center gap-2.5 select-none transition-[opacity,transform] duration-200 ${
+        isScrolled
+          ? "opacity-100 translate-y-0"
+          : "pointer-events-none opacity-0 translate-y-3"
+      }`}
     >
-      <div className="w-[72px] rounded-3xl bg-white/95 backdrop-blur-2xl border border-[#D8D1C5]/90 ring-1 ring-[#141A23]/5 shadow-[0_14px_38px_rgba(20,26,35,0.12)] p-2 flex flex-col items-center gap-1.5">
-        <a
-          href={telHref(STORE.tel)}
-          onClick={() =>
-            trackEvent("click_tel_consult", {
-              location: "floating_quick_wing_tel",
-            })
-          }
-          title={`대표전화 ${STORE.tel}`}
-          className="group w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#FFF4EE] hover:text-[#C84312] transition-[background-color,color,transform] duration-150 active:scale-95"
-        >
-          <span className="grid h-9 w-9 place-items-center rounded-xl border border-[#FADCD0] bg-[#FFF4EE] text-[#C84312] group-hover:bg-[#C84312] group-hover:text-white transition-colors">
-            <Icon d={ICON.phone} className="w-5 h-5" />
-          </span>
-          <span className="text-hb-xs font-bold leading-none">전화</span>
-        </a>
+      <a
+        href={STORE.kakaoChat}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() =>
+          trackEvent("click_kakao_consult", {
+            location: "floating_quick_wing",
+          })
+        }
+        title="카카오톡 1:1 상담"
+        aria-label="카카오톡 1:1 상담"
+        className="grid h-12 w-12 place-items-center rounded-full bg-[#FEE500] text-[#191600] shadow-floating border border-[#E5CD00]/60 hover:scale-105 active:scale-95 transition-[transform,filter] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 [touch-action:manipulation]"
+      >
+        <Icon d={ICON.chat} className="w-5 h-5" />
+      </a>
 
-        <a
-          href={STORE.kakaoChat}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={() =>
-            trackEvent("click_kakao_consult", {
-              location: "floating_quick_wing",
-            })
-          }
-          title="카카오톡 상담"
-          className="group w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#FEFCE8] transition-[background-color,color,transform] duration-150 active:scale-95"
-        >
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#FEE500] text-[#191600] shadow-2xs group-hover:brightness-95 transition">
-            <Icon d={ICON.chat} className="w-5 h-5" />
-          </span>
-          <span className="text-hb-xs font-bold leading-none">카톡</span>
-        </a>
-
-        <button
-          type="button"
-          onClick={() =>
-            handleInquiryClick(
-              isPurchasePage ? "내 물건 팔기" : "구매 문의",
-              !isPurchasePage && basketCount > 0
-            )
-          }
-          title={
-            isPurchasePage
-              ? "가전 방문 매입 간편 견적"
-              : basketCount > 0
-              ? `담아둔 매물 ${basketCount}종 묶음 견적 문의`
-              : "견적 문의"
-          }
-          className="group relative w-full py-2 flex flex-col items-center justify-center gap-1.5 rounded-2xl text-[#141A23] hover:bg-[#F2EEE7] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
-        >
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#141A23] text-white group-hover:bg-[#C84312] transition-colors">
-            <Icon d={ICON.pen} className="w-4 h-4" />
-          </span>
-          <span className="text-hb-xs font-bold leading-none">견적</span>
-          {basketCount > 0 && (
-            <span className="absolute right-1.5 top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#C84312] px-1 text-hb-xs font-bold text-white tabular-nums shadow-xs">
-              {basketCount}
-            </span>
-          )}
-        </button>
-
-        <div className="w-10 h-[1px] bg-[#E2DDD3] my-0.5" aria-hidden="true" />
-
-        <button
-          type="button"
-          onClick={scrollToTop}
-          title="맨 위로 이동"
-          className="w-full py-2 flex flex-col items-center justify-center gap-1 rounded-2xl text-[#64748B] hover:bg-[#F2EEE7] hover:text-[#141A23] transition-[background-color,color,transform] duration-150 active:scale-95 cursor-pointer"
-        >
-          <Icon d={ICON.up} className="w-4 h-4" />
-          <span className="text-hb-xs font-bold leading-none">위로</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={scrollToTop}
+        title="맨 위로 이동"
+        aria-label="맨 위로 이동"
+        className="grid h-11 w-11 place-items-center rounded-full border border-[#D8D1C5] bg-white/95 text-[#141A23] backdrop-blur-md shadow-card hover:border-[#141A23] hover:bg-white hover:scale-105 active:scale-95 transition-[transform,border-color,background-color] duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 [touch-action:manipulation]"
+      >
+        <Icon d={ICON.up} className="w-4 h-4" />
+      </button>
     </aside>
   );
 }
