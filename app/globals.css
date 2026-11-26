@@ -3,28 +3,27 @@
 @tailwind components;
 @tailwind utilities;
 
-:root,
-:root[data-hb-theme="clean"] {
+:root {
   interpolate-size: allow-keywords;
 
-  /* 1. Default Clean Neutral Canvas (무채색 화이트·차콜 — 실물 제품 사진 중심) */
-  --hb-navy: #111827;
-  --hb-navy-hover: #27272a;
-  --hb-navy-subtle: #f4f4f5;
+  /* 1. Deep Showroom Navy (LG·다이슨·쇼룸 신뢰 톤) */
+  --hb-navy: #132238;
+  --hb-navy-hover: #1d3352;
+  --hb-navy-subtle: #edf2f7;
 
-  /* 2. Adaptive Accent Tokens (테마별 자동 전환) */
-  --hb-accent: #111827;
-  --hb-accent-hover: #27272a;
-  --hb-accent-text: #111827;
-  --hb-accent-subtle: #f4f4f5;
-  --hb-accent-border: #d4d4d8;
+  /* 2. Adaptive Accent Tokens (Signature Brick Orange — 백마켓·당근식 집중 포인트) */
+  --hb-accent: #c84312;
+  --hb-accent-hover: #a9360d;
+  --hb-accent-text: #b83b0e;
+  --hb-accent-subtle: #fff4ee;
+  --hb-accent-border: #f3ccb8;
 
-  /* 3. Brand Highlight (절제된 포인트) */
+  /* 3. Brand Highlight */
   --hb-orange: #c84312;
-  --hb-brand-text: #111827;
-  --hb-orange-hover: #a9370d;
-  --hb-orange-subtle: #f4f4f5;
-  --hb-orange-oklch: oklch(62.8% 0.194 38);
+  --hb-brand-text: #b83b0e;
+  --hb-orange-hover: #a9360d;
+  --hb-orange-subtle: #fff4ee;
+  --hb-orange-oklch: oklch(57.2% 0.184 36);
 
   /* 4. Semantic Accents */
   --hb-teal: #0d9488;
@@ -37,19 +36,25 @@
   --hb-cyan-subtle: #f0f9ff;
   --hb-cyan-border: #bae6fd;
 
-  /* 5. Neutral Gallery Surfaces */
+  /* 5. Warm Editorial Stone Surfaces (MUJI·Apple식 갤러리 바탕) */
   --hb-surface: #ffffff;
-  --hb-stone-canvas: #f7f7f8;
-  --hb-stone-surface: #f1f2f4;
-  --hb-stone-hover: #e8eaee;
-  --hb-stone-border: #e5e7eb;
-  --hb-stone-border-strong: #d1d5db;
+  --hb-stone-canvas: #f8f6f2;
+  --hb-stone-surface: #f2eee7;
+  --hb-stone-hover: #e9e3d9;
+  --hb-stone-border: #e4ded4;
+  --hb-stone-border-strong: #cfc7ba;
 
-  /* 6. Section Surfaces (Hero & Mid-page Bands) */
-  --hb-hero-bg: #ffffff;
-  --hb-hero-bg-image: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-  --hb-band-bg: #f7f7f8;
-  --hb-buyback-bg: #f3f4f6;
+  /* 6. Section Surfaces (Hero, Warm Band, Deep Navy Buyback Contrast Band) */
+  --hb-hero-bg: #fbf9f5;
+  --hb-hero-bg-image:
+    radial-gradient(circle at 88% 12%, rgba(200, 67, 18, 0.07) 0%, transparent 45%),
+    radial-gradient(circle at 8% 86%, rgba(19, 34, 56, 0.055) 0%, transparent 48%),
+    linear-gradient(180deg var(--in-oklab), #ffffff 0%, #f8f5ef 100%);
+  --hb-band-bg: #f5f2ec;
+  --hb-buyback-bg: #101e33;
+  --hb-buyback-bg-image:
+    radial-gradient(circle at 85% 18%, rgba(200, 67, 18, 0.16) 0%, transparent 46%),
+    linear-gradient(135deg var(--in-oklab), #0f1c2e 0%, #162944 100%);
 
   /* 호환 별칭 (단일 토큰 참조) */
   --hb-bg-subtle: var(--hb-stone-canvas);
@@ -58,10 +63,10 @@
   --hb-border: var(--hb-stone-border);
   --hb-border-strong: var(--hb-stone-border-strong);
 
-  --hb-text-primary: #111827;
-  --hb-text-secondary: #374151;
+  --hb-text-primary: #131c2b;
+  --hb-text-secondary: #334155;
   --hb-text-muted: #4b5563;
-  --hb-text-subtle: #6b7280;
+  --hb-text-subtle: #64748b;
 
   --hb-surface-muted: var(--hb-stone-canvas);
   --hb-brand: var(--hb-accent);
@@ -81,87 +86,6 @@
 
   --hb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --hb-ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* 여름 · 아이스 쿨 (에어컨·냉난방기 성수기) */
-:root[data-hb-theme="summer"] {
-  --hb-navy: #0f2942;
-  --hb-navy-hover: #163b5e;
-  --hb-navy-subtle: #edf6fc;
-  --hb-accent: #0369a1;
-  --hb-accent-hover: #075985;
-  --hb-accent-text: #0369a1;
-  --hb-accent-subtle: #e0f2fe;
-  --hb-accent-border: #bae6fd;
-  --hb-brand-text: #0369a1;
-  --hb-stone-canvas: #f4f9fd;
-  --hb-stone-surface: #eaf3fa;
-  --hb-stone-hover: #dcebf7;
-  --hb-stone-border: #d5e4f0;
-  --hb-stone-border-strong: #b8d2e6;
-  --hb-hero-bg: #f7fbff;
-  --hb-hero-bg-image:
-    radial-gradient(circle at 86% 14%, rgba(14, 165, 233, 0.11) 0%, transparent 52%),
-    linear-gradient(180deg, #ffffff 0%, #f2f8fd 100%);
-  --hb-band-bg: #f4f9fd;
-  --hb-buyback-bg: #edf5fc;
-  --hb-text-primary: #0f2438;
-  --hb-text-secondary: #334e68;
-  --hb-text-muted: #486581;
-}
-
-/* 봄·가을 · 세이지 뉴트럴 (이사·입주·창업 시즌) */
-:root[data-hb-theme="spring-autumn"] {
-  --hb-navy: #162621;
-  --hb-navy-hover: #213831;
-  --hb-navy-subtle: #eef5f1;
-  --hb-accent: #1f6f5b;
-  --hb-accent-hover: #175747;
-  --hb-accent-text: #1f6f5b;
-  --hb-accent-subtle: #eaf6f1;
-  --hb-accent-border: #c1e3d5;
-  --hb-brand-text: #1f6f5b;
-  --hb-stone-canvas: #f5f7f5;
-  --hb-stone-surface: #edf2ee;
-  --hb-stone-hover: #e1e9e3;
-  --hb-stone-border: #dbe3dd;
-  --hb-stone-border-strong: #c2cfc5;
-  --hb-hero-bg: #f8faf8;
-  --hb-hero-bg-image:
-    radial-gradient(circle at 86% 14%, rgba(31, 111, 91, 0.09) 0%, transparent 52%),
-    linear-gradient(180deg, #ffffff 0%, #f3f7f4 100%);
-  --hb-band-bg: #f5f7f5;
-  --hb-buyback-bg: #eef3ef;
-  --hb-text-primary: #16241f;
-  --hb-text-secondary: #364942;
-  --hb-text-muted: #52665e;
-}
-
-/* 겨울 · 웜 아이보리 (난방기·건조기 시즌) */
-:root[data-hb-theme="winter"] {
-  --hb-navy: #241f1c;
-  --hb-navy-hover: #38302b;
-  --hb-navy-subtle: #f6f1ea;
-  --hb-accent: #b84a1c;
-  --hb-accent-hover: #993c16;
-  --hb-accent-text: #b84a1c;
-  --hb-accent-subtle: #fdf2ec;
-  --hb-accent-border: #f2d3c2;
-  --hb-brand-text: #b84a1c;
-  --hb-stone-canvas: #faf7f2;
-  --hb-stone-surface: #f3ede4;
-  --hb-stone-hover: #eae1d4;
-  --hb-stone-border: #e5dcd0;
-  --hb-stone-border-strong: #d1c4b4;
-  --hb-hero-bg: #fdfbf7;
-  --hb-hero-bg-image:
-    radial-gradient(circle at 86% 14%, rgba(184, 74, 28, 0.08) 0%, transparent 52%),
-    linear-gradient(180deg, #ffffff 0%, #faf6f0 100%);
-  --hb-band-bg: #faf7f2;
-  --hb-buyback-bg: #f5efe6;
-  --hb-text-primary: #211c19;
-  --hb-text-secondary: #4a413b;
-  --hb-text-muted: #665b53;
 }
 
 @supports (background: linear-gradient(in oklab, white, black)) {
@@ -230,7 +154,7 @@ body {
 }
 
 ::selection {
-  background-color: #e8521a;
+  background-color: var(--hb-accent);
   color: #ffffff;
 }
 
@@ -333,7 +257,7 @@ body {
   .hb-btn-accent {
     @apply hb-btn text-white;
     background-color: var(--hb-accent);
-    box-shadow: 0 1px 3px rgba(17, 24, 39, 0.14);
+    box-shadow: 0 2px 8px -2px rgba(200, 67, 18, 0.34);
   }
 
   .hb-btn-accent:hover {
@@ -361,6 +285,7 @@ body {
 
   .hb-buyback-band {
     background-color: var(--hb-buyback-bg);
+    background-image: var(--hb-buyback-bg-image);
     transition: background-color 220ms ease;
   }
 
@@ -648,6 +573,10 @@ dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
 }
 
 @media (forced-colors: active) {
+  .hb-buyback-card {
+    border-color: CanvasText;
+  }
+
   [role="tab"][aria-selected="true"],
   [aria-pressed="true"] {
     outline: 2px solid Highlight;
@@ -733,10 +662,10 @@ dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
 
 @keyframes hbHeaderScrollShadow {
   from {
-    border-bottom-color: rgba(229, 227, 220, 0.85);
+    border-bottom-color: rgba(228, 222, 212, 0.85);
   }
   to {
-    border-bottom-color: #d4d1c7;
+    border-bottom-color: #cfc7ba;
   }
 }
 

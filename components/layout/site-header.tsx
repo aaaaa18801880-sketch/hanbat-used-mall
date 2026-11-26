@@ -11,7 +11,6 @@ import {
   closeTopLayerElement,
   isOutsideDialogBounds,
 } from "./ui-primitives";
-import { ThemeSwitcher } from "./theme-switcher";
 
 const HEADER_NAV = [
   { label: "판매 제품", href: "/gallery", matchPrefix: "/gallery" },
@@ -137,10 +136,8 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             })}
           </nav>
 
-          {/* 3. 우측 주요 행동 (색감 모드 · 견적함 · 전화 상담 · 카카오톡 상담) */}
+          {/* 3. 우측 주요 행동 (견적함 · 전화 상담 · 카카오톡 상담) */}
           <div className="flex items-center justify-end gap-2 shrink-0">
-            <ThemeSwitcher />
-
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"

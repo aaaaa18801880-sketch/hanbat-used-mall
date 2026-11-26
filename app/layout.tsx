@@ -9,7 +9,6 @@ import {
   buildOrganizationJsonLd,
   buildLocalBusinessJsonLd,
 } from "../lib/seo-schema";
-import { buildThemeInitInlineScript } from "../lib/site-theme";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
@@ -123,11 +122,8 @@ export default function RootLayout({
   const localBusinessJsonLd = buildLocalBusinessJsonLd();
 
   return (
-    <html lang="ko" data-hb-theme="clean" suppressHydrationWarning>
+    <html lang="ko">
       <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: buildThemeInitInlineScript() }}
-        />
         <link
           rel="alternate"
           type="text/plain"

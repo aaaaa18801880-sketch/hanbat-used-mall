@@ -23,7 +23,7 @@ export function SiteFooter({
       <QuoteBasketFloatingBar />
       <FloatingQuickWing />
       <QuickInquiryModal />
-      <footer className="relative bg-[#141A23] text-white/80 mt-auto border-t border-[#1E2736]">
+      <footer className="relative bg-[#101E33] text-white/80 mt-auto border-t border-[#1E314D]">
         <div className="hb-container py-10 sm:py-14">
           <div className="grid gap-8 lg:grid-cols-12 pb-8 border-b border-white/10">
             {/* 브랜드 및 직통 고객센터 영역 (타이포그래피 중심 절제형) */}

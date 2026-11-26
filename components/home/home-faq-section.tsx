@@ -134,7 +134,7 @@ export function HomeFaqSection({
   return (
     <section
       id="faq-section"
-      className="border-b border-[#E2E6EC] bg-white py-7 sm:py-9"
+      className="border-b border-hb-border bg-hb-surface-muted py-7 sm:py-9"
       aria-labelledby="faq-title"
     >
       <div className="hb-container">
@@ -190,8 +190,8 @@ export function HomeFaqSection({
                     }}
                     className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-hb-xs font-bold transition-colors cursor-pointer ${
                       active
-                        ? "bg-[#141A23] text-white"
-                        : "border border-[#E2E6EC] bg-[#F7F8FA] text-[#475569] hover:border-[#141A23] hover:text-[#141A23]"
+                        ? "bg-hb-navy text-white"
+                        : "border border-hb-border bg-white text-[#475569] hover:border-hb-navy hover:text-hb-text-primary"
                     }`}
                   >
                     <span>{opt.label}</span>
@@ -208,7 +208,7 @@ export function HomeFaqSection({
             </div>
 
             {/* 바로 물어보기 안내 박스 */}
-            <div className="mt-5 rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6] p-4">
+            <div className="mt-5 rounded-2xl border border-hb-border bg-white p-4 shadow-2xs">
               <p className="text-hb-xs font-bold text-[#141A23]">
                 찾으시는 내용이 없으신가요?
               </p>
@@ -241,14 +241,14 @@ export function HomeFaqSection({
             role="tabpanel"
             aria-label="선택한 주제의 자주 묻는 질문"
           >
-            <div className="divide-y divide-[#E2E6EC] rounded-2xl border border-[#E2E6EC] bg-white overflow-hidden">
+            <div className="divide-y divide-hb-border rounded-2xl border border-hb-border bg-white shadow-2xs overflow-hidden">
               {visibleFaqs.map((f, i) => {
                 const open = openFaq === i;
                 return (
                   <div
                     key={f.q}
                     className={`transition-colors ${
-                      open ? "bg-[#FAF9F6]" : "bg-white hover:bg-[#F7F8FA]"
+                      open ? "bg-[#FBF9F5]" : "bg-white hover:bg-hb-surface-muted"
                     }`}
                   >
                     <h3>

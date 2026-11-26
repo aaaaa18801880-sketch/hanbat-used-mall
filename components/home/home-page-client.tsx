@@ -622,7 +622,7 @@ export default function Home({
                       </div>
                       <Icon
                         d={ICON.arrow}
-                        className="w-4 h-4 shrink-0 text-white transition-transform group-hover:translate-x-0.5"
+                        className="w-4 h-4 shrink-0 text-[#FFB085] transition-transform group-hover:translate-x-0.5"
                       />
                     </Link>
 
@@ -795,7 +795,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           id="reviews-section"
-          className="border-b border-[#E2E6EC] bg-[#F7F8FA] py-7 sm:py-9"
+          className="border-b border-hb-border bg-hb-surface-muted py-7 sm:py-9"
           aria-labelledby="review-title"
         >
           <div className="hb-container">
