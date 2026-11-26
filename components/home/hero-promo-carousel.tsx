@@ -10,7 +10,7 @@ import {
   type HeroBannerSlide,
 } from "../../lib/hero-banners";
 import { Icon, ICON } from "../../lib/icons";
-import { STORE, telHref, trackEvent } from "../../lib/site";
+import { trackEvent } from "../../lib/site";
 
 const AUTOPLAY_INTERVAL_MS = 5500;
 
@@ -70,7 +70,7 @@ function getSlideScrims(theme: HeroBannerSlide["theme"]): SlideScrims {
 }
 
 export function HeroPromoCarousel({
-  sellingCount,
+  sellingCount: _sellingCount,
   onOpenVisitModal,
 }: {
   sellingCount: number;
@@ -121,7 +121,7 @@ export function HeroPromoCarousel({
       aria-labelledby="hero-title"
       className="w-full border-b border-hb-border bg-white"
     >
-      <div className="hb-container pt-4 sm:pt-5 pb-5 sm:pb-7">
+      <div className="hb-container py-4 sm:py-6">
         {/* 대형 기획전 비주얼 배너 캐러셀 (쿠팡·하이마트·오늘의집형 프로모션 쇼케이스) */}
         <div
           role="region"
@@ -137,7 +137,7 @@ export function HeroPromoCarousel({
           className="hb-banner-theme group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-black/5 shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 transition-colors duration-300"
         >
           {/* 배경 비주얼 레이어 (크로스페이드) */}
-          <div className="relative min-h-[340px] sm:min-h-[360px] lg:min-h-[410px] w-full flex flex-col justify-between">
+          <div className="relative min-h-[400px] sm:min-h-[440px] lg:min-h-[500px] w-full flex flex-col justify-between">
             {HERO_BANNER_SLIDES.map((slide, idx) => {
               const isCurrent = idx === activeIndex;
               return (
@@ -310,97 +310,6 @@ export function HeroPromoCarousel({
               </button>
             </div>
           </div>
-        </div>
-
-        {/* 배너 바로 아래 핵심 전환 퀵바 (실매물 · 방문 매입 · 카톡 사진 견적 · 전화 직통) */}
-        <div className="mt-3.5 grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
-          <Link
-            href="/gallery"
-            className="group flex items-center justify-between gap-2 sm:gap-2.5 rounded-2xl border border-hb-border bg-hb-surface-muted px-3 sm:px-4 py-3 hover:border-[#141A23] hover:bg-white transition-[border-color,background-color] duration-150"
-          >
-            <div className="min-w-0">
-              <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23]">
-                <span>실매물 확인</span>
-                {sellingCount > 0 && (
-                  <span className="font-mono text-hb-xs font-bold text-[#C84312] tabular-nums">
-                    {sellingCount}대
-                  </span>
-                )}
-              </span>
-              <span className="block text-hb-xs text-[#475569] truncate">
-                고압세척 · 보증 출고
-              </span>
-            </div>
-            <Icon
-              d={ICON.right}
-              className="w-4 h-4 shrink-0 text-[#64748B] group-hover:text-[#141A23] group-hover:translate-x-0.5 transition-transform"
-            />
-          </Link>
-
-          <Link
-            href="/purchase"
-            className="group flex items-center justify-between gap-2 sm:gap-2.5 rounded-2xl border border-hb-border bg-hb-surface-muted px-3 sm:px-4 py-3 hover:border-[#141A23] hover:bg-white transition-[border-color,background-color] duration-150"
-          >
-            <div className="min-w-0">
-              <span className="block text-hb-sm font-bold text-[#141A23] truncate">
-                가전 · 폐업 매입
-              </span>
-              <span className="block text-hb-xs text-[#475569] truncate">
-                당일 방문 · 현장 정산
-              </span>
-            </div>
-            <Icon
-              d={ICON.right}
-              className="w-4 h-4 shrink-0 text-[#C84312] group-hover:translate-x-0.5 transition-transform"
-            />
-          </Link>
-
-          <a
-            href={STORE.kakaoChat}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackEvent("click_kakao_consult", { location: "home_hero_dock" })
-            }
-            className="group flex items-center justify-between gap-2 sm:gap-2.5 rounded-2xl border border-[#F2D900] bg-[#FFFBEB] px-3 sm:px-4 py-3 hover:bg-[#FEE500] transition-colors duration-150"
-          >
-            <div className="min-w-0">
-              <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#191600]">
-                <Icon d={ICON.chat} className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">카톡 사진 견적</span>
-              </span>
-              <span className="block text-hb-xs text-[#574A00] truncate">
-                사진 1장으로 1분 확인
-              </span>
-            </div>
-            <Icon
-              d={ICON.right}
-              className="w-4 h-4 shrink-0 text-[#191600] group-hover:translate-x-0.5 transition-transform"
-            />
-          </a>
-
-          <a
-            href={telHref(STORE.tel)}
-            onClick={() =>
-              trackEvent("click_tel_consult", { location: "home_hero_dock" })
-            }
-            className="group flex items-center justify-between gap-2 sm:gap-2.5 rounded-2xl border border-hb-border bg-hb-surface-muted px-3 sm:px-4 py-3 hover:border-[#141A23] hover:bg-white transition-[border-color,background-color] duration-150"
-          >
-            <div className="min-w-0">
-              <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] tabular-nums">
-                <Icon d={ICON.phone} className="w-3.5 h-3.5 shrink-0 text-[#C84312]" />
-                <span className="truncate">{STORE.tel}</span>
-              </span>
-              <span className="block text-hb-xs text-[#475569] truncate">
-                <span className="sm:hidden">{STORE.hours}</span>
-                <span className="hidden sm:inline">{STORE.hours} 직영 상담</span>
-              </span>
-            </div>
-            <Icon
-              d={ICON.right}
-              className="w-4 h-4 shrink-0 text-[#64748B] group-hover:text-[#141A23] group-hover:translate-x-0.5 transition-transform"
-            />
-          </a>
         </div>
       </div>
     </section>

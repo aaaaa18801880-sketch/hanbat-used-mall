@@ -40,7 +40,6 @@ import {
   type ShowroomCategoryItem,
   type PictogramKey,
 } from "./category-pictogram-bar";
-import { AiRecommendationGuideSection } from "./ai-recommendation-guide-section";
 import { ShowroomTrustShowcase } from "./showroom-trust-showcase";
 import {
   HomeGuideShowcase,
@@ -53,7 +52,6 @@ import {
 } from "./home-location-inquiry-section";
 import { HeroPromoCarousel } from "./hero-promo-carousel";
 import { HomeIntentRouter } from "./home-intent-router";
-import { REFURBISH_STEPS } from "../../lib/refurbish-process";
 import { filterHomeShowroomProducts } from "../../lib/home-showroom-filter";
 import { getCategoryNoticeGuide } from "../../lib/notice-guides";
 
@@ -586,85 +584,8 @@ export default function Home({
           />
         </section>
 
-        {/* [S4] 출고 공정 4단계 & 직거래 vs 직영매장 비교 (온디맨드 <details> 압축) */}
-        <section
-          id="trust-summary-section"
-          aria-labelledby="trust-summary-heading"
-          className="hb-section-deferred border-b border-[#E2DDD3] bg-[#FAF9F6] py-6 sm:py-8"
-        >
-          <div className="hb-container space-y-3.5">
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
-              <h2
-                id="trust-summary-heading"
-                className="text-hb-lg sm:text-hb-xl font-bold tracking-tight text-[#141A23] break-keep"
-              >
-                입고부터 직배송·사후 보증까지 한밭중고전자 기준
-              </h2>
-              <p className="text-hb-xs text-[#64748B] break-keep">
-                매입 현장 작동 확인 · 고압세척 · 배송 전 작동 점검 후 직영 기사가 설치합니다.
-              </p>
-            </div>
-
-            <ol className="grid grid-cols-2 lg:grid-cols-4 gap-px overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#E2DDD3]">
-              {REFURBISH_STEPS.map((step) => (
-                <li key={step.id} className="bg-white px-4 py-3">
-                  <span className="font-mono text-hb-xs font-bold text-[#C84312] tabular-nums">
-                    {step.stepNumber}. {step.shortTitle}
-                  </span>
-                  <p className="mt-0.5 text-hb-xs text-[#475569] line-clamp-1 break-keep">
-                    {step.focusTag}
-                  </p>
-                </li>
-              ))}
-            </ol>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
-              <details
-                id="refurbish-process-section"
-                className="group scroll-mt-24 rounded-2xl border border-[#E2DDD3] bg-white overflow-hidden"
-              >
-                <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex min-h-[48px] items-center justify-between gap-3 px-4 py-3 sm:px-5 hover:bg-[#FAF9F6] transition-colors">
-                  <span className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
-                    01~04 매입·고압세척·작동 점검 과정 자세히 보기
-                  </span>
-                  <span className="inline-flex items-center gap-1 shrink-0 text-hb-xs font-bold text-[#C84312]">
-                    <span className="group-open:hidden">펼쳐보기</span>
-                    <span className="hidden group-open:inline">접기</span>
-                    <Icon
-                      d={ICON.down}
-                      className="w-4 h-4 transition-transform duration-150 group-open:rotate-180"
-                    />
-                  </span>
-                </summary>
-                <div className="border-t border-[#E2DDD3] p-3 sm:p-4">
-                  <ShowroomTrustShowcase embedded />
-                </div>
-              </details>
-
-              <details
-                id="buying-guide-section"
-                className="group scroll-mt-24 rounded-2xl border border-[#E2DDD3] bg-white overflow-hidden"
-              >
-                <summary className="list-none [&::-webkit-details-marker]:hidden cursor-pointer flex min-h-[48px] items-center justify-between gap-3 px-4 py-3 sm:px-5 hover:bg-[#FAF9F6] transition-colors">
-                  <span className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
-                    개인 직거래 vs {STORE.name} 직영 매장 항목별 비교 보기
-                  </span>
-                  <span className="inline-flex items-center gap-1 shrink-0 text-hb-xs font-bold text-[#C84312]">
-                    <span className="group-open:hidden">펼쳐보기</span>
-                    <span className="hidden group-open:inline">접기</span>
-                    <Icon
-                      d={ICON.down}
-                      className="w-4 h-4 transition-transform duration-150 group-open:rotate-180"
-                    />
-                  </span>
-                </summary>
-                <div className="border-t border-[#E2DDD3] p-3 sm:p-4">
-                  <AiRecommendationGuideSection embedded />
-                </div>
-              </details>
-            </div>
-          </div>
-        </section>
+        {/* [S4] 01~04 매입·고압세척·작동 점검 과정 (#refurbish-process-section) */}
+        <ShowroomTrustShowcase />
 
         {/* ════════════════════════════════════════════════════════════
             [S5] 배송 · 설치 현장 기록 (#reviews-section)
