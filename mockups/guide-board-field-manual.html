@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>정보게시판 고도화 시안 · Field Manual | 한밭중고전자</title>
+<style>
+  :root {
+    --ink: #171a1f;
+    --ink-2: #2f3540;
+    --muted: #4b5361;
+    --subtle: #6b7280;
+    --paper: #fbfaf7;
+    --paper-2: #f4f2ec;
+    --rule: #d8d3c8;
+    --rule-strong: #aaa498;
+    --accent: #c84312;
+    --accent-soft: #fff4ee;
+    --teal: #0f766e;
+    --teal-soft: #f0fdfa;
+    --blue: #1d4ed8;
+    --indigo: #4338ca;
+    --sky: #0369a1;
+    --focus: #171a1f;
+    --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --shell: 1240px;
+    --gutter: 24px;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { overflow-x: clip; scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    overflow-x: clip;
+    background: var(--paper-2);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    letter-spacing: -0.014em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: inherit; text-decoration: none; }
+  button, input { font: inherit; }
+  button { cursor: pointer; }
+  svg { display: block; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+  }
+  .skip-link {
+    position: fixed; left: 16px; top: -64px; z-index: 100;
+    padding: 12px 18px; background: var(--ink); color: var(--paper);
+    font-size: 14px; font-weight: 700; border-radius: 6px;
+  }
+  .skip-link:focus { top: 12px; }
+
+  .shell { width: min(var(--shell), calc(100% - (var(--gutter) * 2))); margin-inline: auto; }
+
+  /* Masthead */
+  .masthead { background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .masthead-inner {
+    min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px;
+  }
+  .wordmark { display: inline-flex; align-items: baseline; gap: 8px; font-weight: 800; letter-spacing: -0.035em; }
+  .wordmark small { color: var(--subtle); font-size: 12px; font-weight: 600; letter-spacing: 0; }
+  .masthead nav { display: flex; align-items: center; gap: 24px; color: var(--muted); font-size: 14px; font-weight: 650; }
+  .masthead nav a { padding-block: 8px; border-bottom: 2px solid transparent; }
+  .masthead nav a:hover { color: var(--ink); }
+  .masthead nav a[aria-current="page"] { color: var(--ink); border-color: var(--accent); }
+  .masthead-action {
+    display: inline-flex; align-items: center; min-height: 40px; padding-inline: 14px;
+    background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 750; border-radius: 4px;
+  }
+  .masthead-action:hover { background: var(--ink-2); }
+
+  /* Intro */
+  .intro { padding-block: 44px 30px; border-bottom: 1px solid var(--rule); }
+  .breadcrumb { display: flex; align-items: center; gap: 7px; margin-bottom: 22px; color: var(--subtle); font-size: 13px; font-weight: 600; }
+  .breadcrumb a:hover { color: var(--ink); }
+  .breadcrumb svg { width: 13px; height: 13px; color: var(--rule-strong); }
+  .intro-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 48px; align-items: end; }
+  .intro h1 {
+    margin: 0 0 14px; max-width: 18ch;
+    font-size: clamp(36px, 5vw, 58px); line-height: 1.08; letter-spacing: -0.05em;
+    font-weight: 800; text-wrap: balance;
+  }
+  .deck { max-width: 60ch; margin: 0; color: var(--muted); font-size: 17px; line-height: 1.65; text-wrap: pretty; }
+
+  .search { position: relative; margin-top: 26px; max-width: 620px; }
+  .search > svg { position: absolute; left: 0; top: 50%; width: 20px; height: 20px; transform: translateY(-50%); color: var(--subtle); pointer-events: none; }
+  .search input {
+    width: 100%; min-height: 52px; padding: 0 44px 0 32px;
+    border: 0; border-bottom: 1px solid var(--rule-strong); border-radius: 0;
+    background: transparent; color: var(--ink); font-size: 16px;
+  }
+  .search input::placeholder { color: var(--subtle); }
+  .search input:focus { outline: none; border-bottom-color: var(--ink); box-shadow: 0 1px 0 0 var(--ink); }
+  .search-clear {
+    position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+    display: none; place-items: center; width: 36px; height: 36px;
+    border: 0; background: transparent; color: var(--subtle);
+  }
+  .search-clear.is-visible { display: grid; }
+  .search-clear svg { width: 16px; height: 16px; }
+
+  .facts { margin: 0; padding: 0; display: grid; gap: 14px; }
+  .facts div { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-top: 10px; border-top: 1px solid var(--rule); }
+  .facts div:first-child { padding-top: 0; border-top: 0; }
+  .facts dt { color: var(--muted); font-size: 13px; font-weight: 650; }
+  .facts dd { margin: 0; color: var(--ink); font-family: var(--font-mono); font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+  /* Board */
+  .board {
+    display: grid; grid-template-columns: 190px minmax(0, 1fr) 270px;
+    gap: 40px; align-items: start; padding-block: 34px 64px;
+  }
+  .rail { position: sticky; top: 20px; }
+  .rail-block + .rail-block { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--rule); }
+  .rail-title { margin: 0 0 10px; color: var(--ink); font-size: 13px; font-weight: 800; }
+  .rail-note { margin: 0 0 12px; color: var(--subtle); font-size: 12px; line-height: 1.55; }
+
+  .index-list { display: flex; flex-direction: column; }
+  .index-list button {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    min-height: 36px; padding: 7px 0; border: 0; border-top: 1px solid var(--rule);
+    background: transparent; color: var(--muted); text-align: start; font-size: 13px; font-weight: 650;
+  }
+  .index-list button:first-child { border-top: 0; }
+  .index-list button:hover { color: var(--ink); }
+  .index-list button[aria-pressed="true"] { color: var(--accent); }
+  .index-list .count { color: var(--subtle); font-family: var(--font-mono); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .index-list button[aria-pressed="true"] .count { color: var(--accent); }
+
+  .path { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .path li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; }
+  .path .num { color: var(--accent); font-family: var(--font-mono); font-size: 11px; font-weight: 800; padding-top: 2px; }
+  .path strong { display: block; font-size: 13px; }
+  .path span { display: block; margin-top: 2px; color: var(--subtle); font-size: 11.5px; line-height: 1.45; }
+
+  /* Feed */
+  .feed { min-width: 0; }
+  .feed-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+  .view-toggle { display: inline-flex; align-items: center; gap: 16px; }
+  .view-toggle button {
+    min-height: 36px; padding: 0; border: 0; border-bottom: 2px solid transparent;
+    background: transparent; color: var(--subtle); font-size: 13px; font-weight: 750;
+  }
+  .view-toggle button:hover { color: var(--ink); }
+  .view-toggle button[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); }
+  .result-count { margin: 0; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+  .lead { padding-block: 26px 24px; border-bottom: 1px solid var(--rule); }
+  .lead-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .lead-cat { color: var(--accent); font-size: 12px; font-weight: 800; }
+  .lead-flag { color: var(--teal); font-size: 11px; font-weight: 750; }
+  .lead h2 { margin: 0; max-width: 22ch; font-size: clamp(28px, 3.3vw, 40px); line-height: 1.22; letter-spacing: -0.04em; font-weight: 800; text-wrap: balance; }
+  .lead h2 a:hover { color: var(--accent); }
+  .lead-deck { max-width: 65ch; margin: 12px 0 0; color: var(--muted); font-size: 16px; line-height: 1.7; text-wrap: pretty; }
+  .lead-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 20px; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; color: var(--subtle); font-size: 12.5px; font-weight: 600; }
+  .meta time { font-variant-numeric: tabular-nums; }
+  .meta .tool { color: var(--teal); }
+  .read-link { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 14px; background: var(--ink); color: var(--paper); font-size: 12.5px; font-weight: 750; border-radius: 4px; }
+  .read-link:hover { background: var(--ink-2); }
+  .read-link svg { width: 14px; height: 14px; }
+
+  .stories { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 32px; }
+  .story {
+    display: grid; grid-template-columns: minmax(0, 1fr); gap: 0;
+    padding-block: 20px; border-bottom: 1px solid var(--rule);
+  }
+  .story-index { display: none; color: var(--subtle); font-family: var(--font-mono); font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .story-cat { margin: 0 0 6px; color: var(--accent); font-size: 11.5px; font-weight: 800; }
+  .story h3 { margin: 0; font-size: 19px; line-height: 1.42; letter-spacing: -0.025em; font-weight: 750; text-wrap: balance; }
+  .story h3 a:hover { color: var(--accent); }
+  .story-summary { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.62; }
+  .story-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-top: 14px; }
+  .story-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--subtle); font-size: 11.5px; font-weight: 600; }
+  .story-meta time { font-variant-numeric: tabular-nums; }
+  .story-meta .tool { color: var(--teal); }
+  .story-arrow { display: inline-grid; place-items: center; width: 28px; height: 28px; border: 1px solid var(--rule); border-radius: 4px; color: var(--muted); }
+  .story:hover .story-arrow { border-color: var(--ink); color: var(--ink); }
+  .story-arrow svg { width: 13px; height: 13px; }
+
+  /* Index view */
+  .stories[data-view="index"] { display: block; }
+  .stories[data-view="index"] .story {
+    grid-template-columns: 34px 132px minmax(0, 1fr) 92px 24px;
+    align-items: baseline; gap: 12px; padding-block: 12px;
+  }
+  .stories[data-view="index"] .story-index { display: block; }
+  .stories[data-view="index"] .story-cat { margin: 0; }
+  .stories[data-view="index"] .story h3 { font-size: 15px; line-height: 1.45; }
+  .stories[data-view="index"] .story-summary { display: none; }
+  .stories[data-view="index"] .story-foot { display: contents; }
+  .stories[data-view="index"] .story-meta { justify-content: flex-end; }
+  .stories[data-view="index"] .story-meta .tool { display: none; }
+  .stories[data-view="index"] .story-arrow { display: none; }
+
+  .empty { padding: 64px 24px; border-bottom: 1px solid var(--rule); text-align: center; }
+  .empty strong { display: block; font-size: 20px; }
+  .empty p { margin: 6px 0 16px; color: var(--muted); font-size: 14px; }
+  .empty button { min-height: 40px; padding-inline: 14px; border: 1px solid var(--ink); background: transparent; color: var(--ink); font-size: 13px; font-weight: 750; border-radius: 4px; }
+
+  /* Right rail */
+  .rank-list, .tool-list, .update-list { margin: 0; padding: 0; list-style: none; }
+  .rank-list li + li, .tool-list li + li, .update-list li + li { border-top: 1px solid var(--rule); }
+  .rank-list a { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 8px; padding-block: 9px; }
+  .rank-list .rank { color: var(--accent); font-family: var(--font-mono); font-size: 11px; font-weight: 800; padding-top: 2px; }
+  .rank-list .title { display: block; color: var(--ink-2); font-size: 12.5px; font-weight: 700; line-height: 1.45; }
+  .rank-list a:hover .title { color: var(--accent); }
+  .rank-list .sub { display: block; margin-top: 2px; color: var(--subtle); font-size: 11px; font-weight: 600; }
+  .tool-list a { display: flex; align-items: center; gap: 9px; padding-block: 9px; }
+  .tool-list .icon { display: grid; place-items: center; width: 24px; height: 24px; color: var(--teal); flex: 0 0 auto; }
+  .tool-list .icon svg { width: 16px; height: 16px; }
+  .tool-list strong { display: block; font-size: 12.5px; line-height: 1.4; }
+  .tool-list span { display: block; margin-top: 1px; color: var(--subtle); font-size: 11px; font-weight: 600; }
+  .tool-list a:hover strong { color: var(--accent); }
+  .update-list li { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-block: 8px; }
+  .update-list .title { color: var(--ink-2); font-size: 12px; font-weight: 650; line-height: 1.45; }
+  .update-list time { flex: 0 0 auto; color: var(--subtle); font-family: var(--font-mono); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+
+  .consult { padding-top: 18px; border-top: 1px solid var(--ink); }
+  .consult p { margin: 0 0 10px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+  .consult a { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; color: var(--accent); font-size: 12.5px; font-weight: 750; }
+  .consult a + a { margin-left: 12px; color: var(--ink-2); }
+  .consult svg { width: 14px; height: 14px; }
+
+  footer { border-top: 1px solid var(--rule); background: var(--paper); }
+  .footer-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding-block: 24px; color: var(--subtle); font-size: 12px; }
+  .footer-inner strong { color: var(--ink); }
+
+  @media (max-width: 1120px) {
+    .board { grid-template-columns: 170px minmax(0, 1fr); }
+    .right-rail { grid-column: 1 / -1; position: static; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
+    .right-rail .rail-block + .rail-block { margin-top: 0; }
+    .right-rail .rail-block:nth-child(n + 3) { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule); }
+  }
+  @media (max-width: 820px) {
+    .intro-grid { grid-template-columns: 1fr; gap: 22px; }
+    .facts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; }
+    .facts div { flex-direction: column; align-items: flex-start; gap: 2px; padding: 0 12px; border-top: 0; border-left: 1px solid var(--rule); }
+    .facts div:first-child { padding-left: 0; border-left: 0; }
+    .board { grid-template-columns: 1fr; gap: 24px; padding-block: 24px 48px; }
+    .index-rail { position: static; }
+    .index-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 22px; }
+    .index-list button { min-height: 40px; }
+    .path { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .right-rail { grid-template-columns: 1fr; }
+    .stories { grid-template-columns: 1fr; }
+    .stories[data-view="index"] .story { grid-template-columns: 26px minmax(0, 1fr) 84px; }
+    .stories[data-view="index"] .story-cat { display: none; }
+    .stories[data-view="index"] .story h3 { font-size: 14px; }
+  }
+  @media (max-width: 560px) {
+    .masthead nav { display: none; }
+    .wordmark small { display: none; }
+    .intro { padding-block: 28px 24px; }
+    .intro h1 { font-size: 34px; }
+    .deck { font-size: 15px; }
+    .facts { grid-template-columns: 1fr 1fr 1fr; }
+    .facts dd { font-size: 17px; }
+    .view-toggle { gap: 12px; }
+    .lead h2 { font-size: 27px; }
+    .stories[data-view="index"] .story { grid-template-columns: 26px minmax(0, 1fr); }
+    .stories[data-view="index"] .story-meta { display: none; }
+    .footer-inner { flex-direction: column; align-items: flex-start; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#board">본문으로 바로가기</a>
+
+<svg width="0" height="0" aria-hidden="true" style="position:absolute">
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-ruler" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 15 6-6 3 3 3-3 6 6-9 9-9-9z"/><path d="M7 11v4M11 7v4M15 11v4"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m13 2-9 12h7l-1 8 9-12h-7l1-8z"/></symbol>
+  <symbol id="i-door" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V4a1 1 0 0 1 1-1h13a1 1 0 0 1 1 1v17"/><path d="M2 21h20M14 12h.01"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2.1z"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8v.5z"/></symbol>
+</svg>
+
+<header class="masthead">
+  <div class="shell masthead-inner">
+    <a class="wordmark" href="#" aria-label="한밭중고전자 홈">한밭중고전자 <small>대전 중촌동 직영 쇼룸</small></a>
+    <nav aria-label="주요 메뉴">
+      <a href="#">실매물</a>
+      <a href="#">업소용 설비</a>
+      <a href="#">매입 안내</a>
+      <a href="#" aria-current="page">정보게시판</a>
+    </nav>
+    <a class="masthead-action" href="#">매입 견적</a>
+  </div>
+</header>
+
+<main>
+  <section class="shell intro" aria-labelledby="page-title">
+    <nav class="breadcrumb" aria-label="페이지 경로">
+      <a href="#">홈</a>
+      <svg aria-hidden="true"><use href="#i-chevron"/></svg>
+      <span aria-current="page">정보게시판</span>
+    </nav>
+
+    <div class="intro-grid">
+      <div>
+        <h1 id="page-title">가전 · 전기 · 설치 정보 게시판</h1>
+        <p class="deck">사기 전에 확인할 것, 설치 전에 재야 할 것, 팔기 전에 정리할 것을 현장 기준으로 모았습니다.</p>
+        <div class="search" role="search">
+          <svg aria-hidden="true"><use href="#i-search"/></svg>
+          <label class="sr-only" for="guide-search">정보 게시판 검색</label>
+          <input id="guide-search" type="search" placeholder="증상이나 부품명으로 찾기 (예: 380V, 제상, 사다리차)" autocomplete="off" />
+          <button class="search-clear" id="search-clear" type="button" aria-label="검색어 지우기">
+            <svg><use href="#i-close"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <dl class="facts" aria-label="게시판 현황">
+        <div><dt>전체 글</dt><dd>65</dd></div>
+        <div><dt>주제</dt><dd>5</dd></div>
+        <div><dt>현장 계산기</dt><dd>4</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <div class="shell board" id="board">
+    <aside class="rail index-rail" aria-label="주제 인덱스">
+      <section class="rail-block">
+        <h2 class="rail-title">주제 인덱스</h2>
+        <div class="index-list" role="group" aria-label="주제 필터">
+          <button type="button" data-category="전체" aria-pressed="true"><span>전체</span><span class="count">65</span></button>
+          <button type="button" data-category="에어컨 · 냉난방" aria-pressed="false"><span>에어컨 · 냉난방</span><span class="count">22</span></button>
+          <button type="button" data-category="냉장고 · 세탁기" aria-pressed="false"><span>냉장고 · 세탁기</span><span class="count">14</span></button>
+          <button type="button" data-category="업소용 주방설비" aria-pressed="false"><span>업소용 주방설비</span><span class="count">12</span></button>
+          <button type="button" data-category="전기 · 시공 · 반입" aria-pressed="false"><span>전기 · 시공 · 반입</span><span class="count">9</span></button>
+          <button type="button" data-category="구매 · 매입 · 창업" aria-pressed="false"><span>구매 · 매입 · 창업</span><span class="count">8</span></button>
+        </div>
+      </section>
+
+      <section class="rail-block">
+        <h2 class="rail-title">읽는 순서</h2>
+        <p class="rail-note">처음이라면 이 순서로 보세요.</p>
+        <ol class="path">
+          <li><span class="num">01</span><div><strong>사기 전</strong><span>평형·전압·외관</span></div></li>
+          <li><span class="num">02</span><div><strong>설치 전</strong><span>문폭·배관·반입</span></div></li>
+          <li><span class="num">03</span><div><strong>팔기 전</strong><span>명판·사진·정산</span></div></li>
+        </ol>
+      </section>
+    </aside>
+
+    <section class="feed" aria-labelledby="feed-title">
+      <div class="feed-head">
+        <div class="view-toggle" role="group" aria-label="보기 방식">
+          <button type="button" data-view="editorial" aria-pressed="true">에디토리얼</button>
+          <button type="button" data-view="index" aria-pressed="false">인덱스</button>
+        </div>
+        <p class="result-count" id="result-count">전체 65편</p>
+      </div>
+
+      <article class="lead" id="lead" data-category="에어컨 · 냉난방">
+        <div class="lead-top">
+          <span class="lead-cat">에어컨 · 냉난방</span>
+          <span class="lead-flag">이번 주 먼저 읽을 글</span>
+        </div>
+        <h2 id="feed-title"><a href="#">신형 에어컨 수리 맡기면 3~4주 걸리는 이유</a></h2>
+        <p class="lead-deck">신형 인버터 에어컨은 모델별 전용 기판을 써서 부품 대기가 길어집니다. 성수기 수리 일정과 영업 공백을 줄이는 선택 기준을 정리했습니다.</p>
+        <div class="lead-foot">
+          <div class="meta"><time dateTime="2026-11-14">2026. 11. 14.</time><span>조회 3,218</span><span class="tool">현장 계산기</span></div>
+          <a class="read-link" href="#">읽기 <svg><use href="#i-arrow"/></svg></a>
+        </div>
+      </article>
+
+      <div class="stories" id="stories" data-view="editorial">
+        <article class="story" data-category="전기 · 시공 · 반입" data-date="2026-11-14" data-tool="true">
+          <span class="story-index">02</span>
+          <p class="story-cat">전기 · 시공 · 반입</p>
+          <h3><a href="#">220V와 380V의 차이점, 왜 대형 에어컨에는 380V가 들어갈까?</a></h3>
+          <p class="story-summary">단상과 삼상의 배선 차이, 대형 냉난방기에 380V가 필요한 이유, 분전함에서 확인할 기준을 정리했습니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time><span class="tool">현장 계산기</span></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="냉장고 · 세탁기" data-date="2026-11-14" data-tool="false">
+          <span class="story-index">03</span>
+          <p class="story-cat">냉장고 · 세탁기</p>
+          <h3><a href="#">냉동실은 꽝꽝 어는데 냉장실만 미지근할 때 원인 4가지</a></h3>
+          <p class="story-summary">냉매 부족보다 제상 히터·송풍팬·댐퍼·도어 패킹 문제일 가능성이 큽니다. 점검 순서와 해동 주의사항입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="구매 · 매입 · 창업" data-date="2026-11-15" data-tool="true">
+          <span class="story-index">04</span>
+          <p class="story-cat">구매 · 매입 · 창업</p>
+          <h3><a href="#">점포 인수 계약 전, 전 사장이 남긴 에어컨·냉장고·분전함 꼭 볼 5가지</a></h3>
+          <p class="story-summary">시설권리금을 주고 인수할 때 구형 에어컨 교체비와 부족한 계약전력 승압비를 떠안지 않는 확인 순서입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-15">2026. 11. 15.</time><span class="tool">현장 계산기</span></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="전기 · 시공 · 반입" data-date="2026-11-14" data-tool="true">
+          <span class="story-index">05</span>
+          <p class="story-cat">전기 · 시공 · 반입</p>
+          <h3><a href="#">사다리차를 부르는 기준과 제품 크기·출입구 실측이 필수인 이유</a></h3>
+          <p class="story-summary">현관문·중문·꺾이는 복도 통과 폭을 재지 않아 반입이 막히는 경우가 많습니다. 사전 실측 위치와 호출 기준입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time><span class="tool">현장 계산기</span></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="구매 · 매입 · 창업" data-date="2026-11-14" data-tool="false">
+          <span class="story-index">06</span>
+          <p class="story-cat">구매 · 매입 · 창업</p>
+          <h3><a href="#">이사·폐업 가전 팔 때 현장에서 감가 안 당하고 제값 받는 요령</a></h3>
+          <p class="story-summary">방문 기사가 실제로 확인하는 감가 기준과 사전 사진 촬영 요령, 현장 금액 변동을 줄이는 준비 방법입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="구매 · 매입 · 창업" data-date="2026-11-14" data-tool="false">
+          <span class="story-index">07</span>
+          <p class="story-cat">구매 · 매입 · 창업</p>
+          <h3><a href="#">새 제품 대신 중고를 사는 이유 vs 직거래 대신 매장을 쓰는 이유</a></h3>
+          <p class="story-summary">창업·단기 거주에서 검증된 중고가전을 선택하는 이유와 개인 직거래 대비 직영 매장의 차이를 비교했습니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="에어컨 · 냉난방" data-date="2026-11-14" data-tool="true">
+          <span class="story-index">08</span>
+          <p class="story-cat">에어컨 · 냉난방</p>
+          <h3><a href="#">에어컨의 작동 방식과 사용하는 부품, 왜 고장까지 연결될까?</a></h3>
+          <p class="story-summary">냉매 순환 4단계와 증발기·압축기·응축기·팽창밸브의 역할, 작은 관리 소홀이 큰 고장으로 번지는 이유입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time><span class="tool">현장 계산기</span></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="업소용 주방설비" data-date="2026-11-14" data-tool="false">
+          <span class="story-index">09</span>
+          <p class="story-cat">업소용 주방설비</p>
+          <h3><a href="#">업소용 냉장고 수리 vs 교체, 어느 쪽이 유리할까?</a></h3>
+          <p class="story-summary">콤프레셔·응축기·냉매 상태와 수리비, 24시간 영업 공백까지 함께 따져 교체 시점을 판단하는 기준입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="업소용 주방설비" data-date="2026-11-14" data-tool="false">
+          <span class="story-index">10</span>
+          <p class="story-cat">업소용 주방설비</p>
+          <h3><a href="#">업소용 45박스 냉장고, 직냉식 vs 팬냉식 차이</a></h3>
+          <p class="story-summary">식재료 보관 방식과 결로·성에·소음·전기료 차이를 비교하고, 업종별로 어떤 냉각 방식을 고를지 정리했습니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-14">2026. 11. 14.</time></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="냉장고 · 세탁기" data-date="2026-11-13" data-tool="false">
+          <span class="story-index">11</span>
+          <p class="story-cat">냉장고 · 세탁기</p>
+          <h3><a href="#">김치냉장고 뚜껑형 vs 스탠드형, 중고 구매 기준</a></h3>
+          <p class="story-summary">보관 용량과 문 열림 공간, 전력 소모, 김치 숙성 방식 차이를 비교해 우리 집에 맞는 형태를 고르는 기준입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-13">2026. 11. 13.</time></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+
+        <article class="story" data-category="에어컨 · 냉난방" data-date="2026-11-13" data-tool="true">
+          <span class="story-index">12</span>
+          <p class="story-cat">에어컨 · 냉난방</p>
+          <h3><a href="#">에어컨 실외기 통풍 막힘, 여름철 화재 위험</a></h3>
+          <p class="story-summary">실외기 주변 적재와 배기 방향, 콘덴서 먼지가 냉방 효율과 화재 위험에 어떤 영향을 주는지 점검 기준입니다.</p>
+          <div class="story-foot"><div class="story-meta"><time dateTime="2026-11-13">2026. 11. 13.</time><span class="tool">현장 계산기</span></div><span class="story-arrow" aria-hidden="true"><svg><use href="#i-arrow"/></svg></span></div>
+        </article>
+      </div>
+
+      <div class="empty" id="empty" hidden>
+        <strong>조건에 맞는 글이 없습니다.</strong>
+        <p>검색어나 주제를 초기화하면 전체 글을 다시 볼 수 있습니다.</p>
+        <button type="button" id="reset">전체 글 보기</button>
+      </div>
+    </section>
+
+    <aside class="rail right-rail" aria-label="게시판 보조 정보">
+      <section class="rail-block">
+        <h2 class="rail-title">많이 찾는</h2>
+        <ol class="rank-list">
+          <li><a href="#"><span class="rank">01</span><span><span class="title">220V와 380V의 차이점</span><span class="sub">전기 · 시공 · 반입</span></span></a></li>
+          <li><a href="#"><span class="rank">02</span><span><span class="title">신형 에어컨 수리 3~4주 걸리는 이유</span><span class="sub">에어컨 · 냉난방</span></span></a></li>
+          <li><a href="#"><span class="rank">03</span><span><span class="title">점포 인수 전 꼭 볼 5가지</span><span class="sub">구매 · 매입 · 창업</span></span></a></li>
+          <li><a href="#"><span class="rank">04</span><span><span class="title">냉장실만 미지근할 때 원인 4가지</span><span class="sub">냉장고 · 세탁기</span></span></a></li>
+          <li><a href="#"><span class="rank">05</span><span><span class="title">사다리차 호출 기준과 출입구 실측</span><span class="sub">전기 · 시공 · 반입</span></span></a></li>
+        </ol>
+      </section>
+
+      <section class="rail-block">
+        <h2 class="rail-title">현장 도구</h2>
+        <ul class="tool-list">
+          <li><a href="#"><span class="icon"><svg><use href="#i-ruler"/></svg></span><span><strong>평형별 냉방용량</strong><span>매장 면적·층고 기준</span></span></a></li>
+          <li><a href="#"><span class="icon"><svg><use href="#i-bolt"/></svg></span><span><strong>분전함 전압 확인</strong><span>220V / 380V 판별</span></span></a></li>
+          <li><a href="#"><span class="icon"><svg><use href="#i-door"/></svg></span><span><strong>출입구 폭·반입</strong><span>문폭·회전 반경</span></span></a></li>
+        </ul>
+      </section>
+
+      <section class="rail-block">
+        <h2 class="rail-title">최근 업데이트</h2>
+        <ul class="update-list">
+          <li><a class="title" href="#">점포 인수 전 꼭 볼 5가지</a><time dateTime="2026-11-15">11.15</time></li>
+          <li><a class="title" href="#">냉동실은 정상, 냉장실만 미지근</a><time dateTime="2026-11-14">11.14</time></li>
+          <li><a class="title" href="#">220V와 380V의 차이</a><time dateTime="2026-11-14">11.14</time></li>
+        </ul>
+      </section>
+
+      <section class="rail-block consult">
+        <h2 class="rail-title">사진으로 상담</h2>
+        <p>모델명 명판이나 설치 현장 사진을 보내주시면 필요한 전압·배관·반입 조건을 함께 확인해 드립니다.</p>
+        <a href="#"><svg><use href="#i-chat"/></svg> 사진 보내기</a>
+        <a href="#"><svg><use href="#i-phone"/></svg> 042-523-8179</a>
+      </section>
+    </aside>
+  </div>
+</main>
+
+<footer>
+  <div class="shell footer-inner">
+    <span><strong>한밭중고전자</strong> · 대전광역시 중구 대전천서로 691-62 1, 2층</span>
+    <span>월~토 09:00–19:00 · 일요일 별도 문의</span>
+  </div>
+</footer>
+
+<script>
+  const state = { category: "전체", query: "", view: "editorial" };
+  const storiesRoot = document.getElementById("stories");
+  const stories = Array.from(storiesRoot.querySelectorAll(".story"));
+  const lead = document.getElementById("lead");
+  const resultCount = document.getElementById("result-count");
+  const empty = document.getElementById("empty");
+  const searchInput = document.getElementById("guide-search");
+  const searchClear = document.getElementById("search-clear");
+  const categoryButtons = Array.from(document.querySelectorAll(".index-list button"));
+  const viewButtons = Array.from(document.querySelectorAll(".view-toggle button"));
+  const totalCount = 65;
+
+  function applyFilters() {
+    const q = state.query.trim().toLowerCase();
+    let visible = 0;
+
+    stories.forEach((story) => {
+      const categoryMatch = state.category === "전체" || story.dataset.category === state.category;
+      const queryMatch = !q || story.textContent.toLowerCase().includes(q);
+      const show = categoryMatch && queryMatch;
+      story.hidden = !show;
+      if (show) visible += 1;
+    });
+
+    const narrowed = Boolean(q) || state.category !== "전체";
+    lead.hidden = narrowed;
+    empty.hidden = visible !== 0;
+    storiesRoot.hidden = visible === 0;
+
+    if (q) {
+      resultCount.textContent = `검색 결과 ${visible}편`;
+    } else if (state.category !== "전체") {
+      resultCount.textContent = `${state.category} ${visible}편`;
+    } else {
+      resultCount.textContent = `전체 ${totalCount}편`;
+    }
+
+    searchClear.classList.toggle("is-visible", state.query.length > 0);
+  }
+
+  searchInput.addEventListener("input", (event) => {
+    state.query = event.target.value;
+    applyFilters();
+  });
+
+  searchInput.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      state.query = "";
+      searchInput.value = "";
+      applyFilters();
+    }
+  });
+
+  searchClear.addEventListener("click", () => {
+    state.query = "";
+    searchInput.value = "";
+    searchInput.focus();
+    applyFilters();
+  });
+
+  categoryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.category = button.dataset.category;
+      categoryButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+      applyFilters();
+    });
+  });
+
+  viewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.view = button.dataset.view;
+      storiesRoot.dataset.view = state.view;
+      viewButtons.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
+    });
+  });
+
+  document.getElementById("reset").addEventListener("click", () => {
+    state.category = "전체";
+    state.query = "";
+    searchInput.value = "";
+    categoryButtons.forEach((button) => button.setAttribute("aria-pressed", String(button.dataset.category === "전체")));
+    applyFilters();
+    searchInput.focus();
+  });
+
+  applyFilters();
+</script>
+</body>
+</html>

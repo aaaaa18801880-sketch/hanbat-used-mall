@@ -180,6 +180,15 @@ body {
     word-break: keep-all;
   }
 
+  .hb-banner-h1 {
+    font-size: clamp(1.55rem, 2.2vw + 0.9rem, 2.45rem);
+    line-height: 1.24;
+    letter-spacing: -0.028em;
+    font-weight: 800;
+    text-wrap: balance;
+    word-break: keep-all;
+  }
+
   .hb-surface-card {
     @apply rounded-2xl border border-hb-border bg-white transition-[border-color,box-shadow] duration-200 hover:border-hb-border-strong;
     box-shadow: var(--hb-shadow-card);

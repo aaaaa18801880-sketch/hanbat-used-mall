@@ -3,7 +3,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import dynamic from "next/dynamic";
 import toast from "react-hot-toast";
 import { notifyAdminAuthChanged } from "../../lib/admin-auth";
@@ -20,7 +19,6 @@ import {
 import { Icon, ICON } from "../../lib/icons";
 import {
   STORE,
-  telHref,
   splitImages,
   compressImage,
   revokeObjectUrls,
@@ -29,7 +27,6 @@ import {
   isProductPendingReview,
   isProductSold,
   PRODUCT_STATUS,
-  getCategoryWarrantyInfo,
   trackEvent,
   type InquiryTypeValue,
   triggerQuickInquiry,
@@ -55,6 +52,7 @@ import {
   type HomeInquiryRow,
 } from "./home-location-inquiry-section";
 import { HomeBuybackStrip } from "./home-buyback-strip";
+import { HeroPromoCarousel } from "./hero-promo-carousel";
 import {
   filterHomeShowroomProducts,
   SERVICE_DELIVERY_REGIONS,
@@ -80,7 +78,6 @@ const ShowroomVisitModal = dynamic(
 /* ════════════════════════════════════════════════════════════
    1. 정적 데이터 및 상수 (기존 사업자 사실 문구 100% 보존)
    ════════════════════════════════════════════════════════════ */
-const OPERATING_YEARS = new Date().getFullYear() - STORE.since;
 
 export type Review = {
   id: string | number;
@@ -537,231 +534,12 @@ export default function Home({
 
       <main id="main-content" tabIndex={-1} className="flex-1 focus:outline-none">
         {/* ════════════════════════════════════════════════════════════
-            [S1] 쇼룸 아키텍처 히어로 (좌: 핵심 메시지 & 듀얼 액션 독 + 스펙 캡슐 / 우: 직영 쇼룸 외관 & 현장 정보)
+            [S1] 대형 기획전 히어로 배너 캐러셀 + 핵심 전환 퀵바
             ════════════════════════════════════════════════════════════ */}
-        <section
-          id="hero-section"
-          aria-labelledby="hero-title"
-          className="relative w-full border-b border-hb-border hb-ambient-hero text-hb-text-primary"
-        >
-          <div className="hb-container py-6 sm:py-9 lg:py-12">
-            <div className="grid items-center gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10">
-              {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 헤어라인 3대 출고 스펙 + 주/보조 CTA */}
-              <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
-                <div>
-                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-y-1 gap-x-2 text-hb-xs sm:text-hb-sm font-bold">
-                    <span className="font-mono text-hb-brand-text tracking-tight">
-                      SINCE {STORE.since} · {OPERATING_YEARS}년 직영
-                    </span>
-                    <span className="hidden sm:inline text-hb-border-strong" aria-hidden="true">
-                      ·
-                    </span>
-                    <span className="font-medium text-hb-text-muted">
-                      {STORE.jibunAddress} 1·2층 직영 쇼룸
-                    </span>
-                  </div>
-
-                  <h1
-                    id="hero-title"
-                    className="mt-3 hb-fluid-h1 text-hb-text-primary break-keep font-bold [text-wrap:balance]"
-                  >
-                    고압세척과 작동 점검을 마친
-                    <br />
-                    <span className="text-hb-brand-text">검증된 중고가전</span> · 업소용 설비
-                  </h1>
-
-                  <p className="mt-3 max-w-xl text-hb-sm sm:text-hb-base leading-[1.65] text-hb-text-secondary break-keep [text-wrap:pretty]">
-                    가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 배송 전 작동 점검 후{" "}
-                    <strong className="font-semibold text-hb-text-primary">무상 A/S 보증</strong>과 함께 출고합니다.
-                  </p>
-
-                  {/* 헤어라인 에디토리얼 3단 핵심 신뢰 지표 */}
-                  <div className="mt-5 max-w-2xl grid grid-cols-3 divide-x divide-hb-border border-y border-hb-border py-3 sm:py-3.5">
-                    <div className="pr-2.5 sm:pr-4 min-w-0">
-                      <span className="block text-hb-xs font-medium text-hb-text-muted whitespace-nowrap">
-                        에어컨 · 냉난방
-                      </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text tabular-nums whitespace-nowrap">
-                        {getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel}
-                      </strong>
-                    </div>
-                    <div className="px-2.5 sm:px-4 min-w-0">
-                      <span className="block text-hb-xs font-medium text-hb-text-muted whitespace-nowrap">
-                        냉장 · 세탁
-                        <span className="hidden sm:inline"> · 주요가전</span>
-                      </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-hb-text-primary tabular-nums whitespace-nowrap">
-                        {getCategoryWarrantyInfo("냉장고").compactLabel}
-                      </strong>
-                    </div>
-                    <div className="pl-2.5 sm:pl-4 min-w-0">
-                      <span className="block text-hb-xs font-medium text-hb-text-muted whitespace-nowrap">
-                        방문 매입 · 증빙
-                      </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-hb-text-primary tabular-nums whitespace-nowrap">
-                        당일 정산 · 계산서
-                      </strong>
-                    </div>
-                  </div>
-
-                  {/* 핵심 행동 2개 위계 분리 */}
-                  <div className="mt-5 max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Link
-                      href="/gallery"
-                      className="group flex items-center justify-between gap-3 rounded-2xl bg-hb-navy px-4 py-3.5 text-left text-white hover:bg-hb-navy-hover active:scale-[0.985] transition-[background-color,transform] duration-150 shadow-card"
-                    >
-                      <div className="min-w-0">
-                        <span className="inline-flex items-center gap-2 text-hb-sm font-bold text-white">
-                          <span>실매물 확인</span>
-                          {sellingCount > 0 && (
-                            <span className="font-mono text-hb-xs font-bold text-white/80 tabular-nums">
-                              {sellingCount}대
-                            </span>
-                          )}
-                        </span>
-                        <span className="mt-0.5 block text-hb-xs text-white/75 truncate">
-                          전시장 실물 · 충청권 직영 배송
-                        </span>
-                      </div>
-                      <Icon
-                        d={ICON.arrow}
-                        className="w-4 h-4 shrink-0 text-[#FFB085] transition-transform group-hover:translate-x-0.5"
-                      />
-                    </Link>
-
-                    <Link
-                      href="/purchase"
-                      className="group flex items-center justify-between gap-3 rounded-2xl border border-hb-border-strong bg-white px-4 py-3.5 text-left text-hb-text-primary hover:border-hb-navy hover:bg-hb-surface-muted active:scale-[0.985] transition-[background-color,border-color,transform] duration-150"
-                    >
-                      <div className="min-w-0">
-                        <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-hb-text-primary">
-                          <span>가전 · 폐업 설비 팔기</span>
-                        </span>
-                        <span className="mt-0.5 block text-hb-xs text-hb-text-muted truncate">
-                          당일 방문 수거 · 현장 즉시 입금
-                        </span>
-                      </div>
-                      <Icon
-                        d={ICON.arrow}
-                        className="w-4 h-4 shrink-0 text-hb-brand-text transition-transform group-hover:translate-x-0.5"
-                      />
-                    </Link>
-                  </div>
-
-                  <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-hb-xs text-hb-text-muted">
-                    <a
-                      href={telHref(STORE.tel)}
-                      onClick={() =>
-                        trackEvent("click_tel_consult", {
-                          location: "home_hero",
-                        })
-                      }
-                      className="inline-flex items-center gap-1 font-semibold text-hb-text-primary underline underline-offset-4 hover:text-hb-brand-text tabular-nums"
-                    >
-                      <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text" />
-                      <span>전화 바로 문의 {STORE.tel}</span>
-                    </a>
-                    <span className="text-hb-border-strong" aria-hidden="true">
-                      ·
-                    </span>
-                    <a
-                      href={STORE.kakaoChat}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-semibold text-hb-text-primary underline underline-offset-4 hover:text-hb-brand-text"
-                    >
-                      <Icon d={ICON.chat} className="w-3.5 h-3.5 text-hb-brand-text" />
-                      <span>카카오톡 사진 1장 매입 견적</span>
-                    </a>
-                    <span className="text-hb-border-strong" aria-hidden="true">
-                      ·
-                    </span>
-                    <Link
-                      href="/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0"
-                      className="font-medium text-hb-text-secondary hover:text-hb-text-primary underline underline-offset-4"
-                    >
-                      식당·카페 업소용 설비 바로보기
-                    </Link>
-                  </div>
-                </div>
-              </div>
-
-              {/* 우측 (5열): 쇼룸 실물 외관 + 현장 지표 도크 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-hb-border bg-white text-hb-text-primary shadow-card">
-                <div className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden bg-hb-warm">
-                  <Image
-                    src="/store-exterior.jpg"
-                    alt={`${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 42vw"
-                    priority
-                    loading="eager"
-                    quality={80}
-                    className="object-cover object-center"
-                  />
-                </div>
-
-                {/* 경량 3단 현장 인프라 지표 바 */}
-                <div className="grid grid-cols-3 divide-x divide-hb-border border-t border-hb-border bg-hb-surface-muted text-center sm:text-left">
-                  <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                    <span className="block text-hb-xs font-medium text-hb-text-muted">
-                      전용 주차
-                    </span>
-                    <strong className="block text-hb-xs font-bold text-hb-text-primary tabular-nums">
-                      8대 · 1톤 상차
-                    </strong>
-                  </div>
-                  <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                    <span className="block text-hb-xs font-medium text-hb-text-muted">
-                      출고 점검
-                    </span>
-                    <strong className="block text-hb-xs font-bold text-hb-text-primary">
-                      배송 전 작동 점검
-                    </strong>
-                  </div>
-                  <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                    <span className="block text-hb-xs font-medium text-hb-text-muted">
-                      직영 배송
-                    </span>
-                    <strong className="block text-hb-xs font-bold text-hb-text-primary">
-                      당일 · 지정일 배차
-                    </strong>
-                  </div>
-                </div>
-
-                {/* 하단 단일 주소 + 영업시간 + 길찾기 도크 */}
-                <div className="border-t border-hb-border px-3.5 py-3 sm:px-5 bg-white flex items-center justify-between gap-2.5">
-                  <div className="min-w-0">
-                    <p className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-hb-text-primary truncate max-w-full">
-                      <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-hb-brand-text" />
-                      <span className="truncate">{STORE.roadAddress}</span>
-                    </p>
-                    <p className="mt-0.5 text-hb-xs text-hb-text-muted truncate tabular-nums">
-                      {STORE.hours} · {STORE.closed}
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      trackEvent("open_showroom_modal", {
-                        location: "hero_exterior_card",
-                      });
-                      setVisitModalOpen(true);
-                    }}
-                    className="group shrink-0 inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-hb-border-strong bg-hb-surface-muted px-3 py-1.5 text-hb-xs font-bold text-hb-text-primary hover:border-hb-navy hover:bg-hb-navy hover:text-white active:scale-[0.97] transition-[background-color,border-color,color,transform] duration-150 cursor-pointer"
-                  >
-                    <span>오시는 길</span>
-                    <Icon
-                      d={ICON.right}
-                      className="w-3.5 h-3.5 text-hb-brand-text group-hover:text-white transition-[color,transform] duration-150 group-hover:translate-x-0.5"
-                    />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+        <HeroPromoCarousel
+          sellingCount={sellingCount}
+          onOpenVisitModal={() => setVisitModalOpen(true)}
+        />
 
         {/* ════════════════════════════════════════════════════════════
             [2/6] 품목별 쇼룸 탐색 바 + 실시간 쇼룸 전시 매물 통합 카탈로그 섹션
