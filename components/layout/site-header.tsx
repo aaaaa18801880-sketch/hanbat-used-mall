@@ -11,13 +11,14 @@ import {
   closeTopLayerElement,
   isOutsideDialogBounds,
 } from "./ui-primitives";
+import { ThemeSwitcher } from "./theme-switcher";
 
 const HEADER_NAV = [
   { label: "판매 제품", href: "/gallery", matchPrefix: "/gallery" },
   { label: "가전 매입", href: "/purchase", matchPrefix: "/purchase" },
-  { label: "업소·창업", href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0", matchPrefix: "" },
+  { label: "문의 게시판", href: "/inquiry", matchPrefix: "/inquiry" },
   { label: "정보 게시판", href: "/guide", matchPrefix: "/guide" },
-  { label: "매장 안내", href: "/#location-section", matchPrefix: "" },
+  { label: "오시는 길", href: "/#location-section", matchPrefix: "" },
 ] as const;
 
 const DRAWER_QUICK_CATEGORIES = [
@@ -26,7 +27,7 @@ const DRAWER_QUICK_CATEGORIES = [
   { label: "세탁기·건조기", href: "/gallery?category=세탁기/건조기" },
   { label: "업소용 냉장·주방", href: "/gallery?category=업소용기기" },
   { label: "주방·소형가전", href: "/gallery?category=기타" },
-  { label: "견적 문의 게시판", href: "/inquiry" },
+  { label: "폐업·대량 매입", href: "/purchase#purchase-form" },
 ] as const;
 
 export function SiteHeader({ children }: { children?: React.ReactNode }) {
@@ -124,10 +125,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
+                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hb-navy ${
                     isActive
-                      ? "text-[#C84312] font-bold"
-                      : "text-[#141A23] hover:text-[#C84312] hover:bg-[#FAF9F6]"
+                      ? "text-hb-brand-text font-bold"
+                      : "text-hb-text-primary hover:text-hb-brand-text hover:bg-hb-surface-muted"
                   }`}
                 >
                   {item.label}
@@ -136,17 +137,19 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             })}
           </nav>
 
-          {/* 3. 우측 주요 행동 (견적함 · 전화 상담 · 카카오톡 상담) */}
+          {/* 3. 우측 주요 행동 (색감 모드 · 견적함 · 전화 상담 · 카카오톡 상담) */}
           <div className="flex items-center justify-end gap-2 shrink-0">
+            <ThemeSwitcher />
+
             {basketCount > 0 && (
               <Link
                 href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#FFF4EE] border border-[#F5CEBE] px-3.5 h-10 text-hb-xs font-bold text-[#C84312] hover:bg-[#C84312] hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-hb-warm border border-hb-border-strong px-3.5 h-10 text-hb-xs font-bold text-hb-text-primary hover:bg-hb-navy hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 whitespace-nowrap"
                 title="담아둔 관심 매물 견적함 문의하기"
               >
                 <Icon d={ICON.bag} className="w-3.5 h-3.5" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[#C84312] px-1 text-hb-xs font-bold text-white tabular-nums">
+                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-hb-navy px-1 text-hb-xs font-bold text-white tabular-nums">
                   {basketCount}
                 </span>
               </Link>
@@ -157,12 +160,12 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 h-10 text-hb-sm font-bold text-[#141A23] hover:border-[#CFC8BA] hover:bg-[#F5F3EE] active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 whitespace-nowrap tabular-nums"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-hb-border bg-hb-surface-muted px-3.5 h-10 text-hb-sm font-bold text-hb-text-primary hover:border-hb-navy hover:bg-white active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 whitespace-nowrap tabular-nums"
               aria-label={`전화 상담 ${STORE.tel}`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#C84312]" />
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text" />
               <span>전화 상담</span>
-              <span className="hidden xl:inline text-[#334155] font-bold">
+              <span className="hidden xl:inline text-hb-text-secondary font-bold">
                 {STORE.tel}
               </span>
             </a>
@@ -186,7 +189,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-[#141A23] lg:hidden hover:bg-[#F5F3EE] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] active:scale-[0.96] transition-[background-color,transform] duration-150"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-hb-border bg-hb-surface-muted text-hb-text-primary lg:hidden hover:bg-hb-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hb-navy active:scale-[0.96] transition-[background-color,transform] duration-150"
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >

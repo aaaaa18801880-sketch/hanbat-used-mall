@@ -539,79 +539,79 @@ export default function Home({
         <section
           id="hero-section"
           aria-labelledby="hero-title"
-          className="relative w-full border-b border-[#E5E3DC] hb-ambient-hero"
+          className="relative w-full border-b border-hb-border hb-ambient-hero text-hb-text-primary"
         >
-          <div className="hb-container py-5 sm:py-8 lg:py-11">
+          <div className="hb-container py-6 sm:py-9 lg:py-12">
             <div className="grid items-center gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10">
               {/* 좌측 (7열): 브리핑 아이브로우 + H1 + 헤어라인 3대 출고 스펙 + 주/보조 CTA */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-center">
                 <div>
                   <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-y-1 gap-x-2 text-hb-xs sm:text-hb-sm font-bold">
-                    <span className="font-mono text-[#C84312] tracking-tight">
+                    <span className="font-mono text-hb-brand-text tracking-tight">
                       SINCE {STORE.since} · {OPERATING_YEARS}년 직영
                     </span>
-                    <span className="hidden sm:inline text-[#CBD2DC]" aria-hidden="true">
+                    <span className="hidden sm:inline text-hb-border-strong" aria-hidden="true">
                       ·
                     </span>
-                    <span className="font-semibold text-[#475569]">
+                    <span className="font-medium text-hb-text-muted">
                       {STORE.jibunAddress} 1·2층 직영 쇼룸
                     </span>
                   </div>
 
                   <h1
                     id="hero-title"
-                    className="mt-2.5 hb-fluid-h1 text-[#141A23] break-keep font-bold [text-wrap:balance]"
+                    className="mt-3 hb-fluid-h1 text-hb-text-primary break-keep font-bold [text-wrap:balance]"
                   >
                     고압세척과 작동 점검을 마친
                     <br />
-                    <span className="text-[#C84312]">검증된 중고가전</span> · 업소용 설비
+                    <span className="text-hb-brand-text">검증된 중고가전</span> · 업소용 설비
                   </h1>
 
-                  <p className="mt-2.5 max-w-xl text-hb-sm sm:text-hb-base leading-[1.6] text-[#475569] break-keep [text-wrap:pretty]">
+                  <p className="mt-3 max-w-xl text-hb-sm sm:text-hb-base leading-[1.65] text-hb-text-secondary break-keep [text-wrap:pretty]">
                     가정용 냉장고·세탁기·에어컨부터 식당·카페 창업 주방설비까지, 배송 전 작동 점검 후{" "}
-                    <strong className="font-semibold text-[#141A23]">무상 A/S 보증</strong>과 함께 출고합니다.
+                    <strong className="font-semibold text-hb-text-primary">무상 A/S 보증</strong>과 함께 출고합니다.
                   </p>
 
-                  {/* 헤어라인 에디토리얼 3단 핵심 신뢰 지표 (무박스 경량 레이아웃) */}
-                  <div className="mt-4 max-w-2xl grid grid-cols-3 divide-x divide-[#E5E3DC] border-y border-[#E5E3DC] py-2.5 sm:py-3">
+                  {/* 헤어라인 에디토리얼 3단 핵심 신뢰 지표 */}
+                  <div className="mt-5 max-w-2xl grid grid-cols-3 divide-x divide-hb-border border-y border-hb-border py-3 sm:py-3.5">
                     <div className="pr-2.5 sm:pr-4 min-w-0">
-                      <span className="block text-hb-xs font-medium text-[#64748B] whitespace-nowrap">
+                      <span className="block text-hb-xs font-medium text-hb-text-muted whitespace-nowrap">
                         에어컨 · 냉난방
                       </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#C84312] tabular-nums whitespace-nowrap">
+                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text tabular-nums whitespace-nowrap">
                         {getCategoryWarrantyInfo("에어컨/냉난방기").compactLabel}
                       </strong>
                     </div>
                     <div className="px-2.5 sm:px-4 min-w-0">
-                      <span className="block text-hb-xs font-medium text-[#64748B] whitespace-nowrap">
+                      <span className="block text-hb-xs font-medium text-hb-text-muted whitespace-nowrap">
                         냉장 · 세탁
                         <span className="hidden sm:inline"> · 주요가전</span>
                       </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums whitespace-nowrap">
+                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-hb-text-primary tabular-nums whitespace-nowrap">
                         {getCategoryWarrantyInfo("냉장고").compactLabel}
                       </strong>
                     </div>
                     <div className="pl-2.5 sm:pl-4 min-w-0">
-                      <span className="block text-hb-xs font-medium text-[#64748B] whitespace-nowrap">
+                      <span className="block text-hb-xs font-medium text-hb-text-muted whitespace-nowrap">
                         방문 매입 · 증빙
                       </span>
-                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23] tabular-nums whitespace-nowrap">
+                      <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-hb-text-primary tabular-nums whitespace-nowrap">
                         당일 정산 · 계산서
                       </strong>
                     </div>
                   </div>
 
-                  {/* 핵심 행동 2개 위계 분리: 1차 주행동(실매물 확인 솔리드) + 2차 보조행동(방문 매입 아웃라인) */}
-                  <div className="mt-4 max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {/* 핵심 행동 2개 위계 분리 */}
+                  <div className="mt-5 max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Link
                       href="/gallery"
-                      className="group flex items-center justify-between gap-3 rounded-xl bg-[#141A23] px-4 py-3 text-left text-white hover:bg-[#1E2736] active:scale-[0.98] transition-[background-color,transform] duration-150"
+                      className="group flex items-center justify-between gap-3 rounded-2xl bg-hb-navy px-4 py-3.5 text-left text-white hover:bg-hb-navy-hover active:scale-[0.985] transition-[background-color,transform] duration-150 shadow-card"
                     >
                       <div className="min-w-0">
                         <span className="inline-flex items-center gap-2 text-hb-sm font-bold text-white">
                           <span>실매물 확인</span>
                           {sellingCount > 0 && (
-                            <span className="font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
+                            <span className="font-mono text-hb-xs font-bold text-white/80 tabular-nums">
                               {sellingCount}대
                             </span>
                           )}
@@ -622,45 +622,45 @@ export default function Home({
                       </div>
                       <Icon
                         d={ICON.arrow}
-                        className="w-4 h-4 shrink-0 text-[#FF8A50] transition-transform group-hover:translate-x-0.5"
+                        className="w-4 h-4 shrink-0 text-white transition-transform group-hover:translate-x-0.5"
                       />
                     </Link>
 
                     <Link
                       href="/purchase"
-                      className="group flex items-center justify-between gap-3 rounded-xl border border-[#DFDCD4] bg-white px-4 py-3 text-left text-[#141A23] hover:border-[#C84312] hover:bg-[#FFF9F6] active:scale-[0.98] transition-[background-color,border-color,transform] duration-150"
+                      className="group flex items-center justify-between gap-3 rounded-2xl border border-hb-border-strong bg-white px-4 py-3.5 text-left text-hb-text-primary hover:border-hb-navy hover:bg-hb-surface-muted active:scale-[0.985] transition-[background-color,border-color,transform] duration-150"
                     >
                       <div className="min-w-0">
-                        <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-[#141A23] group-hover:text-[#C84312] transition-colors">
+                        <span className="inline-flex items-center gap-1.5 text-hb-sm font-bold text-hb-text-primary">
                           <span>가전 · 폐업 설비 팔기</span>
                         </span>
-                        <span className="mt-0.5 block text-hb-xs text-[#64748B] truncate">
+                        <span className="mt-0.5 block text-hb-xs text-hb-text-muted truncate">
                           당일 방문 수거 · 현장 즉시 입금
                         </span>
                       </div>
                       <Icon
                         d={ICON.arrow}
-                        className="w-4 h-4 shrink-0 text-[#C84312] transition-transform group-hover:translate-x-0.5"
+                        className="w-4 h-4 shrink-0 text-hb-brand-text transition-transform group-hover:translate-x-0.5"
                       />
                     </Link>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-hb-xs text-[#64748B]">
+                  <div className="mt-3.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-hb-xs text-hb-text-muted">
                     <a
                       href={STORE.kakaoChat}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-semibold text-[#141A23] underline underline-offset-4 hover:text-[#C84312]"
+                      className="inline-flex items-center gap-1 font-semibold text-hb-text-primary underline underline-offset-4 hover:text-hb-brand-text"
                     >
-                      <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
+                      <Icon d={ICON.chat} className="w-3.5 h-3.5 text-hb-brand-text" />
                       <span>카카오톡 사진 1장 매입 견적</span>
                     </a>
-                    <span className="text-[#CBD2DC]" aria-hidden="true">
+                    <span className="text-hb-border-strong" aria-hidden="true">
                       ·
                     </span>
                     <Link
                       href="/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0"
-                      className="font-medium text-[#475569] hover:text-[#141A23] underline underline-offset-4"
+                      className="font-medium text-hb-text-secondary hover:text-hb-text-primary underline underline-offset-4"
                     >
                       식당·카페 업소용 설비 바로보기
                     </Link>
@@ -668,9 +668,9 @@ export default function Home({
                 </div>
               </div>
 
-              {/* 우측 (5열): 쇼룸 실물 외관 + 경량 현장 지표 + 단일 주소/길찾기 도크 */}
-              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-[#E5E3DC] bg-white">
-                <div className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden bg-[#F3F1EB]">
+              {/* 우측 (5열): 쇼룸 실물 외관 + 현장 지표 도크 */}
+              <div className="lg:col-span-5 min-w-0 flex flex-col justify-between rounded-2xl overflow-hidden border border-hb-border bg-white text-hb-text-primary shadow-card">
+                <div className="relative aspect-[16/10] sm:aspect-[4/3] w-full overflow-hidden bg-hb-warm">
                   <Image
                     src="/store-exterior.jpg"
                     alt={`${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`}
@@ -684,41 +684,41 @@ export default function Home({
                 </div>
 
                 {/* 경량 3단 현장 인프라 지표 바 */}
-                <div className="grid grid-cols-3 divide-x divide-[#EAE8E2] border-t border-[#EAE8E2] bg-[#FAFAF8] text-center sm:text-left">
+                <div className="grid grid-cols-3 divide-x divide-hb-border border-t border-hb-border bg-hb-surface-muted text-center sm:text-left">
                   <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                    <span className="block text-hb-xs font-medium text-[#64748B]">
+                    <span className="block text-hb-xs font-medium text-hb-text-muted">
                       전용 주차
                     </span>
-                    <strong className="block text-hb-xs font-bold text-[#141A23] tabular-nums">
+                    <strong className="block text-hb-xs font-bold text-hb-text-primary tabular-nums">
                       8대 · 1톤 상차
                     </strong>
                   </div>
                   <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                    <span className="block text-hb-xs font-medium text-[#64748B]">
+                    <span className="block text-hb-xs font-medium text-hb-text-muted">
                       출고 점검
                     </span>
-                    <strong className="block text-hb-xs font-bold text-[#141A23]">
+                    <strong className="block text-hb-xs font-bold text-hb-text-primary">
                       배송 전 작동 점검
                     </strong>
                   </div>
                   <div className="px-3 py-2 sm:px-4 sm:py-2.5">
-                    <span className="block text-hb-xs font-medium text-[#64748B]">
+                    <span className="block text-hb-xs font-medium text-hb-text-muted">
                       직영 배송
                     </span>
-                    <strong className="block text-hb-xs font-bold text-[#141A23]">
+                    <strong className="block text-hb-xs font-bold text-hb-text-primary">
                       당일 · 지정일 배차
                     </strong>
                   </div>
                 </div>
 
                 {/* 하단 단일 주소 + 영업시간 + 길찾기 도크 */}
-                <div className="border-t border-[#EAE8E2] px-3.5 py-3 sm:px-5 bg-white flex items-center justify-between gap-2.5">
+                <div className="border-t border-hb-border px-3.5 py-3 sm:px-5 bg-white flex items-center justify-between gap-2.5">
                   <div className="min-w-0">
-                    <p className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] truncate max-w-full">
-                      <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-[#C84312]" />
+                    <p className="inline-flex items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-hb-text-primary truncate max-w-full">
+                      <Icon d={ICON.pin} className="w-3.5 h-3.5 shrink-0 text-hb-brand-text" />
                       <span className="truncate">{STORE.roadAddress}</span>
                     </p>
-                    <p className="mt-0.5 text-hb-xs text-[#64748B] truncate tabular-nums">
+                    <p className="mt-0.5 text-hb-xs text-hb-text-muted truncate tabular-nums">
                       {STORE.hours} · {STORE.closed}
                     </p>
                   </div>
@@ -731,12 +731,12 @@ export default function Home({
                       });
                       setVisitModalOpen(true);
                     }}
-                    className="group shrink-0 inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-[#DFDCD4] bg-[#FAFAF8] px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-[#141A23] hover:text-white active:scale-[0.97] transition-[background-color,border-color,color,transform] duration-150 cursor-pointer"
+                    className="group shrink-0 inline-flex min-h-[38px] items-center gap-1.5 rounded-xl border border-hb-border-strong bg-hb-surface-muted px-3 py-1.5 text-hb-xs font-bold text-hb-text-primary hover:border-hb-navy hover:bg-hb-navy hover:text-white active:scale-[0.97] transition-[background-color,border-color,color,transform] duration-150 cursor-pointer"
                   >
-                    <span>길찾기 · 매장안내</span>
+                    <span>오시는 길</span>
                     <Icon
                       d={ICON.right}
-                      className="w-3.5 h-3.5 text-[#C84312] group-hover:text-white transition-[color,transform] duration-150 group-hover:translate-x-0.5"
+                      className="w-3.5 h-3.5 text-hb-brand-text group-hover:text-white transition-[color,transform] duration-150 group-hover:translate-x-0.5"
                     />
                   </button>
                 </div>
@@ -750,7 +750,7 @@ export default function Home({
             ════════════════════════════════════════════════════════════ */}
         <section
           aria-labelledby="category-heading"
-          className="border-b border-[#E2DDD3] bg-white"
+          className="border-b border-hb-border bg-white"
         >
           <CategoryPictogramBar
             embedded

@@ -34,6 +34,16 @@ import {
 } from "../../lib/inquiry-client";
 import { InquiryPhotoGuideModal } from "./inquiry-photo-guide-modal";
 import { type LinkedProductContext } from "./unified-inquiry-form";
+import {
+  WIZARD_QUICK_REGIONS,
+  applyQuickRegion,
+  getCategoryMeta,
+  getStep1PrimaryCta,
+  getStep3Readiness,
+  getWizardDisplayStep,
+  getWizardProgressPercent,
+  getWizardStepCount,
+} from "../../lib/purchase-wizard";
 
 const WIZARD_ENV_CHIPS: Record<InquiryTypeValue, readonly string[]> = {
   "구매 문의": [
@@ -204,7 +214,10 @@ export function V2InquirySectionWithWizard({
   const guideInfo =
     INQUIRY_PHOTO_GUIDES[inquiryType] || INQUIRY_PHOTO_GUIDES["내 물건 팔기"];
 
+  const [step1Hint, setStep1Hint] = useState<string | null>(null);
+
   const toggleCategory = (cat: string) => {
+    setStep1Hint(null);
     setSelectedCategories((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
@@ -222,22 +235,26 @@ export function V2InquirySectionWithWizard({
           )
         ) {
           setSelectedCategories([aiResult.applianceCategory]);
+          setStep1Hint(null);
           setStep(targetStep);
           return;
         }
         if (selectedFiles.length > 0) {
           setSelectedCategories(["기타"]);
+          setStep1Hint(null);
           setStep(targetStep);
           return;
         }
       }
-      toast.error(
+      const msg =
         inquiryType === "내 물건 팔기"
-          ? "사진을 첨부하시거나 처분할 품목을 1개 이상 선택해 주세요."
-          : "상담하실 품목을 1개 이상 선택해 주세요."
-      );
+          ? "사진을 먼저 올리시거나 정리하실 품목을 하나 이상 골라주세요."
+          : "상담하실 품목을 하나 이상 골라주세요.";
+      setStep1Hint(msg);
+      toast.error(msg);
       return;
     }
+    setStep1Hint(null);
     setStep(targetStep);
   };
 
@@ -257,6 +274,7 @@ export function V2InquirySectionWithWizard({
     if (error) toast.error(error);
     if (ok.length === 0) return;
 
+    setStep1Hint(null);
     setSelectedFiles((prev) => [...prev, ...ok]);
     updateFilePreviews((prev) => [...prev, ...previews]);
   };
@@ -475,71 +493,110 @@ export function V2InquirySectionWithWizard({
   };
 
   const isSell = inquiryType === "내 물건 팔기";
+  const totalSteps = getWizardStepCount(isSell, selectedFiles.length);
+  const displayStep = getWizardDisplayStep(step, isSell, selectedFiles.length);
+  const progressPercent = getWizardProgressPercent(
+    step,
+    isSell,
+    selectedFiles.length
+  );
+  const step1Cta = getStep1PrimaryCta({
+    isSell,
+    selectedCategoriesCount: selectedCategories.length,
+    selectedFilesCount: selectedFiles.length,
+  });
+  const step3Readiness = getStep3Readiness({
+    name,
+    phone,
+    password,
+    agreed,
+  });
 
   if (submittedSuccess) {
     return (
       <div
         role="status"
         aria-live="polite"
-        className="rounded-2xl border border-[#CCFBF1] bg-white p-6 sm:p-8 text-center space-y-4 shadow-2xs"
+        className="rounded-3xl bg-white p-6 sm:p-8 space-y-6"
       >
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#F0FDFA] text-[#0F766E] border border-[#99F6E4]">
-          <Icon d={ICON.check} className="w-6 h-6" />
-        </div>
-        <div className="space-y-1.5">
-          <h3 className="text-hb-lg font-bold text-[#141A23]">
-            {isSell ? "매입 견적 신청이 접수되었습니다" : "견적 상담이 접수되었습니다"}
-          </h3>
-          <p className="text-hb-sm text-[#475569] leading-relaxed break-keep">
-            {isSell
-              ? "접수하신 제품 사진과 지역을 매장 담당자가 확인한 뒤 빠른 매입 견적과 방문 수거 일정을 안내해 드리겠습니다."
-              : "요청하신 품목의 매장 작동 점검 상태와 배송 일정을 확인한 뒤 순차적으로 연락드리겠습니다."}
-          </p>
+        <div className="text-center space-y-3">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#F0FDFA] text-[#0F766E]">
+            <Icon d={ICON.check} className="w-7 h-7" />
+          </div>
+          <div className="space-y-1.5">
+            <h3 className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] text-[#141A23] break-keep">
+              {isSell
+                ? "매입 견적 신청이 완료되었어요"
+                : "견적 상담이 정상 접수되었어요"}
+            </h3>
+            <p className="mx-auto max-w-md text-hb-sm text-[#64748B] leading-relaxed break-keep">
+              {isSell
+                ? "남겨주신 사진과 지역을 매장 담당자가 확인한 뒤 빠른 매입 견적과 방문 수거 일정을 안내해 드릴게요."
+                : "요청하신 품목의 작동 점검 상태와 배송 일정을 확인한 뒤 순차적으로 연락드릴게요."}
+            </p>
+          </div>
         </div>
 
         {(submittedTitle || createdInquiryId) && (
-          <div className="mx-auto max-w-md rounded-xl border border-[#E2E6EC] bg-[#F8F9FA] px-4 py-3 text-left text-hb-xs text-[#334155] space-y-1">
+          <dl className="mx-auto max-w-md rounded-2xl bg-[#F6F5F1] px-5 py-4 divide-y divide-[#E8E6DF] text-hb-xs sm:text-hb-sm">
             {submittedTitle && (
-              <p className="truncate">
-                • 접수 내용:{" "}
-                <strong className="font-bold text-[#141A23]">{submittedTitle}</strong>
-              </p>
+              <div className="flex items-start justify-between gap-4 py-2 first:pt-0">
+                <dt className="font-medium text-[#64748B] shrink-0">접수 내용</dt>
+                <dd className="font-bold text-[#141A23] text-right break-keep">
+                  {submittedTitle}
+                </dd>
+              </div>
             )}
             {createdInquiryId && (
-              <p className="font-mono text-[#475569] tabular-nums">
-                • 접수 번호: #{createdInquiryId.slice(0, 8)}
-              </p>
+              <div className="flex items-center justify-between gap-4 py-2">
+                <dt className="font-medium text-[#64748B] shrink-0">접수 번호</dt>
+                <dd className="font-mono font-bold text-[#141A23] tabular-nums">
+                  #{createdInquiryId.slice(0, 8)}
+                </dd>
+              </div>
             )}
-          </div>
+            <div className="flex items-center justify-between gap-4 py-2 last:pb-0">
+              <dt className="font-medium text-[#64748B] shrink-0">보호 상태</dt>
+              <dd className="font-semibold text-[#0F766E]">비밀글 자동 보호</dd>
+            </div>
+          </dl>
         )}
 
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
+        <div className="mx-auto max-w-md space-y-2.5">
           <Link
             href="/inquiry"
-            className="hb-btn-primary h-10 px-4 text-hb-xs font-bold"
+            className="flex h-12 w-full items-center justify-center rounded-2xl bg-[#141A23] px-5 text-hb-sm font-bold text-white hover:bg-[#1E2736] active:scale-[0.985] transition-[background-color,transform] duration-150"
           >
-            문의게시판에서 답변 확인
+            문의 게시판에서 답변 확인하기
           </Link>
-          <a
-            href={STORE.kakaoChat}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() =>
-              trackEvent("click_kakao_consult", { location: "v2_inquiry_success" })
-            }
-            className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
-          >
-            카카오톡 사진·추가 문의
-          </a>
-          <a
-            href={telHref(STORE.tel)}
-            onClick={() =>
-              trackEvent("click_tel_consult", { location: "v2_inquiry_success" })
-            }
-            className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
-          >
-            {STORE.tel} 바로 통화
-          </a>
+          <div className="grid grid-cols-2 gap-2">
+            <a
+              href={STORE.kakaoChat}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() =>
+                trackEvent("click_kakao_consult", {
+                  location: "v2_inquiry_success",
+                })
+              }
+              className="flex h-11 items-center justify-center gap-1.5 rounded-2xl bg-[#FEE500] px-3 text-hb-xs sm:text-hb-sm font-bold text-[#191600] hover:bg-[#F2D900] transition-colors"
+            >
+              <Icon d={ICON.chat} className="w-4 h-4 shrink-0" />
+              <span>카톡 사진 추가</span>
+            </a>
+            <a
+              href={telHref(STORE.tel)}
+              onClick={() =>
+                trackEvent("click_tel_consult", {
+                  location: "v2_inquiry_success",
+                })
+              }
+              className="flex h-11 items-center justify-center gap-1.5 rounded-2xl bg-[#F6F5F1] px-3 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:bg-[#ECEAE3] transition-colors tabular-nums"
+            >
+              <Icon d={ICON.phone} className="w-4 h-4 text-[#C84312] shrink-0" />
+              <span>{STORE.tel}</span>
+            </a>
+          </div>
           {variant === "embedded" && (
             <button
               type="button"
@@ -549,9 +606,9 @@ export function V2InquirySectionWithWizard({
                 setSubmittedTitle("");
                 setStep(1);
               }}
-              className="hb-btn-outline h-10 px-4 text-hb-xs font-bold"
+              className="w-full py-2.5 text-hb-xs font-semibold text-[#64748B] hover:text-[#141A23] transition-colors cursor-pointer"
             >
-              새 문의 작성하기
+              다른 가전 추가로 신청하기
             </button>
           )}
         </div>
@@ -565,82 +622,90 @@ export function V2InquirySectionWithWizard({
         onSubmit={handleWizardSubmit}
         className={
           variant === "embedded"
-            ? "space-y-5"
-            : "rounded-2xl border border-[#E2E6EC] bg-white p-4 sm:p-6 space-y-5 shadow-2xs"
+            ? "space-y-6"
+            : "rounded-3xl border border-[#EAE8E2] bg-white p-5 sm:p-7 space-y-6"
         }
       >
-        {/* 3단계 경량 헤어라인 인디케이터 (완료 단계 클릭 이동 지원) */}
-        <ol className="grid grid-cols-3 border-b border-[#EAE8E2]">
-          {[
-            { num: 1 as const, label: isSell ? "사진·품목" : "상담 유형·품목" },
-            { num: 2 as const, label: "사진·가이드" },
-            { num: 3 as const, label: "현장조건·접수" },
-          ].map((s) => {
-            const isPast = step > s.num;
-            const isCurrent = step === s.num;
-            return (
-              <li
-                key={s.num}
-                aria-current={isCurrent ? "step" : undefined}
-                className={`relative pb-3 transition-colors ${
-                  isCurrent
-                    ? "text-[#141A23]"
-                    : isPast
-                    ? "text-[#C84312]"
-                    : "text-[#94A3B8]"
-                }`}
+        {/* 토스·증권앱 스타일 상단 슬림 프로그레스 바 + 뒤로가기 */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-2 min-h-[32px]">
+            {step > 1 ? (
+              <button
+                type="button"
+                onClick={() =>
+                  setStep(
+                    step === 3 && isSell && selectedFiles.length > 0
+                      ? 1
+                      : step === 3
+                      ? 2
+                      : 1
+                  )
+                }
+                className="inline-flex items-center gap-1.5 -ml-1.5 rounded-xl px-2 py-1 text-hb-xs sm:text-hb-sm font-semibold text-[#475569] hover:bg-[#F5F4F0] hover:text-[#141A23] transition-colors cursor-pointer"
               >
-                <button
-                  type="button"
-                  disabled={!isPast}
-                  onClick={() => {
-                    if (isPast) setStep(s.num);
-                  }}
-                  className={`flex w-full items-center gap-1.5 sm:gap-2 text-left text-hb-xs font-bold ${
-                    isPast ? "cursor-pointer hover:opacity-80" : "cursor-default"
-                  }`}
-                >
-                  <span
-                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-hb-xs font-bold tabular-nums ${
-                      isCurrent
-                        ? "bg-[#141A23] text-white"
-                        : isPast
-                        ? "bg-[#C84312] text-white"
-                        : "bg-[#EFECE6] text-[#64748B]"
-                    }`}
-                  >
-                    {isPast ? (
-                      <Icon d={ICON.check} className="w-3 h-3" />
-                    ) : (
-                      s.num
-                    )}
-                  </span>
-                  <span className="truncate">{s.label}</span>
-                </button>
-                <span
-                  aria-hidden="true"
-                  className={`absolute inset-x-0 bottom-0 h-[2px] transition-colors ${
-                    isCurrent
-                      ? "bg-[#141A23]"
-                      : isPast
-                      ? "bg-[#C84312]/40"
-                      : "bg-transparent"
-                  }`}
-                />
-              </li>
-            );
-          })}
-        </ol>
+                <Icon d={ICON.left} className="w-4 h-4" />
+                <span>이전 단계</span>
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 text-hb-xs font-semibold text-[#C84312]">
+                <span>{isSell ? "30초 간편 매입 접수" : "30초 간편 견적 접수"}</span>
+              </span>
+            )}
 
-        {/* STEP 1: 상담 유형 & 품목 선택 */}
+            <div className="flex items-center gap-2 text-hb-xs font-semibold text-[#64748B] tabular-nums">
+              <span className="text-[#141A23] font-bold">
+                {displayStep} / {totalSteps}
+              </span>
+              <span aria-hidden="true">·</span>
+              <span>
+                {step === 1
+                  ? isSell
+                    ? "품목·사진"
+                    : "유형·품목"
+                  : step === 2
+                  ? "사진 첨부"
+                  : "방문·연락처"}
+              </span>
+            </div>
+          </div>
+
+          <div
+            role="progressbar"
+            aria-label="견적 신청 진행률"
+            aria-valuenow={progressPercent}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            className="h-1.5 w-full overflow-hidden rounded-full bg-[#EFECE6]"
+          >
+            <div
+              className="h-full w-full origin-left rounded-full bg-[#141A23] transition-transform duration-300 ease-out"
+              style={{ transform: `scaleX(${progressPercent / 100})` }}
+            />
+          </div>
+        </div>
+
+        {/* STEP 1: 대화형 질문 + 사진 먼저 올리기 + 토널 품목 타일 */}
         {step === 1 && (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <div className="space-y-1.5">
+              <h3 className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] leading-[1.3] text-[#141A23] break-keep [text-wrap:balance]">
+                {isSell
+                  ? "어떤 가전을 정리하시나요?"
+                  : "어떤 가전 상담이 필요하신가요?"}
+              </h3>
+              <p className="text-hb-sm text-[#64748B] leading-relaxed break-keep">
+                {isSell
+                  ? "사진만 먼저 올려주셔도 되고, 아래에서 품목을 여러 개 골라도 돼요."
+                  : "상담 유형과 품목을 골라주시면 확인 후 안내해 드릴게요."}
+              </p>
+            </div>
+
             {!isSell && fixedType !== "내 물건 팔기" && basketItems.length > 0 && (
-              <div className="rounded-lg border border-[#3B82F6]/30 bg-[#EFF6FF] p-3 text-hb-xs text-[#1E3A8A] flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5">
-                  <Icon d={ICON.bag} className="w-4 h-4 text-[#2563EB] shrink-0" />
-                  <span>
-                    견적함에 담긴 관심 매물 {basketItems.length}건을 문의 내용에 자동 반영하기
+              <div className="rounded-2xl bg-[#F0F9FF] p-4 text-hb-xs sm:text-hb-sm text-[#0C4A6E] flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Icon d={ICON.bag} className="w-4 h-4 text-[#0284C7] shrink-0" />
+                  <span className="font-semibold">
+                    견적함에 담아둔 관심 매물 {basketItems.length}건이 있어요
                   </span>
                 </div>
                 <button
@@ -654,24 +719,28 @@ export function V2InquirySectionWithWizard({
                       setMemo(summary.autoDescription);
                     }
                     const cats = Array.from(
-                      new Set(basketItems.map((it) => it.category).filter(Boolean))
+                      new Set(
+                        basketItems.map((it) => it.category).filter(Boolean)
+                      )
                     );
                     if (cats.length > 0) {
                       setSelectedCategories(cats);
                     }
                     toast.success("견적함 매물이 문의 내용에 자동 반영되었습니다.");
                   }}
-                  className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold bg-white text-[#1D4ED8] hover:bg-blue-50 border-[#93C5FD] cursor-pointer"
+                  className="rounded-xl bg-white px-3.5 py-2 text-hb-xs font-bold text-[#0369A1] hover:bg-[#E0F2FE] transition-colors cursor-pointer shrink-0"
                 >
-                  견적함 자동 반영
+                  한 번에 불러오기
                 </button>
               </div>
             )}
 
             {!hideTypeSelector && !fixedType && (
-              <div>
-                <span className="hb-label mb-2">1. 어떤 상담이 필요하신가요?</span>
-                <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-2.5">
+                <span className="block text-hb-xs font-bold text-[#64748B]">
+                  상담 유형
+                </span>
+                <div className="grid grid-cols-2 gap-2.5">
                   {INQUIRY_TYPES.map((t) => {
                     const active = inquiryType === t;
                     return (
@@ -681,14 +750,15 @@ export function V2InquirySectionWithWizard({
                         onClick={() => {
                           setInquiryType(t);
                           setSelectedChips([]);
+                          setStep1Hint(null);
                         }}
-                        className={`h-12 rounded-xl border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
+                        className={`h-12 rounded-2xl px-4 text-hb-sm font-bold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.985] cursor-pointer ${
                           active
-                            ? "border-[#141A23] bg-[#141A23] text-white shadow-2xs"
-                            : "border-[#E2E6EC] bg-[#F7F8FA] text-[#141A23] hover:border-[#CBD2DC]"
+                            ? "bg-[#141A23] text-white"
+                            : "bg-[#F6F5F1] text-[#334155] hover:bg-[#ECEAE3]"
                         }`}
                       >
-                        {t === "내 물건 팔기" ? "가전 팔기(방문매입)" : t}
+                        {t === "내 물건 팔기" ? "가전 팔기 (방문매입)" : t}
                       </button>
                     );
                   })}
@@ -696,188 +766,30 @@ export function V2InquirySectionWithWizard({
               </div>
             )}
 
+            {/* 매입 모드 전용: 토스 스타일 전체 너비 사진 먼저 올리기 탭 존 */}
             {isSell && (
-              <div className="rounded-xl border border-[#EAE8E2] bg-[#FAFAF8] p-3.5 sm:p-4 space-y-3">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div>
-                    <p className="text-hb-xs font-semibold text-[#C84312]">
-                      사진 먼저 올리기 (선택)
-                    </p>
-                    <p className="mt-0.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] break-keep">
-                      제품 사진이나 명판 스티커를 올리면 품목·모델명을 자동으로 채워드리고 바로 연락처 단계로 넘어갑니다
-                    </p>
-                  </div>
-                  <span className="font-mono text-hb-xs font-semibold text-[#64748B] tabular-nums shrink-0">
-                    {selectedFiles.length} / {MAX_PHOTOS}장
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2.5">
-                  {filePreviews.map((src, i) => (
-                    <div
-                      key={src}
-                      className="relative aspect-square w-16 sm:w-20 overflow-hidden rounded-xl border border-[#DFDCD4] bg-white shrink-0"
-                    >
-                      <SafeImg
-                        src={src}
-                        alt={`선택 사진 ${i + 1}`}
-                        className="h-full w-full object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveFile(i)}
-                        aria-label="사진 제거"
-                        className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600 transition-colors"
-                      >
-                        <Icon d={ICON.close} className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-
-                  {selectedFiles.length < MAX_PHOTOS && (
-                    <label className="flex aspect-square w-16 sm:w-20 cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-[#CBD2DC] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#C84312] hover:text-[#C84312] transition-colors shrink-0">
-                      <Icon d={ICON.camera} className="w-4 h-4" />
-                      <span className="mt-1">+ 사진</span>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        multiple
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                    </label>
-                  )}
-
-                  {selectedFiles.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={handleAiPhotoAnalyze}
-                      disabled={analyzingAi}
-                      className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg bg-[#141A23] px-3.5 py-2 text-hb-xs font-bold text-white hover:bg-[#1E2736] transition-[background-color,transform] active:scale-[0.97] disabled:opacity-50 cursor-pointer"
-                    >
-                      <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0 text-[#FF8A50]" />
-                      <span>
-                        {analyzingAi
-                          ? "사진 분석 중..."
-                          : "사진에서 품목·모델명 자동 채우기"}
+              <div className="space-y-3">
+                {selectedFiles.length === 0 ? (
+                  <label className="group flex w-full cursor-pointer items-center justify-between gap-3.5 rounded-2xl bg-[#F6F5F1] p-4 sm:p-5 hover:bg-[#EFECE4] active:scale-[0.995] transition-[background-color,transform] duration-150">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white text-[#C84312] shadow-2xs group-hover:scale-[1.03] transition-transform">
+                        <Icon d={ICON.camera} className="w-5 h-5" />
                       </span>
-                    </button>
-                  )}
-                </div>
-
-                {aiResult && (
-                  <div className="rounded-lg border border-[#CCFBF1] bg-white p-2.5 text-hb-xs text-[#0F766E] flex items-start gap-2">
-                    <Icon
-                      d={ICON.check}
-                      className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5"
-                    />
-                    <div className="leading-relaxed">
-                      <strong className="font-bold text-[#141A23]">
-                        자동 입력 완료:
-                      </strong>{" "}
-                      {[
-                        aiResult.applianceCategory,
-                        aiResult.title,
-                        aiResult.modelNumber,
-                      ]
-                        .filter(Boolean)
-                        .join(" · ")}
+                      <div className="min-w-0">
+                        <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23] leading-snug">
+                          사진부터 먼저 올리기
+                          <span className="ml-1.5 font-semibold text-hb-xs text-[#C84312]">
+                            가장 빨라요
+                          </span>
+                        </p>
+                        <p className="mt-0.5 text-hb-xs text-[#64748B] leading-relaxed break-keep">
+                          정면·명판 스티커를 올리면 품목과 모델명을 자동으로 채워드려요
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div>
-              <span className="hb-label mb-2">
-                {hideTypeSelector || fixedType
-                  ? "처분하실 품목을 선택해 주세요 (사진 첨부 시 생략 가능 · 복수 선택)"
-                  : "2. 해당되는 품목을 모두 선택해 주세요 (복수 선택)"}
-              </span>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {PRODUCT_CATEGORIES.map((cat) => {
-                  const active = selectedCategories.includes(cat);
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => toggleCategory(cat)}
-                      className={`flex h-11 items-center justify-between rounded-lg border px-3 text-hb-sm font-semibold transition-[color,background-color,border-color] duration-150 cursor-pointer ${
-                        active
-                          ? "border-[#C84312] bg-[#FFF8F4] text-[#C84312] font-bold"
-                          : "border-[#E5E3DC] bg-white text-[#334155] hover:border-[#141A23]"
-                      }`}
-                    >
-                      <span>{cat}</span>
-                      <Icon
-                        d={active ? ICON.check : ICON.plus}
-                        className="w-3.5 h-3.5 shrink-0"
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-3 flex justify-end border-t border-[#EAE8E2]">
-              <button
-                type="button"
-                onClick={goToPhotoStep}
-                className="hb-btn-primary h-11 px-7 text-hb-sm w-full sm:w-auto"
-              >
-                <span>
-                  {isSell && selectedFiles.length > 0
-                    ? "다음 단계 (수거 지역·연락처 입력)"
-                    : "다음 단계 (사진 첨부)"}
-                </span>
-                <Icon d={ICON.arrow} className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* STEP 2: 사진 첨부(선택) + 현장 조건 칩 + 지역 입력 */}
-        {step === 2 && (
-          <div className="space-y-4">
-            {/* 사진 첨부 섹션 (한 화면 직접 내장) */}
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="hb-label">
-                  {hideTypeSelector || fixedType
-                    ? "2. 제품 사진 첨부 (선택, 최대 3장)"
-                    : "3. 제품 사진 첨부 (선택, 최대 3장)"}
-                </span>
-                <span className="text-hb-xs text-[#64748B]">
-                  {selectedFiles.length} / {MAX_PHOTOS}장
-                </span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                {filePreviews.map((src, i) => (
-                  <div
-                    key={src}
-                    className="relative aspect-square w-20 sm:w-24 overflow-hidden rounded-lg border border-[#E2E6EC] bg-[#F1F3F6] shrink-0"
-                  >
-                    <SafeImg
-                      src={src}
-                      alt={`선택 사진 ${i + 1}`}
-                      className="h-full w-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveFile(i)}
-                      aria-label="사진 제거"
-                      className="absolute right-1 top-1 grid h-5 w-5 place-items-center rounded-full bg-black/75 text-white hover:bg-red-600 transition-colors"
-                    >
-                      <Icon d={ICON.close} className="w-3 h-3" />
-                    </button>
-                  </div>
-                ))}
-
-                {selectedFiles.length < MAX_PHOTOS && (
-                  <label className="flex aspect-square w-20 sm:w-24 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-[#E2E6EC] bg-[#F7F8FA] text-hb-xs font-semibold text-[#64748B] hover:border-[#E8521A] hover:text-[#E8521A] transition-colors shrink-0">
-                    <Icon d={ICON.camera} className="w-5 h-5 text-[#94A3B8]" />
-                    <span className="mt-1">+ 사진 추가</span>
+                    <span className="hidden sm:inline-flex shrink-0 items-center justify-center rounded-xl bg-white px-3.5 py-2 text-hb-xs font-bold text-[#141A23] shadow-2xs group-hover:bg-[#141A23] group-hover:text-white transition-colors">
+                      사진 선택
+                    </span>
                     <input
                       type="file"
                       accept="image/*"
@@ -886,34 +798,304 @@ export function V2InquirySectionWithWizard({
                       onChange={handleFileChange}
                     />
                   </label>
+                ) : (
+                  <div className="rounded-2xl bg-[#F6F5F1] p-4 sm:p-5 space-y-3.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-hb-sm font-bold text-[#141A23]">
+                        올린 사진
+                        <span className="ml-1.5 font-mono text-hb-xs font-bold text-[#C84312] tabular-nums">
+                          {selectedFiles.length} / {MAX_PHOTOS}장
+                        </span>
+                      </p>
+                      <span className="text-hb-xs font-medium text-[#0F766E]">
+                        바로 연락처 단계로 넘어가요
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      {filePreviews.map((src, i) => (
+                        <div
+                          key={src}
+                          className="relative aspect-square w-20 overflow-hidden rounded-2xl bg-white ring-1 ring-[#E5E3DC] shrink-0"
+                        >
+                          <SafeImg
+                            src={src}
+                            alt={`선택 사진 ${i + 1}`}
+                            className="h-full w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFile(i)}
+                            aria-label={`사진 ${i + 1} 제거`}
+                            className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-[#141A23]/80 text-white hover:bg-[#C84312] transition-colors cursor-pointer"
+                          >
+                            <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {selectedFiles.length < MAX_PHOTOS && (
+                        <label className="flex aspect-square w-20 cursor-pointer flex-col items-center justify-center rounded-2xl bg-white text-hb-xs font-semibold text-[#475569] ring-1 ring-dashed ring-[#CFCBC0] hover:text-[#C84312] hover:ring-[#C84312] transition-colors shrink-0">
+                          <Icon d={ICON.plus} className="w-4 h-4" />
+                          <span className="mt-1">추가</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={handleAiPhotoAnalyze}
+                      disabled={analyzingAi}
+                      className="flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#141A23] px-4 text-hb-xs sm:text-hb-sm font-bold text-white hover:bg-[#1E2736] active:scale-[0.985] transition-[background-color,transform] disabled:opacity-50 cursor-pointer"
+                    >
+                      <Icon
+                        d={ICON.sparkles}
+                        className="w-4 h-4 shrink-0 text-[#FF8A50]"
+                      />
+                      <span>
+                        {analyzingAi
+                          ? "사진에서 품목과 모델명을 읽는 중..."
+                          : "사진에서 품목·모델명 자동 채우기"}
+                      </span>
+                    </button>
+
+                    {aiResult && (
+                      <div className="rounded-xl bg-white p-3 text-hb-xs text-[#0F766E] flex items-start gap-2">
+                        <Icon
+                          d={ICON.check}
+                          className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5"
+                        />
+                        <div className="leading-relaxed">
+                          <strong className="font-bold text-[#141A23]">
+                            자동 입력 완료 ·
+                          </strong>{" "}
+                          {[
+                            aiResult.applianceCategory,
+                            aiResult.title,
+                            aiResult.modelNumber,
+                          ]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 품목 선택 타일 (2열 균형 그리드 · 마지막 '기타' 전체 폭) */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-hb-xs font-bold text-[#64748B]">
+                  {isSell
+                    ? "또는 정리하실 품목 선택 (복수 선택)"
+                    : "상담 품목 선택 (복수 선택)"}
+                </span>
+                {selectedCategories.length > 0 && (
+                  <span className="font-mono text-hb-xs font-bold text-[#C84312] tabular-nums">
+                    {selectedCategories.length}개 선택됨
+                  </span>
                 )}
               </div>
 
-              {selectedFiles.length > 0 && (
-                <div className="mt-2.5 space-y-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {PRODUCT_CATEGORIES.map((cat, idx) => {
+                  const active = selectedCategories.includes(cat);
+                  const meta = getCategoryMeta(cat);
+                  const isLastOdd =
+                    idx === PRODUCT_CATEGORIES.length - 1 &&
+                    PRODUCT_CATEGORIES.length % 2 === 1;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => toggleCategory(cat)}
+                      className={`group flex items-center justify-between gap-3 rounded-2xl p-4 text-left transition-[background-color,box-shadow,transform] duration-150 active:scale-[0.985] cursor-pointer ${
+                        isLastOdd ? "sm:col-span-2" : ""
+                      } ${
+                        active
+                          ? "bg-[#FFF6F1] ring-2 ring-[#C84312]"
+                          : "bg-[#F6F5F1] hover:bg-[#EFECE4]"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <span
+                          className={`block text-hb-sm sm:text-hb-base font-bold leading-snug ${
+                            active ? "text-[#C84312]" : "text-[#141A23]"
+                          }`}
+                        >
+                          {meta.label}
+                        </span>
+                        {meta.hint && (
+                          <span className="mt-0.5 block text-hb-xs text-[#64748B] truncate">
+                            {meta.hint}
+                          </span>
+                        )}
+                      </div>
+                      <span
+                        aria-hidden="true"
+                        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${
+                          active
+                            ? "bg-[#C84312] text-white"
+                            : "bg-white text-[#94A3B8] group-hover:text-[#141A23]"
+                        }`}
+                      >
+                        <Icon
+                          d={active ? ICON.check : ICON.plus}
+                          className="w-3.5 h-3.5"
+                        />
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {step1Hint && (
+              <p
+                role="alert"
+                className="rounded-xl bg-[#FFF4EE] px-3.5 py-2.5 text-hb-xs font-semibold text-[#C84312]"
+              >
+                {step1Hint}
+              </p>
+            )}
+
+            {/* 하단 풀-위드 토스 스타일 메인 CTA */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={goToPhotoStep}
+                className={`flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl px-6 text-hb-base font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.985] cursor-pointer ${
+                  step1Cta.ready
+                    ? "bg-[#141A23] text-white hover:bg-[#1E2736]"
+                    : "bg-[#ECEAE3] text-[#475569] hover:bg-[#E2DFD6]"
+                }`}
+              >
+                <span>{step1Cta.label}</span>
+                {step1Cta.ready && <Icon d={ICON.arrow} className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: 사진 첨부 (선택) + 친절한 촬영 가이드 */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <div className="space-y-1.5">
+              <h3 className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] leading-[1.3] text-[#141A23] break-keep [text-wrap:balance]">
+                사진을 올려주시면 더 정확하게 봐드려요
+              </h3>
+              <p className="text-hb-sm text-[#64748B] leading-relaxed break-keep">
+                정면 1장, 모델명 스티커 1장이면 충분해요. 지금 없어도 바로 다음으로 넘어갈 수 있어요.
+              </p>
+            </div>
+
+            {/* 사진 업로드 영역 */}
+            <div className="space-y-3">
+              {selectedFiles.length === 0 ? (
+                <label className="group flex flex-col items-center justify-center gap-2.5 rounded-2xl bg-[#F6F5F1] px-5 py-9 text-center cursor-pointer hover:bg-[#EFECE4] transition-colors">
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-[#C84312] shadow-2xs group-hover:scale-[1.04] transition-transform">
+                    <Icon d={ICON.camera} className="w-5 h-5" />
+                  </span>
+                  <div className="space-y-0.5">
+                    <p className="text-hb-sm sm:text-hb-base font-bold text-[#141A23]">
+                      여기를 눌러 사진 선택하기
+                    </p>
+                    <p className="text-hb-xs text-[#64748B]">
+                      최대 {MAX_PHOTOS}장까지 한 번에 올릴 수 있어요
+                    </p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                </label>
+              ) : (
+                <div className="rounded-2xl bg-[#F6F5F1] p-4 sm:p-5 space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-hb-sm font-bold text-[#141A23]">
+                      첨부된 사진
+                    </span>
+                    <span className="font-mono text-hb-xs font-bold text-[#C84312] tabular-nums">
+                      {selectedFiles.length} / {MAX_PHOTOS}장
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    {filePreviews.map((src, i) => (
+                      <div
+                        key={src}
+                        className="relative aspect-square w-20 sm:w-24 overflow-hidden rounded-2xl bg-white ring-1 ring-[#E5E3DC] shrink-0"
+                      >
+                        <SafeImg
+                          src={src}
+                          alt={`선택 사진 ${i + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(i)}
+                          aria-label={`사진 ${i + 1} 제거`}
+                          className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-[#141A23]/80 text-white hover:bg-[#C84312] transition-colors cursor-pointer"
+                        >
+                          <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+
+                    {selectedFiles.length < MAX_PHOTOS && (
+                      <label className="flex aspect-square w-20 sm:w-24 cursor-pointer flex-col items-center justify-center rounded-2xl bg-white text-hb-xs font-semibold text-[#475569] ring-1 ring-dashed ring-[#CFCBC0] hover:text-[#C84312] hover:ring-[#C84312] transition-colors shrink-0">
+                        <Icon d={ICON.plus} className="w-5 h-5" />
+                        <span className="mt-1">추가</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                    )}
+                  </div>
+
                   <button
                     type="button"
                     onClick={handleAiPhotoAnalyze}
                     disabled={analyzingAi}
-                    className="inline-flex items-center gap-1.5 rounded-lg border border-[#BAE6FD] bg-[#F0F9FF] px-3.5 py-2 text-hb-xs font-bold text-[#0369A1] hover:bg-[#BAE6FD]/40 transition-[background-color,transform] active:scale-[0.96] disabled:opacity-50 cursor-pointer shadow-2xs"
+                    className="flex h-11 w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#141A23] px-4 text-hb-xs sm:text-hb-sm font-bold text-white hover:bg-[#1E2736] active:scale-[0.985] transition-[background-color,transform] disabled:opacity-50 cursor-pointer"
                   >
-                    <Icon d={ICON.sparkles} className="w-3.5 h-3.5 shrink-0" />
+                    <Icon
+                      d={ICON.sparkles}
+                      className="w-4 h-4 shrink-0 text-[#FF8A50]"
+                    />
                     <span>
                       {analyzingAi
-                        ? "AI 사진 판독 및 품목 분석 중..."
-                        : "AI 사진 판독으로 품목·모델명 자동입력"}
+                        ? "사진 분석 중..."
+                        : "사진에서 품목·모델명 자동 채우기"}
                     </span>
                   </button>
 
                   {aiResult && (
-                    <div className="rounded-lg border border-[#CCFBF1] bg-[#F0FDFA] p-2.5 text-hb-xs text-[#0F766E] flex items-start gap-2">
+                    <div className="rounded-xl bg-white p-3 text-hb-xs text-[#0F766E] flex items-start gap-2">
                       <Icon
                         d={ICON.check}
                         className="w-4 h-4 text-[#0D9488] shrink-0 mt-0.5"
                       />
                       <div className="leading-relaxed">
                         <strong className="font-bold text-[#141A23]">
-                          AI 판독 결과 적용됨:
+                          자동 입력 완료 ·
                         </strong>{" "}
                         {[
                           aiResult.applianceCategory,
@@ -929,66 +1111,55 @@ export function V2InquirySectionWithWizard({
                 </div>
               )}
 
-              <p className="mt-2 text-hb-xs text-[#64748B]">
-                제품 전면 또는 모델명 명판 스티커 사진을 첨부하시면 가장 신속하고 정확한 견적을 받으실 수 있습니다. (생략 가능)
-              </p>
-
-              {/* 권장 촬영 참고 사진 가이드 (실제 예시 그래픽 + 3단계 요약 카드 + 라이트박스 확대) */}
-              <div className="mt-3 overflow-hidden rounded-xl border border-[#E2E6EC] bg-[#F7F8FA]">
-                <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border-b border-[#E2E6EC]">
-                  <div className="flex items-center gap-1.5 text-hb-xs font-bold text-[#141A23]">
-                    <Icon d={ICON.camera} className="w-3.5 h-3.5 text-[#E8521A]" />
-                    <span>권장 촬영 참고 사진</span>
-                    <span className="text-[#94A3B8] font-normal hidden sm:inline">
-                      · {guideInfo.subtitle}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setZoomGuide(true)}
-                      className="hb-btn-outline h-7 px-2.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23]"
-                    >
-                      크게 보기
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setShowGuide((prev) => !prev)}
-                      className="rounded p-1 text-[#64748B] hover:text-[#141A23]"
-                      aria-label={showGuide ? "가이드 접기" : "가이드 펼치기"}
-                    >
-                      <Icon
-                        d={showGuide ? ICON.up : ICON.down}
-                        className="w-4 h-4"
-                      />
-                    </button>
-                  </div>
+              {/* 접이식 촬영 도움말 (필요할 때만 펼침) */}
+              <div className="overflow-hidden rounded-2xl border border-[#EAE8E2] bg-white">
+                <div className="flex items-center justify-between gap-2 px-4 py-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowGuide((prev) => !prev)}
+                    aria-expanded={showGuide}
+                    className="flex flex-1 items-center gap-2 text-left text-hb-xs sm:text-hb-sm font-semibold text-[#334155] hover:text-[#141A23] cursor-pointer"
+                  >
+                    <Icon
+                      d={ICON.camera}
+                      className="w-4 h-4 text-[#C84312] shrink-0"
+                    />
+                    <span>어떻게 찍으면 견적이 잘 나오나요?</span>
+                    <Icon
+                      d={showGuide ? ICON.up : ICON.down}
+                      className="w-4 h-4 text-[#94A3B8] ml-auto"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setZoomGuide(true)}
+                    className="rounded-lg bg-[#F6F5F1] px-2.5 py-1.5 text-hb-xs font-bold text-[#141A23] hover:bg-[#ECEAE3] transition-colors shrink-0 cursor-pointer"
+                  >
+                    예시 보기
+                  </button>
                 </div>
 
                 {showGuide && (
-                  <div>
-                    {/* 실제 촬영 예시 배너 이미지 */}
+                  <div className="border-t border-[#EAE8E2]">
                     <button
                       type="button"
                       onClick={() => setZoomGuide(true)}
-                      className="group relative block w-full overflow-hidden bg-white text-left focus:outline-none cursor-zoom-in border-b border-[#E2E6EC]"
+                      className="group relative block w-full overflow-hidden bg-[#FAFAF8] text-left focus:outline-none cursor-zoom-in border-b border-[#EAE8E2]"
                       aria-label="권장 촬영 예시 사진 원본 크게 보기"
                     >
                       <SafeImg
                         src={guideInfo.image}
                         alt="권장 촬영 예시 사진 가이드"
-                        className="w-full max-h-[170px] sm:max-h-[200px] object-contain mx-auto transition-transform duration-200 group-hover:scale-[1.01]"
+                        className="w-full max-h-[180px] object-contain mx-auto transition-transform duration-200 group-hover:scale-[1.01]"
                       />
                     </button>
-
-                    {/* 3단계 촬영 포인트 안내 (No Card-in-Card: divide-y / divide-x 평탄화) */}
-                    <ol className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E2E6EC] bg-[#F7F8FA] text-hb-xs">
+                    <ol className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#EAE8E2] text-hb-xs">
                       {guideInfo.steps.map((g) => (
                         <li
                           key={g.step}
                           className="flex items-start gap-2.5 p-3.5"
                         >
-                          <span className="shrink-0 rounded bg-[#141A23] px-1.5 py-0.5 font-mono text-hb-xs font-bold text-white tabular-nums">
+                          <span className="shrink-0 font-mono text-hb-xs font-bold text-[#C84312] tabular-nums">
                             {g.step}
                           </span>
                           <div className="min-w-0 flex-1">
@@ -1002,63 +1173,114 @@ export function V2InquirySectionWithWizard({
                         </li>
                       ))}
                     </ol>
-
-                    {/* 하단 팁 */}
-                    <div className="border-t border-[#E2E6EC] bg-white px-3.5 py-2.5">
-                      <p className="text-hb-xs text-[#334155] leading-relaxed">
-                        {guideInfo.tip}
-                      </p>
-                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="pt-2 flex items-center justify-between gap-2 border-t border-[#E2E6EC]">
-              <button
-                type="button"
-                onClick={() => setStep(1)}
-                className="hb-btn-outline h-11 px-5 text-hb-sm"
-              >
-                ← 이전
-              </button>
+            <div className="pt-1 space-y-2">
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="hb-btn-primary h-11 px-7 text-hb-sm"
+                className="flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#141A23] px-6 text-hb-base font-bold text-white hover:bg-[#1E2736] active:scale-[0.985] transition-[background-color,transform] duration-150 cursor-pointer"
               >
-                <span>다음 단계 (조건 및 연락처 입력)</span>
+                <span>
+                  {selectedFiles.length > 0
+                    ? "이 사진으로 다음 단계"
+                    : "사진 없이 바로 넘어가기"}
+                </span>
                 <Icon d={ICON.arrow} className="w-4 h-4" />
               </button>
             </div>
           </div>
         )}
 
-        {/* STEP 3: 현장 조건 + 지역/메모 + 연락처 입력 및 완료 */}
+        {/* STEP 3: 방문 지역 · 현장 조건 · 연락처 입력 (마지막 단계) */}
         {step === 3 && (
-          <div className="space-y-4">
-            <div className="rounded-lg border border-[#E2E6EC] bg-[#F7F8FA] p-3 text-hb-xs text-[#334155] flex flex-wrap items-center justify-between gap-1.5">
-              <div>
-                <strong className="text-[#141A23]">선택 요약:</strong> [{inquiryType}] {selectedCategories.join(", ")}
-                {selectedFiles.length > 0
-                  ? ` · 사진 ${selectedFiles.length}장 첨부됨`
-                  : " · 사진 미첨부"}
+          <div className="space-y-6">
+            <div className="space-y-1.5">
+              <h3 className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.025em] leading-[1.3] text-[#141A23] break-keep [text-wrap:balance]">
+                {isSell
+                  ? "어디로 방문하면 될까요?"
+                  : "연락받으실 정보를 알려주세요"}
+              </h3>
+              <p className="text-hb-sm text-[#64748B] leading-relaxed break-keep">
+                남겨주신 정보는 견적 안내에만 쓰이며 비밀글로 안전하게 보호돼요.
+              </p>
+            </div>
+
+            {/* 선택한 항목 요약 바 */}
+            <div className="rounded-2xl bg-[#F6F5F1] px-4 py-3 text-hb-xs sm:text-hb-sm text-[#334155] flex flex-wrap items-center justify-between gap-2">
+              <div className="min-w-0">
+                <span className="font-bold text-[#141A23]">
+                  {selectedCategories.join(" · ") || "품목 미지정"}
+                </span>
+                <span className="mx-1.5 text-[#94A3B8]" aria-hidden="true">
+                  ·
+                </span>
+                <span className="text-[#64748B]">
+                  {selectedFiles.length > 0
+                    ? `사진 ${selectedFiles.length}장 첨부`
+                    : "사진 없음"}
+                </span>
               </div>
               <button
                 type="button"
-                onClick={() => setStep(2)}
-                className="text-hb-xs text-[#64748B] underline hover:text-[#141A23]"
+                onClick={() => setStep(isSell && selectedFiles.length > 0 ? 1 : 2)}
+                className="text-hb-xs font-bold text-[#C84312] hover:underline shrink-0 cursor-pointer"
               >
-                사진 수정
+                수정하기
               </button>
             </div>
 
-            {/* 1. 현장 조건 칩 */}
-            <div>
-              <span className="hb-label mb-2">
+            {/* 1. 1-tap 빠른 지역 선택 + 상세 지역 입력 */}
+            <div className="space-y-2.5">
+              <label
+                htmlFor={`${uid}-region`}
+                className="block text-hb-xs font-bold text-[#64748B]"
+              >
+                {isSell ? "방문 수거 지역" : "배송 · 설치 지역"}
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {WIZARD_QUICK_REGIONS.map((preset) => {
+                  const selected =
+                    region.trim() === preset ||
+                    region.trim().startsWith(`${preset} `);
+                  return (
+                    <button
+                      key={preset}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() =>
+                        setRegion((prev) => applyQuickRegion(prev, preset))
+                      }
+                      className={`h-9 rounded-xl px-3 text-hb-xs font-bold transition-[background-color,color,transform] duration-150 active:scale-[0.97] cursor-pointer ${
+                        selected
+                          ? "bg-[#141A23] text-white"
+                          : "bg-[#F6F5F1] text-[#334155] hover:bg-[#ECEAE3]"
+                      }`}
+                    >
+                      {preset}
+                    </button>
+                  );
+                })}
+              </div>
+              <input
+                id={`${uid}-region`}
+                type="text"
+                value={region}
+                onChange={(e) => setRegion(e.target.value)}
+                placeholder="동 이름까지 적어주시면 더 빨라요 (예: 대전 중구 중촌동)"
+                className="w-full h-12 rounded-2xl border border-transparent bg-[#F6F5F1] px-4 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-colors focus:border-[#141A23] focus:bg-white focus:outline-none"
+              />
+            </div>
+
+            {/* 2. 해당되는 현장 조건 (선택) */}
+            <div className="space-y-2.5">
+              <span className="block text-hb-xs font-bold text-[#64748B]">
                 {isSell
-                  ? "1. 해당되는 수거·현장 조건을 선택해 주세요 (선택)"
-                  : "1. 해당되는 현장·배송 조건을 선택해 주세요 (선택)"}
+                  ? "해당하는 현장 조건 (선택)"
+                  : "해당하는 배송·설치 조건 (선택)"}
               </span>
               <div className="flex flex-wrap gap-2">
                 {WIZARD_ENV_CHIPS[inquiryType].map((chip) => {
@@ -1067,11 +1289,12 @@ export function V2InquirySectionWithWizard({
                     <button
                       key={chip}
                       type="button"
+                      aria-pressed={active}
                       onClick={() => toggleChip(chip)}
-                      className={`h-11 inline-flex items-center gap-1.5 rounded-lg border px-3 text-hb-sm font-bold transition-[color,background-color,border-color,box-shadow] duration-150 cursor-pointer ${
+                      className={`h-10 inline-flex items-center gap-1.5 rounded-xl px-3.5 text-hb-xs sm:text-hb-sm font-semibold transition-[background-color,color,box-shadow,transform] duration-150 active:scale-[0.97] cursor-pointer ${
                         active
-                          ? "border-[#E8521A] bg-[#FFF4EE] text-[#E8521A] ring-1 ring-[#E8521A]"
-                          : "border-[#E2E6EC] bg-[#F7F8FA] text-[#334155] hover:border-[#CBD2DC]"
+                          ? "bg-[#FFF6F1] text-[#C84312] ring-1 ring-[#C84312] font-bold"
+                          : "bg-[#F6F5F1] text-[#334155] hover:bg-[#ECEAE3]"
                       }`}
                     >
                       <Icon
@@ -1085,42 +1308,19 @@ export function V2InquirySectionWithWizard({
               </div>
             </div>
 
-            {/* 2. 지역 및 간단 메모 */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label htmlFor={`${uid}-region`} className="hb-label">
-                  {isSell ? "2. 방문 수거 지역 (구/동 단위 권장)" : "2. 배송/설치 지역 (동 단위 권장)"}
-                </label>
-                <input
-                  id={`${uid}-region`}
-                  type="text"
-                  value={region}
-                  onChange={(e) => setRegion(e.target.value)}
-                  placeholder="예: 대전 중구 중촌동 / 서구 둔산동"
-                  className="hb-input mt-1 h-11"
-                />
-              </div>
-              <div>
-                <label htmlFor={`${uid}-memo`} className="hb-label">
-                  간단 메모 (희망 일정·세부 모델 등)
-                </label>
-                <input
-                  id={`${uid}-memo`}
-                  type="text"
-                  value={memo}
-                  onChange={(e) => setMemo(e.target.value)}
-                  placeholder="예: 금요일 오후 희망 / 삼성 4도어 냉장고"
-                  className="hb-input mt-1 h-11"
-                />
-              </div>
-            </div>
-
-            {/* 3. 연락처 및 신청자 정보 */}
-            <div className="pt-2 border-t border-[#E2E6EC] space-y-2">
-              <span className="hb-label">3. 신청자 정보 및 연락처 *</span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label htmlFor={`${uid}-name`} className="hb-label text-[#64748B]">성함 / 상호명 *</label>
+            {/* 3. 신청자 성함 & 연락처 (필수) */}
+            <div className="space-y-3 pt-2 border-t border-[#EAE8E2]">
+              <span className="block text-hb-xs font-bold text-[#64748B]">
+                연락받으실 분 정보 (필수)
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor={`${uid}-name`}
+                    className="block text-hb-xs font-semibold text-[#334155]"
+                  >
+                    성함 또는 상호명
+                  </label>
                   <input
                     id={`${uid}-name`}
                     name="contact_name"
@@ -1130,11 +1330,24 @@ export function V2InquirySectionWithWizard({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="홍길동 / 한밭식당"
-                    className="hb-input mt-1 h-11"
+                    className="w-full h-12 rounded-2xl border border-transparent bg-[#F6F5F1] px-4 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-colors focus:border-[#141A23] focus:bg-white focus:outline-none"
                   />
                 </div>
-                <div>
-                  <label htmlFor={`${uid}-phone`} className="hb-label text-[#64748B]">연락처 *</label>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label
+                      htmlFor={`${uid}-phone`}
+                      className="block text-hb-xs font-semibold text-[#334155]"
+                    >
+                      연락처
+                    </label>
+                    {step3Readiness.phoneValid && (
+                      <span className="inline-flex items-center gap-1 text-hb-xs font-bold text-[#0F766E]">
+                        <Icon d={ICON.check} className="w-3 h-3" />
+                        <span>확인됨</span>
+                      </span>
+                    )}
+                  </div>
                   <input
                     id={`${uid}-phone`}
                     name="tel"
@@ -1144,11 +1357,36 @@ export function V2InquirySectionWithWizard({
                     value={phone}
                     onChange={(e) => setPhone(formatPhone(e.target.value))}
                     placeholder="010-0000-0000"
-                    className="hb-input mt-1 h-11 tabular-nums"
+                    className="w-full h-12 rounded-2xl border border-transparent bg-[#F6F5F1] px-4 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-colors focus:border-[#141A23] focus:bg-white focus:outline-none tabular-nums"
                   />
                 </div>
-                <div>
-                  <label htmlFor={`${uid}-password`} className="hb-label text-[#475569]">조회 비밀번호(선택)</label>
+              </div>
+
+              {/* 선택 입력: 간단 메모 & 조회 비밀번호 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor={`${uid}-memo`}
+                    className="block text-hb-xs font-semibold text-[#64748B]"
+                  >
+                    간단 메모 (선택)
+                  </label>
+                  <input
+                    id={`${uid}-memo`}
+                    type="text"
+                    value={memo}
+                    onChange={(e) => setMemo(e.target.value)}
+                    placeholder="희망 날짜, 모델명 등 편하게 적어주세요"
+                    className="w-full h-12 rounded-2xl border border-transparent bg-[#F6F5F1] px-4 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-colors focus:border-[#141A23] focus:bg-white focus:outline-none"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor={`${uid}-password`}
+                    className="block text-hb-xs font-semibold text-[#64748B]"
+                  >
+                    답변 조회 비밀번호 (선택)
+                  </label>
                   <input
                     id={`${uid}-password`}
                     name="new_password"
@@ -1158,33 +1396,68 @@ export function V2InquirySectionWithWizard({
                     maxLength={32}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="미입력 시 연락처 뒷4자리 적용"
-                    className="hb-input mt-1 h-11"
+                    placeholder="비워두면 연락처 뒷 4자리로 설정돼요"
+                    className="w-full h-12 rounded-2xl border border-transparent bg-[#F6F5F1] px-4 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-colors focus:border-[#141A23] focus:bg-white focus:outline-none"
                   />
                 </div>
               </div>
             </div>
 
-            <label className="flex items-center gap-2 text-hb-xs text-[#334155] cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={agreed}
-                onChange={(e) => setAgreed(e.target.checked)}
-                className="h-4 w-4 rounded border-[#CBD2DC] accent-[#141A23]"
-              />
-              <span>상담 안내를 위한 개인정보 수집·이용에 동의합니다.</span>
+            {/* 토스 스타일 전체 행 터치형 개인정보 동의 */}
+            <label
+              className={`flex items-center justify-between gap-3 rounded-2xl p-4 cursor-pointer select-none transition-colors ${
+                agreed
+                  ? "bg-[#F0FDFA] ring-1 ring-[#0F766E]/40"
+                  : "bg-[#F6F5F1] hover:bg-[#EFECE4]"
+              }`}
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="sr-only"
+                />
+                <span
+                  aria-hidden="true"
+                  className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition-colors ${
+                    agreed
+                      ? "bg-[#0F766E] text-white"
+                      : "bg-white ring-1 ring-[#CBD2DC] text-transparent"
+                  }`}
+                >
+                  <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                </span>
+                <span className="text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] break-keep">
+                  상담 안내를 위한 개인정보 수집·이용에 동의해요
+                </span>
+              </div>
+              <span className="text-hb-xs font-bold text-[#64748B] shrink-0">
+                필수
+              </span>
             </label>
 
-            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2.5 pt-3 border-t border-[#EAE8E2]">
+            {/* 최종 제출 CTA + 문자 전송 대안 */}
+            <div className="space-y-2.5 pt-1">
               <button
-                type="button"
-                onClick={() => setStep(isSell && selectedFiles.length > 0 ? 1 : 2)}
-                className="hb-btn-outline h-11 px-4 text-hb-sm w-full sm:w-auto"
+                type="submit"
+                disabled={submitting}
+                className="flex h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-[#C84312] px-6 text-hb-base font-bold text-white hover:bg-[#AE380D] active:scale-[0.985] transition-[background-color,transform] duration-150 disabled:opacity-50 cursor-pointer"
               >
-                ← 이전 단계
+                <span>
+                  {submitting
+                    ? "접수하는 중이에요..."
+                    : isSell
+                    ? "매입 견적 무료 신청하기"
+                    : "견적 문의 완료하기"}
+                </span>
               </button>
 
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:ml-auto">
+              <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-hb-xs text-[#64748B]">
+                <span>
+                  {step3Readiness.missingHint ||
+                    "입력 완료! 버튼을 누르면 바로 접수돼요."}
+                </span>
                 <a
                   href={smsHref(
                     STORE.mobile,
@@ -1198,22 +1471,11 @@ export function V2InquirySectionWithWizard({
                       inquiry_type: inquiryType,
                     })
                   }
-                  className="hb-btn-outline h-11 px-4 text-hb-sm w-full sm:w-auto"
+                  className="inline-flex items-center gap-1 font-semibold text-[#334155] hover:text-[#C84312] transition-colors shrink-0"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
-                  <span>문자로 바로 전송</span>
+                  <span>문자로 바로 보내기</span>
                 </a>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="hb-btn-accent h-11 px-7 text-hb-sm font-bold w-full sm:w-auto"
-                >
-                  {submitting
-                    ? "접수 중..."
-                    : isSell
-                    ? "매입 견적 신청 완료하기"
-                    : "견적 문의 완료하기"}
-                </button>
               </div>
             </div>
           </div>

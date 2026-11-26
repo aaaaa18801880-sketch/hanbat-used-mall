@@ -37,26 +37,26 @@ export function HomeBuybackStrip() {
     <section
       id="buyback-summary-section"
       aria-labelledby="buyback-summary-heading"
-      className="border-b border-[#E2DDD3] bg-white py-7 sm:py-9"
+      className="border-b border-hb-border hb-buyback-band py-9 sm:py-11 text-hb-text-primary"
     >
       <div className="hb-container">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0">
-            <span className="hb-eyebrow">
+            <span className="inline-block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text">
               가전 · 업소용 설비 방문 매입 안내
             </span>
             <h2
               id="buyback-summary-heading"
-              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-[#141A23] break-keep [text-wrap:balance]"
+              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-hb-text-primary break-keep [text-wrap:balance]"
             >
               처분할 가전·업소용 집기, 사진 한 장으로 매입부터 철거까지
             </h2>
-            <p className="mt-1.5 max-w-2xl text-hb-sm text-[#475569] leading-relaxed break-keep [text-wrap:pretty]">
+            <p className="mt-1.5 max-w-2xl text-hb-sm text-hb-text-secondary leading-relaxed break-keep [text-wrap:pretty]">
               이사·가전 교체는 물론 식당·카페·사무실 폐업 정리까지 {STORE.name} 직영 차량이 방문해 3단계로 정리해 드립니다.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link
               href="/purchase"
               onClick={() =>
@@ -65,7 +65,7 @@ export function HomeBuybackStrip() {
                   location: "home_buyback_strip",
                 })
               }
-              className="hb-btn-accent min-h-[42px] h-10 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+              className="hb-btn-accent min-h-[44px] h-11 px-5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
             >
               <span>방문 매입 상세 신청</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export function HomeBuybackStrip() {
                   location: "home_buyback_strip",
                 })
               }
-              className="hb-btn-kakao min-h-[42px] h-10 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+              className="hb-btn-kakao min-h-[44px] h-11 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
             >
               <Icon d={ICON.chat} className="w-3.5 h-3.5" />
               <span>카톡 사진 1장 견적</span>
@@ -88,27 +88,27 @@ export function HomeBuybackStrip() {
           </div>
         </div>
 
-        {/* 3단계 스위스 벤토 헤어라인 절차 그리드 */}
-        <ol className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-px overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#E2DDD3] shadow-2xs">
+        {/* 3단계 클린 아키텍처 헤어라인 절차 그리드 */}
+        <ol className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-px overflow-hidden rounded-2xl border border-hb-border bg-hb-border shadow-2xs">
           {BUYBACK_SUMMARY_STEPS.map((item) => (
             <li
               key={item.num}
-              className="flex flex-col justify-between bg-[#FAF9F6] p-5 sm:p-6"
+              className="flex flex-col justify-between bg-white p-5 sm:p-6"
             >
               <div>
                 <div className="flex items-baseline gap-2.5">
-                  <span className="font-mono text-hb-sm font-extrabold text-[#C84312] tabular-nums">
+                  <span className="font-mono text-hb-sm font-extrabold text-hb-brand-text tabular-nums">
                     {item.num}.
                   </span>
-                  <h3 className="text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight break-keep">
+                  <h3 className="text-hb-base sm:text-hb-lg font-bold text-hb-text-primary tracking-tight break-keep">
                     {item.title}
                   </h3>
                 </div>
-                <p className="mt-2 text-hb-xs sm:text-hb-sm text-[#475569] leading-relaxed break-keep [text-wrap:pretty]">
+                <p className="mt-2 text-hb-xs sm:text-hb-sm text-hb-text-secondary leading-relaxed break-keep [text-wrap:pretty]">
                   {item.desc}
                 </p>
               </div>
-              <p className="mt-4 pt-3 border-t border-[#E2DDD3] text-hb-xs font-semibold text-[#141A23] break-keep">
+              <p className="mt-4 pt-3 border-t border-hb-border text-hb-xs font-semibold text-hb-text-muted break-keep">
                 {item.meta}
               </p>
             </li>
@@ -116,10 +116,10 @@ export function HomeBuybackStrip() {
         </ol>
 
         {/* 하단 직통 상담 보조 바 (Zero-Pill) */}
-        <div className="mt-4 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between text-hb-xs sm:text-hb-sm text-[#475569]">
+        <div className="mt-4 flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between text-hb-xs sm:text-hb-sm text-hb-text-secondary">
           <p className="break-keep">
-            <strong className="font-semibold text-[#141A23]">매입 대상</strong> · 정상 작동 가정용 가전 및 업소용 냉장고·쇼케이스·제빙기·냉난방기{" "}
-            <span className="text-[#CBD2DC]" aria-hidden="true">
+            <strong className="font-semibold text-hb-text-primary">매입 대상</strong> · 정상 작동 가정용 가전 및 업소용 냉장고·쇼케이스·제빙기·냉난방기{" "}
+            <span className="text-hb-border-strong" aria-hidden="true">
               |
             </span>{" "}
             단순 고장 폐기물 대행 제외
@@ -136,16 +136,16 @@ export function HomeBuybackStrip() {
                   type: "내 물건 팔기",
                 });
               }}
-              className="inline-flex items-center gap-1 font-bold text-[#C84312] hover:underline underline-offset-4 cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-1 font-bold text-hb-brand-text hover:underline underline-offset-4 cursor-pointer whitespace-nowrap"
             >
               <Icon d={ICON.camera} className="w-3.5 h-3.5" />
               <span>간편 매입 바로 접수</span>
             </button>
             <a
               href={telHref(STORE.mobile)}
-              className="inline-flex items-center gap-1 font-mono font-bold text-[#141A23] hover:text-[#C84312] transition-colors tabular-nums whitespace-nowrap"
+              className="inline-flex items-center gap-1 font-mono font-bold text-hb-text-primary hover:text-hb-brand-text transition-colors tabular-nums whitespace-nowrap"
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#C84312]" />
+              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text" />
               <span>매입 직통 {STORE.mobile}</span>
             </a>
           </div>

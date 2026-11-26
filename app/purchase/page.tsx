@@ -213,22 +213,17 @@ export default function PurchasePage() {
       <main id="main-content" tabIndex={-1} className="hb-container py-6 sm:py-9 flex-1 space-y-6 sm:space-y-8 focus:outline-none">
         {/* 1순위: 온라인 매입 신청 폼 + 직통 매입 상담 데스크 (스크롤 최소화, 즉시 전환) */}
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
-          {/* 좌측 8컬럼: 통합 매입 신청 폼 */}
+          {/* 좌측 8컬럼: 통합 매입 신청 폼 (토스·증권앱 스타일 경량 헤더) */}
           <div
             id="purchase-form"
-            className="scroll-mt-24 rounded-2xl border border-[#E5E3DC] bg-white p-5 sm:p-7 lg:col-span-8"
+            className="scroll-mt-24 rounded-3xl border border-[#EAE8E2] bg-white p-5 sm:p-8 lg:col-span-8"
           >
-            <div className="mb-5 pb-4 border-b border-[#EAE8E2] flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <h2 className="text-hb-lg sm:text-hb-xl font-bold text-[#141A23]">
-                  온라인 매입 견적 신청서
-                </h2>
-                <p className="mt-1 text-hb-sm text-[#64748B] break-keep">
-                  사진과 수거 지역을 남겨주시면 확인 후 매입 견적과 방문 수거 일정을 안내해 드립니다.
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-1 text-hb-xs font-medium text-[#475569]">
-                <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 text-[#0F766E]" />
+            <div className="mb-5 flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[#F0EEE8]">
+              <h2 className="text-hb-base font-bold text-[#141A23]">
+                온라인 매입 견적 신청서
+              </h2>
+              <span className="inline-flex items-center gap-1.5 text-hb-xs font-semibold text-[#0F766E]">
+                <Icon d={ICON.shieldCheck} className="w-3.5 h-3.5 shrink-0" />
                 <span>비밀글 자동 보호</span>
               </span>
             </div>
@@ -243,15 +238,15 @@ export default function PurchasePage() {
 
           {/* 우측 4컬럼: 직통 매입 상담 데스크 + 공식 매입 안내문 원본 프리뷰 */}
           <aside className="space-y-4 sm:space-y-5 lg:col-span-4 lg:sticky lg:top-[92px]">
-            <div className="rounded-2xl border border-[#E5E3DC] bg-white p-5 sm:p-6">
-              <h2 className="text-hb-lg font-bold text-[#141A23]">
+            <div className="rounded-3xl border border-[#EAE8E2] bg-white p-5 sm:p-6">
+              <h2 className="text-hb-lg font-bold text-[#141A23] break-keep">
                 급매 · 폐업 일괄 정리 직통 상담
               </h2>
-              <p className="mt-2 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
-                품목이 많거나 빠른 방문 수거가 필요하시면 전화 또는 카카오톡으로 사진을 보내주시는 것이 가장 빠릅니다.
+              <p className="mt-1.5 text-hb-sm text-[#64748B] leading-relaxed break-keep">
+                품목이 많거나 빠른 방문 수거가 필요하시면 전화나 카톡으로 바로 사진 보내주시면 가장 빨라요.
               </p>
 
-              <dl className="mt-4 border-y border-[#EAE8E2] divide-y divide-[#EAE8E2] text-hb-xs sm:text-hb-sm">
+              <dl className="mt-4 rounded-2xl bg-[#F6F5F1] px-4 py-1 divide-y divide-[#E8E6DF] text-hb-xs sm:text-hb-sm">
                 <div className="flex items-center justify-between py-2.5">
                   <dt className="font-medium text-[#64748B]">매장 대표전화</dt>
                   <dd>
@@ -279,7 +274,7 @@ export default function PurchasePage() {
               <div className="mt-4 space-y-2">
                 <a
                   href={telHref(STORE.tel)}
-                  className="hb-btn-primary h-11 w-full text-hb-sm"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#141A23] px-4 text-hb-sm font-bold text-white hover:bg-[#1E2736] active:scale-[0.985] transition-[background-color,transform] duration-150"
                 >
                   <Icon d={ICON.phone} className="h-4 w-4 text-[#FF8A50]" />
                   <span>전화 매입 상담 ({STORE.tel})</span>
@@ -288,7 +283,7 @@ export default function PurchasePage() {
                   href={STORE.kakaoChat}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hb-btn-kakao h-11 w-full text-hb-sm"
+                  className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#FEE500] px-4 text-hb-sm font-bold text-[#191600] hover:bg-[#F2D900] active:scale-[0.985] transition-[background-color,transform] duration-150"
                 >
                   <Icon d={ICON.chat} className="h-4 w-4" />
                   <span>카카오톡으로 사진 보내기</span>

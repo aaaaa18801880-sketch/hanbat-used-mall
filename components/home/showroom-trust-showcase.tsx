@@ -76,22 +76,22 @@ export function ShowroomTrustShowcase() {
     <section
       id="refurbish-process-section"
       aria-labelledby="refurbish-process-heading"
-      className="border-y border-[#E2DDD3] bg-[#FAF9F6] py-7 sm:py-9"
+      className="border-y border-hb-border hb-theme-band py-8 sm:py-11"
     >
       <div className="hb-container">
         {/* 상단 헤더: 섹션 타이틀 + 현재 단계 카운터 및 좌우 이동 컨트롤 */}
         <div className="flex flex-col gap-3.5 lg:flex-row lg:items-end lg:justify-between mb-4 sm:mb-5">
           <div className="min-w-0">
-            <span className="hb-eyebrow">
+            <span className="inline-block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text">
               {STORE.name} 현장 확인 · 세척 · 출고 절차 안내
             </span>
             <h2
               id="refurbish-process-heading"
-              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-[#141A23] break-keep [text-wrap:balance]"
+              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-hb-text-primary break-keep [text-wrap:balance]"
             >
               매입 현장 확인부터 고압세척·배송 전 작동 점검까지, 4단계로 준비합니다
             </h2>
-            <p className="mt-1.5 max-w-2xl text-hb-sm text-[#475569] leading-relaxed break-keep [text-wrap:pretty]">
+            <p className="mt-1.5 max-w-2xl text-hb-sm text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
               매입 현장에서 직접 작동 상태를 확인해 정상 제품만 들여오고, 고압세척과 배송 전 작동 점검을 거쳐 직영 기사가 설치·보증합니다.
             </p>
           </div>
@@ -137,14 +137,14 @@ export function ShowroomTrustShowcase() {
           </div>
         </div>
 
-        {/* 스위스 벤토 1px 헤어라인 프레임 (gap-px bg-[#E2DDD3]) */}
-        <div className="overflow-hidden rounded-2xl border border-[#E2DDD3] bg-[#E2DDD3] shadow-2xs">
+        {/* 스위스 벤토 1px 헤어라인 프레임 */}
+        <div className="overflow-hidden rounded-2xl border border-hb-border bg-hb-border shadow-2xs">
           {/* 1) 4단계 인터랙티브 탭 바 */}
           <div
             role="tablist"
             aria-label="입고·세척·작동점검·직배송 4단계 선택"
             onKeyDown={handleTabKeyDown}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#E2DDD3]"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-hb-border"
           >
             {REFURBISH_STEPS.map((step) => {
               const isSelected = step.id === activeStep.id;
@@ -158,18 +158,18 @@ export function ShowroomTrustShowcase() {
                   aria-controls={`refurbish-panel-${step.id}`}
                   tabIndex={isSelected ? 0 : -1}
                   onClick={() => selectStep(step.id)}
-                  className={`group relative flex min-h-[60px] flex-col justify-between px-4 py-3 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] cursor-pointer ${
+                  className={`group relative flex min-h-[60px] flex-col justify-between px-4 py-3 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-hb-navy cursor-pointer ${
                     isSelected
-                      ? "bg-[#141A23] text-white"
-                      : "bg-white text-[#334155] hover:bg-[#FAF9F6] hover:text-[#141A23]"
+                      ? "bg-hb-navy text-white"
+                      : "bg-white text-hb-text-secondary hover:bg-hb-surface-muted hover:text-hb-text-primary"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2 w-full">
                     <span
                       className={`font-mono text-hb-xs font-bold tabular-nums leading-none ${
                         isSelected
-                          ? "text-[#FF8A50]"
-                          : "text-[#C84312] group-hover:text-[#141A23]"
+                          ? "text-white/80"
+                          : "text-hb-brand-text group-hover:text-hb-text-primary"
                       }`}
                     >
                       {step.stepNumber}
@@ -178,21 +178,21 @@ export function ShowroomTrustShowcase() {
                       d={isSelected ? ICON.check : ICON.right}
                       className={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
                         isSelected
-                          ? "text-[#5EEAD4]"
-                          : "text-[#94A3B8] group-hover:text-[#141A23] group-hover:translate-x-0.5"
+                          ? "text-white"
+                          : "text-hb-text-muted group-hover:text-hb-text-primary group-hover:translate-x-0.5"
                       }`}
                     />
                   </div>
                   <span
                     className={`mt-1.5 block text-hb-xs sm:text-hb-sm font-bold tracking-tight truncate ${
-                      isSelected ? "text-white" : "text-[#141A23]"
+                      isSelected ? "text-white" : "text-hb-text-primary"
                     }`}
                   >
                     {step.shortTitle}
                   </span>
 
                   <span
-                    className={`absolute inset-x-0 bottom-0 h-1 bg-[#E8521A] transition-opacity duration-150 ${
+                    className={`absolute inset-x-0 bottom-0 h-0.5 bg-hb-brand transition-opacity duration-150 ${
                       isSelected ? "opacity-100" : "opacity-0"
                     }`}
                     aria-hidden="true"
@@ -207,11 +207,11 @@ export function ShowroomTrustShowcase() {
             id={`refurbish-panel-${activeStep.id}`}
             role="tabpanel"
             aria-labelledby={`refurbish-tab-${activeStep.id}`}
-            className="mt-px grid grid-cols-1 lg:grid-cols-12 gap-px bg-[#E2DDD3]"
+            className="mt-px grid grid-cols-1 lg:grid-cols-12 gap-px bg-hb-border"
           >
             {/* 좌측 5열: 실물 현장 사진 + 핵심 원칙 요약 */}
             <div className="lg:col-span-5 flex flex-col bg-white">
-              <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] lg:flex-1 w-full overflow-hidden bg-[#EFECE4]">
+              <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] lg:flex-1 w-full overflow-hidden bg-hb-warm">
                 {REFURBISH_STEPS.map((step) => {
                   const isActiveImage = step.id === activeStep.id;
                   return (
@@ -261,7 +261,7 @@ export function ShowroomTrustShowcase() {
               </div>
 
               {/* 매장 출고 기준 스트립 */}
-              <div className="border-t border-[#E2DDD3] bg-[#FAF9F6] px-4 py-3.5 sm:px-5 sm:py-4">
+              <div className="border-t border-hb-border bg-hb-surface-muted px-4 py-3.5 sm:px-5 sm:py-4">
                 <div className="flex items-start gap-2.5">
                   <Icon
                     d={ICON.shieldCheck}
@@ -271,7 +271,7 @@ export function ShowroomTrustShowcase() {
                     <span className="block text-hb-xs font-bold text-[#0F766E]">
                       {activeStep.warrantyScopeLabel}
                     </span>
-                    <p className="mt-0.5 text-hb-xs text-[#334155] leading-relaxed break-keep">
+                    <p className="mt-0.5 text-hb-xs text-hb-text-secondary leading-relaxed break-keep">
                       {activeStep.warrantyScopeDetail}
                     </p>
                   </div>
@@ -280,32 +280,32 @@ export function ShowroomTrustShowcase() {
             </div>
 
             {/* 우측 7열: 단계 헤드라인 + 3열 핵심 확인 요약 + 체크리스트 + 액션 바 */}
-            <div className="lg:col-span-7 grid grid-cols-1 gap-px bg-[#E2DDD3]">
+            <div className="lg:col-span-7 grid grid-cols-1 gap-px bg-hb-border">
               {/* 상단 단계 요약 셀 */}
               <div className="bg-white p-5 sm:p-6">
-                <div className="flex flex-wrap items-center gap-2 text-hb-xs font-semibold text-[#475569]">
-                  <span className="font-mono font-bold text-[#C84312] tabular-nums">
+                <div className="flex flex-wrap items-center gap-2 text-hb-xs font-semibold text-hb-text-muted">
+                  <span className="font-mono font-bold text-hb-brand-text tabular-nums">
                     {activeStep.tabLabel}
                   </span>
                   <span aria-hidden="true">·</span>
                   <span>{STORE.name} 현장 기준</span>
                 </div>
-                <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold text-[#141A23] tracking-tight leading-snug break-keep [text-wrap:balance]">
+                <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold text-hb-text-primary tracking-tight leading-snug break-keep [text-wrap:balance]">
                   {activeStep.headline}
                 </h3>
-                <p className="mt-2 text-hb-sm text-[#475569] leading-relaxed break-keep [text-wrap:pretty]">
+                <p className="mt-2 text-hb-sm text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
                   {activeStep.summary}
                 </p>
               </div>
 
               {/* 중단 3열 핵심 요약 셀 */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-[#E2DDD3]">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-hb-border">
                 {activeStep.metrics.map((metric) => (
                   <div
                     key={metric.label}
-                    className="flex flex-col justify-between bg-[#FAF9F6] px-4 py-3.5 sm:px-5 sm:py-4"
+                    className="flex flex-col justify-between bg-hb-surface-muted px-4 py-3.5 sm:px-5 sm:py-4"
                   >
-                    <span className="text-hb-xs font-semibold text-[#475569]">
+                    <span className="text-hb-xs font-semibold text-hb-text-muted">
                       {metric.label}
                     </span>
                     <strong

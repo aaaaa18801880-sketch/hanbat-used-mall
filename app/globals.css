@@ -3,22 +3,30 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
+:root,
+:root[data-hb-theme="clean"] {
   interpolate-size: allow-keywords;
 
-  /* 1. Primary Navy */
-  --hb-navy: #141a23;
-  --hb-navy-hover: #1e2736;
-  --hb-navy-subtle: #f1f3f6;
+  /* 1. Default Clean Neutral Canvas (무채색 화이트·차콜 — 실물 제품 사진 중심) */
+  --hb-navy: #111827;
+  --hb-navy-hover: #27272a;
+  --hb-navy-subtle: #f4f4f5;
 
-  /* 2. Brand Accent: 장식 도트/그래픽 #E8521A · 밝은 배경 텍스트·단색 버튼 #C84312 (WCAG AA) */
-  --hb-orange: #e8521a;
-  --hb-brand-text: #c84312;
+  /* 2. Adaptive Accent Tokens (테마별 자동 전환) */
+  --hb-accent: #111827;
+  --hb-accent-hover: #27272a;
+  --hb-accent-text: #111827;
+  --hb-accent-subtle: #f4f4f5;
+  --hb-accent-border: #d4d4d8;
+
+  /* 3. Brand Highlight (절제된 포인트) */
+  --hb-orange: #c84312;
+  --hb-brand-text: #111827;
   --hb-orange-hover: #a9370d;
-  --hb-orange-subtle: #fff4ee;
+  --hb-orange-subtle: #f4f4f5;
   --hb-orange-oklch: oklch(62.8% 0.194 38);
 
-  /* 3. Semantic Accents: Hygiene Teal & Technical Cyan */
+  /* 4. Semantic Accents */
   --hb-teal: #0d9488;
   --hb-teal-text: #0f766e;
   --hb-teal-subtle: #f0fdfa;
@@ -29,13 +37,19 @@
   --hb-cyan-subtle: #f0f9ff;
   --hb-cyan-border: #bae6fd;
 
-  /* 4. Canvas & Airy Light Neutral-Stone Surfaces */
+  /* 5. Neutral Gallery Surfaces */
   --hb-surface: #ffffff;
-  --hb-stone-canvas: #fafaf8;
-  --hb-stone-surface: #f4f4f1;
-  --hb-stone-hover: #ecebe6;
-  --hb-stone-border: #e5e3dc;
-  --hb-stone-border-strong: #d4d1c7;
+  --hb-stone-canvas: #f7f7f8;
+  --hb-stone-surface: #f1f2f4;
+  --hb-stone-hover: #e8eaee;
+  --hb-stone-border: #e5e7eb;
+  --hb-stone-border-strong: #d1d5db;
+
+  /* 6. Section Surfaces (Hero & Mid-page Bands) */
+  --hb-hero-bg: #ffffff;
+  --hb-hero-bg-image: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+  --hb-band-bg: #f7f7f8;
+  --hb-buyback-bg: #f3f4f6;
 
   /* 호환 별칭 (단일 토큰 참조) */
   --hb-bg-subtle: var(--hb-stone-canvas);
@@ -44,29 +58,110 @@
   --hb-border: var(--hb-stone-border);
   --hb-border-strong: var(--hb-stone-border-strong);
 
-  --hb-text-primary: #141a23;
-  --hb-text-secondary: #334155;
-  --hb-text-muted: #475569;
-  --hb-text-subtle: #64748b;
+  --hb-text-primary: #111827;
+  --hb-text-secondary: #374151;
+  --hb-text-muted: #4b5563;
+  --hb-text-subtle: #6b7280;
 
   --hb-surface-muted: var(--hb-stone-canvas);
-  --hb-brand: var(--hb-orange);
+  --hb-brand: var(--hb-accent);
 
-  /* 경량화된 단일 계층 그림자 (tailwind.config.js와 동일 수치) */
+  /* 경량화된 단일 계층 그림자 */
   --hb-shadow-card:
-    0 1px 2px rgba(20, 26, 35, 0.03),
-    0 4px 12px -6px rgba(20, 26, 35, 0.05);
+    0 1px 2px rgba(17, 24, 39, 0.03),
+    0 4px 12px -6px rgba(17, 24, 39, 0.05);
   --hb-shadow-card-hover:
-    0 2px 6px rgba(20, 26, 35, 0.04),
-    0 10px 22px -10px rgba(20, 26, 35, 0.09);
+    0 2px 6px rgba(17, 24, 39, 0.04),
+    0 10px 22px -10px rgba(17, 24, 39, 0.09);
   --hb-shadow-showroom-active:
-    0 1px 2px rgba(20, 26, 35, 0.04),
-    0 8px 18px -10px rgba(20, 26, 35, 0.1);
+    0 1px 2px rgba(17, 24, 39, 0.04),
+    0 8px 18px -10px rgba(17, 24, 39, 0.1);
   --in-oklab: ;
   --in-oklch: ;
 
   --hb-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --hb-ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 여름 · 아이스 쿨 (에어컨·냉난방기 성수기) */
+:root[data-hb-theme="summer"] {
+  --hb-navy: #0f2942;
+  --hb-navy-hover: #163b5e;
+  --hb-navy-subtle: #edf6fc;
+  --hb-accent: #0369a1;
+  --hb-accent-hover: #075985;
+  --hb-accent-text: #0369a1;
+  --hb-accent-subtle: #e0f2fe;
+  --hb-accent-border: #bae6fd;
+  --hb-brand-text: #0369a1;
+  --hb-stone-canvas: #f4f9fd;
+  --hb-stone-surface: #eaf3fa;
+  --hb-stone-hover: #dcebf7;
+  --hb-stone-border: #d5e4f0;
+  --hb-stone-border-strong: #b8d2e6;
+  --hb-hero-bg: #f7fbff;
+  --hb-hero-bg-image:
+    radial-gradient(circle at 86% 14%, rgba(14, 165, 233, 0.11) 0%, transparent 52%),
+    linear-gradient(180deg, #ffffff 0%, #f2f8fd 100%);
+  --hb-band-bg: #f4f9fd;
+  --hb-buyback-bg: #edf5fc;
+  --hb-text-primary: #0f2438;
+  --hb-text-secondary: #334e68;
+  --hb-text-muted: #486581;
+}
+
+/* 봄·가을 · 세이지 뉴트럴 (이사·입주·창업 시즌) */
+:root[data-hb-theme="spring-autumn"] {
+  --hb-navy: #162621;
+  --hb-navy-hover: #213831;
+  --hb-navy-subtle: #eef5f1;
+  --hb-accent: #1f6f5b;
+  --hb-accent-hover: #175747;
+  --hb-accent-text: #1f6f5b;
+  --hb-accent-subtle: #eaf6f1;
+  --hb-accent-border: #c1e3d5;
+  --hb-brand-text: #1f6f5b;
+  --hb-stone-canvas: #f5f7f5;
+  --hb-stone-surface: #edf2ee;
+  --hb-stone-hover: #e1e9e3;
+  --hb-stone-border: #dbe3dd;
+  --hb-stone-border-strong: #c2cfc5;
+  --hb-hero-bg: #f8faf8;
+  --hb-hero-bg-image:
+    radial-gradient(circle at 86% 14%, rgba(31, 111, 91, 0.09) 0%, transparent 52%),
+    linear-gradient(180deg, #ffffff 0%, #f3f7f4 100%);
+  --hb-band-bg: #f5f7f5;
+  --hb-buyback-bg: #eef3ef;
+  --hb-text-primary: #16241f;
+  --hb-text-secondary: #364942;
+  --hb-text-muted: #52665e;
+}
+
+/* 겨울 · 웜 아이보리 (난방기·건조기 시즌) */
+:root[data-hb-theme="winter"] {
+  --hb-navy: #241f1c;
+  --hb-navy-hover: #38302b;
+  --hb-navy-subtle: #f6f1ea;
+  --hb-accent: #b84a1c;
+  --hb-accent-hover: #993c16;
+  --hb-accent-text: #b84a1c;
+  --hb-accent-subtle: #fdf2ec;
+  --hb-accent-border: #f2d3c2;
+  --hb-brand-text: #b84a1c;
+  --hb-stone-canvas: #faf7f2;
+  --hb-stone-surface: #f3ede4;
+  --hb-stone-hover: #eae1d4;
+  --hb-stone-border: #e5dcd0;
+  --hb-stone-border-strong: #d1c4b4;
+  --hb-hero-bg: #fdfbf7;
+  --hb-hero-bg-image:
+    radial-gradient(circle at 86% 14%, rgba(184, 74, 28, 0.08) 0%, transparent 52%),
+    linear-gradient(180deg, #ffffff 0%, #faf6f0 100%);
+  --hb-band-bg: #faf7f2;
+  --hb-buyback-bg: #f5efe6;
+  --hb-text-primary: #211c19;
+  --hb-text-secondary: #4a413b;
+  --hb-text-muted: #665b53;
 }
 
 @supports (background: linear-gradient(in oklab, white, black)) {
@@ -205,15 +300,16 @@ body {
   }
 
   .hb-eyebrow {
-    @apply inline-block text-hb-xs sm:text-hb-sm font-bold text-[#C84312];
+    @apply inline-block text-hb-xs sm:text-hb-sm font-bold;
+    color: var(--hb-accent-text);
   }
 
   .hb-input {
-    @apply w-full h-11 rounded-xl border border-hb-border-strong bg-white px-3.5 text-hb-base sm:text-hb-sm text-[#141A23] placeholder:text-[#64748B] transition-[border-color,box-shadow,background-color] duration-150 focus:border-[#141A23] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#141A23]/10 disabled:bg-hb-warm disabled:text-[#475569];
+    @apply w-full h-11 rounded-xl border border-hb-border-strong bg-white px-3.5 text-hb-base sm:text-hb-sm text-hb-text-primary placeholder:text-[#64748B] transition-[border-color,box-shadow,background-color] duration-150 focus:border-hb-navy focus:bg-white focus:outline-none focus:ring-2 focus:ring-black/10 disabled:bg-hb-warm disabled:text-hb-text-muted;
   }
 
   .hb-btn {
-    @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold tracking-[-0.01em] transition-[transform,background-color,border-color,box-shadow,color] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
+    @apply relative inline-flex items-center justify-center gap-2 rounded-xl font-bold tracking-[-0.01em] transition-[transform,background-color,border-color,box-shadow,color] duration-150 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hb-navy focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 select-none;
   }
 
   .hb-btn > svg:last-child {
@@ -225,31 +321,51 @@ body {
   }
 
   .hb-btn-primary {
-    @apply hb-btn bg-[#18202C] text-white hover:bg-[#243041];
-    box-shadow: 0 1px 2px rgba(20, 26, 35, 0.1);
+    @apply hb-btn text-white;
+    background-color: var(--hb-navy);
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.12);
+  }
+
+  .hb-btn-primary:hover {
+    background-color: var(--hb-navy-hover);
   }
 
   .hb-btn-accent {
-    @apply hb-btn bg-[#C84312] text-white hover:bg-[#AE380D] focus-visible:ring-[#C84312];
-    box-shadow: 0 1px 3px rgba(200, 67, 18, 0.18);
+    @apply hb-btn text-white;
+    background-color: var(--hb-accent);
+    box-shadow: 0 1px 3px rgba(17, 24, 39, 0.14);
+  }
+
+  .hb-btn-accent:hover {
+    background-color: var(--hb-accent-hover);
   }
 
   .hb-btn-outline {
-    @apply hb-btn border border-hb-border-strong bg-white text-[#141A23] hover:border-[#141A23] hover:bg-hb-surface-muted active:bg-hb-warm;
+    @apply hb-btn border border-hb-border-strong bg-white text-hb-text-primary hover:border-hb-navy hover:bg-hb-surface-muted active:bg-hb-warm;
   }
 
   .hb-btn-kakao {
-    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-[#141A23];
+    @apply hb-btn bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] active:bg-[#E5CD00] focus-visible:ring-hb-navy;
   }
 
   .hb-ambient-hero {
-    background-color: #ffffff;
-    background-image: linear-gradient(180deg, #ffffff 0%, #fafaf8 100%);
+    background-color: var(--hb-hero-bg);
+    background-image: var(--hb-hero-bg-image);
+    transition: background-color 220ms ease;
+  }
+
+  .hb-theme-band {
+    background-color: var(--hb-band-bg);
+    transition: background-color 220ms ease;
+  }
+
+  .hb-buyback-band {
+    background-color: var(--hb-buyback-bg);
+    transition: background-color 220ms ease;
   }
 
   .hb-dark-mesh {
-    background-color: #161d27;
-    background-image: linear-gradient(135deg, #1c2533 0%, #141a23 100%);
+    background-color: var(--hb-navy);
   }
 
   .hb-studio-backdrop {
@@ -340,7 +456,7 @@ body {
       [aria-pressed="true"],
       [aria-current="page"]
     )::after {
-    border-bottom-color: #e8521a;
+    border-bottom-color: var(--hb-accent);
   }
 
   .hb-faq-panel {
