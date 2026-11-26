@@ -25,33 +25,33 @@ function getSlideScrims(theme: HeroBannerSlide["theme"]): SlideScrims {
       return {
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(235,246,253,0.95) 0%, rgba(235,246,253,0.84) 55%, rgba(235,246,253,0.12) 100%)",
+            "linear-gradient(180deg, rgba(230,246,252,0.95) 0%, rgba(230,246,252,0.84) 55%, rgba(230,246,252,0.12) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(235,246,253,0.96) 0%, rgba(235,246,253,0.88) 38%, rgba(235,246,253,0.34) 54%, rgba(235,246,253,0) 68%)",
+            "linear-gradient(90deg, rgba(230,246,252,0.92) 0%, rgba(230,246,252,0.80) 38%, rgba(230,246,252,0) 56%)",
         },
       };
     case "champagne-gold":
       return {
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(250,243,232,0.95) 0%, rgba(250,243,232,0.84) 55%, rgba(250,243,232,0.12) 100%)",
+            "linear-gradient(180deg, rgba(248,244,232,0.95) 0%, rgba(248,244,232,0.84) 55%, rgba(248,244,232,0.12) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(250,243,232,0.96) 0%, rgba(250,243,232,0.88) 38%, rgba(250,243,232,0.34) 54%, rgba(250,243,232,0) 68%)",
+            "linear-gradient(90deg, rgba(248,244,232,0.92) 0%, rgba(248,244,232,0.80) 38%, rgba(248,244,232,0) 56%)",
         },
       };
     case "midnight-navy":
       return {
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(4,9,24,0.92) 0%, rgba(4,9,24,0.78) 55%, rgba(4,9,24,0.14) 100%)",
+            "linear-gradient(180deg, rgba(1,3,10,0.92) 0%, rgba(1,3,10,0.78) 55%, rgba(1,3,10,0.14) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(4,9,24,0.94) 0%, rgba(4,9,24,0.78) 38%, rgba(4,9,24,0.28) 55%, rgba(4,9,24,0) 70%)",
+            "linear-gradient(90deg, rgba(1,3,10,0.92) 0%, rgba(1,3,10,0.74) 38%, rgba(1,3,10,0) 56%)",
         },
       };
     case "store-photo":
@@ -59,11 +59,11 @@ function getSlideScrims(theme: HeroBannerSlide["theme"]): SlideScrims {
       return {
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(16,24,39,0.90) 0%, rgba(16,24,39,0.74) 55%, rgba(16,24,39,0.26) 100%)",
+            "linear-gradient(180deg, rgba(15,24,38,0.90) 0%, rgba(15,24,38,0.74) 55%, rgba(15,24,38,0.26) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(16,24,39,0.94) 0%, rgba(16,24,39,0.80) 42%, rgba(16,24,39,0.34) 64%, rgba(16,24,39,0.08) 100%)",
+            "linear-gradient(90deg, rgba(15,24,38,0.94) 0%, rgba(15,24,38,0.80) 42%, rgba(15,24,38,0) 60%)",
         },
       };
   }
@@ -152,38 +152,42 @@ export function HeroPromoCarousel({
         onBlur={() => setIsHovered(false)}
         className="hb-banner-theme group relative w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors duration-300"
       >
-        <div className="relative min-h-[420px] sm:min-h-[470px] lg:min-h-[520px] w-full flex flex-col justify-center">
-          {/* 배경 비주얼 레이어 (100vw 풀블리드 크로스페이드) */}
-          {HERO_BANNER_SLIDES.map((slide, idx) => {
-            const isCurrent = idx === activeIndex;
-            return (
-              <div
-                key={slide.id}
-                role="group"
-                aria-roledescription="slide"
-                aria-label={`${total}개 중 ${idx + 1}번째: ${slide.headlineBottom}`}
-                aria-hidden={!isCurrent}
-                className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
-                  isCurrent ? "opacity-100" : "opacity-0"
-                }`}
-              >
-                <Image
-                  src={slide.imageSrc}
-                  alt={slide.imageAlt}
-                  fill
-                  sizes="100vw"
-                  priority={idx === 0}
-                  loading="eager"
-                  quality={85}
-                  className={
-                    slide.theme === "store-photo"
-                      ? "object-cover object-center"
-                      : "object-cover object-right"
-                  }
-                />
-              </div>
-            );
-          })}
+        <div className="relative h-[430px] sm:h-[460px] lg:h-[500px] w-full flex flex-col justify-center">
+          {/* 배경 비주얼 레이어: 100vw 풀블리드 배경 위에 16:9 원본 비율 그대로 우측 정렬(잘림·확대 깨짐 원천 차단) */}
+          <div className="pointer-events-none absolute inset-0 flex justify-center overflow-hidden">
+            <div className="relative h-full w-full max-w-[1280px] hb-banner-stage-mask">
+              {HERO_BANNER_SLIDES.map((slide, idx) => {
+                const isCurrent = idx === activeIndex;
+                return (
+                  <div
+                    key={slide.id}
+                    role="group"
+                    aria-roledescription="slide"
+                    aria-label={`${total}개 중 ${idx + 1}번째: ${slide.headlineBottom}`}
+                    aria-hidden={!isCurrent}
+                    className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
+                      isCurrent ? "opacity-100" : "opacity-0"
+                    }`}
+                  >
+                    <Image
+                      src={slide.imageSrc}
+                      alt={slide.imageAlt}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 1376px"
+                      priority={idx === 0}
+                      loading="eager"
+                      quality={90}
+                      className={
+                        slide.theme === "store-photo"
+                          ? "object-cover object-center sm:object-contain sm:object-right"
+                          : "object-cover object-right sm:object-contain sm:object-right"
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
 
           {/* 모바일 상단 텍스트 보호 그라데이션 */}
           <div
@@ -191,7 +195,7 @@ export function HeroPromoCarousel({
             style={scrims.mobileBackdropStyle}
             aria-hidden="true"
           />
-          {/* 태블릿·데스크톱 좌측 텍스트 보호 그라데이션 */}
+          {/* 태블릿·데스크톱 좌측 텍스트 보호 그라데이션 (100vw 전체 연속 블렌딩) */}
           <div
             className="pointer-events-none hidden sm:block absolute inset-0"
             style={scrims.desktopScrimStyle}
