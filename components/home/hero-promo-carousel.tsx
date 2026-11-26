@@ -14,91 +14,57 @@ import { STORE, telHref, trackEvent } from "../../lib/site";
 
 const AUTOPLAY_INTERVAL_MS = 5500;
 
-interface SlidePalette {
-  surfaceBg: string;
+interface SlideScrims {
   mobileBackdropStyle: React.CSSProperties;
   desktopScrimStyle: React.CSSProperties;
-  eyebrowClass: string;
-  headlineTopClass: string;
-  headlineBottomClass: string;
-  subtitleClass: string;
-  ctaClass: string;
 }
 
-function getSlidePalette(theme: HeroBannerSlide["theme"]): SlidePalette {
+function getSlideScrims(theme: HeroBannerSlide["theme"]): SlideScrims {
   switch (theme) {
-    case "mint-aqua":
+    case "glacial-blue":
       return {
-        surfaceBg: "bg-[#E2F4F1]",
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(226,244,241,0.96) 0%, rgba(226,244,241,0.88) 55%, rgba(226,244,241,0.18) 100%)",
+            "linear-gradient(180deg, rgba(235,246,253,0.95) 0%, rgba(235,246,253,0.84) 55%, rgba(235,246,253,0.12) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(226,244,241,0.98) 0%, rgba(226,244,241,0.92) 38%, rgba(226,244,241,0.45) 54%, rgba(226,244,241,0) 68%)",
+            "linear-gradient(90deg, rgba(235,246,253,0.96) 0%, rgba(235,246,253,0.88) 38%, rgba(235,246,253,0.34) 54%, rgba(235,246,253,0) 68%)",
         },
-        eyebrowClass: "text-[#0F5156]",
-        headlineTopClass: "text-[#0F3D3E]",
-        headlineBottomClass: "text-[#146B66]",
-        subtitleClass: "text-[#2C5555]",
-        ctaClass:
-          "bg-[#176862] text-white hover:bg-[#11524D] shadow-sm",
       };
-    case "sage-green":
+    case "champagne-gold":
       return {
-        surfaceBg: "bg-[#E6F3EC]",
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(230,243,236,0.96) 0%, rgba(230,243,236,0.88) 55%, rgba(230,243,236,0.18) 100%)",
+            "linear-gradient(180deg, rgba(250,243,232,0.95) 0%, rgba(250,243,232,0.84) 55%, rgba(250,243,232,0.12) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(230,243,236,0.98) 0%, rgba(230,243,236,0.92) 38%, rgba(230,243,236,0.45) 54%, rgba(230,243,236,0) 68%)",
+            "linear-gradient(90deg, rgba(250,243,232,0.96) 0%, rgba(250,243,232,0.88) 38%, rgba(250,243,232,0.34) 54%, rgba(250,243,232,0) 68%)",
         },
-        eyebrowClass: "text-[#1F5444]",
-        headlineTopClass: "text-[#163B30]",
-        headlineBottomClass: "text-[#2A6F5A]",
-        subtitleClass: "text-[#35594D]",
-        ctaClass:
-          "bg-[#2F6F5E] text-white hover:bg-[#235648] shadow-sm",
       };
-    case "warm-apricot":
+    case "midnight-navy":
       return {
-        surfaceBg: "bg-[#FDF1E6]",
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(253,241,230,0.96) 0%, rgba(253,241,230,0.88) 55%, rgba(253,241,230,0.18) 100%)",
+            "linear-gradient(180deg, rgba(4,9,24,0.92) 0%, rgba(4,9,24,0.78) 55%, rgba(4,9,24,0.14) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(253,241,230,0.98) 0%, rgba(253,241,230,0.92) 38%, rgba(253,241,230,0.45) 54%, rgba(253,241,230,0) 68%)",
+            "linear-gradient(90deg, rgba(4,9,24,0.94) 0%, rgba(4,9,24,0.78) 38%, rgba(4,9,24,0.28) 55%, rgba(4,9,24,0) 70%)",
         },
-        eyebrowClass: "text-[#8A3B16]",
-        headlineTopClass: "text-[#3B2113]",
-        headlineBottomClass: "text-[#B84A1C]",
-        subtitleClass: "text-[#634332]",
-        ctaClass:
-          "bg-[#B84A1C] text-white hover:bg-[#993B14] shadow-sm",
       };
     case "store-photo":
     default:
       return {
-        surfaceBg: "bg-[#141A23]",
         mobileBackdropStyle: {
           background:
-            "linear-gradient(180deg, rgba(16,24,39,0.88) 0%, rgba(16,24,39,0.72) 55%, rgba(16,24,39,0.28) 100%)",
+            "linear-gradient(180deg, rgba(16,24,39,0.90) 0%, rgba(16,24,39,0.74) 55%, rgba(16,24,39,0.26) 100%)",
         },
         desktopScrimStyle: {
           background:
-            "linear-gradient(90deg, rgba(16,24,39,0.92) 0%, rgba(16,24,39,0.78) 42%, rgba(16,24,39,0.32) 64%, rgba(16,24,39,0.08) 100%)",
+            "linear-gradient(90deg, rgba(16,24,39,0.94) 0%, rgba(16,24,39,0.80) 42%, rgba(16,24,39,0.34) 64%, rgba(16,24,39,0.08) 100%)",
         },
-        eyebrowClass: "text-[#FDE68A]",
-        headlineTopClass: "text-white",
-        headlineBottomClass: "text-[#FF9E6D]",
-        subtitleClass: "text-white/85",
-        ctaClass:
-          "bg-white text-[#141A23] hover:bg-[#F3F4F6] shadow-sm",
       };
   }
 }
@@ -116,7 +82,7 @@ export function HeroPromoCarousel({
 
   const total = HERO_BANNER_SLIDES.length;
   const activeSlide = HERO_BANNER_SLIDES[activeIndex];
-  const palette = getSlidePalette(activeSlide.theme);
+  const scrims = getSlideScrims(activeSlide.theme);
 
   const goStep = useCallback(
     (delta: number) => {
@@ -162,12 +128,13 @@ export function HeroPromoCarousel({
           aria-roledescription="carousel"
           aria-label="한밭중고전자 주요 기획전 배너"
           tabIndex={0}
+          data-theme={activeSlide.theme}
           onKeyDown={handleKeyDown}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onFocus={() => setIsHovered(true)}
           onBlur={() => setIsHovered(false)}
-          className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-black/5 shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 transition-colors duration-300 ${palette.surfaceBg}`}
+          className="hb-banner-theme group relative overflow-hidden rounded-2xl sm:rounded-3xl border border-black/5 shadow-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-2 transition-colors duration-300"
         >
           {/* 배경 비주얼 레이어 (크로스페이드) */}
           <div className="relative min-h-[340px] sm:min-h-[360px] lg:min-h-[410px] w-full flex flex-col justify-between">
@@ -202,22 +169,20 @@ export function HeroPromoCarousel({
             {/* 모바일 상단 텍스트 보호 그라데이션 */}
             <div
               className="pointer-events-none absolute inset-0 sm:hidden"
-              style={palette.mobileBackdropStyle}
+              style={scrims.mobileBackdropStyle}
               aria-hidden="true"
             />
             {/* 태블릿·데스크톱 좌측 텍스트 보호 그라데이션 */}
             <div
               className="pointer-events-none hidden sm:block absolute inset-0"
-              style={palette.desktopScrimStyle}
+              style={scrims.desktopScrimStyle}
               aria-hidden="true"
             />
 
             {/* 좌측 콘텐츠 레이어 */}
             <div className="relative z-10 flex flex-1 flex-col justify-center px-6 pt-7 pb-16 sm:px-16 sm:py-12 lg:px-20 lg:py-14 max-w-full sm:max-w-[60%] lg:max-w-[56%]">
               {/* 상단 브랜드/신뢰 바 */}
-              <div
-                className={`flex flex-wrap items-center gap-x-2.5 gap-y-1 text-hb-xs sm:text-hb-sm font-extrabold tracking-tight ${palette.eyebrowClass}`}
-              >
+              <div className="hb-banner-eyebrow flex flex-wrap items-center gap-x-2.5 gap-y-1 text-hb-xs sm:text-hb-sm font-extrabold tracking-tight">
                 {activeSlide.eyebrowBrands.map((brand, i) => (
                   <React.Fragment key={brand}>
                     {i > 0 && (
@@ -235,18 +200,16 @@ export function HeroPromoCarousel({
                 id="hero-title"
                 className="mt-2.5 sm:mt-3 hb-banner-h1"
               >
-                <span className={`block ${palette.headlineTopClass}`}>
+                <span className="hb-banner-h1-top block">
                   {activeSlide.headlineTop}
                 </span>
-                <span className={`block mt-0.5 ${palette.headlineBottomClass}`}>
+                <span className="hb-banner-h1-bottom block mt-0.5">
                   {activeSlide.headlineBottom}
                 </span>
               </h1>
 
               {/* 서브 설명 */}
-              <p
-                className={`mt-2.5 sm:mt-3.5 max-w-md text-hb-sm sm:text-hb-base font-medium leading-relaxed break-keep [text-wrap:pretty] ${palette.subtitleClass}`}
-              >
+              <p className="hb-banner-sub mt-2.5 sm:mt-3.5 max-w-md text-hb-sm sm:text-hb-base font-medium leading-relaxed break-keep [text-wrap:pretty]">
                 {activeSlide.subtitle}
               </p>
 
@@ -266,7 +229,7 @@ export function HeroPromoCarousel({
                         }
                       )
                     }
-                    className={`inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97] ${palette.ctaClass}`}
+                    className="hb-banner-cta inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97]"
                   >
                     <span>{activeSlide.ctaLabel}</span>
                     <Icon d={ICON.arrow} className="w-4 h-4 shrink-0" />
@@ -280,7 +243,7 @@ export function HeroPromoCarousel({
                       });
                       onOpenVisitModal();
                     }}
-                    className={`inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97] cursor-pointer ${palette.ctaClass}`}
+                    className="hb-banner-cta inline-flex min-h-[44px] items-center gap-2 rounded-full px-6 py-2.5 text-hb-sm font-bold transition-[background-color,transform] duration-150 active:scale-[0.97] cursor-pointer"
                   >
                     <span>{activeSlide.ctaLabel}</span>
                     <Icon d={ICON.arrow} className="w-4 h-4 shrink-0" />
@@ -323,10 +286,8 @@ export function HeroPromoCarousel({
                     aria-selected={isCurrent}
                     aria-label={`${idx + 1}번 배너: ${slide.headlineBottom}`}
                     onClick={() => setActiveIndex(idx)}
-                    className={`h-2 rounded-full transition-[width,background-color] duration-200 cursor-pointer ${
-                      isCurrent
-                        ? "w-7 bg-white shadow-xs"
-                        : "w-2 bg-black/25 hover:bg-black/45"
+                    className={`hb-banner-dot h-2 rounded-full transition-[width,background-color] duration-200 cursor-pointer ${
+                      isCurrent ? "w-7" : "w-2"
                     }`}
                   />
                 );

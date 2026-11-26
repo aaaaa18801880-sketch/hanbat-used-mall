@@ -189,6 +189,104 @@ body {
     word-break: keep-all;
   }
 
+  .hb-banner-theme[data-theme="glacial-blue"] {
+    --banner-bg: #ebf6fd;
+    --banner-eyebrow: #0c4a6e;
+    --banner-h1-top: #0f172a;
+    --banner-h1-bottom: #0369a1;
+    --banner-sub: #334155;
+    --banner-cta-bg: #0c4a6e;
+    --banner-cta-hover: #083344;
+    --banner-cta-fg: #ffffff;
+    --banner-dot-active: #0f172a;
+    --banner-dot-idle: rgba(15, 23, 42, 0.28);
+    --banner-dot-hover: rgba(15, 23, 42, 0.55);
+  }
+
+  .hb-banner-theme[data-theme="champagne-gold"] {
+    --banner-bg: #faf3e8;
+    --banner-eyebrow: #7c511a;
+    --banner-h1-top: #1c1612;
+    --banner-h1-bottom: #9a5b13;
+    --banner-sub: #57493b;
+    --banner-cta-bg: #1c1612;
+    --banner-cta-hover: #332920;
+    --banner-cta-fg: #ffffff;
+    --banner-dot-active: #1c1612;
+    --banner-dot-idle: rgba(28, 22, 18, 0.26);
+    --banner-dot-hover: rgba(28, 22, 18, 0.52);
+  }
+
+  .hb-banner-theme[data-theme="midnight-navy"] {
+    --banner-bg: #060c1f;
+    --banner-eyebrow: #93c5fd;
+    --banner-h1-top: #ffffff;
+    --banner-h1-bottom: #fbbf24;
+    --banner-sub: #cbd5e1;
+    --banner-cta-bg: #ea580c;
+    --banner-cta-hover: #c2410c;
+    --banner-cta-fg: #ffffff;
+    --banner-dot-active: #ffffff;
+    --banner-dot-idle: rgba(255, 255, 255, 0.36);
+    --banner-dot-hover: rgba(255, 255, 255, 0.65);
+  }
+
+  .hb-banner-theme[data-theme="store-photo"] {
+    --banner-bg: #141a23;
+    --banner-eyebrow: #fde68a;
+    --banner-h1-top: #ffffff;
+    --banner-h1-bottom: #ff9e6d;
+    --banner-sub: rgba(255, 255, 255, 0.86);
+    --banner-cta-bg: #ffffff;
+    --banner-cta-hover: #f3f4f6;
+    --banner-cta-fg: #141a23;
+    --banner-dot-active: #ffffff;
+    --banner-dot-idle: rgba(255, 255, 255, 0.36);
+    --banner-dot-hover: rgba(255, 255, 255, 0.65);
+  }
+
+  .hb-banner-theme {
+    background-color: var(--banner-bg);
+  }
+
+  .hb-banner-eyebrow {
+    color: var(--banner-eyebrow);
+  }
+
+  .hb-banner-h1-top {
+    color: var(--banner-h1-top);
+  }
+
+  .hb-banner-h1-bottom {
+    color: var(--banner-h1-bottom);
+  }
+
+  .hb-banner-sub {
+    color: var(--banner-sub);
+  }
+
+  .hb-banner-cta {
+    background-color: var(--banner-cta-bg);
+    color: var(--banner-cta-fg);
+    box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.28);
+  }
+
+  .hb-banner-cta:hover {
+    background-color: var(--banner-cta-hover);
+  }
+
+  .hb-banner-dot {
+    background-color: var(--banner-dot-idle);
+  }
+
+  .hb-banner-dot:hover {
+    background-color: var(--banner-dot-hover);
+  }
+
+  .hb-banner-dot[aria-selected="true"] {
+    background-color: var(--banner-dot-active);
+  }
+
   .hb-surface-card {
     @apply rounded-2xl border border-hb-border bg-white transition-[border-color,box-shadow] duration-200 hover:border-hb-border-strong;
     box-shadow: var(--hb-shadow-card);

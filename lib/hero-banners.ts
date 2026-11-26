@@ -18,7 +18,7 @@ export interface HeroBannerSlide {
   imageSrc: string;
   imageAlt: string;
   /** 배너 바탕 및 좌측 텍스트 보호 그라데이션 톤 */
-  theme: "mint-aqua" | "sage-green" | "warm-apricot" | "store-photo";
+  theme: "glacial-blue" | "champagne-gold" | "midnight-navy" | "store-photo";
 }
 
 const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
@@ -37,10 +37,10 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     },
-    imageSrc: "/images/banners/hero-aircon.jpg",
+    imageSrc: "/images/banners/hero-aircon-v2.jpg",
     imageAlt:
-      "스탠드형 인버터 에어컨과 벽걸이 에어컨이 전시된 스튜디오 프로모션 배너",
-    theme: "mint-aqua",
+      "아이스블루 링 조명 스튜디오 포디움 위에 스탠드 에어컨, 벽걸이 에어컨, 공기청정기, 제습기가 전시된 프로모션 배너",
+    theme: "glacial-blue",
   },
   {
     id: "home-appliances",
@@ -53,10 +53,10 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/gallery",
     },
-    imageSrc: "/images/banners/hero-home.jpg",
+    imageSrc: "/images/banners/hero-home-v2.jpg",
     imageAlt:
-      "4도어 냉장고와 드럼 세탁기·건조기 세트가 배치된 생활가전 프로모션 배너",
-    theme: "sage-green",
+      "샴페인 골드 아치 스튜디오 포디움에 4도어 냉장고, 워시타워, 김치냉장고, 전자레인지가 배치된 생활가전 프로모션 배너",
+    theme: "champagne-gold",
   },
   {
     id: "commercial-buyback",
@@ -70,10 +70,10 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/purchase",
     },
-    imageSrc: "/images/banners/hero-commercial.jpg",
+    imageSrc: "/images/banners/hero-commercial-v2.jpg",
     imageAlt:
-      "업소용 45박스 스텐 냉장고와 유리 쇼케이스, 제빙기가 배치된 업소용 설비 배너",
-    theme: "warm-apricot",
+      "미드나잇 네이비 스포트라이트 아래 45박스 스텐 냉장고, 유리 쇼케이스, 제빙기, 테이블냉장고가 배치된 업소용 설비 배너",
+    theme: "midnight-navy",
   },
   {
     id: "direct-showroom",
