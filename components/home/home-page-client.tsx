@@ -52,6 +52,7 @@ import {
 } from "./home-location-inquiry-section";
 import { HeroPromoCarousel } from "./hero-promo-carousel";
 import { HomeIntentRouter } from "./home-intent-router";
+import { HERO_BANNER_SLIDES } from "../../lib/hero-banners";
 import { filterHomeShowroomProducts } from "../../lib/home-showroom-filter";
 import { getCategoryNoticeGuide } from "../../lib/notice-guides";
 
@@ -160,6 +161,9 @@ export default function Home({
   const [airconModalOpen, setAirconModalOpen] = useState(false);
   const airconNoticeGuide = getCategoryNoticeGuide("에어컨/냉난방기");
   const [visitModalOpen, setVisitModalOpen] = useState(false);
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  const heroTheme =
+    HERO_BANNER_SLIDES[activeBannerIndex]?.theme ?? HERO_BANNER_SLIDES[0].theme;
 
   /* 관리자 모달 상태 */
   const [loginOpen, setLoginOpen] = useState(false);
@@ -539,10 +543,16 @@ export default function Home({
         <HeroPromoCarousel
           sellingCount={sellingCount}
           onOpenVisitModal={() => setVisitModalOpen(true)}
+          activeIndex={activeBannerIndex}
+          onActiveIndexChange={setActiveBannerIndex}
         />
 
-        {/* [S2] 히어로 직후 3대 목적 분기 + 매입 3단계 안내 (#buyback-summary-section) */}
-        <HomeIntentRouter sellingCount={sellingCount} bizCount={bizCount} />
+        {/* [S2] 히어로 직후 3대 목적 분기 (메인 배너 테마 연동) (#buyback-summary-section) */}
+        <HomeIntentRouter
+          sellingCount={sellingCount}
+          bizCount={bizCount}
+          activeBannerTheme={heroTheme}
+        />
 
         {/* ════════════════════════════════════════════════════════════
             [S3] 품목별 쇼룸 탐색 바 + 실시간 쇼룸 전시 매물 통합 카탈로그 섹션

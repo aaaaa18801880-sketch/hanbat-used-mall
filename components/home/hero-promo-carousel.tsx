@@ -72,22 +72,38 @@ function getSlideScrims(theme: HeroBannerSlide["theme"]): SlideScrims {
 export function HeroPromoCarousel({
   sellingCount: _sellingCount,
   onOpenVisitModal,
+  activeIndex: controlledIndex,
+  onActiveIndexChange,
 }: {
   sellingCount: number;
   onOpenVisitModal: () => void;
+  activeIndex?: number;
+  onActiveIndexChange?: (nextIndex: number) => void;
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [uncontrolledIndex, setUncontrolledIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [liveStatus, setLiveStatus] = useState("");
 
   const total = HERO_BANNER_SLIDES.length;
+  const activeIndex = controlledIndex ?? uncontrolledIndex;
   const activeSlide = HERO_BANNER_SLIDES[activeIndex];
   const scrims = getSlideScrims(activeSlide.theme);
 
+  const commitIndex = useCallback(
+    (nextIndex: number) => {
+      if (onActiveIndexChange) {
+        onActiveIndexChange(nextIndex);
+      } else {
+        setUncontrolledIndex(nextIndex);
+      }
+    },
+    [onActiveIndexChange]
+  );
+
   const selectSlide = useCallback(
     (nextIndex: number, announce = true) => {
-      setActiveIndex(nextIndex);
+      commitIndex(nextIndex);
       if (announce) {
         const target = HERO_BANNER_SLIDES[nextIndex];
         setLiveStatus(
@@ -95,7 +111,7 @@ export function HeroPromoCarousel({
         );
       }
     },
-    [total]
+    [commitIndex, total]
   );
 
   const goStep = useCallback(
@@ -115,10 +131,10 @@ export function HeroPromoCarousel({
       return;
     }
     const timer = window.setInterval(() => {
-      setActiveIndex((prev) => getWrappedBannerIndex(prev, 1, total));
+      commitIndex(getWrappedBannerIndex(activeIndex, 1, total));
     }, AUTOPLAY_INTERVAL_MS);
     return () => window.clearInterval(timer);
-  }, [isPaused, isHovered, total]);
+  }, [activeIndex, commitIndex, isPaused, isHovered, total]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
     const tag = (e.target as HTMLElement | null)?.tagName;
@@ -136,7 +152,7 @@ export function HeroPromoCarousel({
     <section
       id="hero-section"
       aria-labelledby="hero-title"
-      className="w-full border-b border-hb-border bg-white"
+      className="w-full"
     >
       {/* 100vw 풀블리드 배너 캐러셀 (배경/사진은 끝에서 끝까지, 텍스트는 .hb-container 정렬) */}
       <div
@@ -152,10 +168,10 @@ export function HeroPromoCarousel({
         onBlur={() => setIsHovered(false)}
         className="hb-banner-theme group relative w-full overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors duration-300"
       >
-        <div className="relative h-[430px] sm:h-[460px] lg:h-[500px] w-full flex flex-col justify-center">
-          {/* 배경 비주얼 레이어: 100vw 풀블리드 배경 위에 16:9 원본 비율 그대로 우측 정렬(잘림·확대 깨짐 원천 차단) */}
+        <div className="hb-hero-stage relative w-full flex flex-col justify-center">
+          {/* 배경 비주얼 레이어: 100vw 풀블리드 배경 위에 대형 16:9 비주얼을 우측 배치하고 양옆 경계를 자연스럽게 페더링 */}
           <div className="pointer-events-none absolute inset-0 flex justify-center overflow-hidden">
-            <div className="relative h-full w-full max-w-[1280px] hb-banner-stage-mask">
+            <div className="relative h-full w-full max-w-[1480px]">
               {HERO_BANNER_SLIDES.map((slide, idx) => {
                 const isCurrent = idx === activeIndex;
                 return (
@@ -165,24 +181,26 @@ export function HeroPromoCarousel({
                     aria-roledescription="slide"
                     aria-label={`${total}개 중 ${idx + 1}번째: ${slide.headlineBottom}`}
                     aria-hidden={!isCurrent}
-                    className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ease-out ${
+                    className={`pointer-events-none absolute inset-0 flex justify-end transition-opacity duration-500 ease-out ${
                       isCurrent ? "opacity-100" : "opacity-0"
                     }`}
                   >
-                    <Image
-                      src={slide.imageSrc}
-                      alt={slide.imageAlt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, 1376px"
-                      priority={idx === 0}
-                      loading="eager"
-                      quality={90}
-                      className={
-                        slide.theme === "store-photo"
-                          ? "object-cover object-center sm:object-contain sm:object-right"
-                          : "object-cover object-right sm:object-contain sm:object-right"
-                      }
-                    />
+                    <div className="hb-hero-media-frame">
+                      <Image
+                        src={slide.imageSrc}
+                        alt={slide.imageAlt}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 1140px"
+                        priority={idx === 0}
+                        loading="eager"
+                        quality={90}
+                        className={
+                          slide.theme === "store-photo"
+                            ? "object-cover object-center"
+                            : "object-cover object-right"
+                        }
+                      />
+                    </div>
                   </div>
                 );
               })}
@@ -203,7 +221,7 @@ export function HeroPromoCarousel({
           />
 
           {/* 중앙 컨테이너 정렬 콘텐츠 레이어 (하단 본문 1200px 그리드와 정확히 일렬 정렬) */}
-          <div className="hb-container relative z-10 py-10 pb-16 sm:py-14 sm:pb-16">
+          <div className="hb-container relative z-10 py-12 pb-16 sm:py-16 sm:pb-20">
             <div className="max-w-full sm:max-w-[56%] lg:max-w-[50%]">
               {/* 상단 브랜드/신뢰 바 */}
               <div className="hb-banner-eyebrow flex flex-wrap items-center gap-x-2.5 gap-y-1 text-hb-xs sm:text-hb-sm font-extrabold tracking-tight">
@@ -220,22 +238,22 @@ export function HeroPromoCarousel({
               </div>
 
               {/* 메인 헤드라인 (접근성·SEO H1 유지) */}
-              <h1 id="hero-title" className="mt-2.5 sm:mt-3 hb-banner-h1">
+              <h1 id="hero-title" className="mt-3 sm:mt-3.5 hb-banner-h1">
                 <span className="hb-banner-h1-top block">
                   {activeSlide.headlineTop}
                 </span>
-                <span className="hb-banner-h1-bottom block mt-1">
+                <span className="hb-banner-h1-bottom block mt-1.5">
                   {activeSlide.headlineBottom}
                 </span>
               </h1>
 
               {/* 서브 설명 */}
-              <p className="hb-banner-sub mt-3 sm:mt-4 max-w-md text-hb-sm sm:text-hb-base font-medium leading-relaxed break-keep [text-wrap:pretty]">
+              <p className="hb-banner-sub mt-3.5 sm:mt-5 max-w-lg text-hb-sm sm:text-hb-base font-medium leading-relaxed break-keep [text-wrap:pretty]">
                 {activeSlide.subtitle}
               </p>
 
               {/* 단일 핵심 CTA 캡슐 버튼 */}
-              <div className="mt-6 sm:mt-7 flex items-center gap-2.5">
+              <div className="mt-7 sm:mt-8 flex items-center gap-2.5">
                 {activeSlide.action.kind === "link" ? (
                   <Link
                     href={activeSlide.action.href}

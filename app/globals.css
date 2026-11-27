@@ -181,8 +181,8 @@ body {
   }
 
   .hb-banner-h1 {
-    font-size: clamp(1.55rem, 2.2vw + 0.9rem, 2.45rem);
-    line-height: 1.24;
+    font-size: clamp(1.7rem, 2.4vw + 0.95rem, 2.85rem);
+    line-height: 1.22;
     letter-spacing: -0.028em;
     font-weight: 800;
     text-wrap: balance;
@@ -190,17 +190,18 @@ body {
   }
 
   .hb-intent-display {
-    font-size: clamp(1.85rem, 2.3vw + 1rem, 2.5rem);
-    line-height: 1.22;
-    letter-spacing: -0.032em;
+    font-size: clamp(1.65rem, 2.1vw + 0.95rem, 2.35rem);
+    line-height: 1.26;
+    letter-spacing: -0.03em;
     font-weight: 800;
+    text-wrap: balance;
     word-break: keep-all;
   }
 
   .hb-intent-card-title {
     font-size: 1.25rem;
     line-height: 1.38;
-    letter-spacing: -0.032em;
+    letter-spacing: -0.03em;
     font-weight: 700;
     word-break: keep-all;
   }
@@ -216,8 +217,8 @@ body {
   @media (min-width: 640px) {
     .hb-intent-card-title {
       font-size: 1.375rem;
-      line-height: 1.38;
-      letter-spacing: -0.032em;
+      line-height: 1.36;
+      letter-spacing: -0.03em;
     }
 
     .hb-intent-card-desc {
@@ -305,22 +306,58 @@ body {
     background-image: var(--banner-bg-image);
   }
 
+  .hb-hero-stage {
+    height: 460px;
+  }
+
+  .hb-hero-media-frame {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
   @media (min-width: 640px) {
-    .hb-banner-stage-mask {
+    .hb-hero-stage {
+      height: 540px;
+    }
+
+    .hb-hero-media-frame {
+      width: 960px;
       -webkit-mask-image: linear-gradient(
         to right,
         transparent 0%,
-        #000 10%,
-        #000 91%,
+        #000 18%,
+        #000 90%,
         transparent 100%
       );
       mask-image: linear-gradient(
         to right,
         transparent 0%,
-        #000 10%,
-        #000 91%,
+        #000 18%,
+        #000 90%,
         transparent 100%
       );
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .hb-hero-stage {
+      height: 600px;
+    }
+
+    .hb-hero-media-frame {
+      width: 1070px;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .hb-hero-stage {
+      height: 640px;
+    }
+
+    .hb-hero-media-frame {
+      width: 1140px;
     }
   }
 
@@ -360,6 +397,158 @@ body {
 
   .hb-banner-dot[aria-selected="true"] {
     background-color: var(--banner-dot-active);
+  }
+
+  /* 메인 배너 4개 테마와 직결되는 바로가기 섹션 연동 팔레트 */
+  .hb-intent-theme[data-theme="glacial-blue"] {
+    --intent-bg: #dff0f9;
+    --intent-sheen: linear-gradient(
+      180deg,
+      rgba(230, 246, 252, 0.72) 0%,
+      rgba(236, 246, 252, 0.35) 55%,
+      rgba(255, 255, 255, 0.55) 100%
+    );
+    --intent-border-bottom: #cbe0ee;
+    --intent-heading: #0f172a;
+    --intent-heading-accent: #0369a1;
+    --intent-card-accent: #0369a1;
+    --intent-card-accent-center: #0c4a6e;
+    --intent-card-border: rgba(12, 74, 110, 0.1);
+    --intent-card-shadow: 0 12px 30px rgba(12, 74, 110, 0.08);
+    --intent-card-shadow-hover: 0 20px 38px rgba(12, 74, 110, 0.14);
+    --intent-meta: #334155;
+    --intent-meta-strong: #0f172a;
+    --intent-meta-hover: #0369a1;
+    --intent-meta-dot: #94a3b8;
+    --intent-focus-ring: #0c4a6e;
+    --intent-focus-offset: #dff0f9;
+  }
+
+  .hb-intent-theme[data-theme="champagne-gold"] {
+    --intent-bg: #f1eadb;
+    --intent-sheen: linear-gradient(
+      180deg,
+      rgba(248, 244, 232, 0.72) 0%,
+      rgba(245, 239, 225, 0.35) 55%,
+      rgba(255, 255, 255, 0.45) 100%
+    );
+    --intent-border-bottom: #e2d8c5;
+    --intent-heading: #1c1612;
+    --intent-heading-accent: #9a5b13;
+    --intent-card-accent: #9a5b13;
+    --intent-card-accent-center: #0e5a8a;
+    --intent-card-border: rgba(28, 22, 18, 0.09);
+    --intent-card-shadow: 0 12px 30px rgba(28, 22, 18, 0.07);
+    --intent-card-shadow-hover: 0 20px 38px rgba(28, 22, 18, 0.13);
+    --intent-meta: #57493b;
+    --intent-meta-strong: #1c1612;
+    --intent-meta-hover: #9a5b13;
+    --intent-meta-dot: #c4b59d;
+    --intent-focus-ring: #7c511a;
+    --intent-focus-offset: #f1eadb;
+  }
+
+  .hb-intent-theme[data-theme="midnight-navy"] {
+    --intent-bg: #081429;
+    --intent-sheen: linear-gradient(
+      180deg,
+      rgba(1, 3, 10, 0.52) 0%,
+      rgba(8, 20, 41, 0.18) 55%,
+      rgba(22, 42, 74, 0.42) 100%
+    );
+    --intent-border-bottom: rgba(255, 255, 255, 0.08);
+    --intent-heading: #ffffff;
+    --intent-heading-accent: #fbbf24;
+    --intent-card-accent: #c84312;
+    --intent-card-accent-center: #0e5a8a;
+    --intent-card-border: rgba(255, 255, 255, 0.14);
+    --intent-card-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+    --intent-card-shadow-hover: 0 22px 44px rgba(0, 0, 0, 0.48);
+    --intent-meta: rgba(226, 232, 240, 0.84);
+    --intent-meta-strong: #ffffff;
+    --intent-meta-hover: #fbbf24;
+    --intent-meta-dot: rgba(255, 255, 255, 0.32);
+    --intent-focus-ring: #fbbf24;
+    --intent-focus-offset: #081429;
+  }
+
+  .hb-intent-theme[data-theme="store-photo"] {
+    --intent-bg: #152338;
+    --intent-sheen: linear-gradient(
+      180deg,
+      rgba(15, 24, 38, 0.5) 0%,
+      rgba(21, 35, 56, 0.18) 55%,
+      rgba(35, 56, 86, 0.38) 100%
+    );
+    --intent-border-bottom: rgba(255, 255, 255, 0.1);
+    --intent-heading: #ffffff;
+    --intent-heading-accent: #ff9e6d;
+    --intent-card-accent: #c84312;
+    --intent-card-accent-center: #0e5a8a;
+    --intent-card-border: rgba(255, 255, 255, 0.14);
+    --intent-card-shadow: 0 16px 36px rgba(9, 17, 29, 0.32);
+    --intent-card-shadow-hover: 0 22px 44px rgba(9, 17, 29, 0.45);
+    --intent-meta: rgba(226, 232, 240, 0.88);
+    --intent-meta-strong: #ffffff;
+    --intent-meta-hover: #ff9e6d;
+    --intent-meta-dot: rgba(255, 255, 255, 0.32);
+    --intent-focus-ring: #ff9e6d;
+    --intent-focus-offset: #152338;
+  }
+
+  .hb-intent-theme {
+    background-color: var(--intent-bg);
+    background-image: var(--intent-sheen);
+    border-bottom: 1px solid var(--intent-border-bottom);
+    color: var(--intent-heading);
+    transition: background-color 450ms ease, border-color 450ms ease, color 300ms ease;
+  }
+
+  .hb-intent-heading-accent {
+    color: var(--intent-heading-accent);
+    transition: color 300ms ease;
+  }
+
+  .hb-intent-card {
+    border: 1px solid var(--intent-card-border);
+    box-shadow: var(--intent-card-shadow);
+  }
+
+  .hb-intent-card:hover {
+    box-shadow: var(--intent-card-shadow-hover);
+  }
+
+  .hb-intent-card:focus-visible {
+    outline: 2px solid var(--intent-focus-ring);
+    outline-offset: 4px;
+  }
+
+  .hb-intent-card-accent {
+    color: var(--intent-card-accent);
+    transition: color 300ms ease;
+  }
+
+  .hb-intent-card-accent-center {
+    color: var(--intent-card-accent-center);
+    transition: color 300ms ease;
+  }
+
+  .hb-intent-meta {
+    color: var(--intent-meta);
+    transition: color 300ms ease;
+  }
+
+  .hb-intent-meta-link {
+    color: var(--intent-meta-strong);
+    transition: color 200ms ease;
+  }
+
+  .hb-intent-meta-link:hover {
+    color: var(--intent-meta-hover);
+  }
+
+  .hb-intent-meta-dot {
+    color: var(--intent-meta-dot);
   }
 
   .hb-surface-card {
