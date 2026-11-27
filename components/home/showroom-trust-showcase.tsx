@@ -1,400 +1,190 @@
 // 파일 경로: components/home/showroom-trust-showcase.tsx
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
   REFURBISH_STEPS,
-  getAdjacentRefurbishStepId,
-  getRefurbishStepById,
-  type RefurbishMetric,
   type RefurbishStepId,
 } from "../../lib/refurbish-process";
 import {
   STORE,
+  getCategoryWarrantyInfo,
   telHref,
   trackEvent,
   triggerQuickInquiry,
 } from "../../lib/site";
 import { Icon, ICON } from "../../lib/icons";
 
-function getMetricValueToneClass(tone?: RefurbishMetric["tone"]): string {
-  switch (tone) {
-    case "brand":
-      return "text-[#C84312]";
-    case "teal":
-      return "text-[#0F766E]";
-    case "cyan":
-      return "text-[#0369A1]";
-    default:
-      return "text-[#141A23]";
-  }
-}
+const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
+const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
+const AIRCON_WARRANTY_TERM = AIRCON_WARRANTY.compactLabel.replace(" 무상보증", "");
+const MAJOR_WARRANTY_TERM = MAJOR_WARRANTY.compactLabel.replace(" 무상보증", "");
+
+const CONCISE_STEP_COPY: Record<
+  RefurbishStepId,
+  { desc: string; highlight: string }
+> = {
+  intake: {
+    desc: "매입 현장에서 전원을 직접 켜고 작동·냉방 상태와 가스 누설 여부를 확인한 정상 제품만 들여옵니다.",
+    highlight: "고장·이상 제품 입고 제외",
+  },
+  wash: {
+    desc: "에어컨 필터·열교환기, 냉장고 선반·패킹, 세탁기 내부와 업소용 기름때까지 고압세척으로 정리합니다.",
+    highlight: "설치 후 바로 사용하는 위생 상태",
+  },
+  precheck: {
+    desc: "출고 직전 전원을 연결해 냉기 도달, 급배수·탈수, 냉방 구동 상태를 한 번 더 점검합니다.",
+    highlight: "배송 전 실작동 이중 확인",
+  },
+  delivery: {
+    desc: "매장 직영 기사가 직접 운반해 수평·기본 설치까지 마무리하고, 사용 중 문제 시 방문 A/S를 지원합니다.",
+    highlight: `에어컨 ${AIRCON_WARRANTY_TERM} · 가전 ${MAJOR_WARRANTY_TERM} 보증`,
+  },
+};
 
 export function ShowroomTrustShowcase({
   embedded = false,
 }: {
   embedded?: boolean;
 }) {
-  const [activeId, setActiveId] = useState<RefurbishStepId>(
-    REFURBISH_STEPS[0].id
-  );
-
-  const activeStep = getRefurbishStepById(activeId);
-  const activeIndex = REFURBISH_STEPS.findIndex((s) => s.id === activeStep.id);
-
-  const selectStep = (nextId: RefurbishStepId) => {
-    setActiveId(nextId);
-    trackEvent("click_guide_tool_action", {
-      step: nextId,
-      location: "home_showroom_trust_showcase",
-    });
-  };
-
-  const handleTabKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "ArrowRight") {
-      e.preventDefault();
-      const next = getAdjacentRefurbishStepId(activeId, 1);
-      selectStep(next);
-      document.getElementById(`refurbish-tab-${next}`)?.focus();
-    } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
-      const prev = getAdjacentRefurbishStepId(activeId, -1);
-      selectStep(prev);
-      document.getElementById(`refurbish-tab-${prev}`)?.focus();
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      const first = REFURBISH_STEPS[0].id;
-      selectStep(first);
-      document.getElementById(`refurbish-tab-${first}`)?.focus();
-    } else if (e.key === "End") {
-      e.preventDefault();
-      const last = REFURBISH_STEPS[REFURBISH_STEPS.length - 1].id;
-      selectStep(last);
-      document.getElementById(`refurbish-tab-${last}`)?.focus();
-    }
-  };
-
-  const bentoBoard = (
-    <div className="overflow-hidden rounded-2xl border border-hb-border bg-hb-border shadow-2xs">
-          {/* 1) 4단계 인터랙티브 탭 바 */}
-          <div
-            role="tablist"
-            aria-label="입고·세척·작동점검·직배송 4단계 선택"
-            onKeyDown={handleTabKeyDown}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-hb-border"
-          >
-            {REFURBISH_STEPS.map((step) => {
-              const isSelected = step.id === activeStep.id;
-              return (
-                <button
-                  key={step.id}
-                  id={`refurbish-tab-${step.id}`}
-                  role="tab"
-                  type="button"
-                  aria-selected={isSelected}
-                  aria-controls={`refurbish-panel-${step.id}`}
-                  tabIndex={isSelected ? 0 : -1}
-                  onClick={() => selectStep(step.id)}
-                  className={`group relative flex min-h-[60px] flex-col justify-between px-4 py-3 text-left transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-hb-navy cursor-pointer ${
-                    isSelected
-                      ? "bg-hb-navy text-white"
-                      : "bg-white text-hb-text-secondary hover:bg-hb-surface-muted hover:text-hb-text-primary"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2 w-full">
-                    <span
-                      className={`font-mono text-hb-xs font-bold tabular-nums leading-none ${
-                        isSelected
-                          ? "text-white/80"
-                          : "text-hb-brand-text group-hover:text-hb-text-primary"
-                      }`}
-                    >
-                      {step.stepNumber}
-                    </span>
-                    <Icon
-                      d={isSelected ? ICON.check : ICON.right}
-                      className={`w-3.5 h-3.5 shrink-0 transition-transform duration-150 ${
-                        isSelected
-                          ? "text-white"
-                          : "text-hb-text-muted group-hover:text-hb-text-primary group-hover:translate-x-0.5"
-                      }`}
-                    />
-                  </div>
-                  <span
-                    className={`mt-1.5 block text-hb-xs sm:text-hb-sm font-bold tracking-tight truncate ${
-                      isSelected ? "text-white" : "text-hb-text-primary"
-                    }`}
-                  >
-                    {step.shortTitle}
-                  </span>
-
-                  <span
-                    className={`absolute inset-x-0 bottom-0 h-0.5 bg-hb-brand transition-opacity duration-150 ${
-                      isSelected ? "opacity-100" : "opacity-0"
-                    }`}
-                    aria-hidden="true"
-                  />
-                </button>
-              );
-            })}
-          </div>
-
-          {/* 2) 선택된 단계의 스위스 벤토 상세 패널 */}
-          <div
-            id={`refurbish-panel-${activeStep.id}`}
-            role="tabpanel"
-            aria-labelledby={`refurbish-tab-${activeStep.id}`}
-            className="mt-px grid grid-cols-1 lg:grid-cols-12 gap-px bg-hb-border"
-          >
-            {/* 좌측 5열: 실물 현장 사진 + 핵심 원칙 요약 */}
-            <div className="lg:col-span-5 flex flex-col bg-white">
-              <div className="relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] lg:flex-1 w-full overflow-hidden bg-hb-warm">
-                {REFURBISH_STEPS.map((step) => {
-                  const isActiveImage = step.id === activeStep.id;
-                  return (
-                    <Image
-                      key={step.id}
-                      src={step.imageSrc}
-                      alt={step.imageAlt}
-                      fill
-                      loading="lazy"
-                      sizes="(max-width: 1024px) 100vw, 42vw"
-                      quality={85}
-                      referrerPolicy="no-referrer"
-                      aria-hidden={!isActiveImage}
-                      className={`object-cover object-center transition-opacity duration-200 ${
-                        isActiveImage
-                          ? "opacity-100"
-                          : "pointer-events-none opacity-0"
-                      }`}
-                    />
-                  );
-                })}
-                <div
-                  className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#141A23]/90 via-[#141A23]/30 to-transparent"
-                  aria-hidden="true"
+  const processGrid = (
+    <div className="space-y-5">
+      {/* 4단계 한눈에 보기 카드 그리드 (탭 전환 없이 스크롤로 바로 파악) */}
+      <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {REFURBISH_STEPS.map((step, index) => {
+          const copy = CONCISE_STEP_COPY[step.id];
+          return (
+            <li
+              key={step.id}
+              className="flex flex-col overflow-hidden rounded-2xl border border-hb-border bg-white shadow-2xs"
+            >
+              {/* 상단 실물 사진 (사진 위 텍스트·배지 오버레이 제거) */}
+              <div className="relative aspect-[4/3] w-full overflow-hidden bg-hb-warm">
+                <Image
+                  src={step.imageSrc}
+                  alt={step.imageAlt}
+                  fill
+                  loading="lazy"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  quality={85}
+                  referrerPolicy="no-referrer"
+                  className="object-cover object-center"
                 />
-
-                {/* 좌상단 단계 인덱스 */}
-                <div className="absolute top-3.5 left-3.5 z-10 inline-flex items-center gap-2 rounded-lg bg-[#141A23]/90 px-3 py-1.5 backdrop-blur-md border border-white/15">
-                  <span className="font-mono text-hb-xs font-bold text-[#FF8A50] tabular-nums">
-                    STEP {activeStep.stepNumber}
-                  </span>
-                  <span className="h-3 w-px bg-white/25" aria-hidden="true" />
-                  <span className="text-hb-xs font-semibold text-white">
-                    {activeStep.roleLabel}
-                  </span>
-                </div>
-
-                {/* 하단 실물 캡션 & 중점 확인 항목 */}
-                <div className="absolute inset-x-0 bottom-0 z-10 p-4 sm:p-5 text-white">
-                  <p className="text-hb-xs font-semibold text-[#5EEAD4]">
-                    중점 확인 · {activeStep.focusTag}
-                  </p>
-                  <p className="mt-1 text-hb-sm font-bold leading-snug text-white break-keep">
-                    {activeStep.imageCaption}
-                  </p>
-                </div>
               </div>
 
-              {/* 매장 출고 기준 스트립 */}
-              <div className="border-t border-hb-border bg-hb-surface-muted px-4 py-3.5 sm:px-5 sm:py-4">
-                <div className="flex items-start gap-2.5">
-                  <Icon
-                    d={ICON.shieldCheck}
-                    className="w-4 h-4 text-[#0F766E] shrink-0 mt-0.5"
-                  />
-                  <div className="min-w-0">
-                    <span className="block text-hb-xs font-bold text-[#0F766E]">
-                      {activeStep.warrantyScopeLabel}
-                    </span>
-                    <p className="mt-0.5 text-hb-xs text-hb-text-secondary leading-relaxed break-keep">
-                      {activeStep.warrantyScopeDetail}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 우측 7열: 단계 헤드라인 + 3열 핵심 확인 요약 + 체크리스트 + 액션 바 */}
-            <div className="lg:col-span-7 grid grid-cols-1 gap-px bg-hb-border">
-              {/* 상단 단계 요약 셀 */}
-              <div className="bg-white p-5 sm:p-6">
-                <div className="flex flex-wrap items-center gap-2 text-hb-xs font-semibold text-hb-text-muted">
-                  <span className="font-mono font-bold text-hb-brand-text tabular-nums">
-                    {activeStep.tabLabel}
-                  </span>
-                  <span aria-hidden="true">·</span>
-                  <span>{STORE.name} 현장 기준</span>
-                </div>
-                <h3 className="mt-2 text-hb-lg sm:text-hb-xl font-bold text-hb-text-primary tracking-tight leading-snug break-keep [text-wrap:balance]">
-                  {activeStep.headline}
-                </h3>
-                <p className="mt-2 text-hb-sm text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
-                  {activeStep.summary}
-                </p>
-              </div>
-
-              {/* 중단 3열 핵심 요약 셀 */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-hb-border">
-                {activeStep.metrics.map((metric) => (
-                  <div
-                    key={metric.label}
-                    className="flex flex-col justify-between bg-hb-surface-muted px-4 py-3.5 sm:px-5 sm:py-4"
-                  >
-                    <span className="text-hb-xs font-semibold text-hb-text-muted">
-                      {metric.label}
-                    </span>
-                    <strong
-                      className={`mt-1.5 block text-hb-base sm:text-hb-lg font-extrabold tracking-tight tabular-nums ${getMetricValueToneClass(
-                        metric.tone
-                      )}`}
-                    >
-                      {metric.value}
-                    </strong>
-                    <span className="mt-1 block text-hb-xs text-[#475569] leading-snug break-keep">
-                      {metric.note}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {/* 하단 실제 점검 항목 & 빠른 행동 셀 */}
-              <div className="bg-white p-5 sm:p-6 flex flex-col justify-between gap-4">
+              {/* 하단 핵심 설명 (단계 + 제목 + 2줄 설명 + 1줄 기준) */}
+              <div className="flex flex-1 flex-col justify-between p-5">
                 <div>
-                  <span className="block text-hb-xs font-bold text-[#141A23] mb-2.5">
-                    이 단계에서 확인하는 내용
+                  <span className="inline-block text-hb-xs font-bold text-hb-brand-text">
+                    {index + 1}단계
                   </span>
-                  <ul className="space-y-2">
-                    {activeStep.checkItems.map((item) => (
-                      <li
-                        key={item}
-                        className="flex items-start gap-2.5 text-hb-xs sm:text-hb-sm text-[#334155] leading-relaxed break-keep"
-                      >
-                        <Icon
-                          d={ICON.check}
-                          className="w-4 h-4 text-[#0F766E] shrink-0 mt-0.5"
-                        />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <h3 className="mt-1 text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight leading-snug break-keep">
+                    {step.shortTitle}
+                  </h3>
+                  <p className="mt-2 text-hb-sm text-[#4B5563] leading-relaxed break-keep [text-wrap:pretty]">
+                    {copy.desc}
+                  </p>
                 </div>
 
-                <div className="pt-3.5 border-t border-[#E2DDD3] flex flex-wrap items-center justify-between gap-2.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Link
-                      href={activeStep.targetCategoryHref}
-                      className="hb-btn-primary min-h-[40px] h-10 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
-                    >
-                      <span>{activeStep.targetCategoryCta}</span>
-                      <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        trackEvent("begin_buy_inquiry", {
-                          step: activeStep.id,
-                          location: "home_showroom_trust_showcase",
-                        });
-                        triggerQuickInquiry({
-                          type: "구매 문의",
-                          productTitle: `[점검·보증 문의] ${activeStep.tabLabel}`,
-                        });
-                      }}
-                      className="hb-btn-outline min-h-[40px] h-10 px-3.5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap cursor-pointer"
-                    >
-                      <Icon d={ICON.chat} className="w-3.5 h-3.5 text-[#C84312]" />
-                      <span>재고·보증 상담</span>
-                    </button>
-                  </div>
-
-                  <a
-                    href={telHref(STORE.tel)}
-                    className="inline-flex min-h-[40px] items-center gap-1.5 text-hb-xs sm:text-hb-sm font-bold text-[#141A23] hover:text-[#C84312] transition-colors font-mono tabular-nums whitespace-nowrap"
-                  >
-                    <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#C84312]" />
-                    <span>직영 문의 {STORE.tel}</span>
-                  </a>
+                <div className="mt-4 pt-3.5 border-t border-[#EFEAE1] flex items-center gap-1.5 text-hb-xs font-semibold text-[#0F766E]">
+                  <Icon
+                    d={ICON.check}
+                    className="w-3.5 h-3.5 shrink-0 text-[#0F766E]"
+                  />
+                  <span className="break-keep">{copy.highlight}</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </li>
+          );
+        })}
+      </ol>
+
+      {/* 하단 1줄 안심 기준 및 빠른 행동 바 */}
+      <div className="flex flex-col gap-3 rounded-2xl border border-hb-border bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-hb-xs sm:text-hb-sm text-[#334155]">
+          <span className="inline-flex items-center gap-1.5 font-bold text-[#141A23]">
+            <Icon
+              d={ICON.shieldCheck}
+              className="w-4 h-4 shrink-0 text-[#0F766E]"
+            />
+            <span>직영 기사 방문 A/S 보증</span>
+          </span>
+          <span className="text-[#CFC7BA]" aria-hidden="true">
+            ·
+          </span>
+          <span>카드·현금영수증·전자세금계산서 발행</span>
+          <span className="hidden md:inline text-[#CFC7BA]" aria-hidden="true">
+            ·
+          </span>
+          <a
+            href={telHref(STORE.tel)}
+            className="font-mono font-bold text-[#141A23] hover:text-[#C84312] transition-colors tabular-nums"
+          >
+            직영 문의 {STORE.tel}
+          </a>
         </div>
+
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => {
+              trackEvent("begin_buy_inquiry", {
+                step: "process_overview",
+                location: "home_showroom_trust_showcase",
+              });
+              triggerQuickInquiry({
+                type: "구매 문의",
+                productTitle: "[점검·보증 문의] 출고·A/S 기준 확인",
+              });
+            }}
+            className="hb-btn-outline min-h-[38px] h-9 px-3.5 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap cursor-pointer"
+          >
+            <span>보증·재고 상담</span>
+          </button>
+          <Link
+            href="/gallery"
+            onClick={() =>
+              trackEvent("click_guide_tool_action", {
+                step: "gallery_cta",
+                location: "home_showroom_trust_showcase",
+              })
+            }
+            className="hb-btn-primary min-h-[38px] h-9 px-4 text-hb-xs sm:text-hb-sm font-bold whitespace-nowrap"
+          >
+            <span>실매물 보기</span>
+            <Icon d={ICON.arrow} className="w-3.5 h-3.5 text-[#FF8A50]" />
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 
   if (embedded) {
-    return bentoBoard;
+    return processGrid;
   }
 
   return (
     <section
       id="refurbish-process-section"
       aria-labelledby="refurbish-process-heading"
-      className="border-y border-hb-border hb-theme-band py-10 sm:py-14"
+      className="border-y border-hb-border hb-theme-band py-12 sm:py-16"
     >
       <div className="hb-container">
-        {/* 상단 헤더: 섹션 타이틀 + 현재 단계 카운터 및 좌우 이동 컨트롤 */}
-        <div className="flex flex-col gap-3.5 lg:flex-row lg:items-end lg:justify-between mb-4 sm:mb-5">
-          <div className="min-w-0">
-            <span className="inline-block text-hb-xs sm:text-hb-sm font-bold text-hb-brand-text">
-              {STORE.name} 현장 확인 · 세척 · 출고 절차 안내
-            </span>
-            <h2
-              id="refurbish-process-heading"
-              className="mt-1.5 text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-hb-text-primary break-keep [text-wrap:balance]"
-            >
-              매입 현장 확인부터 고압세척·배송 전 작동 점검까지, 4단계로 준비합니다
-            </h2>
-            <p className="mt-1.5 max-w-2xl text-hb-sm text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
-              매입 현장에서 직접 작동 상태를 확인해 정상 제품만 들여오고, 고압세척과 배송 전 작동 점검을 거쳐 직영 기사가 설치·보증합니다.
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
-            <div className="text-left sm:text-right">
-              <span className="block text-hb-xs font-semibold text-[#475569]">
-                현재 확인 중인 단계
-              </span>
-              <strong className="font-mono text-hb-sm font-bold text-[#141A23] tabular-nums">
-                {String(activeIndex + 1).padStart(2, "0")} /{" "}
-                {String(REFURBISH_STEPS.length).padStart(2, "0")} ·{" "}
-                {activeStep.shortTitle}
-              </strong>
-            </div>
-
-            <div className="inline-flex items-center overflow-hidden rounded-xl border border-[#CBD2DC] bg-white shadow-2xs">
-              <button
-                type="button"
-                onClick={() =>
-                  selectStep(getAdjacentRefurbishStepId(activeId, -1))
-                }
-                aria-label="이전 단계 보기"
-                className="grid h-10 w-10 place-items-center text-[#141A23] hover:bg-[#F7F8FA] active:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors cursor-pointer"
-              >
-                <Icon d={ICON.left} className="w-4 h-4" />
-              </button>
-              <span
-                className="h-5 w-px bg-[#E2DDD3]"
-                aria-hidden="true"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  selectStep(getAdjacentRefurbishStepId(activeId, 1))
-                }
-                aria-label="다음 단계 보기"
-                className="grid h-10 w-10 place-items-center text-[#141A23] hover:bg-[#F7F8FA] active:bg-[#F1F3F6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#141A23] transition-colors cursor-pointer"
-              >
-                <Icon d={ICON.right} className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+        <div className="max-w-2xl mb-6 sm:mb-8">
+          <h2
+            id="refurbish-process-heading"
+            className="text-hb-xl sm:text-hb-2xl font-bold tracking-[-0.026em] text-hb-text-primary break-keep [text-wrap:balance]"
+          >
+            매입부터 배송·A/S까지, 4단계로 준비합니다
+          </h2>
+          <p className="mt-2 text-hb-sm sm:text-hb-base text-hb-text-muted leading-relaxed break-keep [text-wrap:pretty]">
+            직접 확인한 정상 제품만 들여와 고압세척과 배송 전 작동 점검을 마친 뒤 직영 기사가 설치·보증합니다.
+          </p>
         </div>
 
-        {bentoBoard}
+        {processGrid}
       </div>
     </section>
   );

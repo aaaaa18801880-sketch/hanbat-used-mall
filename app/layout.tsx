@@ -11,7 +11,8 @@ import {
 } from "../lib/seo-schema";
 import "./globals.css";
 
-const GA_MEASUREMENT_ID = "G-32CDGHN1F0";
+const GA_MEASUREMENT_ID =
+  (process.env.NEXT_PUBLIC_GA_ID || "").trim() || "G-32CDGHN1F0";
 const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
 const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
 

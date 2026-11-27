@@ -10,7 +10,6 @@ import { serializeJsonLd } from "../../lib/json-ld";
 import { resolveGuideThumbnail } from "../../lib/guides/thumbnails";
 import {
   STORE,
-  STORE_MERCHANT_POLICY,
   STORE_SHIPPING_POLICY,
   splitImages,
   isValidProductRouteId,
@@ -316,14 +315,6 @@ export default async function ProductDetailPage({
             : "https://schema.org/InStock",
           itemCondition: "https://schema.org/UsedCondition",
           warranty: warrantySummary,
-          hasMerchantReturnPolicy: {
-            "@type": "MerchantReturnPolicy",
-            applicableCountry: STORE_MERCHANT_POLICY.applicableCountry,
-            returnPolicyCategory: STORE_MERCHANT_POLICY.returnPolicyCategory,
-            merchantReturnDays: STORE_MERCHANT_POLICY.merchantReturnDays,
-            returnMethod: STORE_MERCHANT_POLICY.returnMethod,
-            returnFees: STORE_MERCHANT_POLICY.returnFees,
-          },
           shippingDetails: {
             "@type": "OfferShippingDetails",
             shippingRate: {

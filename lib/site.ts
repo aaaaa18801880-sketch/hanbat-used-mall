@@ -30,14 +30,9 @@ export const STORE = {
 } as const;
 
 /* ════════════════════════════════════════════════════════════
-   0. 공식 보증/반품/배송 정책 단일 출처 (SSOT)
+   0. 공식 보증/배송 정책 단일 출처 (SSOT)
    ════════════════════════════════════════════════════════════ */
 export const STORE_MERCHANT_POLICY = {
-  applicableCountry: "KR",
-  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-  merchantReturnDays: 7,
-  returnMethod: "https://schema.org/ReturnInStore",
-  returnFees: "https://schema.org/FreeReturn",
   warrantyAircon:
     "에어컨·냉난방기 최대 8개월 무상 보증 (출고 확인 기준)",
   warrantyMajor:

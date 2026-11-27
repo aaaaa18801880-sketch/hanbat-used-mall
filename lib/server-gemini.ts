@@ -54,9 +54,23 @@ export async function extractValidatedImageParts(
   };
 }
 
+export const GEMINI_MODELS = {
+  defaultFlash: "gemini-3.8-flash",
+  fallbackFlash: "gemini-2.5-flash",
+  groupFlashLite: "gemini-3.5-flash-lite",
+} as const;
+
+export function resolveGeminiModel(
+  envOverride: string | undefined,
+  fallback: string = GEMINI_MODELS.defaultFlash
+): string {
+  const trimmed = (envOverride || "").trim();
+  return trimmed || fallback;
+}
+
 const LIVE_FLASH_FALLBACK_CHAIN = [
-  "gemini-3.8-flash",
-  "gemini-3.5-flash-lite",
+  GEMINI_MODELS.defaultFlash,
+  GEMINI_MODELS.groupFlashLite,
   "gemini-3.7-flash",
   "gemini-flash-latest",
 ] as const;

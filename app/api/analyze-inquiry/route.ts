@@ -18,7 +18,9 @@ import {
 import {
   extractValidatedImageParts,
   generateGeminiWithFallback,
+  getGeminiErrorStatus,
   parseGeminiJsonObject,
+  resolveGeminiModel,
 } from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
@@ -26,7 +28,10 @@ export const maxDuration = 60;
 
 const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
-const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const DEFAULT_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_MODEL,
+  "gemini-3.8-flash"
+);
 const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
 
 const ALLOWED_INQUIRY_TYPES: readonly InquiryTypeValue[] = [
@@ -724,6 +729,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const dailyRate = await checkRateLimit(
+      `analyze_inquiry_daily:${ip}`,
+      25,
+      24 * 60 * 60 * 1000,
+      { failureMode: "fail-closed" }
+    );
+    if (!dailyRate.allowed) {
+      return NextResponse.json(
+        {
+          error:
+            "오늘 AI 사진 분석 이용 한도에 도달했습니다. 아래 입력란에 직접 적어주시면 빠르게 확인하겠습니다.",
+        },
+        { status: 429 }
+      );
+    }
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return NextResponse.json(
@@ -736,6 +757,16 @@ export async function POST(req: NextRequest) {
     }
 
     const formData = await req.formData();
+    const honeypot = cleanText(
+      formData.get("website") ?? formData.get("honeypot"),
+      40
+    );
+    if (honeypot) {
+      return NextResponse.json(
+        { error: "유효하지 않은 요청입니다." },
+        { status: 400 }
+      );
+    }
     const imgResult = await extractValidatedImageParts(formData, {
       maxFiles: MAX_FILES,
       maxFileSizeBytes: MAX_FILE_SIZE,
@@ -794,6 +825,7 @@ export async function POST(req: NextRequest) {
     }
     return NextResponse.json(sanitized);
   } catch (err: unknown) {
+    const status = getGeminiErrorStatus(err);
     console.error(
       "[analyze-inquiry] 분석 처리 중 오류:",
       err instanceof Error ? err.message : "Unknown error"
@@ -801,9 +833,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "사진 분석 중 일시적인 오류가 발생했습니다. 아래 입력란에 직접 적어주시면 빠르게 확인하겠습니다.",
+          status === 429
+            ? "AI 분석 요청이 일시적으로 몰렸습니다. 잠시 후 다시 시도하거나 아래 입력란에 직접 적어주세요."
+            : "사진 분석 중 일시적인 오류가 발생했습니다. 아래 입력란에 직접 적어주시면 빠르게 확인하겠습니다.",
       },
-      { status: 500 }
+      { status }
     );
   }
 }

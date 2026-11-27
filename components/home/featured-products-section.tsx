@@ -8,7 +8,6 @@ import {
   getCategoryWarrantyInfo,
   isProductSold,
   STORE,
-  STORE_MERCHANT_POLICY,
   telHref,
   trackEvent,
   triggerQuickInquiry,
@@ -86,7 +85,7 @@ const CATEGORY_QUALITY_FACTS: Record<string, CategoryQualityFact> = {
     points: [
       "화면 출력 및 외관 상태 실물 확인",
       "단자 입출력 및 리모컨·전원 작동 점검",
-      `초기 기능 불량 시 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 교환·환불 지원`,
+      "품목별 출고 확인 및 직영 A/S 상담 지원",
     ],
     icon: "small",
   },

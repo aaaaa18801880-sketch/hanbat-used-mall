@@ -21,9 +21,11 @@ import {
   verifyAdminRequest,
 } from "../../../../../lib/server-security";
 import {
+  GEMINI_MODELS,
   generateGeminiWithFallback,
   getGeminiErrorStatus,
   parseGeminiJsonObject,
+  resolveGeminiModel,
   type GeminiInlineImagePart,
 } from "../../../../../lib/server-gemini";
 import {
@@ -49,8 +51,11 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const MAX_COMMIT_PHOTOS = TELEGRAM_MAX_PHOTOS_PER_PRODUCT;
-const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const FALLBACK_GEMINI_MODEL = "gemini-3.5-flash-lite";
+const DEFAULT_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_MODEL,
+  GEMINI_MODELS.defaultFlash
+);
+const FALLBACK_GEMINI_MODEL = GEMINI_MODELS.groupFlashLite;
 
 /**
  * 단일 제품 묶음(1~3장)을 순차 커밋 처리:

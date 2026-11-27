@@ -1,11 +1,7 @@
 // 파일 경로: lib/seo-schema.ts
 // SEO · AI 검색(GEO) · Schema.org JSON-LD 단일 출처 빌더 (SSOT)
 
-import {
-  STORE,
-  STORE_MERCHANT_POLICY,
-  getCategoryWarrantyInfo,
-} from "./site";
+import { STORE, getCategoryWarrantyInfo } from "./site";
 import { REFURBISH_STEPS } from "./refurbish-process";
 
 export interface BreadcrumbEntry {
@@ -27,7 +23,7 @@ const MAJOR_WARRANTY = getCategoryWarrantyInfo("냉장고");
 export const HOME_SCHEMA_FAQS: readonly HomeFaqEntry[] = [
   {
     question: `${STORE.name} 중고가전 무상 A/S 보증 기간은 얼마인가요?`,
-    answer: `에어컨·냉난방기는 ${AIRCON_WARRANTY.compactLabel}, 냉장고·세탁기·업소용 냉장고 등 주요 가전은 ${MAJOR_WARRANTY.compactLabel} 기준을 적용하며, 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 초기 기능 이상 시 교환·환불을 지원합니다.`,
+    answer: `에어컨·냉난방기는 ${AIRCON_WARRANTY.compactLabel}, 냉장고·세탁기·업소용 냉장고 등 주요 가전은 ${MAJOR_WARRANTY.compactLabel} 기준을 적용하며, 정상 사용 중 이상 발생 시 직영 기사가 방문 점검·수리를 지원합니다.`,
   },
   {
     question: "중고가전 구매 전 매장에서 세척과 작동 확인을 거쳐 출고하나요?",
@@ -268,14 +264,6 @@ export function buildLocalBusinessJsonLd() {
       "원룸·자취방 입주 알뜰 가전 3종 패키지",
       "개인 직거래(당근마켓) 대비 고압세척·작동 점검 및 직영 사후 보증",
     ],
-    hasMerchantReturnPolicy: {
-      "@type": "MerchantReturnPolicy",
-      applicableCountry: STORE_MERCHANT_POLICY.applicableCountry,
-      returnPolicyCategory: STORE_MERCHANT_POLICY.returnPolicyCategory,
-      merchantReturnDays: STORE_MERCHANT_POLICY.merchantReturnDays,
-      returnMethod: STORE_MERCHANT_POLICY.returnMethod,
-      returnFees: STORE_MERCHANT_POLICY.returnFees,
-    },
     amenityFeature: [
       {
         "@type": "LocationFeatureSpecification",

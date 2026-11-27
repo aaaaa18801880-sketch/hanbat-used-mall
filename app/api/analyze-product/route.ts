@@ -17,6 +17,7 @@ import {
   generateGeminiWithFallback,
   getGeminiErrorStatus,
   parseGeminiJsonObject,
+  resolveGeminiModel,
 } from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
@@ -25,8 +26,14 @@ export const maxDuration = 60;
 const MAX_FILES = 3;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
 // 요구사항 6 준수: 기존 사이트 내부의 Gemini API 모델 ID("gemini-3.8-flash") 유지
-const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
+const DEFAULT_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_MODEL,
+  "gemini-3.8-flash"
+);
+const FALLBACK_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_FALLBACK_MODEL,
+  "gemini-2.5-flash"
+);
 
 function cleanAndParseAIJson(responseText: string): Record<string, unknown> {
   const { parsed, cleaned } = parseGeminiJsonObject(responseText);

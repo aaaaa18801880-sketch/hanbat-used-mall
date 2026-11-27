@@ -254,8 +254,7 @@ export async function postInquirySubmission(params: {
  * Compress attached customer inquiry photos and upload them via server-issued signed upload URLs.
  */
 export async function uploadInquiryAttachmentsViaSignedUrl(
-  files: File[],
-  _options?: { prefix?: string }
+  files: File[]
 ): Promise<string[]> {
   const targetFiles = files.slice(0, MAX_PHOTOS);
   if (targetFiles.length === 0) return [];

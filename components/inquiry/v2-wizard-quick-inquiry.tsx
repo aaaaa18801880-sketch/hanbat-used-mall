@@ -1,7 +1,7 @@
 // 파일 경로: components/inquiry/v2-wizard-quick-inquiry.tsx
 "use client";
 
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -10,7 +10,6 @@ import {
   formatQuoteBasketSummary,
   formatStructuredInquiryDescription,
   getQuoteBasket,
-  revokeObjectUrls,
   type ExtractedFactItem,
   INQUIRY_TYPES,
   isValidPhone,
@@ -29,11 +28,11 @@ import {
   dispatchTelegramFallback,
   INQUIRY_PHOTO_GUIDES,
   postInquirySubmission,
-  prepareInquiryFileAdditions,
   uploadInquiryAttachmentsViaSignedUrl,
 } from "../../lib/inquiry-client";
 import { InquiryPhotoGuideModal } from "./inquiry-photo-guide-modal";
 import { type LinkedProductContext } from "./unified-inquiry-form";
+import { useInquiryAttachments } from "./use-inquiry-attachments";
 import {
   WIZARD_QUICK_REGIONS,
   applyQuickRegion,
@@ -109,9 +108,6 @@ export function V2InquirySectionWithWizard({
   const [analyzingAi, setAnalyzingAi] = useState(false);
   const basketItems = useQuoteBasket();
   const [bundleApplied, setBundleApplied] = useState(false);
-  const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
-    null
-  );
   const [aiResult, setAiResult] = useState<{
     applianceCategory?: string;
     title?: string;
@@ -184,24 +180,18 @@ export function V2InquirySectionWithWizard({
   }, [linkedProduct]);
 
   /* 사진 첨부 상태 (최대 3장) */
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const previewsRef = useRef<string[]>([]);
-
-  const updateFilePreviews = (
-    updater: string[] | ((prev: string[]) => string[])
-  ) => {
-    const next =
-      typeof updater === "function" ? updater(previewsRef.current) : updater;
-    previewsRef.current = next;
-    setFilePreviews(next);
-  };
-
-  useEffect(() => {
-    return () => {
-      revokeObjectUrls(previewsRef.current);
-    };
-  }, []);
+  const {
+    selectedFiles,
+    filePreviews,
+    cachedUploadedUrls,
+    setCachedUploadedUrls,
+    handleFileChange,
+    handleRemoveFile,
+    clearAttachments,
+  } = useInquiryAttachments({
+    onFilesAdded: () => setStep1Hint(null),
+    onEmptyAfterRemove: () => setAiResult(null),
+  });
 
   /* 3단계 연락처 상태 */
   const [name, setName] = useState("");
@@ -266,32 +256,6 @@ export function V2InquirySectionWithWizard({
     setSelectedChips((prev) =>
       prev.includes(chip) ? prev.filter((c) => c !== chip) : [...prev, chip]
     );
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = Array.from(e.target.files ?? []);
-    e.target.value = "";
-    const { files: ok, previews, error } = prepareInquiryFileAdditions(
-      picked,
-      selectedFiles.length
-    );
-    if (error) toast.error(error);
-    if (ok.length === 0) return;
-
-    setStep1Hint(null);
-    setSelectedFiles((prev) => [...prev, ...ok]);
-    updateFilePreviews((prev) => [...prev, ...previews]);
-    setCachedUploadedUrls(null);
-  };
-
-  const handleRemoveFile = (index: number) => {
-    revokeObjectUrls([filePreviews[index]]);
-    if (selectedFiles.length <= 1) {
-      setAiResult(null);
-    }
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    updateFilePreviews((prev) => prev.filter((_, i) => i !== index));
-    setCachedUploadedUrls(null);
   };
 
   const handleAiPhotoAnalyze = async () => {
@@ -385,10 +349,7 @@ export function V2InquirySectionWithWizard({
       // 1. 사진 업로드 처리 (서버 서명 업로드 URL 발급 및 재시도 캐시 유지)
       let uploadedUrls = cachedUploadedUrls ?? [];
       if (!cachedUploadedUrls && selectedFiles.length > 0) {
-        uploadedUrls = await uploadInquiryAttachmentsViaSignedUrl(
-          selectedFiles,
-          { prefix: "inquiries/inq" }
-        );
+        uploadedUrls = await uploadInquiryAttachmentsViaSignedUrl(selectedFiles);
         setCachedUploadedUrls(uploadedUrls);
       }
 
@@ -478,7 +439,7 @@ export function V2InquirySectionWithWizard({
       }
 
       // 메모리 해제 및 완료 상태 전환 (모달 2초 닫힘 전 빈 폼 깜빡임 방지)
-      revokeObjectUrls(filePreviews);
+      clearAttachments();
       toast.success(
         inquiryType === "내 물건 팔기"
           ? "매입 견적 신청이 정상 접수되었습니다!"
@@ -486,9 +447,6 @@ export function V2InquirySectionWithWizard({
       );
       setMemo("");
       setPassword("");
-      setSelectedFiles([]);
-      updateFilePreviews([]);
-      setCachedUploadedUrls(null);
       setAgreed(false);
       setCreatedInquiryId(newId ? String(newId) : null);
       setSubmittedTitle(autoTitle);

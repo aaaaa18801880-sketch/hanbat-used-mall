@@ -1,7 +1,7 @@
 // 파일 경로: components/inquiry/unified-inquiry-form.tsx
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import {
@@ -28,7 +28,6 @@ import {
   STORAGE_BUCKETS,
   STORE,
   trackEvent,
-  revokeObjectUrls,
 } from "../../lib/site";
 import { Icon, ICON, SafeImg, useQuoteBasket } from "../../lib/ui";
 import {
@@ -36,10 +35,10 @@ import {
   dispatchTelegramFallback,
   INQUIRY_PHOTO_GUIDES,
   postInquirySubmission,
-  prepareInquiryFileAdditions,
   uploadInquiryAttachmentsViaSignedUrl,
 } from "../../lib/inquiry-client";
 import { CategoryNoticeGuideBanner } from "../products/notice-guide-banner";
+import { useInquiryAttachments } from "./use-inquiry-attachments";
 
 export type SubmissionPhase =
   | "idle"
@@ -150,28 +149,15 @@ export function UnifiedInquiryForm({
   const [bundleApplied, setBundleApplied] = useState(false);
 
   /* 사진 첨부 및 Gemini 일괄 분석 상태 */
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<string[]>([]);
-  const filePreviewsRef = useRef<string[]>([]);
-
-  const updateFilePreviews = (
-    updater: string[] | ((prev: string[]) => string[])
-  ) => {
-    const next =
-      typeof updater === "function" ? updater(filePreviewsRef.current) : updater;
-    filePreviewsRef.current = next;
-    setFilePreviews(next);
-  };
-
-  // 문의 폼 실제 언마운트 시에만 메모리에 잔류하는 미리보기 Blob URL 일괄 해제 (사진 추가 시 기존 미리보기 파기 방지)
-  useEffect(() => {
-    return () => {
-      revokeObjectUrls(filePreviewsRef.current);
-    };
-  }, []);
-  const [cachedUploadedUrls, setCachedUploadedUrls] = useState<string[] | null>(
-    null
-  );
+  const {
+    selectedFiles,
+    filePreviews,
+    cachedUploadedUrls,
+    setCachedUploadedUrls,
+    handleFileChange,
+    handleRemoveFile,
+    clearAttachments,
+  } = useInquiryAttachments();
   const [isAnalyzingPhotos, setIsAnalyzingPhotos] = useState(false);
   const [aiResult, setAiResult] = useState<AnalyzeInquiryResponse | null>(null);
   const [pendingConflicts, setPendingConflicts] = useState<{
@@ -269,28 +255,6 @@ export function UnifiedInquiryForm({
   const smsBodyDraft = `[${STORE.name} ${inquiryType}] ${
     title.trim() ? `${title.trim()} / ` : ""
   }지역·품목·사진을 함께 보내주시면 빠르게 견적을 안내해 드립니다.`;
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const picked = Array.from(e.target.files ?? []);
-    e.target.value = "";
-    const { files: ok, previews, error } = prepareInquiryFileAdditions(
-      picked,
-      selectedFiles.length
-    );
-    if (error) toast.error(error);
-    if (ok.length === 0) return;
-
-    setSelectedFiles((prev) => [...prev, ...ok]);
-    updateFilePreviews((prev) => [...prev, ...previews]);
-    setCachedUploadedUrls(null);
-  };
-
-  const handleRemoveFile = (index: number) => {
-    revokeObjectUrls([filePreviews[index]]);
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    updateFilePreviews((prev) => prev.filter((_, i) => i !== index));
-    setCachedUploadedUrls(null);
-  };
 
   /* 첨부된 사진(1~3장)을 확인 버튼 클릭 시 상담 유형별로 제미나이 일괄 분석 */
   const handleRunGeminiAnalysis = async () => {
@@ -687,10 +651,7 @@ export function UnifiedInquiryForm({
   };
 
   const resetToInitial = () => {
-    revokeObjectUrls(filePreviews);
-    setSelectedFiles([]);
-    updateFilePreviews([]);
-    setCachedUploadedUrls(null);
+    clearAttachments();
     setAiResult(null);
     setPendingConflicts(null);
         setTitle("");

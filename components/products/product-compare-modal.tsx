@@ -18,6 +18,7 @@ import {
   normalizeProductStatus,
   parseProductDescription,
   type QuoteBasketItem,
+  triggerQuickInquiry,
   updateQuoteBasketItemQuantity,
   removeQuoteBasketItem,
 } from "../../lib/site";
@@ -108,6 +109,15 @@ export function ProductCompareModal({
 
         {/* 비교 테이블 본문 */}
         <div className="flex-1 overflow-x-auto overflow-y-auto p-4 sm:p-6">
+          {items.length > 3 && (
+            <div className="mb-3 rounded-xl border border-[#E2E6EC] bg-[#F7F8FA] px-3.5 py-2 text-hb-xs text-[#475569]">
+              견적함에 담긴 전체{" "}
+              <strong className="font-bold text-[#141A23] tabular-nums">
+                {items.length}종
+              </strong>{" "}
+              중 앞 3종을 나란히 비교 중입니다. 다른 매물을 비교하려면 현재 항목을 제외해 주세요.
+            </div>
+          )}
           {compareItems.length === 0 ? (
             <div className="py-12 text-center text-hb-sm text-[#64748B]">
               비교할 상품이 없습니다. 갤러리에서 관심 매물을 견적함에 담아주세요.
@@ -472,14 +482,25 @@ export function ProductCompareModal({
               <Icon d={ICON.chat} className="w-4 h-4" />
               <span>카톡 묶음 상담</span>
             </button>
-            <Link
-              href="/inquiry?write=1&bundle=1"
-              onClick={onClose}
-              className="hb-btn-accent h-10 px-4 text-hb-sm whitespace-nowrap"
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("begin_buy_inquiry", {
+                  use_bundle: true,
+                  count: compareItems.length,
+                  location: "product_compare_modal",
+                });
+                onClose();
+                triggerQuickInquiry({
+                  type: "구매 문의",
+                  useBundle: true,
+                });
+              }}
+              className="hb-btn-accent h-10 px-4 text-hb-sm whitespace-nowrap cursor-pointer"
             >
-              <span>온라인 문의</span>
+              <span>비교 매물 한 번에 문의</span>
               <Icon d={ICON.arrow} className="w-3.5 h-3.5" />
-            </Link>
+            </button>
           </div>
         </div>
       </div>

@@ -10,6 +10,7 @@ import {
   extractValidatedImageParts,
   generateGeminiWithFallback,
   parseGeminiJsonObject,
+  resolveGeminiModel,
 } from "../../../lib/server-gemini";
 
 export const runtime = "nodejs";
@@ -17,8 +18,14 @@ export const maxDuration = 60;
 
 const MAX_FILES = 2;
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8MB
-const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3.8-flash";
-const FALLBACK_GEMINI_MODEL = "gemini-2.5-flash";
+const DEFAULT_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_MODEL,
+  "gemini-3.8-flash"
+);
+const FALLBACK_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_FALLBACK_MODEL,
+  "gemini-2.5-flash"
+);
 
 export async function POST(req: NextRequest) {
   try {

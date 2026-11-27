@@ -7,9 +7,11 @@ import {
   verifyAdminRequest,
 } from "../../../../../lib/server-security";
 import {
+  GEMINI_MODELS,
   generateGeminiWithFallback,
   getGeminiErrorStatus,
   parseGeminiJsonObject,
+  resolveGeminiModel,
   type GeminiInlineImagePart,
 } from "../../../../../lib/server-gemini";
 import {
@@ -31,10 +33,14 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const MAX_BATCH_PHOTOS = 20;
-const DEFAULT_GROUP_GEMINI_MODEL =
-  process.env.GEMINI_GROUP_MODEL || "gemini-3.5-flash-lite";
-const FALLBACK_GROUP_GEMINI_MODEL =
-  process.env.GEMINI_MODEL || "gemini-3.8-flash";
+const DEFAULT_GROUP_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_GROUP_MODEL,
+  GEMINI_MODELS.groupFlashLite
+);
+const FALLBACK_GROUP_GEMINI_MODEL = resolveGeminiModel(
+  process.env.GEMINI_MODEL,
+  GEMINI_MODELS.defaultFlash
+);
 
 /**
  * 15~20장 단위 시간순 사진을 경량 썸네일(320px)로 AI에 전달해

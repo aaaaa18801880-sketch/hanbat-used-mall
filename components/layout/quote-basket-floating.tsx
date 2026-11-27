@@ -151,6 +151,44 @@ export function QuoteBasketFloatingBar() {
             {/* 묶음 견적 즉시 상담 액션 바 */}
             <div className="pt-2 border-t border-white/10 space-y-2">
               <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackEvent("compare_products", {
+                      count: items.length,
+                      location: "quote_basket_drawer",
+                    });
+                    setExpanded(false);
+                    setCompareOpen(true);
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-white/25 transition-colors cursor-pointer"
+                >
+                  <Icon
+                    d={ICON.columns}
+                    className="w-3.5 h-3.5 text-[#FF8A50]"
+                  />
+                  <span>나란히 비교({Math.min(3, items.length)})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackEvent("begin_buy_inquiry", {
+                      use_bundle: true,
+                      count: items.length,
+                      location: "quote_basket_drawer",
+                    });
+                    setExpanded(false);
+                    triggerQuickInquiry({
+                      type: "구매 문의",
+                      useBundle: true,
+                    });
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-lg bg-[#C84312] px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-[#E8521A] transition-colors cursor-pointer"
+                >
+                  <span>한 번에 문의</span>
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
                 <a
                   href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
                   onClick={() => {

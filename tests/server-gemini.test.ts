@@ -3,12 +3,14 @@ import assert from "node:assert/strict";
 import {
   checkGeminiDailyBudget,
   classifyGeminiError,
+  GEMINI_MODELS,
   GeminiBudgetExceededError,
   GeminiRateLimitError,
   generateGeminiWithFallback,
   getGeminiErrorStatus,
   resetGeminiRuntimeCachesForTest,
   resolveGeminiDailyLimit,
+  resolveGeminiModel,
   resolvePublicGeminiDailyLimit,
 } from "../lib/server-gemini";
 
@@ -231,4 +233,17 @@ test("thinkingConfig 미지원 모델은 캐시되어 두 번째 요청부터 th
   });
 
   assert.deepEqual(seenThinkingFlags, [true, false, false]);
+});
+
+test("resolveGeminiModel은 공백/미설정 환경변수 시 SSOT 기본 모델을 반환하고 오버라이드를 트림한다", () => {
+  assert.equal(resolveGeminiModel(undefined), GEMINI_MODELS.defaultFlash);
+  assert.equal(resolveGeminiModel("   "), GEMINI_MODELS.defaultFlash);
+  assert.equal(
+    resolveGeminiModel("", GEMINI_MODELS.groupFlashLite),
+    GEMINI_MODELS.groupFlashLite
+  );
+  assert.equal(
+    resolveGeminiModel("  gemini-2.5-flash  ", GEMINI_MODELS.defaultFlash),
+    "gemini-2.5-flash"
+  );
 });

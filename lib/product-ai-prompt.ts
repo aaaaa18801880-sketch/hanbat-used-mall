@@ -1,11 +1,7 @@
 // 파일 경로: lib/product-ai-prompt.ts
 // 상품 사진 AI 초안 작성 프롬프트 및 홈페이지 정책·카피 SSOT 정합성 정제 모듈
 
-import {
-  STORE,
-  STORE_MERCHANT_POLICY,
-  getCategoryWarrantyInfo,
-} from "./site";
+import { STORE, getCategoryWarrantyInfo } from "./site";
 
 export interface ProductPromptContext {
   currentYear: number;
@@ -88,7 +84,7 @@ export function buildProductAnalysisPrompt({
 
 ## 홈페이지 운영 사실 & 절대 금지 표현 (Anti-Slop 원칙)
 1. 실제 운영 절차만 반영 (과장·허구 금지)
-   - 매장 실제 공정: 현장 작동 확인 입고 → 내·외부 고압세척 정리 → 배송 전 전원 연결 작동 점검 → 직영 기사 배송·설치 및 A/S (${airconWarranty}, 주요 가전 ${majorWarranty}, 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 초기 불량 교환·환불 지원, 사업자 전자세금계산서 발행).
+   - 매장 실제 공정: 현장 작동 확인 입고 → 내·외부 고압세척 정리 → 배송 전 전원 연결 작동 점검 → 직영 기사 배송·설치 및 A/S (${airconWarranty}, 주요 가전 ${majorWarranty}, 사업자 전자세금계산서 발행).
    - 아래 표현은 절대 사용하지 마세요:
      * 임의 등급/상태 등급: 'S급', 'A급', 'B급', 'C급', '상태등급', '새상품급' 등 등급 표현 일절 금지
      * 미사용 과장 공정: '완전 분해', '고온 스팀', '스팀 살균', 'UV 살균', '120bar', '24시간 시운전', '연속 시운전', '실부하 시운전', '메거', '절연저항', '디지털 매니폴드', '담당 엔지니어', '전문 엔지니어'

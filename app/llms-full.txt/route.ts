@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { supabase } from "../../lib/supabase";
 import {
   STORE,
-  STORE_MERCHANT_POLICY,
   getCategoryWarrantyInfo,
   formatProductPrice,
   normalizeProductCategory,
@@ -87,8 +86,7 @@ ${Object.entries(categoryCounts)
 
 1. **에어컨류 보증**: ${airconWarranty.compactLabel} (직영 기사 방문 점검·수리 지원)
 2. **주요 가전 보증**: ${majorWarranty.compactLabel} (정상 사용 중 기능 이상 시 무상 A/S)
-3. **반품/교환 규정**: 수령 후 ${STORE_MERCHANT_POLICY.merchantReturnDays}일 이내 초기 기능 불량 시 무상 교환 및 A/S 지원
-4. **결제 증빙**: 전자세금계산서, 현금영수증, 신용카드 100% 정식 발행
+3. **결제 증빙**: 전자세금계산서, 현금영수증, 신용카드 100% 정식 발행
 
 ## 3. ${STORE.name} 4단계 현장 확인 · 고압세척 · 작동 점검 · 출고 절차
 

@@ -1,11 +1,7 @@
 // 파일 경로: lib/refurbish-process.ts
 // 매장 실제 현장확인·고압세척·작동점검·직배송 4단계 공정 단일 출처 데이터 (SSOT)
 
-import {
-  STORE,
-  STORE_MERCHANT_POLICY,
-  getCategoryWarrantyInfo,
-} from "./site";
+import { STORE, getCategoryWarrantyInfo } from "./site";
 
 export type RefurbishStepId = "intake" | "wash" | "precheck" | "delivery";
 
@@ -200,9 +196,9 @@ export const REFURBISH_STEPS: readonly RefurbishStep[] = [
         tone: "teal",
       },
       {
-        label: "초기 불량·증빙",
-        value: `${STORE_MERCHANT_POLICY.merchantReturnDays}일 교환·환불`,
-        note: "카드·현금영수증·전자세금계산서 발행",
+        label: "결제·증빙 발행",
+        value: "세금계산서 발행",
+        note: "카드·현금영수증·전자세금계산서 정식 발행",
         tone: "default",
       },
     ],

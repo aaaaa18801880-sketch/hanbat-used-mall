@@ -70,12 +70,11 @@ function getSlideScrims(theme: HeroBannerSlide["theme"]): SlideScrims {
 }
 
 export function HeroPromoCarousel({
-  sellingCount: _sellingCount,
   onOpenVisitModal,
   activeIndex: controlledIndex,
   onActiveIndexChange,
 }: {
-  sellingCount: number;
+  sellingCount?: number;
   onOpenVisitModal: () => void;
   activeIndex?: number;
   onActiveIndexChange?: (nextIndex: number) => void;
