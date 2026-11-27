@@ -339,7 +339,7 @@ export function CategoryPictogramBar({
             onClickCapture={handleRailClickCapture}
             onDragStart={(e) => e.preventDefault()}
             data-dragging={isDragging ? "true" : "false"}
-            className={`flex items-start gap-3 sm:gap-5 lg:gap-4 overflow-x-auto lg:overflow-visible [overscroll-behavior-x:contain] snap-x snap-mandatory scrollbar-none py-2 px-1 -mx-1 select-none ${
+            className={`flex items-start gap-3 sm:gap-4 lg:gap-3 overflow-x-auto lg:overflow-visible [overscroll-behavior-x:contain] snap-x snap-mandatory scrollbar-none py-2 px-1 -mx-1 select-none ${
               groupFilter === "all" ? "lg:justify-between" : "lg:justify-start"
             } ${
               isDragging
@@ -357,17 +357,17 @@ export function CategoryPictogramBar({
                   aria-pressed={isSelected}
                   data-active={isSelected ? "true" : "false"}
                   onClick={(e) => handleCategoryClick(item, e.currentTarget)}
-                  className={`group snap-start shrink-0 w-[84px] sm:w-[104px] ${
+                  className={`group snap-start shrink-0 w-[96px] sm:w-[116px] ${
                     groupFilter === "all"
-                      ? "lg:w-auto lg:flex-1 lg:max-w-[132px]"
-                      : "lg:w-[120px]"
+                      ? "lg:w-auto lg:flex-1 lg:max-w-[138px]"
+                      : "lg:w-[134px]"
                   } flex flex-col items-center text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-4 rounded-2xl py-1 [touch-action:manipulation] ${
                     isDragging ? "cursor-grabbing" : "cursor-pointer"
                   }`}
                 >
                   {/* 정원 스튜디오 썸네일: layout 점프 없이 ring-shadow만으로 활성 강조 */}
                   <span
-                    className={`relative grid h-[74px] w-[74px] sm:h-[92px] sm:w-[92px] rounded-full overflow-hidden bg-[#F5F4F0] transition-[transform,box-shadow] duration-200 ${
+                    className={`relative grid h-[84px] w-[84px] sm:h-[104px] sm:w-[104px] lg:h-[118px] lg:w-[118px] xl:h-[124px] xl:w-[124px] rounded-full overflow-hidden bg-[#F5F4F0] transition-[transform,box-shadow] duration-200 ${
                       isSelected
                         ? "ring-2 ring-[#C84312] ring-offset-2 shadow-sm scale-[1.03]"
                         : "ring-1 ring-[#E6E1D6] group-hover:ring-[#CFC7BA] group-hover:-translate-y-0.5"
@@ -378,14 +378,14 @@ export function CategoryPictogramBar({
                       alt={item.imageAlt}
                       fill
                       draggable={false}
-                      sizes="(max-width: 640px) 74px, 92px"
+                      sizes="(max-width: 640px) 84px, (max-width: 1024px) 104px, 124px"
                       referrerPolicy="no-referrer"
                       className="object-cover transition-transform duration-300 group-hover:scale-[1.06]"
                     />
                   </span>
 
                   <span
-                    className={`mt-2.5 block w-full text-hb-xs sm:text-hb-sm leading-snug tracking-tight truncate transition-colors ${
+                    className={`mt-3 block w-full text-hb-xs sm:text-hb-sm leading-snug tracking-tight truncate transition-colors ${
                       isSelected
                         ? "text-[#C84312]"
                         : "text-[#141A23] group-hover:text-[#C84312]"
