@@ -562,3 +562,50 @@ export function formatCleanCardMeta({
 
   return parts.length > 0 ? parts.join(" · ") : null;
 }
+
+export interface QuoteListProductDisplay {
+  /** 괄호 속 부가 스펙·모델코드를 제외한 브랜드 포함 핵심 제품명 */
+  shortTitle: string;
+  /** 동일 모델 구분용 정제 모델코드 (확인필요 등 비모델 문구 제외) */
+  modelCode: string | null;
+}
+
+/**
+ * 셀프견적 제품 선택/장바구니 목록용 1줄 핵심 제품명 + 연한 모델코드 보조 표기 포매터.
+ * - DB 원본 제목은 건드리지 않고 표시 단계에서만 끝 괄호 `(...)`를 분리합니다.
+ * - 브랜드명은 그대로 유지해 별도 브랜드 헤더 없이도 한눈에 구분됩니다.
+ */
+export function formatQuoteListProductTitle(
+  title: string | null | undefined,
+  modelName?: string | null
+): QuoteListProductDisplay {
+  const rawTitle = (title || "").trim();
+  let mainTitle = rawTitle;
+  let modelFromParens: string | null = null;
+
+  // 제목 끝 괄호 영역을 반복 분리 (예: "(냉방 3.6kW · 난방 4.2kW, SW091BM1W)")
+  while (true) {
+    const trailingParenMatch = mainTitle.match(/\s*\(([^()]+)\)\s*$/);
+    if (!trailingParenMatch) break;
+    const candidateMain = mainTitle.slice(0, trailingParenMatch.index).trim();
+    if (candidateMain.length < 4) break;
+
+    const inside = trailingParenMatch[1].trim();
+    const chunks = splitParentheticalChunks(inside);
+    for (const chunk of chunks) {
+      if (isModelCodeToken(chunk) && !modelFromParens) {
+        modelFromParens = sanitizeCardModelCode(chunk);
+      }
+    }
+    mainTitle = candidateMain;
+  }
+
+  const cleanModelCode =
+    sanitizeCardModelCode(modelName) || modelFromParens || null;
+
+  return {
+    shortTitle: mainTitle || rawTitle,
+    modelCode: cleanModelCode,
+  };
+}
+

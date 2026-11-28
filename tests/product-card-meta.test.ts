@@ -4,6 +4,7 @@ import {
   buildProductCardDisplay,
   extractProductBrand,
   formatCleanCardMeta,
+  formatQuoteListProductTitle,
   resolveCardWarrantyCategory,
   sanitizeCardModelCode,
   splitWarrantyHighlight,
@@ -265,4 +266,48 @@ test("buildProductCardDisplay preserves thousand-separator commas and compound u
   assert.equal(fridge.descriptiveTitle, "45박스 스텐 냉장고 (1,060L)");
   assert.equal(fridge.modelCode, "CWS-1264RF");
 });
+
+test("formatQuoteListProductTitle strips trailing spec/model parens, preserves brand, and returns clean modelCode", () => {
+  assert.deepEqual(
+    formatQuoteListProductTitle(
+      "삼성 무풍 13평형 인버터 벽걸이 에어컨 (냉방전용 · R-32, AR13B9150HZ)",
+      "AR13B9150HZ"
+    ),
+    {
+      shortTitle: "삼성 무풍 13평형 인버터 벽걸이 에어컨",
+      modelCode: "AR13B9150HZ",
+    }
+  );
+
+  assert.deepEqual(
+    formatQuoteListProductTitle(
+      "LG 9평형 인버터 벽걸이형 냉난방기 (냉방 3.6kW · 난방 4.2kW, SW091BM1W)",
+      null
+    ),
+    {
+      shortTitle: "LG 9평형 인버터 벽걸이형 냉난방기",
+      modelCode: "SW091BM1W",
+    }
+  );
+
+  assert.deepEqual(
+    formatQuoteListProductTitle(
+      "LG 휘센 30평형 원형 천장형 카세트 시스템 에어컨 실내기 (380V, 모델명 확인필요)",
+      "원형 실내기 (명판 모델명 확인필요)"
+    ),
+    {
+      shortTitle: "LG 휘센 30평형 원형 천장형 카세트 시스템 에어컨 실내기",
+      modelCode: null,
+    }
+  );
+
+  assert.deepEqual(
+    formatQuoteListProductTitle("우성 45박스 스텐 냉장고 (1,060L) (CWS-1264RF)", null),
+    {
+      shortTitle: "우성 45박스 스텐 냉장고",
+      modelCode: "CWS-1264RF",
+    }
+  );
+});
+
 

@@ -27,6 +27,7 @@ import {
   buildQuoteShareMessage,
   formatQuoteDateKst,
 } from "../../lib/quote-document";
+import { formatQuoteListProductTitle } from "../../lib/product-card-meta";
 import { SafeImg, useQuoteBasket } from "../layout/ui-primitives";
 
 const QuoteDocumentModal = dynamic(
@@ -320,15 +321,19 @@ export function SelfQuoteClient({
                   filteredProducts.map((product) => {
                     const inBasket = basketMap.get(product.id);
                     const firstImg = splitImages(product.image_url)[0] || null;
+                    const display = formatQuoteListProductTitle(
+                      product.title,
+                      product.model_name
+                    );
 
                     return (
                       <div
                         key={product.id}
-                        className="flex items-center gap-5 py-5 pr-3 pl-1 hover:bg-[#FAFAFA] transition-colors"
+                        className="flex items-center gap-4 sm:gap-5 py-4 sm:py-5 pr-3 pl-1 hover:bg-[#FAFAFA] transition-colors"
                       >
                         <Link
                           href={`/${product.id}`}
-                          className="h-[80px] w-[80px] sm:h-[88px] sm:w-[88px] shrink-0 overflow-hidden bg-[#F5F5F5]"
+                          className="h-[72px] w-[72px] sm:h-[84px] sm:w-[84px] shrink-0 overflow-hidden bg-[#F5F5F5]"
                         >
                           <SafeImg
                             src={firstImg}
@@ -339,9 +344,17 @@ export function SelfQuoteClient({
 
                         <Link
                           href={`/${product.id}`}
-                          className="min-w-0 flex-1 text-hb-sm sm:text-hb-base font-semibold text-[#141A23] leading-snug hover:text-[#C84312] transition-colors line-clamp-2 break-keep"
+                          title={product.title}
+                          className="min-w-0 flex-1 group"
                         >
-                          {product.title}
+                          <span className="block truncate text-hb-sm sm:text-hb-base font-semibold text-[#141A23] leading-snug group-hover:text-[#C84312] transition-colors">
+                            {display.shortTitle}
+                          </span>
+                          {display.modelCode && (
+                            <span className="mt-1 block truncate font-mono text-hb-xs text-[#8A8A8A]">
+                              {display.modelCode}
+                            </span>
+                          )}
                         </Link>
 
                         <button
@@ -402,6 +415,10 @@ export function SelfQuoteClient({
                     {basketItems.map((item) => {
                       const qty = item.quantity || 1;
                       const sold = isProductSold(item.status);
+                      const display = formatQuoteListProductTitle(
+                        item.title,
+                        item.modelName
+                      );
                       return (
                         <li
                           key={item.id}
@@ -419,14 +436,22 @@ export function SelfQuoteClient({
                             <div className="flex items-start justify-between gap-3">
                               <Link
                                 href={`/${item.id}`}
-                                className="text-hb-sm sm:text-hb-base font-semibold text-[#141A23] leading-snug hover:text-[#C84312] line-clamp-2 break-keep"
+                                title={item.title}
+                                className="min-w-0 flex-1 group"
                               >
-                                {sold && (
-                                  <span className="mr-1.5 text-hb-xs font-bold text-[#737373]">
-                                    [판매완료]
+                                <span className="block truncate text-hb-sm sm:text-hb-base font-semibold text-[#141A23] leading-snug group-hover:text-[#C84312] transition-colors">
+                                  {sold && (
+                                    <span className="mr-1.5 text-hb-xs font-bold text-[#737373]">
+                                      [판매완료]
+                                    </span>
+                                  )}
+                                  {display.shortTitle}
+                                </span>
+                                {display.modelCode && (
+                                  <span className="mt-0.5 block truncate font-mono text-hb-xs text-[#8A8A8A]">
+                                    {display.modelCode}
                                   </span>
                                 )}
-                                {item.title}
                               </Link>
                               <button
                                 type="button"
