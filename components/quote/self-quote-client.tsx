@@ -27,7 +27,10 @@ import {
   buildQuoteShareMessage,
   formatQuoteDateKst,
 } from "../../lib/quote-document";
-import { formatQuoteListProductTitle } from "../../lib/product-card-meta";
+import {
+  formatQuoteListProductTitle,
+  isEligibleForSelfQuoteList,
+} from "../../lib/product-card-meta";
 import { SafeImg, useQuoteBasket } from "../layout/ui-primitives";
 
 const QuoteDocumentModal = dynamic(
@@ -88,26 +91,38 @@ export function SelfQuoteClient({
     return map;
   }, [basketItems]);
 
+  const eligibleProducts = useMemo(
+    () =>
+      initialProducts.filter((product) =>
+        isEligibleForSelfQuoteList({
+          title: product.title,
+          category: normalizeProductCategory(product.category),
+          modelName: product.model_name,
+        })
+      ),
+    [initialProducts]
+  );
+
   const categoryTabs = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const p of initialProducts) {
+    for (const p of eligibleProducts) {
       const cat = normalizeProductCategory(p.category);
       counts.set(cat, (counts.get(cat) || 0) + 1);
     }
 
     return [
-      { key: "전체", label: "전체", count: initialProducts.length },
+      { key: "전체", label: "전체", count: eligibleProducts.length },
       ...PRODUCT_CATEGORIES.map((cat) => ({
         key: cat,
         label: CATEGORY_SHORT_LABELS[cat] ?? cat,
         count: counts.get(cat) || 0,
       })),
     ];
-  }, [initialProducts]);
+  }, [eligibleProducts]);
 
   const filteredProducts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
-    return initialProducts.filter((product) => {
+    return eligibleProducts.filter((product) => {
       if (selectedCategory !== "전체") {
         if (normalizeProductCategory(product.category) !== selectedCategory) {
           return false;
@@ -123,7 +138,7 @@ export function SelfQuoteClient({
         .toLowerCase();
       return haystack.includes(q);
     });
-  }, [initialProducts, selectedCategory, searchQuery]);
+  }, [eligibleProducts, selectedCategory, searchQuery]);
 
   const summary = useMemo(
     () => buildQuoteDocumentSummary(basketItems),

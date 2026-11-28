@@ -5,6 +5,7 @@ import {
   extractProductBrand,
   formatCleanCardMeta,
   formatQuoteListProductTitle,
+  isEligibleForSelfQuoteList,
   resolveCardWarrantyCategory,
   sanitizeCardModelCode,
   splitWarrantyHighlight,
@@ -309,5 +310,61 @@ test("formatQuoteListProductTitle strips trailing spec/model parens, preserves b
     }
   );
 });
+
+test("isEligibleForSelfQuoteList excludes aircon items without visible pyeong while keeping other categories", () => {
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "삼성 무풍 13평형 인버터 벽걸이 에어컨 (냉방전용 · R-32, AR13B9150HZ)",
+      category: "에어컨/냉난방기",
+      modelName: "AR13B9150HZ",
+    }),
+    true
+  );
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "LG 휘센 18+6평 투인원 멀티 에어컨 (FQ18V...)",
+      category: "에어컨/냉난방기",
+    }),
+    true
+  );
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "삼성 인버터 벽걸이 에어컨 (바이러스닥터 기능, AR-CS111BN)",
+      category: "에어컨/냉난방기",
+      modelName: "AR-CS111BN",
+    }),
+    false
+  );
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "중고 벽걸이 에어컨 다량 보유 (LG / 삼성 / 캐리어 등 평형별 선별 출고)",
+      category: "에어컨/냉난방기",
+    }),
+    false
+  );
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "천장형 4Way 카세트 시스템에어컨 다량 보유 중",
+      category: "에어컨/냉난방기",
+    }),
+    false
+  );
+  // 냉장고·업소용기기·세탁기 등 타 품목은 평수 없이 그대로 노출
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "우성 45박스 스텐 냉장고 (1,060L, CWS-1264RF)",
+      category: "업소용기기",
+    }),
+    true
+  );
+  assert.equal(
+    isEligibleForSelfQuoteList({
+      title: "LG 디오스 오브제컬렉션 양문형 냉장고 832L (S834BW12)",
+      category: "냉장고",
+    }),
+    true
+  );
+});
+
 
 

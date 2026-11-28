@@ -609,3 +609,30 @@ export function formatQuoteListProductTitle(
   };
 }
 
+const VISIBLE_PYEONG_PATTERN = /\d+(?:\.\d+)?\s*평(?:형)?/;
+
+/**
+ * 셀프견적 제품선택(추천) 목록 노출 여부 판정.
+ * - 에어컨/냉난방기 품목은 표시 제목(shortTitle)에 숫자 평수(예: 9평, 13평형, 18+6평)가
+ *   명시된 실매물만 노출해 평수 미기재·모음글로 인한 선택 혼선을 방지합니다.
+ * - 냉장고·세탁기·업소용기기·기타 품목은 평수 단위를 쓰지 않으므로 그대로 노출합니다.
+ */
+export function isEligibleForSelfQuoteList({
+  title,
+  category,
+  modelName,
+}: {
+  title: string | null | undefined;
+  category: string | null | undefined;
+  modelName?: string | null;
+}): boolean {
+  const normalizedCategory = (category || "").trim();
+  if (normalizedCategory !== "에어컨/냉난방기") {
+    return true;
+  }
+
+  const { shortTitle } = formatQuoteListProductTitle(title, modelName);
+  return VISIBLE_PYEONG_PATTERN.test(shortTitle);
+}
+
+
