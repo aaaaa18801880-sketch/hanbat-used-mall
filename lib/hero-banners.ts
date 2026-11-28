@@ -49,7 +49,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/gallery?category=%EC%97%90%EC%96%B4%EC%BB%A8%2F%EB%83%89%EB%82%9C%EB%B0%A9%EA%B8%B0",
     },
-    imageSrc: "/images/banners/hero-aircon-v2.jpg",
+    imageSrc: "/images/banners/hero-aircon-v3.jpg",
     imageAlt:
       "아이스블루 링 조명 스튜디오 포디움 위에 스탠드 에어컨, 벽걸이 에어컨, 공기청정기, 제습기가 전시된 프로모션 배너",
     theme: "glacial-blue",
@@ -66,7 +66,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/gallery",
     },
-    imageSrc: "/images/banners/hero-home-v2.jpg",
+    imageSrc: "/images/banners/hero-home-v3.jpg",
     imageAlt:
       "샴페인 골드 아치 스튜디오 포디움에 4도어 냉장고, 워시타워, 김치냉장고, 전자레인지가 배치된 생활가전 프로모션 배너",
     theme: "champagne-gold",
@@ -84,7 +84,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/purchase",
     },
-    imageSrc: "/images/banners/hero-commercial-v2.jpg",
+    imageSrc: "/images/banners/hero-commercial-v3.jpg",
     imageAlt:
       "미드나잇 네이비 스포트라이트 아래 45박스 스텐 냉장고, 유리 쇼케이스, 제빙기, 테이블냉장고가 배치된 업소용 설비 배너",
     theme: "midnight-navy",
@@ -102,7 +102,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
     },
-    imageSrc: "/images/banners/hero-cafe-v2.jpg",
+    imageSrc: "/images/banners/hero-cafe-v3.jpg",
     imageAlt:
       "세이지 미스트 스튜디오 포디움 위에 유리 음료 쇼케이스, 스텐 테이블 냉장고, 업소용 제빙기가 전시된 카페 창업 프로모션 배너",
     theme: "sage-mist",
@@ -120,7 +120,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
       kind: "link",
       href: "/quote",
     },
-    imageSrc: "/images/banners/hero-bundle-v2.jpg",
+    imageSrc: "/images/banners/hero-bundle-v3.jpg",
     imageAlt:
       "차콜 브론즈 링 조명 아래 4도어 냉장고, 워시타워, 스탠드 에어컨이 함께 배치된 일괄 셀프견적 프로모션 배너",
     theme: "charcoal-bronze",

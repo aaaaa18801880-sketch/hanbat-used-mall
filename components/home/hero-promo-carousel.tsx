@@ -211,10 +211,11 @@ export function HeroPromoCarousel({
                         src={slide.imageSrc}
                         alt={slide.imageAlt}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 1320px, 1680px"
+                        sizes="100vw"
                         priority={idx === 0}
                         loading="eager"
-                        quality={90}
+                        quality={95}
+                        referrerPolicy="no-referrer"
                         className={
                           slide.theme === "store-photo"
                             ? "object-cover object-center"
@@ -243,38 +244,19 @@ export function HeroPromoCarousel({
 
           {/* 중앙 컨테이너 정렬 콘텐츠 레이어 (상단 오버레이 헤더 여백 확보) */}
           <div className="hb-container relative z-10 pt-24 pb-24 sm:pt-28 sm:pb-28 lg:pt-32 lg:pb-28">
-            <div className="max-w-full sm:max-w-[58%] lg:max-w-[52%]">
-              {/* 상단 브랜드/신뢰 바 */}
-              <div className="hb-banner-eyebrow flex flex-wrap items-center gap-x-2.5 gap-y-1 text-hb-xs sm:text-hb-sm lg:text-hb-base font-extrabold tracking-tight">
-                {activeSlide.eyebrowBrands.map((brand, i) => (
-                  <React.Fragment key={brand}>
-                    {i > 0 && (
-                      <span className="opacity-40" aria-hidden="true">
-                        ·
-                      </span>
-                    )}
-                    <span>{brand}</span>
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* 메인 헤드라인 (접근성·SEO H1 유지) */}
-              <h1 id="hero-title" className="mt-3.5 sm:mt-4 hb-banner-h1">
+            <div className="max-w-full sm:max-w-[54%] lg:max-w-[46%]">
+              {/* 메인 헤드라인만 굵고 크게 강조 (접근성·SEO H1 유지) */}
+              <h1 id="hero-title" className="hb-banner-h1">
                 <span className="hb-banner-h1-top block">
                   {activeSlide.headlineTop}
                 </span>
-                <span className="hb-banner-h1-bottom block mt-2">
+                <span className="hb-banner-h1-bottom block mt-2.5 sm:mt-3">
                   {activeSlide.headlineBottom}
                 </span>
               </h1>
 
-              {/* 서브 설명 */}
-              <p className="hb-banner-sub mt-4 sm:mt-6 max-w-xl text-hb-sm sm:text-hb-base lg:text-hb-lg font-medium leading-relaxed break-keep [text-wrap:pretty]">
-                {activeSlide.subtitle}
-              </p>
-
               {/* 단일 핵심 CTA 캡슐 버튼 */}
-              <div className="mt-8 sm:mt-10 flex items-center gap-3">
+              <div className="mt-9 sm:mt-11 flex items-center gap-3">
                 {activeSlide.action.kind === "link" ? (
                   <Link
                     href={activeSlide.action.href}
