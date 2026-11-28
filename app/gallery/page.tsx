@@ -637,42 +637,50 @@ function GalleryPageContent() {
         )}
       </SiteHeader>
 
-      {/* 상단 에디토리얼 쇼룸 헤더 (타이틀 + 전시 수량 + 검색창) */}
+      {/* 상단 에디토리얼 갤러리 헤더 (와이드 1440px, 단일 깔끔한 헤더 라인) */}
       <section className="bg-white">
-        <div className="hb-container pt-6 pb-4 sm:pt-8 sm:pb-5">
+        <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-12 pt-5 pb-4 sm:pt-8 sm:pb-6 lg:pt-11 lg:pb-7 border-b-2 border-[#141A23]">
           <nav
             aria-label="페이지 경로"
-            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#64748B] mb-3.5"
+            className="flex items-center gap-1.5 text-hb-xs font-medium text-[#7B8492] mb-2.5 sm:mb-4"
           >
             <Link href="/" className="hover:text-[#141A23] transition-colors">
               홈
             </Link>
             <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#94A3B8]" />
-            <span className="font-bold text-[#141A23]" aria-current="page">
+            <span className="font-semibold text-[#141A23]" aria-current="page">
               판매 제품
             </span>
+            {activeCategory !== "전체" && (
+              <>
+                <Icon d={ICON.right} className="w-3.5 h-3.5 text-[#94A3B8]" />
+                <span className="font-bold text-[#141A23]">
+                  {activeCategory}
+                </span>
+              </>
+            )}
           </nav>
 
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-3.5 sm:gap-5">
             <div className="min-w-0">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h1 className="text-hb-2xl sm:text-hb-3xl font-bold text-[#141A23] tracking-[-0.03em] leading-[1.2]">
-                  판매 제품 갤러리
+                <h1 className="text-hb-2xl sm:text-hb-3xl font-extrabold text-[#141A23] tracking-[-0.03em] leading-[1.18]">
+                  {activeCategory === "전체" ? "판매 제품" : activeCategory}
                 </h1>
                 {!isLoading && (
-                  <span className="font-mono text-hb-sm sm:text-hb-base font-bold text-[#475569] tabular-nums">
-                    {sellingCount}건 전시중
+                  <span className="font-mono text-hb-sm sm:text-hb-base font-semibold text-[#64748B] tabular-nums">
+                    전시중 {activeCategory === "전체" ? sellingCount : statusCounts.selling}건
                   </span>
                 )}
               </div>
-              <p className="mt-1.5 text-hb-sm text-[#64748B] break-keep">
+              <p className="hidden sm:block mt-2 text-hb-sm text-[#64748B] break-keep">
                 {STORE.name} 중촌동 직영 전시장 실매물 · 고압세척 및 배송 전 작동 점검 완료
               </p>
             </div>
 
-            {/* 통합 검색창 + 모바일 상세필터 토글 */}
-            <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
-              <div className="relative flex-1 lg:w-80">
+            {/* 미니멀 통합 검색바 + 모바일 상세필터 트리거 */}
+            <div className="flex items-center gap-2.5 w-full lg:w-auto shrink-0">
+              <div className="relative flex-1 lg:w-[340px]">
                 <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B] pointer-events-none">
                   <Icon d={ICON.search} className="w-4 h-4" />
                 </span>
@@ -691,9 +699,9 @@ function GalleryPageContent() {
                       commitSearchTracking(search, activeCategory);
                     }
                   }}
-                  placeholder="브랜드·제품명·모델명 검색"
+                  placeholder="브랜드, 제품명, 모델명 검색"
                   aria-label="브랜드, 제품명 또는 모델명 검색"
-                  className="w-full h-10 pl-10 pr-8 rounded-xl border border-[#E2DDD3] bg-[#FAF9F6] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#64748B] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
+                  className="w-full h-11 pl-10 pr-9 rounded-[4px] border border-[#D4D4CE] bg-[#FAF9F7] text-hb-base sm:text-hb-sm font-medium text-[#141A23] placeholder:text-[#7B8492] focus:border-[#141A23] focus:bg-white focus:outline-none transition-[border-color,background-color] duration-150"
                 />
                 {search.trim() !== "" && (
                   <button
@@ -715,10 +723,10 @@ function GalleryPageContent() {
                 onClick={() => setMobileFilterOpen(true)}
                 aria-expanded={mobileFilterOpen}
                 aria-haspopup="dialog"
-                className={`lg:hidden h-10 px-3.5 inline-flex items-center gap-1.5 rounded-xl border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
+                className={`lg:hidden h-11 px-4 inline-flex items-center gap-1.5 rounded-[4px] border text-hb-xs font-bold shrink-0 transition-colors cursor-pointer ${
                   activeFilterCount > 0
                     ? "border-[#141A23] bg-[#141A23] text-white"
-                    : "border-[#E2DDD3] bg-white text-[#141A23] hover:border-[#141A23]"
+                    : "border-[#D4D4CE] bg-white text-[#141A23] hover:border-[#141A23]"
                 }`}
               >
                 <span>{activeFilterCount > 0 ? `필터 (${activeFilterCount})` : "필터"}</span>
@@ -729,495 +737,724 @@ function GalleryPageContent() {
         </div>
       </section>
 
-      {/* 1행 고정 스티키 언더라인 카테고리 탭 (+ 데스크톱 인라인 필터) */}
-      <div className="sticky top-16 sm:top-[72px] z-30 border-b border-[#E2DDD3] bg-white/95 backdrop-blur-md">
-        <div className="hb-container pt-1">
-          <div className="flex items-center justify-between gap-4">
-            <div className="relative min-w-0 flex-1">
-              <div
-                className="flex items-center gap-5 sm:gap-7 overflow-x-auto scrollbar-none pr-8 sm:pr-2"
-                role="tablist"
-                aria-label="상품 카테고리 필터"
-              >
-                {CATEGORIES_WITH_ALL.map((cat) => {
-                  const active = activeCategory === cat;
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      role="tab"
-                      aria-selected={active}
-                      onClick={() => {
-                        setActiveCategory(cat);
-                        setVisibleLimit(PAGE_STEP);
-                        announceGalleryUpdate({
-                          activeCategory: cat,
-                          prefix: `카테고리: ${cat}`,
-                        });
-                      }}
-                      className={`relative pb-3 pt-1.5 inline-flex items-center text-hb-sm font-bold whitespace-nowrap transition-colors duration-150 shrink-0 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] rounded-t ${
-                        active
-                          ? "text-[#141A23]"
-                          : "text-[#64748B] hover:text-[#141A23]"
-                      }`}
-                    >
-                      <span>{cat}</span>
-                      <span className="ml-1.5 font-mono text-hb-xs font-semibold text-[#64748B] tabular-nums">
-                        {categoryCounts[cat] || 0}
-                      </span>
-                      <span
-                        className={`absolute inset-x-0 bottom-0 h-[2px] bg-[#141A23] transition-opacity duration-150 ${
-                          active ? "opacity-100" : "opacity-0"
-                        }`}
-                        aria-hidden="true"
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-              {/* 모바일 가로 스크롤 우측 페이드 힌트 마스크 */}
-              <div
-                className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/95 to-transparent sm:hidden"
-                aria-hidden="true"
-              />
-            </div>
-
-            {/* 데스크톱 우측 인라인 필터 */}
-            <div className="hidden lg:flex items-center gap-2 pb-2 shrink-0">
-              <select
-                id="gallery-status-desktop"
-                name="gallery-status-desktop"
-                value={statusFilter}
-                onChange={(e) => {
-                  const nextStatus = e.target.value as StatusFilter;
-                  setStatusFilter(nextStatus);
-                  setVisibleLimit(PAGE_STEP);
-                  announceGalleryUpdate({
-                    statusFilter: nextStatus,
-                    prefix: `판매 상태 필터 적용`,
-                  });
-                }}
-                aria-label="판매 상태 필터"
-                className="h-8 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer tabular-nums"
-              >
-                <option value="all">전체 상태 ({statusCounts.all})</option>
-                <option value="selling">판매중만 ({statusCounts.selling})</option>
-                <option value="reserved">예약중 ({statusCounts.reserved})</option>
-                <option value="sold">판매완료 ({statusCounts.sold})</option>
-              </select>
-
-              <select
-                id="gallery-voltage-desktop"
-                name="gallery-voltage-desktop"
-                value={voltageFilter}
-                onChange={(e) => {
-                  const nextVoltage = e.target.value as VoltageFilter;
-                  setVoltageFilter(nextVoltage);
-                  setVisibleLimit(PAGE_STEP);
-                  const voltageLabel =
-                    VOLTAGE_FILTER_OPTIONS.find((v) => v.value === nextVoltage)
-                      ?.label || "전체 전압";
-                  announceGalleryUpdate({
-                    voltageFilter: nextVoltage,
-                    prefix: `전원 규격: ${voltageLabel}`,
-                  });
-                }}
-                aria-label="전원 규격 필터"
-                className={`h-8 px-2.5 rounded-lg border text-hb-xs font-semibold focus:border-[#141A23] focus:outline-none cursor-pointer tabular-nums ${
-                  voltageFilter !== "all"
-                    ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
-                    : "border-[#E2DDD3] bg-white text-[#334155] hover:border-[#141A23]"
-                }`}
-              >
-                {VOLTAGE_FILTER_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label} ({voltageCounts[opt.value]})
-                  </option>
-                ))}
-              </select>
-
-              {hasPricedProducts && (
-                <select
-                  id="gallery-price-desktop"
-                  name="gallery-price-desktop"
-                  value={priceRange}
-                  onChange={(e) => {
-                    const nextPrice = e.target.value as PriceRangeOption;
-                    setPriceRange(nextPrice);
-                    setVisibleLimit(PAGE_STEP);
-                    trackEvent("filter_gallery", {
-                      category: activeCategory,
-                      price_range: nextPrice,
-                    });
-                  }}
-                  aria-label="가격대 범위 필터"
-                  className={`h-8 px-3 rounded-lg border text-hb-xs font-semibold focus:border-[#141A23] focus:outline-none cursor-pointer ${
-                    priceRange !== "all"
-                      ? "border-[#C84312] bg-[#FFF4EE] text-[#C84312]"
-                      : "border-[#E2DDD3] bg-white text-[#334155] hover:border-[#141A23]"
-                  }`}
-                >
-                  {PRICE_RANGE_OPTIONS.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <select
-                id="gallery-sort-desktop"
-                name="gallery-sort-desktop"
-                value={effectiveSort}
-                onChange={(e) => {
-                  const nextSort = e.target.value as SortOption;
-                  setSort(nextSort);
-                  announceGalleryUpdate({ sort: nextSort });
-                }}
-                aria-label="정렬 기준"
-                className="h-8 px-2.5 rounded-lg border border-[#E2DDD3] bg-white text-hb-xs font-semibold text-[#334155] hover:border-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
-              >
-                <option value="latest">{SORT_OPTION_LABELS.latest}</option>
-                <option value="yearDesc">{SORT_OPTION_LABELS.yearDesc}</option>
-                <option value="capacityDesc">{SORT_OPTION_LABELS.capacityDesc}</option>
-                <option value="capacityAsc">{SORT_OPTION_LABELS.capacityAsc}</option>
-                <option value="views">{SORT_OPTION_LABELS.views}</option>
-                {hasPricedProducts && (
-                  <>
-                    <option value="priceAsc">{SORT_OPTION_LABELS.priceAsc}</option>
-                    <option value="priceDesc">{SORT_OPTION_LABELS.priceDesc}</option>
-                  </>
-                )}
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 비고정 맞춤 탐색 상황별 큐레이션 레일 (모바일·데스크톱 상시 1줄 노출) */}
-      <div className="border-b border-[#E2DDD3] bg-[#FAF9F6]">
-        <div className="hb-container py-2 flex items-center gap-2.5">
-          <span className="hidden lg:inline-flex items-center shrink-0 text-hb-xs font-semibold text-[#64748B]">
-            맞춤 탐색
-          </span>
-          <div className="relative min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pr-6 sm:pr-0 text-hb-xs">
-              {SITUATION_PRESETS.map((preset) => {
-                const active =
-                  activeCategory === preset.category &&
-                  (!preset.keyword || search === preset.keyword);
-                const count = presetCounts[preset.label] ?? 0;
+      {/* 모바일·태블릿 전용 스티키 카테고리 바 (데스크톱은 좌측 고정 사이드바로 통합) */}
+      <div className="lg:hidden sticky top-[74px] sm:top-[82px] z-30 border-b border-[#E6E5E0] bg-white/95 backdrop-blur-md">
+        <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 pt-1">
+          <div className="relative">
+            <div
+              className="flex items-center gap-6 overflow-x-auto scrollbar-none pr-8"
+              role="tablist"
+              aria-label="모바일 상품 카테고리 필터"
+            >
+              {CATEGORIES_WITH_ALL.map((cat) => {
+                const active = activeCategory === cat;
                 return (
                   <button
-                    key={preset.label}
+                    key={cat}
                     type="button"
+                    role="tab"
+                    aria-selected={active}
                     onClick={() => {
-                      setActiveCategory(preset.category);
-                      setSearch(preset.keyword);
+                      setActiveCategory(cat);
                       setVisibleLimit(PAGE_STEP);
                       announceGalleryUpdate({
-                        activeCategory: preset.category,
-                        search: preset.keyword,
-                        prefix: `맞춤 탐색: ${preset.label}`,
-                      });
-                      trackEvent("click_situation_preset", {
-                        preset: preset.label,
-                        category: preset.category,
-                        keyword: preset.keyword,
+                        activeCategory: cat,
+                        prefix: `카테고리: ${cat}`,
                       });
                     }}
-                    className={`min-h-[34px] inline-flex items-center gap-1.5 rounded-lg px-2.5 font-semibold transition-colors shrink-0 cursor-pointer ${
+                    className={`relative pb-3 pt-2 inline-flex items-center text-hb-sm font-bold whitespace-nowrap transition-colors duration-150 shrink-0 cursor-pointer ${
                       active
-                        ? "bg-[#141A23] text-white"
-                        : "bg-white border border-[#E2DDD3] text-[#475569] hover:border-[#CFC7BA] hover:text-[#141A23]"
+                        ? "text-[#141A23]"
+                        : "text-[#7B8492] hover:text-[#141A23]"
                     }`}
-                    title={preset.desc}
                   >
-                    <span>{preset.label}</span>
-                    <span
-                      className={`font-mono text-hb-xs tabular-nums ${
-                        active ? "text-white/80" : "text-[#64748B]"
-                      }`}
-                    >
-                      {count}
+                    <span>{cat}</span>
+                    <span className="ml-1.5 font-mono text-hb-xs font-medium text-[#7B8492] tabular-nums">
+                      {categoryCounts[cat] || 0}
                     </span>
+                    <span
+                      className={`absolute inset-x-0 bottom-0 h-[2px] bg-[#141A23] transition-opacity duration-150 ${
+                        active ? "opacity-100" : "opacity-0"
+                      }`}
+                      aria-hidden="true"
+                    />
                   </button>
                 );
               })}
             </div>
             <div
-              className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FAF9F6] to-transparent sm:hidden"
+              className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white/95 to-transparent"
               aria-hidden="true"
             />
           </div>
         </div>
       </div>
 
-      {/* 메인 상품 그리드 */}
-      <main id="main-content" tabIndex={-1} className="hb-container py-6 sm:py-8 flex-1 focus:outline-none">
-        <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 border-b border-[#E5E0D7]">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-hb-xs sm:text-hb-sm text-[#475569]">
-              {isLoading ? (
-                "상품 목록을 불러오는 중..."
-              ) : (
-                <>
-                  전체{" "}
-                  <strong className="font-mono text-[#141A23] font-bold tabular-nums">
-                    {filteredProducts.length}
-                  </strong>
-                  건
-                </>
-              )}
-            </p>
+      {/* 메인 2컬럼 에디토리얼 카탈로그 (좌측 고정 필터 레일 + 우측 와이드 상품 그리드) */}
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 lg:px-12 py-4 sm:py-8 lg:py-9 flex-1 focus:outline-none"
+      >
+        {/* 모바일 전용 상황별 맞춤 큐레이션 가로 칩 */}
+        <div className="lg:hidden mb-3.5 flex items-center gap-2 overflow-x-auto scrollbar-none pb-0.5">
+          {SITUATION_PRESETS.map((preset) => {
+            const active =
+              activeCategory === preset.category &&
+              (!preset.keyword || search === preset.keyword);
+            const count = presetCounts[preset.label] ?? 0;
+            return (
+              <button
+                key={preset.label}
+                type="button"
+                onClick={() => {
+                  setActiveCategory(preset.category);
+                  setSearch(preset.keyword);
+                  setVisibleLimit(PAGE_STEP);
+                  announceGalleryUpdate({
+                    activeCategory: preset.category,
+                    search: preset.keyword,
+                    prefix: `맞춤 탐색: ${preset.label}`,
+                  });
+                  trackEvent("click_situation_preset", {
+                    preset: preset.label,
+                    category: preset.category,
+                    keyword: preset.keyword,
+                  });
+                }}
+                className={`min-h-[32px] inline-flex items-center gap-1.5 rounded-[4px] px-2.5 text-hb-xs font-semibold transition-colors shrink-0 cursor-pointer ${
+                  active
+                    ? "bg-[#141A23] text-white"
+                    : "bg-[#F5F5F2] text-[#334155] hover:bg-[#EAEAE5]"
+                }`}
+                title={preset.desc}
+              >
+                <span>{preset.label}</span>
+                <span
+                  className={`font-mono text-hb-xs tabular-nums ${
+                    active ? "text-white/75" : "text-[#7B8492]"
+                  }`}
+                >
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="lg:grid lg:grid-cols-[224px_minmax(0,1fr)] xl:grid-cols-[248px_minmax(0,1fr)] lg:gap-10 xl:gap-14 items-start">
+          {/* 데스크톱 좌측 에디토리얼 필터 사이드바 (Kolon Mall / Bioderma 스타일) */}
+          <aside
+            aria-label="상품 필터 사이드바"
+            className="hidden lg:block sticky top-[110px] self-start space-y-5 pr-2"
+          >
+            {/* 1. 품목 카테고리 */}
+            <div>
+              <h2 className="text-hb-xs font-extrabold tracking-[0.04em] text-[#7B8492] pb-2.5 border-b border-[#E6E5E0]">
+                카테고리
+              </h2>
+              <ul
+                role="tablist"
+                aria-label="상품 카테고리 필터"
+                className="mt-2 space-y-0.5"
+              >
+                {CATEGORIES_WITH_ALL.map((cat) => {
+                  const active = activeCategory === cat;
+                  return (
+                    <li key={cat}>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={active}
+                        onClick={() => {
+                          setActiveCategory(cat);
+                          setVisibleLimit(PAGE_STEP);
+                          announceGalleryUpdate({
+                            activeCategory: cat,
+                            prefix: `카테고리: ${cat}`,
+                          });
+                        }}
+                        className={`group flex w-full items-center justify-between py-1.5 text-left text-hb-sm transition-colors cursor-pointer rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
+                          active
+                            ? "font-extrabold text-[#141A23]"
+                            : "font-medium text-[#526071] hover:text-[#141A23]"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            className={`h-3.5 w-[2.5px] rounded-full transition-colors ${
+                              active
+                                ? "bg-[#141A23]"
+                                : "bg-transparent group-hover:bg-[#CFC7BA]"
+                            }`}
+                            aria-hidden="true"
+                          />
+                          <span className="truncate">{cat}</span>
+                        </span>
+                        <span
+                          className={`font-mono text-hb-xs tabular-nums ${
+                            active
+                              ? "font-bold text-[#141A23]"
+                              : "text-[#8B95A1]"
+                          }`}
+                        >
+                          {categoryCounts[cat] || 0}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* 2. 상황별 맞춤 탐색 */}
+            <div>
+              <h2 className="text-hb-xs font-extrabold tracking-[0.04em] text-[#7B8492] pb-3 border-b border-[#E6E5E0]">
+                맞춤 탐색
+              </h2>
+              <ul className="mt-2.5 space-y-1">
+                {SITUATION_PRESETS.map((preset) => {
+                  const active =
+                    activeCategory === preset.category &&
+                    (!preset.keyword || search === preset.keyword);
+                  const count = presetCounts[preset.label] ?? 0;
+                  return (
+                    <li key={preset.label}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveCategory(preset.category);
+                          setSearch(preset.keyword);
+                          setVisibleLimit(PAGE_STEP);
+                          announceGalleryUpdate({
+                            activeCategory: preset.category,
+                            search: preset.keyword,
+                            prefix: `맞춤 탐색: ${preset.label}`,
+                          });
+                          trackEvent("click_situation_preset", {
+                            preset: preset.label,
+                            category: preset.category,
+                            keyword: preset.keyword,
+                          });
+                        }}
+                        title={preset.desc}
+                        className={`flex w-full items-center justify-between py-1.5 px-2 rounded-[4px] text-hb-sm transition-colors cursor-pointer ${
+                          active
+                            ? "bg-[#141A23] text-white font-bold"
+                            : "text-[#475569] hover:bg-[#F5F5F2] hover:text-[#141A23] font-medium"
+                        }`}
+                      >
+                        <span className="truncate">{preset.label}</span>
+                        <span
+                          className={`font-mono text-hb-xs tabular-nums ${
+                            active ? "text-white/80" : "text-[#8B95A1]"
+                          }`}
+                        >
+                          {count}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            {/* 3. 판매 상태 */}
+            <div>
+              <h2 className="text-hb-xs font-extrabold tracking-[0.04em] text-[#7B8492] pb-3 border-b border-[#E6E5E0]">
+                판매 상태
+              </h2>
+              <div className="mt-2.5 space-y-1" role="radiogroup" aria-label="판매 상태 필터">
+                {(
+                  [
+                    { value: "all", label: "전체 상태", count: statusCounts.all },
+                    { value: "selling", label: "판매중만", count: statusCounts.selling },
+                    { value: "reserved", label: "예약중", count: statusCounts.reserved },
+                    { value: "sold", label: "판매완료", count: statusCounts.sold },
+                  ] as const
+                ).map((opt) => {
+                  const active = statusFilter === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => {
+                        setStatusFilter(opt.value);
+                        setVisibleLimit(PAGE_STEP);
+                        announceGalleryUpdate({
+                          statusFilter: opt.value,
+                          prefix: "판매 상태 필터 적용",
+                        });
+                      }}
+                      className={`flex w-full items-center justify-between py-1.5 text-hb-sm transition-colors cursor-pointer ${
+                        active
+                          ? "font-bold text-[#141A23]"
+                          : "font-medium text-[#526071] hover:text-[#141A23]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span
+                          className={`grid h-4 w-4 place-items-center rounded-full border transition-colors ${
+                            active
+                              ? "border-[#141A23] bg-[#141A23]"
+                              : "border-[#CBD5E1] bg-white"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {active && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <span className="font-mono text-hb-xs text-[#8B95A1] tabular-nums">
+                        {opt.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 4. 전원 규격 */}
+            <div>
+              <h2 className="text-hb-xs font-extrabold tracking-[0.04em] text-[#7B8492] pb-3 border-b border-[#E6E5E0]">
+                전원 규격
+              </h2>
+              <div className="mt-2.5 space-y-1" role="radiogroup" aria-label="전원 규격 필터">
+                {VOLTAGE_FILTER_OPTIONS.map((opt) => {
+                  const active = voltageFilter === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      onClick={() => {
+                        setVoltageFilter(opt.value);
+                        setVisibleLimit(PAGE_STEP);
+                        announceGalleryUpdate({
+                          voltageFilter: opt.value,
+                          prefix: `전원 규격: ${opt.label}`,
+                        });
+                      }}
+                      className={`flex w-full items-center justify-between py-1.5 text-hb-sm transition-colors cursor-pointer ${
+                        active
+                          ? "font-bold text-[#141A23]"
+                          : "font-medium text-[#526071] hover:text-[#141A23]"
+                      }`}
+                    >
+                      <span className="flex items-center gap-2.5">
+                        <span
+                          className={`grid h-4 w-4 place-items-center rounded-full border transition-colors ${
+                            active
+                              ? "border-[#141A23] bg-[#141A23]"
+                              : "border-[#CBD5E1] bg-white"
+                          }`}
+                          aria-hidden="true"
+                        >
+                          {active && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-white" />
+                          )}
+                        </span>
+                        <span>{opt.label}</span>
+                      </span>
+                      <span className="font-mono text-hb-xs text-[#8B95A1] tabular-nums">
+                        {voltageCounts[opt.value]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* 5. 가격대 (가격 표기 상품 존재 시 노출) */}
+            {hasPricedProducts && (
+              <div>
+                <h2 className="text-hb-xs font-extrabold tracking-[0.04em] text-[#7B8492] pb-3 border-b border-[#E6E5E0]">
+                  가격대
+                </h2>
+                <div className="mt-2.5 space-y-1">
+                  {PRICE_RANGE_OPTIONS.map((opt) => {
+                    const active = priceRange === opt.value;
+                    return (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setPriceRange(opt.value);
+                          setVisibleLimit(PAGE_STEP);
+                          trackEvent("filter_gallery", {
+                            category: activeCategory,
+                            price_range: opt.value,
+                          });
+                        }}
+                        className={`flex w-full items-center justify-between py-1.5 text-hb-sm transition-colors cursor-pointer ${
+                          active
+                            ? "font-bold text-[#141A23]"
+                            : "font-medium text-[#526071] hover:text-[#141A23]"
+                        }`}
+                      >
+                        <span>{opt.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* 필터 초기화 */}
             {(activeCategory !== "전체" ||
               search.trim() !== "" ||
               statusFilter !== "all" ||
               voltageFilter !== "all" ||
               (hasPricedProducts && priceRange !== "all") ||
               sort !== "latest") && (
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="text-hb-xs font-bold text-[#C84312] underline underline-offset-4 hover:text-[#141A23] ml-1 cursor-pointer"
-              >
-                초기화
-              </button>
-            )}
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <div
-              role="group"
-              aria-label="매물 표시 방식"
-              className="hb-segmented-control"
-            >
-              <button
-                type="button"
-                aria-pressed={viewMode === "card"}
-                onClick={() => {
-                  setViewMode("card");
-                  trackEvent("gallery_view_mode", { mode: "card" });
-                }}
-                className={`hb-segmented-item cursor-pointer ${
-                  viewMode === "card"
-                    ? "bg-[#141A23] text-white shadow-2xs"
-                    : "text-[#475569] hover:text-[#141A23]"
-                }`}
-              >
-                <Icon d={ICON.grid} className="w-3.5 h-3.5" />
-                <span>카드 보기</span>
-              </button>
-              <button
-                type="button"
-                aria-pressed={viewMode === "table"}
-                onClick={() => {
-                  setViewMode("table");
-                  trackEvent("gallery_view_mode", { mode: "table" });
-                }}
-                className={`hb-segmented-item cursor-pointer ${
-                  viewMode === "table"
-                    ? "bg-[#141A23] text-white shadow-2xs"
-                    : "text-[#475569] hover:text-[#141A23]"
-                }`}
-              >
-                <Icon d={ICON.list} className="w-3.5 h-3.5" />
-                <span>스펙 표 보기</span>
-              </button>
-            </div>
-
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => {
-                  setIsSelectMode(!isSelectMode);
-                  setSelectedIds(new Set());
-                }}
-                className={`px-3 h-9 rounded-lg text-hb-xs font-bold border transition-colors flex items-center gap-1.5 cursor-pointer ${
-                  effectiveSelectMode
-                    ? "bg-[#C84312] text-white border-[#C84312]"
-                    : "bg-white text-[#141A23] border-[#E2DDD3] hover:bg-[#FAF9F6]"
-                }`}
-              >
-                <Icon d={ICON.check} className="w-3.5 h-3.5" />
-                {effectiveSelectMode ? "선택 종료" : "일괄 관리"}
-              </button>
-            )}
-          </div>
-        </div>
-
-        <CategoryNoticeGuideBanner
-          category={activeCategory}
-          variant="banner"
-          className="mb-6"
-        />
-
-        {/* [기능 4] 비로그인 최근 본 매물 상단 슬림 스트립 */}
-        <RecentViewedStrip compact className="mb-5" />
-
-        <p role="status" className="sr-only">
-          {sortStatusMessage}
-        </p>
-
-        {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-5 lg:gap-x-6 gap-y-7 sm:gap-y-9">
-            {Array.from({ length: 8 }).map((_, idx) => (
-              <div key={`sk-${idx}`} className="animate-pulse rounded-xl border border-[#EAE6DD] bg-white overflow-hidden">
-                <div className="aspect-square bg-[#F4F3F0]" />
-                <div className="p-3.5 sm:p-4 space-y-2">
-                  <div className="h-3.5 bg-[#F4F3F0] rounded w-1/3" />
-                  <div className="h-4 bg-[#F4F3F0] rounded w-11/12" />
-                  <div className="h-3.5 bg-[#F4F3F0] rounded w-2/3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : loadError ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E2DDD3]">
-            <p className="text-[#141A23] text-hb-lg font-bold">
-              상품 목록을 불러오지 못했습니다.
-            </p>
-            <p className="mt-1 text-hb-sm text-[#64748B]">
-              네트워크 연결을 확인하신 후 다시 시도해 주세요.
-            </p>
-            <button
-              type="button"
-              onClick={() => void fetchProducts(false, true)}
-              className="hb-btn-primary mt-5 h-10 px-5 text-hb-sm"
-            >
-              다시 불러오기
-            </button>
-          </div>
-        ) : filteredProducts.length === 0 ? (
-          <div className="py-16 px-6 text-center bg-white rounded-xl border border-[#E2DDD3] shadow-2xs">
-            <p className="text-[#141A23] text-hb-lg font-bold">
-              {search.trim()
-                ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
-                : "선택하신 필터 조건에 맞는 상품이 없습니다."}
-            </p>
-            <p className="mt-1.5 text-[#64748B] text-hb-sm max-w-lg mx-auto break-keep">
-              중촌동 직영 매장에는 온라인에 미처 올리지 못한 대기 매물이 많습니다. 찾으시는 품목을 바로 문의해 주시면 창고 재고를 즉시 확인해 드립니다.
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-2.5">
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="hb-btn-outline h-11 px-5 text-hb-sm"
-              >
-                전체 필터 초기화
-              </button>
-              <Link
-                href={`/inquiry?write=1&type=${encodeURIComponent(
-                  activeCategory === "업소용기기" ? "대량·업소용 상담" : "구매 문의"
-                )}&title=${encodeURIComponent(
-                  `[미등록 재고문의] ${
-                    search.trim() || activeCategory
-                  } 매물 재고 확인 부탁드립니다`
-                )}`}
-                className="hb-btn-accent h-11 px-5 text-hb-sm"
-              >
-                <Icon d={ICON.pen} className="w-4 h-4" />
-                <span>
-                  &lsquo;{search.trim() || activeCategory}&rsquo; 매장 미등록 재고 문의
-                </span>
-              </Link>
-              <a
-                href={smsHref(
-                  STORE.mobile,
-                  `[${STORE.name} 미등록재고문의] 홈페이지에서 '${
-                    search.trim() || activeCategory
-                  }' 검색 후 문의드립니다. 매장 보유 재고와 사진 확인 가능할까요?`
-                )}
-                className="hb-btn-primary h-11 px-5 text-hb-sm"
-              >
-                <Icon d={ICON.chat} className="w-4 h-4 text-[#FF8A50]" />
-                <span>문자로 실물사진 요청</span>
-              </a>
-              <a
-                href={STORE.kakaoChat}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hb-btn-kakao h-11 px-5 text-hb-sm"
-              >
-                <Icon d={ICON.chat} className="w-4 h-4" /> 카톡으로 재고 문의
-              </a>
-            </div>
-          </div>
-        ) : (
-          <>
-            <h2 className="sr-only">판매 제품 목록</h2>
-            {viewMode === "table" ? (
-              <GallerySpecTable
-                products={displayedProducts}
-                isSelectMode={effectiveSelectMode}
-                selectedIds={selectedIds}
-                isAdmin={isAdmin}
-                onProductClick={handleProductClick}
-                onQuickView={handleProductClick}
-              />
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 sm:gap-x-5 lg:gap-x-6 gap-y-7 sm:gap-y-9">
-                {displayedProducts.map((product, idx) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    eager={idx < 4}
-                    onSelect={effectiveSelectMode ? handleProductClick : undefined}
-                    onQuickView={handleProductClick}
-                    isSelectMode={effectiveSelectMode}
-                    isSelected={selectedIds.has(product.id)}
-                    isAdmin={isAdmin}
-                    onDelete={handleDeleteProduct}
-                  />
-                ))}
-              </div>
-            )}
-
-            {filteredProducts.length > visibleLimit && (
-              <div className="mt-10 text-center">
+              <div className="pt-2 border-t border-[#E6E5E0]">
                 <button
                   type="button"
-                  onClick={() => setVisibleLimit((prev) => prev + PAGE_STEP)}
-                  className="hb-btn-outline h-12 px-8 text-hb-sm"
+                  onClick={resetFilters}
+                  className="inline-flex items-center gap-1.5 text-hb-xs font-bold text-[#64748B] hover:text-[#141A23] underline underline-offset-4 cursor-pointer"
                 >
-                  <span>
-                    상품 더 보기 ({filteredProducts.length - visibleLimit}건 남음)
-                  </span>
-                  <Icon d={ICON.down} className="w-4 h-4" />
+                  <span>전체 필터 초기화</span>
                 </button>
               </div>
             )}
-          </>
-        )}
+          </aside>
 
-        {/* 미등록 매장 재고 및 맞춤 사양 문의 배너 */}
-        <div className="mt-12 rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6] p-5 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <span className="hb-eyebrow">미등록 매장 재고 문의</span>
-            <h2 className="mt-1.5 text-hb-lg font-bold text-[#141A23]">
-              찾으시는 모델이나 용량·수량이 목록에 없으신가요?
-            </h2>
-            <p className="mt-1 text-hb-sm text-[#475569] leading-relaxed break-keep">
-              중촌동 매장에는 세척·점검을 마치고 아직 홈페이지에 업로드되지 않은 가전과 업소용 주방설비가 상시 대기 중입니다.
+          {/* 우측 메인 카탈로그 영역 */}
+          <div className="min-w-0">
+            {/* 단일 미니멀 툴바 (총 수량 + 활성 필터 태그 + 정렬 + 카드/스펙표 전환) */}
+            <div className="flex items-center justify-between gap-2 sm:gap-3 pb-3 sm:pb-4 mb-4 sm:mb-7 border-b border-[#E6E5E0]">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
+                <p className="text-hb-xs sm:text-hb-sm text-[#475569] whitespace-nowrap">
+                  {isLoading ? (
+                    "상품 목록을 불러오는 중..."
+                  ) : (
+                    <>
+                      총{" "}
+                      <strong className="font-mono text-[#141A23] font-extrabold tabular-nums">
+                        {filteredProducts.length}
+                      </strong>
+                      <span className="hidden sm:inline">개 상품</span>
+                      <span className="sm:hidden">개</span>
+                    </>
+                  )}
+                </p>
+
+                {search.trim() !== "" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearch("");
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-[4px] bg-[#F5F5F2] px-2 py-0.5 sm:px-2.5 sm:py-1 text-hb-xs font-semibold text-[#141A23] hover:bg-[#EAEAE5] cursor-pointer"
+                  >
+                    <span className="max-w-[90px] truncate">&lsquo;{search.trim()}&rsquo;</span>
+                    <Icon d={ICON.close} className="w-3 h-3 text-[#64748B]" />
+                  </button>
+                )}
+
+                {voltageFilter !== "all" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoltageFilter("all");
+                      setVisibleLimit(PAGE_STEP);
+                    }}
+                    className="inline-flex items-center gap-1 rounded-[4px] bg-[#F5F5F2] px-2 py-0.5 sm:px-2.5 sm:py-1 text-hb-xs font-semibold text-[#141A23] hover:bg-[#EAEAE5] cursor-pointer"
+                  >
+                    <span>
+                      {VOLTAGE_FILTER_OPTIONS.find((v) => v.value === voltageFilter)?.label}
+                    </span>
+                    <Icon d={ICON.close} className="w-3 h-3 text-[#64748B]" />
+                  </button>
+                )}
+
+                {(activeCategory !== "전체" ||
+                  search.trim() !== "" ||
+                  statusFilter !== "all" ||
+                  voltageFilter !== "all" ||
+                  (hasPricedProducts && priceRange !== "all") ||
+                  sort !== "latest") && (
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="text-hb-xs font-semibold text-[#64748B] hover:text-[#141A23] underline underline-offset-4 cursor-pointer whitespace-nowrap"
+                  >
+                    초기화
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                {/* 미니멀 정렬 셀렉트 */}
+                <select
+                  id="gallery-sort-desktop"
+                  name="gallery-sort-desktop"
+                  value={effectiveSort}
+                  onChange={(e) => {
+                    const nextSort = e.target.value as SortOption;
+                    setSort(nextSort);
+                    announceGalleryUpdate({ sort: nextSort });
+                  }}
+                  aria-label="정렬 기준"
+                  className="h-8 sm:h-9 pl-2 pr-6 sm:pl-2.5 sm:pr-7 rounded-[4px] border border-transparent hover:border-[#E6E5E0] bg-transparent text-hb-xs sm:text-hb-sm font-semibold text-[#141A23] focus:border-[#141A23] focus:outline-none cursor-pointer"
+                >
+                  <option value="latest">{SORT_OPTION_LABELS.latest}</option>
+                  <option value="yearDesc">{SORT_OPTION_LABELS.yearDesc}</option>
+                  <option value="capacityDesc">{SORT_OPTION_LABELS.capacityDesc}</option>
+                  <option value="capacityAsc">{SORT_OPTION_LABELS.capacityAsc}</option>
+                  <option value="views">{SORT_OPTION_LABELS.views}</option>
+                  {hasPricedProducts && (
+                    <>
+                      <option value="priceAsc">{SORT_OPTION_LABELS.priceAsc}</option>
+                      <option value="priceDesc">{SORT_OPTION_LABELS.priceDesc}</option>
+                    </>
+                  )}
+                </select>
+
+                <span className="h-3.5 w-px bg-[#E6E5E0]" aria-hidden="true" />
+
+                {/* 미니멀 카드 / 스펙 표 전환 버튼 */}
+                <div
+                  role="group"
+                  aria-label="매물 표시 방식"
+                  className="inline-flex items-center gap-1"
+                >
+                  <button
+                    type="button"
+                    aria-pressed={viewMode === "card"}
+                    onClick={() => {
+                      setViewMode("card");
+                      trackEvent("gallery_view_mode", { mode: "card" });
+                    }}
+                    className={`inline-flex h-9 items-center gap-1.5 rounded-[4px] px-2.5 text-hb-xs font-bold transition-colors cursor-pointer ${
+                      viewMode === "card"
+                        ? "bg-[#141A23] text-white"
+                        : "text-[#64748B] hover:text-[#141A23] hover:bg-[#F5F5F2]"
+                    }`}
+                  >
+                    <Icon d={ICON.grid} className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">갤러리</span>
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={viewMode === "table"}
+                    onClick={() => {
+                      setViewMode("table");
+                      trackEvent("gallery_view_mode", { mode: "table" });
+                    }}
+                    className={`inline-flex h-9 items-center gap-1.5 rounded-[4px] px-2.5 text-hb-xs font-bold transition-colors cursor-pointer ${
+                      viewMode === "table"
+                        ? "bg-[#141A23] text-white"
+                        : "text-[#64748B] hover:text-[#141A23] hover:bg-[#F5F5F2]"
+                    }`}
+                  >
+                    <Icon d={ICON.list} className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">스펙 표</span>
+                  </button>
+                </div>
+
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSelectMode(!isSelectMode);
+                      setSelectedIds(new Set());
+                    }}
+                    className={`px-3 h-9 rounded-[4px] text-hb-xs font-bold border transition-colors flex items-center gap-1.5 cursor-pointer ${
+                      effectiveSelectMode
+                        ? "bg-[#C84312] text-white border-[#C84312]"
+                        : "bg-white text-[#141A23] border-[#D4D4CE] hover:border-[#141A23]"
+                    }`}
+                  >
+                    <Icon d={ICON.check} className="w-3.5 h-3.5" />
+                    {effectiveSelectMode ? "선택 종료" : "일괄 관리"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <CategoryNoticeGuideBanner
+              category={activeCategory}
+              variant="banner"
+              className="mb-4 sm:mb-7"
+            />
+
+            {/* 비로그인 최근 본 매물 슬림 스트립 */}
+            <RecentViewedStrip compact className="mb-5 sm:mb-7" />
+
+            <p role="status" className="sr-only">
+              {sortStatusMessage}
             </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
-            <a
-              href={telHref(STORE.tel)}
-              className="hb-btn-accent h-11 px-4 text-hb-sm"
-            >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5" />
-              <span>전화 재고 문의 ({STORE.tel})</span>
-            </a>
-            <a
-              href={STORE.kakaoChat}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hb-btn-kakao h-11 px-4 text-hb-sm"
-            >
-              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-              <span>카톡 실물사진 요청</span>
-            </a>
+
+            {isLoading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-12">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <div key={`sk-${idx}`} className="animate-pulse">
+                    <div className="aspect-[4/5] rounded-[4px] bg-[#F6F6F3]" />
+                    <div className="pt-3.5 space-y-2">
+                      <div className="h-3 bg-[#F5F5F2] rounded w-1/3" />
+                      <div className="h-4 bg-[#F5F5F2] rounded w-11/12" />
+                      <div className="h-3.5 bg-[#F5F5F2] rounded w-2/3" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : loadError ? (
+              <div className="py-20 px-6 text-center border-y border-[#E6E5E0]">
+                <p className="text-[#141A23] text-hb-lg font-bold">
+                  상품 목록을 불러오지 못했습니다.
+                </p>
+                <p className="mt-1.5 text-hb-sm text-[#64748B]">
+                  네트워크 연결을 확인하신 후 다시 시도해 주세요.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void fetchProducts(false, true)}
+                  className="hb-btn-primary mt-6 h-11 px-6 text-hb-sm"
+                >
+                  다시 불러오기
+                </button>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="py-20 px-6 text-center border-y border-[#E6E5E0]">
+                <p className="text-[#141A23] text-hb-lg font-bold">
+                  {search.trim()
+                    ? `'${search.trim()}' 검색 조건에 맞는 등록 매물이 없습니다.`
+                    : "선택하신 필터 조건에 맞는 상품이 없습니다."}
+                </p>
+                <p className="mt-2 text-[#64748B] text-hb-sm max-w-lg mx-auto break-keep">
+                  중촌동 직영 매장에는 온라인에 미처 올리지 못한 대기 매물이 많습니다. 찾으시는 품목을 바로 문의해 주시면 창고 재고를 즉시 확인해 드립니다.
+                </p>
+                <div className="mt-7 flex flex-wrap justify-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="hb-btn-outline h-11 px-5 text-hb-sm"
+                  >
+                    전체 필터 초기화
+                  </button>
+                  <Link
+                    href={`/inquiry?write=1&type=${encodeURIComponent(
+                      activeCategory === "업소용기기" ? "대량·업소용 상담" : "구매 문의"
+                    )}&title=${encodeURIComponent(
+                      `[미등록 재고문의] ${
+                        search.trim() || activeCategory
+                      } 매물 재고 확인 부탁드립니다`
+                    )}`}
+                    className="hb-btn-accent h-11 px-5 text-hb-sm"
+                  >
+                    <Icon d={ICON.pen} className="w-4 h-4" />
+                    <span>
+                      &lsquo;{search.trim() || activeCategory}&rsquo; 매장 미등록 재고 문의
+                    </span>
+                  </Link>
+                  <a
+                    href={smsHref(
+                      STORE.mobile,
+                      `[${STORE.name} 미등록재고문의] 홈페이지에서 '${
+                        search.trim() || activeCategory
+                      }' 검색 후 문의드립니다. 매장 보유 재고와 사진 확인 가능할까요?`
+                    )}
+                    className="hb-btn-primary h-11 px-5 text-hb-sm"
+                  >
+                    <Icon d={ICON.chat} className="w-4 h-4 text-[#FF8A50]" />
+                    <span>문자로 실물사진 요청</span>
+                  </a>
+                  <a
+                    href={STORE.kakaoChat}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hb-btn-kakao h-11 px-5 text-hb-sm"
+                  >
+                    <Icon d={ICON.chat} className="w-4 h-4" /> 카톡으로 재고 문의
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h2 className="sr-only">판매 제품 목록</h2>
+                {viewMode === "table" ? (
+                  <GallerySpecTable
+                    products={displayedProducts}
+                    isSelectMode={effectiveSelectMode}
+                    selectedIds={selectedIds}
+                    isAdmin={isAdmin}
+                    onProductClick={handleProductClick}
+                    onQuickView={handleProductClick}
+                  />
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-x-4 sm:gap-x-6 gap-y-10 sm:gap-y-12">
+                    {displayedProducts.map((product, idx) => (
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        eager={idx < 4}
+                        onSelect={effectiveSelectMode ? handleProductClick : undefined}
+                        onQuickView={handleProductClick}
+                        isSelectMode={effectiveSelectMode}
+                        isSelected={selectedIds.has(product.id)}
+                        isAdmin={isAdmin}
+                        onDelete={handleDeleteProduct}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {filteredProducts.length > visibleLimit && (
+                  <div className="mt-14 text-center">
+                    <button
+                      type="button"
+                      onClick={() => setVisibleLimit((prev) => prev + PAGE_STEP)}
+                      className="inline-flex h-12 min-w-[240px] items-center justify-center gap-2 rounded-[4px] border border-[#141A23] bg-white px-8 text-hb-sm font-bold text-[#141A23] hover:bg-[#141A23] hover:text-white active:scale-[0.98] transition-colors cursor-pointer"
+                    >
+                      <span>
+                        상품 더 보기 ({filteredProducts.length - visibleLimit}건 남음)
+                      </span>
+                      <Icon d={ICON.down} className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* 하단 미등록 매장 재고 및 맞춤 사양 문의 배너 (건축적 헤어라인 스타일) */}
+            <div className="mt-16 pt-8 pb-4 border-t-2 border-[#141A23] flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div>
+                <span className="text-hb-xs font-extrabold tracking-[0.04em] text-[#C84312]">
+                  미등록 매장 재고 문의
+                </span>
+                <h2 className="mt-1.5 text-hb-xl font-extrabold text-[#141A23] tracking-[-0.02em]">
+                  찾으시는 모델이나 용량·수량이 목록에 없으신가요?
+                </h2>
+                <p className="mt-1.5 text-hb-sm text-[#526071] leading-relaxed break-keep">
+                  중촌동 매장에는 세척·점검을 마치고 아직 홈페이지에 업로드되지 않은 가전과 업소용 주방설비가 상시 대기 중입니다.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                <a
+                  href={telHref(STORE.tel)}
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-[4px] bg-[#141A23] px-5 text-hb-sm font-bold text-white hover:bg-[#232D3F] transition-colors whitespace-nowrap"
+                >
+                  <Icon d={ICON.phone} className="w-4 h-4 text-[#FF8A50]" />
+                  <span>전화 재고 문의 ({STORE.tel})</span>
+                </a>
+                <a
+                  href={STORE.kakaoChat}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-[4px] bg-[#FEE500] px-5 text-hb-sm font-bold text-[#191600] hover:bg-[#F2D900] transition-colors whitespace-nowrap"
+                >
+                  <Icon d={ICON.chat} className="w-4 h-4" />
+                  <span>카톡 실물사진 요청</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </main>

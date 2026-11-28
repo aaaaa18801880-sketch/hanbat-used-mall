@@ -30,23 +30,23 @@ export function CategoryNoticeGuideBanner({
     return (
       <>
         <div
-          className={`relative overflow-hidden rounded-xl border border-[#E2E6EC] bg-white p-4 sm:p-5 transition-colors duration-200 ${className}`}
+          className={`relative overflow-hidden rounded-[4px] border border-[#E6E5E0] bg-[#FAF9F7] px-3.5 py-3 sm:px-5 sm:py-4 transition-colors duration-200 ${className}`}
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-4">
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-1.5 text-hb-xs">
                 <span className="font-bold text-[#C84312]">{guide.kicker}</span>
                 <span aria-hidden="true" className="text-[#CBD2DC]">
                   ·
                 </span>
-                <span className="font-semibold text-[#475569]">
+                <span className="font-semibold text-[#526071]">
                   {guide.title}
                 </span>
               </div>
-              <h3 className="mt-1 text-hb-base sm:text-hb-lg font-bold text-[#141A23] tracking-tight leading-snug break-keep">
+              <h3 className="mt-0.5 sm:mt-1 text-hb-sm sm:text-hb-base font-bold text-[#141A23] tracking-tight leading-snug break-keep">
                 {guide.headline}
               </h3>
-              <p className="mt-0.5 text-hb-sm text-[#4E5968] leading-relaxed break-keep">
+              <p className="hidden sm:block mt-0.5 text-hb-xs sm:text-hb-sm text-[#526071] leading-relaxed break-keep">
                 {guide.summary}
               </p>
             </div>
@@ -55,14 +55,14 @@ export function CategoryNoticeGuideBanner({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="hb-btn-outline h-10 px-3.5 text-hb-xs whitespace-nowrap cursor-pointer"
+                className="inline-flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-[4px] border border-[#D4D4CE] bg-white text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors whitespace-nowrap cursor-pointer"
               >
-                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#E8521A]" />
-                <span>안내문 크게 보기</span>
+                <Icon d={ICON.search} className="w-3.5 h-3.5 text-[#C84312]" />
+                <span>안내문 보기</span>
               </button>
               <a
                 href={telHref(STORE.tel)}
-                className="hb-btn-primary h-10 px-3.5 text-hb-xs whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 h-8 sm:h-9 px-3 rounded-[4px] bg-[#141A23] text-hb-xs font-bold text-white hover:bg-[#222933] transition-colors whitespace-nowrap"
               >
                 <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
                 <span>{guide.ctaLabel}</span>

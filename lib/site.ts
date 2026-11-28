@@ -1398,7 +1398,12 @@ export type AnalyticsEventName =
   | "click_copy_address"
   | "download_store_directions_map"
   | "send_showroom_visit_sms"
-  | "send_showroom_visit_kakao";
+  | "send_showroom_visit_kakao"
+  | "open_quote_document"
+  | "print_quote_document"
+  | "download_quote_pdf"
+  | "click_quote_document_kakao"
+  | "click_quote_document_sms";
 
 const FORBIDDEN_PII_KEYS = new Set([
   "name",

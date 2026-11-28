@@ -3,6 +3,7 @@
 
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import { SectionHeading } from "../../lib/ui";
 import { Icon, ICON } from "../../lib/icons";
@@ -45,7 +46,9 @@ export function HomeLocationInquirySection({
   totalInquiryCount: number | null;
   onOpenInquiry: (type?: InquiryTypeValue, productTitle?: string) => void;
 }) {
-  const [mapMode, setMapMode] = useState<"schematic" | "google">("schematic");
+  const [mapMode, setMapMode] = useState<"exterior" | "schematic" | "google">(
+    "exterior"
+  );
   const [showAllRecent, setShowAllRecent] = useState(false);
 
   const inquiryActivity = useMemo(
@@ -79,28 +82,109 @@ export function HomeLocationInquirySection({
         />
 
         <div className="mt-5 grid gap-5 lg:grid-cols-12 items-stretch">
-          {/* 좌측 (7열): 오프라인 매장 약도·지도 및 주소·편의시설 일체형 카드 (#location-section) */}
+          {/* 좌측 (7열): 전시장 외관 · 오시는 길 약도 · 구글 지도 일체형 카드 (#location-section) */}
           <div
             id="location-section"
             aria-labelledby="location-title"
             className="scroll-mt-24 lg:col-span-7 min-w-0 flex flex-col overflow-hidden rounded-2xl border border-[#E2DDD3] bg-white shadow-2xs"
           >
-            {mapMode === "google" ? (
-              <div className="flex flex-col">
-                <div className="flex items-center justify-between gap-2 border-b border-[#E2DDD3] bg-[#FAF9F6] px-4 py-2.5">
-                  <span className="text-hb-xs font-bold text-[#141A23]">
-                    위성 · 구글 지도 ({STORE.jibunAddress})
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setMapMode("schematic")}
-                    className="inline-flex items-center gap-1 rounded-lg border border-[#D8D1C5] bg-white px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] transition-colors cursor-pointer"
-                  >
-                    <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#C84312]" />
-                    <span>오시는 길 약도로 돌아가기</span>
-                  </button>
+            {/* 상단 통합 뷰 전환 탭바 */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E2DDD3] bg-[#FAF9F6] px-3.5 py-2.5 sm:px-4">
+              <div
+                role="tablist"
+                aria-label="매장 안내 보기 방식"
+                className="grid w-full grid-cols-3 sm:inline-flex sm:w-auto items-center gap-0.5 rounded-xl border border-[#E2DDD3] bg-[#F1EFEA] p-0.5"
+              >
+                {(
+                  [
+                    { id: "exterior", label: "전시장 외관" },
+                    { id: "schematic", label: "오시는 길 약도" },
+                    { id: "google", label: "위성 · 구글 지도" },
+                  ] as const
+                ).map((tab) => {
+                  const active = mapMode === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={active}
+                      onClick={() => setMapMode(tab.id)}
+                      className={`min-h-[34px] sm:min-h-0 rounded-lg px-2.5 sm:px-3 py-1.5 text-hb-xs font-bold whitespace-nowrap transition-colors cursor-pointer text-center ${
+                        active
+                          ? "bg-[#141A23] text-white"
+                          : "text-[#475569] hover:text-[#141A23]"
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="hidden sm:inline text-hb-xs font-semibold text-[#64748B]">
+                1·2층 직영 전시장 · 전용 주차 8대
+              </span>
+            </div>
+
+            {mapMode === "exterior" ? (
+              <div className="flex flex-col flex-1 bg-white">
+                <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
+                  <Image
+                    src="/images/store-exterior-flagship.jpg"
+                    alt={`${STORE.name} ${STORE.roadAddress} 1·2층 직영 전시장 및 전용 주차장 외관 전경`}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 760px"
+                    quality={85}
+                    referrerPolicy="no-referrer"
+                    className="object-cover"
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#141A23]/80 via-[#141A23]/30 to-transparent"
+                    aria-hidden="true"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-2 px-4 py-3.5 text-white">
+                    <div className="min-w-0">
+                      <p className="text-hb-xs font-semibold text-white/80">
+                        SINCE {STORE.since} · 중촌동 1·2층 직영 전시장
+                      </p>
+                      <p className="mt-0.5 text-hb-sm sm:text-hb-base font-extrabold tracking-tight break-keep">
+                        {STORE.roadAddress}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setMapMode("schematic")}
+                      className="inline-flex items-center gap-1 rounded-lg bg-white/95 px-3 py-1.5 text-hb-xs font-bold text-[#141A23] hover:bg-white transition-colors shrink-0 cursor-pointer"
+                    >
+                      <Icon d={ICON.pin} className="w-3.5 h-3.5 text-[#C84312]" />
+                      <span>진입 약도 보기</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="relative h-[300px] sm:h-[360px] w-full bg-[#F1F3F6] overflow-hidden">
+                <div className="grid grid-cols-3 divide-x divide-[#ECEAE4] border-t border-[#E6E8EC] bg-white px-2 py-3 text-center">
+                  <div className="px-2">
+                    <span className="block text-hb-xs text-[#64748B]">매장 규모</span>
+                    <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23]">
+                      1·2층 상시 전시
+                    </strong>
+                  </div>
+                  <div className="px-2">
+                    <span className="block text-hb-xs text-[#64748B]">주차 · 상차</span>
+                    <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#141A23]">
+                      전용 8대 · 1톤 진입
+                    </strong>
+                  </div>
+                  <div className="px-2">
+                    <span className="block text-hb-xs text-[#64748B]">출고 기준</span>
+                    <strong className="mt-0.5 block text-hb-xs sm:text-hb-sm font-bold text-[#0F766E]">
+                      실물 확인 · 당일 배송
+                    </strong>
+                  </div>
+                </div>
+              </div>
+            ) : mapMode === "google" ? (
+              <div className="flex flex-col flex-1">
+                <div className="relative min-h-[320px] sm:min-h-[380px] flex-1 w-full bg-[#F1F3F6] overflow-hidden">
                   <iframe
                     title={`${STORE.name} 매장 위치 지도`}
                     src="https://maps.google.com/maps?q=%EB%8C%80%EC%A0%84+%EC%A4%91%EA%B5%AC+%EC%A4%91%EC%B4%8C%EB%8F%99+144&t=&z=16&ie=UTF8&iwloc=&output=embed"
@@ -112,9 +196,7 @@ export function HomeLocationInquirySection({
                 </div>
               </div>
             ) : (
-              <StoreDirectionsMap
-                onOpenGoogleMap={() => setMapMode("google")}
-              />
+              <StoreDirectionsMap />
             )}
 
             <div className="px-4 sm:px-5 pb-4 pt-3 flex-1 flex flex-col justify-between border-t border-[#E6E8EC] bg-[#FAF9F6] space-y-3">

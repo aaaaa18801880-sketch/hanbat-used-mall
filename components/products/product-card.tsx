@@ -208,28 +208,26 @@ export function ProductCard({
 
   return (
     <article
-      className={`group relative flex flex-col min-w-0 hb-product-card rounded-xl border bg-white overflow-hidden transition-[border-color,box-shadow] duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_a:focus-visible]:ring-offset-2 has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-offset-2 ${
-        isSelected
-          ? "border-[#C84312] ring-2 ring-[#C84312]"
-          : "border-[#EAE6DD] hover:border-[#CFC7BA] hover:shadow-card"
+      className={`group relative flex flex-col min-w-0 hb-product-card bg-white transition-colors duration-200 has-[h3_a:focus-visible]:ring-2 has-[h3_a:focus-visible]:ring-[#141A23] has-[h3_a:focus-visible]:ring-offset-4 has-[h3_button:focus-visible]:ring-2 has-[h3_button:focus-visible]:ring-[#141A23] has-[h3_button:focus-visible]:ring-offset-4 ${
+        isSelected ? "ring-2 ring-[#C84312] ring-offset-4 rounded-sm" : ""
       }`}
     >
-      {/* 1. 정방형 1:1 상품 썸네일 */}
-      <div className="relative aspect-square w-full overflow-hidden bg-white border-b border-[#F1EDE5]">
+      {/* 1. 프레임리스 에디토리얼 4:5 갤러리 포토 캔버스 (흰 여백 자동 크롭 + 자연 융화) */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[4px] bg-[#F6F6F3]">
         {canUseNextImage && primaryImage ? (
           <Image
             key={primaryImage}
             src={primaryImage}
             alt={product.title}
             fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 290px"
+            sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 310px"
             priority={eager}
             loading={eager ? "eager" : undefined}
             quality={80}
             referrerPolicy="no-referrer"
             onError={() => setFailedSrc(primaryImage)}
-            className={`object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] ${
-              sold ? "grayscale opacity-60" : ""
+            className={`object-cover mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-[1.04] ${
+              sold ? "grayscale opacity-55" : ""
             }`}
           />
         ) : (
@@ -237,15 +235,21 @@ export function ProductCard({
             src={primaryImage}
             alt={product.title}
             eager={eager}
-            className={`h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] ${
-              sold ? "grayscale opacity-60" : ""
+            className={`h-full w-full object-cover mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-[1.04] ${
+              sold ? "grayscale opacity-55" : ""
             }`}
           />
         )}
 
+        {/* 은은한 갤러리 프레임 경계 */}
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[4px] ring-1 ring-inset ring-black/5"
+          aria-hidden="true"
+        />
+
         {sold && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#141A23]/45 backdrop-blur-[1px]">
-            <span className="hb-trim rounded-full bg-[#141A23]/95 px-3 py-1 text-hb-xs font-bold tracking-wide text-white">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#141A23]/40 backdrop-blur-[1px]">
+            <span className="hb-trim rounded-sm bg-[#141A23]/95 px-3 py-1.5 text-hb-xs font-bold tracking-[0.04em] text-white">
               판매완료
             </span>
           </div>
@@ -264,10 +268,10 @@ export function ProductCard({
             aria-label={`${inBasket ? "담김" : "비교"} - ${
               product.title
             } ${inBasket ? "비교함 제외" : "비교·견적함에 담기"}`}
-            className={`absolute bottom-2.5 right-2.5 z-20 inline-flex min-h-[32px] items-center gap-1 rounded-full border px-2.5 text-hb-xs font-bold shadow-xs transition-[background-color,border-color,color,transform] duration-150 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] focus-visible:ring-offset-1 ${
+            className={`absolute bottom-2.5 right-2.5 z-20 inline-flex h-8 items-center gap-1 rounded-[4px] border px-2.5 text-hb-xs font-semibold transition-[opacity,background-color,border-color,color,transform] duration-150 active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23] ${
               inBasket
-                ? "border-[#C84312] bg-[#C84312] text-white hover:bg-[#AE380D]"
-                : "border-[#CFC7BA] bg-white/95 text-[#141A23] hover:border-[#141A23] hover:bg-[#141A23] hover:text-white"
+                ? "border-[#141A23] bg-[#141A23] text-white opacity-100"
+                : "border-black/10 bg-white/90 text-[#141A23] backdrop-blur-sm opacity-90 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100 hover:bg-[#141A23] hover:text-white hover:border-[#141A23]"
             }`}
           >
             <Icon
@@ -280,7 +284,7 @@ export function ProductCard({
 
         {isSelectMode && (
           <div
-            className={`absolute left-2.5 top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-full border transition-colors ${
+            className={`absolute left-2.5 top-2.5 z-20 flex h-6 w-6 items-center justify-center rounded-sm border transition-colors ${
               isSelected
                 ? "border-[#C84312] bg-[#C84312] text-white"
                 : "border-[#CFC7BA] bg-white/95 text-transparent"
@@ -300,7 +304,7 @@ export function ProductCard({
             }}
             title="관리자 수정"
             aria-label={`${product.title} 수정`}
-            className="absolute left-2 top-2 z-20 inline-flex items-center gap-1 rounded-md bg-white/95 backdrop-blur-md px-2 py-1 text-hb-xs font-bold text-[#141A23] shadow-2xs hover:bg-[#141A23] hover:text-white transition-colors cursor-pointer"
+            className="absolute left-2 top-2 z-20 inline-flex items-center gap-1 rounded-sm bg-white/95 backdrop-blur-md px-2 py-1 text-hb-xs font-bold text-[#141A23] shadow-2xs hover:bg-[#141A23] hover:text-white transition-colors cursor-pointer"
           >
             <Icon d={ICON.pen} className="w-3 h-3 text-[#C84312]" />
             <span>수정</span>
@@ -317,38 +321,38 @@ export function ProductCard({
             }}
             title="상품 삭제"
             aria-label={`${product.title} 삭제`}
-            className="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 text-red-700 shadow-2xs hover:bg-red-50 transition-colors cursor-pointer"
+            className="absolute right-2 top-2 z-20 flex h-7 w-7 items-center justify-center rounded-sm bg-white/95 text-red-700 shadow-2xs hover:bg-red-50 transition-colors cursor-pointer"
           >
             <Icon d={ICON.close} className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
-      {/* 2. 시원하고 여유 있는 3단 제품 설명 칸 */}
-      <div className="flex flex-1 flex-col justify-between gap-3 p-3.5 sm:p-4 min-w-0">
+      {/* 2. 코오롱몰·에디토리얼 스타일 제품 정보 타이포그래피 블록 */}
+      <div className="flex flex-1 flex-col justify-between pt-3.5 min-w-0">
         <div className="min-w-0">
-          {/* 상단 메타 1줄: 제조사 + 모델코드 */}
-          <div className="flex items-center justify-between gap-2 hb-card-brand">
+          {/* 상단 메타: 제조사 + 모델명 */}
+          <div className="flex items-center justify-between gap-2 text-hb-xs">
             <span
-              className={`truncate font-semibold ${
-                hasBrand ? "text-[#475569]" : "text-[#64748B]"
+              className={`truncate font-bold tracking-[-0.01em] ${
+                hasBrand ? "text-[#141A23]" : "text-[#526071]"
               }`}
             >
               {brandLabel}
             </span>
             {modelCode && (
-              <span className="truncate font-mono text-hb-xs text-[#64748B] tabular-nums">
+              <span className="truncate font-mono text-hb-xs text-[#8B95A1] tabular-nums">
                 {modelCode}
               </span>
             )}
           </div>
 
-          {/* 제품명 2줄 (여유로운 행간·크기) */}
+          {/* 제품명 (깔끔한 2줄, 절제된 웨이트) */}
           <h3
-            className={`mt-1.5 line-clamp-2 hb-card-title font-bold transition-colors break-keep ${
+            className={`mt-1 line-clamp-2 text-hb-sm sm:text-hb-base font-medium leading-[1.45] tracking-[-0.015em] transition-colors break-keep ${
               sold
                 ? "text-[#8B95A1]"
-                : "text-[#141A23] group-hover:text-[#C84312]"
+                : "text-[#222933] group-hover:text-[#141A23] group-hover:underline underline-offset-4 decoration-[#141A23]/40"
             }`}
           >
             {onSelect ? (
@@ -374,31 +378,31 @@ export function ProductCard({
 
           {/* 핵심 규격 요약 1줄 */}
           {specSummary && (
-            <p className="mt-1.5 truncate text-hb-xs text-[#64748B]">
+            <p className="mt-1 truncate text-hb-xs text-[#7B8492]">
               {specSummary}
             </p>
           )}
         </div>
 
-        {/* 하단 가격 · 보증 영역 */}
-        <div className="pt-2.5 border-t border-[#F1EDE5] flex items-baseline justify-between gap-2 min-w-0">
+        {/* 하단 가격 · 보증 영역 (절제된 딥 잉크 대비) */}
+        <div className="mt-3 pt-2.5 border-t border-[#F0EFEA] flex items-baseline justify-between gap-2 min-w-0">
           {sold ? (
             <>
               <span className="text-hb-sm font-bold text-[#8B95A1]">
                 판매완료
               </span>
-              <span className="truncate text-hb-xs text-[#8B95A1]">
-                유사매물 문의 가능
+              <span className="truncate text-hb-xs text-[#94A3B8]">
+                유사매물 문의
               </span>
             </>
           ) : (
             <>
               {hasProductPrice(product.price) ? (
-                <span className="text-hb-base sm:text-hb-lg font-extrabold text-[#141A23] tabular-nums whitespace-nowrap">
+                <span className="text-hb-base sm:text-hb-lg font-extrabold text-[#141A23] tabular-nums whitespace-nowrap tracking-[-0.02em]">
                   {formatProductPrice(product.price, categoryLabel)}
                 </span>
               ) : (
-                <span className="text-hb-sm sm:text-hb-base font-bold text-[#C84312] whitespace-nowrap">
+                <span className="text-hb-sm sm:text-hb-base font-extrabold text-[#141A23] whitespace-nowrap tracking-[-0.02em]">
                   가격 상담
                 </span>
               )}

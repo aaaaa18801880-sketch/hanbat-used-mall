@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ICON, Icon } from "../../lib/icons";
 import { STORE, telHref, trackEvent, triggerQuickInquiry } from "../../lib/site";
+import { type HeroHeaderTone } from "../../lib/hero-banners";
 import {
   HanbatBrandLogo,
   useQuoteBasket,
@@ -14,10 +15,10 @@ import {
 
 const HEADER_NAV = [
   { label: "판매 제품", href: "/gallery", matchPrefix: "/gallery" },
+  { label: "셀프견적", href: "/quote", matchPrefix: "/quote" },
   { label: "가전 매입", href: "/purchase", matchPrefix: "/purchase" },
   { label: "문의 게시판", href: "/inquiry", matchPrefix: "/inquiry" },
   { label: "정보 게시판", href: "/guide", matchPrefix: "/guide" },
-  { label: "오시는 길", href: "/#location-section", matchPrefix: "" },
 ] as const;
 
 const DRAWER_QUICK_CATEGORIES = [
@@ -29,12 +30,48 @@ const DRAWER_QUICK_CATEGORIES = [
   { label: "폐업·대량 매입", href: "/purchase#purchase-form" },
 ] as const;
 
-export function SiteHeader({ children }: { children?: React.ReactNode }) {
+const SCROLL_SWITCH_Y = 12;
+
+function subscribeScrollState(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+  const handler = () => onStoreChange();
+  window.addEventListener("scroll", handler, { passive: true });
+  return () => window.removeEventListener("scroll", handler);
+}
+
+function getScrollSnapshot(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.scrollY > SCROLL_SWITCH_Y;
+}
+
+function getServerScrollSnapshot(): boolean {
+  return false;
+}
+
+export function SiteHeader({
+  children,
+  overlayHero = false,
+  heroTone = "light",
+}: {
+  children?: React.ReactNode;
+  overlayHero?: boolean;
+  heroTone?: HeroHeaderTone;
+}) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const basketCount = useQuoteBasket().length;
   const drawerRef = useRef<HTMLDialogElement>(null);
   const pressedOutsideRef = useRef(false);
+
+  const isScrolled = useSyncExternalStore(
+    subscribeScrollState,
+    getScrollSnapshot,
+    getServerScrollSnapshot
+  );
+
+  // 홈 최상단(스크롤 전)에서는 히어로 슬라이더 배경과 자연스럽게 통합, 스크롤 즉시 원색(화이트) 고정
+  const isTransparentHero = overlayHero && !isScrolled;
+  const isDarkHeroOverlay = isTransparentHero && heroTone === "dark";
 
   useEffect(() => {
     const drawer = drawerRef.current;
@@ -89,6 +126,16 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
     pressedOutsideRef.current = false;
   };
 
+  const headerPositionClass = overlayHero
+    ? "fixed top-0 inset-x-0 z-50"
+    : "sticky top-0 z-50";
+
+  const headerSurfaceClass = isTransparentHero
+    ? "bg-transparent border-b border-transparent"
+    : isScrolled
+    ? "bg-white/95 backdrop-blur-md border-b border-[#E4DED4] shadow-[0_4px_20px_rgba(19,34,56,0.07)]"
+    : "bg-white/95 backdrop-blur-md border-b border-[#E4DED4]";
+
   return (
     <>
       <a
@@ -98,37 +145,58 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         본문 바로가기
       </a>
 
-      <header className="hb-header sticky top-0 z-50 w-full hb-glass">
-        <div className="hb-container flex h-16 sm:h-[72px] items-center justify-between gap-4">
+      <header
+        data-overlay-hero={overlayHero ? "true" : "false"}
+        data-scrolled={isScrolled ? "true" : "false"}
+        className={`hb-header w-full transition-[background-color,border-color,box-shadow] duration-200 ${headerPositionClass} ${headerSurfaceClass}`}
+      >
+        <div className="w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 flex h-[74px] sm:h-[82px] lg:h-[90px] items-center justify-between gap-4 lg:gap-6">
           {/* 1. 브랜드 로고 */}
           <div className="flex items-center shrink-0">
             <Link
               href="/"
-              className="inline-flex items-center py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#141A23]"
+              className={`inline-flex items-center py-1 rounded-lg focus-visible:outline-none focus-visible:ring-2 ${
+                isDarkHeroOverlay
+                  ? "focus-visible:ring-white"
+                  : "focus-visible:ring-[#141A23]"
+              }`}
               aria-label={`${STORE.name} 홈으로 이동`}
             >
-              <HanbatBrandLogo />
+              <HanbatBrandLogo dark={isDarkHeroOverlay} />
             </Link>
           </div>
 
-          {/* 2. 핵심 내비게이션 메뉴 (절제형 타이포그래피 링크) */}
+          {/* 2. 핵심 내비게이션 메뉴 (플래그십 풀와이드 타이포그래피) */}
           <nav
-            className="hidden lg:flex items-center justify-center gap-1 xl:gap-2"
+            className="hidden lg:flex items-center justify-center gap-1.5 xl:gap-4 2xl:gap-6"
             aria-label="주요 메뉴"
           >
             {HEADER_NAV.map((item) => {
               const isActive =
                 item.matchPrefix && pathname?.startsWith(item.matchPrefix);
+
+              const linkColorClass = isDarkHeroOverlay
+                ? isActive
+                  ? "text-white font-extrabold"
+                  : "text-white/90 hover:text-white hover:bg-white/10"
+                : isTransparentHero
+                ? isActive
+                  ? "text-[#141A23] font-extrabold"
+                  : "text-[#141A23]/90 hover:text-[#141A23] hover:bg-black/[0.05]"
+                : isActive
+                ? "text-hb-brand-text font-extrabold"
+                : "text-[#141A23] hover:text-hb-brand-text hover:bg-hb-surface-muted";
+
               return (
                 <Link
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2 text-hb-base font-semibold rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hb-navy ${
-                    isActive
-                      ? "text-hb-brand-text font-bold"
-                      : "text-hb-text-primary hover:text-hb-brand-text hover:bg-hb-surface-muted"
-                  }`}
+                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2.5 text-hb-base xl:text-hb-lg font-bold tracking-[-0.024em] rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 ${
+                    isDarkHeroOverlay
+                      ? "focus-visible:ring-white"
+                      : "focus-visible:ring-hb-navy"
+                  } ${linkColorClass}`}
                 >
                   {item.label}
                 </Link>
@@ -136,17 +204,29 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
             })}
           </nav>
 
-          {/* 3. 우측 주요 행동 (견적함 · 전화 상담 · 카카오톡 상담) */}
-          <div className="flex items-center justify-end gap-2 shrink-0">
+          {/* 3. 우측 주요 행동 (견적함 · 전화 상담 · 카카오톡 상담 · 간편 견적) */}
+          <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
             {basketCount > 0 && (
               <Link
-                href="/inquiry?write=1&bundle=1"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-hb-warm border border-hb-border-strong px-3.5 h-10 text-hb-xs font-bold text-hb-text-primary hover:bg-hb-navy hover:text-white active:scale-[0.96] transition-[background-color,color,transform] duration-150 whitespace-nowrap"
-                title="담아둔 관심 매물 견적함 문의하기"
+                href="/quote"
+                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 h-10 lg:h-11 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96] transition-[background-color,color,border-color,transform] duration-150 whitespace-nowrap ${
+                  isDarkHeroOverlay
+                    ? "border-white/25 bg-white/15 text-white backdrop-blur-sm hover:bg-white/20"
+                    : isTransparentHero
+                    ? "border-[#141A23]/15 bg-white/60 text-[#141A23] backdrop-blur-sm hover:bg-white"
+                    : "bg-hb-warm border-hb-border-strong text-hb-text-primary hover:bg-hb-navy hover:text-white"
+                }`}
+                title="담아둔 관심 매물 셀프견적서 확인하기"
               >
-                <Icon d={ICON.bag} className="w-3.5 h-3.5" />
+                <Icon d={ICON.bag} className="w-4 h-4" />
                 <span className="hidden xs:inline">견적함</span>
-                <span className="inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-hb-navy px-1 text-hb-xs font-bold text-white tabular-nums">
+                <span
+                  className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-hb-xs font-bold tabular-nums ${
+                    isDarkHeroOverlay
+                      ? "bg-[#FF8A50] text-[#141A23]"
+                      : "bg-hb-navy text-white"
+                  }`}
+                >
                   {basketCount}
                 </span>
               </Link>
@@ -157,12 +237,27 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className="hidden md:inline-flex items-center gap-1.5 rounded-xl border border-hb-border bg-hb-surface-muted px-3.5 h-10 text-hb-sm font-bold text-hb-text-primary hover:border-hb-navy hover:bg-white active:scale-[0.96] transition-[background-color,border-color,transform] duration-150 whitespace-nowrap tabular-nums"
+              className={`hidden md:inline-flex items-center gap-1.5 rounded-xl border px-4 h-10 lg:h-11 text-hb-sm font-bold active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap tabular-nums ${
+                isDarkHeroOverlay
+                  ? "border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/40"
+                  : isTransparentHero
+                  ? "border-[#141A23]/15 bg-white/55 text-[#141A23] backdrop-blur-sm hover:bg-white/95 hover:border-[#141A23]/30"
+                  : "border-hb-border bg-hb-surface-muted text-hb-text-primary hover:border-hb-navy hover:bg-white"
+              }`}
               aria-label={`전화 상담 ${STORE.tel}`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text" />
+              <Icon
+                d={ICON.phone}
+                className={`w-4 h-4 ${
+                  isDarkHeroOverlay ? "text-[#FF8A50]" : "text-hb-brand-text"
+                }`}
+              />
               <span>전화 상담</span>
-              <span className="hidden xl:inline text-hb-text-secondary font-bold">
+              <span
+                className={`hidden 2xl:inline font-bold ${
+                  isDarkHeroOverlay ? "text-white/85" : "text-hb-text-secondary"
+                }`}
+              >
                 {STORE.tel}
               </span>
             </a>
@@ -174,10 +269,10 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
               onClick={() =>
                 trackEvent("click_kakao_consult", { location: "site_header" })
               }
-              className="hidden sm:inline-flex hb-btn-kakao h-10 px-3.5 text-hb-sm whitespace-nowrap"
+              className="hidden sm:inline-flex hb-btn-kakao h-10 lg:h-11 px-4 text-hb-sm whitespace-nowrap"
               aria-label="카톡 상담 (카카오톡 채널 열기)"
             >
-              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
+              <Icon d={ICON.chat} className="w-4 h-4" />
               <span>카톡 상담</span>
             </a>
 
@@ -193,9 +288,13 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                   type: isPurchase ? "내 물건 팔기" : "구매 문의",
                 });
               }}
-              className="hidden lg:inline-flex hb-btn-accent h-10 px-3.5 text-hb-sm whitespace-nowrap cursor-pointer"
+              className={`hidden lg:inline-flex items-center justify-center gap-2 rounded-xl h-11 px-4 text-hb-sm font-bold tracking-[-0.01em] whitespace-nowrap cursor-pointer active:scale-[0.97] transition-[background-color,color,transform,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 ${
+                isDarkHeroOverlay
+                  ? "bg-white text-[#141A23] hover:bg-[#F3EFE9] shadow-sm focus-visible:ring-white"
+                  : "hb-btn-accent focus-visible:ring-hb-navy"
+              }`}
             >
-              <Icon d={ICON.pen} className="w-3.5 h-3.5" />
+              <Icon d={ICON.pen} className="w-4 h-4" />
               <span>간편 견적</span>
             </button>
 
@@ -209,16 +308,33 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
                 })
               }
               aria-label="대표전화 상담 연결"
-              className="inline-flex md:hidden items-center gap-1 h-10 px-2.5 rounded-xl border border-hb-border bg-hb-surface-muted text-hb-xs font-bold text-hb-text-primary hover:bg-hb-warm active:scale-[0.96] transition-[background-color,transform] duration-150 whitespace-nowrap"
+              className={`inline-flex md:hidden items-center gap-1 h-10 px-3 rounded-xl border text-hb-xs font-bold active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap ${
+                isDarkHeroOverlay
+                  ? "border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
+                  : isTransparentHero
+                  ? "border-[#141A23]/15 bg-white/60 text-[#141A23] backdrop-blur-sm hover:bg-white"
+                  : "border-hb-border bg-hb-surface-muted text-hb-text-primary hover:bg-hb-warm"
+              }`}
             >
-              <Icon d={ICON.phone} className="w-3.5 h-3.5 text-hb-brand-text shrink-0" />
+              <Icon
+                d={ICON.phone}
+                className={`w-3.5 h-3.5 shrink-0 ${
+                  isDarkHeroOverlay ? "text-[#FF8A50]" : "text-hb-brand-text"
+                }`}
+              />
               <span>전화</span>
             </a>
 
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-hb-border bg-hb-surface-muted text-hb-text-primary lg:hidden hover:bg-hb-warm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hb-navy active:scale-[0.96] transition-[background-color,transform] duration-150"
+              className={`grid h-10 w-10 place-items-center rounded-xl border lg:hidden focus-visible:outline-none focus-visible:ring-2 active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ${
+                isDarkHeroOverlay
+                  ? "border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 focus-visible:ring-white"
+                  : isTransparentHero
+                  ? "border-[#141A23]/15 bg-white/60 text-[#141A23] backdrop-blur-sm hover:bg-white focus-visible:ring-hb-navy"
+                  : "border-hb-border bg-hb-surface-muted text-hb-text-primary hover:bg-hb-warm focus-visible:ring-hb-navy"
+              }`}
               aria-label="전체 메뉴 열기"
               aria-expanded={menuOpen}
             >
@@ -244,7 +360,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         }}
         className="hb-drawer lg:hidden h-dvh w-full max-w-full bg-white p-0 border-0 overscroll-contain flex-col open:flex"
       >
-        <div className="flex h-[66px] items-center justify-between border-b border-[#E2DDD3] px-4 sm:px-6 bg-white">
+        <div className="flex h-[74px] items-center justify-between border-b border-[#E2DDD3] px-5 sm:px-8 bg-white">
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
@@ -263,7 +379,7 @@ export function SiteHeader({ children }: { children?: React.ReactNode }) {
         </div>
 
         <nav
-          className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-6"
+          className="flex-1 overflow-y-auto px-5 sm:px-8 py-5 space-y-6"
           aria-label="모바일 메뉴 목록"
         >
           <div>

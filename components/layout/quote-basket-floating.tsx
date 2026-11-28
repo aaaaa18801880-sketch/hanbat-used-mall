@@ -3,6 +3,7 @@
 import React, { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
 import toast from "react-hot-toast";
 import { ICON, Icon } from "../../lib/icons";
 import {
@@ -31,15 +32,25 @@ const ProductCompareModal = dynamic(
   { ssr: false }
 );
 
+const QuoteDocumentModal = dynamic(
+  () =>
+    import("../quote/quote-document-modal").then(
+      (m) => m.QuoteDocumentModal
+    ),
+  { ssr: false }
+);
+
 /* ════════════════════════════════════════════════════════════
    관심 매물 플로팅 견적함 바 (QuoteBasketFloatingBar)
    ════════════════════════════════════════════════════════════ */
 export function QuoteBasketFloatingBar() {
+  const pathname = usePathname();
   const items = useQuoteBasket();
   const [expanded, setExpanded] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
+  const [quoteDocOpen, setQuoteDocOpen] = useState(false);
 
-  if (items.length === 0) return null;
+  if (items.length === 0 || pathname === "/quote") return null;
 
   const totalUnits = items.reduce(
     (acc, it) => acc + (it.quantity && it.quantity > 0 ? it.quantity : 1),
@@ -215,12 +226,27 @@ export function QuoteBasketFloatingBar() {
                   <span>카톡 묶음 상담</span>
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  trackEvent("open_quote_document", {
+                    count: items.length,
+                    location: "quote_basket_drawer",
+                  });
+                  setExpanded(false);
+                  setQuoteDocOpen(true);
+                }}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-white/25 transition-colors cursor-pointer"
+              >
+                <Icon d={ICON.fileText} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                <span>온라인 견적서 보기 · PDF 저장</span>
+              </button>
               <Link
-                href="/inquiry?write=1&bundle=1"
+                href="/quote"
                 onClick={() => setExpanded(false)}
                 className="flex w-full items-center justify-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-hb-xs font-semibold text-white/85 hover:bg-white/15 hover:text-white transition-colors"
               >
-                <span>상세 견적서 게시판에서 작성하기</span>
+                <span>셀프견적 페이지에서 품목 추가·편집</span>
                 <Icon d={ICON.right} className="w-3 h-3" />
               </Link>
             </div>
@@ -286,13 +312,28 @@ export function QuoteBasketFloatingBar() {
             <button
               type="button"
               onClick={() => {
-                trackEvent("compare_products", { count: items.length });
-                setCompareOpen(true);
+                trackEvent("open_quote_document", {
+                  count: items.length,
+                  location: "quote_basket_floating_bar",
+                });
+                setExpanded(false);
+                setQuoteDocOpen(true);
               }}
               className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-3 h-8 text-hb-xs font-bold text-white hover:bg-white/25 whitespace-nowrap cursor-pointer"
             >
+              <Icon d={ICON.fileText} className="w-3.5 h-3.5 text-[#FF8A50]" />
+              <span>견적서·PDF</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("compare_products", { count: items.length });
+                setCompareOpen(true);
+              }}
+              className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3 h-8 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap cursor-pointer"
+            >
               <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#FF8A50]" />
-              <span>나란히 비교({Math.min(3, items.length)})</span>
+              <span>비교({Math.min(3, items.length)})</span>
             </button>
             <a
               href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
@@ -345,6 +386,14 @@ export function QuoteBasketFloatingBar() {
         <ProductCompareModal
           open={compareOpen}
           onClose={() => setCompareOpen(false)}
+          items={items}
+        />
+      )}
+
+      {quoteDocOpen && (
+        <QuoteDocumentModal
+          open={quoteDocOpen}
+          onClose={() => setQuoteDocOpen(false)}
           items={items}
         />
       )}

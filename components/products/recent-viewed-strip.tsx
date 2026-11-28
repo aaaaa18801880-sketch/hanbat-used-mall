@@ -51,21 +51,21 @@ export function RecentViewedStrip({
     return (
       <section
         aria-label="최근 본 매물"
-        className={`rounded-2xl border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 py-2.5 sm:px-4 sm:py-3 ${className}`}
+        className={`border-y border-[#E6E5E0] bg-white py-3.5 ${className}`}
       >
-        <div className="flex items-center justify-between gap-2 mb-2">
+        <div className="flex items-center justify-between gap-2 mb-2.5">
           <div className="flex items-center gap-2 min-w-0">
-            <span className="inline-flex h-5 items-center rounded-md bg-[#141A23] px-2 text-hb-xs font-bold text-white tabular-nums">
-              최근 본 매물 {items.length}
+            <span className="text-hb-xs font-bold text-[#141A23] tabular-nums">
+              최근 본 매물 ({items.length})
             </span>
-            <span className="hidden sm:inline text-hb-xs text-[#64748B] truncate">
-              방금 확인한 매물을 바로 비교·견적함에 담을 수 있습니다
+            <span className="hidden sm:inline text-hb-xs text-[#7B8492] truncate">
+              확인한 매물을 바로 비교·견적함에 담을 수 있습니다
             </span>
           </div>
           <button
             type="button"
             onClick={() => clearRecentViewedProducts()}
-            className="shrink-0 text-hb-xs font-semibold text-[#64748B] hover:text-[#141A23] underline underline-offset-2 cursor-pointer"
+            className="shrink-0 text-hb-xs font-medium text-[#64748B] hover:text-[#141A23] underline underline-offset-2 cursor-pointer"
           >
             기록 비우기
           </button>
@@ -78,17 +78,17 @@ export function RecentViewedStrip({
             return (
               <div
                 key={item.id}
-                className="group flex w-[235px] sm:w-[255px] shrink-0 items-center gap-2.5 rounded-xl border border-[#E2DDD3] bg-white p-2 shadow-2xs hover:border-[#141A23]/40 transition-colors"
+                className="group flex w-[235px] sm:w-[255px] shrink-0 items-center gap-2.5 rounded-[4px] border border-[#E6E5E0] bg-[#FAF9F7] p-2 hover:border-[#141A23]/40 transition-colors"
               >
                 <Link
                   href={`/${item.id}`}
                   className="flex min-w-0 flex-1 items-center gap-2.5"
                 >
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-[#F4F3F0] border border-[#E2DDD3]/70">
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-[3px] bg-[#F5F5F2]">
                     <SafeImg
                       src={item.imageUrl}
                       alt={item.title}
-                      className={`h-full w-full object-cover ${
+                      className={`h-full w-full object-cover mix-blend-multiply ${
                         sold ? "grayscale opacity-65" : ""
                       }`}
                     />
@@ -97,7 +97,7 @@ export function RecentViewedStrip({
                     <span className="block text-hb-xs font-semibold text-[#64748B] truncate">
                       {item.category}
                     </span>
-                    <p className="truncate text-hb-xs font-bold text-[#141A23] group-hover:text-[#C84312]">
+                    <p className="truncate text-hb-xs font-semibold text-[#141A23] group-hover:underline underline-offset-2">
                       {item.title}
                     </p>
                   </div>

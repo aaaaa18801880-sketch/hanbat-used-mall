@@ -7,6 +7,16 @@ export type HeroBannerAction =
   | { kind: "link"; href: string }
   | { kind: "visitModal" };
 
+export type HeroBannerTheme =
+  | "glacial-blue"
+  | "champagne-gold"
+  | "midnight-navy"
+  | "sage-mist"
+  | "charcoal-bronze"
+  | "store-photo";
+
+export type HeroHeaderTone = "light" | "dark";
+
 export interface HeroBannerSlide {
   id: string;
   eyebrowBrands: readonly string[];
@@ -18,7 +28,9 @@ export interface HeroBannerSlide {
   imageSrc: string;
   imageAlt: string;
   /** 배너 바탕 및 좌측 텍스트 보호 그라데이션 톤 */
-  theme: "glacial-blue" | "champagne-gold" | "midnight-navy" | "store-photo";
+  theme: HeroBannerTheme;
+  /** 상단 투명 오버레이 헤더 연동 대비 톤 (밝은 배너=light, 어두운 배너=dark) */
+  headerTone: HeroHeaderTone;
 }
 
 const AIRCON_WARRANTY = getCategoryWarrantyInfo("에어컨/냉난방기");
@@ -41,6 +53,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     imageAlt:
       "아이스블루 링 조명 스튜디오 포디움 위에 스탠드 에어컨, 벽걸이 에어컨, 공기청정기, 제습기가 전시된 프로모션 배너",
     theme: "glacial-blue",
+    headerTone: "light",
   },
   {
     id: "home-appliances",
@@ -57,6 +70,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     imageAlt:
       "샴페인 골드 아치 스튜디오 포디움에 4도어 냉장고, 워시타워, 김치냉장고, 전자레인지가 배치된 생활가전 프로모션 배너",
     theme: "champagne-gold",
+    headerTone: "light",
   },
   {
     id: "commercial-buyback",
@@ -74,6 +88,43 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     imageAlt:
       "미드나잇 네이비 스포트라이트 아래 45박스 스텐 냉장고, 유리 쇼케이스, 제빙기, 테이블냉장고가 배치된 업소용 설비 배너",
     theme: "midnight-navy",
+    headerTone: "dark",
+  },
+  {
+    id: "cafe-showcase",
+    eyebrowBrands: ["카페 · 디저트 · 베이커리", "업소용 실매물"],
+    headlineTop: "카페 · 매장 오픈 필수 설비",
+    headlineBottom: "제빙기 · 음료 쇼케이스 모음",
+    subtitle:
+      "유리 쇼케이스·테이블 냉장고·제빙기 작동 점검 후 대전·충청 직영 배송",
+    ctaLabel: "업소용 실매물 보기",
+    action: {
+      kind: "link",
+      href: "/gallery?category=%EC%97%85%EC%86%8C%EC%9A%A9%EA%B8%B0%EA%B8%B0",
+    },
+    imageSrc: "/images/banners/hero-cafe-v2.jpg",
+    imageAlt:
+      "세이지 미스트 스튜디오 포디움 위에 유리 음료 쇼케이스, 스텐 테이블 냉장고, 업소용 제빙기가 전시된 카페 창업 프로모션 배너",
+    theme: "sage-mist",
+    headerTone: "light",
+  },
+  {
+    id: "self-quote-bundle",
+    eyebrowBrands: ["가정용 · 업소용 일괄 견적", "PDF 견적서 즉시 저장"],
+    headlineTop: "원하는 실매물만 직접 담아",
+    headlineBottom: "온라인 셀프견적 · 즉시 상담",
+    subtitle:
+      "필요한 가전과 설비를 선택해 견적서를 PDF로 저장하고 카톡·문자로 바로 상담하세요",
+    ctaLabel: "셀프견적서 작성하기",
+    action: {
+      kind: "link",
+      href: "/quote",
+    },
+    imageSrc: "/images/banners/hero-bundle-v2.jpg",
+    imageAlt:
+      "차콜 브론즈 링 조명 아래 4도어 냉장고, 워시타워, 스탠드 에어컨이 함께 배치된 일괄 셀프견적 프로모션 배너",
+    theme: "charcoal-bronze",
+    headerTone: "dark",
   },
   {
     id: "direct-showroom",
@@ -85,9 +136,10 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     action: {
       kind: "visitModal",
     },
-    imageSrc: "/store-exterior.jpg",
-    imageAlt: `${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 실물 외관 전경`,
+    imageSrc: "/images/store-exterior-flagship.jpg",
+    imageAlt: `${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 외관 전경`,
     theme: "store-photo",
+    headerTone: "dark",
   },
 ] as const;
 

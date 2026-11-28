@@ -109,7 +109,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 76px;
+  scroll-padding-top: 94px;
   scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
   -webkit-text-size-adjust: 100%;
 }
@@ -181,9 +181,9 @@ body {
   }
 
   .hb-banner-h1 {
-    font-size: clamp(1.7rem, 2.4vw + 0.95rem, 2.85rem);
+    font-size: clamp(1.9rem, 2.45vw + 0.95rem, 3.1rem);
     line-height: 1.22;
-    letter-spacing: -0.028em;
+    letter-spacing: -0.03em;
     font-weight: 800;
     text-wrap: balance;
     word-break: keep-all;
@@ -286,6 +286,36 @@ body {
     --banner-dot-hover: rgba(255, 255, 255, 0.65);
   }
 
+  .hb-banner-theme[data-theme="sage-mist"] {
+    --banner-bg: #e7f0ea;
+    --banner-bg-image: linear-gradient(90deg, #eaf2ec 0%, #e4eee7 52%, #d2e0d6 100%);
+    --banner-eyebrow: #1f5c43;
+    --banner-h1-top: #111c17;
+    --banner-h1-bottom: #1d6b4c;
+    --banner-sub: #3b4f45;
+    --banner-cta-bg: #143628;
+    --banner-cta-hover: #0e261c;
+    --banner-cta-fg: #ffffff;
+    --banner-dot-active: #143628;
+    --banner-dot-idle: rgba(20, 54, 40, 0.24);
+    --banner-dot-hover: rgba(20, 54, 40, 0.5);
+  }
+
+  .hb-banner-theme[data-theme="charcoal-bronze"] {
+    --banner-bg: #0e141c;
+    --banner-bg-image: linear-gradient(90deg, #0b1017 0%, #101722 52%, #192230 100%);
+    --banner-eyebrow: #f3c68f;
+    --banner-h1-top: #ffffff;
+    --banner-h1-bottom: #f6b978;
+    --banner-sub: #d2dae6;
+    --banner-cta-bg: #ffffff;
+    --banner-cta-hover: #f3efe9;
+    --banner-cta-fg: #11161f;
+    --banner-dot-active: #ffffff;
+    --banner-dot-idle: rgba(255, 255, 255, 0.3);
+    --banner-dot-hover: rgba(255, 255, 255, 0.6);
+  }
+
   .hb-banner-theme[data-theme="store-photo"] {
     --banner-bg: #111b2c;
     --banner-bg-image: linear-gradient(90deg, #0f1826 0%, #162338 60%, #1d2f4a 100%);
@@ -307,7 +337,9 @@ body {
   }
 
   .hb-hero-stage {
-    height: 460px;
+    min-height: 620px;
+    height: 88svh;
+    max-height: 780px;
   }
 
   .hb-hero-media-frame {
@@ -319,23 +351,25 @@ body {
 
   @media (min-width: 640px) {
     .hb-hero-stage {
-      height: 540px;
+      min-height: 700px;
+      height: 92svh;
+      max-height: 860px;
     }
 
     .hb-hero-media-frame {
-      width: 960px;
+      width: 1120px;
       -webkit-mask-image: linear-gradient(
         to right,
         transparent 0%,
         #000 18%,
-        #000 90%,
+        #000 92%,
         transparent 100%
       );
       mask-image: linear-gradient(
         to right,
         transparent 0%,
         #000 18%,
-        #000 90%,
+        #000 92%,
         transparent 100%
       );
     }
@@ -343,21 +377,31 @@ body {
 
   @media (min-width: 1024px) {
     .hb-hero-stage {
-      height: 600px;
+      height: 100svh;
+      min-height: 760px;
+      max-height: 960px;
     }
 
     .hb-hero-media-frame {
-      width: 1070px;
+      width: 1320px;
     }
   }
 
   @media (min-width: 1280px) {
     .hb-hero-stage {
-      height: 640px;
+      height: 100svh;
+      min-height: 800px;
+      max-height: 980px;
     }
 
     .hb-hero-media-frame {
-      width: 1140px;
+      width: 1520px;
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .hb-hero-media-frame {
+      width: 1680px;
     }
   }
 
@@ -470,6 +514,54 @@ body {
     --intent-meta-dot: rgba(255, 255, 255, 0.32);
     --intent-focus-ring: #fbbf24;
     --intent-focus-offset: #081429;
+  }
+
+  .hb-intent-theme[data-theme="sage-mist"] {
+    --intent-bg: #e1ece5;
+    --intent-sheen: linear-gradient(
+      180deg,
+      rgba(231, 240, 234, 0.72) 0%,
+      rgba(236, 244, 239, 0.36) 55%,
+      rgba(255, 255, 255, 0.5) 100%
+    );
+    --intent-border-bottom: #cadbd0;
+    --intent-heading: #111c17;
+    --intent-heading-accent: #1d6b4c;
+    --intent-card-accent: #1d6b4c;
+    --intent-card-accent-center: #143628;
+    --intent-card-border: rgba(20, 54, 40, 0.1);
+    --intent-card-shadow: 0 12px 30px rgba(20, 54, 40, 0.08);
+    --intent-card-shadow-hover: 0 20px 38px rgba(20, 54, 40, 0.14);
+    --intent-meta: #3b4f45;
+    --intent-meta-strong: #111c17;
+    --intent-meta-hover: #1d6b4c;
+    --intent-meta-dot: #93a89d;
+    --intent-focus-ring: #143628;
+    --intent-focus-offset: #e1ece5;
+  }
+
+  .hb-intent-theme[data-theme="charcoal-bronze"] {
+    --intent-bg: #131a25;
+    --intent-sheen: linear-gradient(
+      180deg,
+      rgba(11, 16, 23, 0.52) 0%,
+      rgba(19, 26, 37, 0.2) 55%,
+      rgba(31, 41, 57, 0.42) 100%
+    );
+    --intent-border-bottom: rgba(255, 255, 255, 0.09);
+    --intent-heading: #ffffff;
+    --intent-heading-accent: #f6b978;
+    --intent-card-accent: #c84312;
+    --intent-card-accent-center: #0e5a8a;
+    --intent-card-border: rgba(255, 255, 255, 0.14);
+    --intent-card-shadow: 0 16px 36px rgba(0, 0, 0, 0.34);
+    --intent-card-shadow-hover: 0 22px 44px rgba(0, 0, 0, 0.48);
+    --intent-meta: rgba(226, 232, 240, 0.86);
+    --intent-meta-strong: #ffffff;
+    --intent-meta-hover: #f6b978;
+    --intent-meta-dot: rgba(255, 255, 255, 0.32);
+    --intent-focus-ring: #f6b978;
+    --intent-focus-offset: #131a25;
   }
 
   .hb-intent-theme[data-theme="store-photo"] {
@@ -1034,7 +1126,7 @@ dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
 }
 
 @supports (animation-timeline: scroll()) {
-  .hb-header {
+  .hb-header:not([data-overlay-hero="true"]) {
     animation: hbHeaderScrollShadow linear both;
     animation-timeline: scroll(root block);
     animation-range: 0px 48px;
@@ -1121,3 +1213,34 @@ dialog.hb-drawer:is([open]):where(:not([data-closing]))::backdrop {
     text-align: left;
   }
 }
+
+/* 온라인 견적서 A4 인쇄 전용 격리 스타일 */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+
+  body.hb-printing-quote * {
+    visibility: hidden;
+  }
+
+  body.hb-printing-quote .hb-quote-print-sheet,
+  body.hb-printing-quote .hb-quote-print-sheet * {
+    visibility: visible;
+  }
+
+  body.hb-printing-quote .hb-quote-print-sheet {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    background: #ffffff !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+  }
+}
+

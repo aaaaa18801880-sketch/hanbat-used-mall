@@ -162,8 +162,10 @@ export default function Home({
   const airconNoticeGuide = getCategoryNoticeGuide("에어컨/냉난방기");
   const [visitModalOpen, setVisitModalOpen] = useState(false);
   const [activeBannerIndex, setActiveBannerIndex] = useState(0);
-  const heroTheme =
-    HERO_BANNER_SLIDES[activeBannerIndex]?.theme ?? HERO_BANNER_SLIDES[0].theme;
+  const activeBannerSlide =
+    HERO_BANNER_SLIDES[activeBannerIndex] ?? HERO_BANNER_SLIDES[0];
+  const heroTheme = activeBannerSlide.theme;
+  const heroHeaderTone = activeBannerSlide.headerTone;
 
   /* 관리자 모달 상태 */
   const [loginOpen, setLoginOpen] = useState(false);
@@ -524,12 +526,12 @@ export default function Home({
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#141A23]">
 
-      {/* [S0] 상단 공통 헤더 */}
-      <SiteHeader>
+      {/* [S0] 상단 공통 헤더 (홈 최상단 슬라이더 연동 투명 오버레이 -> 스크롤 즉시 원색 고정) */}
+      <SiteHeader overlayHero heroTone={heroHeaderTone}>
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden md:inline-flex items-center rounded-lg border border-[#CFC7BA] bg-[#FAF9F6] px-3.5 h-10 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+            className="hidden md:inline-flex items-center rounded-xl border border-[#CFC7BA] bg-white/85 px-3.5 h-10 lg:h-11 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
           >
             관리자
           </Link>
