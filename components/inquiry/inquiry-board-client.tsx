@@ -580,7 +580,7 @@ export function InquiryBoardClient({
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden sm:inline-flex items-center rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3.5 h-10 sm:h-11 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23]"
+            className="hidden sm:inline-flex items-center rounded-lg border border-[#E2DDD3] bg-[#FAF9F6] px-3 h-9 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23] whitespace-nowrap"
           >
             통합 관리자 대시보드
           </Link>

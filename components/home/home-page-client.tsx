@@ -531,7 +531,7 @@ export default function Home({
         {isAdmin && (
           <Link
             href="/admin"
-            className="hidden md:inline-flex items-center rounded-xl border border-[#CFC7BA] bg-white/85 px-3.5 h-10 lg:h-11 text-hb-xs font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
+            className="hidden md:inline-flex items-center rounded-lg border border-[#CFC7BA] bg-white/85 px-3 h-9 text-hb-sm font-bold text-[#141A23] hover:border-[#141A23] hover:bg-white active:scale-[0.96] transition-[border-color,background-color,transform] duration-150 whitespace-nowrap"
           >
             관리자
           </Link>

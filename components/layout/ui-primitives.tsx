@@ -81,8 +81,8 @@ export function HanbatBrandLogo({
         aria-hidden="true"
         className={
           size === "compact"
-            ? "h-8 w-8 shrink-0"
-            : "h-9 w-9 sm:h-10 sm:w-10 lg:h-[42px] lg:w-[42px] shrink-0"
+            ? "h-7 w-7 shrink-0"
+            : "h-8 w-8 sm:h-9 sm:w-9 shrink-0"
         }
       >
         {/* 모듈러 가전 코어 H 심볼 */}
@@ -96,7 +96,7 @@ export function HanbatBrandLogo({
           className={`font-extrabold tracking-[-0.04em] leading-none transition-colors duration-200 ${
             size === "compact"
               ? "text-hb-lg"
-              : "text-hb-lg sm:text-hb-xl lg:text-hb-2xl"
+              : "text-hb-lg sm:text-hb-xl"
           } ${dark ? "text-white" : "text-[#141A23]"}`}
         >
           {STORE.name}

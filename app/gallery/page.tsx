@@ -738,7 +738,7 @@ function GalleryPageContent() {
       </section>
 
       {/* 모바일·태블릿 전용 스티키 카테고리 바 (데스크톱은 좌측 고정 사이드바로 통합) */}
-      <div className="lg:hidden sticky top-[74px] sm:top-[82px] z-30 border-b border-[#E6E5E0] bg-white/95 backdrop-blur-md">
+      <div className="lg:hidden sticky top-[64px] sm:top-[68px] z-30 border-b border-[#E6E5E0] bg-white/95 backdrop-blur-md">
         <div className="mx-auto w-full max-w-[1440px] px-5 sm:px-8 pt-1">
           <div className="relative">
             <div

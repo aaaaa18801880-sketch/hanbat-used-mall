@@ -150,7 +150,7 @@ export function SiteHeader({
         data-scrolled={isScrolled ? "true" : "false"}
         className={`hb-header w-full transition-[background-color,border-color,box-shadow] duration-200 ${headerPositionClass} ${headerSurfaceClass}`}
       >
-        <div className="w-full px-5 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 flex h-[74px] sm:h-[82px] lg:h-[90px] items-center justify-between gap-4 lg:gap-6">
+        <div className="w-full px-5 sm:px-8 lg:px-10 xl:px-14 2xl:px-16 flex h-[64px] sm:h-[68px] lg:h-[74px] items-center justify-between gap-4 lg:gap-6">
           {/* 1. 브랜드 로고 */}
           <div className="flex items-center shrink-0">
             <Link
@@ -168,7 +168,7 @@ export function SiteHeader({
 
           {/* 2. 핵심 내비게이션 메뉴 (플래그십 풀와이드 타이포그래피) */}
           <nav
-            className="hidden lg:flex items-center justify-center gap-1.5 xl:gap-4 2xl:gap-6"
+            className="hidden lg:flex items-center justify-center gap-1 xl:gap-3 2xl:gap-5"
             aria-label="주요 메뉴"
           >
             {HEADER_NAV.map((item) => {
@@ -192,7 +192,7 @@ export function SiteHeader({
                   key={item.label}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`hb-tab-indicator relative px-3.5 xl:px-4 py-2.5 text-hb-base xl:text-hb-lg font-bold tracking-[-0.024em] rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 ${
+                  className={`hb-tab-indicator relative px-3 xl:px-3.5 py-2 text-hb-base font-bold tracking-[-0.024em] rounded-lg transition-[color,background-color,transform] duration-150 active:scale-[0.97] whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 ${
                     isDarkHeroOverlay
                       ? "focus-visible:ring-white"
                       : "focus-visible:ring-hb-navy"
@@ -205,11 +205,11 @@ export function SiteHeader({
           </nav>
 
           {/* 3. 우측 주요 행동 (견적함 · 전화 상담 · 카카오톡 상담 · 간편 견적) */}
-          <div className="flex items-center justify-end gap-2 sm:gap-2.5 shrink-0">
+          <div className="flex items-center justify-end gap-1.5 sm:gap-2 shrink-0">
             {basketCount > 0 && (
               <Link
                 href="/quote"
-                className={`inline-flex items-center gap-1.5 rounded-xl border px-3.5 h-10 lg:h-11 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96] transition-[background-color,color,border-color,transform] duration-150 whitespace-nowrap ${
+                className={`inline-flex items-center gap-1.5 rounded-lg border px-3 h-9 text-hb-xs sm:text-hb-sm font-bold active:scale-[0.96] transition-[background-color,color,border-color,transform] duration-150 whitespace-nowrap ${
                   isDarkHeroOverlay
                     ? "border-white/25 bg-white/15 text-white backdrop-blur-sm hover:bg-white/20"
                     : isTransparentHero
@@ -221,7 +221,7 @@ export function SiteHeader({
                 <Icon d={ICON.bag} className="w-4 h-4" />
                 <span className="hidden xs:inline">견적함</span>
                 <span
-                  className={`inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1 text-hb-xs font-bold tabular-nums ${
+                  className={`inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 text-hb-xs font-bold tabular-nums leading-none ${
                     isDarkHeroOverlay
                       ? "bg-[#FF8A50] text-[#141A23]"
                       : "bg-hb-navy text-white"
@@ -237,18 +237,18 @@ export function SiteHeader({
               onClick={() =>
                 trackEvent("click_tel_consult", { location: "site_header" })
               }
-              className={`hidden md:inline-flex items-center gap-1.5 rounded-xl border px-4 h-10 lg:h-11 text-hb-sm font-bold active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap tabular-nums ${
+              className={`hidden md:inline-flex items-center gap-1.5 rounded-lg border px-3.5 h-9 text-hb-sm font-bold active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap tabular-nums ${
                 isDarkHeroOverlay
                   ? "border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:border-white/40"
                   : isTransparentHero
-                  ? "border-[#141A23]/15 bg-white/55 text-[#141A23] backdrop-blur-sm hover:bg-white/95 hover:border-[#141A23]/30"
+                  ? "border-[#141A23]/15 bg-white/60 text-[#141A23] backdrop-blur-sm hover:bg-white/95 hover:border-[#141A23]/30"
                   : "border-hb-border bg-hb-surface-muted text-hb-text-primary hover:border-hb-navy hover:bg-white"
               }`}
               aria-label={`전화 상담 ${STORE.tel}`}
             >
               <Icon
                 d={ICON.phone}
-                className={`w-4 h-4 ${
+                className={`w-4 h-4 shrink-0 ${
                   isDarkHeroOverlay ? "text-[#FF8A50]" : "text-hb-brand-text"
                 }`}
               />
@@ -269,10 +269,10 @@ export function SiteHeader({
               onClick={() =>
                 trackEvent("click_kakao_consult", { location: "site_header" })
               }
-              className="hidden sm:inline-flex hb-btn-kakao h-10 lg:h-11 px-4 text-hb-sm whitespace-nowrap"
+              className="hidden sm:inline-flex hb-btn-kakao !rounded-lg !gap-1.5 h-9 px-3.5 text-hb-sm whitespace-nowrap"
               aria-label="카톡 상담 (카카오톡 채널 열기)"
             >
-              <Icon d={ICON.chat} className="w-4 h-4" />
+              <Icon d={ICON.chat} className="w-4 h-4 shrink-0" />
               <span>카톡 상담</span>
             </a>
 
@@ -288,13 +288,13 @@ export function SiteHeader({
                   type: isPurchase ? "내 물건 팔기" : "구매 문의",
                 });
               }}
-              className={`hidden lg:inline-flex items-center justify-center gap-2 rounded-xl h-11 px-4 text-hb-sm font-bold tracking-[-0.01em] whitespace-nowrap cursor-pointer active:scale-[0.97] transition-[background-color,color,transform,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 ${
+              className={`hidden lg:inline-flex items-center justify-center gap-1.5 rounded-lg h-9 px-3.5 text-hb-sm font-bold tracking-[-0.01em] whitespace-nowrap cursor-pointer active:scale-[0.97] transition-[background-color,color,transform,box-shadow] duration-150 focus-visible:outline-none focus-visible:ring-2 ${
                 isDarkHeroOverlay
                   ? "bg-white text-[#141A23] hover:bg-[#F3EFE9] shadow-sm focus-visible:ring-white"
-                  : "hb-btn-accent focus-visible:ring-hb-navy"
+                  : "hb-btn-accent !rounded-lg !gap-1.5 focus-visible:ring-hb-navy"
               }`}
             >
-              <Icon d={ICON.pen} className="w-4 h-4" />
+              <Icon d={ICON.pen} className="w-4 h-4 shrink-0" />
               <span>간편 견적</span>
             </button>
 
@@ -308,7 +308,7 @@ export function SiteHeader({
                 })
               }
               aria-label="대표전화 상담 연결"
-              className={`inline-flex md:hidden items-center gap-1 h-10 px-3 rounded-xl border text-hb-xs font-bold active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap ${
+              className={`inline-flex md:hidden items-center gap-1 h-9 px-3 rounded-lg border text-hb-xs font-bold active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap ${
                 isDarkHeroOverlay
                   ? "border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20"
                   : isTransparentHero
@@ -328,7 +328,7 @@ export function SiteHeader({
             <button
               type="button"
               onClick={() => setMenuOpen(true)}
-              className={`grid h-10 w-10 place-items-center rounded-xl border lg:hidden focus-visible:outline-none focus-visible:ring-2 active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ${
+              className={`grid h-9 w-9 place-items-center rounded-lg border lg:hidden focus-visible:outline-none focus-visible:ring-2 active:scale-[0.96] transition-[background-color,border-color,color,transform] duration-150 ${
                 isDarkHeroOverlay
                   ? "border-white/25 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 focus-visible:ring-white"
                   : isTransparentHero
@@ -360,7 +360,7 @@ export function SiteHeader({
         }}
         className="hb-drawer lg:hidden h-dvh w-full max-w-full bg-white p-0 border-0 overscroll-contain flex-col open:flex"
       >
-        <div className="flex h-[74px] items-center justify-between border-b border-[#E2DDD3] px-5 sm:px-8 bg-white">
+        <div className="flex h-[64px] items-center justify-between border-b border-[#E2DDD3] px-5 sm:px-8 bg-white">
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
