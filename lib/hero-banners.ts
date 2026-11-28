@@ -42,7 +42,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "aircon-special",
     eyebrowBrands: ["SAMSUNG", "LG", "CARRIER", "WINIA"],
     headlineTop: "고압세척 · 작동 점검 완료",
-    headlineBottom: "중고 에어컨 · 냉난방기 실매물",
+    headlineBottom: "중고 에어컨 · 냉난방기",
     subtitle: `벽걸이·스탠드·천장형까지 ${AIRCON_WARRANTY.compactLabel}으로 안심 설치`,
     ctaLabel: "중고 에어컨 실매물 보기",
     action: {
@@ -76,7 +76,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "commercial-buyback",
     eyebrowBrands: ["대전 · 세종 · 충청권 직영 방문", "당일 현금 정산"],
     headlineTop: "식당·카페 창업부터 폐업까지",
-    headlineBottom: "중고 업소용 설비 · 방문 매입",
+    headlineBottom: "업소용 설비 · 방문 매입",
     subtitle:
       "중고 45박스 냉장고·쇼케이스·제빙기 실매물 판매 및 사진 1장 즉시 매입 견적",
     ctaLabel: "방문 매입 · 창업 견적 신청",
@@ -94,7 +94,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "cafe-showcase",
     eyebrowBrands: ["카페 · 디저트 · 베이커리", "업소용 실매물"],
     headlineTop: "카페 · 매장 오픈 필수 설비",
-    headlineBottom: "제빙기 · 음료 쇼케이스 모음",
+    headlineBottom: "제빙기 · 음료 쇼케이스",
     subtitle:
       "유리 쇼케이스·테이블 냉장고·제빙기 작동 점검 후 대전·충청 직영 배송",
     ctaLabel: "업소용 실매물 보기",
@@ -112,7 +112,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     id: "self-quote-bundle",
     eyebrowBrands: ["가정용 · 업소용 일괄 견적", "PDF 견적서 즉시 저장"],
     headlineTop: "원하는 실매물만 직접 담아",
-    headlineBottom: "온라인 셀프견적 · 즉시 상담",
+    headlineBottom: "온라인 셀프견적 · 상담",
     subtitle:
       "필요한 가전과 설비를 선택해 견적서를 PDF로 저장하고 카톡·문자로 바로 상담하세요",
     ctaLabel: "셀프견적서 작성하기",

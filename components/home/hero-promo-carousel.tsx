@@ -244,13 +244,13 @@ export function HeroPromoCarousel({
 
           {/* 중앙 컨테이너 정렬 콘텐츠 레이어 (상단 오버레이 헤더 여백 확보) */}
           <div className="hb-container relative z-10 pt-24 pb-24 sm:pt-28 sm:pb-28 lg:pt-32 lg:pb-28">
-            <div className="max-w-full sm:max-w-[54%] lg:max-w-[46%]">
+            <div className="max-w-full sm:max-w-[58%] lg:max-w-[56%]">
               {/* 메인 헤드라인만 굵고 크게 강조 (접근성·SEO H1 유지) */}
               <h1 id="hero-title" className="hb-banner-h1">
-                <span className="hb-banner-h1-top block">
+                <span className="hb-banner-h1-top block md:whitespace-nowrap">
                   {activeSlide.headlineTop}
                 </span>
-                <span className="hb-banner-h1-bottom block mt-2.5 sm:mt-3">
+                <span className="hb-banner-h1-bottom block mt-2.5 sm:mt-3 md:whitespace-nowrap">
                   {activeSlide.headlineBottom}
                 </span>
               </h1>
