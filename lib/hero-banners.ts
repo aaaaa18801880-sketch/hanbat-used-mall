@@ -136,7 +136,7 @@ export const HERO_BANNER_SLIDES: readonly HeroBannerSlide[] = [
     action: {
       kind: "visitModal",
     },
-    imageSrc: "/images/store-exterior-flagship.jpg",
+    imageSrc: "/images/store-exterior-front.jpg",
     imageAlt: `${STORE.roadAddress}(${STORE.jibunAddress}) ${STORE.name} 1·2층 직영 대형 전시장 및 전용 주차장 외관 전경`,
     theme: "store-photo",
     headerTone: "dark",

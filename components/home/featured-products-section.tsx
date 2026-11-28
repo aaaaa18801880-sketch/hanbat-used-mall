@@ -289,18 +289,17 @@ export function FeaturedProductsSection({
               <div className="min-w-0">
                 {basketItems.length > 0 ? (
                   <p className="text-hb-xs sm:text-hb-sm font-bold text-[#141A23] truncate">
-                    관심 매물{" "}
+                    셀프견적함에{" "}
                     <span className="font-mono text-[#C84312] tabular-nums">
-                      {basketItems.length}대
+                      {basketItems.length}종
                     </span>
-                    가 비교·견적함에 담겼습니다
+                    이 담겼습니다
                   </p>
                 ) : (
                   <p className="text-hb-xs sm:text-hb-sm text-[#475569] break-keep">
-                    매물 사진의{" "}
-                    <strong className="font-semibold text-[#141A23]">[비교] 버튼</strong>을 누르면 최대{" "}
-                    <span className="font-mono font-semibold tabular-nums text-[#C84312]">3대</span>{" "}
-                    스펙·가로폭을 나란히 비교하고 한 번에 견적을 받을 수 있습니다.
+                    상품 하단의{" "}
+                    <strong className="font-semibold text-[#141A23]">[견적 담기]</strong>를 눌러 원하는 매물을 담은 뒤{" "}
+                    <strong className="font-semibold text-[#141A23]">셀프견적</strong>으로 이동해 PDF 저장·카톡 상담까지 한 번에 진행할 수 있습니다.
                   </p>
                 )}
               </div>
@@ -318,31 +317,21 @@ export function FeaturedProductsSection({
                       });
                       setCompareOpen(true);
                     }}
-                    className="hb-btn-primary min-h-[36px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                    className="hb-btn-outline min-h-[36px] h-9 px-3 text-hb-xs font-bold whitespace-nowrap cursor-pointer bg-white"
                   >
-                    <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#FF8A50]" />
+                    <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#C84312]" />
                     <span>
-                      나란히 스펙 비교 ({Math.min(basketItems.length, 3)})
+                      스펙 비교 ({Math.min(basketItems.length, 3)})
                     </span>
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      trackEvent("begin_buy_inquiry", {
-                        count: basketItems.length,
-                        use_bundle: true,
-                        location: "home_featured_bar",
-                      });
-                      triggerQuickInquiry({
-                        type: "구매 문의",
-                        useBundle: true,
-                      });
-                    }}
-                    className="hb-btn-accent min-h-[36px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap cursor-pointer"
+                  <Link
+                    href="/quote"
+                    className="hb-btn-accent min-h-[36px] h-9 px-3.5 text-hb-xs font-bold whitespace-nowrap"
                   >
-                    <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                    <span>묶음 견적 문의</span>
-                  </button>
+                    <Icon d={ICON.fileText} className="w-3.5 h-3.5" />
+                    <span>셀프견적으로 이동</span>
+                    <Icon d={ICON.right} className="w-3.5 h-3.5" />
+                  </Link>
                 </>
               ) : (
                 <button

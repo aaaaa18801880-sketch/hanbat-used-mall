@@ -16,7 +16,6 @@ import {
   clearQuoteBasket,
   formatProductPrice,
   isProductSold,
-  triggerQuickInquiry,
 } from "../../lib/site";
 import {
   SafeImg,
@@ -60,108 +59,149 @@ export function QuoteBasketFloatingBar() {
   return (
     <>
       <aside
-        aria-label="관심 매물 견적함"
-        className={`fixed bottom-[calc(74px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 sm:left-6 z-40 hb-glass-dark text-white shadow-floating transition-[width,background-color,box-shadow,transform] duration-200 ${
+        aria-label="셀프견적함 빠른 이동 및 취소"
+        className={`fixed bottom-[calc(74px+env(safe-area-inset-bottom))] lg:bottom-6 left-2.5 right-2.5 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 z-40 hb-glass-dark text-white shadow-floating transition-[max-width,background-color,box-shadow] duration-200 ${
           expanded
-            ? "w-[calc(100vw-20px)] max-w-[400px] rounded-2xl"
-            : "w-auto max-w-[94vw] rounded-full"
+            ? "sm:w-[calc(100vw-32px)] sm:max-w-[560px] rounded-2xl"
+            : "sm:w-auto sm:max-w-[calc(100vw-48px)] rounded-2xl sm:rounded-full"
         }`}
       >
         {expanded && (
-          <div className="border-b border-white/15 p-3.5 max-h-[260px] overflow-y-auto space-y-2 bg-[#141A23] rounded-t-2xl">
-            <div className="flex items-center justify-between text-hb-xs text-white/75 pb-1">
-              <span className="font-semibold">
-                담아둔 관심 매물 ({items.length}종 · 총 {totalUnits}대)
+          <div className="border-b border-white/15 p-4 max-h-[340px] overflow-y-auto space-y-2.5 bg-[#141A23] rounded-t-2xl">
+            <div className="flex items-center justify-between gap-2 pb-1">
+              <span className="text-hb-xs sm:text-hb-sm font-bold text-white">
+                셀프견적에 담은 제품{" "}
+                <span className="font-mono text-[#FF8A50] tabular-nums">
+                  {items.length}종 · {totalUnits}대
+                </span>
               </span>
-              <button
-                type="button"
-                onClick={() => {
-                  clearQuoteBasket();
-                  toast.success("견적함을 비웠습니다.");
-                }}
-                className="text-hb-xs font-semibold text-[#FF8A50] hover:underline"
-              >
-                전체 비우기
-              </button>
-            </div>
-            {items.map((item) => {
-              const qty = item.quantity || 1;
-              const sold = isProductSold(item.status);
-              return (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between gap-2 rounded-lg bg-white/5 px-2.5 py-2 text-hb-xs border border-white/10"
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    clearQuoteBasket();
+                    setExpanded(false);
+                    toast("담은 제품을 모두 취소했습니다.");
+                  }}
+                  className="text-hb-xs font-semibold text-white/75 hover:text-[#FF8A50] underline underline-offset-4 cursor-pointer"
                 >
-                  <div className="h-9 w-9 shrink-0 overflow-hidden rounded-md border border-white/15 bg-white">
-                    <SafeImg
-                      src={item.imageUrl}
-                      alt={item.title}
-                      className={`h-full w-full object-cover ${
-                        sold ? "grayscale opacity-65" : ""
-                      }`}
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/${item.id}`}
-                      className="block truncate font-semibold text-white hover:text-[#FF8A50]"
-                    >
-                      {sold && (
-                        <span className="mr-1 rounded bg-white/20 px-1 py-0.5 text-hb-xs">
-                          판매완료
-                        </span>
-                      )}
-                      {item.title}
-                    </Link>
-                    <span className="block text-hb-xs text-white/70 tabular-nums">
-                      {sold
-                        ? "유사매물 재고문의"
-                        : formatProductPrice(item.price, item.category)}
-                    </span>
-                  </div>
+                  전체 취소
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(false)}
+                  aria-label="견적함 목록 닫기"
+                  className="grid h-7 w-7 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white cursor-pointer"
+                >
+                  <Icon d={ICON.close} className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
 
-                  {/* 수량 조절 버튼 */}
-                  <div className="flex items-center rounded border border-white/20 bg-white/10 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateQuoteBasketItemQuantity(item.id, qty - 1)
-                      }
-                      aria-label={`${item.title} 수량 감소`}
-                      className="px-2 py-0.5 text-hb-xs font-bold text-white hover:bg-white/20"
-                    >
-                      -
-                    </button>
-                    <span className="px-1.5 text-hb-xs font-bold tabular-nums">
-                      {qty}대
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        updateQuoteBasketItemQuantity(item.id, qty + 1)
-                      }
-                      aria-label={`${item.title} 수량 증가`}
-                      className="px-2 py-0.5 text-hb-xs font-bold text-white hover:bg-white/20"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => removeQuoteBasketItem(item.id)}
-                    aria-label={`${item.title} 견적함에서 제거`}
-                    className="relative grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-white/80 hover:bg-red-600 hover:text-white before:absolute before:-inset-2 before:content-['']"
+            <div className="space-y-2">
+              {items.map((item) => {
+                const qty = item.quantity || 1;
+                const sold = isProductSold(item.status);
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between gap-2.5 rounded-xl bg-white/5 px-3 py-2 text-hb-xs border border-white/10"
                   >
-                    <Icon d={ICON.close} className="w-3 h-3" />
-                  </button>
-                </div>
-              );
-            })}
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border border-white/15 bg-white">
+                      <SafeImg
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className={`h-full w-full object-cover ${
+                          sold ? "grayscale opacity-65" : ""
+                        }`}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/${item.id}`}
+                        className="block truncate font-semibold text-white hover:text-[#FF8A50]"
+                      >
+                        {item.title}
+                      </Link>
+                      <span className="block text-hb-xs text-white/70 tabular-nums">
+                        {sold
+                          ? "유사매물 재고문의"
+                          : formatProductPrice(item.price, item.category)}
+                      </span>
+                    </div>
 
-            {/* 묶음 견적 즉시 상담 액션 바 */}
-            <div className="pt-2 border-t border-white/10 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+                    {/* 수량 조절 */}
+                    <div className="flex items-center rounded-md border border-white/20 bg-white/10 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateQuoteBasketItemQuantity(item.id, qty - 1)
+                        }
+                        aria-label={`${item.title} 수량 감소`}
+                        className="px-2 py-1 text-hb-xs font-bold text-white hover:bg-white/20 cursor-pointer"
+                      >
+                        -
+                      </button>
+                      <span className="px-1.5 text-hb-xs font-bold tabular-nums">
+                        {qty}대
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          updateQuoteBasketItemQuantity(item.id, qty + 1)
+                        }
+                        aria-label={`${item.title} 수량 증가`}
+                        className="px-2 py-1 text-hb-xs font-bold text-white hover:bg-white/20 cursor-pointer"
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    {/* 직관적인 개별 취소 버튼 */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeQuoteBasketItem(item.id);
+                        toast("견적함에서 취소했습니다.");
+                      }}
+                      aria-label={`${item.title} 견적 담기 취소`}
+                      className="inline-flex h-8 shrink-0 items-center gap-1 rounded-md border border-white/15 bg-white/10 px-2.5 text-hb-xs font-semibold text-white/90 hover:border-red-400 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                    >
+                      <Icon d={ICON.close} className="w-3 h-3" />
+                      <span>취소</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* 확장 서랍 하단: 셀프견적 최종 이동 + 보조 상담 */}
+            <div className="pt-2.5 border-t border-white/10 space-y-2">
+              <Link
+                href="/quote"
+                onClick={() => setExpanded(false)}
+                className="flex w-full h-11 items-center justify-center gap-2 rounded-xl bg-[#C84312] px-4 text-hb-sm font-bold text-white hover:bg-[#E8521A] transition-colors"
+              >
+                <Icon d={ICON.fileText} className="w-4 h-4" />
+                <span>셀프견적으로 이동하여 견적서 작성 ({items.length}종)</span>
+                <Icon d={ICON.right} className="w-4 h-4" />
+              </Link>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    trackEvent("open_quote_document", {
+                      count: items.length,
+                      location: "quote_basket_drawer",
+                    });
+                    setExpanded(false);
+                    setQuoteDocOpen(true);
+                  }}
+                  className="flex items-center justify-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-2 text-hb-xs font-semibold text-white hover:bg-white/20 transition-colors cursor-pointer"
+                >
+                  <span>PDF 바로보기</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => {
@@ -172,44 +212,10 @@ export function QuoteBasketFloatingBar() {
                     setExpanded(false);
                     setCompareOpen(true);
                   }}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-white/25 transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-2 text-hb-xs font-semibold text-white hover:bg-white/20 transition-colors cursor-pointer"
                 >
-                  <Icon
-                    d={ICON.columns}
-                    className="w-3.5 h-3.5 text-[#FF8A50]"
-                  />
-                  <span>나란히 비교({Math.min(3, items.length)})</span>
+                  <span>스펙 비교({Math.min(3, items.length)})</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    trackEvent("begin_buy_inquiry", {
-                      use_bundle: true,
-                      count: items.length,
-                      location: "quote_basket_drawer",
-                    });
-                    setExpanded(false);
-                    triggerQuickInquiry({
-                      type: "구매 문의",
-                      useBundle: true,
-                    });
-                  }}
-                  className="flex items-center justify-center gap-1.5 rounded-lg bg-[#C84312] px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-[#E8521A] transition-colors cursor-pointer"
-                >
-                  <span>한 번에 문의</span>
-                </button>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <a
-                  href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
-                  onClick={() => {
-                    trackEvent("click_quote_basket_sms", { count: items.length });
-                  }}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-white/20 bg-white/10 px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-white/20 transition-colors"
-                >
-                  <Icon d={ICON.phone} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                  <span>문자 묶음 전송</span>
-                </a>
                 <button
                   type="button"
                   onClick={() =>
@@ -220,164 +226,143 @@ export function QuoteBasketFloatingBar() {
                       4000
                     )
                   }
-                  className="flex items-center justify-center gap-1.5 rounded-lg bg-[#FEE500] px-2.5 py-2 text-hb-xs font-bold text-[#191600] hover:bg-[#F2D900] transition-colors cursor-pointer"
+                  className="flex items-center justify-center gap-1 rounded-lg bg-[#FEE500] px-2.5 py-2 text-hb-xs font-bold text-[#191600] hover:bg-[#F2D900] transition-colors cursor-pointer"
                 >
                   <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-                  <span>카톡 묶음 상담</span>
+                  <span>카톡 상담</span>
                 </button>
+                <a
+                  href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
+                  onClick={() => {
+                    trackEvent("click_quote_basket_sms", { count: items.length });
+                  }}
+                  className="flex items-center justify-center gap-1 rounded-lg border border-white/20 bg-white/10 px-2.5 py-2 text-hb-xs font-semibold text-white hover:bg-white/20 transition-colors"
+                >
+                  <span>문자 전송</span>
+                </a>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  trackEvent("open_quote_document", {
-                    count: items.length,
-                    location: "quote_basket_drawer",
-                  });
-                  setExpanded(false);
-                  setQuoteDocOpen(true);
-                }}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/25 bg-white/15 px-2.5 py-2 text-hb-xs font-bold text-white hover:bg-white/25 transition-colors cursor-pointer"
-              >
-                <Icon d={ICON.fileText} className="w-3.5 h-3.5 text-[#FF8A50]" />
-                <span>온라인 견적서 보기 · PDF 저장</span>
-              </button>
-              <Link
-                href="/quote"
-                onClick={() => setExpanded(false)}
-                className="flex w-full items-center justify-center gap-1 rounded-lg border border-white/15 bg-white/5 px-2.5 py-1.5 text-hb-xs font-semibold text-white/85 hover:bg-white/15 hover:text-white transition-colors"
-              >
-                <span>셀프견적 페이지에서 품목 추가·편집</span>
-                <Icon d={ICON.right} className="w-3 h-3" />
-              </Link>
             </div>
           </div>
         )}
 
-        <div className="flex items-center justify-between gap-2 px-3 py-1.5">
-          {/* 모바일(<sm): 1개 컴팩트 트리거만 표시해 하단 2중 바 혼잡 방지 */}
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            aria-expanded={expanded}
-            className="flex sm:hidden min-h-[40px] w-full items-center justify-between gap-2 text-left text-hb-xs font-bold text-white hover:text-[#FF8A50] cursor-pointer"
-          >
-            <span className="flex items-center gap-2 min-w-0">
-              <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#C84312] px-1.5 text-hb-xs font-bold text-white tabular-nums">
+        {/* 하단 상시 도크 바 */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-2">
+          {/* 모바일(<sm): 좌측 목록/취소 토글 + 우측 셀프견적 이동 CTA */}
+          <div className="flex sm:hidden w-full items-center justify-between gap-2">
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+              className="flex min-h-[38px] min-w-0 flex-1 items-center gap-2 text-left text-hb-xs font-bold text-white cursor-pointer"
+            >
+              <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#C84312] px-1.5 font-mono text-hb-xs font-extrabold text-white tabular-nums">
                 {items.length}
               </span>
               <span className="truncate">
-                견적함 {totalUnits}대 · {expanded ? "접기" : "비교/문의 열기"}
+                견적함 · {expanded ? "접기" : "목록·취소"}
               </span>
-            </span>
-            <Icon
-              d={expanded ? ICON.down : ICON.up}
-              className="w-4 h-4 text-[#FF8A50] shrink-0"
-            />
-          </button>
+              <Icon
+                d={expanded ? ICON.down : ICON.up}
+                className="w-3.5 h-3.5 text-white/75 shrink-0"
+              />
+            </button>
+            <Link
+              href="/quote"
+              onClick={() => setExpanded(false)}
+              className="inline-flex h-9 shrink-0 items-center gap-1 rounded-xl bg-[#C84312] px-3.5 text-hb-xs font-bold text-white hover:bg-[#E8521A] whitespace-nowrap"
+            >
+              <span>셀프견적 이동</span>
+              <Icon d={ICON.right} className="w-3.5 h-3.5" />
+            </Link>
+          </div>
 
-          {/* 태블릿/데스크톱(sm+): 기존 인라인 요약 + 빠른 비교/카톡/문의 */}
-          <button
-            type="button"
-            onClick={() => setExpanded((v) => !v)}
-            className="hidden sm:flex min-w-0 items-center gap-2 text-left text-hb-sm font-semibold text-white hover:text-[#FF8A50] cursor-pointer"
-          >
+          {/* 태블릿/데스크톱(sm+): 담은 수량 + 인라인 즉시 취소 칩 + 셀프견적 이동 메인 CTA */}
+          <div className="hidden sm:flex items-center gap-2.5 min-w-0">
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+              className="inline-flex items-center gap-2 text-left text-hb-sm font-bold text-white hover:text-[#FF8A50] transition-colors shrink-0 cursor-pointer"
+            >
+              <span className="inline-flex h-6 min-w-[24px] items-center justify-center rounded-full bg-[#C84312] px-1.5 font-mono text-hb-xs font-extrabold text-white tabular-nums">
+                {items.length}
+              </span>
+              <span className="whitespace-nowrap">
+                셀프견적함{" "}
+                <span className="text-hb-xs font-medium text-white/75">
+                  ({totalUnits}대)
+                </span>
+              </span>
+              <Icon
+                d={expanded ? ICON.down : ICON.up}
+                className="w-3.5 h-3.5 text-white/75"
+              />
+            </button>
+
+            {/* 데스크톱(lg+): 서랍을 열지 않고도 1클릭 즉시 취소가 가능한 인라인 상품 칩 */}
             {!expanded && (
-              <div className="flex items-center -space-x-1.5 shrink-0" aria-hidden="true">
-                {items.slice(0, 3).map((item) => (
+              <div className="hidden lg:flex items-center gap-1.5 min-w-0">
+                {items.slice(0, 2).map((item) => (
                   <span
                     key={item.id}
-                    className="h-6 w-6 overflow-hidden rounded-md border border-[#141A23] bg-white ring-1 ring-white/25"
+                    className="inline-flex max-w-[170px] items-center gap-1 rounded-full border border-white/15 bg-white/10 pl-2.5 pr-1.5 py-1 text-hb-xs text-white/90"
                   >
-                    <SafeImg
-                      src={item.imageUrl}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
+                    <span className="truncate">{item.title}</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        removeQuoteBasketItem(item.id);
+                        toast("견적함에서 취소했습니다.");
+                      }}
+                      aria-label={`${item.title} 즉시 취소`}
+                      title="이 제품 담기 취소"
+                      className="grid h-4 w-4 shrink-0 place-items-center rounded-full bg-white/15 text-white hover:bg-red-500 transition-colors cursor-pointer"
+                    >
+                      <Icon d={ICON.close} className="w-2.5 h-2.5" />
+                    </button>
                   </span>
                 ))}
+                {items.length > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => setExpanded(true)}
+                    className="rounded-full bg-white/10 px-2 py-1 font-mono text-hb-xs font-bold text-white/80 hover:bg-white/20 cursor-pointer whitespace-nowrap"
+                  >
+                    +{items.length - 2}건
+                  </button>
+                )}
               </div>
             )}
-            <span className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#C84312] px-1.5 text-hb-xs font-bold text-white tabular-nums">
-              {items.length}
-            </span>
-            <span className="truncate">
-              견적함 {totalUnits}대{" "}
-              <span className="text-hb-xs font-normal text-white/75">
-                {expanded ? "접기" : "목록 · 수량"}
-              </span>
-            </span>
-          </button>
+          </div>
 
-          <div className="hidden sm:flex items-center gap-1.5 shrink-0">
+          <div className="hidden sm:flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={() => {
-                trackEvent("open_quote_document", {
-                  count: items.length,
-                  location: "quote_basket_floating_bar",
-                });
+                clearQuoteBasket();
                 setExpanded(false);
-                setQuoteDocOpen(true);
+                toast("담은 제품을 모두 취소했습니다.");
               }}
-              className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/15 px-3 h-8 text-hb-xs font-bold text-white hover:bg-white/25 whitespace-nowrap cursor-pointer"
+              className="inline-flex h-8 items-center rounded-full border border-white/20 px-3 text-hb-xs font-semibold text-white/80 hover:border-white/40 hover:bg-white/10 hover:text-white transition-colors whitespace-nowrap cursor-pointer"
             >
-              <Icon d={ICON.fileText} className="w-3.5 h-3.5 text-[#FF8A50]" />
-              <span>견적서·PDF</span>
+              전체 취소
             </button>
             <button
               type="button"
-              onClick={() => {
-                trackEvent("compare_products", { count: items.length });
-                setCompareOpen(true);
-              }}
-              className="inline-flex items-center gap-1 rounded-full border border-white/25 bg-white/10 px-3 h-8 text-hb-xs font-bold text-white hover:bg-white/20 whitespace-nowrap cursor-pointer"
+              onClick={() => setExpanded((v) => !v)}
+              className="inline-flex h-8 items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 text-hb-xs font-semibold text-white hover:bg-white/20 transition-colors whitespace-nowrap cursor-pointer"
             >
-              <Icon d={ICON.columns} className="w-3.5 h-3.5 text-[#FF8A50]" />
-              <span>비교({Math.min(3, items.length)})</span>
+              <span>{expanded ? "목록 접기" : "목록 · 비교"}</span>
             </button>
-            <a
-              href={smsHref(STORE.mobile, buildQuoteBasketSmsBody(items))}
-              onClick={() => {
-                trackEvent("click_quote_basket_sms", { count: items.length });
-              }}
-              aria-label="문자전송 - 문자로 묶음 견적 문의"
-              className="hidden md:inline-flex items-center justify-center rounded-full border border-white/25 bg-white/10 px-2.5 h-8 text-hb-xs font-semibold text-white hover:bg-white/20 whitespace-nowrap"
+            <Link
+              href="/quote"
+              onClick={() => setExpanded(false)}
+              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[#C84312] px-4 text-hb-xs sm:text-hb-sm font-bold text-white hover:bg-[#E8521A] transition-colors whitespace-nowrap shadow-sm"
             >
-              <span>문자전송</span>
-            </a>
-            <button
-              type="button"
-              onClick={() =>
-                void copyQuoteAndOpenKakao(
-                  items,
-                  "click_quote_basket_kakao",
-                  "견적함 목록이 복사되었습니다! 카톡 대화창에 붙여넣기 해주세요.",
-                  3500
-                )
-              }
-              aria-label="카카오톡으로 묶음 견적 문의"
-              className="grid h-8 w-8 place-items-center rounded-full bg-[#FEE500] text-[#191600] hover:bg-[#F2D900] shrink-0 cursor-pointer"
-            >
-              <Icon d={ICON.chat} className="w-3.5 h-3.5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                trackEvent("begin_buy_inquiry", {
-                  use_bundle: true,
-                  count: items.length,
-                  location: "quote_basket_floating_bar",
-                });
-                setExpanded(false);
-                triggerQuickInquiry({
-                  type: "구매 문의",
-                  useBundle: true,
-                });
-              }}
-              className="hb-btn-accent h-8 px-3 text-hb-xs rounded-full shrink-0 whitespace-nowrap cursor-pointer"
-            >
-              <span>한 번에 문의</span>
-            </button>
+              <Icon d={ICON.fileText} className="w-3.5 h-3.5" />
+              <span>셀프견적으로 이동</span>
+              <Icon d={ICON.right} className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
       </aside>

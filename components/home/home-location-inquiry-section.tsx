@@ -130,13 +130,13 @@ export function HomeLocationInquirySection({
               <div className="flex flex-col flex-1 bg-white">
                 <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#141A23]">
                   <Image
-                    src="/images/store-exterior-flagship.jpg"
+                    src="/images/store-exterior-front.jpg"
                     alt={`${STORE.name} ${STORE.roadAddress} 1·2층 직영 전시장 및 전용 주차장 외관 전경`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 760px"
                     quality={85}
                     referrerPolicy="no-referrer"
-                    className="object-cover"
+                    className="object-cover object-center"
                   />
                   <div
                     className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#141A23]/80 via-[#141A23]/30 to-transparent"
